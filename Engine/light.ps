@@ -1,0 +1,56 @@
+cbuffer LightBuffer{
+	float3 alc;
+	float ali;
+	float3 dlc;
+	float dli;
+	float3 slc;
+	float sli;
+    float4 lightDirection;
+	float4 ePos;
+};
+
+
+struct PixelInputType{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float4 worldPos : WNORM;
+};
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+
+float4 LightPixelShader(PixelInputType input) : SV_TARGET{
+
+	float4 color = shaderTexture.Sample(SampleType, input.tex);
+
+	input.normal = normalize(input.normal);
+
+	//ambient light
+	color = saturate( color + float4(alc, 1.0f) * ali );
+
+	// Invert the light direction for calculations.
+	float4 inverseLightDir = -lightDirection;
+
+    // Calculate the amount of light on this pixel.
+    float dFactor = saturate(dot(input.normal, inverseLightDir));
+
+    // Determine the final amount of diffuse color based on the diffuse color combined with the diffusion factor
+    color = saturate( color + float4(dlc, 1.0f) * dli * dFactor);
+
+	// Specular light
+	float4 pToEye = normalize(ePos - input.worldPos);
+    float4 reflectionVector = normalize( reflect( inverseLightDir, float4(input.normal, 1.0f) ) );
+    float sFactor = dot(pToEye, reflectionVector);
+
+	int SpecularPower = 64;
+
+	if (sFactor > 0) {
+		sFactor = pow(sFactor, SpecularPower);
+		float4 SpecularColor = float4(slc, 1.0f) * sli * sFactor;
+		color = saturate( color + SpecularColor );
+    }
+
+    return color;
+}
