@@ -37,6 +37,8 @@ bool Systems::Initialize(){
 		return false;
 	}
 
+	//_input.mouse->SetWindow(m_hwnd);
+	//_input.mouse->SetMode(DirectX::Mouse::Mode::MODE_RELATIVE);
 	//@TODO init audio
 	
 	return true;
@@ -111,6 +113,11 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight){
 		posY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
 	}
 
+	//@TODO MIGHT NOT NEED THIS/////
+	midWindow.x = windowWidth / 2;
+	midWindow.y = windowHeight / 2;
+	////////////////////////////////
+
 	// Create the window with the screen settings and get the handle to it.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
@@ -122,7 +129,7 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight){
 	SetFocus(m_hwnd);
 
 	// Hide the mouse cursor.
-	ShowCursor(true);
+	ShowCursor(false);
 
 	return;
 }
@@ -140,7 +147,7 @@ void Systems::Run()
 	// Loop until there is a quit message from the window or the user.
 	while(!done){
 		// Handle the windows messages.
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
@@ -162,7 +169,11 @@ bool Systems::Frame(){
 	if(_input.IsKeyDown(VK_ESCAPE))
 		return false;
 
-	return  _renderer->Frame();// Do the frame processing for the graphics object.
+	bool res = _renderer->Frame();// Do the frame processing for the graphics object.
+
+	//reset input so rotations don't keep happening
+	_input.SetXY(0, 0);
+	return res;
 }
 
 
@@ -217,22 +228,18 @@ void Systems::ShutdownWindows()
 }
 
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
-{
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam){
 	switch(umessage){
-		// Check if the window is being destroyed.
 		case WM_DESTROY:{
 			PostQuitMessage(0);
 			return 0;
 		}
 
-		// Check if the window is being closed.
 		case WM_CLOSE:{
 			PostQuitMessage(0);		
 			return 0;
 		}
 
-		// All other messages pass to the message handler in the system class.
 		default:{
 			return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
 		}
@@ -241,52 +248,57 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 
 LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 
+
 	switch (umsg) {
 
-		case WM_KEYDOWN:{
+		case WM_KEYDOWN:
+		{
 			_input.KeyDown((unsigned int)wparam);
-			return 0;
+			break;
 		}
-		case WM_KEYUP:{
+		case WM_KEYUP:
+		{
 			_input.KeyUp((unsigned int)wparam);
-			return 0;
+			break;
 		}
-
+		/*
 		case WM_MOUSEMOVE:{
 			_input.SetXY(MAKEPOINTS(lparam).x, MAKEPOINTS(lparam).y);
-			return 0;
-		}
-		/* DO NOT DELETE THIS CODE - IT WORKS AND WILL PROBABLY BE USEFUL
-		case WM_INPUT: {
-			
-			UINT dwSize;
-			static LPBYTE lpb = nullptr;
-
-			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-			
-			if (!lpb) 
-				lpb = new BYTE[dwSize];
-
-			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)); 
-
-			RAWINPUT* raw = (RAWINPUT*)lpb;
-
-			if (raw->header.dwType == RIM_TYPEKEYBOARD) {
-				if (raw->data.keyboard.Message == WM_KEYDOWN || raw->data.keyboard.Message == WM_SYSKEYDOWN) {
-					std::wstring debugInfo = std::to_wstring(raw->data.keyboard.VKey);
-					OutputDebugString(debugInfo.c_str());
-				}
-			}
-			else if (raw->header.dwType == RIM_TYPEMOUSE) {
-
-			}
-
-			return 0;
+			//_input.mouse->ProcessMessage(umsg, wparam, lparam);
+			break;
 		}
 		*/
 
-		default:{
+		//DO NOT DELETE THIS CODE - IT WORKS AND WILL PROBABLY BE USEFUL
+		case WM_INPUT:
+		{
+			UINT dwSize;
+
+			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+			
+			if (dwSize > 0) {
+
+				LPBYTE lpb = new BYTE[dwSize];
+
+				if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+					OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+
+				RAWINPUT* raw = (RAWINPUT*)lpb;
+
+				/*if (raw->header.dwType == RIM_TYPEKEYBOARD){}*/
+				if (raw->header.dwType == RIM_TYPEMOUSE) {
+					_input.SetXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
+					//std::string wat = "RAW INPUT RECEIVED X:" + std::to_string(raw->data.mouse.lLastX) + "; Y: " + std::to_string(raw->data.mouse.lLastY) + "\n";
+					//OutputDebugStringA(wat.c_str());
+				}
+
+				delete[] lpb;
+			}		
+			break;
+		}
+		default: {
 			return DefWindowProc(hwnd, umsg, wparam, lparam);
 		}
 	}
+	return 0;
 }

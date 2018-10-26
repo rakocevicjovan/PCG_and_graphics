@@ -1,12 +1,18 @@
 #ifndef _INPUTCLASS_H_
 #define _INPUTCLASS_H_
 
-//#include "Controller.h"
-//#include <vector>
+#include <memory>
+#include <Windows.h>
+#include "Mouse.h"
 
 class InputManager{
 
 public:
+
+	struct DeltaCoords {
+
+	} xyDelta;
+
 	InputManager();
 	~InputManager();
 
@@ -19,11 +25,11 @@ public:
 	void GetXY(short& x, short&y);
 	bool IsKeyDown(unsigned int);
 
+	std::unique_ptr<DirectX::Mouse> mouse;
+
 private:
 	bool m_keys[256];
 	short curX = 0, curY = 0;
-
-	//std::vector<Controller*> _observers;
 };
 
 #endif

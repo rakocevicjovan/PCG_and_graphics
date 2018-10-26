@@ -1,0 +1,20 @@
+/*fixed4 raymarch(float3 position, float3 direction)
+{
+	for (int i = 0; i < STEPS; i++)
+	{
+		float distance = sphereDistance(position);
+		if (distance < MIN_DISTANCE)
+			return i / (float)STEPS;
+
+		position += distance * direction;
+	}
+	return 0;
+}
+
+
+float4 LightPixelShader(PixelInputType input) : SV_TARGET{
+{
+ float3 worldPosition = i.wPos;
+ float3 viewDirection = normalize(i.wPos - _WorldSpaceCameraPos);
+ return raymarch(worldPosition, viewDirection);
+}*/

@@ -54,7 +54,7 @@ public:
 	}
 
 	static void Translate(SMatrix& transform, const SVec3& displacement) {
-		transform = transform.CreateTranslation(transform.Translation() + displacement);
+		SetTranslation(transform,  transform.Translation() + displacement);
 	}
 
 	static void SetTranslation(SMatrix& transform, const SVec3& displacement) {

@@ -39,8 +39,15 @@ bool Renderer::Initialize(int screenWidth, int screenHeight, HWND hwnd, InputMan
 	joeSchmoe.Initialize(_device, hwnd, names);
 	_shaders.push_back(joeSchmoe);
 
-	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/oohlala.fbx");
+	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/terrainTex.fbx");
+	mod.transform = mod.transform.CreateScale(SVec3(0.1f, 0.1f, 0.1f));
+
 	_models.push_back(&mod);
+
+	mod2.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Dragon/Dragon 2o5_fbx.fbx");
+	mod2.transform = mod.transform.CreateScale(SVec3(0.1f, 0.1f, 0.1f));
+
+	_models.push_back(&mod2);
 
 
 	LightData ld(SVec3(1.0f, 1.0f, 1.0f), .2f, SVec3(1.0f, 1.0f, 1.0f), .5f, SVec3(1.0f, 1.0f, 1.0f), 1.f);
@@ -111,6 +118,7 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam,
 		//@TODO FIX FAKE TIMESTEP
 		shader.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _projectionMatrix, _lights[0], SVec3(0, 0, -2.f), 0.016f);
 		model->Draw(_deviceContext, shader);
+		shader.ReleaseShaderParameters(_deviceContext);
 	}
 		
 	_D3D->EndScene();

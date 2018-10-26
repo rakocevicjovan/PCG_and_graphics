@@ -295,7 +295,7 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	LightBufferType* dataPtr2;
 	VariableBufferType* dataPtr3;
 
-	model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
+	//model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
@@ -385,8 +385,14 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[0].srv) );
+	if(model.textures_loaded.size() != 0)
+		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[0].srv) );
 
+	return true;
+}
+
+bool Shader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }
 

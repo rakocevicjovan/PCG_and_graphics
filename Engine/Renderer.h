@@ -45,7 +45,7 @@ private:
 	SMatrix _projectionMatrix;
 	
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
-	Model mod;	//@TODO REMOVE WHEN YOU HAVE AN ACTUAL STORAGE
+	Model mod, mod2;	//@TODO REMOVE WHEN YOU HAVE AN ACTUAL STORAGE
 
 };
 #endif

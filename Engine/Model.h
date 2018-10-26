@@ -46,7 +46,8 @@ public:
 
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-			std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
+			std::string errString("Assimp error:" + std::string(importer.GetErrorString()) );
+			OutputDebugStringA(errString.c_str());
 			return false;
 		}
 

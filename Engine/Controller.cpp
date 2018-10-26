@@ -4,8 +4,8 @@
 
 Controller::Controller(){
 	inMan = 0;
-	xyDelta.dx = 0;
-	xyDelta.dy = 0;
+	dx = 0;
+	dy = 0;
 }
 
 Controller::Controller(InputManager* inputManager) {
@@ -19,22 +19,19 @@ Controller::~Controller(){
 
 
 void Controller::processTransformationFPS(float dTime, SMatrix& transformation) {
-	
-	xyDelta.old_x = xyDelta.x;
-	xyDelta.old_y = xyDelta.y;
 
-	inMan->GetXY(xyDelta.x, xyDelta.y);
+	inMan->GetXY(dx, dy);
 
-	xyDelta.dx = xyDelta.x - xyDelta.old_x;
-	xyDelta.dy = xyDelta.y - xyDelta.old_y;
-	
+	SVec3 translation = transformation.Translation();
+	Math::SetTranslation(transformation, SVec3());
 
-	if (!(xyDelta.dx == 0 && xyDelta.dy == 0))	//check if rotation happened, could optimize a lot since this is heavy
+	if (!(dx == 0 && dy == 0))	//check if rotation happened, could optimize a lot since this is heavy
 		processRotationFPS(dTime, transformation);
 	else {
 		printf(" ");
 	}
 
+	Math::SetTranslation(transformation, translation);
 	processTranslationFPS(dTime, transformation);
 }
 
@@ -42,7 +39,7 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transformation) 
 void Controller::processRotationFPS(float dTime, SMatrix& transformation) const {
 
 	SMatrix rh;
-	rh = rh.CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(xyDelta.dx) * rotCf * dTime);
+	rh = rh.CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
 
 	transformation = transformation * rh;
 
@@ -50,7 +47,7 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 	right.Normalize();
 
 	SMatrix rv;
-	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(xyDelta.dy) * rotCf * dTime );
+	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime );
 
 	SMatrix rt = rh * rv;
 
@@ -92,5 +89,5 @@ void Controller::processTranslationFPS(const float dTime, SMatrix& transformatio
 
 	deltaTranslation.Normalize();
 
-	Math::Translate(transformation, deltaTranslation * dTime);
+	Math::Translate(transformation, deltaTranslation * movCf * dTime);
 }

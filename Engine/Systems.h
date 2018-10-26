@@ -30,6 +30,7 @@ private:
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;
+	POINT midWindow;
 
 	InputManager _input;
 	Renderer* _renderer;
