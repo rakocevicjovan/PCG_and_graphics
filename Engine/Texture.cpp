@@ -13,14 +13,13 @@
 #include "stb_image_write.h"
 
 #include "Texture.h"
-#include <iostream>
 
 Texture::Texture(ID3D11Device* device, const std::string& fileName) {
 
 	this->fileName = fileName;
 		
 	if (!Load()) {
-		std::cout << "Texture not in file, checking memory..." << std::endl;
+		OutputDebugStringA("Texture not in file, checking memory... \n");
 		return;
 	}
 
@@ -38,7 +37,7 @@ bool Texture::Load() {
 		return (data != nullptr);
 	}
 	catch (...) {
-		std::cout << "Error loading texture '" << fileName << "': " << std::endl;
+		OutputDebugStringA( ("Error loading texture '" + fileName + "' \n").c_str() );
 		return false;
 	}
 }
@@ -57,7 +56,7 @@ bool Texture::LoadFromMemory(const aiTexture *texture, ID3D11Device* device) {
 		return (data != nullptr);
 	}
 	catch (...) {
-		std::cout << "Error loading texture from memory." << std::endl;
+		OutputDebugStringA("Error loading texture from memory. \n");
 		return false;
 	}
 }
@@ -85,7 +84,7 @@ bool Texture::Setup(ID3D11Device* device) {
 
 	res = device->CreateTexture2D(&desc, &texData, &texId);
 	if (FAILED(res)) {
-		std::cout << "Can't create texture2d." << std::endl;
+		OutputDebugStringA("Can't create texture2d. \n");
 		exit(42);
 	}
 
@@ -97,7 +96,7 @@ bool Texture::Setup(ID3D11Device* device) {
 
 	res = device->CreateShaderResourceView(texId, &shaderResourceViewDesc, &srv);	//&resViewDesc
 	if (FAILED(res)) {
-		std::cout << "Can't create shader resource view." << std::endl;
+		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(42);
 	}
 }
@@ -110,7 +109,7 @@ void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp,
 		int result = stbi_write_png(targetFile.c_str(), w, h, comp, data, stride_in_bytes);
 	}
 	catch (...) {
-		std::cout << "Error writing texture to '" << targetFile << "'; " << std::endl;
+		OutputDebugStringA( ("Error writing texture to '" + targetFile + "'; ").c_str() );
 		return;
 	}
 

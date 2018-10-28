@@ -12,8 +12,9 @@ public:
 	int w, h, n;
 	unsigned char *data;
 
-	ID3D11Texture2D* texId;
 	D3D11_TEXTURE2D_DESC desc;
+	ID3D11Texture2D* texId;
+	
 	D3D11_SUBRESOURCE_DATA texData;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;

@@ -40,7 +40,7 @@ bool Systems::Initialize(){
 	//_input.mouse->SetWindow(m_hwnd);
 	//_input.mouse->SetMode(DirectX::Mouse::Mode::MODE_RELATIVE);
 	//@TODO init audio
-	
+
 	return true;
 }
 

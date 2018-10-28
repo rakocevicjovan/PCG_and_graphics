@@ -22,16 +22,15 @@ bool Shader::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::
 }
 
 
-bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd)
-{
+bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
+
 	HRESULT result;
-	ID3D10Blob* errorMessage;
+	ID3D10Blob* errorMessage = nullptr;
 
 	//these store the shaders while they are being processed and are released after compilation... I think...
-	ID3D10Blob* vertexShaderBuffer;
-	ID3D10Blob* pixelShaderBuffer;
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	ID3D10Blob* pixelShaderBuffer = nullptr;
 
-	
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];	//description of buffer data
 	unsigned int numElements;					//number of elements in the poligon layout... this is dumb...
 
@@ -40,25 +39,15 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd)
 	D3D11_BUFFER_DESC variableBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 
-
-	// Initialize the pointers this function will use to null.
-	errorMessage = 0;
-	vertexShaderBuffer = 0;
-	pixelShaderBuffer = 0;
-
     // Compile the vertex shader code.
 	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 								   &vertexShaderBuffer, &errorMessage);
 
 	if(FAILED(result)){
-		// If the shader failed to compile it should have writen something to the error message.
-		if(errorMessage){
+		if(errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()) );
-		}
-		// If there was nothing in the error message then it simply could not find the shader file itself.
-		else{
+		else
 			MessageBox(hwnd, filePaths.at(0).c_str(), L"Missing Shader File", MB_OK);
-		}
 
 		return false;
 	}
@@ -67,30 +56,24 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd)
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 
 	if(FAILED(result)){
-		if(errorMessage){
+		if(errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()) );
-		}
-		else{
+		else
 			MessageBox(hwnd, filePaths.at(1).c_str(), L"Missing Shader File", MB_OK);
-		}
 
 		return false;
 	}
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-	if(FAILED(result)){
+	if(FAILED(result))
 		return false;
-	}
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-	if(FAILED(result)){
+	if(FAILED(result))
 		return false;
-	}
 
-	// Create the vertex input layout description.
-	// This setup needs to match the VertexType stucture in the ModelClass and in the shader.
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
 	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -243,7 +226,6 @@ void Shader::ShutdownShader()
 		m_vertexShader = 0;
 	}
 
-	return;
 }
 
 
@@ -277,15 +259,12 @@ void Shader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR
 
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
-
-	return;
 }
 
 
 bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,  
 									Model& model, const SMatrix& v, const SMatrix& p,
-									DirectionalLight& dLight,
-									SVec3 eyePos, float deltaTime){
+									const DirectionalLight& dLight, const SVec3& eyePos, float deltaTime){
 
 
 	HRESULT result;
@@ -301,8 +280,6 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	SMatrix vT = v.Transpose();
 	SMatrix pT = p.Transpose();
 
-	
-	
 	// Lock the constant matrix buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))

@@ -26,7 +26,7 @@ void InputManager::Initialize(){
 	RIDs[1].hwndTarget = NULL;
 
 	if (RegisterRawInputDevices(RIDs, 2, sizeof(RIDs[0])) == false)
-		MessageBoxW(NULL, L"Could not register the raw input device", L"Raw input fail", 0);
+		MessageBoxW(NULL, L"Could not register the raw input devices", L"Raw input fail", 0);
 
 	for(int i=0; i<256; i++)
 		m_keys[i] = false;

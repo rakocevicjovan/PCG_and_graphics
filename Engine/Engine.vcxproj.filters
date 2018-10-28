@@ -45,13 +45,22 @@
     <ClCompile Include="MeshDataStructs.h">
       <Filter>Header Files</Filter>
     </ClCompile>
-    <ClCompile Include="modelclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OST.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rekt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderHUD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderWireframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,6 +104,18 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OST.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Rekt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderHUD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderWireframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -104,6 +125,21 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="wireframe.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="wireframe.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="wireframe.gs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="rekt.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="rekt.vs">
+      <Filter>Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">

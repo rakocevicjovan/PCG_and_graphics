@@ -1,0 +1,41 @@
+/*
+#version 400
+
+noperspective in vec3 distance;
+
+out vec4 fColour;
+
+void main(){
+	
+	float minDist = min(length(distance[0]), min(length(distance[1]), length(distance[2])));
+	
+	float alpha = 1 - 0.2 * minDist;
+
+	fColour = vec4(1.0f, 1.0f, 1.0f, alpha);
+
+	if(alpha<0) 
+		discard;
+}
+*/
+
+//directx way
+
+struct Pyxis{
+    float4 position : SV_POSITION;
+	noperspective float3 distance : DIST;
+};
+
+
+float4 WFPS(Pyxis input) : SV_TARGET{
+	
+	float minDist = min(length(input.distance[0]), min(length(input.distance[1]), length(input.distance[2])));
+
+	float alpha = 1.f - 0.2f * minDist;
+
+	if(alpha < 0.0f)
+		discard;
+
+	float4 colour = float4(minDist, 0.0f, 0.0f, alpha);
+	
+	return colour;
+}

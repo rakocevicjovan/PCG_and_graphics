@@ -6,7 +6,10 @@
 #include "Camera.h"
 #include "Model.h"
 #include "Shader.h"
-#include "lightclass.h"
+#include "ShaderWireframe.h"
+#include "Rekt.h"
+#include "ShaderHUD.h"
+//#include "lightclass.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -31,21 +34,21 @@ public:
 private:
 	bool RenderFrame(const std::vector<Model*>& m, const Camera& cam, Shader& shader);
 
-
-private:
 	D3DClass* _D3D;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 
 	std::vector<Camera> _cameras;
 	std::vector<Shader> _shaders;
+	WireframeShader wfs;
+	ShaderHUD shaderHUD;
 	std::vector<Model*> _models;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
 	SMatrix _projectionMatrix;
+	Rekt* _rekt;
 	
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 	Model mod, mod2;	//@TODO REMOVE WHEN YOU HAVE AN ACTUAL STORAGE
-
 };
 #endif

@@ -14,7 +14,7 @@ struct PixelInputType{
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
-	float4 worldPos : WNORM;
+	float4 worldPos : WPOS;
 };
 
 Texture2D shaderTexture;
@@ -22,35 +22,57 @@ SamplerState SampleType;
 
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET{
-
-	float4 color = shaderTexture.Sample(SampleType, input.tex);
-
+	
 	input.normal = normalize(input.normal);
 
+	float4 colour = shaderTexture.Sample(SampleType, input.tex);
+
 	//ambient light
-	color = saturate( color + float4(alc, 1.0f) * ali );
+	float4 ambient = saturate(float4(alc, 1.0f) * ali);
+	colour += ambient;
 
-	// Invert the light direction for calculations.
+	//diffuse light
 	float4 inverseLightDir = -lightDirection;
+    float dFactor = saturate(dot(input.normal, inverseLightDir.xyz));
+	float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
+	colour += diffuse;
 
-    // Calculate the amount of light on this pixel.
-    float dFactor = saturate(dot(input.normal, inverseLightDir));
 
-    // Determine the final amount of diffuse color based on the diffuse color combined with the diffusion factor
-    color = saturate( color + float4(dlc, 1.0f) * dli * dFactor);
 
-	// Specular light
+	//some setup for specular
+	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
 	float4 pToEye = normalize(ePos - input.worldPos);
-    float4 reflectionVector = normalize( reflect( inverseLightDir, float4(input.normal, 1.0f) ) );
-    float sFactor = dot(pToEye, reflectionVector);
 
-	int SpecularPower = 64;
+	//go 2-4 times higher on this when using blinn phong compared to phong
+	float SpecularPower = 32.f;
 
-	if (sFactor > 0) {
-		sFactor = pow(sFactor, SpecularPower);
-		float4 SpecularColor = float4(slc, 1.0f) * sli * sFactor;
-		color = saturate( color + SpecularColor );
-    }
+	/*	specular light	phong 
+	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
+	//float3 reflectionVector = reflect(input.normal, inverseLightDir.xyz);
+	float sFactor = saturate(dot(reflectionVector, pToEye));
+	sFactor = pow(sFactor, SpecularPower);
+	/* */
 
-    return color;
+	/* specular light blinn-phong */
+	float3 halfVector = normalize(inverseLightDir + pToEye.xyz);
+	float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPower );
+	/* */
+	
+	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
+		
+	
+	colour += specular;
+	
+    return colour;
+
+
+	//NVIDIA FORMULA FOR BLINN-PHONG:
+	//Ks * lightColour * facing * max(dot(N, H), 0)	
+	//Ks is material's specular colour
+	//lightColour is float4(slc, 1.0f) aka the colour of light
+	//facing is 1 or 0
+	//N is the normalized surface normal
+	//V is the normalized vector towards the viewpoint (pToEye)
+	//L is the normalized vector towars the light source (inverseLightDir)
+	//H is the normalized vector halfway between V and L (pToEye + inverseLightDir)
 }

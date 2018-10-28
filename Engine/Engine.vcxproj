@@ -88,21 +88,26 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
-    <ClCompile Include="modelclass.cpp" />
+    <ClCompile Include="OST.cpp" />
+    <ClCompile Include="Rekt.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="lightclass.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="ShaderHUD.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="ShaderWireframe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="modelclass.h" />
+    <ClInclude Include="OST.h" />
+    <ClInclude Include="Rekt.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="lightclass.h" />
@@ -110,13 +115,20 @@
     <ClInclude Include="Math.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ShaderHUD.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="ShaderWireframe.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="rekt.vs" />
     <None Include="light.ps" />
     <None Include="light.vs" />
     <None Include="packages.config" />
+    <None Include="rekt.ps" />
+    <None Include="wireframe.gs" />
+    <None Include="wireframe.ps" />
+    <None Include="wireframe.vs" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt" />

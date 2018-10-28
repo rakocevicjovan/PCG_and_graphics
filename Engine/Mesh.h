@@ -10,6 +10,8 @@
 #include "Texture.h"
 #include "Math.h"
 #include "Shader.h"
+#include "ShaderWireframe.h"
+#include "ShaderHUD.h"
 
 class Mesh{
 
@@ -35,6 +37,39 @@ class Mesh{
 			setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 		}
 
+		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device) {
+
+			//make the vertices etc...
+
+			float originX = (pos.x - 0.5) * 2;
+			float originY = (pos.y - 0.5) * 2;
+			float width = size.x * 2;
+			float height = size.y * 2;
+
+			Vert3D topLeft;
+			topLeft.pos = SVec3(originX, originY + height, 0.0f);
+			
+			Vert3D topRight;
+			topRight.pos = SVec3(originX + width, originY + height, 0.0f);
+
+			Vert3D bottomLeft;
+			bottomLeft.pos = SVec3(originX, originY, 0.0f);
+
+			Vert3D bottomRight;
+			bottomRight.pos = SVec3(originX + width, originY, 0.0f);
+			
+			vertices.push_back(topLeft);
+			vertices.push_back(topRight);
+			vertices.push_back(bottomLeft);
+			vertices.push_back(bottomRight);
+			
+			indices = std::vector<unsigned int>{ 0u, 1u, 2u, 1u, 3u, 2u };
+
+			setupMesh(device);
+		}
+
+
+
 		bool setupMesh(ID3D11Device* device) {
 
 			D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
@@ -53,10 +88,8 @@ class Mesh{
 			vertexData.SysMemSlicePitch = 0;
 			
 			res = device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
-			if (FAILED( res )){
+			if (FAILED( res ))
 				return false;
-			}
-
 
 			indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 			indexBufferDesc.ByteWidth = sizeof(unsigned int) * indices.size();
@@ -71,11 +104,8 @@ class Mesh{
 			indexData.SysMemSlicePitch = 0;
 
 			// Create the index buffer.
-			if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer))){
+			if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
 				return false;
-			}
-
-			//textures.push_back();
 
 			return true;
 		}
@@ -96,6 +126,43 @@ class Mesh{
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			dc->PSSetSamplers(0, 1, &s.m_sampleState );
+
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
+		void draw(ID3D11DeviceContext* dc, WireframeShader& s) {
+
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+
+			// Set the vertex buffer to active in the input assembler so it can be rendered.
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+
+			// Set the index buffer to active in the input assembler so it can be rendered.
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+			// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
+
+		void draw(ID3D11DeviceContext* dc, ShaderHUD& s) {
+
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+
+			// Set the vertex buffer to active in the input assembler so it can be rendered.
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+
+			// Set the index buffer to active in the input assembler so it can be rendered.
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+			// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			dc->PSSetSamplers(0, 1, &s.m_sampleState);
 
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
