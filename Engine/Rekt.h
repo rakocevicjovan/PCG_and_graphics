@@ -8,6 +8,8 @@
 
 class Rekt{
 
+public:
+
 	class UINODE {
 	public:
 		Mesh m;
@@ -21,14 +23,16 @@ class Rekt{
 			this->Exterminate();
 		}
 	
-		void drawUINODE(ID3D11DeviceContext* deviceContext, ShaderHUD& s) {
+		void drawUINODE(ID3D11DeviceContext* deviceContext, ShaderHUD& s, ID3D11ShaderResourceView* srv) {
 
 			s.SetShaderParameters(deviceContext, m);
-			m.draw(deviceContext, s);
+			deviceContext->PSSetShaderResources(0, 1, &(srv));
+			if(m.vertices.size() > 0)
+				m.draw(deviceContext, s);
 			s.ReleaseShaderParameters(deviceContext);
 
 			for (auto c : children) {				
-				c->drawUINODE(deviceContext, s);
+				c->drawUINODE(deviceContext, s, srv);
 			}
 		}
 
@@ -40,13 +44,11 @@ class Rekt{
 		}
 	};
 
-public:
-
 	Rekt(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	~Rekt();
 
 	UINODE* AddUINODE(UINODE* parent, SVec2 pos, SVec2 size);
-	void draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s);
+	void draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s, ID3D11ShaderResourceView* srv);
 	UINODE* getRoot() { return &_ROOT; }
 
 private:

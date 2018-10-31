@@ -83,9 +83,92 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
 
 	_rekt = new Rekt(_device, _deviceContext);
+	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
+	offScreenTexture.Init(_device, 200u, 150u);
 
 	return true;
 }
+
+
+
+bool Renderer::Frame(){
+
+	for (Camera& c : _cameras) {
+		c.update(0.016f);
+	}
+
+	_models[1]->transform *= SMatrix::CreateFromAxisAngle(SVec3::Up, 0.01f);
+
+	return RenderFrame(_models, _cameras[0]);
+}
+
+
+bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam){
+
+
+	
+	D3D11_VIEWPORT altViewport;
+	altViewport.Width = 200.0f;
+	altViewport.Height = 150.0f;
+	altViewport.MinDepth = 0.0f;
+	altViewport.MaxDepth = 1.0f;
+	altViewport.TopLeftX = 0.0f;
+	altViewport.TopLeftY = 0.0f;
+	
+
+	//switch to drawing on ost for the prepass	//offScreenTexture.SetRenderTarget(_deviceContext, _D3D->GetDepthStencilView());
+	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());
+
+	//then clear it, both the colours and the depth-stencil buffer
+	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);
+	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	#define wat = true
+
+	//to the small viewport
+	#ifdef wat
+		_deviceContext->RSSetViewports(1, &altViewport);
+	#endif
+	//draw all you want to...
+	_shaders[0].SetShaderParameters(_deviceContext, *(models[0]), cam.GetViewMatrix(), _projectionMatrix, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
+	models[0]->Draw(_deviceContext, _shaders[0]);
+	_shaders[0].ReleaseShaderParameters(_deviceContext);
+
+	//back to the big viewport
+	#ifdef wat
+		_deviceContext->RSSetViewports(1, &_D3D->viewport);
+	#endif 
+
+	//and back to the back buffer we go		//_D3D->SetBackBufferRenderTarget();
+	_deviceContext->OMSetRenderTargets(1, &(_D3D->m_renderTargetView), _D3D->GetDepthStencilView());
+
+	_D3D->SetBackBufferRenderTarget();
+
+	_D3D->BeginScene(clearColour);	// Clear the buffers to begin the main pass
+
+	_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+
+
+
+
+
+	for (auto model : models) {
+
+		//@TODO FIX FAKE TIMESTEP
+		_shaders[0].SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _projectionMatrix, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
+		model->Draw(_deviceContext, _shaders[0]);
+		_shaders[0].ReleaseShaderParameters(_deviceContext);
+	}
+
+	
+
+	_D3D->EndScene();
+
+	return true;
+}
+
+
+
 
 Camera& Renderer::addCamera(SMatrix& camTransform) {
 	_cameras.push_back(Camera(camTransform));
@@ -99,45 +182,13 @@ Shader& Renderer::addShader() {
 }
 
 
-void Renderer::Shutdown(){
+void Renderer::Shutdown() {
 
-	if(_D3D){
+	if (_D3D) {
 		_D3D->Shutdown();
 		delete _D3D;
 		_D3D = 0;
 	}
 
 	return;
-}
-
-
-bool Renderer::Frame(){
-
-	for (Camera& c : _cameras) {
-		c.update(0.016f);
-	}
-
-	_models[1]->transform *= SMatrix::CreateFromAxisAngle(SVec3::Up, 0.01f);
-
-	return RenderFrame(_models, _cameras[0], _shaders[0]);
-}
-
-
-bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam, Shader& shader){
-
-	_D3D->BeginScene(0.3f, 0.0f, 0.8f, 1.0f);	// Clear the buffers to begin the scene.
-
-	for (auto model : models) {
-
-		//@TODO FIX FAKE TIMESTEP
-		shader.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _projectionMatrix, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
-		model->Draw(_deviceContext, shader);
-		shader.ReleaseShaderParameters(_deviceContext);
-	}
-
-	_rekt->draw(_deviceContext, shaderHUD);
-
-	_D3D->EndScene();
-
-	return true;
 }

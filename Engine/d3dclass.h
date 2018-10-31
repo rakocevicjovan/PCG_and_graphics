@@ -20,15 +20,20 @@ public:
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 	void Shutdown();
 	
-	void BeginScene(float, float, float, float);
+	void BeginScene(float*);
 	void EndScene();
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
 
 	void GetVideoCardInfo(char*, int&);
+	ID3D11DepthStencilView* GetDepthStencilView();
+	void SetBackBufferRenderTarget();
 
 	float _fieldOfView, _screenAspect;
+
+	ID3D11RenderTargetView* m_renderTargetView;
+	D3D11_VIEWPORT viewport;
 
 private:
 	bool m_vsync_enabled;
@@ -37,11 +42,12 @@ private:
 	IDXGISwapChain* m_swapChain;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-	ID3D11RenderTargetView* m_renderTargetView;
 	ID3D11Texture2D* m_depthStencilBuffer;
 	ID3D11DepthStencilState* m_depthStencilState;
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
+	ID3D11BlendState* m_blendState;
+	
 };
 
 #endif

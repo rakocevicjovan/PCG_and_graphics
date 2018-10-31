@@ -36,7 +36,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_VIEWPORT viewport;
+	D3D11_BLEND_DESC blendDesc;
 
 	// Store the vsync setting.
 	m_vsync_enabled = vsync;
@@ -275,6 +275,24 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
+
+	//blending code @TODO see why it messes with texture.... turn off until then
+	ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; //0x0f;
+
+	//_device->CreateBlendState(&blendDesc, &m_blendState);
+	//float blendFactor[4] = { 1,1,1,1 };
+	//_deviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
+
+
 	// Create the rasterizer state from the description we just filled out.
 	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterState);
 	if(FAILED(result)){
@@ -301,13 +319,6 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
     return true;
 }
-
-
-
-
-
-
-
 
 
 
@@ -364,18 +375,10 @@ void D3DClass::Shutdown(){
 }
 
 
-void D3DClass::BeginScene(float red, float green, float blue, float alpha){
-	
-	float color[4];
-
-	// Setup the color to clear the buffer to.
-	color[0] = red;
-	color[1] = green;
-	color[2] = blue;
-	color[3] = alpha;
+void D3DClass::BeginScene(float* clearColour){
 
 	// Clear the back buffer.
-	_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
+	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
     
 	// Clear the depth buffer.
 	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -395,20 +398,24 @@ void D3DClass::EndScene(){
 }
 
 
-ID3D11Device* D3DClass::GetDevice()
-{
+ID3D11Device* D3DClass::GetDevice(){
 	return _device;
 }
 
 
-ID3D11DeviceContext* D3DClass::GetDeviceContext()
-{
+ID3D11DeviceContext* D3DClass::GetDeviceContext(){
 	return _deviceContext;
 }
 
-void D3DClass::GetVideoCardInfo(char* cardName, int& memory)
-{
+void D3DClass::GetVideoCardInfo(char* cardName, int& memory){
 	strcpy_s(cardName, 128, m_videoCardDescription);
 	memory = m_videoCardMemory;
-	return;
+}
+
+ID3D11DepthStencilView* D3DClass::GetDepthStencilView() {
+	return m_depthStencilView;
+}
+
+void D3DClass::SetBackBufferRenderTarget(){
+	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 }

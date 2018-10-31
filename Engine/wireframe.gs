@@ -11,7 +11,7 @@ noperspective out vec3 distance;
 
 void main(){
 
-	vec2 viewportSize = vec2(1920, 1080);
+	vec2 viewportSize = vec2(800, 600);
 	//float viewportSize = 1920*1080;
 	
 	vec3 ndc = gl_in[0].gl_Position.xyz / gl_in[0].gl_Position.w;

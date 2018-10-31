@@ -63,6 +63,12 @@
     <ClCompile Include="ShaderWireframe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -116,6 +122,12 @@
     <ClInclude Include="ShaderWireframe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -138,6 +150,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="rekt.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shadow.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shadow.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

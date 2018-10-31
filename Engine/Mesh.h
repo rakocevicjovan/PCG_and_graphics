@@ -48,15 +48,19 @@ class Mesh{
 
 			Vert3D topLeft;
 			topLeft.pos = SVec3(originX, originY + height, 0.0f);
+			topLeft.texCoords = SVec2(0.f, 1.f);
 			
 			Vert3D topRight;
 			topRight.pos = SVec3(originX + width, originY + height, 0.0f);
+			topRight.texCoords = SVec2(1.f, 1.f);
 
 			Vert3D bottomLeft;
 			bottomLeft.pos = SVec3(originX, originY, 0.0f);
+			bottomLeft.texCoords = SVec2(0.f, 0.f);
 
 			Vert3D bottomRight;
 			bottomRight.pos = SVec3(originX + width, originY, 0.0f);
+			bottomRight.texCoords = SVec2(1.f, 0.f);
 			
 			vertices.push_back(topLeft);
 			vertices.push_back(topRight);

@@ -9,6 +9,7 @@
 #include "ShaderWireframe.h"
 #include "Rekt.h"
 #include "ShaderHUD.h"
+#include "OST.h"
 //#include "lightclass.h"
 
 const bool FULL_SCREEN = false;
@@ -32,7 +33,7 @@ public:
 	Shader& addShader();
 
 private:
-	bool RenderFrame(const std::vector<Model*>& m, const Camera& cam, Shader& shader);
+	bool RenderFrame(const std::vector<Model*>& m, const Camera& cam);
 
 	D3DClass* _D3D;
 	ID3D11Device* _device;
@@ -45,9 +46,14 @@ private:
 	std::vector<Model*> _models;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
-	SMatrix _projectionMatrix;
+	SMatrix _projectionMatrix, _ostpm;
+	OST offScreenTexture;
 	Rekt* _rekt;
-	
+	Rekt::UINODE* screenRect;
+
+	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
+	float ccb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 	Model mod, mod2;	//@TODO REMOVE WHEN YOU HAVE AN ACTUAL STORAGE
 };

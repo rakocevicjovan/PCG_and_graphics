@@ -17,7 +17,7 @@ PixelInputType LightVertexShader(VertexInputType input){
 	PixelInputType output;
 
     output.position = input.position; 
-	output.tex = input.tex;
+	output.tex = float2(input.tex.x, -input.tex.y);
 	output.normal = input.normal;
     return output;
 }

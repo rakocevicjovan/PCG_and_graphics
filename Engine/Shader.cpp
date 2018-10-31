@@ -351,7 +351,6 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	bufferNumber = 0;
 
 	// Finally set the light constant buffer in the pixel shader with the updated values.
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 	deviceContext->IASetInputLayout(m_layout);
 

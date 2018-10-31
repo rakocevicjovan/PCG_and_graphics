@@ -1,6 +1,5 @@
 #include "Rekt.h"
 
-
 Rekt::Rekt(ID3D11Device* device, ID3D11DeviceContext* deviceContext){
 	
 	_device = device;
@@ -20,7 +19,7 @@ Rekt::~Rekt(){
 Rekt::UINODE* Rekt::AddUINODE(Rekt::UINODE* parent, SVec2 pos, SVec2 size){
 	
 	if (parent == nullptr) {
-		OutputDebugStringA("You are trying to attach a new UI element to unexisting parent. Attach to _ROOT if there are no other nodes please.");
+		OutputDebugStringA("You are trying to attach a new UI element to unexisting parent. Master node is _ROOT.");
 		exit(8007);
 	}
 
@@ -38,6 +37,10 @@ Rekt::UINODE* Rekt::AddUINODE(Rekt::UINODE* parent, SVec2 pos, SVec2 size){
 	return uinode;
 }
 
-void Rekt::draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s) {
+/*void Rekt::draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s) {
 	_ROOT.drawUINODE(deviceContext, s);
+}*/
+
+void Rekt::draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s, ID3D11ShaderResourceView* srv) {
+	_ROOT.drawUINODE(deviceContext, s, srv);
 }

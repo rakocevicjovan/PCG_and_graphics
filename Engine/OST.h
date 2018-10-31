@@ -12,7 +12,7 @@ public:
 	ID3D11ShaderResourceView* srv;
 	ID3D11RenderTargetView* rtv;
 
-	void Init(ID3D11Device* device, int w, int h);
+	void Init(ID3D11Device* device, unsigned int w, unsigned int h);
 	void SetRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*);
 	void ClearRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*, float*);
 
