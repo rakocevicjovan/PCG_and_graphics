@@ -2,6 +2,7 @@
 #include "SimpleMath.h"
 #include "InputManager.h"
 
+
 Renderer::Renderer(){
 	_D3D = 0;
 }
@@ -49,6 +50,11 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	hudNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/rekt.vs");
 	hudNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/rekt.ps");
 	shaderHUD.Initialize(_device, hwnd, hudNames);
+
+	std::vector<std::wstring> depthNames;
+	depthNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/depth.vs");
+	depthNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/depth.ps");
+	shaderDepth.Initialize(_device, hwnd, depthNames);
 
 	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/terrainTex.fbx");
 	mod.transform = mod.transform.CreateScale(SVec3(0.1f, 0.1f, 0.1f));
@@ -123,7 +129,7 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);
 	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	#define wat = true
+	#define wat = false
 
 	//to the small viewport
 	#ifdef wat
@@ -158,9 +164,11 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 		_shaders[0].SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _projectionMatrix, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
 		model->Draw(_deviceContext, _shaders[0]);
 		_shaders[0].ReleaseShaderParameters(_deviceContext);
+		//break;
 	}
 
-	
+	//shaderDepth.SetShaderParameters(_deviceContext, *_models[0], cam.GetViewMatrix(), _projectionMatrix);
+	//models[1]->Draw(_deviceContext, shaderDepth);
 
 	_D3D->EndScene();
 

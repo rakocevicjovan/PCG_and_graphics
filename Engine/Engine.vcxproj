@@ -88,7 +88,7 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="d3dclass.cpp" />
-    <ClCompile Include="DepthShader.cpp" />
+    <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
     <ClCompile Include="OST.cpp" />
     <ClCompile Include="Rekt.cpp" />
@@ -99,6 +99,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="ShaderHUD.cpp" />
+    <ClCompile Include="ShaderPT.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
@@ -108,7 +109,7 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Cubemap.h" />
     <ClInclude Include="d3dclass.h" />
-    <ClInclude Include="DepthShader.h" />
+    <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="OST.h" />
     <ClInclude Include="Rekt.h" />
@@ -120,18 +121,21 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ShaderHUD.h" />
+    <ClInclude Include="ShaderPT.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="projectTex.ps" />
+    <None Include="projectTex.vs" />
     <None Include="rekt.vs" />
     <None Include="light.ps" />
     <None Include="light.vs" />
     <None Include="packages.config" />
     <None Include="rekt.ps" />
-    <None Include="shadow.ps" />
-    <None Include="shadow.vs" />
+    <None Include="depth.ps" />
+    <None Include="depth.vs" />
     <None Include="wireframe.gs" />
     <None Include="wireframe.ps" />
     <None Include="wireframe.vs" />

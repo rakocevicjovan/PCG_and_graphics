@@ -10,7 +10,8 @@
 #include "Rekt.h"
 #include "ShaderHUD.h"
 #include "OST.h"
-//#include "lightclass.h"
+#include "ShaderDepth.h"
+
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -43,6 +44,7 @@ private:
 	std::vector<Shader> _shaders;
 	WireframeShader wfs;
 	ShaderHUD shaderHUD;
+	ShaderDepth shaderDepth;
 	std::vector<Model*> _models;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
