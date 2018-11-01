@@ -27,12 +27,11 @@ bool ShaderPT::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	HRESULT result;
 	ID3D10Blob* errorMessage = nullptr;
 
-	//these store the shaders while they are being processed and are released after compilation... I think...
 	ID3D10Blob* vertexShaderBuffer = nullptr;
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];	//description of buffer data
-	unsigned int numElements;					//number of elements in the poligon layout... this is dumb...
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+	unsigned int numElements;
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
@@ -98,23 +97,18 @@ bool ShaderPT::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
 
-	// Get a count of the elements in the layout.
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
-	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
 		&m_layout);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
 	vertexShaderBuffer->Release();
 	vertexShaderBuffer = 0;
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
 
-	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -129,13 +123,10 @@ bool ShaderPT::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create the texture sampler state.
 	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -143,11 +134,9 @@ bool ShaderPT::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
 	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -263,7 +252,7 @@ void ShaderPT::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCH
 
 
 bool ShaderPT::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& v2, 
-	const SMatrix& p, const SMatrix& p2, const DirectionalLight& dLight, const SVec3& eyePos, float deltaTime) {
+	const SMatrix& p, const SMatrix& p2, const DirectionalLight& dLight, const SVec3& eyePos, float deltaTime, ID3D11ShaderResourceView* projectionTexture) {
 
 
 	HRESULT result;
@@ -273,59 +262,43 @@ bool ShaderPT::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	LightBufferType* dataPtr2;
 	VariableBufferType* dataPtr3;
 
-	//model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
-
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
 	SMatrix pT = p.Transpose();
 	SMatrix v2T = v2.Transpose();
 	SMatrix p2T = p2.Transpose();
 
-	// Lock the constant matrix buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
-	// Copy the matrices into the constant buffer.
 	dataPtr->world = mT;
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
 	dataPtr->view2 = v2T;
 	dataPtr->proj2 = p2T;
 
-	// Unlock the constant buffer.
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
-	bufferNumber = 0;	// Set the position of the constant buffer in the vertex shader.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
-	//END MATRIX BUFFER
+	bufferNumber = 0;
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-
-
-	//VARIABLE BUFFER
 	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
 
-	// Get a pointer to the data in the constant buffer.
 	dataPtr3 = (VariableBufferType*)mappedResource.pData;
 
-	// Copy the variablethe constant buffer.
 	dataPtr3->deltaTime = deltaTime;
-	dataPtr3->padding = SVec3(); //this is just padding so this data isn't used.
+	dataPtr3->padding = SVec3();
 
-	// Unlock the variable constant buffer.
 	deviceContext->Unmap(m_variableBuffer, 0);
 
-	// Set the position of the variable constant buffer in the vertex shader.
 	bufferNumber = 1;
 
-	// Now set the variable constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
-	//END VARIABLE BUFFER
-
 
 
 	// Lock the light constant buffer so it can be written to.
@@ -365,6 +338,8 @@ bool ShaderPT::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 
 	if (model.textures_loaded.size() != 0)
 		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[0].srv));
+
+	deviceContext->PSSetShaderResources(1, 1, &projectionTexture);
 
 	return true;
 }

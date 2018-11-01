@@ -13,6 +13,7 @@
 #include "ShaderWireframe.h"
 #include "ShaderHUD.h"
 #include "ShaderDepth.h"
+#include "ShaderPT.h"
 
 class Mesh{
 
@@ -116,6 +117,7 @@ class Mesh{
 		}
 
 
+
 		void draw(ID3D11DeviceContext* dc, Shader& s) {
 
 			unsigned int stride = sizeof(Vert3D);
@@ -135,22 +137,33 @@ class Mesh{
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
 
+
+
 		void draw(ID3D11DeviceContext* dc, WireframeShader& s) {
 
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
 
-			// Set the vertex buffer to active in the input assembler so it can be rendered.
 			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-
-			// Set the index buffer to active in the input assembler so it can be rendered.
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-			// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
+
+
+
+		void draw(ID3D11DeviceContext* dc, ShaderHUD& s) {
+
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s.m_sampleState);
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
 
 
 		void draw(ID3D11DeviceContext* dc, ShaderDepth& s) {
@@ -164,25 +177,19 @@ class Mesh{
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
 
-		void draw(ID3D11DeviceContext* dc, ShaderHUD& s) {
+
+
+		void draw(ID3D11DeviceContext* dc, ShaderPT& s) {
 
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
 
-			// Set the vertex buffer to active in the input assembler so it can be rendered.
 			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-
-			// Set the index buffer to active in the input assembler so it can be rendered.
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-			// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-			dc->PSSetSamplers(0, 1, &s.m_sampleState);
-
 			dc->DrawIndexed(indices.size(), 0, 0);
-		}
 
+		}
 	};
 
 

@@ -1,0 +1,78 @@
+Texture2D shaderTexture : register(t0);
+Texture2D depthMapTexture : register(t1);
+
+SamplerState SampleTypeClamp : register(s0);
+SamplerState SampleTypeWrap  : register(s1);
+
+
+cbuffer LightBuffer{
+    float4 ambientColor;
+    float4 diffuseColor;
+};
+
+
+struct PixelInputType{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+    float4 lightViewPosition : TEXCOORD1;
+    float3 lightPos : TEXCOORD2;
+};
+
+
+float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
+{
+    float bias;
+    float4 color;
+    float2 projectTexCoord;
+    float depthValue;
+    float lightDepthValue;
+    float lightIntensity;
+    float4 textureColor;
+
+    bias = 0.001f;
+
+    color = ambientColor;
+
+	//lightViewPosition is actually the screen position of pixels relative to the light source
+	///and we just replicate the same procedure that the usual position would go through when being prepared for the fragment shader
+
+    projectTexCoord.x =  input.lightViewPosition.x / input.lightViewPosition.w / 2.0f + 0.5f;
+    projectTexCoord.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0f + 0.5f;
+	
+    if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y)){
+
+        // check the value of the depth map (basically distance between nearest object and light source) at each of the pixels withing the light's view
+        depthValue = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
+
+		//Now that we have the depth of the object for this pixel we need the depth of the light to determine if it is in front or behind the object.
+		//We get this from the lightViewPosition. 
+		//Note that we need to subtract the bias from this or we will get the floating point precision issue.
+
+        // Calculate the distance between the pixel (as viewed from the light source) and the light source
+        lightDepthValue = input.lightViewPosition.z / input.lightViewPosition.w;
+
+        // Subtract the bias from the lightDepthValue. This mitigates floating point precision issues.
+        lightDepthValue = lightDepthValue - bias;
+		
+		//Now we perform the comparison between the two distances.
+		//If the light is close to the pixel position (no objects in between) then it's not shaded (because it's exposed to the light!)
+		//But if the there is an object between the light and this pixel (we check this in the depth map) we must shade it
+
+        if(lightDepthValue < depthValue){
+
+            // Calculate the amount of light on this pixel.
+            lightIntensity = saturate(dot(input.normal, input.lightPos));
+
+            if(lightIntensity > 0.0f){
+                color += (diffuseColor * lightIntensity);
+                color = saturate(color);
+            }
+        }
+    }
+
+
+    textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
+    color = color * textureColor;
+    return color;
+}

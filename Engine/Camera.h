@@ -8,7 +8,7 @@ class Camera{
 
 public:
 	Camera();
-	Camera(const SMatrix& cameraMatrix);
+	Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix);
 	~Camera();
 
 	void update(float dTime);
@@ -16,12 +16,14 @@ public:
 
 	SMatrix GetViewMatrix() const;
 	SMatrix GetCameraMatrix() const;
+	SMatrix GetProjectionMatrix() const;
 
 	Controller* _controller;
 	
 protected:
 	SMatrix _cameraMatrix;
 	SMatrix _viewMatrix;
+	SMatrix _projectionMatrix;
 };
 
 

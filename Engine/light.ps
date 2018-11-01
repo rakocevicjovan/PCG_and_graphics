@@ -44,7 +44,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float4 pToEye = normalize(ePos - input.worldPos);
 
 	//go 2-4 times higher on this when using blinn phong compared to phong
-	float SpecularPower = 32.f;
+	float SpecularPower = 64.f;
 
 	/*	specular light	phong 
 	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
@@ -61,7 +61,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
 		
 	
-	colour += specular;
+	colour += saturate(specular);
+
+	//colour.xyz = pow( colour, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f) );
 	
     return colour;
 

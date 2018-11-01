@@ -50,17 +50,12 @@ private:
 	};
 
 
-
-
-
 public:
-	ShaderPT();
-	~ShaderPT();
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
 	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& v2, const SMatrix& p, const SMatrix& p2,
-		const DirectionalLight& dLight, const SVec3& eyePos, float deltaTime);
+		const DirectionalLight& dLight, const SVec3& eyePos, float deltaTime, ID3D11ShaderResourceView* projectionTexture);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);

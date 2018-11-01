@@ -6,11 +6,13 @@
 #include "Camera.h"
 #include "Model.h"
 #include "Shader.h"
-#include "ShaderWireframe.h"
-#include "Rekt.h"
 #include "ShaderHUD.h"
-#include "OST.h"
 #include "ShaderDepth.h"
+#include "ShaderWireframe.h"
+#include "ShaderPT.h"
+#include "Rekt.h"
+#include "OST.h"
+
 
 
 const bool FULL_SCREEN = false;
@@ -30,7 +32,7 @@ public:
 	bool Frame();
 	void Shutdown();
 
-	Camera& addCamera(SMatrix& camTransform);
+	Camera& addCamera(SMatrix& camTransform, SMatrix& lens);
 	Shader& addShader();
 
 private:
@@ -45,10 +47,11 @@ private:
 	WireframeShader wfs;
 	ShaderHUD shaderHUD;
 	ShaderDepth shaderDepth;
+	ShaderPT shaderPT;
 	std::vector<Model*> _models;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
-	SMatrix _projectionMatrix, _ostpm;
+	SMatrix _ostpm;
 	OST offScreenTexture;
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;

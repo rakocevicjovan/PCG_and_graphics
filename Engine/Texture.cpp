@@ -99,6 +99,8 @@ bool Texture::Setup(ID3D11Device* device) {
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(42);
 	}
+
+	return true;
 }
 
 
