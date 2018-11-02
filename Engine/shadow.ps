@@ -6,8 +6,14 @@ SamplerState SampleTypeWrap  : register(s1);
 
 
 cbuffer LightBuffer{
-    float4 ambientColor;
-    float4 diffuseColor;
+	float3 alc;
+	float ali;
+	float3 dlc;
+	float dli;
+	float3 slc;
+	float sli;
+    float4 lightPosition;
+	float4 ePos;
 };
 
 
@@ -15,30 +21,33 @@ struct PixelInputType{
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+	float4 worldPosition : REKT;
     float4 lightViewPosition : TEXCOORD1;
     float3 lightPos : TEXCOORD2;
 };
 
 
-float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
-{
+float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
+
     float bias;
-    float4 color;
+    float4 colour;
     float2 projectTexCoord;
     float depthValue;
     float lightDepthValue;
     float lightIntensity;
-    float4 textureColor;
 
-    bias = 0.001f;
+    bias = 0.005f;
 
-    color = ambientColor;
+	colour = shaderTexture.Sample(SampleTypeWrap, input.tex);	//@TODO REMEMBER TO += BELOW
+    colour += float4(alc * ali, 1.0f);
+
+
 
 	//lightViewPosition is actually the screen position of pixels relative to the light source
 	///and we just replicate the same procedure that the usual position would go through when being prepared for the fragment shader
-
     projectTexCoord.x =  input.lightViewPosition.x / input.lightViewPosition.w / 2.0f + 0.5f;
     projectTexCoord.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0f + 0.5f;
+
 	
     if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y)){
 
@@ -61,18 +70,31 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET
 
         if(lightDepthValue < depthValue){
 
-            // Calculate the amount of light on this pixel.
             lightIntensity = saturate(dot(input.normal, input.lightPos));
 
             if(lightIntensity > 0.0f){
-                color += (diffuseColor * lightIntensity);
-                color = saturate(color);
+                colour += float4(dlc * dli, 1.0f);
+                colour = saturate(colour);
             }
+
+			float3 inverseLightDir = input.lightPos - input.worldPosition;
+			float dFactor = saturate(dot(input.normal, inverseLightDir));
+			float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
+			colour += diffuse;
+
+			float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
+			float4 pToEye = normalize(ePos - input.worldPosition);
+			float SpecularPower = 64.f;
+
+			float3 halfVector = normalize(inverseLightDir + pToEye.xyz);
+			float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPower );
+
+			float4 specular = float4(slc, 1.0f) * sli * sFactor;	
+			colour += saturate(specular);
         }
     }
 
 
-    textureColor = shaderTexture.Sample(SampleTypeWrap, input.tex);
-    color = color * textureColor;
-    return color;
+    //colour = colour * texturecolour;
+    return colour;
 }

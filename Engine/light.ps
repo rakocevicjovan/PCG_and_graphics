@@ -37,8 +37,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
 	colour += diffuse;
 
-
-
 	//some setup for specular
 	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
 	float4 pToEye = normalize(ePos - input.worldPos);
@@ -60,7 +58,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	
 	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
 		
-	
 	colour += saturate(specular);
 
 	//colour.xyz = pow( colour, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f) );

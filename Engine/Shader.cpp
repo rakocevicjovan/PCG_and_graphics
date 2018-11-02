@@ -350,8 +350,6 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
 
-	// Finally set the light constant buffer in the pixel shader with the updated values.
-
 	deviceContext->IASetInputLayout(m_layout);
 
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
@@ -367,10 +365,9 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	return true;
 }
 
+
+
 bool Shader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }
-
-
-

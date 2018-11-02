@@ -36,7 +36,7 @@ struct PointLight : LightData {
 
 	PointLight() {}
 
-	PointLight(LightData ld, SVec3 pos) : LightData(ld), pos(pos) {}
+	PointLight(LightData ld, SVec4 pos) : LightData(ld), pos(pos) {}
 };
 
 

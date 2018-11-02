@@ -16,7 +16,6 @@ class Model;
 
 class Shader{
 
-private:
 	struct MatrixBufferType{
 		SMatrix world;
 		SMatrix view;

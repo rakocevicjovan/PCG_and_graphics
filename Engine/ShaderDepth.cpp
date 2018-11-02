@@ -192,8 +192,6 @@ bool ShaderDepth::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
 
-	//model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
-
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
 	SMatrix pT = p.Transpose();

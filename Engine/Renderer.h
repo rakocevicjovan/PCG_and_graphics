@@ -10,6 +10,7 @@
 #include "ShaderDepth.h"
 #include "ShaderWireframe.h"
 #include "ShaderPT.h"
+#include "ShaderShadow.h"
 #include "Rekt.h"
 #include "OST.h"
 
@@ -48,9 +49,11 @@ private:
 	ShaderHUD shaderHUD;
 	ShaderDepth shaderDepth;
 	ShaderPT shaderPT;
+	ShaderShadow shaderShadow;
 	std::vector<Model*> _models;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
+	PointLight pLight;
 	SMatrix _ostpm;
 	OST offScreenTexture;
 	Rekt* _rekt;
