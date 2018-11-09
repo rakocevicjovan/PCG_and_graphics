@@ -87,6 +87,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -109,6 +110,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="Cubemap.h" />
+    <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />
@@ -140,6 +142,8 @@
     <None Include="depth.vs" />
     <None Include="shadow.ps" />
     <None Include="shadow.vs" />
+    <None Include="SS.ps" />
+    <None Include="SS.vs" />
     <None Include="wireframe.gs" />
     <None Include="wireframe.ps" />
     <None Include="wireframe.vs" />

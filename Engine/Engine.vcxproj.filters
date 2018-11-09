@@ -75,6 +75,9 @@
     <ClCompile Include="ShaderShadow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CubeMapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -140,6 +143,9 @@
     <ClInclude Include="ShaderShadow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CubeMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -180,6 +186,12 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="shadow.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SS.vs">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="SS.ps">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>

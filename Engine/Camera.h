@@ -25,32 +25,4 @@ protected:
 	SMatrix _viewMatrix;
 	SMatrix _projectionMatrix;
 };
-
-
-/* // maybe use this later for different controllers?
-class FPSCamera : public Camera {
-	FPSCamera();
-	FPSCamera(const SMatrix& cameraMatrix);
-	~FPSCamera();
-
-	
-};
-
-
-
-class FreeflyCamera : public Camera {
-	FreeflyCamera();
-	FreeflyCamera(const SMatrix& cameraMatrix);
-	~FreeflyCamera();
-};
-
-
-
-class OTSCamera : public Camera {
-	OTSCamera();
-	OTSCamera(const SMatrix& cameraMatrix);
-	~OTSCamera();
-};
-
-*/
 #endif

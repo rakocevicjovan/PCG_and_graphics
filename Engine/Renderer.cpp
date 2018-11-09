@@ -2,7 +2,6 @@
 #include "SimpleMath.h"
 #include "InputManager.h"
 
-
 Renderer::Renderer(){
 	_D3D = 0;
 }
@@ -67,7 +66,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shaderShadow.Initialize(_device, hwnd, shadowNames);
 
 
-
 	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/terrainTex.fbx");
 	mod.transform = mod.transform.CreateScale(SVec3(0.3f, 0.3f, 0.3f));
 
@@ -75,7 +73,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	///Dragon/Dragon 2o5_fbx.fbx
 	mod2.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");	
-	Math::Translate(mod2.transform, SVec3(0.0f, 10.0f, -10.0f));
+	Math::Translate(mod2.transform, SVec3(0.0f, 16.0f, 0.0f));
 	_models.push_back(&mod2);
 
 
@@ -84,7 +82,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	DirectionalLight light(ld, SVec4(0.0f, 0.0f, 1.0f, 1.0f));	//SVec4(0.0f, .707f, .707f, 1.f)
 	_lights.push_back(light);
 
-	pLight = PointLight(ld, SVec4(0.0f, 70.0f, 0.0f, 1.0f));
+	pLight = PointLight(ld, SVec4(0.0f, 10.f, -30.0f, 1.0f));
 
 	SMatrix cMat;
 	//cMat = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&eyePos), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
@@ -101,7 +99,18 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
-	offScreenTexture.Init(_device, 400u, 300u);
+	offScreenTexture.Init(_device, ostW, ostH);
+
+	_lightvm = DirectX::XMMatrixLookAtLH(SVec3(pLight.pos.x, pLight.pos.y, pLight.pos.z), SVec3(0.0f, 0.0f, 0.0f), SVec3::Forward);
+	_lightpm = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, 0.1f, 200.0f);
+	//_lightpm = DirectX::XMMatrixOrthographicLH(ostW, ostH, 0.1f, 200.0f);
+
+	altViewport.Width = (float)800;
+	altViewport.Height = (float)600;
+	altViewport.MinDepth = 0.0f;
+	altViewport.MaxDepth = 1.0f;
+	altViewport.TopLeftX = 0.0f;
+	altViewport.TopLeftY = 0.0f;
 
 	return true;
 }
@@ -120,19 +129,8 @@ bool Renderer::Frame(){
 }
 
 
+
 bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam){
-
-
-	
-	D3D11_VIEWPORT altViewport;
-	altViewport.Width = 400.0f;
-	altViewport.Height = 300.0f;
-	altViewport.MinDepth = 0.0f;
-	altViewport.MaxDepth = 1.0f;
-	altViewport.TopLeftX = 0.0f;
-	altViewport.TopLeftY = 0.0f;
-	
-	SMatrix lightView = DirectX::XMMatrixLookAtLH(SVec3(pLight.pos.x, pLight.pos.y, pLight.pos.z), SVec3(0.0f, 0.0f, 0.0f), SVec3::Forward);
 
 	//switch to drawing on ost for the prepass	//offScreenTexture.SetRenderTarget(_deviceContext, _D3D->GetDepthStencilView());
 	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());
@@ -146,25 +144,16 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 	_deviceContext->RSSetViewports(1, &altViewport);
 	 //draw all you want to...
 
-
-	
 	for (auto model : models) {
-		shaderDepth.SetShaderParameters(_deviceContext, *model, lightView, cam.GetProjectionMatrix());
+		shaderDepth.SetShaderParameters(_deviceContext, *model, _lightvm, _lightpm);
 		model->Draw(_deviceContext, shaderDepth);
-
-		//shaderShadow.SetShaderParameters(_deviceContext, *model, lightView, lightView, cam.GetProjectionMatrix(),
-		//	cam.GetProjectionMatrix(), pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
-		//model->Draw(_deviceContext, shaderShadow);
-		//shaderShadow.ReleaseShaderParameters(_deviceContext);
 	}
-//back to the big viewport
 
+	//back to the big viewport
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-
-	//and back to the back buffer we go		//_D3D->SetBackBufferRenderTarget();
 	_deviceContext->OMSetRenderTargets(1, &(_D3D->m_renderTargetView), _D3D->GetDepthStencilView());
 	_D3D->SetBackBufferRenderTarget();
-
+//texture pass done
 
 	_D3D->BeginScene(clearColour);	// Clear the buffers to begin the main pass
 	_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
@@ -176,14 +165,20 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 		_shaders[0].SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
 		model->Draw(_deviceContext, _shaders[0]);
 		_shaders[0].ReleaseShaderParameters(_deviceContext);
-		break;
-		*/
+		/**/
 
-		shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), lightView, cam.GetProjectionMatrix(),
-			cam.GetProjectionMatrix(), pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
+		/* */
+		shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _lightvm, cam.GetProjectionMatrix(),
+			_lightpm, pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
 		model->Draw(_deviceContext, shaderShadow);
 		shaderShadow.ReleaseShaderParameters(_deviceContext);
+		/**/
 
+		/*
+		for (auto model : models) {
+			shaderDepth.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), cam.GetProjectionMatrix());
+			model->Draw(_deviceContext, shaderDepth);
+		}*/
 	}
 
 	/*//project texture onto the scene

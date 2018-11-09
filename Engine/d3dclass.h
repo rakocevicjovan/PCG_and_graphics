@@ -9,8 +9,6 @@
 #include <d3d11.h>
 #include "Math.h"
 
-
-
 class D3DClass{
 
 public:
@@ -30,8 +28,10 @@ public:
 	ID3D11DepthStencilView* GetDepthStencilView();
 	void SetBackBufferRenderTarget();
 
-	float _fieldOfView, _screenAspect;
+	void D3DClass::TurnOnAlphaBlending();
+	void D3DClass::TurnOffAlphaBlending();
 
+	float _fieldOfView, _screenAspect;
 	ID3D11RenderTargetView* m_renderTargetView;
 	D3D11_VIEWPORT viewport;
 
@@ -46,8 +46,7 @@ private:
 	ID3D11DepthStencilState* m_depthStencilState;
 	ID3D11DepthStencilView* m_depthStencilView;
 	ID3D11RasterizerState* m_rasterState;
-	ID3D11BlendState* m_blendState;
-	
+	ID3D11BlendState* m_blendState, *m_noBlendState;
 };
 
 #endif

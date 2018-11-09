@@ -22,77 +22,74 @@ struct PixelInputType{
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
 	float4 worldPosition : REKT;
-    float4 lightViewPosition : TEXCOORD1;
+    float4 fragPosLightSpace : TEXCOORD1;
     float3 lightPos : TEXCOORD2;
 };
 
 
 float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
 
-    float bias;
     float4 colour;
     float2 projectTexCoord;
-    float depthValue;
+    float closestDepth;
     float lightDepthValue;
     float lightIntensity;
 
-    bias = 0.005f;
+	input.normal = normalize(input.normal);
 
-	colour = shaderTexture.Sample(SampleTypeWrap, input.tex);	//@TODO REMEMBER TO += BELOW
-    colour += float4(alc * ali, 1.0f);
+    float bias = 0.00001f;
 
-
+	colour = shaderTexture.Sample(SampleTypeWrap, input.tex);
 
 	//lightViewPosition is actually the screen position of pixels relative to the light source
 	///and we just replicate the same procedure that the usual position would go through when being prepared for the fragment shader
-    projectTexCoord.x =  input.lightViewPosition.x / input.lightViewPosition.w / 2.0f + 0.5f;
-    projectTexCoord.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0f + 0.5f;
+    projectTexCoord.x =  input.fragPosLightSpace.x / input.fragPosLightSpace.w / 2.0f + 0.5f;
+    projectTexCoord.y = -input.fragPosLightSpace.y / input.fragPosLightSpace.w / 2.0f + 0.5f;
 
 	
     if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y)){
 
-        // check the value of the depth map (basically distance between nearest object and light source) at each of the pixels withing the light's view
-        depthValue = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
+        closestDepth = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
 
-		//Now that we have the depth of the object for this pixel we need the depth of the light to determine if it is in front or behind the object.
-		//We get this from the lightViewPosition. 
-		//Note that we need to subtract the bias from this or we will get the floating point precision issue.
+        //lightDepthValue = ( (2.f * input.fragPosLightSpace.z - 500.01f ) / 499.99f ) / input.fragPosLightSpace.w;
+		lightDepthValue = input.fragPosLightSpace.z / input.fragPosLightSpace.w;	// input.fragPosLightSpace.w
 
-        // Calculate the distance between the pixel (as viewed from the light source) and the light source
-        lightDepthValue = input.lightViewPosition.z / input.lightViewPosition.w;
+        lightDepthValue -= bias;
 
-        // Subtract the bias from the lightDepthValue. This mitigates floating point precision issues.
-        lightDepthValue = lightDepthValue - bias;
-		
-		//Now we perform the comparison between the two distances.
-		//If the light is close to the pixel position (no objects in between) then it's not shaded (because it's exposed to the light!)
-		//But if the there is an object between the light and this pixel (we check this in the depth map) we must shade it
+        if(lightDepthValue > closestDepth){
 
-        if(lightDepthValue < depthValue){
-
-            lightIntensity = saturate(dot(input.normal, input.lightPos));
-
-            if(lightIntensity > 0.0f){
-                colour += float4(dlc * dli, 1.0f);
-                colour = saturate(colour);
-            }
-
-			float3 inverseLightDir = input.lightPos - input.worldPosition;
-			float dFactor = saturate(dot(input.normal, inverseLightDir));
-			float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
-			colour += diffuse;
-
-			float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
-			float4 pToEye = normalize(ePos - input.worldPosition);
-			float SpecularPower = 64.f;
-
-			float3 halfVector = normalize(inverseLightDir + pToEye.xyz);
-			float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPower );
-
-			float4 specular = float4(slc, 1.0f) * sli * sFactor;	
-			colour += saturate(specular);
-        }
+			colour -= float4(alc * ali, 1.0f);
+		}
     }
+
+	colour += saturate(float4(alc * ali, 1.0f));
+
+	float3 inverseLightDir = normalize(input.lightPos - input.worldPosition);
+	float dFactor = saturate(dot(input.normal, inverseLightDir));
+	float4 diffuse = saturate(float4(dlc, 1.0f) * dli * dFactor);
+	colour += diffuse;
+	
+	//some setup for specular
+	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
+	float4 pToEye = normalize(ePos - input.worldPosition);
+	float SpecularPower = 16.f;
+
+	//specular light phong
+	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
+	//float3 reflectionVector = reflect(input.normal, inverseLightDir.xyz);
+	float sFactor = saturate(dot(reflectionVector, pToEye.xyz));
+	sFactor = pow(sFactor, SpecularPower);
+
+			
+	//specular light blinn-phong 
+	float3 halfVector = normalize(inverseLightDir + pToEye.xyz);
+	sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPower );
+			
+
+	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
+	colour += saturate(specular);
+			
+	//colour = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
 
     //colour = colour * texturecolour;

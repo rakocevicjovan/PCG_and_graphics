@@ -40,7 +40,8 @@ class ShaderShadow{
 	};
 
 	struct LightBufferType2{
-		SVec4 lightPosition;
+		SVec3 lightPosition;
+		float padding;
 	};
 
 public:

@@ -18,7 +18,7 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
+const float SCREEN_DEPTH = 500.0f;
 const float SCREEN_NEAR = 0.1f;
 
 class InputManager;
@@ -54,15 +54,18 @@ private:
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
 	PointLight pLight;
-	SMatrix _ostpm;
+	SMatrix _lightpm, _lightvm;
 	OST offScreenTexture;
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
+	D3D11_VIEWPORT altViewport;
+
+	const unsigned int ostW = 800, ostH = 600;
 
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
 	float ccb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
-	Model mod, mod2;	//@TODO REMOVE WHEN YOU HAVE AN ACTUAL STORAGE
+	Model mod, mod2;
 };
 #endif

@@ -25,11 +25,9 @@ public:
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
 
-
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
-
 	ID3D11SamplerState* m_sampleState;
 private:
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };

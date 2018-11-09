@@ -275,6 +275,15 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
+	// Create the rasterizer state from the description we just filled out.
+	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+	if (FAILED(result)) {
+		return false;
+	}
+
+	// Now set the rasterizer state.
+	_deviceContext->RSSetState(m_rasterState);
+
 
 	//blending code @TODO see why it messes with texture.... turn off until then
 	ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
@@ -283,24 +292,24 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; //0x0f;
 
-	//_device->CreateBlendState(&blendDesc, &m_blendState);
-	//float blendFactor[4] = { 1,1,1,1 };
-	//_deviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
-
-
-	// Create the rasterizer state from the description we just filled out.
-	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterState);
-	if(FAILED(result)){
+	result = _device->CreateBlendState(&blendDesc, &m_blendState);
+	if (FAILED(result)) {
 		return false;
 	}
+	
 
-	// Now set the rasterizer state.
-	_deviceContext->RSSetState(m_rasterState);
+	// Modify the description to create an alpha disabled blend state description.
+	blendDesc.RenderTarget[0].BlendEnable = FALSE;
+	// Create the blend state using the description.
+	result = _device->CreateBlendState(&blendDesc, &m_noBlendState);
+	if (FAILED(result)){
+		return false;
+	}
 	
 	// Setup the viewport for rendering.
     viewport.Width = (float)screenWidth;
@@ -418,4 +427,19 @@ ID3D11DepthStencilView* D3DClass::GetDepthStencilView() {
 
 void D3DClass::SetBackBufferRenderTarget(){
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+}
+
+void D3DClass::D3DClass::TurnOnAlphaBlending()
+{
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	_deviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
+}
+
+
+void D3DClass::D3DClass::TurnOffAlphaBlending()
+{
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	_deviceContext->OMSetBlendState(m_noBlendState, blendFactor, 0xffffffff);
 }

@@ -1,0 +1,56 @@
+Texture2D shaderTexture : register(t0);
+Texture2D depthMapTexture : register(t1);
+
+SamplerState SampleTypeClamp : register(s0);
+SamplerState SampleTypeWrap  : register(s1);
+
+
+cbuffer LightBuffer{
+    float4 lightPosition;
+	float4 ePos;
+};
+
+
+struct PixelInputType{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
+	float4 worldPosition : REKT;
+    float4 fragPosLightSpace : TEXCOORD1;
+    float3 lightPos : TEXCOORD2;
+};
+
+
+float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
+
+    float4 colour;
+    float2 projectTexCoord;
+    float closestDepth;
+    float lightDepthValue;
+
+	input.normal = normalize(input.normal);
+
+    float bias = 0.00001f;
+
+	colour = shaderTexture.Sample(SampleTypeWrap, input.tex);
+
+    projectTexCoord.x =  input.fragPosLightSpace.x / input.fragPosLightSpace.w / 2.0f + 0.5f;
+    projectTexCoord.y = -input.fragPosLightSpace.y / input.fragPosLightSpace.w / 2.0f + 0.5f;
+
+	
+    if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y)){
+
+        closestDepth = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
+
+		lightDepthValue = input.fragPosLightSpace.z / input.fragPosLightSpace.w;
+
+        lightDepthValue -= bias;
+
+        if(lightDepthValue > closestDepth){
+			colour = float4(0.0f, 0.0f, 0.0f, 1.0f);
+		}else{
+			colour = float4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+    }
+	return colour;
+}

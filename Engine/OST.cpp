@@ -14,10 +14,6 @@ OST::~OST(){
 	ostId->Release();
 	srv->Release();
 	rtv->Release();
-	//required?
-	//delete ostId;
-	//delete srv;
-	//delete rtv;
 }
 
 void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
@@ -30,7 +26,7 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
 	texDesc.Height = h;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -43,7 +39,6 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
 		OutputDebugStringA("Can't create off-screen texture. \n");
 		exit(420);
 	}
-
 
 	srvd.Format = texDesc.Format;
 	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
