@@ -112,6 +112,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	altViewport.TopLeftX = 0.0f;
 	altViewport.TopLeftY = 0.0f;
 
+	//cubeMapper.edgeLength = 512;
+	cubeMapper.Init(_device);
+
 	return true;
 }
 
@@ -132,13 +135,28 @@ bool Renderer::Frame(){
 
 bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam){
 
+//cube map begin
+	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
+
+	for (int i = 0; i < 6; i++) {
+		_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
+		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
+		
+		//draw scene with camera[i]
+		
+	}
+	_deviceContext->RSSetViewports(1, &_D3D->viewport);
+//cube map end
+
+
 	//switch to drawing on ost for the prepass	//offScreenTexture.SetRenderTarget(_deviceContext, _D3D->GetDepthStencilView());
 	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());
 
 	//then clear it, both the colours and the depth-stencil buffer
 	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);
 	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 
 //to the small viewport
 	_deviceContext->RSSetViewports(1, &altViewport);

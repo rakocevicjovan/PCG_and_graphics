@@ -13,6 +13,7 @@
 #include "ShaderShadow.h"
 #include "Rekt.h"
 #include "OST.h"
+#include "CubeMapper.h"
 
 
 
@@ -59,6 +60,7 @@ private:
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
 	D3D11_VIEWPORT altViewport;
+	CubeMapper cubeMapper;
 
 	const unsigned int ostW = 800, ostH = 600;
 

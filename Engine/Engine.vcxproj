@@ -86,7 +86,6 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
-    <ClCompile Include="Cubemap.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
@@ -109,7 +108,6 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Controller.h" />
-    <ClInclude Include="Cubemap.h" />
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="ShaderDepth.h" />
