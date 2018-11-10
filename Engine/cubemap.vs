@@ -19,11 +19,18 @@ struct VertexInputType{
 
 struct PixelInputType{
     float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float3 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
 };
 
+static float4x4 identityMatrix =
+{
+    { 1, 0, 0, 0 },
+    { 0, 1, 0, 0 },
+    { 0, 0, 1, 0 },
+    { 0, 0, 0, 1 }
+};
 
 PixelInputType CMVS(VertexInputType input){
    
@@ -33,8 +40,9 @@ PixelInputType CMVS(VertexInputType input){
     output.position = mul(output.worldPos, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     
-	output.tex = input.tex;
-    output.normal = mul(input.normal, (float3x3)worldMatrix);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
+	output.texCoord = input.position;
+
+    output.normal = mul(input.normal, (float3x3)worldMatrix);
     output.normal = normalize(output.normal);
 
     return output;

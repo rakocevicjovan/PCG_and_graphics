@@ -66,8 +66,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shaderShadow.Initialize(_device, hwnd, shadowNames);
 
 	std::vector<std::wstring> cubeMapNames;
-	cubeMapNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/cubeMap.vs");
-	cubeMapNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/cubeMap.ps");
+	cubeMapNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/cubemap.vs");
+	cubeMapNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/cubemap.ps");
 	shaderCM.Initialize(_device, hwnd, cubeMapNames);
 
 
@@ -78,7 +78,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	///Dragon/Dragon 2o5_fbx.fbx
 	mod2.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");	
-	Math::Translate(mod2.transform, SVec3(0.0f, 16.0f, 0.0f));
+	Math::Translate(mod2.transform, SVec3(0.0f, 20.0f, 15.0f));
 	_models.push_back(&mod2);
 
 
@@ -87,7 +87,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	DirectionalLight light(ld, SVec4(0.0f, 0.0f, 1.0f, 1.0f));	//SVec4(0.0f, .707f, .707f, 1.f)
 	_lights.push_back(light);
 
-	pLight = PointLight(ld, SVec4(0.0f, 10.f, -30.0f, 1.0f));
+	pLight = PointLight(ld, SVec4(0.0f, 20.f, -20.0f, 1.0f));
 
 	SMatrix cMat;
 	//cMat = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&eyePos), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
@@ -140,28 +140,6 @@ bool Renderer::Frame(){
 
 bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam){
 
-//cube map begin
-	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
-
-	cubeMapper.UpdateCams(SVec3(15.0f, 30.0f, 15.0f));
-
-	for (int i = 0; i < 6; i++) {
-		_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
-		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
-		
-		//draw scene with camera[i]
-
-		_shaders[0].SetShaderParameters(_deviceContext, *models[0], cubeMapper.cameras[i], cubeMapper.lens, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
-		models[0]->Draw(_deviceContext, _shaders[0]);
-		_shaders[0].ReleaseShaderParameters(_deviceContext);
-	}
-
-	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-//cube map end
-
-
 //to the small viewport
 	_deviceContext->RSSetViewports(1, &altViewport);
 
@@ -173,29 +151,52 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	 //draw all you want to...
-
 	for (auto model : models) {
 		shaderDepth.SetShaderParameters(_deviceContext, *model, _lightvm, _lightpm);
 		model->Draw(_deviceContext, shaderDepth);
 	}
 
-	//back to the big viewport
-	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-	_deviceContext->OMSetRenderTargets(1, &(_D3D->m_renderTargetView), _D3D->GetDepthStencilView());
 	_D3D->SetBackBufferRenderTarget();
 //texture pass done
 
-	_D3D->BeginScene(clearColour);	// Clear the buffers to begin the main pass
+//cube map begin
+	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
+
+	cubeMapper.UpdateCams(_models[1]->transform.Translation());
+
+	for (int i = 0; i < 6; i++) {
+
+		_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
+		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
+
+		_shaders[0].SetShaderParameters(_deviceContext, *(models[0]), cubeMapper.cameras[i], cubeMapper.lens, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
+		models[0]->Draw(_deviceContext, _shaders[0]);
+		_shaders[0].ReleaseShaderParameters(_deviceContext);
+	}
+//cube map done
+
+	_deviceContext->RSSetViewports(1, &_D3D->viewport);
+	
+	_D3D->BeginScene(clearColour);
+	_D3D->SetBackBufferRenderTarget();
+
 	_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
 
 	for (auto model : models) {
 
-		//cubeMapper.cm_srv
 		shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _lightvm, cam.GetProjectionMatrix(),
 			_lightpm, pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
 		model->Draw(_deviceContext, shaderShadow);
 		shaderShadow.ReleaseShaderParameters(_deviceContext);
+		break;
 	}
+
+	shaderCM.SetShaderParameters(_deviceContext, *(_models[1]), cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
+		cam.GetCameraMatrix().Translation(), 0.016f, cubeMapper.cm_srv);
+	_models[1]->Draw(_deviceContext, shaderCM);
+	shaderCM.ReleaseShaderParameters(_deviceContext);
+
 
 	/*//project texture onto the scene
 	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);

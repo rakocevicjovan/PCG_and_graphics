@@ -84,6 +84,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BitMapper.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
@@ -107,6 +108,7 @@
     <ClCompile Include="ShaderWireframe.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />

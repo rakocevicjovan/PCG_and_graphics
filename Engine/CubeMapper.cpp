@@ -98,22 +98,22 @@ void CubeMapper::Init(ID3D11Device* device) {
 		exit(524);
 	}
 
-	cm_viewport.Width = edgeLength;
-	cm_viewport.Height = edgeLength;
+	cm_viewport.Width = (float)edgeLength;
+	cm_viewport.Height = (float)edgeLength;
 	cm_viewport.MinDepth = 0.0f;
 	cm_viewport.MaxDepth = 1.0f;
 	cm_viewport.TopLeftX = 0;
 	cm_viewport.TopLeftY = 0;
 
-	lens = DirectX::XMMatrixPerspectiveFovLH(PI / 2.0f, 1.0f, 0.1f, 200.0f);
+	lens = DirectX::XMMatrixPerspectiveFovLH(PI * 0.5f, 1.0f, 0.1f, 200.0f);	//2.0 * atan(edgeLength / (edgeLength - 0.5))	
 }
 
 void CubeMapper::UpdateCams(const SVec3& pos) {
 
-	cameras[0] = DirectX::XMMatrixLookToLH(pos, SVec3::Forward, SVec3::Up);
-	cameras[1] = DirectX::XMMatrixLookToLH(pos, SVec3::Backward, SVec3::Up);
-	cameras[2] = DirectX::XMMatrixLookToLH(pos, SVec3::Right, SVec3::Up);
-	cameras[3] = DirectX::XMMatrixLookToLH(pos, SVec3::Left, SVec3::Up);
-	cameras[4] = DirectX::XMMatrixLookToLH(pos, SVec3::Up, SVec3::Backward);
-	cameras[5] = DirectX::XMMatrixLookToLH(pos, SVec3::Down, SVec3::Forward);
+	cameras[0] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x + 1.f, pos.y, pos.z), SVec3::Up);
+	cameras[1] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x - 1.f, pos.y, pos.z), SVec3::Up);
+	cameras[2] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y + 1.f, pos.z), SVec3::Backward);
+	cameras[3] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y - 1.f, pos.z), SVec3::Forward);
+	cameras[4] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y, pos.z + 1.f), SVec3::Up);	//this could be wrong possible @TODO
+	cameras[5] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y, pos.z - 1.f), SVec3::Up);
 }

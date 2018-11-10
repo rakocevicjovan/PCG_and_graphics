@@ -40,7 +40,7 @@ bool ShaderCM::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	D3D11_BUFFER_DESC lightBufferDesc;
 
 	// Compile the vertex shader code.
-	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "CMVS", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&vertexShaderBuffer, &errorMessage);
 
 	if (FAILED(result)) {
@@ -52,7 +52,7 @@ bool ShaderCM::InitializeShader(ID3D11Device* device, HWND hwnd) {
 		return false;
 	}
 
-	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "LightPixelShader", "ps_5_0",
+	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "CMFS", "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 
 	if (FAILED(result)) {
@@ -121,11 +121,7 @@ bool ShaderCM::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
@@ -268,7 +264,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber;
+	unsigned int bufferNumber = 0;
 	MatrixBufferType* dataPtr;
 	LightBufferType* dataPtr2;
 	VariableBufferType* dataPtr3;

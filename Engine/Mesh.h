@@ -15,6 +15,7 @@
 #include "ShaderDepth.h"
 #include "ShaderPT.h"
 #include "ShaderShadow.h"
+#include "ShaderCM.h"
 
 class Mesh{
 
@@ -194,6 +195,20 @@ class Mesh{
 			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
+
+
+		void draw(ID3D11DeviceContext* dc, ShaderCM& s) {
+
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s.m_sampleState);
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
 	};

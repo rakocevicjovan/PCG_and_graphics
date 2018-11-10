@@ -12,12 +12,12 @@ cbuffer LightBuffer{
 
 struct PixelInputType{
     float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float3 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
 };
 
-Texture2D shaderTexture;
+TextureCube cubeMapTexture;
 SamplerState SampleType;
 
 
@@ -25,7 +25,11 @@ float4 CMFS(PixelInputType input) : SV_TARGET{
 	
 	input.normal = normalize(input.normal);
 
-	float4 colour = shaderTexture.Sample(SampleType, input.tex);
+	float4 pToEye = normalize(ePos - input.worldPos);
+
+	float3 incident = -pToEye.xyz;
+	float3 refVec = reflect(incident, input.normal);
+	float4 colour = cubeMapTexture.Sample(SampleType, refVec);
 
 	float4 ambient = saturate(float4(alc, 1.0f) * ali);
 	colour += ambient;
@@ -36,7 +40,6 @@ float4 CMFS(PixelInputType input) : SV_TARGET{
 	colour += diffuse;
 
 	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
-	float4 pToEye = normalize(ePos - input.worldPos);
 
 	float SpecularPower = 64.f;
 
