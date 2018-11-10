@@ -346,7 +346,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
 	if (model.textures_loaded.size() != 0)
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[0].srv));
+		deviceContext->PSSetShaderResources(0, 1, &(tex));
 
 	return true;
 }
