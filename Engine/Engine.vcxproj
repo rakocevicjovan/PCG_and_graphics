@@ -88,6 +88,7 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
     <ClCompile Include="OST.cpp" />
@@ -110,6 +111,7 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="OST.h" />
@@ -129,6 +131,8 @@
     <ClInclude Include="ShaderWireframe.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cubemap.ps" />
+    <None Include="cubemap.vs" />
     <None Include="projectTex.ps" />
     <None Include="projectTex.vs" />
     <None Include="rekt.vs" />

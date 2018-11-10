@@ -53,11 +53,13 @@ void CubeMapper::Init(ID3D11Device* device) {
 	rtvd.Format = texDesc.Format;
 	rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
 	rtvd.Texture2D.MipSlice = 0;
-	rtvd.Texture2DMSArray.ArraySize = 1;
+	rtvd.Texture2DArray.ArraySize = 1;
 
 	for (int i = 0; i < 6; i++) {
-		rtvd.Texture2DMSArray.FirstArraySlice = i;
-		res = device->CreateRenderTargetView(cm_id, &rtvd, &cm_rtv[i]);
+
+		rtvd.Texture2DArray.FirstArraySlice = i;
+
+		res = device->CreateRenderTargetView(cm_id, &rtvd, &(cm_rtv[i]));
 		if (FAILED(res)) {
 			OutputDebugStringA("Can't create 6 render target views. \n");
 			exit(522);

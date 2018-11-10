@@ -1,0 +1,52 @@
+cbuffer LightBuffer{
+	float3 alc;
+	float ali;
+	float3 dlc;
+	float dli;
+	float3 slc;
+	float sli;
+    float4 lightDirection;
+	float4 ePos;
+};
+
+
+struct PixelInputType{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float4 worldPos : WPOS;
+};
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+
+float4 CMFS(PixelInputType input) : SV_TARGET{
+	
+	input.normal = normalize(input.normal);
+
+	float4 colour = shaderTexture.Sample(SampleType, input.tex);
+
+	float4 ambient = saturate(float4(alc, 1.0f) * ali);
+	colour += ambient;
+
+	float4 inverseLightDir = -lightDirection;
+    float dFactor = saturate(dot(input.normal, inverseLightDir.xyz));
+	float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
+	colour += diffuse;
+
+	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
+	float4 pToEye = normalize(ePos - input.worldPos);
+
+	float SpecularPower = 64.f;
+
+	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
+	float sFactor = saturate(dot(reflectionVector, pToEye.xyz));
+	sFactor = pow(sFactor, SpecularPower);
+
+	
+	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
+		
+	colour += saturate(specular);
+    return colour;
+}
