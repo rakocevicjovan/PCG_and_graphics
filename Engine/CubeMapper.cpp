@@ -24,7 +24,7 @@ void CubeMapper::Init(ID3D11Device* device) {
 	texDesc.Height = edgeLength;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 6;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	texDesc.CPUAccessFlags = 0;
 	texDesc.SampleDesc = { 1, 0 };
 	texDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -112,8 +112,8 @@ void CubeMapper::UpdateCams(const SVec3& pos) {
 
 	cameras[0] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x + 1.f, pos.y, pos.z), SVec3::Up);
 	cameras[1] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x - 1.f, pos.y, pos.z), SVec3::Up);
-	cameras[2] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y + 1.f, pos.z), SVec3::Backward);
-	cameras[3] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y - 1.f, pos.z), SVec3::Forward);
+	cameras[2] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y + 1.f, pos.z), SVec3::Forward);	//flipped because simplemath
+	cameras[3] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y - 1.f, pos.z), SVec3::Backward);	//is right handed by default...
 	cameras[4] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y, pos.z + 1.f), SVec3::Up);	//this could be wrong possible @TODO
 	cameras[5] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y, pos.z - 1.f), SVec3::Up);
 }

@@ -71,7 +71,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shaderCM.Initialize(_device, hwnd, cubeMapNames);
 
 
-	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/terrainTex.fbx");
+	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/terrain_big_flat.fbx");
 	mod.transform = mod.transform.CreateScale(SVec3(0.3f, 0.3f, 0.3f));
 
 	_models.push_back(&mod);

@@ -22,6 +22,7 @@ struct PixelInputType{
     float3 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
+	float3 tcBall : TCBALL;
 };
 
 static float4x4 identityMatrix =
@@ -44,6 +45,8 @@ PixelInputType CMVS(VertexInputType input){
 
     output.normal = mul(input.normal, (float3x3)worldMatrix);
     output.normal = normalize(output.normal);
+
+	output.tcBall = input.position.xyz;
 
     return output;
 }

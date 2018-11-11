@@ -15,21 +15,23 @@ struct PixelInputType{
     float3 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
+	float3 tcBall : TCBALL;
 };
 
 TextureCube cubeMapTexture;
-SamplerState SampleType;
+SamplerState Sampler;
 
 
 float4 CMFS(PixelInputType input) : SV_TARGET{
 	
 	input.normal = normalize(input.normal);
 
-	float4 pToEye = normalize(ePos - input.worldPos);
+	float3 pToEye = normalize(ePos.xyz - input.worldPos.xyz);
 
-	float3 incident = -pToEye.xyz;
+	float3 incident = -pToEye;
 	float3 refVec = reflect(incident, input.normal);
-	float4 colour = cubeMapTexture.Sample(SampleType, refVec);
+	float4 colour = cubeMapTexture.Sample(Sampler, refVec);
+	colour = cubeMapTexture.Sample(Sampler, input.tcBall);
 
 	float4 ambient = saturate(float4(alc, 1.0f) * ali);
 	colour += ambient;
@@ -44,7 +46,7 @@ float4 CMFS(PixelInputType input) : SV_TARGET{
 	float SpecularPower = 64.f;
 
 	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
-	float sFactor = saturate(dot(reflectionVector, pToEye.xyz));
+	float sFactor = saturate(dot(reflectionVector, pToEye));
 	sFactor = pow(sFactor, SpecularPower);
 
 	
