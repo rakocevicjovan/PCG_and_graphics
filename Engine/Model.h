@@ -85,10 +85,11 @@ public:
 
 	//reads in vertices, indices and texture UVs of a mesh
 	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform){
+		
 		// Data to fill
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<Texture> textures;
+		std::vector<Texture> locTextures;
 
 		bool hasTexCoords = false;
 
@@ -129,14 +130,14 @@ public:
 
 			// 1. Diffuse maps
 			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
-			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+			locTextures.insert(locTextures.end(), diffuseMaps.begin(), diffuseMaps.end());
 			// 2. Specular maps
 			std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
-			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+			locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
 
 		}			
 
-		return Mesh(vertices, indices, textures, device, ind);
+		return Mesh(vertices, indices, locTextures, device, ind);
 	}
 
 
