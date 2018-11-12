@@ -15,7 +15,9 @@
 #include "Rekt.h"
 #include "OST.h"
 #include "CubeMapper.h"
+#include "GameClock.h"
 
+#include "BitMapper.h"
 
 
 const bool FULL_SCREEN = false;
@@ -32,14 +34,14 @@ public:
 	~Renderer();
 
 	bool Initialize(int, int, HWND, InputManager& inMan);
-	bool Frame();
+	bool Frame(float dTime);
 	void Shutdown();
 
 	Camera& addCamera(SMatrix& camTransform, SMatrix& lens);
 	Shader& addShader();
 
 private:
-	bool RenderFrame(const std::vector<Model*>& m, const Camera& cam);
+	bool RenderFrame(const std::vector<Model*>& m, const Camera& cam, float dTime);
 
 	D3DClass* _D3D;
 	ID3D11Device* _device;
@@ -53,6 +55,7 @@ private:
 	ShaderPT shaderPT;
 	ShaderShadow shaderShadow;
 	std::vector<Model*> _models;
+	Texture NST, DST;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
 	PointLight pLight;

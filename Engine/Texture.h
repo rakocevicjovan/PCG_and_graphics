@@ -33,6 +33,7 @@ public:
 	Texture::Texture();
 
 	bool Load();
+	bool LoadFromFile(std::string path);
 	bool LoadFromMemory(const aiTexture *texture, ID3D11Device* device);
 	bool Setup(ID3D11Device* device);
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);

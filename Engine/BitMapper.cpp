@@ -14,9 +14,8 @@
 	}
 
 
-	void BitMapper::init(const std::string& pathToBMP, int smoothness, float widthScale, float lengthScale, float heightScale) {
+	void BitMapper::init(int smoothness, float widthScale, float lengthScale, float heightScale) {
 
-		inputFileName = pathToBMP;
 		granularity = smoothness;
 		xScale = widthScale;
 		yScale = heightScale;

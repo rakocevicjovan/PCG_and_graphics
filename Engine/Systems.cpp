@@ -141,6 +141,7 @@ void Systems::Run()
 	MSG msg;
 	bool done = false;
 
+	gc.Reset();
 	// Initialize the message structure.
 	ZeroMemory(&msg, sizeof(MSG));
 	
@@ -157,19 +158,20 @@ void Systems::Run()
 			done = true;
 		}
 		else{
-			done = !Frame();	// Otherwise do the frame processing.
+			gc.Tick();
+			done = !Frame(gc.DeltaTime());	// Otherwise do the frame processing.
 		}
 	}
 }
 
 
-bool Systems::Frame(){
+bool Systems::Frame(float dTime){
 
 	// Check if the user pressed escape and wants to exit the application.
 	if(_input.IsKeyDown(VK_ESCAPE))
 		return false;
 
-	bool res = _renderer->Frame();// Do the frame processing for the graphics object.
+	bool res = _renderer->Frame(dTime);// Do the frame processing for the graphics object.
 
 	//reset input so rotations don't keep happening
 	_input.SetXY(0, 0);

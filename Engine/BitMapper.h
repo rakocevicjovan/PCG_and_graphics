@@ -12,7 +12,7 @@ public:
 	BitMapper(Texture tex);
 	~BitMapper();
 
-	void init(const std::string& pathToBMP, int smoothness, float widthScale, float lengthScale, float heightScale);
+	void init(int smoothness, float widthScale, float lengthScale, float heightScale);
 	bool createTerrain();
 	bool terrainToFile(const std::string& filePath);
 

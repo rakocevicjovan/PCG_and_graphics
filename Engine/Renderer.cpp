@@ -71,8 +71,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shaderCM.Initialize(_device, hwnd, cubeMapNames);
 
 
-	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/terrain_big_flat.fbx");
-	mod.transform = mod.transform.CreateScale(SVec3(0.3f, 0.3f, 0.3f));
+	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/mountain.obj");
+	//mod.transform = mod.transform.CreateScale(SVec3(0.3f, 0.3f, 0.3f));
 
 	_models.push_back(&mod);
 
@@ -120,25 +120,37 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	//cubeMapper.edgeLength = 512;
 	cubeMapper.Init(_device);
 
+	Texture t;
+	t.fileName = "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/volcano.png";
+	BitMapper bitMapper(t);
+	bitMapper.init(1, 2, 2, 0.3);	//g, w, l, h
+	if (bitMapper.createTerrain())
+		bitMapper.terrainToFile("../Models/Terrain/newTerrain.obj");
+	else
+		std::cout << " Failed to create terrain." << std::endl;
+
 	return true;
 }
 
 
 
-bool Renderer::Frame(){
+bool Renderer::Frame(float dTime){
 
 	for (Camera& c : _cameras) {
-		c.update(0.016f);
+		c.update(dTime);
 	}
 
-	//_models[1]->transform *= SMatrix::CreateFromAxisAngle(SVec3::Up, 0.01f);
+	/*std::ostringstream ss;
+	ss << "Frame time: " << dTime << "\n";
+	std::string s(ss.str());
+	OutputDebugStringA(ss.str().c_str());*/
 
-	return RenderFrame(_models, _cameras[0]);
+	return RenderFrame(_models, _cameras[0], dTime);
 }
 
 
 
-bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam){
+bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam, float dTime){
 
 //to the small viewport
 	_deviceContext->RSSetViewports(1, &altViewport);
@@ -170,7 +182,7 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
 
-		_shaders[0].SetShaderParameters(_deviceContext, *(models[0]), cubeMapper.cameras[i], cubeMapper.lens, _lights[0], cam.GetCameraMatrix().Translation(), 0.016f);
+		_shaders[0].SetShaderParameters(_deviceContext, *(models[0]), cubeMapper.cameras[i], cubeMapper.lens, _lights[0], cam.GetCameraMatrix().Translation(), dTime);
 		models[0]->Draw(_deviceContext, _shaders[0]);
 		_shaders[0].ReleaseShaderParameters(_deviceContext);
 	}
@@ -193,7 +205,7 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 	}
 
 	shaderCM.SetShaderParameters(_deviceContext, *(_models[1]), cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
-		cam.GetCameraMatrix().Translation(), 0.016f, cubeMapper.cm_srv);
+		cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
 	_models[1]->Draw(_deviceContext, shaderCM);
 	shaderCM.ReleaseShaderParameters(_deviceContext);
 
@@ -201,7 +213,7 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam)
 	/*//project texture onto the scene
 	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
 	shaderPT.SetShaderParameters(_deviceContext, *_models[0], cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
-								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), 0.016f, offScreenTexture.srv);
+								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
 	models[1]->Draw(_deviceContext, shaderPT);
 	shaderPT.ReleaseShaderParameters(_deviceContext);
 	*/

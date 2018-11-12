@@ -27,6 +27,20 @@ struct PixelInputType{
 };
 
 
+float3 applyFog(in float3  rgb,		// original color of the pixel
+               in float distance,	// camera to point distance
+               in float3  rayDir,   // camera to point vector
+               in float3  sunDir )  // sun light direction
+{
+    float fogAmount = 1.0 - exp( -distance * 0.01f );	//*b WHAT THE HELL IS "b" IN DENSITY MR QUILEZ???
+    float sunAmount = max( dot( rayDir, sunDir ), 0.0 );
+    float3 fogColor  = lerp( float3(0.5,0.6,0.8), // bluish
+                            float3(1.0,0.9,0.7), // yellowish
+                            pow(sunAmount,8.0) );
+    return lerp( rgb, fogColor, fogAmount );
+}
+
+
 float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
 
     float4 colour;
@@ -71,7 +85,9 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
 	
 	//some setup for specular
 	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
-	float4 pToEye = normalize(ePos - input.worldPosition);
+	float4 pToEye = ePos - input.worldPosition;
+	float pToEyeDist = length(pToEye);
+	pToEye = pToEye/pToEyeDist;
 	float SpecularPower = 16.f;
 
 	//specular light phong
@@ -88,10 +104,8 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
 
 	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
 	colour += saturate(specular);
-			
-	//colour = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
-
-    //colour = colour * texturecolour;
+	//applying fog in the postprocess is probably going to give the best result
+	//colour = float4(applyFog(colour, pToEyeDist, -pToEye, -inverseLightDir), 1.0f);
     return colour;
 }

@@ -11,8 +11,13 @@
 #endif
 
 #include "stb_image_write.h"
-
 #include "Texture.h"
+
+
+
+Texture::Texture() {}
+
+
 
 Texture::Texture(ID3D11Device* device, const std::string& fileName) {
 
@@ -27,7 +32,6 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) {
 }
 
 
-Texture::Texture() {}
 
 bool Texture::Load() {
 
@@ -38,6 +42,19 @@ bool Texture::Load() {
 	}
 	catch (...) {
 		OutputDebugStringA( ("Error loading texture '" + fileName + "' \n").c_str() );
+		return false;
+	}
+}
+
+
+
+bool Texture::LoadFromFile(std::string path) {
+	try {
+		data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
+		return (data != nullptr);
+	}
+	catch (...) {
+		OutputDebugStringA(("Error loading texture '" + fileName + "' \n").c_str());
 		return false;
 	}
 }

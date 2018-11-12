@@ -6,6 +6,7 @@
 #include <windows.h>
 #include "InputManager.h"
 #include "Renderer.h"
+#include "GameClock.h"
 
 class AudioEngine;
 
@@ -20,9 +21,11 @@ public:
 	void Shutdown();
 	
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
+	
+	GameClock gc;
 
 private:
-	bool Frame();
+	bool Frame(float dTime);
 	void InitializeWindows(int& w, int& h);
 	void ShutdownWindows();
 

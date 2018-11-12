@@ -15,7 +15,6 @@ struct PixelInputType{
     float3 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
-	float3 tcBall : TCBALL;
 };
 
 TextureCube cubeMapTexture;
@@ -31,7 +30,6 @@ float4 CMFS(PixelInputType input) : SV_TARGET{
 	float3 incident = -pToEye;
 	float3 refVec = reflect(incident, input.normal);
 	float4 colour = cubeMapTexture.Sample(Sampler, refVec);
-	colour = cubeMapTexture.Sample(Sampler, input.tcBall);
 
 	float4 ambient = saturate(float4(alc, 1.0f) * ali);
 	colour += ambient;

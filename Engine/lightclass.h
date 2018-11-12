@@ -17,6 +17,16 @@ public:
 	LightData() {}
 	LightData(SVec3 ambCol, float ambInt, SVec3 difCol, float difInt, SVec3 spcCol, float spcInt) 
 		: alc(ambCol), ali(ambInt), dlc(difCol), dli(difInt), slc(spcCol), sli(spcInt) {}
+
+	void Mix(const LightData other, float k, LightData& result) const{
+		
+		result.alc = alc * (1 - k) + other.alc * k;
+		result.ali = ali * (1 - k) + other.ali * k;
+		result.dlc = dlc * (1 - k) + other.dlc * k;
+		result.dli = dli * (1 - k) + other.dli * k;
+		result.slc = slc * (1 - k) + other.slc * k;
+		result.sli = sli * (1 - k) + other.sli * k;
+	}
 };
 
 
