@@ -24,7 +24,7 @@ void CubeMapper::Init(ID3D11Device* device) {
 	texDesc.Height = edgeLength;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 6;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	//DXGI_FORMAT_R32G32B32A32_FLOAT
 	texDesc.CPUAccessFlags = 0;
 	texDesc.SampleDesc = { 1, 0 };
 	texDesc.Usage = D3D11_USAGE_DEFAULT;

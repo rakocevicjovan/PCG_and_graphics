@@ -87,7 +87,8 @@ bool Texture::Setup(ID3D11Device* device) {
 	desc.Height = h;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	//DXGI_FORMAT_R8G8B8A8_SINT
+	//if(n == 4){}
+	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	//DXGI_FORMAT_R8G8B8A8_SINT	DXGI_FORMAT_R8G8B8A8_UNORM
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -106,7 +107,7 @@ bool Texture::Setup(ID3D11Device* device) {
 	}
 
 
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	shaderResourceViewDesc.Format = desc.Format;
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
@@ -114,7 +115,7 @@ bool Texture::Setup(ID3D11Device* device) {
 	res = device->CreateShaderResourceView(texId, &shaderResourceViewDesc, &srv);	//&resViewDesc
 	if (FAILED(res)) {
 		OutputDebugStringA("Can't create shader resource view. \n");
-		exit(42);
+		exit(43);
 	}
 
 	return true;

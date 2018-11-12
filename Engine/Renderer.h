@@ -22,7 +22,7 @@
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 500.0f;
+const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
 class InputManager;
@@ -64,8 +64,10 @@ private:
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
 	D3D11_VIEWPORT altViewport;
-	CubeMapper cubeMapper;
+	CubeMapper cubeMapper, shadowCubeMapper;
 	ShaderCM shaderCM;
+
+	bool drawUI;
 
 	const unsigned int ostW = 800, ostH = 600;
 

@@ -42,7 +42,7 @@ public:
 
 		// Read file via ASSIMP
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded);
 
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
@@ -54,7 +54,7 @@ public:
 		directory = path.substr(0, path.find_last_of('/'));	
 		name = path.substr(path.find_last_of('/')+1, path.size());
 
-		processNode(device, scene->mRootNode, scene);
+		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation);
 		return true;
 	}
 
@@ -62,22 +62,20 @@ public:
 		
 	// Processes a node in a recursive fashion. Processes each individual mesh located at the node  
 	//and repeats this process on its children nodes (if any).
-	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene) {
+	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform) {
 
-		//BONE CODE, MIGHT SEPARATE COMPLETELY FROM STATIC MESHES
-
+		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
 		// Process each mesh located at the current node
 		for (unsigned int i = 0; i < node->mNumMeshes; i++){
-			// The node object only contains indices to index the actual objects in the scene.
-			// The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			unsigned int ind = meshes.size();
 
-			meshes.push_back(processMesh(device, mesh, scene));
+			meshes.push_back(processMesh(device, mesh, scene, ind, concatenatedTransform));
 		}
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++){
-			this->processNode(device, node->mChildren[i], scene);
+			this->processNode(device, node->mChildren[i], scene, concatenatedTransform);
 		}
 		return true;
 	}
@@ -86,7 +84,7 @@ public:
 
 
 	//reads in vertices, indices and texture UVs of a mesh
-	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene){
+	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform){
 		// Data to fill
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
@@ -98,19 +96,17 @@ public:
 		if (mesh->mTextureCoords[0])
 			hasTexCoords = true;
 
-		// Walk through each of the mesh's vertices
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++){
+			
 			Vert3D vertex;
 			
-			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y , mesh->mVertices[i].z);
-			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+			aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+			vertex.pos = SVec3(temp.x, temp.y, temp.z);
+			aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+			vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
 
-			// Texture Coordinates
 			if (hasTexCoords) { // Does the mesh contain texture coordinates?
-				// A vertex can contain up to 8 different texture coordinates. We make the assumption that we won't
-				// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
 				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-				auto a = mesh->mTextureCoords[0];
 
 			} else 
 				vertex.texCoords = SVec2(0.0f, 0.0f);
@@ -140,7 +136,7 @@ public:
 
 		}			
 
-		return Mesh(vertices, indices, textures, device);
+		return Mesh(vertices, indices, textures, device, ind);
 	}
 
 

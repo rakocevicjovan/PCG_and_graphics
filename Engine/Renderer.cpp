@@ -4,6 +4,7 @@
 
 Renderer::Renderer(){
 	_D3D = 0;
+	drawUI = false;
 }
 
 
@@ -70,10 +71,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	cubeMapNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/cubemap.ps");
 	shaderCM.Initialize(_device, hwnd, cubeMapNames);
 
-
-	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/mountain.obj");
-	//mod.transform = mod.transform.CreateScale(SVec3(0.3f, 0.3f, 0.3f));
-
+	//mountain.obj
+	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/Treehouse/thouse(formats).fbx");
+	//mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/mountain.obj");
 	_models.push_back(&mod);
 
 	///Dragon/Dragon 2o5_fbx.fbx
@@ -119,7 +119,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	//cubeMapper.edgeLength = 512;
 	cubeMapper.Init(_device);
+	shadowCubeMapper.Init(_device);
 
+	/*
 	Texture t;
 	t.fileName = "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/volcano.png";
 	BitMapper bitMapper(t);
@@ -128,6 +130,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 		bitMapper.terrainToFile("../Models/Terrain/newTerrain.obj");
 	else
 		std::cout << " Failed to create terrain." << std::endl;
+	*/
 
 	return true;
 }
@@ -152,28 +155,25 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam, float dTime){
 
-//to the small viewport
-	_deviceContext->RSSetViewports(1, &altViewport);
-
-	//switch to drawing on ost for the prepass	//offScreenTexture.SetRenderTarget(_deviceContext, _D3D->GetDepthStencilView());
-	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());
-
-	//then clear it, both the colours and the depth-stencil buffer
-	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);
+	/*	//I am now using depth cube map instead of a single depth texture for shadows
+	
+	_deviceContext->RSSetViewports(1, &altViewport);	//to the small viewport
+	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
+	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
 	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	 //draw all you want to...
 	for (auto model : models) {
 		shaderDepth.SetShaderParameters(_deviceContext, *model, _lightvm, _lightpm);
 		model->Draw(_deviceContext, shaderDepth);
 	}
 
 	_D3D->SetBackBufferRenderTarget();
-//texture pass done
+	*/
 
-//cube map begin
+
+	/*
+//reflection cube map begin
 	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
-
 	cubeMapper.UpdateCams(_models[1]->transform.Translation());
 
 	for (int i = 0; i < 6; i++) {
@@ -186,28 +186,54 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam,
 		models[0]->Draw(_deviceContext, _shaders[0]);
 		_shaders[0].ReleaseShaderParameters(_deviceContext);
 	}
-//cube map done
+//reflection cube map done
 
+
+//shadow cube map begin
+	_deviceContext->RSSetViewports(1, &(shadowCubeMapper.cm_viewport));
+	shadowCubeMapper.UpdateCams(SVec3(pLight.pos));
+
+	for (int i = 0; i < 6; i++) {
+		//use depth shader here...
+		_deviceContext->ClearRenderTargetView(shadowCubeMapper.cm_rtv[i], shadowCubeMapper.clearCol);
+		_deviceContext->ClearDepthStencilView(shadowCubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		_deviceContext->OMSetRenderTargets(1, &shadowCubeMapper.cm_rtv[i], shadowCubeMapper.cm_depthStencilView);
+
+		for (auto model : models) {
+			shaderDepth.SetShaderParameters(_deviceContext, *model, cubeMapper.cameras[i], cubeMapper.lens);
+			model->Draw(_deviceContext, shaderDepth);
+		}
+	}
+//shadow cube map end
+*/
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-	
-	_D3D->BeginScene(clearColour);
 	_D3D->SetBackBufferRenderTarget();
+	_D3D->BeginScene(clearColour);
 
-	_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+	if (drawUI) {
+		_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+	}
 
 	for (auto model : models) {
 
-		shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _lightvm, cam.GetProjectionMatrix(),
+		/*shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _lightvm, cam.GetProjectionMatrix(),
 			_lightpm, pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
 		model->Draw(_deviceContext, shaderShadow);
-		shaderShadow.ReleaseShaderParameters(_deviceContext);
+		shaderShadow.ReleaseShaderParameters(_deviceContext);*/
+
+		_shaders[0].SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
+			cam.GetCameraMatrix().Translation(), dTime);
+		model->Draw(_deviceContext, _shaders[0]);
+		_shaders[0].ReleaseShaderParameters(_deviceContext);
 		break;
 	}
 
+	/*
 	shaderCM.SetShaderParameters(_deviceContext, *(_models[1]), cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
 		cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
 	_models[1]->Draw(_deviceContext, shaderCM);
 	shaderCM.ReleaseShaderParameters(_deviceContext);
+	*/
 
 
 	/*//project texture onto the scene

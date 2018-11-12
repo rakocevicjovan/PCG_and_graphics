@@ -11,7 +11,7 @@ public:
 	~Controller();
 
 	InputManager* inMan;
-	float rotCf = 15.f , movCf = 15.f;
+	float rotCf = 15.f , movCf = 100.f;
 	short dx = 0, dy = 0;
 
 	void Controller::processTransformationFPS(const float dTime, SMatrix& transformation);

@@ -24,6 +24,7 @@ class Mesh{
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<Texture> textures;	//should be a single texture tbh
+		unsigned int indexIntoModelMeshArray;
 
 		//unsigned int VAO, VBO, EBO;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
@@ -33,11 +34,12 @@ class Mesh{
 			_indexBuffer = 0;
 		}
 
-		Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device)
+		Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind)
 			: vertices(vertices), indices(indices), textures(textures)
 		{		
 			_vertexBuffer = 0;
 			_indexBuffer = 0;
+			indexIntoModelMeshArray = ind;
 			setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 		}
 
@@ -129,6 +131,7 @@ class Mesh{
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			dc->PSSetSamplers(0, 1, &s.m_sampleState );
+			dc->PSSetShaderResources(0, 1, &(textures[0].srv));
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
 

@@ -121,7 +121,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 1;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
     samplerDesc.BorderColor[0] = 0;
 	samplerDesc.BorderColor[1] = 0;
 	samplerDesc.BorderColor[2] = 0;
@@ -359,8 +359,11 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	if(model.textures_loaded.size() != 0)
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[0].srv) );
+	//if(model.textures_loaded.size() != 0)
+	/*for (int i = 0; i < model.textures_loaded.size(); i++) {
+		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
+	}*/
+		
 
 	return true;
 }
