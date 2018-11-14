@@ -24,6 +24,7 @@ public:
 	unsigned int edgeLength;
 	void Init(ID3D11Device* device);
 	void UpdateCams(const SVec3& pos);
+	void LoadFromFiles(ID3D11Device* device, const std::string& filename);	//std::vector<std::string>& filenames
 
 	SMatrix cameras[6];
 	D3D11_VIEWPORT cm_viewport;

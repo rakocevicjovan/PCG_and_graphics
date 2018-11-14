@@ -35,7 +35,7 @@ public:
 	}
 
 
-	bool LoadModel(ID3D11Device* device, const std::string& path){
+	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1){
 
 		//@TODO could be fucky...
 		assert(fileExists(path) && "File does not exist! ...probably.");
@@ -54,7 +54,7 @@ public:
 		directory = path.substr(0, path.find_last_of('/'));	
 		name = path.substr(path.find_last_of('/')+1, path.size());
 
-		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation);
+		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
 		return true;
 	}
 
@@ -62,7 +62,7 @@ public:
 		
 	// Processes a node in a recursive fashion. Processes each individual mesh located at the node  
 	//and repeats this process on its children nodes (if any).
-	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform) {
+	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
 
 		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
 		// Process each mesh located at the current node
@@ -70,12 +70,12 @@ public:
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			unsigned int ind = meshes.size();
 
-			meshes.push_back(processMesh(device, mesh, scene, ind, concatenatedTransform));
+			meshes.push_back(processMesh(device, mesh, scene, ind, concatenatedTransform, rUVx, rUVy));
 		}
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++){
-			this->processNode(device, node->mChildren[i], scene, concatenatedTransform);
+			this->processNode(device, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
 		}
 		return true;
 	}
@@ -84,7 +84,7 @@ public:
 
 
 	//reads in vertices, indices and texture UVs of a mesh
-	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform){
+	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy){
 		
 		// Data to fill
 		std::vector<Vert3D> vertices;
@@ -107,7 +107,7 @@ public:
 			vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
 
 			if (hasTexCoords) { // Does the mesh contain texture coordinates?
-				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);
 
 			} else 
 				vertex.texCoords = SVec2(0.0f, 0.0f);
@@ -355,6 +355,11 @@ public:
 	}
 
 	void Draw(ID3D11DeviceContext* dc, ShaderCM& shader) {
+		for (unsigned int i = 0; i < this->meshes.size(); i++)
+			this->meshes[i].draw(dc, shader);
+	}
+
+	void Draw(ID3D11DeviceContext* dc, ShaderSkybox& shader) {
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}

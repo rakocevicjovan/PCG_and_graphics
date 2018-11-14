@@ -16,6 +16,7 @@
 #include "ShaderPT.h"
 #include "ShaderShadow.h"
 #include "ShaderCM.h"
+#include "ShaderSkybox.h"
 
 class Mesh{
 
@@ -47,10 +48,10 @@ class Mesh{
 
 			//make the vertices etc...
 
-			float originX = (pos.x - 0.5) * 2;
-			float originY = (pos.y - 0.5) * 2;
-			float width = size.x * 2;
-			float height = size.y * 2;
+			float originX = (pos.x - 0.5f) * 2.f;
+			float originY = (pos.y - 0.5f) * 2.f;
+			float width = size.x * 2.f;
+			float height = size.y * 2.f;
 
 			Vert3D topLeft;
 			topLeft.pos = SVec3(originX, originY + height, 0.0f);
@@ -132,7 +133,8 @@ class Mesh{
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			dc->PSSetSamplers(0, 1, &s.m_sampleState );
 			s.ReleaseShaderParameters(dc);
-			dc->PSSetShaderResources(0, 1, &(textures[0].srv));
+			if(textures.size() > 0)
+				dc->PSSetShaderResources(0, 1, &(textures[0].srv));
 			dc->DrawIndexed(indices.size(), 0, 0);
 		}
 
@@ -205,6 +207,18 @@ class Mesh{
 
 
 		void draw(ID3D11DeviceContext* dc, ShaderCM& s) {
+
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s.m_sampleState);
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
+		void draw(ID3D11DeviceContext* dc, ShaderSkybox& s) {
 
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;

@@ -12,6 +12,7 @@
 #include "ShaderPT.h"
 #include "ShaderShadow.h"
 #include "ShaderCM.h"
+#include "ShaderSkybox.h"
 #include "Rekt.h"
 #include "OST.h"
 #include "CubeMapper.h"
@@ -41,7 +42,7 @@ public:
 	Shader& addShader();
 
 private:
-	bool RenderFrame(const std::vector<Model*>& m, const Camera& cam, float dTime);
+	bool RenderFrame(float dTime);
 
 	D3DClass* _D3D;
 	ID3D11Device* _device;
@@ -49,23 +50,32 @@ private:
 
 	std::vector<Camera> _cameras;
 	std::vector<Shader> _shaders;
+	std::vector<Model*> _terrainModels;
+
 	WireframeShader wfs;
+	Shader shaderLight;
 	ShaderHUD shaderHUD;
 	ShaderDepth shaderDepth;
 	ShaderPT shaderPT;
 	ShaderShadow shaderShadow;
-	std::vector<Model*> _models;
+	ShaderCM shaderCM;
+	ShaderSkybox shaderSkybox;
+
 	Texture NST, DST;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	std::vector<DirectionalLight> _lights;
 	PointLight pLight;
 	SMatrix _lightpm, _lightvm;
+
 	OST offScreenTexture;
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
 	D3D11_VIEWPORT altViewport;
-	CubeMapper cubeMapper, shadowCubeMapper;
-	ShaderCM shaderCM;
+
+	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
+
+	Model modTerrain, modTreehouse, modBall, modSkybox;
+	
 
 	bool drawUI;
 
@@ -75,6 +85,5 @@ private:
 	float ccb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
-	Model mod, mod2;
 };
 #endif

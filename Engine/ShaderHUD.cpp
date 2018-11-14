@@ -35,7 +35,6 @@ bool ShaderHUD::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];	//description of buffer data
 	unsigned int numElements;					//number of elements in the poligon layout... this is dumb...
 
-	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
 	// Compile the vertex shader code.

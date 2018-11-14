@@ -35,10 +35,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	std::vector<std::wstring> names;
 	names.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/light.vs");
 	names.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/light.ps");
-	
-	Shader joeSchmoe;
-	joeSchmoe.Initialize(_device, hwnd, names);
-	_shaders.push_back(joeSchmoe);
+	shaderLight.Initialize(_device, hwnd, names);
+	_shaders.push_back(shaderLight);
 
 	std::vector<std::wstring> wfsNames;
 	wfsNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/wireframe.vs");
@@ -71,26 +69,34 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	cubeMapNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/cubemap.ps");
 	shaderCM.Initialize(_device, hwnd, cubeMapNames);
 
+	std::vector<std::wstring> skyboxNames;
+	skyboxNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/skyboxvs.hlsl");
+	skyboxNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/skyboxps.hlsl");
+	shaderSkybox.Initialize(_device, hwnd, skyboxNames);
+
+	modTerrain.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/NewTerTex.fbx", 50, 50);
+	Math::Scale(modTerrain.transform, SVec3(2.f));
+	_terrainModels.push_back(&modTerrain);
+
 	//mountain.obj
-	mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/Treehouse/thouse(formats).fbx");
-	//mod.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/mountain.obj");
-	_models.push_back(&mod);
+	modTreehouse.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/Treehouse/thouse(formats).fbx");
+	modTreehouse.transform.CreateScale(SVec3(0.2f));
+	_terrainModels.push_back(&modTreehouse);
 
 	///Dragon/Dragon 2o5_fbx.fbx
-	mod2.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");	
-	Math::Translate(mod2.transform, SVec3(0.0f, 20.0f, 15.0f));
-	_models.push_back(&mod2);
+	modBall.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");	
+	Math::Translate(modBall.transform, SVec3(0.0f, 20.0f, -200.0f));
 
+	modSkybox.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Skysphere.fbx");
 
-	LightData ld(SVec3(1.0f), .1f, SVec3(1.0f), .3f, SVec3(1.0f), 0.5f);
+	LightData ld(SVec3(1.0f), .01f, SVec3(1.0f), .3f, SVec3(1.0f), 0.5f);
 	
 	DirectionalLight light(ld, SVec4(0.0f, 0.0f, 1.0f, 1.0f));	//SVec4(0.0f, .707f, .707f, 1.f)
 	_lights.push_back(light);
 
-	pLight = PointLight(ld, SVec4(0.0f, 20.f, -20.0f, 1.0f));
+	pLight = PointLight(ld, SVec4(0.0f, 300.f, 500.0f, 1.0f));
 
 	SMatrix cMat;
-	//cMat = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&eyePos), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
 
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
 
@@ -120,6 +126,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	//cubeMapper.edgeLength = 512;
 	cubeMapper.Init(_device);
 	shadowCubeMapper.Init(_device);
+	skyboxCubeMapper.LoadFromFiles(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/night.dds");
 
 	/*
 	Texture t;
@@ -143,19 +150,23 @@ bool Renderer::Frame(float dTime){
 		c.update(dTime);
 	}
 
+	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
+
 	/*std::ostringstream ss;
 	ss << "Frame time: " << dTime << "\n";
 	std::string s(ss.str());
 	OutputDebugStringA(ss.str().c_str());*/
 
-	return RenderFrame(_models, _cameras[0], dTime);
+	return RenderFrame(dTime);
 }
 
 
 
-bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam, float dTime){
+bool Renderer::RenderFrame(float dTime){
 
-	/*	//I am now using depth cube map instead of a single depth texture for shadows
+	///SHADOWS
+/*	
+	//I am now using depth cube map instead of a single depth texture for shadows... or am I?
 	
 	_deviceContext->RSSetViewports(1, &altViewport);	//to the small viewport
 	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
@@ -168,28 +179,10 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam,
 	}
 
 	_D3D->SetBackBufferRenderTarget();
-	*/
+*/
 
-
-	/*
-//reflection cube map begin
-	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
-	cubeMapper.UpdateCams(_models[1]->transform.Translation());
-
-	for (int i = 0; i < 6; i++) {
-
-		_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
-		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
-
-		_shaders[0].SetShaderParameters(_deviceContext, *(models[0]), cubeMapper.cameras[i], cubeMapper.lens, _lights[0], cam.GetCameraMatrix().Translation(), dTime);
-		models[0]->Draw(_deviceContext, _shaders[0]);
-		_shaders[0].ReleaseShaderParameters(_deviceContext);
-	}
-//reflection cube map done
-
-
-//shadow cube map begin
+/*
+	//shadow cube map begin
 	_deviceContext->RSSetViewports(1, &(shadowCubeMapper.cm_viewport));
 	shadowCubeMapper.UpdateCams(SVec3(pLight.pos));
 
@@ -204,8 +197,32 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam,
 			model->Draw(_deviceContext, shaderDepth);
 		}
 	}
-//shadow cube map end
+	//shadow cube map end
 */
+	///SHADOWS DONE
+
+	///REFLECTIONS
+//reflection cube map begin
+	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
+	cubeMapper.UpdateCams(modBall.transform.Translation());
+
+	for (int i = 0; i < 6; i++) {
+
+		_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
+		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
+
+		shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, _lights[0], _cameras[0].GetCameraMatrix().Translation(), dTime);
+		modTerrain.Draw(_deviceContext, shaderLight);
+		shaderLight.ReleaseShaderParameters(_deviceContext);
+
+		shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, _lights[0], _cameras[0].GetCameraMatrix().Translation(), dTime);
+		modTreehouse.Draw(_deviceContext, shaderLight);
+		shaderLight.ReleaseShaderParameters(_deviceContext);
+	}
+//reflection cube map done
+	///REFLECTIONS DONE
+
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
 	_D3D->SetBackBufferRenderTarget();
 	_D3D->BeginScene(clearColour);
@@ -214,33 +231,42 @@ bool Renderer::RenderFrame(const std::vector<Model*>& models, const Camera& cam,
 		_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
 	}
 
-	for (auto model : models) {
+	for (auto tm : _terrainModels) {
 
 		/*shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _lightvm, cam.GetProjectionMatrix(),
 			_lightpm, pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
 		model->Draw(_deviceContext, shaderShadow);
 		shaderShadow.ReleaseShaderParameters(_deviceContext);*/
-
-		_shaders[0].SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
-			cam.GetCameraMatrix().Translation(), dTime);
-		model->Draw(_deviceContext, _shaders[0]);
-		_shaders[0].ReleaseShaderParameters(_deviceContext);
-		break;
+		shaderLight.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), _lights[0],
+			_cameras[0].GetCameraMatrix().Translation(), dTime);
+		tm->Draw(_deviceContext, shaderLight);
+		shaderLight.ReleaseShaderParameters(_deviceContext);
 	}
 
 	/*
-	shaderCM.SetShaderParameters(_deviceContext, *(_models[1]), cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
-		cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
-	_models[1]->Draw(_deviceContext, shaderCM);
+	shaderCM.SetShaderParameters(_deviceContext, modBall, cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
+		cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);	//cubeMapper.cm_srv
+	modBall.Draw(_deviceContext, shaderCM);
 	shaderCM.ReleaseShaderParameters(_deviceContext);
 	*/
+
+	//skybox
+	_D3D->TurnOffCulling();
+	_D3D->SwitchDepthToLessEquals();
+	shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+		_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+	modSkybox.Draw(_deviceContext, shaderSkybox);
+	shaderSkybox.ReleaseShaderParameters(_deviceContext);
+	_D3D->TurnOnCulling();
+	_D3D->SwitchDepthToDefault();
+	//skybox end
 
 
 	/*//project texture onto the scene
 	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
-	shaderPT.SetShaderParameters(_deviceContext, *_models[0], cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
+	shaderPT.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
 								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
-	models[1]->Draw(_deviceContext, shaderPT);
+	modTerrain.Draw(_deviceContext, shaderPT);
 	shaderPT.ReleaseShaderParameters(_deviceContext);
 	*/
 

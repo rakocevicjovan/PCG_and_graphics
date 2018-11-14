@@ -105,6 +105,7 @@
     <ClCompile Include="ShaderHUD.cpp" />
     <ClCompile Include="ShaderPT.cpp" />
     <ClCompile Include="ShaderShadow.cpp" />
+    <ClCompile Include="ShaderSkybox.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="ShaderHUD.h" />
     <ClInclude Include="ShaderPT.h" />
     <ClInclude Include="ShaderShadow.h" />
+    <ClInclude Include="ShaderSkybox.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
@@ -158,6 +160,14 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="skyboxps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="skyboxvs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

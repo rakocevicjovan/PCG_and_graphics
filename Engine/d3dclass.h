@@ -28,8 +28,14 @@ public:
 	ID3D11DepthStencilView* GetDepthStencilView();
 	void SetBackBufferRenderTarget();
 
-	void D3DClass::TurnOnAlphaBlending();
-	void D3DClass::TurnOffAlphaBlending();
+	void TurnOnAlphaBlending();
+	void TurnOffAlphaBlending();
+
+	void TurnOnCulling();
+	void TurnOffCulling();
+
+	void SwitchDepthToLessEquals();
+	void SwitchDepthToDefault();
 
 	float _fieldOfView, _screenAspect;
 	ID3D11RenderTargetView* m_renderTargetView;
@@ -43,9 +49,9 @@ private:
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11DepthStencilState* m_depthStencilState;
+	ID3D11DepthStencilState* m_depthStencilState, *DSLessEqual;
 	ID3D11DepthStencilView* m_depthStencilView;
-	ID3D11RasterizerState* m_rasterState;
+	ID3D11RasterizerState* m_rasterState, *m_rasterStateNoCull;
 	ID3D11BlendState* m_blendState, *m_noBlendState;
 };
 

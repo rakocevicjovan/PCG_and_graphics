@@ -87,6 +87,9 @@
     <ClCompile Include="Celestials.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderSkybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -164,6 +167,9 @@
     <ClInclude Include="Celestials.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderSkybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="light.ps">
@@ -223,5 +229,13 @@
     <Text Include="shader-error.txt">
       <Filter>Shader Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="skyboxvs.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="skyboxps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -8,6 +8,7 @@ D3DClass::D3DClass()
 	m_renderTargetView = 0;
 	m_depthStencilBuffer = 0;
 	m_depthStencilState = 0;
+	DSLessEqual = 0;
 	m_depthStencilView = 0;
 	m_rasterState = 0;
 }
@@ -239,9 +240,13 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// Create the depth stencil state.
 	result = _device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
-	if(FAILED(result)){
+	if(FAILED(result))
 		return false;
-	}
+
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	result = _device->CreateDepthStencilState(&depthStencilDesc, &DSLessEqual);
+	if (FAILED(result))
+		return false;
 
 	// Set the depth stencil state.
 	_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
@@ -277,6 +282,13 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// Create the rasterizer state from the description we just filled out.
 	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+	if (FAILED(result)) {
+		return false;
+	}
+
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+
+	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterStateNoCull);
 	if (FAILED(result)) {
 		return false;
 	}
@@ -442,4 +454,21 @@ void D3DClass::D3DClass::TurnOffAlphaBlending()
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	_deviceContext->OMSetBlendState(m_noBlendState, blendFactor, 0xffffffff);
+}
+
+void D3DClass::TurnOnCulling() {
+	_deviceContext->RSSetState(m_rasterState);
+}
+
+void D3DClass::TurnOffCulling() {
+	_deviceContext->RSSetState(m_rasterStateNoCull);
+}
+
+void D3DClass::SwitchDepthToLessEquals()
+{
+	_deviceContext->OMSetDepthStencilState(DSLessEqual, 1);
+}
+
+void D3DClass::SwitchDepthToDefault(){
+	_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 }
