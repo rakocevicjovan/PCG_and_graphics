@@ -5,19 +5,34 @@ cbuffer LightBuffer {
 	float dli;
 	float3 slc;
 	float sli;
-	float4 lightPosition;
+	float4 lightDir;
 	float4 eyePos;
+	float4 viewDir;
 };
 
 
 struct PixelInputType {
 	float4 position : SV_POSITION;
-	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
+	float elapsed : SUMTIME;
 };
 
-Texture2D noiseTexture;
+/*
+stuff i actually need:
+moonColour
+eyePos
+eyeDir
+elapsed
+noise and perlin noise textures
+*/
+
+Texture2D perlinTexture : register(t0);
+Texture2D noiseTexture : register(t1);
+
+static float3 bgcol = float3(0.1f, 0.0f, 0.3f);
+static int2 iResolution = int2(1600, 900);
+
 SamplerState CloudSampler;
 
 
@@ -41,9 +56,9 @@ float noise(in float3 x){
 	int3 q = int3(p);
 	int2 uv = q.xy + int2(37, 17)*q.z;
 
-	float2 rg = mix(mix(texelFetch(iChannel0, (uv) & 255, 0),
+	float2 rg = lerp(lerp(texelFetch(iChannel0, (uv) & 255, 0),
 		texelFetch(iChannel0, (uv + int2(1, 0)) & 255, 0), f.x),
-		mix(texelFetch(iChannel0, (uv + int2(0, 1)) & 255, 0),
+		lerp(texelFetch(iChannel0, (uv + int2(0, 1)) & 255, 0),
 			texelFetch(iChannel0, (uv + int2(1, 1)) & 255, 0), f.x), f.y).yx;
 	*/
    
@@ -52,9 +67,9 @@ float noise(in float3 x){
 }
 
 //from what to what?	what are p, q and f?
-float map5(in float3 p, float dTime){
+float map5(in float3 p, float elapsed){
 
-	float3 q = p - float3(0.0, 0.1, 1.0) * dTime;	//pass dTime here!
+	float3 q = p - float3(0.0, 0.1, 1.0) * elapsed;	//pass elapsed here!
 	float f;										//texture coordinates
 	f = 0.50000f  * noise(q); 
 	q = q * 2.02f;
@@ -69,51 +84,12 @@ float map5(in float3 p, float dTime){
 }
 
 
-float map4(in float3 p, float dTime){
-
-	float3 q = p - float3(0.0f, 0.1f, 1.0f) * dTime;
-	float f;
-	f  = 0.5000f * noise(q); 
-	q = q * 2.02f;
-	f += 0.2500f * noise(q); 
-	q = q * 2.03f;
-	f += 0.1250f * noise(q); 
-	q = q * 2.01f;
-	f += 0.0625f * noise(q);
-
-	return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);	//again map to 0-1 range
-}
-
-
-float map3(in float3 p, float dTime){
-
-	float3 q = p - float3(0.0f, 0.1f, 1.0f) * dTime;
-	float f;
-	f = 0.50000*noise(q); 
-	q = q * 2.02;
-	f += 0.25000*noise(q); 
-	q = q * 2.03;
-	f += 0.12500*noise(q);
-	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0, 1.0);
-}
-
-
-float map2(in float3 p, float dTime){
-
-	float3 q = p - float3(0.0f, 0.1f, 1.0f) * dTime;
-	float f;
-	f  = 0.50000f * noise(q); 
-	q = q * 2.02f;
-	f += 0.25000f * noise(q);;
-	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0f, 1.0f);
-}
-
 float4 integrate(in float4 sum, in float dif, in float den, in float3 bgcol, in float t){
 	// lighting
 	float3 lin = float3(0.65f, 0.7f, 0.75f) * 1.4f + float3(1.0f, 0.6f, 0.3f) * dif;
-	float4 col = float4(mix(float3(1.0f, 0.95f, 0.8f), float3(0.25f, 0.3f, 0.35f), den), den);
+	float4 col = float4(lerp(float3(1.0f, 0.95f, 0.8f), float3(0.25f, 0.3f, 0.35f), den), den);
 	col.xyz *= lin;
-	col.xyz = mix(col.xyz, bgcol, 1.0 - exp(-0.003*t*t));
+	col.xyz = lerp(col.xyz, bgcol, 1.0 - exp(-0.003*t*t));
 	// front to back blending    
 	col.a *= 0.4f;
 	col.rgb *= col.a;
@@ -124,52 +100,56 @@ float4 integrate(in float4 sum, in float dif, in float den, in float3 bgcol, in 
 //make sense of this
 /*
 #define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3  pos = ro + t*rd; if( pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99 ) break; 
-float den = MAPLOD(pos); if (den > 0.01) { float dif = clamp((den - MAPLOD(pos + 0.3*sundir)) / 0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); }
+float den = MAPLOD(pos); if (den > 0.01) { float dif = clamp((den - MAPLOD(pos + 0.3*lightDir)) / 0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); }
 t += max(0.05, 0.02*t); }
 */
 
-float4 march(in int steps, in float3 ro, in float3 rd, in float t, inout sum, float dTime) {
+void march(in int steps, in float3 ro, in float3 rd, in float t, inout float4 sum, float elapsed) {
 	for (int i = 0; i < steps; i++) {
 		float3 pos = ro + t * rd;
 		if (pos.y < -3.0f || pos.y > 2.0f || sum.a > 0.99f) break;
-		float den = map5(pos, dTime);
+		float den = map5(pos, elapsed);
 
 		if (den > 0.01f) {
-			float dif = clamp((den - map5(pos + 0.3f * lightDir)) / 0.6f, 0.0f, 1.0f);
+			float dif = clamp( (den - map5(pos + 0.3f * lightDir.xyz, elapsed)) / 0.6f, 0.0f, 1.0f);
 			sum = integrate (sum, dif, den, bgcol, t);
 		}
 		t += max(0.05f, 0.02f * t);
 	}
 }
 
-float4 raymarch(in float3 ro, in float3 rd, in float3 bgcol, in int2 px, float dTime){
+float4 raymarch(in float3 ro, in float3 rd, in float3 bgcol, in int2 px, float elapsed){
 	
-	float4 sum = float4(0.0);
+	float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	//0.05*texelFetch( iChannel0, px&255, 0 ).x;
-	float t = 0.05f * noiseTexture.Load(px&255).x;	//x because it's grayscale so any value would do...
+
+	int2 xy = 255 * px;
+	float t = 0.05f * noiseTexture.Load(int3(xy.x, xy.y, 0.0f)).x;	//x because it's grayscale so any value would do...
 	
-	/*MARCH(30, map5);
+	/*
+	MARCH(30, map5);
 	MARCH(30, map4);
 	MARCH(30, map3);
-	MARCH(30, map2);*/
+	MARCH(30, map2);
+	*/
 
-	march(30, ro, rd, t, sum, dTime);
+	march(30, ro, rd, t, sum, elapsed);
 	
 	return clamp(sum, 0.0f, 1.0f);
 }
 
 
 
-float4 render(in float3 ro, in float3 rd, in int2 px, float dTime){
+float4 render(in float3 ro, in float3 rayDir, in int2 px, float elapsed){
 
 	// background sky     
-	float sun = clamp(dot(sundir, rd), 0.0f, 1.0f);
-	float3 col = float3(0.6f, 0.71f, 0.75f) - rd.y * 0.2f * float3(1.0f, 0.5f, 1.0f) + 0.15f * 0.5f;
+	float sun = clamp(dot(lightDir.xyz, rayDir), 0.0f, 1.0f);
+	float3 col = float3(0.6f, 0.71f, 0.75f) - rayDir.y * 0.2f * float3(1.0f, 0.5f, 1.0f) + 0.15f * 0.5f;
 	col += 0.2f * float3(1.0f, .6f, 0.1f) * pow(sun, 8.0f);
 
 	// clouds    
-	float4 res = raymarch(ro, rd, col, px, dTime);
+	float4 res = raymarch(ro, rayDir, col, px, elapsed);
 	col = col * (1.0f - res.w) + res.xyz;
 
 	// sun glare    
@@ -180,17 +160,73 @@ float4 render(in float3 ro, in float3 rd, in int2 px, float dTime){
 
 
 //...in between these comment lines
-float4 strifeFragment(PixelInputType input){
+float4 strifeFragment(PixelInputType input) : SV_TARGET{
 
 	float4 colour;
-	float2 p = (-iResolution.xy + 2.0*fragCoord.xy) / iResolution.y;
+	float2 p = (-iResolution.xy + 2.0 * input.position.xy) / iResolution.y;
 
-	// ray
-	float3 rd = ca * normalize(float3(p.xy, 1.5f));
+	
+	float3 rayDir = -normalize(input.worldPos.xyz - eyePos.xyz); //float3 rayDir = viewMatrix * normalize(float3(p.xy, 1.5f));
 
-	colour = render(ro, rd, int2(fragCoord - 0.5f), dTime);
+	colour = render(float3(0.f, 0.f, 0.f), rayDir, int2(int(input.position.x - 0.5f), int(input.position.y - 0.5f)), input.elapsed);
+	colour.a = 0.5f;
 	return colour;
 }
+
+
+
+
+
+
+
+
+float map4(in float3 p, float elapsed) {
+
+	float3 q = p - float3(0.0f, 0.1f, 1.0f) * elapsed;
+	float f;
+	f = 0.5000f * noise(q);
+	q = q * 2.02f;
+	f += 0.2500f * noise(q);
+	q = q * 2.03f;
+	f += 0.1250f * noise(q);
+	q = q * 2.01f;
+	f += 0.0625f * noise(q);
+
+	return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);	//again map to 0-1 range
+}
+
+
+float map3(in float3 p, float elapsed) {
+
+	float3 q = p - float3(0.0f, 0.1f, 1.0f) * elapsed;
+	float f;
+	f = 0.50000*noise(q);
+	q = q * 2.02;
+	f += 0.25000*noise(q);
+	q = q * 2.03;
+	f += 0.12500*noise(q);
+	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0, 1.0);
+}
+
+
+float map2(in float3 p, float elapsed) {
+
+	float3 q = p - float3(0.0f, 0.1f, 1.0f) * elapsed;
+	float f;
+	f = 0.50000f * noise(q);
+	q = q * 2.02f;
+	f += 0.25000f * noise(q);;
+	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0f, 1.0f);
+}
+
+
+
+
+
+
+
+
+
 
 
 /*

@@ -307,7 +307,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; //0x0f;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f; //D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	result = _device->CreateBlendState(&blendDesc, &m_blendState);
 	if (FAILED(result)) {
@@ -443,7 +443,7 @@ void D3DClass::SetBackBufferRenderTarget(){
 
 void D3DClass::D3DClass::TurnOnAlphaBlending()
 {
-	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 0.5f };
 
 	_deviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
 }

@@ -66,7 +66,7 @@ private:
 	ShaderSkybox shaderSkybox;
 	ShaderStrife shaderStrife;
 
-	Texture NST, DST;
+	Texture NST, DST, perlin, noise; //worley, 
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	PointLight pointLight;
 	DirectionalLight dirLight;
@@ -78,7 +78,7 @@ private:
 
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
-	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad;
+	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife;
 
 	bool drawUI;
 

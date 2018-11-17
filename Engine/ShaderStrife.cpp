@@ -24,6 +24,8 @@ bool ShaderStrife::Initialize(ID3D11Device* device, HWND hwnd, const std::vector
 
 bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
+	timeElapsed = 0.0f;
+
 	HRESULT result;
 	ID3D10Blob* errorMessage = nullptr;
 
@@ -259,7 +261,8 @@ void ShaderStrife::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 
 bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	Model& model, const SMatrix& v, const SMatrix& p,
-	const PointLight& dLight, const SVec3& eyePos, float deltaTime) {
+	const DirectionalLight& dirLight, const SVec3& eyePos, float deltaTime, 
+	ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* noiseSRV) {
 
 
 	HRESULT result;
@@ -269,7 +272,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	LightBufferType* dataPtr2;
 	VariableBufferType* dataPtr3;
 
-	//model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
+	SVec4 viewDir = v.Forward();	//@TODO CHECK IF THIS WORKS RIGHT!!!
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
@@ -295,7 +298,6 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	//END MATRIX BUFFER
 
 
-
 	//VARIABLE BUFFER
 	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
@@ -305,7 +307,8 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr3 = (VariableBufferType*)mappedResource.pData;
 
 	// Copy the variablethe constant buffer.
-	dataPtr3->deltaTime = deltaTime;
+	timeElapsed += deltaTime;
+	dataPtr3->elapsed = timeElapsed;
 	dataPtr3->padding = SVec3(); //this is just padding so this data isn't used.
 
 	// Unlock the variable constant buffer.
@@ -329,35 +332,33 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
 
 	// Copy the lighting variables into the constant buffer.
-	dataPtr2->alc = dLight.alc;
-	dataPtr2->ali = dLight.ali;
-	dataPtr2->dlc = dLight.dlc;
-	dataPtr2->dli = dLight.dli;
-	dataPtr2->slc = dLight.slc;
-	dataPtr2->sli = dLight.sli;
-	dataPtr2->pos = dLight.pos;
-	dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
+	dataPtr2->alc = dirLight.alc;
+	dataPtr2->ali = dirLight.ali;
+	dataPtr2->dlc = dirLight.dlc;
+	dataPtr2->dli = dirLight.dli;
+	dataPtr2->slc = dirLight.slc;
+	dataPtr2->sli = dirLight.sli;
+	dataPtr2->dir = dirLight.dir;
+	dataPtr2->eyePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
+	dataPtr2->viewDir = viewDir;
+	
 
 	// Unlock the constant buffer.
 	deviceContext->Unmap(m_lightBuffer, 0);
 
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
+	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
 	deviceContext->IASetInputLayout(m_layout);
 
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
-
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	//if(model.textures_loaded.size() != 0)
-	for (int i = 0; i < model.textures_loaded.size(); i++) {
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
-	}
-
+	deviceContext->PSSetShaderResources(0, 1, &(perlinSRV));
+	deviceContext->PSSetShaderResources(1, 1, &(noiseSRV));
 
 	return true;
 }
@@ -365,6 +366,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 
 bool ShaderStrife::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+	deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }
