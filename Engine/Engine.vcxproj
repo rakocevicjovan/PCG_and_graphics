@@ -106,6 +106,7 @@
     <ClCompile Include="ShaderPT.cpp" />
     <ClCompile Include="ShaderShadow.cpp" />
     <ClCompile Include="ShaderSkybox.cpp" />
+    <ClCompile Include="ShaderStrife.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
@@ -134,6 +135,7 @@
     <ClInclude Include="ShaderPT.h" />
     <ClInclude Include="ShaderShadow.h" />
     <ClInclude Include="ShaderSkybox.h" />
+    <ClInclude Include="ShaderStrife.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
@@ -144,14 +146,22 @@
     <None Include="projectTex.ps" />
     <None Include="projectTex.vs" />
     <None Include="rekt.vs" />
-    <None Include="light.ps" />
-    <None Include="light.vs" />
+    <None Include="lightps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="lightvs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="packages.config" />
     <None Include="rekt.ps" />
     <None Include="depth.ps" />
     <None Include="depth.vs" />
-    <None Include="shadow.ps" />
-    <None Include="shadow.vs" />
+    <None Include="shadowps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
+    <None Include="shadowvs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="SS.ps" />
     <None Include="SS.vs" />
     <None Include="wireframe.gs" />
@@ -166,6 +176,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="skyboxvs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="strifeps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="strifevs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

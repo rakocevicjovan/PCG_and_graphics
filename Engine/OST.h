@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d11.h>
+#include "Math.h"
 
 class OST{
 
@@ -16,9 +17,9 @@ public:
 	void SetRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*);
 	void ClearRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*, float*);
 
+	SMatrix _view, _lens;
+	float _fov, _ar;
+
 private:
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
-	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
-	D3D11_TEXTURE2D_DESC texDesc;
 };
 

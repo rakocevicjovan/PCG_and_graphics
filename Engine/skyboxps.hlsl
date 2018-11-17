@@ -10,5 +10,8 @@ SamplerState Sampler;
 float4 CMFS(PixelInputType input) : SV_TARGET{
 
 	float4 colour = cubeMapTexture.Sample(Sampler, input.texCoord);
+
+
+
 	return colour;
 }

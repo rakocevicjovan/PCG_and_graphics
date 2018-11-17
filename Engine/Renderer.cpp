@@ -4,7 +4,7 @@
 
 Renderer::Renderer(){
 	_D3D = 0;
-	drawUI = false;
+	drawUI = true;
 }
 
 
@@ -33,8 +33,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	//this should not be here... but whatever...
 	std::vector<std::wstring> names;
-	names.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/light.vs");
-	names.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/light.ps");
+	names.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/lightvs.hlsl");
+	names.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/lightps.hlsl");
 	shaderLight.Initialize(_device, hwnd, names);
 	_shaders.push_back(shaderLight);
 
@@ -60,8 +60,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shaderPT.Initialize(_device, hwnd, projTexNames);
 
 	std::vector<std::wstring> shadowNames;
-	shadowNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/shadow.vs");
-	shadowNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/shadow.ps");
+	shadowNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/shadowvs.hlsl");
+	shadowNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/shadowps.hlsl");
 	shaderShadow.Initialize(_device, hwnd, shadowNames);
 
 	std::vector<std::wstring> cubeMapNames;
@@ -74,50 +74,68 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	skyboxNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/skyboxps.hlsl");
 	shaderSkybox.Initialize(_device, hwnd, skyboxNames);
 
+	std::vector<std::wstring> strifeNames;
+	strifeNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/strifevs.hlsl");
+	strifeNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/strifeps.hlsl");
+	shaderStrife.Initialize(_device, hwnd, strifeNames);
+
+
+
+
+	//NewTerTex.fbx	, 50, 50
 	modTerrain.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/NewTerTex.fbx", 50, 50);
 	Math::Scale(modTerrain.transform, SVec3(2.f));
 	_terrainModels.push_back(&modTerrain);
 
-	//mountain.obj
+
 	modTreehouse.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Terrain/Treehouse/thouse(formats).fbx");
-	modTreehouse.transform.CreateScale(SVec3(0.2f));
+	Math::SetTranslation(modTreehouse.transform, SVec3(0.0f, -50.f, -100.f));
+	SMatrix treehouseRotation = SMatrix::CreateFromAxisAngle(SVec3::Up, 30.f);
+	Math::SetRotation(modTreehouse.transform, treehouseRotation);
 	_terrainModels.push_back(&modTreehouse);
 
-	///Dragon/Dragon 2o5_fbx.fbx
+
 	modBall.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");	
-	Math::Translate(modBall.transform, SVec3(0.0f, 20.0f, -200.0f));
+	Math::Scale(modBall.transform, SVec3(10.f));
+	Math::Translate(modBall.transform, SVec3(0.0f, 300.0f, -300.0f));
+	
+
 
 	modSkybox.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Skysphere.fbx");
+	modWaterQuad.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/WaterQuad.fbx");
 
-	LightData ld(SVec3(1.0f), .01f, SVec3(1.0f), .3f, SVec3(1.0f), 0.5f);
+	LightData lightData(SVec3(0.6f, 0.7f, 0.9f), .01f, SVec3(0.8f, 0.8f, 1.0f), .4f, SVec3(0.3f, 0.5f, 1.0f), 1.f);
 	
-	DirectionalLight light(ld, SVec4(0.0f, 0.0f, 1.0f, 1.0f));	//SVec4(0.0f, .707f, .707f, 1.f)
-	_lights.push_back(light);
-
-	pLight = PointLight(ld, SVec4(0.0f, 300.f, 500.0f, 1.0f));
-
-	SMatrix cMat;
+	pointLight = PointLight(lightData, SVec4(50.0f, 250.f, 250.0f, 1.0f));
+	SVec4 tmpDir = SVec4(-pointLight.pos.x, -pointLight.pos.y, -pointLight.pos.z, 0.0f);
+	tmpDir.Normalize();
+	dirLight = DirectionalLight(lightData, tmpDir);
 
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
 
-	Camera cam(cMat, projectionMatrix);
-
+	Camera cam(SMatrix::Identity, projectionMatrix);
 	_controllers.push_back(Controller(&inMan));
-
 	cam._controller = &_controllers[0];
-
 	_cameras.push_back(cam);
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
+	
+	SVec3 lookAtPoint = SVec3(0.f, 100.0f, 0.0f);
+	SVec3 LVDIR = lookAtPoint - SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z);
+	LVDIR.Normalize();
+	SVec3 LVR = LVDIR.Cross(SVec3::Up);
+	LVR.Normalize();
+	SVec3 LVUP = LVR.Cross(LVDIR);
+	LVUP.Normalize();
+
 	offScreenTexture.Init(_device, ostW, ostH);
+	offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
+	//offScreenTexture._lens = DirectX::XMMatrixPerspectiveFovLH(offScreenTexture._fov, offScreenTexture._ar, 0.1f, 700.0f);
+	offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
 
-	_lightvm = DirectX::XMMatrixLookAtLH(SVec3(pLight.pos.x, pLight.pos.y, pLight.pos.z), SVec3(0.0f, 0.0f, 0.0f), SVec3::Forward);
-	_lightpm = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, 0.1f, 200.0f);
-	//_lightpm = DirectX::XMMatrixOrthographicLH(ostW, ostH, 0.1f, 200.0f);
-
-	altViewport.Width = (float)800;
-	altViewport.Height = (float)600;
+	altViewport.Width = (float)ostW;
+	altViewport.Height = (float)ostH;
 	altViewport.MinDepth = 0.0f;
 	altViewport.MaxDepth = 1.0f;
 	altViewport.TopLeftX = 0.0f;
@@ -128,7 +146,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shadowCubeMapper.Init(_device);
 	skyboxCubeMapper.LoadFromFiles(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/night.dds");
 
-	/*
+	/*//the bitmapper
 	Texture t;
 	t.fileName = "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/volcano.png";
 	BitMapper bitMapper(t);
@@ -145,17 +163,13 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 bool Renderer::Frame(float dTime){
-
-	for (Camera& c : _cameras) {
+	
+	for (Camera& c : _cameras)
 		c.update(dTime);
-	}
 
 	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
 
-	/*std::ostringstream ss;
-	ss << "Frame time: " << dTime << "\n";
-	std::string s(ss.str());
-	OutputDebugStringA(ss.str().c_str());*/
+	OutputFPS(dTime);
 
 	return RenderFrame(dTime);
 }
@@ -164,25 +178,8 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(float dTime){
 
-	///SHADOWS
-/*	
-	//I am now using depth cube map instead of a single depth texture for shadows... or am I?
-	
-	_deviceContext->RSSetViewports(1, &altViewport);	//to the small viewport
-	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
-	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
-	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	for (auto model : models) {
-		shaderDepth.SetShaderParameters(_deviceContext, *model, _lightvm, _lightpm);
-		model->Draw(_deviceContext, shaderDepth);
-	}
-
-	_D3D->SetBackBufferRenderTarget();
-*/
-
+	///CUBE SHADOWS
 /*
-	//shadow cube map begin
 	_deviceContext->RSSetViewports(1, &(shadowCubeMapper.cm_viewport));
 	shadowCubeMapper.UpdateCams(SVec3(pLight.pos));
 
@@ -197,12 +194,10 @@ bool Renderer::RenderFrame(float dTime){
 			model->Draw(_deviceContext, shaderDepth);
 		}
 	}
-	//shadow cube map end
 */
-	///SHADOWS DONE
+	///CUBE SHADOWS DONE
 
-	///REFLECTIONS
-//reflection cube map begin
+	///REFLECTION CUBE MAP START
 	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
 	cubeMapper.UpdateCams(modBall.transform.Translation());
 
@@ -212,43 +207,62 @@ bool Renderer::RenderFrame(float dTime){
 		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
 
-		shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, _lights[0], _cameras[0].GetCameraMatrix().Translation(), dTime);
+		shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
 		modTerrain.Draw(_deviceContext, shaderLight);
 		shaderLight.ReleaseShaderParameters(_deviceContext);
 
-		shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, _lights[0], _cameras[0].GetCameraMatrix().Translation(), dTime);
+
+		shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
 		modTreehouse.Draw(_deviceContext, shaderLight);
 		shaderLight.ReleaseShaderParameters(_deviceContext);
+
 	}
-//reflection cube map done
-	///REFLECTIONS DONE
+	///REFLECTION CUBE MAP DONE
 
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
 	_D3D->SetBackBufferRenderTarget();
 	_D3D->BeginScene(clearColour);
 
-	if (drawUI) {
+	if (drawUI)
 		_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
-	}
+
+
+	/*depth texture*/
+	_deviceContext->RSSetViewports(1, &altViewport);	//to the shadow texture viewport
+	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
+	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
+	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	for (auto tm : _terrainModels) {
+		shaderDepth.SetShaderParameters(_deviceContext, *tm, offScreenTexture._view, offScreenTexture._lens);
+		tm->Draw(_deviceContext, shaderDepth);
+	}
 
-		/*shaderShadow.SetShaderParameters(_deviceContext, *model, cam.GetViewMatrix(), _lightvm, cam.GetProjectionMatrix(),
-			_lightpm, pLight, cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
-		model->Draw(_deviceContext, shaderShadow);
-		shaderShadow.ReleaseShaderParameters(_deviceContext);*/
-		shaderLight.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), _lights[0],
+	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	_deviceContext->RSSetViewports(1, &_D3D->viewport);
+	_D3D->SetBackBufferRenderTarget();
+
+	for (auto tm : _terrainModels) {
+		/**/
+		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), offScreenTexture._view, _cameras[0].GetProjectionMatrix(),
+			offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), offScreenTexture.srv);
+		tm->Draw(_deviceContext, shaderShadow);
+		shaderShadow.ReleaseShaderParameters(_deviceContext);
+		/**/
+		/*
+		shaderLight.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), pointLight,
 			_cameras[0].GetCameraMatrix().Translation(), dTime);
 		tm->Draw(_deviceContext, shaderLight);
 		shaderLight.ReleaseShaderParameters(_deviceContext);
+		/**/
 	}
 
-	/*
-	shaderCM.SetShaderParameters(_deviceContext, modBall, cam.GetViewMatrix(), cam.GetProjectionMatrix(), _lights[0],
-		cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);	//cubeMapper.cm_srv
+	
+	shaderCM.SetShaderParameters(_deviceContext, modBall, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), dirLight,
+		_cameras[0].GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
 	modBall.Draw(_deviceContext, shaderCM);
 	shaderCM.ReleaseShaderParameters(_deviceContext);
-	*/
+	
 
 	//skybox
 	_D3D->TurnOffCulling();
@@ -261,19 +275,19 @@ bool Renderer::RenderFrame(float dTime){
 	_D3D->SwitchDepthToDefault();
 	//skybox end
 
-
-	/*//project texture onto the scene
+	///PROJECT TEXTURE
+	/*
 	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
 	shaderPT.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
 								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
 	modTerrain.Draw(_deviceContext, shaderPT);
 	shaderPT.ReleaseShaderParameters(_deviceContext);
 	*/
+	///PROJECT TEXTURE END
 
 	_D3D->EndScene();
 	return true;
 }
-
 
 
 
@@ -283,10 +297,12 @@ Camera& Renderer::addCamera(SMatrix& camTransform, SMatrix& lens) {
 }
 
 
+
 Shader& Renderer::addShader() {
 	_shaders.push_back(Shader());
 	return _shaders.back();
 }
+
 
 
 void Renderer::Shutdown() {
@@ -298,4 +314,13 @@ void Renderer::Shutdown() {
 	}
 
 	return;
+}
+
+
+
+void Renderer::OutputFPS(float dTime) {
+	std::ostringstream ss;
+	ss << "Frame time: " << 1.0f / dTime << "\n";
+	std::string s(ss.str());
+	OutputDebugStringA(ss.str().c_str());
 }

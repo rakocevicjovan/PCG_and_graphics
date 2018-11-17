@@ -43,15 +43,15 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 
 	transformation = transformation * rh;
 
-	SVec3 right =transformation.Right();
+	SVec3 right = transformation.Right();
 	right.Normalize();
 
 	SMatrix rv;
 	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime );
 
-	SMatrix rt = rh * rv;
+	//SMatrix rt = rh * rv;
 
-	transformation = transformation * rt;
+	transformation = transformation * rv ;
 }
 
 

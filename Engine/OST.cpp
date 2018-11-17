@@ -20,6 +20,7 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
 
 	HRESULT res;
 
+	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
 
 	texDesc.Width = w;
@@ -40,6 +41,8 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
 		exit(420);
 	}
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	ZeroMemory(&srvd, sizeof(srvd));
 	srvd.Format = texDesc.Format;
 	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvd.Texture2D.MostDetailedMip = 0;
@@ -51,7 +54,8 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
 		exit(421);
 	}
 
-
+	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
+	ZeroMemory(&rtvd, sizeof(rtvd));
 	rtvd.Format = texDesc.Format;
 	rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvd.Texture2D.MipSlice = 0;
@@ -62,6 +66,8 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) {
 		exit(422);
 	}
 
+	_ar = float(w) / (float)h;
+	_fov = PI * 0.5f;
 }
 
 void OST::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView){

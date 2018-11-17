@@ -90,6 +90,9 @@
     <ClCompile Include="ShaderSkybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderStrife.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -170,14 +173,11 @@
     <ClInclude Include="ShaderSkybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderStrife.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="light.vs">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="packages.config" />
     <None Include="wireframe.vs">
       <Filter>Shader Files</Filter>
@@ -206,12 +206,6 @@
     <None Include="projectTex.ps">
       <Filter>Shader Files</Filter>
     </None>
-    <None Include="shadow.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shadow.ps">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="SS.vs">
       <Filter>Shader Files</Filter>
     </None>
@@ -222,6 +216,18 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="cubemap.ps">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shadowps.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="shadowvs.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="lightvs.hlsl">
+      <Filter>Shader Files</Filter>
+    </None>
+    <None Include="lightps.hlsl">
       <Filter>Shader Files</Filter>
     </None>
   </ItemGroup>
@@ -235,6 +241,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="skyboxps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="strifevs.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="strifeps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -1,5 +1,4 @@
-#ifndef _LIGHTSHADERCLASS_H_
-#define _LIGHTSHADERCLASS_H_
+#pragma once
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -14,20 +13,20 @@
 
 class Model;
 
-class Shader{
+class ShaderStrife{
 
-	struct MatrixBufferType{
+	struct MatrixBufferType {
 		SMatrix world;
 		SMatrix view;
 		SMatrix projection;
 	};
 
-	struct VariableBufferType{
+	struct VariableBufferType {
 		float deltaTime;
 		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
 	};
 
-	struct LightBufferType{
+	struct LightBufferType {
 
 		SVec3 alc;
 		float ali;
@@ -43,18 +42,14 @@ class Shader{
 		SVec4 ePos;
 	};
 
-
-
-
-
 public:
-	Shader();
-	~Shader();
+	ShaderStrife();
+	~ShaderStrife();
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p, 
-								const PointLight& dLight, const SVec3& eyePos, float deltaTime);
+	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p,
+		const PointLight& dLight, const SVec3& eyePos, float deltaTime);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
@@ -69,10 +64,9 @@ private:
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_variableBuffer;
 	ID3D11Buffer* m_lightBuffer;
-	
+
 	std::vector<std::wstring> filePaths;
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 };
 
-#endif

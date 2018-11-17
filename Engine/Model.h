@@ -42,7 +42,12 @@ public:
 
 		// Read file via ASSIMP
 		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_ConvertToLeftHanded);
+		const aiScene* scene = importer.ReadFile(path,  aiProcessPreset_TargetRealtime_MaxQuality | 
+														aiProcess_Triangulate | 
+														aiProcess_GenSmoothNormals | 
+														aiProcess_PreTransformVertices |
+														aiProcess_FlipUVs | 
+														aiProcess_ConvertToLeftHanded);
 
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
@@ -101,10 +106,16 @@ public:
 			
 			Vert3D vertex;
 			
-			aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-			vertex.pos = SVec3(temp.x, temp.y, temp.z);
-			aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-			vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
+			//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+			//vertex.pos = SVec3(temp.x, temp.y, temp.z);
+
+			//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+			//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
+			
+			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+
+			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+			vertex.normal.Normalize();
 
 			if (hasTexCoords) { // Does the mesh contain texture coordinates?
 				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);

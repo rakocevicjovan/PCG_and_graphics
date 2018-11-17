@@ -13,6 +13,7 @@
 #include "ShaderShadow.h"
 #include "ShaderCM.h"
 #include "ShaderSkybox.h"
+#include "ShaderStrife.h"
 #include "Rekt.h"
 #include "OST.h"
 #include "CubeMapper.h"
@@ -40,9 +41,12 @@ public:
 
 	Camera& addCamera(SMatrix& camTransform, SMatrix& lens);
 	Shader& addShader();
+	
 
 private:
+
 	bool RenderFrame(float dTime);
+	void OutputFPS(float dTime);
 
 	D3DClass* _D3D;
 	ID3D11Device* _device;
@@ -60,12 +64,12 @@ private:
 	ShaderShadow shaderShadow;
 	ShaderCM shaderCM;
 	ShaderSkybox shaderSkybox;
+	ShaderStrife shaderStrife;
 
 	Texture NST, DST;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
-	std::vector<DirectionalLight> _lights;
-	PointLight pLight;
-	SMatrix _lightpm, _lightvm;
+	PointLight pointLight;
+	DirectionalLight dirLight;
 
 	OST offScreenTexture;
 	Rekt* _rekt;
@@ -74,12 +78,11 @@ private:
 
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
-	Model modTerrain, modTreehouse, modBall, modSkybox;
-	
+	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad;
 
 	bool drawUI;
 
-	const unsigned int ostW = 800, ostH = 600;
+	const unsigned int ostW = 1600, ostH = 900;
 
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
 	float ccb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };

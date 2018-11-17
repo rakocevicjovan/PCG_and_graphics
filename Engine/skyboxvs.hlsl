@@ -26,7 +26,7 @@ PixelInputType CMVS(VertexInputType input) {
 
 	PixelInputType output;
 
-	output.position = mul(input.position, worldMatrix);	//careful... doing this to optimize and avoid copying
+	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix).xyww;
 

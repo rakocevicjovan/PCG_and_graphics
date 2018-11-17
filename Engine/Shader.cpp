@@ -264,7 +264,7 @@ void Shader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR
 
 bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,  
 									Model& model, const SMatrix& v, const SMatrix& p,
-									const DirectionalLight& dLight, const SVec3& eyePos, float deltaTime){
+									const PointLight& dLight, const SVec3& eyePos, float deltaTime){
 
 
 	HRESULT result;
@@ -324,7 +324,6 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	//END VARIABLE BUFFER
 
 
-
 	// Lock the light constant buffer so it can be written to.
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
@@ -341,7 +340,7 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	dataPtr2->dli = dLight.dli;
 	dataPtr2->slc = dLight.slc;
 	dataPtr2->sli = dLight.sli;
-	dataPtr2->dir = dLight.dir;
+	dataPtr2->pos = dLight.pos;
 	dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 
 	// Unlock the constant buffer.

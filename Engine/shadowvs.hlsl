@@ -21,7 +21,7 @@ struct PixelInputType{
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
-	float4 worldPosition : REKT;
+	float4 worldPosition : TEXTURE;
     float4 fragPosLightSpace : TEXCOORD1;
 };
 
