@@ -110,6 +110,7 @@
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
+    <ClCompile Include="ShaderWater.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitMapper.h" />
@@ -139,6 +140,7 @@
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
+    <ClInclude Include="ShaderWater.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cubemap.ps" />
@@ -182,6 +184,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="strifevs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Waterps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Watervs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

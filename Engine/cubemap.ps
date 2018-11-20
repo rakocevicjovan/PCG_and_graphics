@@ -31,25 +31,29 @@ float4 CMFS(PixelInputType input) : SV_TARGET{
 	float3 refVec = reflect(incident, input.normal);
 	float4 colour = cubeMapTexture.Sample(Sampler, refVec);
 
+	// don't want the white background!
+	if(length(colour) > 1.5f){
+		colour.xyz = float3(0.1f, 0.15f, 0.25f); //lerp(, colour.xyz, 0.8f);
+	}
+
+	//ambient
 	float4 ambient = saturate(float4(alc, 1.0f) * ali);
 	colour += ambient;
 
+	//diffuse
 	float4 inverseLightDir = -lightDirection;
     float dFactor = saturate(dot(input.normal, inverseLightDir.xyz));
 	float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
 	colour += diffuse;
 
-	float facing = dFactor > 0.0001f ? 1.0f : 0.0f;
-
+	//specular
 	float SpecularPower = 64.f;
-
 	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
 	float sFactor = saturate(dot(reflectionVector, pToEye));
 	sFactor = pow(sFactor, SpecularPower);
 
-	
 	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
-		
 	colour += saturate(specular);
+
     return colour;
 }

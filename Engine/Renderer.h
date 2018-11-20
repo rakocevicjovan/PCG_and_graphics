@@ -14,6 +14,7 @@
 #include "ShaderCM.h"
 #include "ShaderSkybox.h"
 #include "ShaderStrife.h"
+#include "ShaderWater.h"
 #include "Rekt.h"
 #include "OST.h"
 #include "CubeMapper.h"
@@ -56,8 +57,8 @@ private:
 	std::vector<Shader> _shaders;
 	std::vector<Model*> _terrainModels;
 
-	WireframeShader wfs;
 	Shader shaderLight;
+	WireframeShader shaderWireframe;
 	ShaderHUD shaderHUD;
 	ShaderDepth shaderDepth;
 	ShaderPT shaderPT;
@@ -65,8 +66,9 @@ private:
 	ShaderCM shaderCM;
 	ShaderSkybox shaderSkybox;
 	ShaderStrife shaderStrife;
+	ShaderWater shaderWater;
 
-	Texture NST, DST, perlin, noise; //worley, 
+	Texture NST, DST, white, perlin, worley;
 	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
 	PointLight pointLight;
 	DirectionalLight dirLight;
@@ -78,7 +80,7 @@ private:
 
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
-	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife;
+	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
 
 	bool drawUI;
 

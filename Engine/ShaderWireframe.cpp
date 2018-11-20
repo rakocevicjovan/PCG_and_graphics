@@ -216,40 +216,42 @@ bool WireframeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	unsigned int bufferNumber = 0u;
 	MatrixBufferType* dataPtr;
-
-	//model.transform = model.transform * SMatrix::CreateFromAxisAngle(SVec3::Up, 0.002f);
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
 	SMatrix pT = p.Transpose();
 
+
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
-
-	// Copy the matrices into the constant buffer.
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	dataPtr->world = mT;
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
 
-	// Unlock the constant buffer.
 	deviceContext->Unmap(m_matrixBuffer, 0);
 
-	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	//END MATRIX BUFFER
+
 	deviceContext->IASetInputLayout(m_layout);
-	deviceContext->VSSetShader(m_vertexShader, 0, 0);
-	deviceContext->GSSetShader(m_geometryShader, 0, 0);
-	deviceContext->PSSetShader(m_pixelShader, 0, 0);
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->GSSetShader(m_geometryShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 
 	return true;
 }
 
 
-//no sampler to reset...
 bool WireframeShader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
+	deviceContext->GSSetShader(NULL, NULL, 1);
 	return true;
 }
 

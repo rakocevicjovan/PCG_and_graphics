@@ -114,7 +114,7 @@ float4 ShadowPixelShader(PixelInputType input) : SV_TARGET{
 	colour = (ambient + diffuse) * texColour;
 
 	//apply fog
-	//colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);
+	colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);
 
 	//apply gamma correction
 	colour.xyz = pow(abs(colour.xyz), float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));

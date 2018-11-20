@@ -13,7 +13,7 @@
 
 class Model;
 
-class ShaderStrife{
+class ShaderWater {
 
 	struct MatrixBufferType {
 		SMatrix world;
@@ -37,23 +37,19 @@ class ShaderStrife{
 
 		SVec4 eyePos;
 
-		SVec4 viewDir;
-
 		float elapsed;
 		SVec3 padding;
-
-		SMatrix lightView;
 	};
 
 public:
-	ShaderStrife();
-	~ShaderStrife();
+	ShaderWater();
+	~ShaderWater();
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
 	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p,
-		const DirectionalLight& dirLight, const SVec3& eyePos, float deltaTime, 
-		ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
+		const DirectionalLight& dirLight, const SVec3& eyePos, float deltaTime,
+		ID3D11ShaderResourceView* whiteSRV);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);

@@ -93,6 +93,9 @@
     <ClCompile Include="ShaderStrife.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderWater.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -176,6 +179,9 @@
     <ClInclude Include="ShaderStrife.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderWater.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -247,6 +253,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="strifeps.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Watervs.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Waterps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -8,88 +8,170 @@ cbuffer LightBuffer {
 	float4 lightDir;
 	float4 eyePos;
 	float4 viewDir;
+	float elapsed;
+	float3 padding;
+	float4x4 lightView;
 };
 
+Texture2D white : register(t0);
+Texture2D perlin : register(t1);
+Texture2D worley : register(t2);
+
+SamplerState CloudSampler : register(s0);
 
 struct PixelInputType {
 	float4 position : SV_POSITION;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
-	float elapsed : SUMTIME;
 };
 
-/*
-stuff i actually need:
-moonColour
-eyePos
-eyeDir
-elapsed
-noise and perlin noise textures
-*/
 
-Texture2D perlinTexture : register(t0);
-Texture2D noiseTexture : register(t1);
-
-static float3 bgcol = float3(0.1f, 0.0f, 0.3f);
-static int2 iResolution = int2(1600, 900);
-
-SamplerState CloudSampler;
+///Constants
+static const float3 BG_COL = float3(0.1f, 0.05f, 0.15f);
+static const int2 iResolution = int2(1600, 900);
+static const float AMPLITUDE_FACTOR = 0.707f; // Decrease amplitude by sqrt(2)/2
+static const float FREQUENCY_FACTOR = 2.5789f; // Increase frequency by some factor each new octave
+//light coming from the moon and light reflected from below
+static const float3 ISOLIGHTTOP = float3(0.6f, 0.7f, 0.9f);
+static const float3 ISOLIGHTBOT = float3(0.1f, 0.5f, 0.5f);
+///Constants done //r(d) = e ^ ( -O`(t) * d);
 
 
-float noise(in float3 x){
+float noise(in float3 x) {
 
 	float3 p = floor(x);
 	float3 f = frac(x);
-	f = f * f*(3.0 - 2.0*f);
+	f = f * f * (3.0 - 2.0*f);
 
+	float2 uv = (p.xy + float2(370.0f, 170.0f) * p.z) + f.xy;
 
-	//makes it "3d"... but how? It adds a second vector that's based on "depth" aka z value times the size of the image to sample with offset 
-	float2 uv = (p.xy + float2(37.0f, 17.0f) * p.z) + f.xy;
+	float3 rg = white.Sample(CloudSampler, (uv + 0.5f) / 256.0f);
+	//float3 rg = white.Load(int3(uv.x, uv.y, 0.0f)).x;
 
-	//that's not how it works in directX...	
-	///iChannel0 is a noise texture (Noiz.png) and 256 is the length of the width and height of the texture (it's a square)
-	float2 rg = noiseTexture.SampleLevel(CloudSampler, (uv + 0.5f) / 256.0f, 0.f).yx;
-	
-	/*	//wat dis code do? it was defined out
-	// #if 1 #else	#endif 
-	
-	int3 q = int3(p);
-	int2 uv = q.xy + int2(37, 17)*q.z;
-
-	float2 rg = lerp(lerp(texelFetch(iChannel0, (uv) & 255, 0),
-		texelFetch(iChannel0, (uv + int2(1, 0)) & 255, 0), f.x),
-		lerp(texelFetch(iChannel0, (uv + int2(0, 1)) & 255, 0),
-			texelFetch(iChannel0, (uv + int2(1, 1)) & 255, 0), f.x), f.y).yx;
-	*/
-   
-
-	return -1.0 + 2.0 * lerp(rg.x, rg.y, f.z);	//return 1 - noise value
+	return -1.0 + 2.0 * lerp(rg.r, rg.g, f.b);	//return 1 - noise value
 }
 
-//from what to what?	what are p, q and f?
-float map5(in float3 p, float elapsed){
+float sampleDensityOfMedium(in float3 pos) {
 
-	float3 q = p - float3(0.0, 0.1, 1.0) * elapsed;	//pass elapsed here!
-	float f;										//texture coordinates
-	f = 0.50000f  * noise(q); 
+	//octave 1
+	float3 UVW = pos * 0.01f; // Let’s start with some low frequency
+	float Amplitude = 1.0f;
+	float V = Amplitude * noise(UVW);
+
+	//octave 2
+	Amplitude *= AMPLITUDE_FACTOR;
+	UVW *= FREQUENCY_FACTOR;
+	V += Amplitude * noise(UVW);
+
+	//octave 3
+	Amplitude *= AMPLITUDE_FACTOR;
+	UVW *= FREQUENCY_FACTOR;
+	V += Amplitude * noise(UVW);
+
+	//octave 4
+	Amplitude *= AMPLITUDE_FACTOR;
+	UVW *= FREQUENCY_FACTOR;
+	V += Amplitude * noise(UVW);
+
+	//octave 5
+	Amplitude *= AMPLITUDE_FACTOR;
+	UVW *= FREQUENCY_FACTOR;
+	V += Amplitude * noise(UVW);
+
+	return clamp(V, 0, 1); // Include factor and bias instead of just V to help getting a nice result… -> DensityFactor * V + DensityBias
+}
+
+float3 computeMoonColour(in float3 pos) {
+
+	float3 ShadowMapPosition = mul(pos, (float3x3)lightView); // Transform from world to shadow map space
+	float2 UV = ShadowMapPosition.xy; // Our shadow map texture coordinates in [0,1]
+	float Z = ShadowMapPosition.z; // Our depth in the shadow volume as seen from the light
+	float Extinction = noise(ShadowMapPosition); // Samples the shadow map and returns extinction in [0,1]	GetShadowExtinction(UV, Z);
+	return Extinction * dlc; // Attenuate moon color by extinction through the volume
+}
+
+float ei(in float z) {
+	return 0.577215f + log(1e-4 + abs(z)) + z * (1.0 + z * (0.25 + z * ((1.0 / 18.0) + z * ((1.0 / 96.0) + z * (1.0 / 600.0))))); // For x!=0
+}
+
+float3 computeAmbientColour(in float3 pos, in float extK) {
+
+	float distToTop = 500.0f - pos.y; // Height to the top of the volume
+	float a = -extK * distToTop;
+	float3 IsotropicScatteringTop = ISOLIGHTTOP * max(0.0, exp(a) - a * ei(a));
+
+	float distToBottom = pos.y - 300.0f; // Height to the bottom of the volume
+	a = -extK * distToBottom;
+	float3 IsotropicScatteringBottom = ISOLIGHTBOT * max(0.0f, exp(a) - a * ei(a));
+
+	return IsotropicScatteringTop + IsotropicScatteringBottom;
+}
+
+
+float4 myMarch(in float3 rayOrigin, in float3 rayDir, in int numSteps) {
+
+	//set up
+	float extinction = 1.0f;						//no density anywhere at first so no extinction either...
+	float3 scattering = float3(0.0f, 0.0f, 0.0f);	//no light scattering at first
+	float stepSize = 1.0f / numSteps;				//randomly chose 2 to be max distance idk... should play with it
+	float3 pos = rayOrigin;
+
+	//marching code
+	for (int i = 0; i < numSteps; ++i) {
+
+		float timeK = 10.f;
+		float3 offset = float3(elapsed, elapsed, elapsed) * timeK;
+		float density = sampleDensityOfMedium(pos + offset);	// Sample perlin/worley/white noise and clamp the result between 0 and 1
+		float scatteringK = 0.1f * density;			//scatteringFactor
+		float extinctionK =  0.01f * density;			//extinctionFactor
+
+		extinction *= exp(-extinctionK * stepSize);	//pass step sign - faster to calculate once and keep passing it!
+
+		//compute light added by scattering
+		float3 moonCol = computeMoonColour(pos);	//moonlight color arriving at the position
+		float3 ambientCol = dlc; //computeAmbientColour(pos, extinctionK);
+		float3 stepScattering = scatteringK * stepSize * ( 5.f* dlc + 5.f * alc);	//how to implement phase function - phaseMoon, phaseAmbient
+		scattering += extinction * stepScattering; //add scattering but attenuate it... so the more extinct the light is at that point the less we add
+
+		pos += stepSize * rayDir;
+	}
+
+	return float4(scattering, extinction);
+}
+
+
+
+
+
+
+//fractal brownian motion across the texture
+float map5(in float3 p) {
+
+	float3 q = p - float3(0.3, 0.1, 0.2) * sin(elapsed * 0.314159f);
+	float f = 0.50000f  * noise(q);
+
 	q = q * 2.02f;
-	f += 0.25000f * noise(q); 
+	f += 0.25000f * noise(q);
+
 	q = q * 2.03f;
-	f += 0.12500f * noise(q); 
+	f += 0.12500f * noise(q);
+
 	q = q * 2.01f;
-	f += 0.06250f * noise(q); 
+	f += 0.06250f * noise(q);
+
 	q = q * 2.02f;
 	f += 0.03125f * noise(q);
-	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0f, 1.0f);	//map to 0-1 range
+
+	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0f, 1.0f);
 }
 
 
-float4 integrate(in float4 sum, in float dif, in float den, in float3 bgcol, in float t){
+float4 integrate(in float4 sum, in float dif, in float den, in float t) {
 	// lighting
 	float3 lin = float3(0.65f, 0.7f, 0.75f) * 1.4f + float3(1.0f, 0.6f, 0.3f) * dif;
 	float4 col = float4(lerp(float3(1.0f, 0.95f, 0.8f), float3(0.25f, 0.3f, 0.35f), den), den);
 	col.xyz *= lin;
-	col.xyz = lerp(col.xyz, bgcol, 1.0 - exp(-0.003*t*t));
+	col.xyz = lerp(col.xyz, BG_COL, 1.0 - exp(-0.003f * t * t));
 	// front to back blending    
 	col.a *= 0.4f;
 	col.rgb *= col.a;
@@ -97,159 +179,75 @@ float4 integrate(in float4 sum, in float dif, in float den, in float3 bgcol, in 
 }
 
 
-//make sense of this
-/*
-#define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3  pos = ro + t*rd; if( pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99 ) break; 
-float den = MAPLOD(pos); if (den > 0.01) { float dif = clamp((den - MAPLOD(pos + 0.3*lightDir)) / 0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); }
-t += max(0.05, 0.02*t); }
-*/
+void march(in int steps, in float3 rayOrigin, in float3 rayDir, in float initialT, inout float4 sum) {
 
-void march(in int steps, in float3 ro, in float3 rd, in float t, inout float4 sum, float elapsed) {
+	float density;
+	float t = initialT;
+
 	for (int i = 0; i < steps; i++) {
-		float3 pos = ro + t * rd;
+		float3 pos = t * rayDir;
 		if (pos.y < -3.0f || pos.y > 2.0f || sum.a > 0.99f) break;
-		float den = map5(pos, elapsed);
+		density = map5(pos);
 
-		if (den > 0.01f) {
-			float dif = clamp( (den - map5(pos + 0.3f * lightDir.xyz, elapsed)) / 0.6f, 0.0f, 1.0f);
-			sum = integrate (sum, dif, den, bgcol, t);
+		if (density > 0.01f) {
+			//dif is the difference between current density and density of the area closer to the light, clamped 0 to 1
+			float dif = clamp((density - map5(pos - 0.3f * lightDir.xyz)) / 0.6f, 0.0f, 1.0f);
+			sum = integrate(sum, dif, density, t);
 		}
 		t += max(0.05f, 0.02f * t);
 	}
+
+	//if (density < 0.33f) discard;
 }
 
-float4 raymarch(in float3 ro, in float3 rd, in float3 bgcol, in int2 px, float elapsed){
-	
+
+float4 raymarch(in float3 rayOrigin, in float3 rayDir) {
+
+	//initialize the sum of colours we will get in the end
 	float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	//0.05*texelFetch( iChannel0, px&255, 0 ).x;
+	int2 xy = rayOrigin.xz;
 
-	int2 xy = 255 * px;
-	float t = 0.05f * noiseTexture.Load(int3(xy.x, xy.y, 0.0f)).x;	//x because it's grayscale so any value would do...
-	
-	/*
-	MARCH(30, map5);
-	MARCH(30, map4);
-	MARCH(30, map3);
-	MARCH(30, map2);
-	*/
+	float t = perlin.Load(int3(xy.x, xy.y, 0.0f)).x;	//x because it's grayscale so any value would do...
 
-	march(30, ro, rd, t, sum, elapsed);
-	
+	march(100, rayOrigin, rayDir, t, sum);
+
 	return clamp(sum, 0.0f, 1.0f);
 }
 
 
 
-float4 render(in float3 ro, in float3 rayDir, in int2 px, float elapsed){
+float4 render(in float3 rayOrigin, in float3 rayDir) {
 
-	// background sky     
-	float sun = clamp(dot(lightDir.xyz, rayDir), 0.0f, 1.0f);
-	float3 col = float3(0.6f, 0.71f, 0.75f) - rayDir.y * 0.2f * float3(1.0f, 0.5f, 1.0f) + 0.15f * 0.5f;
-	col += 0.2f * float3(1.0f, .6f, 0.1f) * pow(sun, 8.0f);
+	//background sky, this is quite easy to understand as it's just blending the background light with a specular factor
+	float moonbeams = clamp(dot(-lightDir.xyz, rayDir), 0.0f, 1.0f);
+	float3 background = BG_COL + slc * pow(moonbeams, 16.0f);
 
-	// clouds    
-	float4 res = raymarch(ro, rayDir, col, px, elapsed);
-	col = col * (1.0f - res.w) + res.xyz;
+	//clouds   
+	float4 cloudColour = raymarch(rayOrigin, rayDir);
 
-	// sun glare    
-	col += 0.2 * float3(1.0f, 0.4f, 0.2f) * pow(sun, 3.0f);
+	float bgAlpha = (1.0f - cloudColour.a);
 
-	return float4(col, 1.0f);
+	background = background * bgAlpha + cloudColour.rgb;	//background colour is "overwritten" by cloud colour
+
+
+	return float4(background, 1.0f - bgAlpha * bgAlpha * bgAlpha);
 }
 
 
-//...in between these comment lines
+
 float4 strifeFragment(PixelInputType input) : SV_TARGET{
 
 	float4 colour;
-	float2 p = (-iResolution.xy + 2.0 * input.position.xy) / iResolution.y;
+	float3 rayDir = normalize(input.worldPos.xyz - eyePos.xyz);
 
+	//float3 cloudCenter = float3(0.0f, 500.0f, 500.0f);
+	//float3 relPos = input.worldPos.xyz - cloudCenter;
+		
+	colour = render(input.worldPos.xyz, rayDir);	// relPos rayDir
+	//colour =  saturate(myMarch(input.worldPos.xyz, rayDir, 64));
 	
-	float3 rayDir = -normalize(input.worldPos.xyz - eyePos.xyz); //float3 rayDir = viewMatrix * normalize(float3(p.xy, 1.5f));
+	//colour.a = 1.0f;// length(colour.xyz);
 
-	colour = render(float3(0.f, 0.f, 0.f), rayDir, int2(int(input.position.x - 0.5f), int(input.position.y - 0.5f)), input.elapsed);
-	colour.a = 0.5f;
 	return colour;
 }
-
-
-
-
-
-
-
-
-float map4(in float3 p, float elapsed) {
-
-	float3 q = p - float3(0.0f, 0.1f, 1.0f) * elapsed;
-	float f;
-	f = 0.5000f * noise(q);
-	q = q * 2.02f;
-	f += 0.2500f * noise(q);
-	q = q * 2.03f;
-	f += 0.1250f * noise(q);
-	q = q * 2.01f;
-	f += 0.0625f * noise(q);
-
-	return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);	//again map to 0-1 range
-}
-
-
-float map3(in float3 p, float elapsed) {
-
-	float3 q = p - float3(0.0f, 0.1f, 1.0f) * elapsed;
-	float f;
-	f = 0.50000*noise(q);
-	q = q * 2.02;
-	f += 0.25000*noise(q);
-	q = q * 2.03;
-	f += 0.12500*noise(q);
-	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0, 1.0);
-}
-
-
-float map2(in float3 p, float elapsed) {
-
-	float3 q = p - float3(0.0f, 0.1f, 1.0f) * elapsed;
-	float f;
-	f = 0.50000f * noise(q);
-	q = q * 2.02f;
-	f += 0.25000f * noise(q);;
-	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0f, 1.0f);
-}
-
-
-
-
-
-
-
-
-
-
-
-/*
-//Got my own camera, don't need this.
-
-float3x3 setCamera(in float3 ro, in float3 ta, float cr){
-
-	float3 cw = normalize(ta - ro);
-	float3 cp = float3(sin(cr), cos(cr), 0.0);
-	float3 cu = normalize(cross(cw, cp));
-	float3 cv = normalize(cross(cu, cw));
-	return float3x3(cu, cv, cw);
-}
-
-// from main
-	float3 ro = 4.0*normalize(float3(sin(3.0f * m.x), 0.4f * m.y, cos(3.0f * m.x)));
-	float3 ta = float3(0.0f, -1.0f, 0.0f);
-	float3 ca = setCamera(ro, ta, 0.0f);
-*/
-
-
-/*//for VR I guess? Don't know! Possibly don't care this is tough enough as it is...
-void mainVR(out float4 fragColor, in float2 fragCoord, in float3 fragRayOri, in float3 fragRayDir){
-	fragColor = render(fragRayOri, fragRayDir, int2(fragCoord - 0.5));
-}
-*/

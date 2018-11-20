@@ -38,7 +38,6 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_BUFFER_DESC variableBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
 
 	// Compile the vertex shader code.
@@ -148,19 +147,6 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	if (FAILED(result))
 		return false;
 
-	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
-	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBufferType);
-	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	variableBufferDesc.MiscFlags = 0;
-	variableBufferDesc.StructureByteStride = 0;
-
-	// Create the variable constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&variableBufferDesc, NULL, &m_variableBuffer);
-	if (FAILED(result))
-		return false;
-
 
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
@@ -259,10 +245,13 @@ void ShaderStrife::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 }
 
 
+
+
+
 bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	Model& model, const SMatrix& v, const SMatrix& p,
 	const DirectionalLight& dirLight, const SVec3& eyePos, float deltaTime, 
-	ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* noiseSRV) {
+	ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView) {
 
 
 	HRESULT result;
@@ -270,13 +259,14 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
 	LightBufferType* dataPtr2;
-	VariableBufferType* dataPtr3;
 
-	SVec4 viewDir = v.Forward();	//@TODO CHECK IF THIS WORKS RIGHT!!!
+	timeElapsed += deltaTime;
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
 	SMatrix pT = p.Transpose();
+
+	SVec4 viewDir = -vT.Forward();	//@TODO CHECK IF THIS WORKS RIGHT!!! Inverse and transpose work similarly for view matrix... a bit of a hack tbh
 
 	// Lock the constant matrix buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -298,35 +288,11 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	//END MATRIX BUFFER
 
 
-	//VARIABLE BUFFER
-	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-
-	// Get a pointer to the data in the constant buffer.
-	dataPtr3 = (VariableBufferType*)mappedResource.pData;
-
-	// Copy the variablethe constant buffer.
-	timeElapsed += deltaTime;
-	dataPtr3->elapsed = timeElapsed;
-	dataPtr3->padding = SVec3(); //this is just padding so this data isn't used.
-
-	// Unlock the variable constant buffer.
-	deviceContext->Unmap(m_variableBuffer, 0);
-
-	// Set the position of the variable constant buffer in the vertex shader.
-	bufferNumber = 1;
-
-	// Now set the variable constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
-	//END VARIABLE BUFFER
-
 
 	// Lock the light constant buffer so it can be written to.
 	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
 	// Get a pointer to the data in the constant buffer.
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
@@ -341,14 +307,15 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	dataPtr2->dir = dirLight.dir;
 	dataPtr2->eyePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 	dataPtr2->viewDir = viewDir;
+	dataPtr2->elapsed = timeElapsed;
+	dataPtr2->padding = SVec3();
+	dataPtr2->lightView = lightView.Transpose();
 	
-
-	// Unlock the constant buffer.
 	deviceContext->Unmap(m_lightBuffer, 0);
 
-	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+
 
 	deviceContext->IASetInputLayout(m_layout);
 
@@ -357,8 +324,9 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(perlinSRV));
-	deviceContext->PSSetShaderResources(1, 1, &(noiseSRV));
+	deviceContext->PSSetShaderResources(0, 1, &(whiteSRV));
+	deviceContext->PSSetShaderResources(1, 1, &(perlinSRV));
+	deviceContext->PSSetShaderResources(2, 1, &(worleySRV));
 
 	return true;
 }
@@ -366,6 +334,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 
 
 bool ShaderStrife::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+	deviceContext->PSSetShaderResources(2, 1, &(unbinder[0]));
 	deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;

@@ -43,7 +43,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	wfsNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/wireframe.vs");
 	wfsNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/wireframe.gs");
 	wfsNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/wireframe.ps");
-	wfs.Initialize(_device, hwnd, wfsNames);
+	shaderWireframe.Initialize(_device, hwnd, wfsNames);
 
 	std::vector<std::wstring> hudNames;
 	hudNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/rekt.vs");
@@ -79,6 +79,11 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	strifeNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/strifevs.hlsl");
 	strifeNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/strifeps.hlsl");
 	shaderStrife.Initialize(_device, hwnd, strifeNames);
+
+	std::vector<std::wstring> waterNames;
+	waterNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/Watervs.hlsl");
+	waterNames.push_back(L"C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Engine/Waterps.hlsl");
+	shaderWater.Initialize(_device, hwnd, waterNames);
 	///SHADER LOADING DONE
 
 
@@ -94,13 +99,24 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	Math::SetRotation(modTreehouse.transform, treehouseRotation);
 	_terrainModels.push_back(&modTreehouse);
 
-	modBall.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");	
-	Math::Scale(modBall.transform, SVec3(10.f));
-	Math::Translate(modBall.transform, SVec3(0.0f, 300.0f, -300.0f));
+	modBallStand.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ballstand.fbx");
+	SMatrix modBallStandRotation = SMatrix::CreateFromAxisAngle(SVec3::Right, PI * 0.5f);
+	Math::SetRotation(modBallStand.transform, modBallStandRotation);
+	Math::Scale(modBallStand.transform, SVec3(10.f));
+	Math::Translate(modBallStand.transform, SVec3(300.0f, -35.0f, -295.0f));
 
-	modStrife.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Strife/cloudCap.fbx");
-	Math::Scale(modStrife.transform, SVec3(30.f));
-	Math::Translate(modStrife.transform, SVec3(0.0f, 600.0f, 600.0f));
+	modBall.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/ball.fbx");
+	Math::Scale(modBall.transform, SVec3(36.f));
+	Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
+
+	modStrife.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/oohlalabox.fbx");
+	//Math::SetRotation(modStrife.transform, SMatrix::CreateFromAxisAngle(SVec3::Right, PI));
+	Math::Scale(modStrife.transform, SVec3(150.0f));	//50.f, 5.0f,
+	Math::Translate(modStrife.transform, SVec3(0.0f, 500.0f, 500.0f));
+
+	modDepths.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/WaterQuad.fbx");
+	Math::Scale(modDepths.transform, SVec3(120.0f));
+	Math::Translate(modDepths.transform, SVec3(0.0f, -50.0f, 0.0f));
 
 	modSkybox.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/Skysphere.fbx");
 	modWaterQuad.LoadModel(_device, "C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Models/WaterQuad.fbx");
@@ -108,13 +124,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
-	LightData lightData(SVec3(0.6f, 0.7f, 0.9f), .01f, SVec3(0.8f, 0.8f, 1.0f), .4f, SVec3(0.3f, 0.5f, 1.0f), 1.f);
+	LightData lightData(SVec3(0.6f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	
 	pointLight = PointLight(lightData, SVec4(50.0f, 250.f, 250.0f, 1.0f));
-	SVec4 tmpDir = SVec4(-pointLight.pos.x, -pointLight.pos.y, -pointLight.pos.z, 0.0f);
-	tmpDir.Normalize();
-	dirLight = DirectionalLight(lightData, tmpDir);
-
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
@@ -130,6 +142,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	offScreenTexture.Init(_device, ostW, ostH);
 	offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
 	offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
+
+	dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION DONE
 
 
@@ -165,12 +179,12 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 	///NOISES
-	noise.LoadFromFile("C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/noiz.png");
-	noise.Setup(_device);
+	white.LoadFromFile("C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/noiz.png");
+	white.Setup(_device);
 	perlin.LoadFromFile("C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/strife.png");
 	perlin.Setup(_device);
-	//worley.LoadFromFile("C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/strife.png");
-	//worley.Setup(_device);
+	worley.LoadFromFile("C:/Users/Senpai/Documents/Visual Studio 2015/Projects/Lab 5 lighting/Engine/Textures/worley.png");
+	worley.Setup(_device);
 	///NOISES DONE
 
 
@@ -200,7 +214,7 @@ bool Renderer::Frame(float dTime){
 
 	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
 
-	OutputFPS(dTime);
+	//OutputFPS(dTime);
 
 	return RenderFrame(dTime);
 }
@@ -246,7 +260,6 @@ bool Renderer::RenderFrame(float dTime){
 		shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
 		modTreehouse.Draw(_deviceContext, shaderLight);
 		shaderLight.ReleaseShaderParameters(_deviceContext);
-
 	}
 	///REFLECTION CUBE MAP DONE
 
@@ -257,7 +270,7 @@ bool Renderer::RenderFrame(float dTime){
 	_D3D->BeginScene(clearColour);
 
 	if (drawUI)
-		//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+		_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
 	///RENDERING UI DONE
 
 
@@ -271,8 +284,11 @@ bool Renderer::RenderFrame(float dTime){
 		shaderDepth.SetShaderParameters(_deviceContext, *tm, offScreenTexture._view, offScreenTexture._lens);
 		tm->Draw(_deviceContext, shaderDepth);
 	}
-	///RENDERING DEPTH TEXTURE DONE
 
+	shaderLight.SetShaderParameters(_deviceContext, modBall, offScreenTexture._view, offScreenTexture._lens, pointLight,
+		_cameras[0].GetCameraMatrix().Translation(), dTime);
+	modBall.Draw(_deviceContext, shaderLight);
+	shaderLight.ReleaseShaderParameters(_deviceContext);
 
 
 	///RENDERING TERRAIN
@@ -280,28 +296,37 @@ bool Renderer::RenderFrame(float dTime){
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
 	_D3D->SetBackBufferRenderTarget();
 
+	///RENDERING DEPTH TEXTURE DONE
+
 	for (auto tm : _terrainModels) {
-		/**/
 		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), offScreenTexture._view, _cameras[0].GetProjectionMatrix(),
 			offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), offScreenTexture.srv);
 		tm->Draw(_deviceContext, shaderShadow);
 		shaderShadow.ReleaseShaderParameters(_deviceContext);
-		/**/
-		/*
-		shaderLight.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), pointLight,
-			_cameras[0].GetCameraMatrix().Translation(), dTime);
-		tm->Draw(_deviceContext, shaderLight);
-		shaderLight.ReleaseShaderParameters(_deviceContext);
-		/**/
 	}
+
+	///RENDERING WIREFRAME
+	_D3D->TurnOnAlphaBlending();
+	shaderWireframe.SetShaderParameters(_deviceContext, modBallStand, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix());
+	modBallStand.Draw(_deviceContext, shaderWireframe);
+	shaderWireframe.ReleaseShaderParameters(_deviceContext);
+	_D3D->TurnOffAlphaBlending();
+	///RENDERING WIREFRAME DONE
+
 	///RENDERING TERRAIN DONE
 
 
-	///RENDERING REFLECTION SPHERE
+	///RENDERING REFLECTION SPHERE/*
 	shaderCM.SetShaderParameters(_deviceContext, modBall, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), dirLight,
 		_cameras[0].GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
 	modBall.Draw(_deviceContext, shaderCM);
 	shaderCM.ReleaseShaderParameters(_deviceContext);
+
+	/*shaderShadow.SetShaderParameters(_deviceContext, modBallStand, _cameras[0].GetViewMatrix(), offScreenTexture._view,
+		_cameras[0].GetProjectionMatrix(), offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), 
+		offScreenTexture.srv);
+	modBallStand.Draw(_deviceContext, shaderShadow);
+	shaderShadow.ReleaseShaderParameters(_deviceContext);*/
 	///RENDERING REFLECTION SPHERE DONE
 
 
@@ -313,20 +338,30 @@ bool Renderer::RenderFrame(float dTime){
 		_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
 	modSkybox.Draw(_deviceContext, shaderSkybox);
 	shaderSkybox.ReleaseShaderParameters(_deviceContext);
-	_D3D->TurnOnCulling();
 	_D3D->SwitchDepthToDefault();
+	_D3D->TurnOnCulling();
 	///RENDERING SKYBOX DONE
 
 
+	_D3D->TurnOnAlphaBlending();
 
 	///RENDERING CLOUD
-	_D3D->TurnOnAlphaBlending();
 	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, perlin.srv, noise.srv);
+		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlin.srv, worley.srv, offScreenTexture._view);
 	modStrife.Draw(_deviceContext, shaderStrife);
 	shaderStrife.ReleaseShaderParameters(_deviceContext);
-	_D3D->TurnOffAlphaBlending();
 	///RENDERING CLOUD DONE
+
+	///RENDERING WATER
+	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv);
+	modDepths.Draw(_deviceContext, shaderWater);
+	shaderWater.ReleaseShaderParameters(_deviceContext);
+	///RENDERING WATER DONE
+
+	_D3D->TurnOffAlphaBlending();
+
+
 
 	///PROJECT TEXTURE
 	/*
