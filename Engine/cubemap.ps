@@ -32,9 +32,9 @@ float4 CMFS(PixelInputType input) : SV_TARGET{
 	float4 colour = cubeMapTexture.Sample(Sampler, refVec);
 
 	// don't want the white background!
-	if(length(colour) > 1.5f){
-		colour.xyz = float3(0.1f, 0.15f, 0.25f); //lerp(, colour.xyz, 0.8f);
-	}
+	//if(length(colour) > 1.5f){
+		//colour.xyz = float3(0.1f, 0.15f, 0.25f); //lerp(, colour.xyz, 0.8f);
+	//}
 
 	//ambient
 	float4 ambient = saturate(float4(alc, 1.0f) * ali);
