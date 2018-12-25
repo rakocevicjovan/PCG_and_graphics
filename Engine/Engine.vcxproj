@@ -90,6 +90,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimaPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Animator.cpp" />
     <ClCompile Include="BitMapper.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Celestials.cpp" />
@@ -113,12 +118,15 @@
     <ClCompile Include="ShaderShadow.cpp" />
     <ClCompile Include="ShaderSkybox.cpp" />
     <ClCompile Include="ShaderStrife.cpp" />
+    <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
     <ClCompile Include="ShaderWater.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Animator.h" />
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Celestials.h" />
@@ -143,6 +151,7 @@
     <ClInclude Include="ShaderShadow.h" />
     <ClInclude Include="ShaderSkybox.h" />
     <ClInclude Include="ShaderStrife.h" />
+    <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
@@ -184,6 +193,9 @@
     <Text Include="shader-error.txt" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="AnimaVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="skyboxps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

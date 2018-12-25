@@ -19,6 +19,7 @@
 #include "ShaderSkybox.h"
 #include "ShaderStrife.h"
 #include "ShaderWater.h"
+#include "Animator.h"
 
 class Mesh{
 
@@ -274,7 +275,7 @@ class Mesh{
 
 	public:
 
-		std::vector<BonedVert> vertices;
+		std::vector<BonedVert3D> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<Texture> textures;
 		std::vector<Joint> joints;
@@ -283,7 +284,7 @@ class Mesh{
 
 		BonedMesh() {}
 
-		BonedMesh(std::vector<BonedVert> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, std::vector<Joint> joints)
+		BonedMesh(std::vector<BonedVert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, std::vector<Joint> joints)
 			: vertices(vertices), indices(indices), textures(textures), joints(joints)
 		{
 			//setupMesh();	// Now that we have all the required data, set the vertex buffers and its attribute pointers.

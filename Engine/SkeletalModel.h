@@ -13,8 +13,9 @@
 #include "assimp\scene.h"
 #include "assimp\postprocess.h" 
 #include "Mesh.h"
+#include "Animator.h"
 
-class Model{
+class SkeletalModel {
 
 public:
 
@@ -25,24 +26,19 @@ public:
 	std::string name;
 
 	SMatrix transform;
+	Joint rootJoint;
 
-	Model() {}
-
-	Model(const std::string& path){
-		this->name = path;
-	}
+	SkeletalModel() {}
 
 
-	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1){
+	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1) {
 
-		//@TODO could be fucky...
 		assert(fileExists(path) && "File does not exist! ...probably.");
 
 		unsigned int pFlags = aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
 			aiProcess_FlipUVs |
-			aiProcess_PreTransformVertices |
 			aiProcess_ConvertToLeftHanded;
 
 		// Read file via ASSIMP
@@ -50,28 +46,28 @@ public:
 		const aiScene* scene = importer.ReadFile(path, pFlags);
 
 		// Check for errors
-		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-			std::string errString("Assimp error:" + std::string(importer.GetErrorString()) );
+		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
 			OutputDebugStringA(errString.c_str());
 			return false;
 		}
 
-		directory = path.substr(0, path.find_last_of('/'));	
-		name = path.substr(path.find_last_of('/')+1, path.size());
+		directory = path.substr(0, path.find_last_of('/'));
+		name = path.substr(path.find_last_of('/') + 1, path.size());
 
 		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
 		return true;
 	}
 
 
-		
+
 	// Processes a node in a recursive fashion. Processes each individual mesh located at the node  
 	//and repeats this process on its children nodes (if any).
 	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
 
 		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
 		// Process each mesh located at the current node
-		for (unsigned int i = 0; i < node->mNumMeshes; i++){
+		for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			unsigned int ind = meshes.size();
 
@@ -79,7 +75,7 @@ public:
 		}
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
-		for (unsigned int i = 0; i < node->mNumChildren; i++){
+		for (unsigned int i = 0; i < node->mNumChildren; i++) {
 			this->processNode(device, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
 		}
 		return true;
@@ -89,8 +85,8 @@ public:
 
 
 	//reads in vertices, indices and texture UVs of a mesh
-	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy){
-		
+	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
+
 		// Data to fill
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
@@ -102,16 +98,16 @@ public:
 		if (mesh->mTextureCoords[0])
 			hasTexCoords = true;
 
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++){
-			
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+
 			Vert3D vertex;
-			
+
 			//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 			//vertex.pos = SVec3(temp.x, temp.y, temp.z);
 
 			//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 			//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
-			
+
 			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
 			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
@@ -120,23 +116,24 @@ public:
 			if (hasTexCoords) { // Does the mesh contain texture coordinates?
 				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);
 
-			} else 
+			}
+			else
 				vertex.texCoords = SVec2(0.0f, 0.0f);
 
 			vertices.push_back(vertex);
 		}
 
 		// Now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++){
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 			aiFace face = mesh->mFaces[i];
 			// Retrieve all indices of the face and store them in the indices vector
-			for (unsigned int j = 0; j < face.mNumIndices; j++){
+			for (unsigned int j = 0; j < face.mNumIndices; j++) {
 				indices.push_back(face.mIndices[j]);
 			}
 		}
 
 		// Process materials
-		if (mesh->mMaterialIndex >= 0){
+		if (mesh->mMaterialIndex >= 0) {
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 			// 1. Diffuse maps
@@ -146,7 +143,7 @@ public:
 			std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
 			locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
 
-		}			
+		}
 
 		return Mesh(vertices, indices, locTextures, device, ind);
 	}
@@ -180,11 +177,13 @@ public:
 				vertex.vert.texCoords = SVec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 				auto a = mesh->mTextureCoords[0];
 			}
-			else 
+			else
 				vertex.vert.texCoords = SVec2(0.0f, 0.0f);
 
 			vertices.push_back(vertex);
 		}
+
+
 
 		// Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 		for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
@@ -195,6 +194,8 @@ public:
 				indices.push_back(face.mIndices[j]);
 			}
 		}
+
+
 
 		// Process materials
 		if (mesh->mMaterialIndex >= 0) {
@@ -217,27 +218,27 @@ public:
 
 
 
-	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName){
-			
+	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName) {
+
 		std::vector<Texture> textures;
 
-		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++){
+		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
 
 			aiString str;
 			boolean skip = false;
 
 			mat->GetTexture(type, i, &str);
-				
+
 			// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture			
-			for (unsigned int j = 0; j < textures_loaded.size(); j++){
-				if (aiString(textures_loaded[j].fileName) == str){
+			for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+				if (aiString(textures_loaded[j].fileName) == str) {
 					textures.push_back(textures_loaded[j]);
 					skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
 					break;
 				}
 			}
 
-			if (!skip){   // If texture hasn't been loaded already, load it
+			if (!skip) {   // If texture hasn't been loaded already, load it
 
 				std::string fPath = directory + "/" + std::string(str.data);
 				Texture texture(device, fPath);
@@ -245,7 +246,7 @@ public:
 
 				//texture.Bind(type);
 				bool loaded = texture.Load();
-					
+
 				if (!loaded) {
 					loaded = this->LoadGLTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
 
@@ -256,13 +257,15 @@ public:
 				}
 
 				textures.push_back(texture);
-				textures_loaded.push_back(texture); 
+				textures_loaded.push_back(texture);
 				// Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
 			}
 		}
 
 		return textures;
 	}
+
+
 
 	bool LoadGLTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName) {
 
@@ -281,17 +284,17 @@ public:
 
 			return true;
 		}
-		return false;	//has no textures (at least if you ask assimp), so loading none is fine
+		return false;
 	}
 
 
 	/*... 1:00 AM revelation!
-	Bone indices in my data are completely dictated by me 
-	and have fuck all to do with bone indices in assimp, 
+	Bone indices in my data are completely dictated by me
+	and have fuck all to do with bone indices in assimp,
 	the only thing connecting bones to vertices are NAMES OF BONES -> INDICES OF VERTICES.*/
 
 	//loads joint influence per vertex data, as well as the tree itself
-	std::vector<Joint> Model::loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts) {
+	std::vector<Joint> SkeletalModel::loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts) {
 
 		if (!aiMesh.HasBones())
 			return {};
@@ -305,11 +308,11 @@ public:
 
 			//adds the bone, gives it an index by which it can be found... 
 			//MAYBE ASSIMP ID SHOULD BE THE INDEX??? @TODO FIGURE IT OUT
-			Joint j(boneIndex, std::string(bone->mName.data), SMatrix( bone->mOffsetMatrix[0] ));
+			Joint j(boneIndex, std::string(bone->mName.data), SMatrix(bone->mOffsetMatrix[0]));
 			result.push_back(j);
 
 			/*IMPORTANT! right now, the joints here have no parents or children therefore in order to correctly
-			calculate anything at runtime, I need to establish these relationships by going through the joint vector of this mesh, 
+			calculate anything at runtime, I need to establish these relationships by going through the joint vector of this mesh,
 			finding all the joint names and finding their parents and children in the aiNode hierarchy.
 			*/
 
@@ -333,50 +336,8 @@ public:
 
 
 
-	// Draws the model, and thus all its meshes
-	void Draw(ID3D11DeviceContext* dc, Shader& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	// Draws the model, and thus all its meshes
-	void Draw(ID3D11DeviceContext* dc, WireframeShader& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	// Draws the model, and thus all its meshes
-	void Draw(ID3D11DeviceContext* dc, ShaderDepth& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void Draw(ID3D11DeviceContext* dc, ShaderPT& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void Draw(ID3D11DeviceContext* dc, ShaderShadow& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void Draw(ID3D11DeviceContext* dc, ShaderCM& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void Draw(ID3D11DeviceContext* dc, ShaderSkybox& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void Draw(ID3D11DeviceContext* dc, ShaderStrife& shader) {
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void Draw(ID3D11DeviceContext* dc, ShaderWater& shader) {
+	//@TODO change to use the animation shader
+	void Draw(ID3D11DeviceContext* dc, Animator& shader) {
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
