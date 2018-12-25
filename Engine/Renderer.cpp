@@ -4,7 +4,7 @@
 
 Renderer::Renderer(){
 	_D3D = 0;
-	drawUI = true;
+	drawUI = false;
 }
 
 

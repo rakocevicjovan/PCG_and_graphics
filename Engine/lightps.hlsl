@@ -32,10 +32,10 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
                in float3  sunDir )  // sun light direction
 {
     float fogAmount = 1.0 - exp( -distance * 0.0001f );	//*b WHAT THE HELL IS "b" IN DENSITY MR QUILEZ???
-    float sunAmount = max( dot( rayDir, sunDir ), 0.0 );
+    float moonIntensity = max( dot( rayDir, sunDir ), 0.0 );
     float3 fogColor  = lerp( float3(0.5,0.6,0.8), // bluish
                             float3(1.0,0.9,0.7), // yellowish
-                            pow(sunAmount,8.0) );
+                            pow(moonIntensity,8.0) );
     return lerp( rgb, fogColor, fogAmount );
 }
 

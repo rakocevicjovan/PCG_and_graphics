@@ -10,15 +10,5 @@ float4 DepthPixelShader(PixelInputType input) : SV_TARGET{
 	float4 color;
 	depthValue = input.depthPosition.z / input.depthPosition.w;
 	color = float4(depthValue, depthValue, depthValue, 1.0f);
-
-	/*
-	float ndcDepth = (2.0 * input.depthPosition.z - 0.1f - 500.0f) / (500.0f - 0.1f);
-	
-	float clipDepth = ndcDepth / input.depthPosition.w;
-
-	float clipDepth2 = (clipDepth * 0.5) + 0.5;
-	
-	float color = float4(clipDepth2, clipDepth2, clipDepth2, 1.0f);
-	*/
 	return color;
 }
