@@ -19,7 +19,8 @@
 #include "ShaderSkybox.h"
 #include "ShaderStrife.h"
 #include "ShaderWater.h"
-#include "Animator.h"
+
+
 
 class Mesh{
 
@@ -27,10 +28,9 @@ class Mesh{
 
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<Texture> textures;	//should be a single texture tbh
+		std::vector<Texture> textures;
 		unsigned int indexIntoModelMeshArray;
 
-		//unsigned int VAO, VBO, EBO;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		Mesh() {
@@ -47,9 +47,9 @@ class Mesh{
 			setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 		}
 
-		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device) {
 
-			//make the vertices etc...
+		//this is used for the screen quads...
+		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device) {
 
 			float originX = (pos.x - 0.5f) * 2.f;
 			float originY = (pos.y - 0.5f) * 2.f;
@@ -253,41 +253,6 @@ class Mesh{
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			dc->PSSetSamplers(0, 1, &s.m_sampleState);
 			dc->DrawIndexed(indices.size(), 0, 0);
-		}
-	};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**/
-	class BonedMesh : public Mesh{
-
-	public:
-
-		std::vector<BonedVert3D> vertices;
-		std::vector<unsigned int> indices;
-		std::vector<Texture> textures;
-		std::vector<Joint> joints;
-
-		unsigned int VAO, VBO, EBO;
-
-		BonedMesh() {}
-
-		BonedMesh(std::vector<BonedVert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, std::vector<Joint> joints)
-			: vertices(vertices), indices(indices), textures(textures), joints(joints)
-		{
-			//setupMesh();	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 		}
 
 	};

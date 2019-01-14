@@ -113,7 +113,6 @@ public:
 			//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
 			
 			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-
 			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 			vertex.normal.Normalize();
 
@@ -152,7 +151,7 @@ public:
 	}
 
 
-
+	/*
 	BonedMesh processBonedMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene) {
 
 		std::vector<BonedVert3D> vertices;
@@ -214,7 +213,7 @@ public:
 
 		return BonedMesh(vertices, indices, textures, joints);
 	}
-
+	*/
 
 
 	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName){

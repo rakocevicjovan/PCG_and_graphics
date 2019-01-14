@@ -1,6 +1,3 @@
-#ifndef _LIGHTSHADERCLASS_H_
-#define _LIGHTSHADERCLASS_H_
-
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -74,5 +71,3 @@ private:
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 };
-
-#endif

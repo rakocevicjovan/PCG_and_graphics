@@ -90,9 +90,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AnimaPS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animator.cpp" />
     <ClCompile Include="BitMapper.cpp" />
@@ -151,6 +148,7 @@
     <ClInclude Include="ShaderShadow.h" />
     <ClInclude Include="ShaderSkybox.h" />
     <ClInclude Include="ShaderStrife.h" />
+    <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Texture.h" />
@@ -193,6 +191,13 @@
     <Text Include="shader-error.txt" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="AnimaPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>

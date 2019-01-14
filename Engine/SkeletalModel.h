@@ -12,14 +12,15 @@
 #include "assimp\Importer.hpp"	
 #include "assimp\scene.h"
 #include "assimp\postprocess.h" 
-#include "Mesh.h"
-#include "Animator.h"
+#include "SkeletalMesh.h"
+#include "Animation.h"
 
 class SkeletalModel {
 
 public:
 
-	std::vector<Mesh> meshes;
+	std::vector<SkeletalMesh> meshes;
+	std::vector<Animation> anims;
 	std::vector<Texture> textures_loaded;
 
 	std::string directory;
@@ -28,6 +29,9 @@ public:
 	SMatrix transform;
 	Joint rootJoint;
 
+	SMatrix globalInverseTransform;
+
+	///functions
 	SkeletalModel() {}
 
 
@@ -45,8 +49,12 @@ public:
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, pFlags);
 
+		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
+		globInvTrans.Inverse();
+		globalInverseTransform = SMatrix(&globInvTrans.a1);	//this might not work... probably won't as intended... try with decompose and reassemble if not
+
 		// Check for errors
-		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr) {
 			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
 			OutputDebugStringA(errString.c_str());
 			return false;
@@ -56,6 +64,8 @@ public:
 		name = path.substr(path.find_last_of('/') + 1, path.size());
 
 		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
+
+		loadAnimations(scene);
 		return true;
 	}
 
@@ -71,7 +81,7 @@ public:
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 			unsigned int ind = meshes.size();
 
-			meshes.push_back(processMesh(device, mesh, scene, ind, concatenatedTransform, rUVx, rUVy));
+			meshes.push_back(processSkeletalMesh(device, mesh, scene, ind, concatenatedTransform, rUVx, rUVy));
 		}
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
@@ -85,55 +95,61 @@ public:
 
 
 	//reads in vertices, indices and texture UVs of a mesh
-	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
+	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
 
 		// Data to fill
-		std::vector<Vert3D> vertices;
+		std::vector<BonedVert3D> vertices;
 		std::vector<unsigned int> indices;
+		std::vector<Joint> joints;
 		std::vector<Texture> locTextures;
+		
 
 		bool hasTexCoords = false;
-
-		///THIS COULD BE AN ERROR! WATCH OUT!
 		if (mesh->mTextureCoords[0])
 			hasTexCoords = true;
 
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++) 
+		{
+			BonedVert3D vertex;
 
-			Vert3D vertex;
-
+			//might have to transform these like so later... not sure
 			//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 			//vertex.pos = SVec3(temp.x, temp.y, temp.z);
-
 			//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 			//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
 
+			//position, normal and texture coordinate data of each vertex
 			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-
 			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 			vertex.normal.Normalize();
 
-			if (hasTexCoords) { // Does the mesh contain texture coordinates?
+			if (hasTexCoords) // Does the mesh contain texture coordinates?
 				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);
-
-			}
 			else
 				vertex.texCoords = SVec2(0.0f, 0.0f);
 
 			vertices.push_back(vertex);
 		}
 
-		// Now walk through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-			aiFace face = mesh->mFaces[i];
-			// Retrieve all indices of the face and store them in the indices vector
-			for (unsigned int j = 0; j < face.mNumIndices; j++) {
-				indices.push_back(face.mIndices[j]);
-			}
+		// Retrieve indices from faces...
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++)
+				indices.push_back(mesh->mFaces[i].mIndices[j]);
+
+
+		
+		if (mesh->HasBones()) {
+			std::vector<aiBone> bonesOfThisMesh;	//name, vertexWeight array (these are id + weight objects), offsetMatrix per bone
+
+
 		}
 
+
+
+
 		// Process materials
-		if (mesh->mMaterialIndex >= 0) {
+		if (mesh->mMaterialIndex >= 0) 
+		{
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 			// 1. Diffuse maps
@@ -145,75 +161,7 @@ public:
 
 		}
 
-		return Mesh(vertices, indices, locTextures, device, ind);
-	}
-
-
-
-	BonedMesh processBonedMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene) {
-
-		std::vector<BonedVert3D> vertices;
-		std::vector<unsigned int> indices;
-		std::vector<Texture> textures;
-
-		bool hasTexCoords = false;
-
-		///THIS COULD BE AN ERROR! WATCH OUT!
-		if (mesh->mTextureCoords[0])
-			hasTexCoords = true;
-
-		// Walk through each of the mesh's vertices
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-			BonedVert3D vertex;
-
-			// Positions
-			vertex.vert.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-
-			// Normals
-			vertex.vert.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-
-			// Texture Coordinates
-			if (hasTexCoords) {
-				vertex.vert.texCoords = SVec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-				auto a = mesh->mTextureCoords[0];
-			}
-			else
-				vertex.vert.texCoords = SVec2(0.0f, 0.0f);
-
-			vertices.push_back(vertex);
-		}
-
-
-
-		// Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
-			aiFace face = mesh->mFaces[i];
-			// Retrieve all indices of the face and store them in the indices vector
-			for (unsigned int j = 0; j < face.mNumIndices; j++)
-			{
-				indices.push_back(face.mIndices[j]);
-			}
-		}
-
-
-
-		// Process materials
-		if (mesh->mMaterialIndex >= 0) {
-			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-			// 1. Diffuse maps XXXXXXXXXXXXXXXXXXXX
-			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
-			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-			// 2. Specular maps
-			std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
-			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-
-		}
-
-		auto joints = loadBones(*mesh, vertices);
-
-		return BonedMesh(vertices, indices, textures, joints);
+		return SkeletalMesh(vertices, indices, locTextures, device, ind, joints);
 	}
 
 
@@ -288,55 +236,80 @@ public:
 	}
 
 
-	/*... 1:00 AM revelation!
-	Bone indices in my data are completely dictated by me
-	and have fuck all to do with bone indices in assimp,
-	the only thing connecting bones to vertices are NAMES OF BONES -> INDICES OF VERTICES.*/
 
-	//loads joint influence per vertex data, as well as the tree itself
-	std::vector<Joint> SkeletalModel::loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts) {
+	//void SkeletalModel::loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts) 
+	//{
+	//	if (!aiMesh.HasBones())
+	//		return;
 
-		if (!aiMesh.HasBones())
-			return {};
+	//	int numBones = 0;
 
-		std::vector<Joint> result;
+	//	for (unsigned int i = 0; i < aiMesh.mNumBones; i++) 
+	//	{
+	//		aiBone* bone = aiMesh.mBones[i];	//bone at index i in assimp data, NOT THE INDEX WE ARE USING!!!
+	//		int boneIndex = jointMap.size();		//index to be stored in my mesh data
+	//		
+	//		std::string boneName(bone->mName.data);
 
-		for (unsigned int i = 0; i < aiMesh.mNumBones; i++) {
+	//		if (jointMap.find(boneName) == jointMap.end()) {
+	//			boneIndex = numBones;
+	//			numBones++;
+	//			//Joint bi;
+	//			//m_BoneInfo.push_back(bi);
+	//		}
+	//		else {
+	//			//boneIndex = jointMap[boneName];
+	//		}
 
-			auto bone = aiMesh.mBones[i];		//bone at index i in assimp data, NOT THE INDEX WE ARE USING!!!
-			int boneIndex = result.size();		//index to be stored in my mesh data
+	//		Joint joint(boneIndex, boneName, SMatrix(bone->mOffsetMatrix[0]));
+	//		jointMap.at(boneName) = joint;
+	//	}
+	//}
 
-			//adds the bone, gives it an index by which it can be found... 
-			//MAYBE ASSIMP ID SHOULD BE THE INDEX??? @TODO FIGURE IT OUT
-			Joint j(boneIndex, std::string(bone->mName.data), SMatrix(bone->mOffsetMatrix[0]));
-			result.push_back(j);
 
-			/*IMPORTANT! right now, the joints here have no parents or children therefore in order to correctly
-			calculate anything at runtime, I need to establish these relationships by going through the joint vector of this mesh,
-			finding all the joint names and finding their parents and children in the aiNode hierarchy.
-			*/
 
-			//adds vertex bone data, saing which (up to MBVP, which is 4 right now) bones affect the vertex
-			//vertices are indexed per mesh, not per model (I hope?)
-			//bones are indexed by the number boneIndex, which is MY index (not assimp's) in MY vector of bones
-			for (unsigned int j = 0; j < bone->mNumWeights; j++) {
-				int curVertex = bone->mWeights[j].mVertexId;
-				//verts.at(curVertex).joints.addBoneData(boneIndex, bone->mWeights[j].mWeight);	@TODO WTF
+	void loadAnimations(const aiScene* scene) 
+	{
+		if (scene->HasAnimations())
+			return;
+
+		for (int i = 0; i < scene->mNumAnimations; i++) 
+		{
+			auto sceneAnimation = scene->mAnimations[i];
+			Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond);
+
+			for (int j = 0; j < sceneAnimation->mNumChannels; j++) 
+			{
+				aiNodeAnim* channel = sceneAnimation->mChannels[j];
+
+				for (int a = 0; a < channel->mNumPositionKeys; a++) 
+				{
+					double time = channel->mPositionKeys[a].mTime;
+					aiVector3D chPos = channel->mPositionKeys[a].mValue;
+					SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
+				}
+
+				for (int b = 0; b < channel->mNumRotationKeys; b++) 
+				{
+					double time = channel->mRotationKeys[b].mTime;
+					aiQuaternion chRot = channel->mRotationKeys[b].mValue;
+					SQuat rot = SQuat(chRot.x, chRot.y, chRot.z, chRot.w);
+				}
+
+				for (int c = 0; c < channel->mNumScalingKeys; c++) 
+				{
+					double time = channel->mScalingKeys[c].mTime;
+					aiVector3D chScale = channel->mScalingKeys[c].mValue;
+					SVec3 scale = SVec3(chScale.x, chScale.y, chScale.z);
+				}
 			}
 
+			anims.push_back(anim);
 		}
-
-		return result;
-
-	}
-
-	std::vector<std::string> addBoneNames() {
-
 	}
 
 
 
-	//@TODO change to use the animation shader
 	void Draw(ID3D11DeviceContext* dc, Animator& shader) {
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);

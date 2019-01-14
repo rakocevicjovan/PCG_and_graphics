@@ -99,9 +99,6 @@
     <ClCompile Include="Animator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AnimaPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,6 +200,9 @@
     <ClInclude Include="SkeletalModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletalMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -283,6 +283,9 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="AnimaPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
