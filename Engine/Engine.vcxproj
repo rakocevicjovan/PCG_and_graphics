@@ -99,6 +99,7 @@
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="GameClock.cpp" />
+    <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -127,10 +128,12 @@
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Celestials.h" />
+    <ClInclude Include="Chaos.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="Perlin.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />

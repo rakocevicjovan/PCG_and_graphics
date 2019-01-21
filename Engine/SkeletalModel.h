@@ -32,7 +32,8 @@ public:
 	SMatrix globalInverseTransform;
 
 	///functions
-	SkeletalModel() {}
+	SkeletalModel();
+	~SkeletalModel();
 
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1) {
