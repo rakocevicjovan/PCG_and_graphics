@@ -19,6 +19,7 @@
 #include "OST.h"
 #include "CubeMapper.h"
 #include "GameClock.h"
+#include "Terrain.h"
 
 #include "BitMapper.h"
 
@@ -81,6 +82,7 @@ private:
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
 	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
+	Procedural::Terrain proceduralTerrain;
 
 	bool drawUI;
 

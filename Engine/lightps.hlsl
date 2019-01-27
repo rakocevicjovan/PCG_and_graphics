@@ -79,7 +79,8 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float3 invViewDir = -viewDir;
 
 	//texture colour
-	float4 colour = shaderTexture.Sample(SampleType, input.tex);
+	//float4 colour = shaderTexture.Sample(SampleType, input.tex);
+	float4 colour = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
 	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);

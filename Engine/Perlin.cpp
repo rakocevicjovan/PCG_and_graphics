@@ -26,6 +26,8 @@ namespace Procedural
 	{
 		double left;
 		double fract = modf(x, &left);	//expected value in left is a floored double
+
+		return 0;
 	}
 
 
@@ -59,6 +61,8 @@ namespace Procedural
 		float dotTR = deltaTR.Dot(gradTR);
 
 		int x1, x2;		//ok I'm really confused with the tutorial explanation of this part...
+
+		return SVec2();
 	}
 		
 }

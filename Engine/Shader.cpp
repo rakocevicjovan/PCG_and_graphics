@@ -262,17 +262,14 @@ void Shader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR
 
 bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,  
 									Model& model, const SMatrix& v, const SMatrix& p,
-									const PointLight& dLight, const SVec3& eyePos, float deltaTime){
-
-
+									const PointLight& dLight, const SVec3& eyePos, float deltaTime)
+{
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
 	LightBufferType* dataPtr2;
 	VariableBufferType* dataPtr3;
-
-	//model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();

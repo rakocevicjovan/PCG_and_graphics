@@ -61,7 +61,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,6 +95,7 @@
     <ClCompile Include="BitMapper.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Celestials.cpp" />
+    <ClCompile Include="Chaos.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
@@ -118,6 +119,8 @@
     <ClCompile Include="ShaderStrife.cpp" />
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="Systems.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="terrainclass.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
     <ClCompile Include="ShaderWater.cpp" />
@@ -154,6 +157,8 @@
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="Systems.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="terrainclass.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
@@ -200,9 +205,11 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="skyboxps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

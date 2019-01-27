@@ -101,12 +101,11 @@
 			// this should honestly never happen...
 			if (y == t.h)
 				break;
-
 		}
 
 
-		//make faces, calculate face normals
-		faces.resize(t.h-1);
+		//fill face vectors, calculate face normals
+		faces.resize(t.h - 1);
 		for (auto fRow : faces)
 			fRow.reserve((t.w - 1) * 2);
 		
@@ -150,7 +149,6 @@
 			}
 		}
 
-
 		//calculate vertex normals from face normals
 		vertexNormals.reserve(t.h * t.w);
 
@@ -161,15 +159,16 @@
 			std::vector<std::pair<SVec3, SVec3>> pRow;
 			std::vector<std::pair<SVec3, SVec3>> nRow;
 			
-			if (vertexRow == 0) {
-				//pRow.clear();
+			if (vertexRow == 0) 
+			{
 				nRow = faces[vertexRow];
 			} 
-			else if (vertexRow == t.h - 1) {
+			else if (vertexRow == t.h - 1) 
+			{
 				pRow = faces[vertexRow - 1];
-				//nRow.clear();
 			} 
-			else {
+			else 
+			{
 				pRow = faces[vertexRow - 1];
 				nRow = faces[vertexRow];
 			}

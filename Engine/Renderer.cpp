@@ -2,7 +2,7 @@
 #include "SimpleMath.h"
 #include "InputManager.h"
 
-Renderer::Renderer(){
+Renderer::Renderer() : proceduralTerrain(){
 	_D3D = 0;
 	drawUI = false;
 }
@@ -126,7 +126,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
 	LightData lightData(SVec3(0.6f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	
-	pointLight = PointLight(lightData, SVec4(50.0f, 250.f, 250.0f, 1.0f));
+	pointLight = PointLight(lightData, SVec4(10000.f, 0000.f, 0000.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
@@ -190,7 +190,12 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 	///TERRAIN GENERATION
-	/*
+	proceduralTerrain.setScales(30, 10, 30);
+	proceduralTerrain = Procedural::Terrain(30, 30);
+	proceduralTerrain.GenWithCA(40);
+	proceduralTerrain.SetUp(_device);
+
+	/* //heightmap example 
 	Texture t;
 	t.fileName = "../Textures/volcano.png";
 	BitMapper bitMapper(t);
@@ -221,128 +226,33 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(float dTime){
 
-	///CUBE SHADOWS
-/*
-	_deviceContext->RSSetViewports(1, &(shadowCubeMapper.cm_viewport));
-	shadowCubeMapper.UpdateCams(SVec3(pLight.pos));
-
-	for (int i = 0; i < 6; i++) {
-		//use depth shader here...
-		_deviceContext->ClearRenderTargetView(shadowCubeMapper.cm_rtv[i], shadowCubeMapper.clearCol);
-		_deviceContext->ClearDepthStencilView(shadowCubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		_deviceContext->OMSetRenderTargets(1, &shadowCubeMapper.cm_rtv[i], shadowCubeMapper.cm_depthStencilView);
-
-		for (auto model : models) {
-			shaderDepth.SetShaderParameters(_deviceContext, *model, cubeMapper.cameras[i], cubeMapper.lens);
-			model->Draw(_deviceContext, shaderDepth);
-		}
-	}
-*/
-	///CUBE SHADOWS DONE
-
-	///REFLECTION CUBE MAP START
-	_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
-	cubeMapper.UpdateCams(modBall.transform.Translation());
-
-	SMatrix wot = DirectX::XMMatrixInverse(nullptr, cubeMapper.cameras[0]);
-	Math::SetTranslation(modSkybox.transform, wot.Translation());
-	for (int i = 0; i < 6; i++) {
-
-		_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
-		_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-		_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
-
-		shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
-		modTerrain.Draw(_deviceContext, shaderLight);
-		shaderLight.ReleaseShaderParameters(_deviceContext);
-
-		shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
-		modTreehouse.Draw(_deviceContext, shaderLight);
-		shaderLight.ReleaseShaderParameters(_deviceContext);
-
-		_D3D->TurnOffCulling();
-		_D3D->SwitchDepthToLessEquals();
-		
-		
-		shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, cubeMapper.cameras[i], cubeMapper.lens,
-			_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
-		modSkybox.Draw(_deviceContext, shaderSkybox);
-		shaderSkybox.ReleaseShaderParameters(_deviceContext);
-		
-		_D3D->SwitchDepthToDefault();
-		_D3D->TurnOnCulling();
-	}
-	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
-	///REFLECTION CUBE MAP DONE
-	
-
-	///RENDERING UI
-	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-	_D3D->SetBackBufferRenderTarget();
 	_D3D->BeginScene(clearColour);
 
-	if (drawUI)
-		_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
-	///RENDERING UI DONE
 
+	///RENDERING OLD TERRAIN 
+	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
 
-	///RENDERING DEPTH TEXTURE
-	_deviceContext->RSSetViewports(1, &altViewport);	//to the shadow texture viewport
-	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
-	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
-	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	for (auto tm : _terrainModels) {
-		shaderDepth.SetShaderParameters(_deviceContext, *tm, offScreenTexture._view, offScreenTexture._lens);
-		tm->Draw(_deviceContext, shaderDepth);
-	}
-
-	shaderLight.SetShaderParameters(_deviceContext, modBall, offScreenTexture._view, offScreenTexture._lens, pointLight,
-		_cameras[0].GetCameraMatrix().Translation(), dTime);
-	modBall.Draw(_deviceContext, shaderLight);
-	shaderLight.ReleaseShaderParameters(_deviceContext);
-	///RENDERING DEPTH TEXTURE DONE
-
-	///RENDERING TERRAIN
 	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
 	_D3D->SetBackBufferRenderTarget();
 
+	/*
 	for (auto tm : _terrainModels) {
 		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), offScreenTexture._view, _cameras[0].GetProjectionMatrix(),
 			offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), offScreenTexture.srv);
 		tm->Draw(_deviceContext, shaderShadow);
 		shaderShadow.ReleaseShaderParameters(_deviceContext);
 	}
-	///RENDERING TERRAIN DONE
+	*/
 
-	///RENDERING WIREFRAME
-	_D3D->TurnOnAlphaBlending();
-	shaderWireframe.SetShaderParameters(_deviceContext, modBallStand, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix());
-	modBallStand.Draw(_deviceContext, shaderWireframe);
-	shaderWireframe.ReleaseShaderParameters(_deviceContext);
-	_D3D->TurnOffAlphaBlending();
-	///RENDERING WIREFRAME DONE
+	//_D3D->TurnOffCulling();
+	SMatrix identityMatrix = SMatrix::Identity;
+	proceduralTerrain.Draw(_deviceContext, shaderLight, 
+		identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+		pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
+	//_D3D->TurnOnCulling();
 
-	
-
-
-	///RENDERING REFLECTION SPHERE/*
-	shaderCM.SetShaderParameters(_deviceContext, modBall, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), dirLight,
-		_cameras[0].GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
-	modBall.Draw(_deviceContext, shaderCM);
-	shaderCM.ReleaseShaderParameters(_deviceContext);
-
-	/*shaderShadow.SetShaderParameters(_deviceContext, modBallStand, _cameras[0].GetViewMatrix(), offScreenTexture._view,
-		_cameras[0].GetProjectionMatrix(), offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), 
-		offScreenTexture.srv);
-	modBallStand.Draw(_deviceContext, shaderShadow);
-	shaderShadow.ReleaseShaderParameters(_deviceContext);*/
-	///RENDERING REFLECTION SPHERE DONE
-
-
-
-	///RENDERING SKYBOX
+	/*
 	_D3D->TurnOffCulling();
 	_D3D->SwitchDepthToLessEquals();
 	shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
@@ -351,39 +261,7 @@ bool Renderer::RenderFrame(float dTime){
 	shaderSkybox.ReleaseShaderParameters(_deviceContext);
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
-	///RENDERING SKYBOX DONE
-
-
-	_D3D->TurnOnAlphaBlending();
-
-	///RENDERING CLOUD
-	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlin.srv, worley.srv, offScreenTexture._view);
-	modStrife.Draw(_deviceContext, shaderStrife);
-	shaderStrife.ReleaseShaderParameters(_deviceContext);
-	///RENDERING CLOUD DONE
-
-	///RENDERING WATER
-	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv);
-	modDepths.Draw(_deviceContext, shaderWater);
-	shaderWater.ReleaseShaderParameters(_deviceContext);
-	///RENDERING WATER DONE
-
-	_D3D->TurnOffAlphaBlending();
-
-
-
-	///PROJECT TEXTURE
-	/*
-	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
-	shaderPT.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
-								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
-	modTerrain.Draw(_deviceContext, shaderPT);
-	shaderPT.ReleaseShaderParameters(_deviceContext);
 	*/
-	///PROJECT TEXTURE END
-
 	_D3D->EndScene();
 	return true;
 }
@@ -423,3 +301,147 @@ void Renderer::OutputFPS(float dTime) {
 	std::string s(ss.str());
 	OutputDebugStringA(ss.str().c_str());
 }
+
+
+
+
+//old scene stuff
+
+	/*
+	///PROJECT TEXTURE
+	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
+	shaderPT.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
+								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
+	modTerrain.Draw(_deviceContext, shaderPT);
+	shaderPT.ReleaseShaderParameters(_deviceContext);
+	*/
+
+/*
+
+///REFLECTION CUBE MAP START
+_deviceContext->RSSetViewports(1, &(cubeMapper.cm_viewport));
+cubeMapper.UpdateCams(modBall.transform.Translation());
+
+SMatrix wot = DirectX::XMMatrixInverse(nullptr, cubeMapper.cameras[0]);
+Math::SetTranslation(modSkybox.transform, wot.Translation());
+for (int i = 0; i < 6; i++) {
+
+	_deviceContext->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
+	_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
+
+	shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
+	modTerrain.Draw(_deviceContext, shaderLight);
+	shaderLight.ReleaseShaderParameters(_deviceContext);
+
+	shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
+	modTreehouse.Draw(_deviceContext, shaderLight);
+	shaderLight.ReleaseShaderParameters(_deviceContext);
+
+	_D3D->TurnOffCulling();
+	_D3D->SwitchDepthToLessEquals();
+
+
+	shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, cubeMapper.cameras[i], cubeMapper.lens,
+		_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+	modSkybox.Draw(_deviceContext, shaderSkybox);
+	shaderSkybox.ReleaseShaderParameters(_deviceContext);
+
+	_D3D->SwitchDepthToDefault();
+	_D3D->TurnOnCulling();
+}
+Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
+///REFLECTION CUBE MAP DONE
+
+
+///RENDERING UI
+_deviceContext->RSSetViewports(1, &_D3D->viewport);
+_D3D->SetBackBufferRenderTarget();
+_D3D->BeginScene(clearColour);
+
+if (drawUI)
+_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+///RENDERING UI DONE
+
+
+///RENDERING DEPTH TEXTURE
+_deviceContext->RSSetViewports(1, &altViewport);	//to the shadow texture viewport
+_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
+_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
+_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+for (auto tm : _terrainModels) {
+	shaderDepth.SetShaderParameters(_deviceContext, *tm, offScreenTexture._view, offScreenTexture._lens);
+	tm->Draw(_deviceContext, shaderDepth);
+}
+
+shaderLight.SetShaderParameters(_deviceContext, modBall, offScreenTexture._view, offScreenTexture._lens, pointLight,
+	_cameras[0].GetCameraMatrix().Translation(), dTime);
+modBall.Draw(_deviceContext, shaderLight);
+shaderLight.ReleaseShaderParameters(_deviceContext);
+///RENDERING DEPTH TEXTURE DONE
+
+///RENDERING TERRAIN
+_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+_deviceContext->RSSetViewports(1, &_D3D->viewport);
+_D3D->SetBackBufferRenderTarget();
+
+for (auto tm : _terrainModels) {
+	shaderShadow.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), offScreenTexture._view, _cameras[0].GetProjectionMatrix(),
+		offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), offScreenTexture.srv);
+	tm->Draw(_deviceContext, shaderShadow);
+	shaderShadow.ReleaseShaderParameters(_deviceContext);
+}
+///RENDERING TERRAIN DONE
+
+///RENDERING WIREFRAME
+_D3D->TurnOnAlphaBlending();
+shaderWireframe.SetShaderParameters(_deviceContext, modBallStand, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix());
+modBallStand.Draw(_deviceContext, shaderWireframe);
+shaderWireframe.ReleaseShaderParameters(_deviceContext);
+_D3D->TurnOffAlphaBlending();
+///RENDERING WIREFRAME DONE
+
+
+
+
+///RENDERING REFLECTION SPHERE/*
+shaderCM.SetShaderParameters(_deviceContext, modBall, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), dirLight,
+	_cameras[0].GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
+modBall.Draw(_deviceContext, shaderCM);
+shaderCM.ReleaseShaderParameters(_deviceContext);
+///RENDERING REFLECTION SPHERE DONE
+
+
+
+///RENDERING SKYBOX
+_D3D->TurnOffCulling();
+_D3D->SwitchDepthToLessEquals();
+shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+	_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+modSkybox.Draw(_deviceContext, shaderSkybox);
+shaderSkybox.ReleaseShaderParameters(_deviceContext);
+_D3D->SwitchDepthToDefault();
+_D3D->TurnOnCulling();
+///RENDERING SKYBOX DONE
+
+
+_D3D->TurnOnAlphaBlending();
+
+///RENDERING CLOUD
+shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+	dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlin.srv, worley.srv, offScreenTexture._view);
+modStrife.Draw(_deviceContext, shaderStrife);
+shaderStrife.ReleaseShaderParameters(_deviceContext);
+///RENDERING CLOUD DONE
+
+///RENDERING WATER
+shaderWater.SetShaderParameters(_deviceContext, modDepths, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+	dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv);
+modDepths.Draw(_deviceContext, shaderWater);
+shaderWater.ReleaseShaderParameters(_deviceContext);
+///RENDERING WATER DONE
+
+_D3D->TurnOffAlphaBlending();
+
+*/
