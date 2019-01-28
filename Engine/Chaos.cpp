@@ -17,7 +17,6 @@ void Chaos::setRange(float min, float max)
 }
 
 
-
 inline float Chaos::rollTheDice()
 {	
 	return dist(RNGesus);
@@ -25,8 +24,18 @@ inline float Chaos::rollTheDice()
 
 
 
-void Chaos::fillVector(std::vector<float>& target) {
-
+void Chaos::fillVector(std::vector<float>& target) 
+{
 	for (int i = 0; i < target.size(); i++)
 		target[i] = rollTheDice();
+}
+
+
+
+void Chaos::fillIntVector(std::vector<int>& target, int min, int max)
+{
+	std::uniform_int_distribution<int> intDist(min, max);
+
+	for (int i = 0; i < target.size(); i++)
+		target[i] = intDist(RNGesus);
 }

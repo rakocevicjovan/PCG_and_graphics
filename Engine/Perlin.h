@@ -7,26 +7,22 @@ namespace Procedural
 
 	class Perlin
 	{
-		//2d constants, not sure if I need this...
-		const SVec2
-			top = SVec2(0, 1),
-			left = SVec2(-1, 0),
-			bottom = SVec2(0, -1),
-			right = SVec2(1, 0);
-			
-		std::vector<int> p;
+		
+	private:
 
+		static std::vector<SVec2> gradients2D; 
+		static std::vector<int> hashTable;
+
+		inline int Perlin::hash2D(int x, int y) const;
 
 	public:
-
-
 
 		Perlin();
 		~Perlin();
 
 		double fade(double t);
 		double perlin1d(double x);
-		SVec2 perlin2d(SVec2 pos);
+		float perlin2d(SVec2 pos);
 	};
 
 }

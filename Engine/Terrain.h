@@ -79,7 +79,7 @@ namespace Procedural
 		void GenWithDS(const float* corners, unsigned int steps, float decay);
 
 		//cellular automata
-		void GenWithCA(unsigned int steps);
+		void GenWithCA(float initialDistribtuion, unsigned int steps);
 
 
 		///manipulation methods

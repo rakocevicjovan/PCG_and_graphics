@@ -190,9 +190,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 	///TERRAIN GENERATION
-	proceduralTerrain.setScales(30, 10, 30);
-	proceduralTerrain = Procedural::Terrain(30, 30);
-	proceduralTerrain.GenWithCA(40);
+	proceduralTerrain = Procedural::Terrain(50, 50);
+	proceduralTerrain.setScales(40, 10, 40);
+	proceduralTerrain.GenWithCA(0.45f, 40);
 	proceduralTerrain.SetUp(_device);
 
 	/* //heightmap example 

@@ -20,6 +20,7 @@
 #include "CubeMapper.h"
 #include "GameClock.h"
 #include "Terrain.h"
+#include "Perlin.h"
 
 #include "BitMapper.h"
 

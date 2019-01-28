@@ -60,7 +60,7 @@ namespace Procedural {
 
 
 
-	void Terrain::GenWithCA(unsigned int steps) 
+	void Terrain::GenWithCA(float initialDistribtuion, unsigned int steps)
 	{
 
 		Chaos chaos;
@@ -73,7 +73,7 @@ namespace Procedural {
 
 		for (int i = 0; i < randoms.size(); i++)
 		{
-			if (randoms[i] < 0.45f)
+			if (randoms[i] < initialDistribtuion)
 				cells[i] = true;
 		}
 
@@ -88,6 +88,7 @@ namespace Procedural {
 				{
 					unsigned int index = i * _numColumns + j;
 
+					//wrap the grid
 					unsigned int topRow = (i == 0) ? _numRows - 1 : i - 1;
 					unsigned int bottomRow = (i == _numRows - 1) ? 0 : i + 1;
 					unsigned int leftColumn = (j == 0) ? _numColumns - 1 : j - 1;
