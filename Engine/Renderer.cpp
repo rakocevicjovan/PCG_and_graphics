@@ -2,7 +2,7 @@
 #include "SimpleMath.h"
 #include "InputManager.h"
 
-Renderer::Renderer() : proceduralTerrain(){
+Renderer::Renderer() : proceduralTerrain(), perlin(237){
 	_D3D = 0;
 	drawUI = false;
 }
@@ -89,6 +89,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 	///MODEL LOADING
+	/*
 	modTerrain.LoadModel(_device, "../Models/Terrain/NewTerTex.fbx", 50, 50);
 	Math::Scale(modTerrain.transform, SVec3(2.f));
 	_terrainModels.push_back(&modTerrain);
@@ -120,6 +121,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	modSkybox.LoadModel(_device, "../Models/Skysphere.fbx");
 	Math::Scale(modSkybox.transform, SVec3(10.0f));
 	modWaterQuad.LoadModel(_device, "../Models/WaterQuad.fbx");
+	*/
 	///MODEL LOADING DONE
 
 
@@ -181,19 +183,28 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	///NOISES
 	white.LoadFromFile("../Textures/noiz.png");
 	white.Setup(_device);
-	perlin.LoadFromFile("../Textures/strife.png");
-	perlin.Setup(_device);
+	perlinTex.LoadFromFile("../Textures/strife.png");
+	perlinTex.Setup(_device);
 	worley.LoadFromFile("../Textures/worley.png");
 	worley.Setup(_device);
 	///NOISES DONE
 
-
+	//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
+	//perlin.generate2DTextureFBM(256, 256, 1.2f, sqrt(2), 6u, sqrt(2), 0.5f , true);
+	//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
+	//perlin.fillFloatVector();
 
 	///TERRAIN GENERATION
-	proceduralTerrain = Procedural::Terrain(50, 50);
-	proceduralTerrain.setScales(40, 10, 40);
-	proceduralTerrain.GenWithCA(0.45f, 40);
+	proceduralTerrain = Procedural::Terrain(10, 10);
+	proceduralTerrain.fault(SRay(SVec3(0.f, 0.f, 5.f), SVec3(1.0f, 0.f, 0.f)), 10.f);
+	proceduralTerrain.fault(SRay(SVec3(5.f, 0.f, 0.f), SVec3(0.0f, 0.f, 1.f)), 10.f);
+	proceduralTerrain.setScales(1, 1, 1);
+	//proceduralTerrain.GenWithCA(0.45f, 40);
+	//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
+	//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
 	proceduralTerrain.SetUp(_device);
+
+	
 
 	/* //heightmap example 
 	Texture t;
@@ -245,12 +256,12 @@ bool Renderer::RenderFrame(float dTime){
 	}
 	*/
 
-	//_D3D->TurnOffCulling();
+	_D3D->TurnOffCulling();
 	SMatrix identityMatrix = SMatrix::Identity;
 	proceduralTerrain.Draw(_deviceContext, shaderLight, 
 		identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
 		pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
-	//_D3D->TurnOnCulling();
+	_D3D->TurnOnCulling();
 
 	/*
 	_D3D->TurnOffCulling();

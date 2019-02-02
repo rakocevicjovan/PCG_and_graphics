@@ -5,13 +5,14 @@ namespace Procedural {
 
 	Terrain::Terrain(unsigned int rows, unsigned int columns) : _numRows(rows), _numColumns(columns)
 	{
+		vertices.clear();
 		vertices.reserve(rows * columns);
 		Vert3D v;
 		for (int i = 0; i < rows; i++) 
 		{
 			for(int j = 0; j < columns; j++)
 			{
-				v.pos = SVec3(i * xScale, 0, j * zScale);
+				v.pos = SVec3(j * xScale, 0, i * zScale);
 				vertices.push_back(v);
 			}
 		}
@@ -53,8 +54,129 @@ namespace Procedural {
 	}
 
 
-	void Terrain::GenWithDS(const float* corners, unsigned int steps, float decay) 
+
+	inline unsigned int Terrain::wr(int row) { return row < 0 ? _numRows + row : row % _numRows; }
+
+	inline unsigned int Terrain::wc(int col) { return col < 0 ? _numColumns + col : col % _numColumns; }
+
+	float Terrain::sampleDiamond(int i, int j, int reach)
 	{
+		return
+			vertices[wr(i - reach) * _numColumns + j].pos.y +	//top
+			vertices[i * _numColumns + wc(j - reach)].pos.y +	//left
+			vertices[i * _numColumns + wc(j + reach)].pos.y +	//right
+			vertices[wr(i + reach) * _numColumns + j].pos.y		//bottom
+			;
+	}
+
+
+
+	//decay should be kept under 1.0f
+	void Terrain::GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax) 
+	{
+		//assume steps = 2
+		_numRows = _numColumns = pow(2, steps) + 1;		//5 by 5 grid
+		unsigned int stepSize = _numRows - 1;			//stepSize is 4
+
+		vertices.clear();
+		vertices.resize(_numRows * _numColumns);	//25 vertices
+
+		for (int i = 0; i < _numRows; i++)
+		{ 
+			for(int j = 0; j < _numColumns; j++)
+			{
+				vertices[i * _numColumns + j].pos = SVec3(j * xScale, 0.f, i * zScale);
+			}
+		}
+		
+
+		//assign the corner values
+		vertices.front().pos.y = corners.x;							//vertex at 0
+		vertices[vertices.size() - _numColumns].pos.y = corners.y;	//first vertex of last row (20 in 5x5)
+		vertices.back().pos.y = corners.z;							//vertex at 25
+		vertices[stepSize].pos.y = corners.w;						//vertex at 4
+
+		Chaos c(0, randomMax);	//initialize chaos and set the limits of the distribution between 0 and randomMax
+
+		//run the loop
+		while (stepSize > 1)
+		{
+			int halfStep = stepSize >> 1;	//half step, in this case 2 then 1
+
+			//square
+			for (int i = 0; i < _numRows - 1; i += stepSize)
+			{
+				for (int j = 0; j < _numColumns - 1; j += stepSize)
+				{
+					int midRow = i + halfStep, midColumn = j + halfStep;
+					int midVertIndex = midRow * _numColumns + midColumn;
+
+					float finHeight =
+							vertices[i * _numColumns + j].pos.y +
+							vertices[i * _numColumns + j + stepSize].pos.y +
+							vertices[(i + stepSize) * _numColumns + j].pos.y +
+							vertices[(i + stepSize) * _numColumns + j + stepSize].pos.y;
+					
+					finHeight *= 0.25f;
+					finHeight += (c.rollTheDice() * 2.f - randomMax);
+
+					vertices[midVertIndex].pos.y = finHeight * yScale;
+				}
+			}
+
+
+			//diamond
+			for (int i = 0; i < _numRows - 1; i += stepSize)
+			{
+				for (int j = 0; j < _numColumns - 1; j += stepSize)
+				{
+					int midRow = i + halfStep, midColumn = j + halfStep;
+					Vert3D mid = vertices[midRow * _numColumns + midColumn];
+
+					float ro = c.rollTheDice() * 2.f - randomMax;
+
+					//top
+					vertices[i *				_numColumns +	j + halfStep	].pos.y = sampleDiamond(i, j + halfStep, halfStep) * 0.25f + ro;
+					//left
+					vertices[(i + halfStep) *	_numColumns +	j				].pos.y = sampleDiamond(i + halfStep, j, halfStep) * 0.25f + ro;
+					//right
+					vertices[(i + halfStep) *	_numColumns +	j + stepSize	].pos.y = sampleDiamond(i + halfStep, j + stepSize, halfStep) * 0.25f + ro;
+					//bottom
+					vertices[(i + stepSize) *	_numColumns +	j + halfStep	].pos.y = sampleDiamond(i + stepSize, j + halfStep, halfStep) * 0.25f + ro;
+				}
+			}
+
+
+
+			/*
+			for (int x = 0; x < _numRows; x += halfStep)
+			{
+				for (int y = (x + halfStep) % stepSize; y < _numColumns; y += stepSize)
+				{
+					float finHeight =
+						vertices[((x - halfStep + _numRows - 1) % (_numRows - 1))	* _numColumns	+ y].pos.y + 
+						vertices[((x + halfStep) % (_numRows - 1))					* _numColumns	+ y].pos.y + 
+						vertices[(x * _numColumns)	+ ((y + halfStep) % (_numColumns - 1))].pos.y + 
+						vertices[(x * _numColumns)	+ ((y - halfStep + _numColumns - 1) % (_numColumns - 1))].pos.y; 
+					
+					finHeight *= 0.25f;
+					finHeight += (c.rollTheDice() * 2.f - randomMax);
+
+					vertices[x * _numColumns + y].pos.y = finHeight * yScale;
+
+					//if (x == 0)  
+						//vertices[(_numRows - 1) * _numColumns + y].pos.y = finHeight * yScale;
+					//if (y == 0)  
+						//vertices[x * _numColumns + _numColumns - 1].pos.y = finHeight * yScale;
+				}
+			}
+			*/
+
+			//prepare for next iteration
+			stepSize >>= 1;
+			randomMax *= decay;
+			c.setRange(0, randomMax);
+		}
 
 	}
 
@@ -63,6 +185,7 @@ namespace Procedural {
 	void Terrain::GenWithCA(float initialDistribtuion, unsigned int steps)
 	{
 
+		//give it a random seed
 		Chaos chaos;
 
 		std::vector<float> randoms;
@@ -77,11 +200,12 @@ namespace Procedural {
 				cells[i] = true;
 		}
 
+		//instantiate the other array which will be used in the meantime 
 		std::vector<bool> cellsNext(vertices.size(), false);
 
+		//do the CA stuff
 		for (unsigned int step = 0; step < steps; ++step)
 		{
-
 			for (unsigned int i = 0; i < _numRows; ++i)
 			{
 				for (unsigned int j = 0; j < _numColumns; ++j)
@@ -118,12 +242,33 @@ namespace Procedural {
 			cells = cellsNext;
 		}
 
+		//write to the vertices based on the cells array
 		for(int i = 0; i < vertices.size(); ++i)
 		{
 			if (cells[i])
 				vertices[i].pos.y = yScale;
 		}
 	}
+
+
+
+	void Terrain::GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data) 
+	{
+		_numColumns = width;
+		_numRows = height;
+
+		vertices.clear();
+		vertices.resize(width * height);
+
+		for (int i = 0; i < vertices.size(); ++i)
+		{
+			int row = i / width;
+			int column = i % width;
+
+			vertices[i].pos = SVec3(column * xScale, data[i] * yScale, row * zScale);
+		}
+	}
+
 
 
 	void Terrain::CalculateNormals()
@@ -369,5 +514,30 @@ namespace Procedural {
 		
 
 		//dc->PSSetShaderResources(0, 1, &(unbinder[0]));
+	}
+
+
+
+	void Terrain::fault(const SRay& line, float displacement) 
+	{
+		float adjX = line.position.x * xScale;
+		float adjz = line.position.z * zScale;
+
+		for (int i = 0; i < vertices.size(); ++i)
+			if (line.direction.z * (vertices[i].pos.x - adjX) - line.direction.x * (vertices[i].pos.z - adjz) > 0)
+				vertices[i].pos.y += displacement;
+	}
+
+
+	//keep decay under 1 for reasonable results? Still, something fun could happen otherwise...
+	void Terrain::faultIterative(const SRay& line, float displacement, unsigned int steps, float decay)
+	{
+
+		//@TODO change line each iteration as well, keeping it withing bounds of the terrain as well
+		for (int i = 0; i < steps; ++i)
+		{
+			fault(line, displacement);
+			displacement *= decay;
+		}
 	}
 }

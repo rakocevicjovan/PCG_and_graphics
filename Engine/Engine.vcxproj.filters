@@ -230,6 +230,9 @@
     <ClInclude Include="terrainclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Procedural\PGUtils.h">
+      <Filter>Procedural</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

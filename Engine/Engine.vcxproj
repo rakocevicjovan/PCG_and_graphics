@@ -137,6 +137,7 @@
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="Perlin.h" />
+    <ClInclude Include="Procedural\PGUtils.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />

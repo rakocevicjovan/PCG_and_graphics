@@ -1,11 +1,22 @@
 #include "Perlin.h"
 #include "Chaos.h"
+#include "Texture.h"
+#include <numeric>
+#include <random>
+#include <assert.h>
 
 namespace Procedural
 {
 
-	Perlin::Perlin()
+	Perlin::Perlin(unsigned int seed)
 	{
+		//populating with random permutation
+		hashTable.resize(256);
+		std::iota(hashTable.begin(), hashTable.end(), 0);
+
+		//std::random_device randomDevice;
+		std::default_random_engine engine(seed);
+		std::shuffle(hashTable.begin(), hashTable.end(), engine);
 		hashTable.resize(512);
 		std::copy_n(hashTable.begin(), 256, hashTable.begin() + 256);
 	}
@@ -18,37 +29,59 @@ namespace Procedural
 
 
 
-	double Perlin::fade(double t)
+	float Perlin::fade(float t)
 	{
 		return pow(t, 3) * (t * (6 * t - 15) + 10);	//6t5-15t4+10t3
 	}
 
 
-	//not implemented
-	double Perlin::perlin1d(double x)
-	{
-		double left;
-		double fract = modf(x, &left);	//expected value in left is a floored double
 
-		return 0;
+	inline int Perlin::hash2D(int x, int y)
+	{
+		return hashTable[hashTable[x] + y];
 	}
 
 
 
+	inline float Perlin::mix(float a, float b, float t)
+	{
+		return (1 - t)*a + t * b;
+	}
+
+
+
+	//not implemented yet
+	float Perlin::perlin1d(float x)
+	{
+		double left;
+		double fract = modf(x, &left);	//expected value in left is a floored double
+		return 0;
+	}
+
+	
+	#define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : ((int)x-1 ) )
 	float Perlin::perlin2d(SVec2 pos)
 	{
+
 		//determine the square this point belongs to
-		float left, bottom;
-		float u = fade(modf(pos.x, &left));
-		float v = fade(modf(pos.y, &bottom));
-		int iLeft = round(left);
-		int iBottom = round(bottom);
+		int iLeft = FASTFLOOR(pos.x);
+		int iBottom = FASTFLOOR(pos.y);
+
+		//get fracts and fade them
+		float xf = pos.x - iLeft;
+		float yf = pos.y - iBottom;
+		float u = fade(xf);
+		float v = fade(yf);
+		
+		//wrap
+		iLeft = iLeft & 255;
+		iBottom = iBottom & 255;
 
 		//define the corners of the square
-		SVec2 bottomLeft(left, bottom);
-		SVec2 bottomRight(left + 1.0f, bottom);
-		SVec2 topLeft(left, bottom + 1.0f);
-		SVec2 topRight(left + 1.0f, bottom + 1.0f);
+		SVec2 bottomLeft(iLeft, iBottom);
+		SVec2 bottomRight(iLeft + 1.0f, iBottom);
+		SVec2 topLeft(iLeft, iBottom + 1.0f);
+		SVec2 topRight(iLeft + 1.0f, iBottom + 1.0f);
 
 		//find gradients of the corners from the precomputed array
 		SVec2 gradBL = gradients2D[hash2D(iLeft, iBottom) % 8];
@@ -57,10 +90,10 @@ namespace Procedural
 		SVec2 gradTR = gradients2D[hash2D(iLeft + 1, iBottom + 1) % 8];
 
 		//calculate vectors from the corners to the position vector...
-		SVec2 deltaBL = pos - bottomLeft;
-		SVec2 deltaBR = pos - bottomRight;
-		SVec2 deltaTL = pos - topLeft;
-		SVec2 deltaTR = pos - topRight;
+		SVec2 deltaBL(xf, yf);
+		SVec2 deltaBR(xf - 1.f, yf);
+		SVec2 deltaTL(xf, yf - 1.f);
+		SVec2 deltaTR(xf - 1.f, yf - 1.f);
 
 		//calculate dot products of the delta vectors with the gradient vectors
 		float dotBL = deltaBL.Dot(gradBL);
@@ -69,17 +102,123 @@ namespace Procedural
 		float dotTR = deltaTR.Dot(gradTR);
 
 		//interpolate between results
-		float bottomInterpolated = dotBL * u + dotBR * (1 - u);
-		float topInterpolated = dotTL * u + dotTR * (1 - u);
-
-		return bottomInterpolated * v + topInterpolated * (1 - v);
+		float result = mix(mix(dotBL, dotBR, u), mix(dotTL, dotTR, u), v);
+		
+		assert(result < 1.01f && result > -1.01f);
+		
+		return result;
 	}
 
 
 
-	inline int Perlin::hash2D(int x, int y) const
+	void Perlin::generate2DTexturePerlin(int w, int h, float zoomX, float zoomY)
 	{
-		return hashTable[hashTable[x] + y];
+		_w = w;
+		_h = h;
+
+		texture.reserve(w * h);
+		floatTex.reserve(w * h);
+
+		float wInverse = 1.f / (float)w;
+		float hInverse = 1.f / (float)h;
+
+		for (int i = 0; i < w; ++i)
+		{
+			for (int j = 0; j < h; ++j)
+			{
+				//how far along the image we are, normalized to 0-1 range...
+				float x = (float)i * wInverse;
+				float y = (float)j * hInverse;
+
+				float rgb = perlin2d(SVec2(x * zoomX, y * zoomY));
+				int r = (int)((rgb + 1.f) * 0.5f * 255.f);
+				unsigned char uc = (unsigned char)r;
+
+				texture.push_back(uc);
+				floatTex.push_back(rgb);
+			}
+		}
+	}
+
+
+
+	//amplitude[~1], frequency[~1], gain[0, 1], lacunarity[1+] are recommended for the defaultish look
+	//amplitude and frequency are the intial values, and each octave amplitude is multiplied by gain and frequency by lacunarity
+	float Perlin::FBM(float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, SVec2 initialValue)
+	{
+		float accumulated = 0.f;
+
+		for (int i = 0; i < octaves; ++i)
+		{
+			accumulated += Perlin::perlin2d(frequency * initialValue) * amplitude;
+			frequency *= lacunarity;
+			amplitude *= gain;
+		}
+		return accumulated;
+	}
+
+
+
+	void Perlin::generate2DTextureFBM(int w, int h, float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, bool warp) 
+	{
+		_w = w;
+		_h = h;
+
+		texture.reserve(w * h);
+		floatTex.reserve(w * h);
+
+		float wInverse = 1.f / (float)w;
+		float hInverse = 1.f / (float)h;
+
+		for (int i = 0; i < w; ++i)
+		{
+			for (int j = 0; j < h; ++j)
+			{
+				//how far along the image we are, normalized to 0-1 range...
+				float x = (float)i * wInverse;
+				float y = (float)j * hInverse;
+
+				SVec2 curPos(x, y);
+
+				//spatial domain warping... nice results, but no idea how to predict what they will look like at all
+				if (warp)
+				{
+					float tempFBM = FBM(amplitude, frequency, octaves, lacunarity, gain, curPos);
+					curPos = SVec2(x + tempFBM, y + tempFBM);
+				}
+					
+
+				float rgb = FBM(amplitude, frequency, octaves, lacunarity, gain, curPos);
+				int r = (int)((rgb + 1.f) * 0.5f * 255.f);
+				unsigned char uc(r);
+				texture.push_back(uc);
+				floatTex.push_back(rgb);
+			}
+		}
+	}
+
+
+
+	void Perlin::writeToFile(const std::string& targetFile)
+	{
+		Texture::WriteToFile(targetFile, _w, _h, 1, texture.data(), 0);	// sizeof(unsigned char) * w
+	}
+
+
+
+	void Perlin::fillFloatVector()
+	{
+		floatTex.reserve(texture.size());
+		for (int i = 0; i < texture.size(); i++)
+		{
+			floatTex.push_back((float)texture[i]);
+		}
+	}
+
+
+	std::vector<float>& Perlin::getFloatVector() 
+	{
+		return floatTex;
 	}
 
 

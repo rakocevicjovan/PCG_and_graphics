@@ -57,11 +57,17 @@ namespace Procedural
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<std::vector<Vert3D>> verticesDoubleVector;
-		unsigned int n, _numRows, _numColumns;
+		unsigned int _numRows, _numColumns;
 		float xScale = 10.0f, yScale = 10.0f, zScale = 10.0f;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
+
+		//helper functions
+		inline unsigned int wr(int row);
+		inline unsigned int wc(int col);
+
+		float sampleDiamond(int i, int j, int reach);
 
 	public:
 		
@@ -76,17 +82,20 @@ namespace Procedural
 		void GenRandom(float chance);
 
 		//diamond square (midpoint displacement for 2D)
-		void GenWithDS(const float* corners, unsigned int steps, float decay);
+		void GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax);
 
 		//cellular automata
 		void GenWithCA(float initialDistribtuion, unsigned int steps);
+
+		//load from heightmap
+		void GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data);
 
 
 		///manipulation methods
 
 		//faulting - using z = k * x + offset
-		void fault(float k, float offset, float displacement);
-		void faultIterative(float k, float offset, float displacement, unsigned int steps, float decay);
+		void fault(const SRay& line, float displacement);
+		void faultIterative(const SRay& line, float displacement, unsigned int steps, float decay);
 
 		//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 		//apply this FIR function to rows and columns individually, in both directions

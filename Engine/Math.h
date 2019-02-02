@@ -7,6 +7,7 @@ using SQuat = DirectX::SimpleMath::Quaternion;
 using SVec2 = DirectX::SimpleMath::Vector2;
 using SVec3 = DirectX::SimpleMath::Vector3;
 using SVec4 = DirectX::SimpleMath::Vector4;
+using SRay = DirectX::SimpleMath::Ray;
 
 static const float PI = 3.1415926f;
 

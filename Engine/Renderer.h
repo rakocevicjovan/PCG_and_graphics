@@ -70,8 +70,8 @@ private:
 	ShaderStrife shaderStrife;
 	ShaderWater shaderWater;
 
-	Texture NST, DST, white, perlin, worley;
-	std::vector<Controller> _controllers;	//@TODO Reorganize this as well! Renderer should not hold controllers and models!
+	Texture NST, DST, white, perlinTex, worley;
+	std::vector<Controller> _controllers;
 	PointLight pointLight;
 	DirectionalLight dirLight;
 
@@ -84,6 +84,7 @@ private:
 
 	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
 	Procedural::Terrain proceduralTerrain;
+	Procedural::Perlin perlin;
 
 	bool drawUI;
 
