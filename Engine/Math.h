@@ -85,5 +85,10 @@ public:
 		total =  model * view * projection;
 	}
 
+	static SVec3 getNormalizedVec3(const SVec3& vecToNormalize) 
+	{
+		return vecToNormalize / vecToNormalize.Length();
+	}
+
 };
 

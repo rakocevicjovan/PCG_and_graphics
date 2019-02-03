@@ -58,7 +58,7 @@ namespace Procedural
 		std::vector<unsigned int> indices;
 		std::vector<std::vector<Vert3D>> verticesDoubleVector;
 		unsigned int _numRows, _numColumns;
-		float xScale = 10.0f, yScale = 10.0f, zScale = 10.0f;
+		float xScale = 1.0f, yScale = 1.0f, zScale = 1.0f;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
@@ -66,12 +66,11 @@ namespace Procedural
 		//helper functions
 		inline unsigned int wr(int row);
 		inline unsigned int wc(int col);
-
 		float sampleDiamond(int i, int j, int reach);
 
 	public:
 		
-		Terrain(unsigned int x = 1, unsigned int y = 1);
+		Terrain(unsigned int x = 1, unsigned int y = 1, SVec3 scales = SVec3(1, 1, 1));
 		~Terrain();
 
 		void setScales(float x, float y, float z);
@@ -95,12 +94,13 @@ namespace Procedural
 
 		//faulting - using z = k * x + offset
 		void fault(const SRay& line, float displacement);
-		void faultIterative(const SRay& line, float displacement, unsigned int steps, float decay);
-
+		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
+		void CircleOfScorn(const SRay& line, float displacement, unsigned int steps, float decay);
 		//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 		//apply this FIR function to rows and columns individually, in both directions
 		void faultFilter();	
 
+		
 
 		///wrapping up and directX integration
 		void CalculateNormals();

@@ -128,7 +128,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
 	LightData lightData(SVec3(0.6f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	
-	pointLight = PointLight(lightData, SVec4(10000.f, 0000.f, 0000.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
+	pointLight = PointLight(lightData, SVec4(2000.f, 0.f, 0.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
@@ -189,19 +189,33 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	worley.Setup(_device);
 	///NOISES DONE
 
+
+
+	///TERRAIN GENERATION
+	proceduralTerrain = Procedural::Terrain(64, 64, SVec3(1, 1, 1));
+
+
+	///Faulting testng
+	//proceduralTerrain.fault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 10.f);
+	//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
+	
+	
+	///Cellular automata testing
+	proceduralTerrain.GenWithCA(0.5f, 4);
+
+
+	///Perlin testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great
 	//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
 	//perlin.generate2DTextureFBM(256, 256, 1.2f, sqrt(2), 6u, sqrt(2), 0.5f , true);
 	//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
-	//perlin.fillFloatVector();
-
-	///TERRAIN GENERATION
-	proceduralTerrain = Procedural::Terrain(10, 10);
-	proceduralTerrain.fault(SRay(SVec3(0.f, 0.f, 5.f), SVec3(1.0f, 0.f, 0.f)), 10.f);
-	proceduralTerrain.fault(SRay(SVec3(5.f, 0.f, 0.f), SVec3(0.0f, 0.f, 1.f)), 10.f);
-	proceduralTerrain.setScales(1, 1, 1);
-	//proceduralTerrain.GenWithCA(0.45f, 40);
 	//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
+
+
+	///Diamond square testing
 	//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
+	
+
+	///DirectX initialization and normal calculations
 	proceduralTerrain.SetUp(_device);
 
 	

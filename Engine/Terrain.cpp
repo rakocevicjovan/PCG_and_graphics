@@ -1,9 +1,11 @@
 #include "Terrain.h"
 #include "Chaos.h"
 
-namespace Procedural {
+namespace Procedural 
+{
 
-	Terrain::Terrain(unsigned int rows, unsigned int columns) : _numRows(rows), _numColumns(columns)
+	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scales) 
+		: _numRows(rows), _numColumns(columns), xScale(scales.x), yScale(scales.y), zScale(scales.z)
 	{
 		vertices.clear();
 		vertices.reserve(rows * columns);
@@ -17,7 +19,6 @@ namespace Procedural {
 			}
 		}
 	}
-
 
 	Terrain::~Terrain()
 	{
@@ -68,8 +69,6 @@ namespace Procedural {
 			vertices[wr(i + reach) * _numColumns + j].pos.y		//bottom
 			;
 	}
-
-
 
 	//decay should be kept under 1.0f
 	void Terrain::GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax) 
@@ -232,7 +231,7 @@ namespace Procedural {
 					if (cells[bottomRow * _numColumns + j]) count++;
 					if (cells[bottomRow * _numColumns + rightColumn]) count++;
 
-					if (count >= 5 || count <= 1)
+					if (count >= 5)	//|| count <= 1
 						cellsNext[index] = true;
 					else
 						cellsNext[index] = false;
@@ -298,14 +297,14 @@ namespace Procedural {
 				//top left face
 				SVec3 ab = topLeft.pos - topRight.pos;
 				SVec3 ac = bottomLeft.pos - topRight.pos;
-				SVec3 normal = ac.Cross(ab);
+				SVec3 normal = ab.Cross(ac);
 
 				faces[row].push_back(std::make_pair(SVec3(tli, tri, bli), normal));
 
 				//bottom right face
 				ab = topRight.pos - bottomRight.pos;
 				ac = bottomLeft.pos - bottomRight.pos;
-				normal = ac.Cross(ab);
+				normal = ab.Cross(ac);
 
 				faces[row].push_back(std::make_pair(SVec3(bli, tri, bri), normal));
 			}
@@ -521,23 +520,43 @@ namespace Procedural {
 	void Terrain::fault(const SRay& line, float displacement) 
 	{
 		float adjX = line.position.x * xScale;
-		float adjz = line.position.z * zScale;
+		float adjZ = line.position.z * zScale;
 
 		for (int i = 0; i < vertices.size(); ++i)
-			if (line.direction.z * (vertices[i].pos.x - adjX) - line.direction.x * (vertices[i].pos.z - adjz) > 0)
+			if (line.direction.z * (vertices[i].pos.x - adjX) - line.direction.x * (vertices[i].pos.z - adjZ) > 0)
 				vertices[i].pos.y += displacement;
 	}
 
 
 	//keep decay under 1 for reasonable results? Still, something fun could happen otherwise...
-	void Terrain::faultIterative(const SRay& line, float displacement, unsigned int steps, float decay)
+	void Terrain::TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay)
 	{
+		Chaos c;
 
-		//@TODO change line each iteration as well, keeping it withing bounds of the terrain as well
-		for (int i = 0; i < steps; ++i)
+		fault(line, displacement);
+
+		for (int i = 1; i < steps; ++i)
 		{
-			fault(line, displacement);
+			c.setRange(0, _numColumns);
+			float newLineX = c.rollTheDice();
+			c.setRange(0, _numRows);
+			float newLineZ = c.rollTheDice();
+			SVec3 randomAxis(newLineX, 0.f, newLineZ);
+
+			c.setRange(0, PI);
+			SVec3 randomDir = SVec3::Transform(SVec3::Right, SMatrix::CreateFromAxisAngle(SVec3::Up, c.rollTheDice()));
 			displacement *= decay;
+
+			fault(SRay(randomAxis, randomDir), displacement);
 		}
 	}
+
+
+
+	void Terrain::CircleOfScorn(const SRay& line, float displacement, unsigned int steps, float decay) 
+	{
+
+	
+	}
+
 }
