@@ -41,6 +41,7 @@ public:
 	bool Initialize(int, int, HWND, InputManager& inMan);
 	bool Frame(float dTime);
 	void Shutdown();
+	void ProcessSpecialInput();
 
 	Camera& addCamera(SMatrix& camTransform, SMatrix& lens);
 	Shader& addShader();
@@ -54,6 +55,7 @@ private:
 	D3DClass* _D3D;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
+	InputManager* _inMan;
 
 	std::vector<Camera> _cameras;
 	std::vector<Shader> _shaders;
@@ -94,5 +96,9 @@ private:
 	float ccb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
+
+
+	bool isTerGenerated = false;
+	bool isTerGenerating = false;
 };
 #endif

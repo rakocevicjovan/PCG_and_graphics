@@ -8,12 +8,14 @@ Controller::Controller(){
 	dy = 0;
 }
 
-Controller::Controller(InputManager* inputManager) {
+Controller::Controller(InputManager* inputManager) 
+{
 	inMan = inputManager;
 }
 
 
-Controller::~Controller(){
+Controller::~Controller()
+{
 	inMan = nullptr;
 }
 
@@ -48,8 +50,6 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 
 	SMatrix rv;
 	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime );
-
-	//SMatrix rt = rh * rv;
 
 	transformation = transformation * rv ;
 }

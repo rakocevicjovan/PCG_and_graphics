@@ -2,16 +2,17 @@
 #include <assert.h>
 
 
-InputManager::InputManager(){
+InputManager::InputManager()
+{
 	mouse = std::make_unique<DirectX::Mouse>();
 }
 
-
-InputManager::~InputManager(){
-}
+InputManager::~InputManager(){}
 
 
-void InputManager::Initialize(){
+
+void InputManager::Initialize()
+{
 
 	RAWINPUTDEVICE RIDs[2];	//@TODO do i need this? probably do...
 
@@ -33,28 +34,33 @@ void InputManager::Initialize(){
 }
 
 
-void InputManager::KeyDown(unsigned int input){
+void InputManager::KeyDown(unsigned int input)
+{
 	m_keys[input] = true;
 }
 
 
-void InputManager::KeyUp(unsigned int input){
+void InputManager::KeyUp(unsigned int input)
+{
 	m_keys[input] = false;
 }
 
 
-void InputManager::SetXY(short x, short y) {
+void InputManager::SetXY(short x, short y)
+{
 	curX = x;
 	curY = y;
 }
 
 
-void InputManager::GetXY(short& x, short& y) {
+void InputManager::GetXY(short& x, short& y) 
+{
 	x = curX;
 	y = curY;
 }
 
 
-bool InputManager::IsKeyDown(unsigned int key){
+bool InputManager::IsKeyDown(unsigned int key)
+{
 	return m_keys[key];
 }

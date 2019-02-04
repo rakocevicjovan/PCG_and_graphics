@@ -100,6 +100,7 @@
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="GameClock.cpp" />
+    <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="LSystem.h" />
     <ClInclude Include="Perlin.h" />
     <ClInclude Include="Procedural\PGUtils.h" />
     <ClInclude Include="ShaderCM.h" />

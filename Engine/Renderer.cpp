@@ -11,15 +11,15 @@ Renderer::Renderer() : proceduralTerrain(), perlin(237){
 Renderer::~Renderer(){}
 
 
-bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan){
-	
+bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
+{
+	_inMan = &inMan;
 	bool result;
 
 	// Create the Direct3D object.
 	_D3D = new D3DClass;
-	if(!_D3D){
+	if(!_D3D)
 		return false;
-	}
 
 	// Initialize the Direct3D object.
 	result = _D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
@@ -122,7 +122,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	Math::Scale(modSkybox.transform, SVec3(10.0f));
 	modWaterQuad.LoadModel(_device, "../Models/WaterQuad.fbx");
 	*/
-	///MODEL LOADING DONE
 
 
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
@@ -146,7 +145,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
 
 	dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
-	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION DONE
 
 
 
@@ -157,8 +155,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_controllers.push_back(Controller(&inMan));
 	cam._controller = &_controllers[0];
 	_cameras.push_back(cam);
-	///CAMERA INITIALISATION DONE
-
 
 
 	///OFF SCREEN TEXTURE VIEWPORT SETUP
@@ -168,16 +164,12 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	altViewport.MaxDepth = 1.0f;
 	altViewport.TopLeftX = 0.0f;
 	altViewport.TopLeftY = 0.0f;
-	///OFF SCREEN TEXTURE VIEWPORT SETUP DONE
 	
-
 
 	///CUBE MAPS SETUP
 	cubeMapper.Init(_device);
 	shadowCubeMapper.Init(_device);
 	skyboxCubeMapper.LoadFromFiles(_device, "../Textures/night.dds");
-	///CUBE MAPS SETUP DONE
-
 
 
 	///NOISES
@@ -187,12 +179,10 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	perlinTex.Setup(_device);
 	worley.LoadFromFile("../Textures/worley.png");
 	worley.Setup(_device);
-	///NOISES DONE
-
 
 
 	///TERRAIN GENERATION
-	proceduralTerrain = Procedural::Terrain(64, 64, SVec3(1, 1, 1));
+	//proceduralTerrain = Procedural::Terrain(64, 64, SVec3(1, 1, 1));
 
 
 	///Faulting testng
@@ -201,7 +191,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	
 	
 	///Cellular automata testing
-	proceduralTerrain.GenWithCA(0.5f, 4);
+	//proceduralTerrain.GenWithCA(0.5f, 4);
 
 
 	///Perlin testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great
@@ -216,7 +206,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	
 
 	///DirectX initialization and normal calculations
-	proceduralTerrain.SetUp(_device);
+	//proceduralTerrain.SetUp(_device);
 
 	
 
@@ -242,7 +232,7 @@ bool Renderer::Frame(float dTime){
 	for (Camera& c : _cameras)
 		c.update(dTime);
 
-	//OutputFPS(dTime);
+	ProcessSpecialInput();
 
 	return RenderFrame(dTime);
 }
@@ -270,12 +260,16 @@ bool Renderer::RenderFrame(float dTime){
 	}
 	*/
 
-	_D3D->TurnOffCulling();
-	SMatrix identityMatrix = SMatrix::Identity;
-	proceduralTerrain.Draw(_deviceContext, shaderLight, 
-		identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
-	_D3D->TurnOnCulling();
+	if (isTerGenerated) 
+	{
+		_D3D->TurnOffCulling();
+		SMatrix identityMatrix = SMatrix::Identity;
+		proceduralTerrain.Draw(_deviceContext, shaderLight,
+			identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+			pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
+		_D3D->TurnOnCulling();
+
+	}
 
 	/*
 	_D3D->TurnOffCulling();
@@ -320,7 +314,8 @@ void Renderer::Shutdown() {
 
 
 
-void Renderer::OutputFPS(float dTime) {
+void Renderer::OutputFPS(float dTime) 
+{
 	std::ostringstream ss;
 	ss << "Frame time: " << 1.0f / dTime << "\n";
 	std::string s(ss.str());
@@ -329,17 +324,30 @@ void Renderer::OutputFPS(float dTime) {
 
 
 
+void Renderer::ProcessSpecialInput() 
+{
+	if (_inMan->IsKeyDown(VK_SPACE)) 
+	{
+		proceduralTerrain = Procedural::Terrain(64, 64, SVec3(1, 1, 1));
+		proceduralTerrain.GenWithCA(0.5f, 4);
+		proceduralTerrain.SetUp(_device);
+		isTerGenerating = true;
+		isTerGenerated = true;
+	}
+}
+
+
 
 //old scene stuff
 
-	/*
-	///PROJECT TEXTURE
-	SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
-	shaderPT.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
-								cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
-	modTerrain.Draw(_deviceContext, shaderPT);
-	shaderPT.ReleaseShaderParameters(_deviceContext);
-	*/
+/*
+///PROJECT TEXTURE
+SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
+shaderPT.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
+							cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.srv);
+modTerrain.Draw(_deviceContext, shaderPT);
+shaderPT.ReleaseShaderParameters(_deviceContext);
+*/
 
 /*
 

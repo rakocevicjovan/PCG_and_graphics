@@ -120,6 +120,9 @@
     <ClCompile Include="terrainclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LSystem.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -231,6 +234,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Procedural\PGUtils.h">
+      <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="LSystem.h">
       <Filter>Procedural</Filter>
     </ClInclude>
   </ItemGroup>

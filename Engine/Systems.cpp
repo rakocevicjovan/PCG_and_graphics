@@ -270,7 +270,7 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 		}
 		*/
 
-		//DO NOT DELETE THIS CODE - IT WORKS AND WILL PROBABLY BE USEFUL
+		//DO NOT DELETE THIS CODE - IT WORKS AND MIGHT BE USEFUL
 		case WM_INPUT:
 		{
 			UINT dwSize;
@@ -286,7 +286,6 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 
 				RAWINPUT* raw = (RAWINPUT*)lpb;
 
-				/*if (raw->header.dwType == RIM_TYPEKEYBOARD){}*/
 				if (raw->header.dwType == RIM_TYPEMOUSE) {
 					_input.SetXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
 					//std::string wat = "RAW INPUT RECEIVED X:" + std::to_string(raw->data.mouse.lLastX) + "; Y: " + std::to_string(raw->data.mouse.lLastY) + "\n";
