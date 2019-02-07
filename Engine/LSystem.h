@@ -1,27 +1,46 @@
 #pragma once
 #include <vector>
 #include <map>
-
-
-class SRay;
-
+#include "Math.h"
+#include "MeshDataStructs.h"
+#include "Shader.h"
 
 namespace Procedural
 {
 
+	struct MatrixBufferTypeA
+	{
+		SMatrix world;
+		SMatrix view;
+		SMatrix projection;
+	};
+	struct VariableBufferTypeA
+	{
+		float deltaTime;
+		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
+	};
+	struct LightBufferTypeA
+	{
+		SVec3 alc;
+		float ali;
+		SVec3  dlc;
+		float dli;
+		SVec3 slc;
+		float sli;
+		SVec4 pos;
+		SVec4 ePos;
+	};
+
+
+
 	struct RewriteRule 
 	{
+		RewriteRule(char left, std::string right) : l(left), r(right) {};
+
 		char l;
 		std::string r;
 	};
 
-
-
-	struct Grammar
-	{
-		std::vector<RewriteRule> rules;	//or std::map<char, std::string> ruleMap;
-		std::vector<std::string> dictionary;
-	};
 
 
 	class LSystem
@@ -29,17 +48,26 @@ namespace Procedural
 	private:
 
 		std::string _current, _next;
-		Grammar _grammar;
-		char _axiom;
+		std::vector<RewriteRule> _rules;
+		std::string _axiom;
+
+		std::vector<Vert3D> verts;
+		std::vector<unsigned int> indices;
+		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 	public:
-		LSystem(char axiom);
+		LSystem() : _axiom("f"), _current("f") {};
+		LSystem(std::string axiom);
 		~LSystem();
 
-		void seed(char initial);
-		void rewrite();
-		std::vector<SRay> getAsLineList(float length, float decay);
-		void draw();
+		void reseed(std::string axiom);
+		bool addRule(char left, std::string right);
+		void rewrite(unsigned int steps);
+		void genVerts(float length, float decay, float pitch, float yaw);
+		void setUp(ID3D11Device* device);
+		void draw(ID3D11DeviceContext* dc, Shader& s,
+			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,
+			const PointLight& dLight, float deltaTime, SVec3 eyePos);
 	};
 
 }

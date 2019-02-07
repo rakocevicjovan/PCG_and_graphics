@@ -21,6 +21,7 @@
 #include "GameClock.h"
 #include "Terrain.h"
 #include "Perlin.h"
+#include "LSystem.h"
 
 #include "BitMapper.h"
 
@@ -85,8 +86,10 @@ private:
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
 	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
+
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
+	Procedural::LSystem linden;
 
 	bool drawUI;
 

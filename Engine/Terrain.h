@@ -63,7 +63,7 @@ namespace Procedural
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 
-		//helper functions
+		///helper functions
 		inline unsigned int wr(int row);
 		inline unsigned int wc(int col);
 		float sampleDiamond(int i, int j, int reach);
@@ -75,7 +75,8 @@ namespace Procedural
 
 		void setScales(float x, float y, float z);
 
-		///height generation methods
+
+		///generation methods
 
 		//random
 		void GenRandom(float chance);
@@ -95,10 +96,8 @@ namespace Procedural
 		//faulting - using z = k * x + offset
 		void fault(const SRay& line, float displacement);
 		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
-		void CircleOfScorn(const SRay& line, float displacement, unsigned int steps, float decay);
-		//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
-		//apply this FIR function to rows and columns individually, in both directions
-		void faultFilter();	
+		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps);
+		void smooth();	
 
 		
 
@@ -108,6 +107,11 @@ namespace Procedural
 		void Draw(ID3D11DeviceContext* dc, Shader& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);
+
+
+		///sum utility getters
+		unsigned int getNumCols() { return _numColumns; }
+		unsigned int getNumRows() { return _numRows;	}
 	};
 }
 

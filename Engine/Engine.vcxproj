@@ -125,6 +125,7 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
     <ClCompile Include="ShaderWater.cpp" />
+    <ClCompile Include="Voronoi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -139,7 +140,6 @@
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Perlin.h" />
-    <ClInclude Include="Procedural\PGUtils.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />
@@ -165,6 +165,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
+    <ClInclude Include="Voronoi.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cubemap.ps" />

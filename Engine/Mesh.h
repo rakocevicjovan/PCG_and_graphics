@@ -22,7 +22,8 @@
 
 
 
-class Mesh{
+class Mesh
+{
 
 	public:
 
@@ -33,7 +34,8 @@ class Mesh{
 
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
-		Mesh() {
+		Mesh() 
+		{
 			_vertexBuffer = 0;
 			_indexBuffer = 0;
 		}
@@ -49,8 +51,8 @@ class Mesh{
 
 
 		//this is used for the screen quads...
-		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device) {
-
+		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device)
+		{
 			float originX = (pos.x - 0.5f) * 2.f;
 			float originY = (pos.y - 0.5f) * 2.f;
 			float width = size.x * 2.f;
@@ -84,8 +86,8 @@ class Mesh{
 
 
 
-		bool setupMesh(ID3D11Device* device) {
-
+		bool setupMesh(ID3D11Device* device)
+		{
 			D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 			D3D11_SUBRESOURCE_DATA vertexData, indexData;
 			HRESULT res;
@@ -126,8 +128,8 @@ class Mesh{
 
 
 
-		void draw(ID3D11DeviceContext* dc, Shader& s) {
-
+		void draw(ID3D11DeviceContext* dc, Shader& s)
+		{
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
 

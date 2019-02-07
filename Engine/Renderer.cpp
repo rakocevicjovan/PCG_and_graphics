@@ -182,7 +182,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 
 	///TERRAIN GENERATION
-	//proceduralTerrain = Procedural::Terrain(64, 64, SVec3(1, 1, 1));
+	proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
 
 
 	///Faulting testng
@@ -208,7 +208,10 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	///DirectX initialization and normal calculations
 	//proceduralTerrain.SetUp(_device);
 
-	
+	linden.addRule('f', "f[-f]*f[+f][/f]");
+	linden.rewrite(6);
+	linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
+	linden.setUp(_device);
 
 	/* //heightmap example 
 	Texture t;
@@ -239,10 +242,9 @@ bool Renderer::Frame(float dTime){
 
 
 
-bool Renderer::RenderFrame(float dTime){
-
+bool Renderer::RenderFrame(float dTime)
+{
 	_D3D->BeginScene(clearColour);
-
 
 	///RENDERING OLD TERRAIN 
 	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
@@ -260,16 +262,37 @@ bool Renderer::RenderFrame(float dTime){
 	}
 	*/
 
+	SMatrix identityMatrix = SMatrix::Identity;
+
 	if (isTerGenerated) 
 	{
 		_D3D->TurnOffCulling();
-		SMatrix identityMatrix = SMatrix::Identity;
+		
 		proceduralTerrain.Draw(_deviceContext, shaderLight,
 			identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
 			pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
 		_D3D->TurnOnCulling();
-
 	}
+
+	std::vector<SVec4> wat;
+
+	_deviceContext->RSSetViewports(1, &altViewport);	//to ost viewport
+	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
+	linden.draw(_deviceContext, shaderLight,
+		identityMatrix, offScreenTexture._view, offScreenTexture._lens,
+		pointLight, dTime, offScreenTexture._view.Translation());
+
+	offScreenTexture.LoadToCpu(_device, _deviceContext, wat);
+
+	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
+	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	Texture::WriteToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png", offScreenTexture._w, offScreenTexture._h, 4, wat.data(), 0);
+	wat.clear();
+
+	//linden.draw(_deviceContext, shaderLight,
+	//	identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+	//	pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
 
 	/*
 	_D3D->TurnOffCulling();
@@ -281,6 +304,7 @@ bool Renderer::RenderFrame(float dTime){
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
 	*/
+
 	_D3D->EndScene();
 	return true;
 }
@@ -301,15 +325,14 @@ Shader& Renderer::addShader() {
 
 
 
-void Renderer::Shutdown() {
-
-	if (_D3D) {
+void Renderer::Shutdown() 
+{
+	if (_D3D) 
+	{
 		_D3D->Shutdown();
 		delete _D3D;
 		_D3D = 0;
 	}
-
-	return;
 }
 
 
@@ -328,8 +351,10 @@ void Renderer::ProcessSpecialInput()
 {
 	if (_inMan->IsKeyDown(VK_SPACE)) 
 	{
-		proceduralTerrain = Procedural::Terrain(64, 64, SVec3(1, 1, 1));
-		proceduralTerrain.GenWithCA(0.5f, 4);
+		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
+
+		proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.337f, 1.f, 64);
+
 		proceduralTerrain.SetUp(_device);
 		isTerGenerating = true;
 		isTerGenerated = true;

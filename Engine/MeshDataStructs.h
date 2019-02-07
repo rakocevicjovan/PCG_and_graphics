@@ -8,6 +8,9 @@ struct Vert3D {
 	SVec3 pos;
 	SVec2 texCoords;
 	SVec3 normal;
+
+	Vert3D() {};
+	Vert3D(SVec3& position) : pos(position) {};
 };
 
 struct VertBoneData {

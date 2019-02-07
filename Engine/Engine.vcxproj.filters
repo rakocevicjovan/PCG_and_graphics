@@ -123,6 +123,9 @@
     <ClCompile Include="LSystem.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
+    <ClCompile Include="Voronoi.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -233,10 +236,10 @@
     <ClInclude Include="terrainclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Procedural\PGUtils.h">
+    <ClInclude Include="LSystem.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="LSystem.h">
+    <ClInclude Include="Voronoi.h">
       <Filter>Procedural</Filter>
     </ClInclude>
   </ItemGroup>

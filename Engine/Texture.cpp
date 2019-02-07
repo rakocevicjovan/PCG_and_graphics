@@ -122,6 +122,7 @@ bool Texture::Setup(ID3D11Device* device) {
 }
 
 
+
 //for comp: 1=Y, 2=YA, 3=RGB, 4=RGBA 
 void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes) {
 

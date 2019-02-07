@@ -509,10 +509,6 @@ namespace Procedural
 		dc->IASetInputLayout(s.m_layout);
 
 		dc->DrawIndexed(indices.size(), 0, 0);
-
-		
-
-		//dc->PSSetShaderResources(0, 1, &(unbinder[0]));
 	}
 
 
@@ -553,10 +549,57 @@ namespace Procedural
 
 
 
-	void Terrain::CircleOfScorn(const SRay& line, float displacement, unsigned int steps, float decay) 
+	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps)
 	{
+		SVec2 up(0.f, 1.f);
+
+		float curAngle = 0;
+
+		for (int i = 0; i < steps; ++i)
+		{
+			float cosAng = cos(curAngle);
+			float sinAng = sin(curAngle);
+
+			SVec2 dir(cosAng * up.x - sinAng * up.y, sinAng * up.x + cosAng * up.y);
+			dir.Normalize();
+
+			SVec2 curPoint = center + dir * radius;
+
+			SVec3 curPoint3D(curPoint.x, 0.f, curPoint.y);
+			SVec3 curTangent3D(-dir.y, 0.f, dir.x);
+
+			fault(SRay(curPoint3D, curTangent3D), displacement);
+
+			curAngle += angle;
+		}
+	}
 
 	
+	//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
+	//apply this FIR function to rows and columns individually, in both directions
+	void Terrain::smooth() 
+	{
+
+		std::vector<Vert3D> smoothed(vertices.size());
+
+		for (int i = 0; i < _numRows; ++i)
+		{
+			for (int j = 0; j < _numColumns; ++j)
+			{
+				SVec3 newPos =
+					vertices[i * _numColumns + wc(j - 1)].pos +
+					vertices[i * _numColumns + j].pos +
+					vertices[i * _numColumns + wc(j + 1)].pos;
+			}
+		}
+
+		for (int i = 0; i < _numColumns; ++i)
+		{
+			for (int j = 0; j < _numRows; ++j)
+			{
+
+			}
+		}
 	}
 
 }

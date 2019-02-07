@@ -41,7 +41,8 @@ bool ShaderHUD::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&vertexShaderBuffer, &errorMessage);
 
-	if (FAILED(result)) {
+	if (FAILED(result))
+	{
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
 		else
