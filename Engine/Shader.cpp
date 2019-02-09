@@ -32,9 +32,10 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];	//description of buffer data
-	unsigned int numElements;					//number of elements in the poligon layout... this is dumb...
+	unsigned int numElements = 3;				//number of elements in the poligon layout... this is dumb...
 
     D3D11_SAMPLER_DESC samplerDesc;
+
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC variableBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
@@ -98,6 +99,16 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[2].InstanceDataStepRate = 0;
 
+	/*
+	polygonLayout[3].SemanticName = "INSTANCEPOS";
+	polygonLayout[3].SemanticIndex = 0;
+	polygonLayout[3].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	polygonLayout[3].InputSlot = 1;
+	polygonLayout[3].AlignedByteOffset = 0;
+	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+	polygonLayout[3].InstanceDataStepRate = 1;
+	*/
+
 	// Get a count of the elements in the layout.
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
@@ -130,9 +141,8 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 
 	// Create the texture sampler state.
     result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if(FAILED(result)){
+	if(FAILED(result))
 		return false;
-	}
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;

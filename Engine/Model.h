@@ -51,12 +51,12 @@ public:
 
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-			std::string errString("Assimp error:" + std::string(importer.GetErrorString()) );
+			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
 			OutputDebugStringA(errString.c_str());
 			return false;
 		}
 
-		directory = path.substr(0, path.find_last_of('/'));	
+		directory = path.substr(0, path.find_last_of('/'));
 		name = path.substr(path.find_last_of('/')+1, path.size());
 
 		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);

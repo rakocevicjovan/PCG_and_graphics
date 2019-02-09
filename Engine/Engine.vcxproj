@@ -100,8 +100,10 @@
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
     <ClCompile Include="GameClock.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Perlin.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -138,8 +140,10 @@
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Perlin.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />
@@ -230,6 +234,12 @@
     <FxCompile Include="strifevs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="VoronoiPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="VoronoiVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Waterps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -1,5 +1,8 @@
 #include "OST.h"
-
+#include "d3dclass.h"
+#include "Model.h"
+#include "ShaderDepth.h"
+#include "Camera.h"
 
 
 OST::OST()
@@ -107,10 +110,23 @@ void OST::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStenc
 
 
 
-bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<SVec4>& result)
+void OST::DrawToTexture(D3DClass& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c)
 {
-	//if (!isCPUAccessible) return false;
+	d3d.GetDeviceContext()->OMSetRenderTargets(1, &(rtv), d3d.GetDepthStencilView());	//switch to drawing on ost for the prepass	
+	d3d.GetDeviceContext()->ClearRenderTargetView(rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
+	d3d.GetDeviceContext()->ClearDepthStencilView(d3d.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	for (auto tm : models) {
+		sd.SetShaderParameters(d3d.GetDeviceContext(), *tm, c.GetViewMatrix(), c.GetProjectionMatrix());	// offScreenTexture._view, offScreenTexture._lens
+		tm->Draw(d3d.GetDeviceContext(), sd);
+	}
+
+}
+
+
+
+bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<unsigned char>& result)
+{
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
 
@@ -122,7 +138,7 @@ bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<S
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_STAGING;
-	texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 	texDesc.BindFlags = 0;
 	texDesc.MiscFlags = 0;
 
@@ -134,24 +150,30 @@ bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<S
 		exit(425);
 	}
 
-	D3D11_BOX boxbox;
-	boxbox.left = 0;
-	boxbox.right = _w;
-	boxbox.top = 0;
-	boxbox.bottom = _h;
-	boxbox.front = 0;
-	boxbox.back = 0;
-
-	dc->CopySubresourceRegion(stagingId, 0, 0, 0, 0, ostId, 0, &boxbox);
-
-	result.reserve(_w * _h);
+	dc->CopyResource(stagingId, ostId);
 
 	D3D11_MAPPED_SUBRESOURCE msr;
 
 	dc->Map(stagingId, 0, D3D11_MAP_READ, 0, &msr);
-
-	memcpy(result.data(), msr.pData, result.size());
+	
+	std::vector<float>tempFloatArr((float *)msr.pData, (float*)msr.pData + (msr.DepthPitch / 4));
 
 	dc->Unmap(stagingId, 0);
+
+	result.reserve(tempFloatArr.size());
+	for (float& val : tempFloatArr) {
+		unsigned char colChar = val * 255;
+		result.push_back(colChar);
+	}
+
 	stagingId->Release();
+}
+
+
+
+void OST::SaveToFile(D3DClass& d3d, const std::string& filepath)
+{
+	std::vector<unsigned char> wat;
+	LoadToCpu(d3d.GetDevice(), d3d.GetDeviceContext(), wat);
+	Texture::WriteToFile(filepath, _w, _h, 4, wat.data(), 0);	//_w * 4
 }

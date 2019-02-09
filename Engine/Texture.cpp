@@ -49,6 +49,9 @@ bool Texture::Load() {
 
 
 bool Texture::LoadFromFile(std::string path) {
+
+	fileName = path;
+
 	try {
 		data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
 		return (data != nullptr);

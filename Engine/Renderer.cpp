@@ -117,15 +117,15 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	modDepths.LoadModel(_device, "../Models/WaterQuad.fbx");
 	Math::Scale(modDepths.transform, SVec3(120.0f));
 	Math::Translate(modDepths.transform, SVec3(0.0f, -50.0f, 0.0f));
-
+	*/
 	modSkybox.LoadModel(_device, "../Models/Skysphere.fbx");
 	Math::Scale(modSkybox.transform, SVec3(10.0f));
 	modWaterQuad.LoadModel(_device, "../Models/WaterQuad.fbx");
-	*/
+	
 
 
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
-	LightData lightData(SVec3(0.6f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
+	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	
 	pointLight = PointLight(lightData, SVec4(2000.f, 0.f, 0.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
@@ -140,11 +140,13 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	SVec3 LVUP = LVR.Cross(LVDIR);
 	LVUP.Normalize();
 
+	dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
+
+
+
 	offScreenTexture.Init(_device, ostW, ostH);
 	offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
 	offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
-
-	dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
 
 
 
@@ -185,6 +187,12 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
 
 
+	///Voronoi tests
+	//Procedural::Voronoi v;
+	//v.init(25, proceduralTerrain.getNumCols(), proceduralTerrain.getNumRows());
+	//std::vector<SVec2> vertPositions = proceduralTerrain.getHorizontalPositions();
+	//v.shatter(vertPositions);
+
 	///Faulting testng
 	//proceduralTerrain.fault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 10.f);
 	//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
@@ -213,18 +221,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
 	linden.setUp(_device);
 
-	/* //heightmap example 
-	Texture t;
-	t.fileName = "../Textures/volcano.png";
-	BitMapper bitMapper(t);
-	bitMapper.init(1, 2, 2, 0.3);	//g, w, l, h
-	if (bitMapper.createTerrain())
-		bitMapper.terrainToFile("../Models/Terrain/newTerrain.obj");
-	else
-		std::cout << " Failed to create terrain." << std::endl;
-	*/
-	///TERRAIN GENERATION DONE
-
 	return true;
 }
 
@@ -244,14 +240,13 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(float dTime)
 {
+	_deviceContext->RSSetViewports(1, &_D3D->viewport);
+	_D3D->SetBackBufferRenderTarget();
 	_D3D->BeginScene(clearColour);
+
 
 	///RENDERING OLD TERRAIN 
 	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
-
-	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-	_D3D->SetBackBufferRenderTarget();
 
 	/*
 	for (auto tm : _terrainModels) {
@@ -274,27 +269,29 @@ bool Renderer::RenderFrame(float dTime)
 		_D3D->TurnOnCulling();
 	}
 
-	std::vector<SVec4> wat;
-
-	_deviceContext->RSSetViewports(1, &altViewport);	//to ost viewport
-	_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
 	linden.draw(_deviceContext, shaderLight,
-		identityMatrix, offScreenTexture._view, offScreenTexture._lens,
-		pointLight, dTime, offScreenTexture._view.Translation());
+		identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+		pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
 
-	offScreenTexture.LoadToCpu(_device, _deviceContext, wat);
-
-	_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
-	_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	Texture::WriteToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png", offScreenTexture._w, offScreenTexture._h, 4, wat.data(), 0);
-	wat.clear();
-
-	//linden.draw(_deviceContext, shaderLight,
-	//	identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-	//	pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
-
+	///rendering water and clouds
 	/*
+	///RENDERING WATER
+	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv);
+	modDepths.Draw(_deviceContext, shaderWater);
+	shaderWater.ReleaseShaderParameters(_deviceContext);
+
+
+	///RENDERING CLOUD
+	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
+	modStrife.Draw(_deviceContext, shaderStrife);
+	shaderStrife.ReleaseShaderParameters(_deviceContext);
+	*/
+
+	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+
+	
 	_D3D->TurnOffCulling();
 	_D3D->SwitchDepthToLessEquals();
 	shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
@@ -303,7 +300,7 @@ bool Renderer::RenderFrame(float dTime)
 	shaderSkybox.ReleaseShaderParameters(_deviceContext);
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
-	*/
+	
 
 	_D3D->EndScene();
 	return true;
@@ -353,7 +350,7 @@ void Renderer::ProcessSpecialInput()
 	{
 		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
 
-		proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.337f, 1.f, 64);
+		proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, 0.5f, 64);
 
 		proceduralTerrain.SetUp(_device);
 		isTerGenerating = true;
@@ -437,7 +434,6 @@ shaderLight.SetShaderParameters(_deviceContext, modBall, offScreenTexture._view,
 	_cameras[0].GetCameraMatrix().Translation(), dTime);
 modBall.Draw(_deviceContext, shaderLight);
 shaderLight.ReleaseShaderParameters(_deviceContext);
-///RENDERING DEPTH TEXTURE DONE
 
 ///RENDERING TERRAIN
 _deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -486,19 +482,9 @@ _D3D->TurnOnCulling();
 
 _D3D->TurnOnAlphaBlending();
 
-///RENDERING CLOUD
-shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-	dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlin.srv, worley.srv, offScreenTexture._view);
-modStrife.Draw(_deviceContext, shaderStrife);
-shaderStrife.ReleaseShaderParameters(_deviceContext);
-///RENDERING CLOUD DONE
 
-///RENDERING WATER
-shaderWater.SetShaderParameters(_deviceContext, modDepths, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-	dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv);
-modDepths.Draw(_deviceContext, shaderWater);
-shaderWater.ReleaseShaderParameters(_deviceContext);
-///RENDERING WATER DONE
+
+
 
 _D3D->TurnOffAlphaBlending();
 

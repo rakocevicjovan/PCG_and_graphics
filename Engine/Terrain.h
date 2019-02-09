@@ -109,9 +109,12 @@ namespace Procedural
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);
 
 
-		///sum utility getters
-		unsigned int getNumCols() { return _numColumns; }
-		unsigned int getNumRows() { return _numRows;	}
+		///getters
+		unsigned int	getNumCols()	{ return _numColumns;	}
+		unsigned int	getNumRows()	{ return _numRows;		}
+		auto&			getVerts()		{ return vertices;		}
+
+		std::vector<SVec2> getHorizontalPositions();
 	};
 }
 

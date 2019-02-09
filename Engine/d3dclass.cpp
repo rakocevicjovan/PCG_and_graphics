@@ -402,7 +402,7 @@ void D3DClass::BeginScene(float* clearColour){
 	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
     
 	// Clear the depth buffer.
-	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	return;
 }

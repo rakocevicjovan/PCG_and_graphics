@@ -16,6 +16,9 @@
     <Filter Include="Procedural">
       <UniqueIdentifier>{da188881-b302-4db2-9786-b8e11ead4641}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shading">
+      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="d3dclass.cpp">
@@ -34,9 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Systems.cpp">
@@ -60,25 +60,7 @@
     <ClCompile Include="Rekt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderHUD.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderDepth.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderPT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderShadow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CubeMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderCM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
@@ -88,15 +70,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Celestials.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderWater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Animator.cpp">
@@ -126,6 +99,42 @@
     <ClCompile Include="Voronoi.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCM.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderDepth.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderHUD.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderPT.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderShadow.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderSkybox.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderStrife.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderWater.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderWireframe.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -149,9 +158,6 @@
     <ClInclude Include="Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Systems.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -173,25 +179,7 @@
     <ClInclude Include="Rekt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderHUD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderWireframe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderDepth.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderPT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderShadow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CubeMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderCM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BitMapper.h">
@@ -201,15 +189,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Celestials.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderSkybox.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderStrife.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderWater.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
@@ -241,6 +220,42 @@
     </ClInclude>
     <ClInclude Include="Voronoi.h">
       <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderShadow.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderSkybox.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderPT.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderHUD.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderDepth.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCM.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderStrife.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderWater.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderWireframe.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -325,6 +340,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="AnimaPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VoronoiVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VoronoiPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

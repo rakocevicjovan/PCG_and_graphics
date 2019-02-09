@@ -568,7 +568,7 @@ namespace Procedural
 			SVec3 curPoint3D(curPoint.x, 0.f, curPoint.y);
 			SVec3 curTangent3D(-dir.y, 0.f, dir.x);
 
-			fault(SRay(curPoint3D, curTangent3D), displacement);
+			fault(SRay(curPoint3D, curTangent3D), displacement * i);
 
 			curAngle += angle;
 		}
@@ -602,4 +602,16 @@ namespace Procedural
 		}
 	}
 
+
+
+	std::vector<SVec2> Terrain::getHorizontalPositions() 
+	{
+		std::vector<SVec2> result;
+		result.reserve(vertices.size());
+		
+		for (int i = 0; i < vertices.size(); i++)
+			result.push_back(SVec2(vertices[i].pos.x, vertices[i].pos.z));
+
+		return result;
+	}
 }

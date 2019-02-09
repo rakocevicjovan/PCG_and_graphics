@@ -13,13 +13,14 @@ namespace Procedural
 		unsigned int _numSeeds;
 		float _xSize, _ySize;
 		std::vector<SVec2> _seeds;
-		Mesh mesh;
+		std::vector<unsigned int> areaIndices;
 
 	public:
 		Voronoi();
 		~Voronoi();
 
 		void init(unsigned int numSeeds, float maxX, float maxY);
+		void shatter(const std::vector<SVec2>& positions);
 	};
 
 }

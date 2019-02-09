@@ -2,7 +2,8 @@
 #include "Mesh.h"
 
 
-ShaderHUD::ShaderHUD() {
+ShaderHUD::ShaderHUD()
+{
 	m_vertexShader = nullptr;
 	m_pixelShader = nullptr;
 	m_layout = nullptr;
@@ -10,30 +11,30 @@ ShaderHUD::ShaderHUD() {
 
 
 
-ShaderHUD::~ShaderHUD() {
+ShaderHUD::~ShaderHUD()
+{
 }
 
 
 
-bool ShaderHUD::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths) {
-
+bool ShaderHUD::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths)
+{
 	this->filePaths = filePaths;
 	return InitializeShader(device, hwnd);
 }
 
 
 
-bool ShaderHUD::InitializeShader(ID3D11Device* device, HWND hwnd) {
-
+bool ShaderHUD::InitializeShader(ID3D11Device* device, HWND hwnd)
+{
 	HRESULT result;
 	ID3D10Blob* errorMessage = nullptr;
 
-	//these store the shaders while they are being processed and are released after compilation... I think...
 	ID3D10Blob* vertexShaderBuffer = nullptr;
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];	//description of buffer data
-	unsigned int numElements;					//number of elements in the poligon layout... this is dumb...
+	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
+	unsigned int numElements;
 
 	D3D11_SAMPLER_DESC samplerDesc;
 
@@ -65,12 +66,10 @@ bool ShaderHUD::InitializeShader(ID3D11Device* device, HWND hwnd) {
 		return false;
 	}
 
-	// Create the vertex shader from the buffer.
 	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
 	if (FAILED(result))
 		return false;
 
-	// Create the pixel shader from the buffer.
 	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
 	if (FAILED(result))
 		return false;
@@ -199,7 +198,6 @@ bool ShaderHUD::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mesh& m)
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, 0, 0);
 	deviceContext->PSSetShader(m_pixelShader, 0, 0);
-
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
 	return true;

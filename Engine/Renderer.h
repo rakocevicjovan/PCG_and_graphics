@@ -19,9 +19,12 @@
 #include "OST.h"
 #include "CubeMapper.h"
 #include "GameClock.h"
+
+//procedural
 #include "Terrain.h"
 #include "Perlin.h"
 #include "LSystem.h"
+#include "Voronoi.h"
 
 #include "BitMapper.h"
 
@@ -96,7 +99,7 @@ private:
 	const unsigned int ostW = 1600, ostH = 900;
 
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
-	float ccb[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	
 
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
