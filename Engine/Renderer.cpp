@@ -209,13 +209,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
 
 
-	///Diamond square testing
-	//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
-	
-
-	///DirectX initialization and normal calculations
-	//proceduralTerrain.SetUp(_device);
-
 	linden.addRule('f', "f[-f]*f[+f][/f]");
 	linden.rewrite(6);
 	linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
@@ -349,8 +342,12 @@ void Renderer::ProcessSpecialInput()
 	if (_inMan->IsKeyDown(VK_SPACE)) 
 	{
 		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
-
 		proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, 0.5f, 64);
+
+		///Diamond square testing
+		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
+
+		
 
 		proceduralTerrain.SetUp(_device);
 		isTerGenerating = true;

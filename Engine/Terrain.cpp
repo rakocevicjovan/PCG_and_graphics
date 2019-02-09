@@ -47,11 +47,8 @@ namespace Procedural
 		//	c.deadOrAlive = (chaos.rollTheDice(0, 1) < 0.45f);	//45% chance to get true, 55% to get false
 
 		for (int i = 0; i < vertices.size(); i++)
-		{
-			if (wat[i] < chance) {
+			if (wat[i] < chance)
 				vertices[i].pos.y = yScale;
-			}
-		}
 	}
 
 
@@ -62,12 +59,27 @@ namespace Procedural
 
 	float Terrain::sampleDiamond(int i, int j, int reach)
 	{
-		return
-			vertices[wr(i - reach) * _numColumns + j].pos.y +	//top
-			vertices[i * _numColumns + wc(j - reach)].pos.y +	//left
-			vertices[i * _numColumns + wc(j + reach)].pos.y +	//right
-			vertices[wr(i + reach) * _numColumns + j].pos.y		//bottom
-			;
+		std::vector<float> heights;	
+
+		if (i - reach >= 0)
+			heights.push_back(vertices[(i - reach) * _numColumns + j].pos.y);
+
+		if (j - reach >= 0)
+			heights.push_back(vertices[i * _numColumns + j - reach].pos.y);
+
+		if (j + reach < _numColumns)
+			heights.push_back(vertices[i * _numColumns + j + reach].pos.y);
+
+		if (i + reach < _numRows)
+			heights.push_back(vertices[(i + reach) * _numColumns + j].pos.y);
+		
+		float result = 0.f;
+		for (float h : heights)
+			result += h;
+
+		result /= (float)heights.size();
+
+		return result;
 	}
 
 	//decay should be kept under 1.0f
@@ -80,13 +92,9 @@ namespace Procedural
 		vertices.clear();
 		vertices.resize(_numRows * _numColumns);	//25 vertices
 
-		for (int i = 0; i < _numRows; i++)
-		{ 
+		for (int i = 0; i < _numRows; i++) 
 			for(int j = 0; j < _numColumns; j++)
-			{
 				vertices[i * _numColumns + j].pos = SVec3(j * xScale, 0.f, i * zScale);
-			}
-		}
 		
 
 		//assign the corner values
@@ -100,7 +108,7 @@ namespace Procedural
 		//run the loop
 		while (stepSize > 1)
 		{
-			int halfStep = stepSize >> 1;	//half step, in this case 2 then 1
+			int halfStep = stepSize / 2;	//half step, in this case 2 then 1
 
 			//square
 			for (int i = 0; i < _numRows - 1; i += stepSize)
@@ -129,22 +137,20 @@ namespace Procedural
 			{
 				for (int j = 0; j < _numColumns - 1; j += stepSize)
 				{
-					int midRow = i + halfStep, midColumn = j + halfStep;
-					Vert3D mid = vertices[midRow * _numColumns + midColumn];
-
 					float ro = c.rollTheDice() * 2.f - randomMax;
 
-					//top
-					vertices[i *				_numColumns +	j + halfStep	].pos.y = sampleDiamond(i, j + halfStep, halfStep) * 0.25f + ro;
-					//left
-					vertices[(i + halfStep) *	_numColumns +	j				].pos.y = sampleDiamond(i + halfStep, j, halfStep) * 0.25f + ro;
-					//right
-					vertices[(i + halfStep) *	_numColumns +	j + stepSize	].pos.y = sampleDiamond(i + halfStep, j + stepSize, halfStep) * 0.25f + ro;
-					//bottom
-					vertices[(i + stepSize) *	_numColumns +	j + halfStep	].pos.y = sampleDiamond(i + stepSize, j + halfStep, halfStep) * 0.25f + ro;
+					vertices[i * _numColumns +	j + halfStep].pos.y = sampleDiamond(i, j + halfStep, halfStep) + ro;
+					vertices[(i + halfStep) *	_numColumns + j].pos.y = sampleDiamond(i + halfStep, j, halfStep) + ro;
+					vertices[(i + halfStep) *	_numColumns + j + stepSize].pos.y = sampleDiamond(i + halfStep, j + stepSize, halfStep) + ro;
+					vertices[(i + stepSize) *	_numColumns + j + halfStep].pos.y = sampleDiamond(i + stepSize, j + halfStep, halfStep) + ro;
 				}
 			}
 
+
+			//prepare for next iteration
+			stepSize = stepSize / 2;
+			randomMax *= decay;
+			c.setRange(0, randomMax);
 
 
 			/*
@@ -170,13 +176,7 @@ namespace Procedural
 				}
 			}
 			*/
-
-			//prepare for next iteration
-			stepSize >>= 1;
-			randomMax *= decay;
-			c.setRange(0, randomMax);
 		}
-
 	}
 
 
