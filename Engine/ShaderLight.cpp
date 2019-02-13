@@ -1,7 +1,7 @@
-#include "Shader.h"
+#include "ShaderLight.h"
 #include "Model.h"
 
-Shader::Shader(){
+ShaderLight::ShaderLight(){
 	m_vertexShader = 0;
 	m_pixelShader = 0;
 	m_layout = 0;
@@ -11,18 +11,18 @@ Shader::Shader(){
 }
 
 
-Shader::~Shader(){
+ShaderLight::~ShaderLight(){
 }
 
 
-bool Shader::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths){
+bool ShaderLight::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths){
 
 	this->filePaths = filePaths;
 	return InitializeShader(device, hwnd);
 }
 
 
-bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
+bool ShaderLight::InitializeShader(ID3D11Device* device, HWND hwnd){
 
 	HRESULT result;
 	ID3D10Blob* errorMessage = nullptr;
@@ -191,7 +191,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 }
 
 
-void Shader::ShutdownShader()
+void ShaderLight::ShutdownShader()
 {
 	// Release the light constant buffer.
 	if(m_lightBuffer){
@@ -237,7 +237,7 @@ void Shader::ShutdownShader()
 }
 
 
-void Shader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename){
+void ShaderLight::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename){
 
 	char* compileErrors;
 	unsigned long bufferSize, i;
@@ -270,7 +270,7 @@ void Shader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR
 }
 
 
-bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,  
+bool ShaderLight::SetShaderParameters(	ID3D11DeviceContext* deviceContext,  
 									Model& model, const SMatrix& v, const SMatrix& p,
 									const PointLight& dLight, const SVec3& eyePos, float deltaTime)
 {
@@ -374,7 +374,7 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 
 
 
-bool Shader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+bool ShaderLight::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }

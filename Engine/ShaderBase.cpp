@@ -73,17 +73,6 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	if (FAILED(result))
 		return false;
 
-	///instancing example
-	/*
-	polygonLayout[3].SemanticName = "INSTANCEPOS";
-	polygonLayout[3].SemanticIndex = 0;
-	polygonLayout[3].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	polygonLayout[3].InputSlot = 1;
-	polygonLayout[3].AlignedByteOffset = 0;
-	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
-	polygonLayout[3].InstanceDataStepRate = 1;
-	*/
-
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(layout, layoutSize, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
 		&_layout);

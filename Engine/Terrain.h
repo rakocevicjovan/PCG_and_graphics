@@ -4,7 +4,7 @@
 #include "MeshDataStructs.h"
 #include "Math.h"
 #include "lightclass.h"
-#include "Shader.h"
+#include "ShaderLight.h"
 
 
 namespace Procedural 
@@ -78,7 +78,7 @@ namespace Procedural
 		///wrapping up and directX integration
 		void CalculateNormals();
 		bool SetUp(ID3D11Device* device);
-		void Draw(ID3D11DeviceContext* dc, Shader& s, 
+		void Draw(ID3D11DeviceContext* dc, ShaderLight& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);
 

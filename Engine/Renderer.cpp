@@ -33,6 +33,33 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	//model and shader loading should not be here... but time waits for no man...
 	///SHADER LOADING 
+
+#pragma region shame
+	
+	D3D11_INPUT_ELEMENT_DESC sbLayout[] =
+	{
+		// Data from the vertex buffer
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
+
+		// Data from the instance buffer
+		{ "INSTANCEPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT,    1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{ "INSTANCECOLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+	};
+
+	D3D11_SAMPLER_DESC sbSamplerDesc;
+	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
+	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
+		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX
+	};
+
+	std::vector<std::wstring> shaderBaseNames;
+	shaderBaseNames.push_back(L"lightvs.hlsl");
+	shaderBaseNames.push_back(L"lightps.hlsl");
+	shaderBase.Initialize(_device, hwnd, shaderBaseNames, sbLayout, 5u, sbSamplerDesc);
+#pragma endregion shame
+
 	std::vector<std::wstring> names;
 	names.push_back(L"lightvs.hlsl");
 	names.push_back(L"lightps.hlsl");
@@ -159,15 +186,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_controllers.push_back(Controller(&inMan));
 	cam._controller = &_controllers[0];
 	_cameras.push_back(cam);
-
-
-	///OFF SCREEN TEXTURE VIEWPORT SETUP
-	altViewport.Width = (float)ostW;
-	altViewport.Height = (float)ostH;
-	altViewport.MinDepth = 0.0f;
-	altViewport.MaxDepth = 1.0f;
-	altViewport.TopLeftX = 0.0f;
-	altViewport.TopLeftY = 0.0f;
 	
 
 	///CUBE MAPS SETUP
@@ -184,41 +202,39 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	worley.LoadFromFile("../Textures/worley.png");
 	worley.Setup(_device);
 
-
-	///TERRAIN GENERATION
-	proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
-
-
-	///Voronoi tests
-	//Procedural::Voronoi v;
-	//v.init(25, proceduralTerrain.getNumCols(), proceduralTerrain.getNumRows());
-	//std::vector<SVec2> vertPositions = proceduralTerrain.getHorizontalPositions();
-	//v.shatter(vertPositions);
-
-	///Faulting testng
-	//proceduralTerrain.fault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 10.f);
-	//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
+	pSys.init(_device, 100, SVec3(0, 0, 100), "../Models/ball.fbx");
 	
+	lambda = [this](PUD* pud) -> void  
+	{
+		for (int i = 0; i < pSys._particles.size(); ++i)
+		{
+			pSys._particles[i]->age += pud->dTime * 0.1f;
+			SVec3 translation(pud->windDirection * pud->windVelocity);	// 
+			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
+			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * 0.33f);
+		}
+	};
 	
-	///Cellular automata testing
-	//proceduralTerrain.GenWithCA(0.5f, 4);
+	lambda1 = [this](PUD* pud) -> void
+	{
+		for (int i = 0; i < pSys._particles.size(); ++i)
+		{
+			pSys._particles[i]->age += pud->dTime * 0.1f;
+			SVec3 translation(pud->windDirection * pud->windVelocity);
+			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
+			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * -0.33f);
+		}
+	};
 
-
-	///Perlin testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great
-	//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
-	//perlin.generate2DTextureFBM(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true);
-	//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
-	//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
-
-
-	linden.addRule('f', "f[-f]*f[+f][/f]");
-	linden.rewrite(1);
-	linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
-	linden.setUp(_device);
+	pSys.setUpdateFunction(lambda);
+	pSys.setShader(&shaderBase);
 
 	return true;
 }
-
 
 
 bool Renderer::Frame(float dTime){
@@ -227,6 +243,7 @@ bool Renderer::Frame(float dTime){
 		c.update(dTime);
 
 	ProcessSpecialInput();
+	elapsed += dTime;
 
 	return RenderFrame(dTime);
 }
@@ -262,11 +279,43 @@ bool Renderer::RenderFrame(float dTime)
 			identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
 			pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
 		_D3D->TurnOnCulling();
+
+		linden.draw(_deviceContext, shaderLight,
+			identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
+			pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
 	}
 
-	linden.draw(_deviceContext, shaderLight,
-		identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
+	PUD pud;
+	pud.windDirection = SVec3(-5, 2, 5);
+	pud.windVelocity = 1.f;
+	pud.dTime = dTime;
+
+	/*
+	if (sin(elapsed * PI) > 0 && uwotm8)
+	{
+		pSys.setUpdateFunction(lambda1);
+		uwotm8 = false;
+	}
+		
+	
+	if (sin(elapsed * PI) < 0 && !uwotm8) {
+		pSys.setUpdateFunction(lambda);
+		uwotm8 = true;
+	}
+	*/
+
+	pSys.updateStdFunc(&pud);
+	
+	for (int i = 0; i < pSys._particles.size(); ++i) 
+	{
+		pSys._model.transform = pSys._particles[i]->transform;
+		shaderBase.SetShaderParameters(_deviceContext, pSys._model, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), pointLight,
+			_cameras[0].GetCameraMatrix().Translation(), dTime);
+		pSys.draw(_deviceContext);
+		shaderBase.ReleaseShaderParameters(_deviceContext);
+	}
+	
+	
 
 	///rendering water and clouds
 	/*
@@ -278,11 +327,12 @@ bool Renderer::RenderFrame(float dTime)
 
 	*/
 	///RENDERING CLOUD
+	/*
 	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
 		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
 	modStrife.Draw(_deviceContext, shaderStrife);
 	shaderStrife.ReleaseShaderParameters(_deviceContext);
-	
+	*/
 
 	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
 
@@ -310,8 +360,8 @@ Camera& Renderer::addCamera(SMatrix& camTransform, SMatrix& lens) {
 
 
 
-Shader& Renderer::addShader() {
-	_shaders.push_back(Shader());
+ShaderLight& Renderer::addShader() {
+	_shaders.push_back(ShaderLight());
 	return _shaders.back();
 }
 
@@ -344,21 +394,46 @@ void Renderer::ProcessSpecialInput()
 	if (_inMan->IsKeyDown(VK_SPACE)) 
 	{
 
-		proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
-
-		//proceduralTerrain.Fault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 10.f);
-		proceduralTerrain.NoisyFault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), -20.f);
-		proceduralTerrain.NoisyFault(SRay(SVec3(75.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), +15.f);
-		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
-		//proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, 0.5f, 64);
+		///TERRAIN GENERATION
+		proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
 
 		///Diamond square testing
+		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
+
+		///Cellular automata testing
+		//proceduralTerrain.GenWithCA(0.5f, 4);
+
+		///Perlin testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great
+		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
+		//perlin.generate2DTextureFBM(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true);
+		//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
+		//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
+
+
+		///Terrain deformation testng
+		//proceduralTerrain.fault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 10.f);
+		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
+		//proceduralTerrain.Fault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 10.f);
+		//proceduralTerrain.NoisyFault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), -20.f);
+		//proceduralTerrain.NoisyFault(SRay(SVec3(75.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), +15.f);
+		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
+		//proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, 0.5f, 64);
 		
 
-		
+		///Voronoi tests
+		//Procedural::Voronoi v;
+		//v.init(25, proceduralTerrain.getNumCols(), proceduralTerrain.getNumRows());
+		//std::vector<SVec2> vertPositions = proceduralTerrain.getHorizontalPositions();
+		//v.shatter(vertPositions);
 
-		proceduralTerrain.SetUp(_device);
-		isTerGenerating = true;
+		
+		///L-systems testing
+		linden.addRule('f', "f[-f]*f[+f][/f]");
+		linden.rewrite(1);
+		linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
+		linden.setUp(_device);
+		
+		//proceduralTerrain.SetUp(_device);
 		isTerGenerated = true;
 	}
 }

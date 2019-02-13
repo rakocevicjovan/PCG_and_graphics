@@ -116,7 +116,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="lightclass.cpp" />
-    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderLight.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="ShaderHUD.cpp" />
@@ -162,7 +162,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="lightclass.h" />
-    <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderLight.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

@@ -9,19 +9,18 @@ ParticleSystem::ParticleSystem()
 
 ParticleSystem::~ParticleSystem()
 {
-	for (auto* p : _particles)
-		delete p;
+	for (auto* pb : _particles)
+		delete pb;
 
 	_particles.clear();
 }
 
 
 
-void ParticleSystem::init(ID3D11Device* device, unsigned int particleCount, SVec3 position, std::string& pathToModel)
+void ParticleSystem::init(ID3D11Device* device, unsigned int particleCount, SVec3 position, std::string pathToModel)
 {
-	Model m;
-	m.LoadModel(device, pathToModel);
-	_models.push_back(m);
+	_model.LoadModel(device, pathToModel);
+
 
 	_numParticles = particleCount;
 	for (int i = 0; i < _numParticles; ++i)
@@ -37,19 +36,24 @@ void ParticleSystem::init(ID3D11Device* device, unsigned int particleCount, SVec
 	_position = position;
 }
 
-
-
-void ParticleSystem::setUpdateFunction(void(*funcPtr)(PUD *pud))
+void ParticleSystem::setShader(ShaderBase* shader)
 {
-	updateStdFunc = funcPtr;
-;}
+	_shader = shader;
+}
+
+
+
+void ParticleSystem::setUpdateFunction(std::function<void(PUD* pud)> particleUpdFunc)	//void(*funcPtr)(PUD *pud)
+{
+	updateStdFunc = particleUpdFunc;
+}
 
 
 
 void ParticleSystem::update(float deltaTime)
 {
-	for (ParticleBase* p : _particles)
-		p->_ps->updateStdFunc(&pud);
+	//for (ParticleBase* p : _particles)
+		//p->_ps->updateStdFunc(&pud);
 }
 
 
@@ -57,5 +61,5 @@ void ParticleSystem::update(float deltaTime)
 void ParticleSystem::draw(ID3D11DeviceContext* dc)
 {
 	for (ParticleBase* p : _particles)
-		p->draw(dc);
+		_model.Draw(dc, *_shader);
 }

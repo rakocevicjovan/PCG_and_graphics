@@ -3,7 +3,7 @@
 #include <map>
 #include "Math.h"
 #include "MeshDataStructs.h"
-#include "Shader.h"
+#include "ShaderLight.h"
 
 namespace Procedural
 {
@@ -65,7 +65,7 @@ namespace Procedural
 		void rewrite(unsigned int steps);
 		void genVerts(float length, float decay, float pitch, float yaw);
 		void setUp(ID3D11Device* device);
-		void draw(ID3D11DeviceContext* dc, Shader& s,
+		void draw(ID3D11DeviceContext* dc, ShaderLight& s,
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);
 	};

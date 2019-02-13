@@ -10,18 +10,19 @@ struct PUD
 	SVec3 windDirection;
 	float windVelocity;
 	SVec3 magicAccel1, magicAccel2;
+	float dTime;
 };
 
 
 
 struct ParticleBase
 {
-
-	SMatrix transform;
 	ParticleSystem* _ps;
 
 	SVec3 velocity;
 	SVec3 acceleration;
+
+	SMatrix transform;
 
 	float age;
 

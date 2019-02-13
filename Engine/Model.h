@@ -26,6 +26,8 @@ public:
 
 	SMatrix transform;
 
+	bool isInstanced = false;
+
 	Model() {}
 
 	Model(const std::string& path){
@@ -33,7 +35,8 @@ public:
 	}
 
 
-	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1){
+	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1)
+	{
 
 		//@TODO could be fucky...
 		assert(fileExists(path) && "File does not exist! ...probably.");
@@ -116,10 +119,9 @@ public:
 			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
 			vertex.normal.Normalize();
 
-			if (hasTexCoords) { // Does the mesh contain texture coordinates?
+			if (hasTexCoords) 
 				vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);
-
-			} else 
+			else 
 				vertex.texCoords = SVec2(0.0f, 0.0f);
 
 			vertices.push_back(vertex);
@@ -144,8 +146,7 @@ public:
 			// 2. Specular maps
 			std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
 			locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
-
-		}			
+		}
 
 		return Mesh(vertices, indices, locTextures, device, ind);
 	}
@@ -216,8 +217,8 @@ public:
 	*/
 
 
-	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName){
-			
+	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
+	{		
 		std::vector<Texture> textures;
 
 		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++){
@@ -333,7 +334,7 @@ public:
 
 
 	// Draws the model, and thus all its meshes
-	void Draw(ID3D11DeviceContext* dc, Shader& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderLight& shader) {
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
@@ -376,6 +377,11 @@ public:
 	}
 
 	void Draw(ID3D11DeviceContext* dc, ShaderWater& shader) {
+		for (unsigned int i = 0; i < this->meshes.size(); i++)
+			this->meshes[i].draw(dc, shader);
+	}
+
+	void Draw(ID3D11DeviceContext* dc, ShaderBase& shader) {
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}

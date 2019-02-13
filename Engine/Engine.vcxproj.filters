@@ -102,9 +102,6 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Shading</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderCM.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
@@ -135,9 +132,6 @@
     <ClCompile Include="Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NavierStokes.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
@@ -146,6 +140,12 @@
     </ClCompile>
     <ClCompile Include="ParticleBase.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderBase.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLight.cpp">
+      <Filter>Shading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -254,9 +254,6 @@
     <ClInclude Include="ShaderCM.h">
       <Filter>Shading</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Shading</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderStrife.h">
       <Filter>Shading</Filter>
     </ClInclude>
@@ -272,9 +269,6 @@
     <ClInclude Include="ShaderDataStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
     </ClInclude>
@@ -286,6 +280,12 @@
     </ClInclude>
     <ClInclude Include="ParticleBase.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderBase.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLight.h">
+      <Filter>Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

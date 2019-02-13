@@ -3,8 +3,8 @@
 #include "Math.h"
 #include <vector>
 
-struct Vert3D {
-
+struct Vert3D 
+{
 	SVec3 pos;
 	SVec2 texCoords;
 	SVec3 normal;
@@ -13,15 +13,27 @@ struct Vert3D {
 	Vert3D(SVec3& position) : pos(position) {};
 };
 
-struct VertBoneData {
+struct VertBoneData 
+{
 	unsigned int ids[4];
 	float weights[4];
 };
 
 //@TODO jointInfluences might need changing... should see how this works first...
-struct BonedVert3D : Vert3D {
-	
+struct BonedVert3D : Vert3D 
+{
 	VertBoneData boneData;
+};
+
+
+struct BaseInstanceData 
+{
+
+};
+
+struct LanternInstanceData : public BaseInstanceData
+{
+	SVec4 pos;
 };
 
 

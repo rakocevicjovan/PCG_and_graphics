@@ -13,11 +13,12 @@
 
 class Model;
 
-class Shader{
+class ShaderLight : public ShaderBase
+{
 
 public:
-	Shader();
-	~Shader();
+	ShaderLight();
+	~ShaderLight();
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);

@@ -25,8 +25,6 @@ public:
 		const PointLight& dLight, const SVec3& eyePos, float deltaTime);
 	virtual bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	virtual void ShutdownShader();
-	
-
 
 	ID3D11InputLayout* _layout;
 	ID3D11SamplerState* _sampleState;

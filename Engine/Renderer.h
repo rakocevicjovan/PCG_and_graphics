@@ -5,7 +5,8 @@
 #include "d3dclass.h"
 #include "Camera.h"
 #include "Model.h"
-#include "Shader.h"
+#include "ShaderBase.h"
+#include "ShaderLight.h"
 #include "ShaderDepth.h"
 #include "ShaderShadow.h"
 #include "ShaderHUD.h"
@@ -19,6 +20,7 @@
 #include "OST.h"
 #include "CubeMapper.h"
 #include "GameClock.h"
+#include "ParticleSystem.h"
 
 //procedural
 #include "Terrain.h"
@@ -48,7 +50,7 @@ public:
 	void ProcessSpecialInput();
 
 	Camera& addCamera(SMatrix& camTransform, SMatrix& lens);
-	Shader& addShader();
+	ShaderLight& addShader();
 	
 
 private:
@@ -62,10 +64,11 @@ private:
 	InputManager* _inMan;
 
 	std::vector<Camera> _cameras;
-	std::vector<Shader> _shaders;
+	std::vector<ShaderLight> _shaders;
 	std::vector<Model*> _terrainModels;
 
-	Shader shaderLight;
+	ShaderBase shaderBase;
+	ShaderLight shaderLight;
 	WireframeShader shaderWireframe;
 	ShaderHUD shaderHUD;
 	ShaderDepth shaderDepth;
@@ -84,7 +87,6 @@ private:
 	OST offScreenTexture;
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
-	D3D11_VIEWPORT altViewport;
 
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
@@ -93,18 +95,22 @@ private:
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
 	Procedural::LSystem linden;
+	ParticleSystem pSys;
 
 	bool drawUI;
 
 	const unsigned int ostW = 1600, ostH = 900;
 
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
+
+	float elapsed = 0.f;
+	bool uwotm8 = false;
 	
 
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
-
+	std::function<void(PUD*)> lambda;
+	std::function<void(PUD*)> lambda1;
 	bool isTerGenerated = false;
-	bool isTerGenerating = false;
 };
 #endif

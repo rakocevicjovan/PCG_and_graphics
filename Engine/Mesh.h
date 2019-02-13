@@ -9,7 +9,7 @@
 #include "MeshDataStructs.h"
 #include "Texture.h"
 #include "Math.h"
-#include "Shader.h"
+#include "ShaderLight.h"
 #include "ShaderWireframe.h"
 #include "ShaderHUD.h"
 #include "ShaderDepth.h"
@@ -19,12 +19,12 @@
 #include "ShaderSkybox.h"
 #include "ShaderStrife.h"
 #include "ShaderWater.h"
+#include "ShaderBase.h"
 
 
 
 class Mesh
 {
-
 	public:
 
 		std::vector<Vert3D> vertices;
@@ -32,7 +32,12 @@ class Mesh
 		std::vector<Texture> textures;
 		unsigned int indexIntoModelMeshArray;
 
-		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
+		//bool isInstanced = false;
+		//std::vector<BaseInstanceData*> instances;
+		//unsigned int instanceDataStructByteSize = 0u;
+
+		ID3D11Buffer *_vertexBuffer = nullptr, *_indexBuffer = nullptr;
+
 
 		Mesh() 
 		{
@@ -45,6 +50,7 @@ class Mesh
 		{		
 			_vertexBuffer = 0;
 			_indexBuffer = 0;
+
 			indexIntoModelMeshArray = ind;
 			setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 		}
@@ -53,6 +59,7 @@ class Mesh
 		//this is used for the screen quads...
 		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device)
 		{
+
 			float originX = (pos.x - 0.5f) * 2.f;
 			float originY = (pos.y - 0.5f) * 2.f;
 			float width = size.x * 2.f;
@@ -85,7 +92,8 @@ class Mesh
 		}
 
 
-
+		//@todo pull D3D11_BUFFER_DESC out of the function and into the parameter, which will allow flexibility (for instancing) and reuse etc...
+		//@todo level - IMPORTANT AS FUCC
 		bool setupMesh(ID3D11Device* device)
 		{
 			D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
@@ -107,6 +115,33 @@ class Mesh
 			if (FAILED( res ))
 				return false;
 
+			/*
+			if (isInstanced)
+			{
+
+				if (instanceDataStructByteSize == 0u)
+					exit(666);
+
+				D3D11_BUFFER_DESC instanceBufferDesc;
+				D3D11_SUBRESOURCE_DATA instanceData;
+
+				instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+				instanceBufferDesc.ByteWidth = instanceDataStructByteSize * instances.size();
+				instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+				instanceBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+				instanceBufferDesc.MiscFlags = 0;
+				instanceBufferDesc.StructureByteStride = 0;
+
+				instanceData.pSysMem = instances.data();
+				instanceData.SysMemPitch = 0;
+				instanceData.SysMemSlicePitch = 0;
+
+				res = device->CreateBuffer(&instanceBufferDesc, &instanceData, &_instanceBuffer);
+				if (FAILED(res))
+					return false;
+			}
+			*/
+
 			indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 			indexBufferDesc.ByteWidth = sizeof(unsigned int) * indices.size();
 			indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -125,10 +160,51 @@ class Mesh
 
 			return true;
 		}
+		
 
 
+		void draw(ID3D11DeviceContext* dc, ShaderBase& s)
+		{
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+			
 
-		void draw(ID3D11DeviceContext* dc, Shader& s)
+			if (textures.size() > 0)
+				dc->PSSetShaderResources(0, 1, &(textures[0].srv));
+
+			/*
+			if (isInstanced)
+			{
+				unsigned int strides[2];
+				unsigned int offsets[2];
+				ID3D11Buffer* bufferPointers[2];
+
+				strides[0] = sizeof(Vert3D);
+				strides[1] = instanceDataStructByteSize;
+
+				offsets[0] = 0;
+				offsets[1] = 0;
+
+				_bufferPointers[0] = _vertexBuffer;
+				_bufferPointers[1] = _instanceBuffer;
+
+				dc->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+				dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+				dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				dc->PSSetSamplers(0, 1, &s._sampleState);
+				dc->DrawIndexedInstanced(indices.size(), 5u, 0, 0, 0);
+				
+			}	
+			*/
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s._sampleState);
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
+
+		void draw(ID3D11DeviceContext* dc, ShaderLight& s)
 		{
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
@@ -143,8 +219,8 @@ class Mesh
 		}
 
 
-		void draw(ID3D11DeviceContext* dc, WireframeShader& s) {
-
+		void draw(ID3D11DeviceContext* dc, WireframeShader& s) 
+		{
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
 
@@ -155,8 +231,8 @@ class Mesh
 		}
 
 
-		void draw(ID3D11DeviceContext* dc, ShaderShadow& s) {
-
+		void draw(ID3D11DeviceContext* dc, ShaderShadow& s) 
+		{
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
 
@@ -245,8 +321,8 @@ class Mesh
 		}
 
 
-		void draw(ID3D11DeviceContext* dc, ShaderWater& s) {
-
+		void draw(ID3D11DeviceContext* dc, ShaderWater& s) 
+		{
 			unsigned int stride = sizeof(Vert3D);
 			unsigned int offset = 0;
 

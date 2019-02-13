@@ -180,7 +180,7 @@ namespace Procedural
 
 
 
-	void LSystem::draw(ID3D11DeviceContext* dc, Shader& s, 
+	void LSystem::draw(ID3D11DeviceContext* dc, ShaderLight& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
 			const PointLight& dLight, float deltaTime, SVec3 eyePos)
 	{
