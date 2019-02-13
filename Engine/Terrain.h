@@ -10,33 +10,6 @@
 namespace Procedural 
 {
 
-	struct MatrixBufferType 
-	{
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-
-	struct VariableBufferType 
-	{
-		float deltaTime;
-		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
-	};
-
-	struct LightBufferType 
-	{
-		SVec3 alc;
-		float ali;
-		SVec3  dlc;
-		float dli;
-		SVec3 slc;
-		float sli;
-		SVec4 pos;
-		SVec4 ePos;
-	};
-
-
-
 	class CACell
 	{
 	public:
@@ -94,10 +67,11 @@ namespace Procedural
 		///manipulation methods
 
 		//faulting - using z = k * x + offset
-		void fault(const SRay& line, float displacement);
+		void Fault(const SRay& line, float displacement);
+		void NoisyFault(const SRay& line, float displacement);
 		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
 		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps);
-		void smooth();	
+		void Smooth();	
 
 		
 

@@ -59,7 +59,7 @@ namespace Procedural
 	}
 
 	
-	#define FASTFLOOR(x) ( ((x)>0) ? ((int)x) : ((int)x-1 ) )
+	#define FASTFLOOR(x) ( (x >= 0.f) ? ((int)x) : ((int)x-1 ) )
 	float Perlin::perlin2d(SVec2 pos)
 	{
 
@@ -74,8 +74,8 @@ namespace Procedural
 		float v = fade(yf);
 		
 		//wrap
-		iLeft = iLeft & 255;
-		iBottom = iBottom & 255;
+		iLeft = iLeft < 0 ? 255 + iLeft : iLeft % 255;
+		iBottom = iBottom < 0 ? 255 + iBottom : iBottom % 255;
 
 		//define the corners of the square
 		SVec2 bottomLeft(iLeft, iBottom);
@@ -104,7 +104,8 @@ namespace Procedural
 		//interpolate between results
 		float result = mix(mix(dotBL, dotBR, u), mix(dotTL, dotTR, u), v);
 		
-		assert(result < 1.01f && result > -1.01f);
+		if(result < 1.01f || result > -1.01f)
+			assert(result < 1.01f && result > -1.01f);
 		
 		return result;
 	}
@@ -183,8 +184,8 @@ namespace Procedural
 				//spatial domain warping... nice results, but no idea how to predict what they will look like at all
 				if (warp)
 				{
-					float tempFBM = FBM(amplitude, frequency, octaves, lacunarity, gain, curPos);
-					curPos = SVec2(x + tempFBM, y + tempFBM);
+					float tf = FBM(amplitude, frequency, octaves, lacunarity, gain, curPos);
+					curPos = SVec2(x + tf, y + tf);
 				}
 					
 

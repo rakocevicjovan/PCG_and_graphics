@@ -102,8 +102,12 @@
     <ClCompile Include="GameClock.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="LSystem.cpp" />
+    <ClCompile Include="NavierStokes.cpp" />
+    <ClCompile Include="ParticleBase.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Perlin.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -132,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="Biome.h" />
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Celestials.h" />
@@ -142,9 +147,14 @@
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="LSystem.h" />
+    <ClInclude Include="NavierStokes.h" />
+    <ClInclude Include="ParticleBase.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Perlin.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderCM.h" />
+    <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="modelclass.h" />
     <ClInclude Include="OST.h" />

@@ -1,5 +1,6 @@
 #include "Terrain.h"
 #include "Chaos.h"
+#include "Perlin.h"
 
 namespace Procedural 
 {
@@ -43,9 +44,6 @@ namespace Procedural
 		wat.resize(vertices.size());
 		chaos.fillVector(wat);
 
-		//for (auto c : cells)
-		//	c.deadOrAlive = (chaos.rollTheDice(0, 1) < 0.45f);	//45% chance to get true, 55% to get false
-
 		for (int i = 0; i < vertices.size(); i++)
 			if (wat[i] < chance)
 				vertices[i].pos.y = yScale;
@@ -54,9 +52,7 @@ namespace Procedural
 
 
 	inline unsigned int Terrain::wr(int row) { return row < 0 ? _numRows + row : row % _numRows; }
-
 	inline unsigned int Terrain::wc(int col) { return col < 0 ? _numColumns + col : col % _numColumns; }
-
 	float Terrain::sampleDiamond(int i, int j, int reach)
 	{
 		std::vector<float> heights;	
@@ -81,8 +77,6 @@ namespace Procedural
 
 		return result;
 	}
-
-	//decay should be kept under 1.0f
 	void Terrain::GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax) 
 	{
 		//assume steps = 2
@@ -429,16 +423,16 @@ namespace Procedural
 		HRESULT result;
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		unsigned int bufferNumber;
-		MatrixBufferType* dataPtr;
-		LightBufferType* dataPtr2;
-		VariableBufferType* dataPtr3;
+		MatrixBuffer* dataPtr;
+		LightBuffer* dataPtr2;
+		VariableBuffer* dataPtr3;
 
 		// Lock the constant matrix buffer so it can be written to.
 		result = dc->Map(s.m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 			return;
 
-		dataPtr = (MatrixBufferType*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 
 		SMatrix mT = mt.Transpose();
 		SMatrix vT = vt.Transpose();
@@ -462,7 +456,7 @@ namespace Procedural
 		if (FAILED(result))
 			return;
 
-		dataPtr3 = (VariableBufferType*)mappedResource.pData;
+		dataPtr3 = (VariableBuffer*)mappedResource.pData;
 
 		dataPtr3->deltaTime = deltaTime;
 		dataPtr3->padding = SVec3();
@@ -479,7 +473,7 @@ namespace Procedural
 			return;
 
 
-		dataPtr2 = (LightBufferType*)mappedResource.pData;
+		dataPtr2 = (LightBuffer*)mappedResource.pData;
 		dataPtr2->alc = dLight.alc;
 		dataPtr2->ali = dLight.ali;
 		dataPtr2->dlc = dLight.dlc;
@@ -513,7 +507,7 @@ namespace Procedural
 
 
 
-	void Terrain::fault(const SRay& line, float displacement) 
+	void Terrain::Fault(const SRay& line, float displacement) 
 	{
 		float adjX = line.position.x * xScale;
 		float adjZ = line.position.z * zScale;
@@ -524,12 +518,32 @@ namespace Procedural
 	}
 
 
-	//keep decay under 1 for reasonable results? Still, something fun could happen otherwise...
+
+	void Terrain::NoisyFault(const SRay& line, float displacement)
+	{
+		float adjX = line.position.x * xScale;
+		float adjZ = line.position.z * zScale;
+		Perlin p;
+
+		for (int i = 0; i < vertices.size(); ++i)
+		{
+			Vert3D cv = vertices[i];
+			SVec2 input = SVec2(cv.pos.x / (float)_numColumns, cv.pos.z / (float)_numRows);
+			float p2dVal = p.perlin2d(input) * 100.f;	// p.FBM(1.f, 2.f, 3u, 2.f, 0.5f, )
+			
+			if (line.direction.z * (cv.pos.x - adjX) - line.direction.x * (cv.pos.z - adjZ) > p2dVal)
+				vertices[i].pos.y += displacement;
+		}
+	}
+
+
+
+	//keep decay under 1 for reasonable results? Still, something fun could happen otherwise... this is ugly anyways
 	void Terrain::TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay)
 	{
 		Chaos c;
 
-		fault(line, displacement);
+		Fault(line, displacement);
 
 		for (int i = 1; i < steps; ++i)
 		{
@@ -543,7 +557,7 @@ namespace Procedural
 			SVec3 randomDir = SVec3::Transform(SVec3::Right, SMatrix::CreateFromAxisAngle(SVec3::Up, c.rollTheDice()));
 			displacement *= decay;
 
-			fault(SRay(randomAxis, randomDir), displacement);
+			Fault(SRay(randomAxis, randomDir), displacement);
 		}
 	}
 
@@ -568,7 +582,7 @@ namespace Procedural
 			SVec3 curPoint3D(curPoint.x, 0.f, curPoint.y);
 			SVec3 curTangent3D(-dir.y, 0.f, dir.x);
 
-			fault(SRay(curPoint3D, curTangent3D), displacement * i);
+			Fault(SRay(curPoint3D, curTangent3D), displacement * i);
 
 			curAngle += angle;
 		}
@@ -577,7 +591,7 @@ namespace Procedural
 	
 	//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 	//apply this FIR function to rows and columns individually, in both directions
-	void Terrain::smooth() 
+	void Terrain::Smooth() 
 	{
 
 		std::vector<Vert3D> smoothed(vertices.size());

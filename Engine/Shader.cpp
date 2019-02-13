@@ -146,7 +146,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     matrixBufferDesc.MiscFlags = 0;
@@ -160,7 +160,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
 	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBufferType);
+	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
 	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	variableBufferDesc.MiscFlags = 0;
@@ -175,7 +175,7 @@ bool Shader::InitializeShader(ID3D11Device* device, HWND hwnd){
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	lightBufferDesc.MiscFlags = 0;
@@ -277,9 +277,9 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
-	MatrixBufferType* dataPtr;
-	LightBufferType* dataPtr2;
-	VariableBufferType* dataPtr3;
+	MatrixBuffer* dataPtr;
+	LightBuffer* dataPtr2;
+	VariableBuffer* dataPtr3;
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
@@ -290,7 +290,7 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	if (FAILED(result))
 		return false;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+	dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 
 	// Copy the matrices into the constant buffer.
 	dataPtr->world = mT;
@@ -312,7 +312,7 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 		return false;
 	
 	// Get a pointer to the data in the constant buffer.
-	dataPtr3 = (VariableBufferType*)mappedResource.pData;
+	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 
 	// Copy the variablethe constant buffer.
 	dataPtr3->deltaTime = deltaTime;
@@ -336,7 +336,7 @@ bool Shader::SetShaderParameters(	ID3D11DeviceContext* deviceContext,
 	}
 
 	// Get a pointer to the data in the constant buffer.
-	dataPtr2 = (LightBufferType*)mappedResource.pData;
+	dataPtr2 = (LightBuffer*)mappedResource.pData;
 
 	// Copy the lighting variables into the constant buffer.
 	dataPtr2->alc = dLight.alc;

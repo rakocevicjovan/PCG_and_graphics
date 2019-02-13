@@ -51,93 +51,6 @@ float noise(in float3 x) {
 	return -1.0 + 2.0 * lerp(rg.r, rg.g, f.b);	//return 1 - noise value
 }
 
-float sampleDensityOfMedium(in float3 pos) {
-
-	//octave 1
-	float3 UVW = pos * 0.01f; // Let’s start with some low frequency
-	float Amplitude = 5.0f;
-	float V = Amplitude * noise(UVW);
-
-	//octave 2
-	Amplitude *= AMPLITUDE_FACTOR;
-	UVW *= FREQUENCY_FACTOR;
-	V += Amplitude * noise(UVW);
-
-	//octave 3
-	Amplitude *= AMPLITUDE_FACTOR;
-	UVW *= FREQUENCY_FACTOR;
-	V += Amplitude * noise(UVW);
-
-	//octave 4
-	Amplitude *= AMPLITUDE_FACTOR;
-	UVW *= FREQUENCY_FACTOR;
-	V += Amplitude * noise(UVW);
-
-	//octave 5
-	Amplitude *= AMPLITUDE_FACTOR;
-	UVW *= FREQUENCY_FACTOR;
-	V += Amplitude * noise(UVW);
-
-	return clamp(V, 0, 1); // Include factor and bias instead of just V to help getting a nice result… -> DensityFactor * V + DensityBias
-}
-
-float3 computeMoonColour(in float3 pos) {
-
-	float3 ShadowMapPosition = mul(pos, (float3x3)lightView); // Transform from world to shadow map space
-	float2 UV = ShadowMapPosition.xy; // Our shadow map texture coordinates in [0,1]
-	float Z = ShadowMapPosition.z; // Our depth in the shadow volume as seen from the light
-	float Extinction = noise(ShadowMapPosition); // Samples the shadow map and returns extinction in [0,1]	GetShadowExtinction(UV, Z);
-	return Extinction * dlc; // Attenuate moon color by extinction through the volume
-}
-
-float ei(in float z) {
-	return 0.577215f + log(1e-4 + abs(z)) + z * (1.0 + z * (0.25 + z * ((1.0 / 18.0) + z * ((1.0 / 96.0) + z * (1.0 / 600.0))))); // For x!=0
-}
-
-float3 computeAmbientColour(in float3 pos, in float extK) {
-
-	float distToTop = 500.0f - pos.y; // Height to the top of the volume
-	float a = -extK * distToTop;
-	float3 IsotropicScatteringTop = ISOLIGHTTOP * max(0.0, exp(a) - a * ei(a));
-
-	float distToBottom = pos.y - 300.0f; // Height to the bottom of the volume
-	a = -extK * distToBottom;
-	float3 IsotropicScatteringBottom = ISOLIGHTBOT * max(0.0f, exp(a) - a * ei(a));
-
-	return IsotropicScatteringTop + IsotropicScatteringBottom;
-}
-
-float4 myMarch(in float3 rayOrigin, in float3 rayDir, in int numSteps) {
-
-	//set up
-	float extinction = 1.0f;						//no density anywhere at first so no extinction either...
-	float3 scattering = float3(0.0f, 0.0f, 0.0f);	//no light scattering at first
-	float stepSize = 1.0f / numSteps;				//randomly chose 2 to be max distance idk... should play with it
-	float3 pos = rayOrigin;
-
-	//marching code
-	for (int i = 0; i < numSteps; ++i) {
-
-		float timeK = 10.f;
-		float3 offset = float3(elapsed, elapsed, elapsed) * timeK;
-		float density = sampleDensityOfMedium(pos + offset);	// Sample perlin/worley/white noise and clamp the result between 0 and 1
-		float scatteringK = 0.1f * density;			//scatteringFactor
-		float extinctionK =  0.1f * density;			//extinctionFactor
-
-		extinction *= exp(-extinctionK);	// * stepSize
-
-		//compute light added by scattering
-		float3 moonCol = computeMoonColour(pos);	//moonlight color arriving at the position
-		float3 ambientCol = dlc; //computeAmbientColour(pos, extinctionK);
-		float3 stepScattering = scatteringK * stepSize * ( 5.f* dlc + 5.f * alc);	//how to implement phase function - phaseMoon, phaseAmbient
-		scattering += extinction * stepScattering; //add scattering but attenuate it... so the more extinct the light is at that point the less we add
-
-		pos += stepSize * rayDir;
-	}
-
-	return float4(scattering, extinction);
-}
-
 
 
 
@@ -161,7 +74,7 @@ float map5(in float3 p) {
 	q = q * FREQUENCY_FACTOR;
 	f += 0.03125f * noise(q);
 
-	return clamp(1.5f - p.y - 2.0f + 1.75f * f, 0.0f, 1.0f);
+	return clamp(f, 0.0f, 1.0f);
 }
 
 
@@ -186,7 +99,7 @@ void march(in int steps, in float3 rayOrigin, in float3 rayDir, inout float4 sum
 
 	for (int i = 0; i < steps; i++) {
 		float3 pos = t * rayDir;
-		if (pos.y < -3.0f || pos.y > 2.0f || sum.a > 0.99f) break;
+		//if (pos.y < -3.0f || pos.y > 2.0f || sum.a > 0.99f) break;
 		if (sum.a > 0.99f) break;
 		density = map5(pos % 256);
 
@@ -207,10 +120,6 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir) {
 	//initialize the sum of colours we will get in the end
 	float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	int2 xy = rayOrigin.xz;
-
-	//float t = perlin.Load(int3(xy.x, xy.y, 0.0f)).x;	//x because it's grayscale so any value would do...
-
 	march(50, rayOrigin, rayDir, sum);
 
 	return clamp(sum, 0.0f, 1.0f);
@@ -224,7 +133,7 @@ float4 render(in float3 rayOrigin, in float3 rayDir) {
 	float moonbeams = clamp(dot(-lightDir.xyz, rayDir), 0.0f, 1.0f);
 	float3 background = BG_COL + slc * pow(moonbeams, 16.0f);
 
-	//clouds   
+	//clouds
 	float4 cloudColour = raymarch(rayOrigin, rayDir);
 
 	float bgAlpha = (1.0f - cloudColour.a);
@@ -246,7 +155,6 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET{
 	//float3 relPos = input.worldPos.xyz - cloudCenter;
 		
 	colour = render(input.worldPos.xyz, rayDir);	// relPos rayDir
-	//colour =  saturate(myMarch(input.worldPos.xyz, rayDir, 64));
 	
 	//colour.a = 1.0f;// length(colour.xyz);
 

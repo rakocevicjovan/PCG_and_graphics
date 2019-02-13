@@ -9,38 +9,11 @@
 #include <string>
 #include "Math.h"
 #include "lightclass.h"
+#include "ShaderDataStructs.h"
 
 class Model;
 
 class Shader{
-
-	struct MatrixBufferType{
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-
-	struct VariableBufferType{
-		float deltaTime;
-		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
-	};
-
-	struct LightBufferType{
-
-		SVec3 alc;
-		float ali;
-
-		SVec3  dlc;
-		float dli;
-
-		SVec3 slc;
-		float sli;
-
-		SVec4 pos;
-
-		SVec4 ePos;
-	};
-
 
 public:
 	Shader();
