@@ -11,20 +11,27 @@
 #include "lightclass.h"
 #include "ShaderDataStructs.h"
 
-class Model;
+#define DECIMATE(x) x->Release(); x = nullptr;
 
 class ShaderBase
 {
+
+protected:
+
+	std::vector<std::wstring> filePaths;
+	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
+
+	virtual void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
+
 public:
 	ShaderBase();
 	~ShaderBase();
 
 	virtual bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths,
 		D3D11_INPUT_ELEMENT_DESC* layout, unsigned int layoutSize, const D3D11_SAMPLER_DESC& samplerDesc);
-	virtual bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p,
-		const PointLight& dLight, const SVec3& eyePos, float deltaTime);
+	bool SetShaderParameters(SPBase* spb);
 	virtual bool ReleaseShaderParameters(ID3D11DeviceContext*);
-	virtual void ShutdownShader();
+	
 
 	ID3D11InputLayout* _layout;
 	ID3D11SamplerState* _sampleState;
@@ -36,10 +43,5 @@ public:
 	ID3D11Buffer* _variableBuffer;
 	ID3D11Buffer* _lightBuffer;
 
-protected:
-
-	std::vector<std::wstring> filePaths;
-	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
-	virtual void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
 };
 

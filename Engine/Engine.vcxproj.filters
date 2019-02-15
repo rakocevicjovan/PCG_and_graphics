@@ -147,6 +147,12 @@
     <ClCompile Include="ShaderLight.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancedShader.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -285,6 +291,12 @@
       <Filter>Shading</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLight.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="InstancedShader.h">
       <Filter>Shading</Filter>
     </ClInclude>
   </ItemGroup>

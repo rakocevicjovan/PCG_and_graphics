@@ -1,21 +1,7 @@
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
-
-#include <vector>
 #include "d3dclass.h"
 #include "Camera.h"
 #include "Model.h"
-#include "ShaderBase.h"
-#include "ShaderLight.h"
-#include "ShaderDepth.h"
-#include "ShaderShadow.h"
-#include "ShaderHUD.h"
-#include "ShaderWireframe.h"
-#include "ShaderPT.h"
-#include "ShaderCM.h"
-#include "ShaderSkybox.h"
-#include "ShaderStrife.h"
-#include "ShaderWater.h"
+#include "ShaderManager.h"
 #include "Rekt.h"
 #include "OST.h"
 #include "CubeMapper.h"
@@ -29,6 +15,9 @@
 #include "Voronoi.h"
 
 #include "BitMapper.h"
+
+//@TODO VERY IMPORTANT CLEAR THIS OUT OF HERE AND INTO THE SHADER MANAGER OR RESOURCE MANAGER!
+#include "ShaderDataStructs.h"
 
 
 const bool FULL_SCREEN = false;
@@ -49,10 +38,6 @@ public:
 	void Shutdown();
 	void ProcessSpecialInput();
 
-	Camera& addCamera(SMatrix& camTransform, SMatrix& lens);
-	ShaderLight& addShader();
-	
-
 private:
 
 	bool RenderFrame(float dTime);
@@ -63,24 +48,13 @@ private:
 	ID3D11DeviceContext* _deviceContext;
 	InputManager* _inMan;
 
-	std::vector<Camera> _cameras;
-	std::vector<ShaderLight> _shaders;
+	ShaderManager shMan;
+
 	std::vector<Model*> _terrainModels;
-
-	ShaderBase shaderBase;
-	ShaderLight shaderLight;
-	WireframeShader shaderWireframe;
-	ShaderHUD shaderHUD;
-	ShaderDepth shaderDepth;
-	ShaderPT shaderPT;
-	ShaderShadow shaderShadow;
-	ShaderCM shaderCM;
-	ShaderSkybox shaderSkybox;
-	ShaderStrife shaderStrife;
-	ShaderWater shaderWater;
-
+	
 	Texture NST, DST, white, perlinTex, worley;
-	std::vector<Controller> _controllers;
+	Camera _cam;
+	Controller _controller;
 	PointLight pointLight;
 	DirectionalLight dirLight;
 
@@ -113,4 +87,3 @@ private:
 	std::function<void(PUD*)> lambda1;
 	bool isTerGenerated = false;
 };
-#endif

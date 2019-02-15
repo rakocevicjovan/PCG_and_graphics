@@ -1,26 +1,25 @@
-#include "ShaderLight.h"
+#pragma once
+#include "InstancedShader.h"
 #include "Model.h"
 
 
 
-ShaderLight::ShaderLight() : ShaderBase()
+InstancedShader::InstancedShader() : ShaderBase()
 {
 }
 
 
 
-ShaderLight::~ShaderLight()
+InstancedShader::~InstancedShader()
 {
 }
 
 
 
-bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& p,
-									const PointLight& dLight, const SVec3& eyePos, float deltaTime)
+bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& p,
+	const PointLight& dLight, const SVec3& eyePos, float deltaTime)
 {
-	HRESULT result;
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 	VariableBuffer* dataPtr3;
@@ -29,7 +28,8 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	SMatrix vT = v.Transpose();
 	SMatrix pT = p.Transpose();
 
-	
+	unsigned int bufferNumber;
+
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
@@ -38,9 +38,9 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->Unmap(_matrixBuffer, 0);
 
 	bufferNumber = 0;
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
 
-	if(FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
+	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
@@ -50,7 +50,7 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
 
 
-	if(FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
+	if (FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
 	dataPtr2->alc = dLight.alc;
 	dataPtr2->ali = dLight.ali;
@@ -70,17 +70,9 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
 	//if(model.textures_loaded.size() != 0)
-	for (int i = 0; i < model.textures_loaded.size(); i++) {
+	for (int i = 0; i < model.textures_loaded.size(); i++)
 		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
-	}
-		
-
-	return true;
-}
 
 
-
-bool ShaderLight::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
-	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }

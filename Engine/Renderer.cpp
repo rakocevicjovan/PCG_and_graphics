@@ -30,90 +30,11 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_device = _D3D->GetDevice();
 	_deviceContext = _D3D->GetDeviceContext();
 
+	shMan.init(_device, hwnd);
 
-	//model and shader loading should not be here... but time waits for no man...
-	///SHADER LOADING 
-
-#pragma region shame
-	
-	D3D11_INPUT_ELEMENT_DESC sbLayout[] =
-	{
-		// Data from the vertex buffer
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
-
-		// Data from the instance buffer
-		{ "INSTANCEPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT,    1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
-		{ "INSTANCECOLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1}
-	};
-
-	D3D11_SAMPLER_DESC sbSamplerDesc;
-	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
-	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
-		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX
-	};
-
-	std::vector<std::wstring> shaderBaseNames;
-	shaderBaseNames.push_back(L"lightvs.hlsl");
-	shaderBaseNames.push_back(L"lightps.hlsl");
-	shaderBase.Initialize(_device, hwnd, shaderBaseNames, sbLayout, 5u, sbSamplerDesc);
-#pragma endregion shame
-
-	std::vector<std::wstring> names;
-	names.push_back(L"lightvs.hlsl");
-	names.push_back(L"lightps.hlsl");
-	shaderLight.Initialize(_device, hwnd, names);
-	_shaders.push_back(shaderLight);
-
-	std::vector<std::wstring> wfsNames;
-	wfsNames.push_back(L"wireframe.vs");
-	wfsNames.push_back(L"wireframe.gs");
-	wfsNames.push_back(L"wireframe.ps");
-	shaderWireframe.Initialize(_device, hwnd, wfsNames);
-
-	std::vector<std::wstring> hudNames;
-	hudNames.push_back(L"rekt.vs");
-	hudNames.push_back(L"rekt.ps");
-	shaderHUD.Initialize(_device, hwnd, hudNames);
-
-	std::vector<std::wstring> depthNames;
-	depthNames.push_back(L"depth.vs");
-	depthNames.push_back(L"depth.ps");
-	shaderDepth.Initialize(_device, hwnd, depthNames);
-
-	std::vector<std::wstring> projTexNames;
-	projTexNames.push_back(L"projectTex.vs");
-	projTexNames.push_back(L"projectTex.ps");
-	shaderPT.Initialize(_device, hwnd, projTexNames);
-
-	std::vector<std::wstring> shadowNames;
-	shadowNames.push_back(L"shadowvs.hlsl");
-	shadowNames.push_back(L"shadowps.hlsl");
-	shaderShadow.Initialize(_device, hwnd, shadowNames);
-
-	std::vector<std::wstring> cubeMapNames;
-	cubeMapNames.push_back(L"cubemap.vs");
-	cubeMapNames.push_back(L"cubemap.ps");
-	shaderCM.Initialize(_device, hwnd, cubeMapNames);
-
-	std::vector<std::wstring> skyboxNames;
-	skyboxNames.push_back(L"skyboxvs.hlsl");
-	skyboxNames.push_back(L"skyboxps.hlsl");
-	shaderSkybox.Initialize(_device, hwnd, skyboxNames);
-
-	std::vector<std::wstring> strifeNames;
-	strifeNames.push_back(L"strifevs.hlsl");
-	strifeNames.push_back(L"strifeps.hlsl");
-	shaderStrife.Initialize(_device, hwnd, strifeNames);
-
-	std::vector<std::wstring> waterNames;
-	waterNames.push_back(L"Watervs.hlsl");
-	waterNames.push_back(L"Waterps.hlsl");
-	shaderWater.Initialize(_device, hwnd, waterNames);
-	///SHADER LOADING DONE
-
-
+	modBall.LoadModel(_device, "../Models/ball.fbx");
+	Math::Scale(modBall.transform, SVec3(36.f));
+	Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
 
 	///MODEL LOADING
 	/*
@@ -132,10 +53,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	Math::SetRotation(modBallStand.transform, modBallStandRotation);
 	Math::Scale(modBallStand.transform, SVec3(10.f));
 	Math::Translate(modBallStand.transform, SVec3(300.0f, -35.0f, -295.0f));
-
-	modBall.LoadModel(_device, "../Models/ball.fbx");
-	Math::Scale(modBall.transform, SVec3(36.f));
-	Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
 
 	modDepths.LoadModel(_device, "../Models/WaterQuad.fbx");
 	Math::Scale(modDepths.transform, SVec3(120.0f));
@@ -182,10 +99,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	///CAMERA INITIALISATION
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
 
-	Camera cam(SMatrix::Identity, projectionMatrix);
-	_controllers.push_back(Controller(&inMan));
-	cam._controller = &_controllers[0];
-	_cameras.push_back(cam);
+	_cam = Camera(SMatrix::Identity, projectionMatrix);
+	_controller = Controller(&inMan);
+	_cam._controller = &_controller;
 	
 
 	///CUBE MAPS SETUP
@@ -231,7 +147,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	};
 
 	pSys.setUpdateFunction(lambda);
-	pSys.setShader(&shaderBase);
+	pSys.setShader(&shMan.shaderBase);
 
 	return true;
 }
@@ -239,8 +155,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 bool Renderer::Frame(float dTime){
 	
-	for (Camera& c : _cameras)
-		c.update(dTime);
+	_cam.update(dTime);
 
 	ProcessSpecialInput();
 	elapsed += dTime;
@@ -258,12 +173,12 @@ bool Renderer::RenderFrame(float dTime)
 
 
 	///RENDERING OLD TERRAIN 
-	Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
+	Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
 	/*
 	for (auto tm : _terrainModels) {
-		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), offScreenTexture._view, _cameras[0].GetProjectionMatrix(),
-			offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), offScreenTexture.srv);
+		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cam.GetViewMatrix(), offScreenTexture._view, _cam.GetProjectionMatrix(),
+			offScreenTexture._lens, pointLight, _cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
 		tm->Draw(_deviceContext, shaderShadow);
 		shaderShadow.ReleaseShaderParameters(_deviceContext);
 	}
@@ -275,14 +190,14 @@ bool Renderer::RenderFrame(float dTime)
 	{
 		_D3D->TurnOffCulling();
 		
-		proceduralTerrain.Draw(_deviceContext, shaderLight,
-			identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-			pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
+		proceduralTerrain.Draw(_deviceContext, shMan.shaderLight,
+			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 		_D3D->TurnOnCulling();
 
-		linden.draw(_deviceContext, shaderLight,
-			identityMatrix, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-			pointLight, dTime, _cameras[0].GetCameraMatrix().Translation());
+		linden.draw(_deviceContext, shMan.shaderLight,
+			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 	}
 
 	PUD pud;
@@ -290,29 +205,32 @@ bool Renderer::RenderFrame(float dTime)
 	pud.windVelocity = 1.f;
 	pud.dTime = dTime;
 
-	/*
-	if (sin(elapsed * PI) > 0 && uwotm8)
-	{
-		pSys.setUpdateFunction(lambda1);
-		uwotm8 = false;
-	}
-		
-	
-	if (sin(elapsed * PI) < 0 && !uwotm8) {
-		pSys.setUpdateFunction(lambda);
-		uwotm8 = true;
-	}
-	*/
-
 	pSys.updateStdFunc(&pud);
+	
+	//_deviceContext, pSys._model, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), pointLight,
+		//_cam.GetCameraMatrix().Translation(), dTime
+
+	shMan.spl.deltaTime = dTime;
+	shMan.spl.deviceContext = _deviceContext;
+	shMan.spl.dLight = &pointLight;
+	shMan.spl.eyePos = &(_cam.GetCameraMatrix().Translation());
+	shMan.spl.model = &pSys._model;
+	shMan.spl.proj = &(_cam.GetProjectionMatrix());
+	shMan.spl.view = &(_cam.GetViewMatrix());
+	
+	/*
+	shaderLight.SetShaderParameters(_deviceContext, modBall, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), pointLight,
+		_cam.GetCameraMatrix().Translation(), dTime);
+	modBall.Draw(_deviceContext, shaderLight);
+	shaderLight.ReleaseShaderParameters(_deviceContext);
+	*/
 	
 	for (int i = 0; i < pSys._particles.size(); ++i) 
 	{
 		pSys._model.transform = pSys._particles[i]->transform;
-		shaderBase.SetShaderParameters(_deviceContext, pSys._model, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), pointLight,
-			_cameras[0].GetCameraMatrix().Translation(), dTime);
+		shMan.shaderBase.SetShaderParameters(&shMan.spl);
 		pSys.draw(_deviceContext);
-		shaderBase.ReleaseShaderParameters(_deviceContext);
+		shMan.shaderBase.ReleaseShaderParameters(_deviceContext);
 	}
 	
 	
@@ -320,16 +238,16 @@ bool Renderer::RenderFrame(float dTime)
 	///rendering water and clouds
 	/*
 	///RENDERING WATER
-	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv);
+	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv);
 	modDepths.Draw(_deviceContext, shaderWater);
 	shaderWater.ReleaseShaderParameters(_deviceContext);
 
 	*/
 	///RENDERING CLOUD
 	/*
-	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		dirLight, _cameras[0].GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
+	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
 	modStrife.Draw(_deviceContext, shaderStrife);
 	shaderStrife.ReleaseShaderParameters(_deviceContext);
 	*/
@@ -339,30 +257,16 @@ bool Renderer::RenderFrame(float dTime)
 	
 	_D3D->TurnOffCulling();
 	_D3D->SwitchDepthToLessEquals();
-	shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-		_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
-	modSkybox.Draw(_deviceContext, shaderSkybox);
-	shaderSkybox.ReleaseShaderParameters(_deviceContext);
+	shMan.shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+	modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
+	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
 	
 
 	_D3D->EndScene();
 	return true;
-}
-
-
-
-Camera& Renderer::addCamera(SMatrix& camTransform, SMatrix& lens) {
-	_cameras.push_back(Camera(camTransform, lens));
-	return _cameras.back();
-}
-
-
-
-ShaderLight& Renderer::addShader() {
-	_shaders.push_back(ShaderLight());
-	return _shaders.back();
 }
 
 
@@ -395,7 +299,7 @@ void Renderer::ProcessSpecialInput()
 	{
 
 		///TERRAIN GENERATION
-		proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
+		//proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
 
 		///Diamond square testing
 		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
@@ -405,9 +309,9 @@ void Renderer::ProcessSpecialInput()
 
 		///Perlin testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great
 		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
-		//perlin.generate2DTextureFBM(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true);
+		perlin.generate2DTextureFBM(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true);
 		//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
-		//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
+		proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
 
 
 		///Terrain deformation testng
@@ -419,7 +323,6 @@ void Renderer::ProcessSpecialInput()
 		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
 		//proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, 0.5f, 64);
 		
-
 		///Voronoi tests
 		//Procedural::Voronoi v;
 		//v.init(25, proceduralTerrain.getNumCols(), proceduralTerrain.getNumRows());
@@ -433,10 +336,15 @@ void Renderer::ProcessSpecialInput()
 		linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
 		linden.setUp(_device);
 		
-		//proceduralTerrain.SetUp(_device);
+		proceduralTerrain.SetUp(_device);
 		isTerGenerated = true;
 	}
 }
+
+
+
+
+
 
 
 
@@ -465,11 +373,11 @@ for (int i = 0; i < 6; i++) {
 	_deviceContext->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	_deviceContext->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
 
-	shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
+	shaderLight.SetShaderParameters(_deviceContext, modTerrain, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cam.GetCameraMatrix().Translation(), dTime);
 	modTerrain.Draw(_deviceContext, shaderLight);
 	shaderLight.ReleaseShaderParameters(_deviceContext);
 
-	shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), dTime);
+	shaderLight.SetShaderParameters(_deviceContext, modTreehouse, cubeMapper.cameras[i], cubeMapper.lens, pointLight, _cam.GetCameraMatrix().Translation(), dTime);
 	modTreehouse.Draw(_deviceContext, shaderLight);
 	shaderLight.ReleaseShaderParameters(_deviceContext);
 
@@ -478,14 +386,14 @@ for (int i = 0; i < 6; i++) {
 
 
 	shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, cubeMapper.cameras[i], cubeMapper.lens,
-		_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
 	modSkybox.Draw(_deviceContext, shaderSkybox);
 	shaderSkybox.ReleaseShaderParameters(_deviceContext);
 
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
 }
-Math::SetTranslation(modSkybox.transform, _cameras[0].GetCameraMatrix().Translation());
+Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
 ///REFLECTION CUBE MAP DONE
 
 
@@ -511,7 +419,7 @@ for (auto tm : _terrainModels) {
 }
 
 shaderLight.SetShaderParameters(_deviceContext, modBall, offScreenTexture._view, offScreenTexture._lens, pointLight,
-	_cameras[0].GetCameraMatrix().Translation(), dTime);
+	_cam.GetCameraMatrix().Translation(), dTime);
 modBall.Draw(_deviceContext, shaderLight);
 shaderLight.ReleaseShaderParameters(_deviceContext);
 
@@ -521,8 +429,8 @@ _deviceContext->RSSetViewports(1, &_D3D->viewport);
 _D3D->SetBackBufferRenderTarget();
 
 for (auto tm : _terrainModels) {
-	shaderShadow.SetShaderParameters(_deviceContext, *tm, _cameras[0].GetViewMatrix(), offScreenTexture._view, _cameras[0].GetProjectionMatrix(),
-		offScreenTexture._lens, pointLight, _cameras[0].GetCameraMatrix().Translation(), offScreenTexture.srv);
+	shaderShadow.SetShaderParameters(_deviceContext, *tm, _cam.GetViewMatrix(), offScreenTexture._view, _cam.GetProjectionMatrix(),
+		offScreenTexture._lens, pointLight, _cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
 	tm->Draw(_deviceContext, shaderShadow);
 	shaderShadow.ReleaseShaderParameters(_deviceContext);
 }
@@ -530,7 +438,7 @@ for (auto tm : _terrainModels) {
 
 ///RENDERING WIREFRAME
 _D3D->TurnOnAlphaBlending();
-shaderWireframe.SetShaderParameters(_deviceContext, modBallStand, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix());
+shaderWireframe.SetShaderParameters(_deviceContext, modBallStand, _cam.GetViewMatrix(), _cam.GetProjectionMatrix());
 modBallStand.Draw(_deviceContext, shaderWireframe);
 shaderWireframe.ReleaseShaderParameters(_deviceContext);
 _D3D->TurnOffAlphaBlending();
@@ -540,8 +448,8 @@ _D3D->TurnOffAlphaBlending();
 
 
 ///RENDERING REFLECTION SPHERE/*
-shaderCM.SetShaderParameters(_deviceContext, modBall, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(), dirLight,
-	_cameras[0].GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
+shaderCM.SetShaderParameters(_deviceContext, modBall, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), dirLight,
+	_cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
 modBall.Draw(_deviceContext, shaderCM);
 shaderCM.ReleaseShaderParameters(_deviceContext);
 ///RENDERING REFLECTION SPHERE DONE
@@ -551,8 +459,8 @@ shaderCM.ReleaseShaderParameters(_deviceContext);
 ///RENDERING SKYBOX
 _D3D->TurnOffCulling();
 _D3D->SwitchDepthToLessEquals();
-shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cameras[0].GetViewMatrix(), _cameras[0].GetProjectionMatrix(),
-	_cameras[0].GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+	_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
 modSkybox.Draw(_deviceContext, shaderSkybox);
 shaderSkybox.ReleaseShaderParameters(_deviceContext);
 _D3D->SwitchDepthToDefault();

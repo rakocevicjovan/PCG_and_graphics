@@ -212,7 +212,7 @@ class Mesh
 			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			dc->PSSetSamplers(0, 1, &s.m_sampleState );
+			dc->PSSetSamplers(0, 1, &s._sampleState );
 			if(textures.size() > 0)
 				dc->PSSetShaderResources(0, 1, &(textures[0].srv));
 			dc->DrawIndexed(indices.size(), 0, 0);

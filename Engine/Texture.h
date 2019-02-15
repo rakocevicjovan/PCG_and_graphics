@@ -2,7 +2,13 @@
 
 #include <string>
 #include <d3d11.h>
-#include "assimp\scene.h"    
+#include "assimp\scene.h"   
+
+namespace Procedural {
+	class Perlin;
+}
+
+
 
 class Texture {
 
@@ -20,12 +26,7 @@ public:
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	ID3D11ShaderResourceView* srv;
 
-	//D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc; could be useful
-
-	//whether it's diffuse, specular etc. for convenience
 	std::string typeName;
-
-	//where we got the texture
 	std::string fileName;
 
 
@@ -35,7 +36,9 @@ public:
 	bool Load();
 	bool LoadFromFile(std::string path);
 	bool LoadFromMemory(const aiTexture *texture, ID3D11Device* device);
-	bool Setup(ID3D11Device* device);
+	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
+	bool Setup(ID3D11Device* device, bool grayscale = false);
+	
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
 	
 	ID3D11ShaderResourceView* getTextureResourceView() { return srv; }

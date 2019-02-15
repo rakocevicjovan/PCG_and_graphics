@@ -48,17 +48,8 @@ namespace Procedural
 		return (1 - t)*a + t * b;
 	}
 
-
-
-	//not implemented yet
-	float Perlin::perlin1d(float x)
-	{
-		double left;
-		double fract = modf(x, &left);	//expected value in left is a floored double
-		return 0;
-	}
-
 	
+
 	#define FASTFLOOR(x) ( (x >= 0.f) ? ((int)x) : ((int)x-1 ) )
 	float Perlin::perlin2d(SVec2 pos)
 	{
@@ -104,8 +95,8 @@ namespace Procedural
 		//interpolate between results
 		float result = mix(mix(dotBL, dotBR, u), mix(dotTL, dotTR, u), v);
 		
-		if(result < 1.01f || result > -1.01f)
-			assert(result < 1.01f && result > -1.01f);
+		//if(result < 1.01f || result > -1.01f)
+		assert(result < 1.01f && result > -1.01f);
 		
 		return result;
 	}
@@ -220,6 +211,11 @@ namespace Procedural
 	std::vector<float>& Perlin::getFloatVector() 
 	{
 		return floatTex;
+	}
+
+	std::vector<unsigned char>& Perlin::getUCharVector()
+	{
+		return texture;
 	}
 
 

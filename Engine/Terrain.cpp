@@ -428,7 +428,7 @@ namespace Procedural
 		VariableBuffer* dataPtr3;
 
 		// Lock the constant matrix buffer so it can be written to.
-		result = dc->Map(s.m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		result = dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 			return;
 
@@ -444,15 +444,15 @@ namespace Procedural
 		dataPtr->projection = pT;
 
 		// Unlock the constant buffer.
-		dc->Unmap(s.m_matrixBuffer, 0);
+		dc->Unmap(s._matrixBuffer, 0);
 
 		bufferNumber = 0;	// Set the position of the constant buffer in the vertex shader.
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s.m_matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
+		dc->VSSetConstantBuffers(bufferNumber, 1, &s._matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
 		//END MATRIX BUFFER
 
 
 
-		result = dc->Map(s.m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		result = dc->Map(s._variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 			return;
 
@@ -461,14 +461,14 @@ namespace Procedural
 		dataPtr3->deltaTime = deltaTime;
 		dataPtr3->padding = SVec3();
 
-		dc->Unmap(s.m_variableBuffer, 0);
+		dc->Unmap(s._variableBuffer, 0);
 
 		bufferNumber = 1;
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s.m_variableBuffer);
+		dc->VSSetConstantBuffers(bufferNumber, 1, &s._variableBuffer);
 
 
 
-		result = dc->Map(s.m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		result = dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 			return;
 
@@ -483,24 +483,24 @@ namespace Procedural
 		dataPtr2->pos = dLight.pos;
 		dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 
-		dc->Unmap(s.m_lightBuffer, 0);
+		dc->Unmap(s._lightBuffer, 0);
 
 		bufferNumber = 0;
 
 		unsigned int stride = sizeof(Vert3D);
 		unsigned int offset = 0;
 
-		dc->VSSetShader(s.m_vertexShader, NULL, 0);
-		dc->PSSetShader(s.m_pixelShader, NULL, 0);
+		dc->VSSetShader(s._vertexShader, NULL, 0);
+		dc->PSSetShader(s._pixelShader, NULL, 0);
 
-		dc->PSSetConstantBuffers(bufferNumber, 1, &s.m_lightBuffer);
-		dc->PSSetSamplers(0, 1, &s.m_sampleState);
+		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
+		dc->PSSetSamplers(0, 1, &s._sampleState);
 
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		dc->PSSetSamplers(0, 1, &s.m_sampleState);
-		dc->IASetInputLayout(s.m_layout);
+		dc->PSSetSamplers(0, 1, &s._sampleState);
+		dc->IASetInputLayout(s._layout);
 
 		dc->DrawIndexed(indices.size(), 0, 0);
 	}

@@ -12,7 +12,7 @@
 
 #include "stb_image_write.h"
 #include "Texture.h"
-
+#include "Perlin.h"
 
 
 Texture::Texture() {}
@@ -82,16 +82,25 @@ bool Texture::LoadFromMemory(const aiTexture *texture, ID3D11Device* device) {
 }
 
 
-bool Texture::Setup(ID3D11Device* device) {
-	
-	HRESULT res;
 
+bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
+{
+	w = perlin._w;
+	h = perlin._h;
+	data = perlin.getUCharVector().data();
+
+	return Setup(device, true);
+}
+
+
+
+bool Texture::Setup(ID3D11Device* device, bool grayscale) 
+{
 	desc.Width = w;
 	desc.Height = h;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	//if(n == 4){}
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	//DXGI_FORMAT_R8G8B8A8_SINT	DXGI_FORMAT_R8G8B8A8_UNORM
+	desc.Format = grayscale ? DXGI_FORMAT_R8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -100,11 +109,11 @@ bool Texture::Setup(ID3D11Device* device) {
 	desc.MiscFlags = 0;
 
 	texData.pSysMem = (void *)data;
-	texData.SysMemPitch = desc.Width * 4; //* sizeof(float);
+	texData.SysMemPitch = grayscale ? desc.Width : desc.Width * 4;
 	texData.SysMemSlicePitch = 0;
 
-	res = device->CreateTexture2D(&desc, &texData, &texId);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateTexture2D(&desc, &texData, &texId)))
+	{
 		OutputDebugStringA("Can't create texture2d. \n");
 		exit(42);
 	}
@@ -115,8 +124,8 @@ bool Texture::Setup(ID3D11Device* device) {
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-	res = device->CreateShaderResourceView(texId, &shaderResourceViewDesc, &srv);	//&resViewDesc
-	if (FAILED(res)) {
+	if (FAILED(device->CreateShaderResourceView(texId, &shaderResourceViewDesc, &srv)))
+	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(43);
 	}

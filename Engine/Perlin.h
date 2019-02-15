@@ -27,7 +27,6 @@ namespace Procedural
 		int _w = 0, _h = 0;
 
 		float fade(float t);
-		float perlin1d(float x);
 		float perlin2d(SVec2 pos);
 		void generate2DTexturePerlin(int w, int h, float zoomX, float zoomY);
 		float FBM(float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, SVec2 initialValue);
@@ -36,6 +35,7 @@ namespace Procedural
 
 		void fillFloatVector();
 		std::vector<float>& getFloatVector();
+		std::vector<unsigned char>& getUCharVector();
 	};
 
 }
