@@ -26,17 +26,6 @@ struct BonedVert3D : Vert3D
 };
 
 
-struct BaseInstanceData 
-{
-
-};
-
-struct LanternInstanceData : public BaseInstanceData
-{
-	SVec4 pos;
-};
-
-
 
 class Joint {
 public:

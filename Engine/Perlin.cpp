@@ -31,7 +31,7 @@ namespace Procedural
 
 	float Perlin::fade(float t)
 	{
-		return pow(t, 3) * (t * (6 * t - 15) + 10);	//6t5-15t4+10t3
+		return pow(t, 3) * (t * (6 * t - 15) + 10);
 	}
 
 

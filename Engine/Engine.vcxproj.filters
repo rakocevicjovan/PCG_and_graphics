@@ -153,6 +153,15 @@
     <ClCompile Include="InstancedShader.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
+    <ClCompile Include="Volumetric.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainShader.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -299,6 +308,15 @@
     <ClInclude Include="InstancedShader.h">
       <Filter>Shading</Filter>
     </ClInclude>
+    <ClInclude Include="Volumetric.h">
+      <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainShader.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -388,6 +406,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="VoronoiPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

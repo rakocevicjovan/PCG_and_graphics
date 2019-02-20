@@ -92,6 +92,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BitMapper.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Celestials.cpp" />
@@ -130,14 +131,17 @@
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="terrainclass.cpp" />
+    <ClCompile Include="TerrainShader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
     <ClCompile Include="ShaderWater.cpp" />
+    <ClCompile Include="Volumetric.cpp" />
     <ClCompile Include="Voronoi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
@@ -180,9 +184,11 @@
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="terrainclass.h" />
+    <ClInclude Include="TerrainShader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
+    <ClInclude Include="Volumetric.h" />
     <ClInclude Include="Voronoi.h" />
   </ItemGroup>
   <ItemGroup>
@@ -231,6 +237,12 @@
     </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="InstancedPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="InstancedVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="skyboxps.hlsl">

@@ -4,6 +4,7 @@
 #include "stb_image.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_PERLIN_IMPLEMENTATION
 #define STBI_MSC_SECURE_CRT
 
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -11,6 +12,7 @@
 #endif
 
 #include "stb_image_write.h"
+#include "stb_perlin.h"
 #include "Texture.h"
 #include "Perlin.h"
 
@@ -146,4 +148,31 @@ void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp,
 		return;
 	}
 
+}
+
+
+
+float Texture::Perlin3D(float x, float  y, float z, UINT xw, UINT yw, UINT zw)
+{
+	return stb_perlin_noise3(x, y, z, xw, yw, zw);
+}
+
+
+
+float Texture::Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
+{
+	return stb_perlin_fbm_noise3(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+}
+
+
+
+float Texture::Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
+{
+	return stb_perlin_turbulence_noise3(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+}
+
+
+float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
+{
+	return stb_perlin_ridge_noise3(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
 }

@@ -38,6 +38,7 @@ public:
 	ShaderSkybox shaderSkybox;
 	ShaderStrife shaderStrife;
 	ShaderWater shaderWater;
+	InstancedShader instancedShader;
 
 	ShaderManager();
 	~ShaderManager();

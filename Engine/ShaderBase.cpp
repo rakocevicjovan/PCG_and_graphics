@@ -27,7 +27,7 @@ ShaderBase::~ShaderBase()
 
 
 bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
-	D3D11_INPUT_ELEMENT_DESC* layout, unsigned int layoutSize, const D3D11_SAMPLER_DESC& samplerDesc) 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
 	this->filePaths = filePaths;
 
@@ -37,7 +37,6 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 
 	D3D11_BUFFER_DESC matrixBufferDesc, variableBufferDesc, lightBufferDesc;
 
-	// Load and compile shader code
 	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&vertexShaderBuffer, &errorMessage);
 
@@ -66,8 +65,9 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	if (FAILED(result))
 		return false;
 
-	result = device->CreateInputLayout(layout, layoutSize, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
+	result = device->CreateInputLayout(layoutDesc.data(), layoutDesc.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
 		&_layout);
+
 	if (FAILED(result))
 		return false;
 
@@ -75,6 +75,8 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	vertexShaderBuffer = nullptr;
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = nullptr;
+
+
 
 	result = device->CreateSamplerState(&samplerDesc, &_sampleState);
 	if (FAILED(result))
@@ -89,8 +91,7 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	matrixBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &_matrixBuffer);
-	if (FAILED(result))
+	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &_matrixBuffer)))
 		return false;
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
@@ -179,10 +180,8 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	// Unlock the constant buffer.
 	spl->deviceContext->Unmap(_matrixBuffer, 0);
 
-	bufferNumber = 0;	// Set the position of the constant buffer in the vertex shader.
-	spl->deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
-	//END MATRIX BUFFER
-
+	bufferNumber = 0;
+	spl->deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
 
 
 	//VARIABLE BUFFER

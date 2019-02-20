@@ -346,42 +346,56 @@ public:
 	}
 
 	// Draws the model, and thus all its meshes
-	void Draw(ID3D11DeviceContext* dc, ShaderDepth& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderDepth& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderPT& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderPT& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderShadow& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderShadow& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderCM& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderCM& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderSkybox& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderSkybox& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderStrife& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderStrife& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderWater& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderWater& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, ShaderBase& shader) {
+	void Draw(ID3D11DeviceContext* dc, ShaderBase& shader)
+	{
+		for (unsigned int i = 0; i < this->meshes.size(); i++)
+			this->meshes[i].draw(dc, shader);
+	}
+
+	void Draw(ID3D11DeviceContext* dc, InstancedShader& shader) 
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}

@@ -19,16 +19,12 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 {
 	_device = device;
 
-	D3D11_INPUT_ELEMENT_DESC sbLayout[] =
+	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
 	{
 		// Data from the vertex buffer
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
-
-		// Data from the instance buffer
-		{ "INSTANCEPOS", 0, DXGI_FORMAT_R32G32B32_FLOAT,    1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
-		{ "INSTANCECOLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT,    1, 12, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	D3D11_SAMPLER_DESC sbSamplerDesc;
@@ -40,12 +36,12 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> shaderBaseNames;
 	shaderBaseNames.push_back(L"lightvs.hlsl");
 	shaderBaseNames.push_back(L"lightps.hlsl");
-	shaderBase.Initialize(_device, hwnd, shaderBaseNames, sbLayout, 5u, sbSamplerDesc);
+	shaderBase.Initialize(_device, hwnd, shaderBaseNames, sbLayout, sbSamplerDesc);
 
 	std::vector<std::wstring> names;
 	names.push_back(L"lightvs.hlsl");
 	names.push_back(L"lightps.hlsl");
-	shaderLight.Initialize(_device, hwnd, names, sbLayout, 3u, sbSamplerDesc);
+	shaderLight.Initialize(_device, hwnd, names, sbLayout, sbSamplerDesc);
 
 	std::vector<std::wstring> wfsNames;
 	wfsNames.push_back(L"wireframe.vs");
@@ -92,4 +88,23 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	waterNames.push_back(L"Watervs.hlsl");
 	waterNames.push_back(L"Waterps.hlsl");
 	shaderWater.Initialize(_device, hwnd, waterNames);
+
+
+
+	std::vector<D3D11_INPUT_ELEMENT_DESC> instancedLayout =
+	{
+		// Data from the vertex buffer
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "WORLDMATRIX",	0, DXGI_FORMAT_R32G32B32A32_FLOAT,	1, 0,  D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{ "WORLDMATRIX",	1, DXGI_FORMAT_R32G32B32A32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{ "WORLDMATRIX",	2, DXGI_FORMAT_R32G32B32A32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+		{ "WORLDMATRIX",	3, DXGI_FORMAT_R32G32B32A32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1}
+	};
+
+	std::vector<std::wstring> instancedNames = { L"InstancedVS.hlsl", L"InstancedPS.hlsl" };
+	instancedShader.Initialize(_device, hwnd, instancedNames, instancedLayout, sbSamplerDesc, 100);
+	//std::vector<InstanceData> instanceData(100, InstanceData(SMatrix()));
+	//instancedShader.UpdateInstanceData(instanceData);
 }

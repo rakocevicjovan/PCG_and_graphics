@@ -20,6 +20,7 @@
 #include "ShaderStrife.h"
 #include "ShaderWater.h"
 #include "ShaderBase.h"
+#include "InstancedShader.h"
 
 
 
@@ -31,10 +32,6 @@ class Mesh
 		std::vector<unsigned int> indices;
 		std::vector<Texture> textures;
 		unsigned int indexIntoModelMeshArray;
-
-		//bool isInstanced = false;
-		//std::vector<BaseInstanceData*> instances;
-		//unsigned int instanceDataStructByteSize = 0u;
 
 		ID3D11Buffer *_vertexBuffer = nullptr, *_indexBuffer = nullptr;
 
@@ -160,7 +157,31 @@ class Mesh
 
 			return true;
 		}
-		
+
+
+
+		void draw(ID3D11DeviceContext* dc, InstancedShader& s) 
+		{
+			unsigned int strides[2];
+			unsigned int offsets[2];
+			ID3D11Buffer* bufferPointers[2];
+
+			strides[0] = sizeof(Vert3D);
+			strides[1] = sizeof(InstanceData);
+
+			offsets[0] = 0;
+			offsets[1] = 0;
+
+			bufferPointers[0] = _vertexBuffer;
+			bufferPointers[1] = s._instanceBuffer;
+
+			dc->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s._sampleState);
+			dc->DrawIndexedInstanced(indices.size(), s._instanceCount, 0, 0, 0);
+		}
+
 
 
 		void draw(ID3D11DeviceContext* dc, ShaderBase& s)
@@ -172,30 +193,6 @@ class Mesh
 			if (textures.size() > 0)
 				dc->PSSetShaderResources(0, 1, &(textures[0].srv));
 
-			/*
-			if (isInstanced)
-			{
-				unsigned int strides[2];
-				unsigned int offsets[2];
-				ID3D11Buffer* bufferPointers[2];
-
-				strides[0] = sizeof(Vert3D);
-				strides[1] = instanceDataStructByteSize;
-
-				offsets[0] = 0;
-				offsets[1] = 0;
-
-				_bufferPointers[0] = _vertexBuffer;
-				_bufferPointers[1] = _instanceBuffer;
-
-				dc->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
-				dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-				dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				dc->PSSetSamplers(0, 1, &s._sampleState);
-				dc->DrawIndexedInstanced(indices.size(), 5u, 0, 0, 0);
-				
-			}	
-			*/
 			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

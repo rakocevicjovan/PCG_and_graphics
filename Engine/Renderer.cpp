@@ -33,8 +33,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shMan.init(_device, hwnd);
 
 	modBall.LoadModel(_device, "../Models/ball.fbx");
-	Math::Scale(modBall.transform, SVec3(36.f));
-	Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
+	//Math::Scale(modBall.transform, SVec3(36.f));
+	//Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
 
 	///MODEL LOADING
 	/*
@@ -68,7 +68,35 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	Math::Scale(modSkybox.transform, SVec3(10.0f));
 	modWaterQuad.LoadModel(_device, "../Models/WaterQuad.fbx");
 	
+	///Audio
+	/*
+	musicLSystem.reseed("d");
+	musicLSystem.addRule('d', "Fa");
+	musicLSystem.addRule('e', "Gb");
+	musicLSystem.addRule('f', "Ac");
+	musicLSystem.addRule('g', "bD");
+	musicLSystem.addRule('a', "cE");
+	musicLSystem.addRule('b', "dF");
+	musicLSystem.addRule('c', "Eg");
 
+	musicLSystem.addRule('D', "aD");
+	musicLSystem.addRule('E', "gB");
+	musicLSystem.addRule('F', "aC");
+	musicLSystem.addRule('G', "Bd");
+	musicLSystem.addRule('A', "Ce");
+	musicLSystem.addRule('B', "Df");
+	musicLSystem.addRule('C', "eG");
+
+	musicLSystem.rewrite(6);
+	
+	std::string lSystemNotes = musicLSystem.getString();
+	std::vector<std::string> notes;
+	for (char lsn : lSystemNotes)
+		notes.push_back(std::string(1, lsn));
+
+	audio.init();
+	audio.storeSequence(notes);
+	*/
 
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
@@ -160,6 +188,9 @@ bool Renderer::Frame(float dTime){
 	ProcessSpecialInput();
 	elapsed += dTime;
 
+	//audio.playSequence();
+	//audio.update();
+
 	return RenderFrame(dTime);
 }
 
@@ -206,9 +237,6 @@ bool Renderer::RenderFrame(float dTime)
 	pud.dTime = dTime;
 
 	pSys.updateStdFunc(&pud);
-	
-	//_deviceContext, pSys._model, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), pointLight,
-		//_cam.GetCameraMatrix().Translation(), dTime
 
 	shMan.spl.deltaTime = dTime;
 	shMan.spl.deviceContext = _deviceContext;
@@ -218,13 +246,17 @@ bool Renderer::RenderFrame(float dTime)
 	shMan.spl.proj = &(_cam.GetProjectionMatrix());
 	shMan.spl.view = &(_cam.GetViewMatrix());
 	
-	/*
-	shaderLight.SetShaderParameters(_deviceContext, modBall, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), pointLight,
-		_cam.GetCameraMatrix().Translation(), dTime);
-	modBall.Draw(_deviceContext, shaderLight);
-	shaderLight.ReleaseShaderParameters(_deviceContext);
-	*/
+	std::vector<InstanceData> instanceData(100);
+
+	for (int i = 0; i < instanceData.size(); ++i)
+		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
+
+	shMan.instancedShader.UpdateInstanceData(instanceData);
+	shMan.instancedShader.SetShaderParameters(&shMan.spl);
+	modBall.Draw(_deviceContext, shMan.instancedShader);
+	shMan.instancedShader.ReleaseShaderParameters(_deviceContext);
 	
+	/*
 	for (int i = 0; i < pSys._particles.size(); ++i) 
 	{
 		pSys._model.transform = pSys._particles[i]->transform;
@@ -232,7 +264,7 @@ bool Renderer::RenderFrame(float dTime)
 		pSys.draw(_deviceContext);
 		shMan.shaderBase.ReleaseShaderParameters(_deviceContext);
 	}
-	
+	*/
 	
 
 	///rendering water and clouds
@@ -311,6 +343,7 @@ void Renderer::ProcessSpecialInput()
 		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
 		perlin.generate2DTextureFBM(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true);
 		//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
+		proceduralTerrain.setScales(1, 10, 1);
 		proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
 
 

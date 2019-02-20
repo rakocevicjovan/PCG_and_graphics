@@ -28,8 +28,8 @@ public:
 	~ShaderBase();
 
 	virtual bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths,
-		D3D11_INPUT_ELEMENT_DESC* layout, unsigned int layoutSize, const D3D11_SAMPLER_DESC& samplerDesc);
-	bool SetShaderParameters(SPBase* spb);
+		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
+	virtual bool SetShaderParameters(SPBase* spb);
 	virtual bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	
 

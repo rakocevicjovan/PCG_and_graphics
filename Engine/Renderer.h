@@ -7,17 +7,15 @@
 #include "CubeMapper.h"
 #include "GameClock.h"
 #include "ParticleSystem.h"
+#include "Audio.h"
 
 //procedural
 #include "Terrain.h"
 #include "Perlin.h"
 #include "LSystem.h"
 #include "Voronoi.h"
-
+#include "Volumetric.h"
 #include "BitMapper.h"
-
-//@TODO VERY IMPORTANT CLEAR THIS OUT OF HERE AND INTO THE SHADER MANAGER OR RESOURCE MANAGER!
-#include "ShaderDataStructs.h"
 
 
 const bool FULL_SCREEN = false;
@@ -50,6 +48,7 @@ private:
 
 	ShaderManager shMan;
 
+	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
 	std::vector<Model*> _terrainModels;
 	
 	Texture NST, DST, white, perlinTex, worley;
@@ -62,14 +61,14 @@ private:
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
 
-	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
-	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
+	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
-	Procedural::LSystem linden;
+	Procedural::LSystem linden, musicLSystem;
 	ParticleSystem pSys;
+	Audio audio;
 
 	bool drawUI;
 
@@ -79,9 +78,6 @@ private:
 
 	float elapsed = 0.f;
 	bool uwotm8 = false;
-	
-
-	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 	std::function<void(PUD*)> lambda;
 	std::function<void(PUD*)> lambda1;

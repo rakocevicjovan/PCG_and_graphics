@@ -1,5 +1,7 @@
 #pragma once
 #include "Texture.h"
+#include <vector>
+#include <string>
 
 namespace Procedural
 {
@@ -20,9 +22,21 @@ namespace Procedural
 		BIO_FRESH_WATER
 	};
 
+
+
 	struct Biome
 	{
-		Texture* t;
+		BiomeType type;
+		std::vector<std::pair<std::string, Texture>> textureMap;
 
+		void loadTextures(std::vector<std::pair<std::string, std::string>> texNamePathPairs)
+		{
+			for (auto p : texNamePathPairs)
+			{
+
+			}
+		}
 	};
+
+
 }

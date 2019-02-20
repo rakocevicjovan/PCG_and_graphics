@@ -12,67 +12,52 @@ InstancedShader::InstancedShader() : ShaderBase()
 
 InstancedShader::~InstancedShader()
 {
+	DECIMATE(_instanceBuffer);
 }
 
 
 
-bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& p,
-	const PointLight& dLight, const SVec3& eyePos, float deltaTime)
+bool InstancedShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths, 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc, unsigned int instanceBufferSizeInElements)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* dataPtr;
-	LightBuffer* dataPtr2;
-	VariableBuffer* dataPtr3;
+	
+	ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
 
-	SMatrix mT = model.transform.Transpose();
-	SMatrix vT = v.Transpose();
-	SMatrix pT = p.Transpose();
+	D3D11_BUFFER_DESC instanceBufferDesc;
+	instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	instanceBufferDesc.ByteWidth = sizeof(InstanceData) * instanceBufferSizeInElements;
+	instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	instanceBufferDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+	instanceBufferDesc.MiscFlags = 0;
+	instanceBufferDesc.StructureByteStride = 0;
 
-	unsigned int bufferNumber;
-
-	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;
-	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
-	deviceContext->Unmap(_matrixBuffer, 0);
-
-	bufferNumber = 0;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
-
-	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-	dataPtr3->deltaTime = deltaTime;
-	dataPtr3->padding = SVec3();
-	deviceContext->Unmap(_variableBuffer, 0);
-
-	bufferNumber = 1;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
-
-
-	if (FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr2 = (LightBuffer*)mappedResource.pData;
-	dataPtr2->alc = dLight.alc;
-	dataPtr2->ali = dLight.ali;
-	dataPtr2->dlc = dLight.dlc;
-	dataPtr2->dli = dLight.dli;
-	dataPtr2->slc = dLight.slc;
-	dataPtr2->sli = dLight.sli;
-	dataPtr2->pos = dLight.pos;
-	dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
-	deviceContext->Unmap(_lightBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
-
-	deviceContext->IASetInputLayout(_layout);
-	deviceContext->VSSetShader(_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(_pixelShader, NULL, 0);
-	deviceContext->PSSetSamplers(0, 1, &_sampleState);
-
-	//if(model.textures_loaded.size() != 0)
-	for (int i = 0; i < model.textures_loaded.size(); i++)
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
-
+	if (FAILED(device->CreateBuffer(&instanceBufferDesc, NULL, &_instanceBuffer)))
+		return false;
 
 	return true;
+}
+
+
+
+bool InstancedShader::SetShaderParameters(SPBase* spb)
+{
+	ShaderBase::SetShaderParameters(spb);
+
+	ShaderParametersLight* spl = (ShaderParametersLight*)spb;
+	
+	InstanceData* instanceData;
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	if (FAILED(spl->deviceContext->Map(_instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
+	memcpy(mappedResource.pData, _instanceData.data(), _instanceData.size() * sizeof(InstanceData));
+	spl->deviceContext->Unmap(_instanceBuffer, 0);
+}
+
+
+
+bool InstancedShader::UpdateInstanceData(const std::vector<InstanceData>& instanceData)
+{
+	_instanceData = instanceData;
+	_instanceCount = _instanceData.size();
+	return false;
 }
