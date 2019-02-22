@@ -8,8 +8,10 @@
 namespace Procedural
 {
 
-	Perlin::Perlin(unsigned int seed)
+	Perlin::Perlin()
 	{
+		Chaos c;
+		float seed = c.rollTheDice();
 		//populating with random permutation
 		hashTable.resize(256);
 		std::iota(hashTable.begin(), hashTable.end(), 0);

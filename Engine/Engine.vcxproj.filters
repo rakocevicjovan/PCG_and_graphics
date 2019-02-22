@@ -162,6 +162,9 @@
     <ClCompile Include="TerrainShader.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
+    <ClCompile Include="PerlinShader.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -317,6 +320,9 @@
     <ClInclude Include="TerrainShader.h">
       <Filter>Shading</Filter>
     </ClInclude>
+    <ClInclude Include="PerlinShader.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -412,6 +418,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="InstancedPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="perlin3dPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="perlin3dVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

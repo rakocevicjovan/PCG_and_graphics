@@ -176,3 +176,78 @@ float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain,
 {
 	return stb_perlin_ridge_noise3(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
 }
+
+
+std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
+{
+	this->w = w;
+	this->h = h;
+
+	std::vector<unsigned char> curData;
+	std::vector<float> result;
+	
+	curData.reserve(w * h);
+	result.reserve(w * h);
+
+	float wInverse = 1.f / (float)w;
+	float hInverse = 1.f / (float)h;
+
+	for (int i = 0; i < w; ++i)
+	{
+		for (int j = 0; j < h; ++j)
+		{
+			float x = (float)i * wInverse;
+			float y = (float)j * hInverse;
+
+			float rgb = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+			int r = (int)((rgb + 1.f) * 0.5f * 255.f);
+			unsigned char uc = (unsigned char)r;
+
+			result.push_back(rgb);
+			curData.push_back(uc);
+		}
+	}
+
+	data = new unsigned char[w * h];
+	memcpy(data, curData.data(), curData.size());
+
+	return result;
+}
+
+
+
+std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
+{
+	this->w = w;
+	this->h = h;
+
+	std::vector<unsigned char> curData;
+	std::vector<float> result;
+	
+	curData.reserve(w * h);
+	result.reserve(w * h);
+
+	float wInverse = 1.f / (float)w;
+	float hInverse = 1.f / (float)h;
+
+	for (int i = 0; i < w; ++i)
+	{
+		for (int j = 0; j < h; ++j)
+		{
+			float x = (float)i * wInverse;
+			float y = (float)j * hInverse;
+
+			float rgb = Texture::Ridge3D(x, y, z, lacunarity, gain, octaves, offset, xw, yw, zw);
+			int r = (int)((rgb + 1.f) * 0.5f * 255.f);
+			unsigned char uc = (unsigned char)r;
+
+			result.push_back(rgb);
+			curData.push_back(uc);
+		}
+	}
+
+	data = new unsigned char[w * h];
+	memcpy(data, curData.data(), curData.size());
+
+	return result;
+}

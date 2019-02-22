@@ -108,6 +108,7 @@
     <ClCompile Include="ParticleBase.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Perlin.cpp" />
+    <ClCompile Include="PerlinShader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="ParticleBase.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Perlin.h" />
+    <ClInclude Include="PerlinShader.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderCM.h" />
@@ -243,6 +245,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="InstancedVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="perlin3dPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="perlin3dVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="skyboxps.hlsl">

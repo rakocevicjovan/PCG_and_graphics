@@ -2,7 +2,7 @@
 #include "SimpleMath.h"
 #include "InputManager.h"
 
-Renderer::Renderer() : proceduralTerrain(), perlin(237){
+Renderer::Renderer() : proceduralTerrain(){
 	_D3D = 0;
 	drawUI = false;
 }
@@ -27,6 +27,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
 	}
+
 	_device = _D3D->GetDevice();
 	_deviceContext = _D3D->GetDeviceContext();
 
@@ -36,7 +37,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	//Math::Scale(modBall.transform, SVec3(36.f));
 	//Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
 
-	///MODEL LOADING
+#pragma region Models
 	/*
 	modTerrain.LoadModel(_device, "../Models/Terrain/NewTerTex.fbx", 50, 50);
 	Math::Scale(modTerrain.transform, SVec3(2.f));
@@ -58,6 +59,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	Math::Scale(modDepths.transform, SVec3(120.0f));
 	Math::Translate(modDepths.transform, SVec3(0.0f, -50.0f, 0.0f));
 	*/
+#pragma endregion Models
 
 	modStrife.LoadModel(_device, "../Models/WaterQuad.fbx");
 	Math::Scale(modStrife.transform, SVec3(15.0f));
@@ -68,7 +70,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	Math::Scale(modSkybox.transform, SVec3(10.0f));
 	modWaterQuad.LoadModel(_device, "../Models/WaterQuad.fbx");
 	
-	///Audio
+#pragma region Audio
 	/*
 	musicLSystem.reseed("d");
 	musicLSystem.addRule('d', "Fa");
@@ -97,6 +99,10 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	audio.init();
 	audio.storeSequence(notes);
 	*/
+#pragma endregion Audio
+
+
+
 
 	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
@@ -226,10 +232,10 @@ bool Renderer::RenderFrame(float dTime)
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 		_D3D->TurnOnCulling();
 
-		linden.draw(_deviceContext, shMan.shaderLight,
+		/*linden.draw(_deviceContext, shMan.shaderLight,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
-	}
+	*/}
 
 	PUD pud;
 	pud.windDirection = SVec3(-5, 2, 5);
@@ -251,10 +257,10 @@ bool Renderer::RenderFrame(float dTime)
 	for (int i = 0; i < instanceData.size(); ++i)
 		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
 
-	shMan.instancedShader.UpdateInstanceData(instanceData);
-	shMan.instancedShader.SetShaderParameters(&shMan.spl);
-	modBall.Draw(_deviceContext, shMan.instancedShader);
-	shMan.instancedShader.ReleaseShaderParameters(_deviceContext);
+	shMan.shaderInstanced.UpdateInstanceData(instanceData);
+	shMan.shaderInstanced.SetShaderParameters(&shMan.spl);
+	modBall.Draw(_deviceContext, shMan.shaderInstanced);
+	shMan.shaderInstanced.ReleaseShaderParameters(_deviceContext);
 	
 	/*
 	for (int i = 0; i < pSys._particles.size(); ++i) 
@@ -332,6 +338,7 @@ void Renderer::ProcessSpecialInput()
 
 		///TERRAIN GENERATION
 		//proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
+		proceduralTerrain.setScales(1, 100, 1);
 
 		///Diamond square testing
 		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
@@ -339,12 +346,18 @@ void Renderer::ProcessSpecialInput()
 		///Cellular automata testing
 		//proceduralTerrain.GenWithCA(0.5f, 4);
 
-		///Perlin testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great
-		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);
-		perlin.generate2DTextureFBM(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true);
-		//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
-		proceduralTerrain.setScales(1, 10, 1);
+		///Noise testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great for perlin
+		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);	(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true)
+		perlin.generate2DTextureFBM(512, 512, 1.f, 1.f, 3, 2.f, .5f);
 		proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
+		perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
+
+		///Ridge/turbluent noise testing
+		//Texture tempTex;
+		//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 2.1737, 0.5793f, 10u);
+		//auto fltVec = tempTex.generateRidgey(256, 256, 0.f, 2.173f, 0.33f, 10u, 4.f);
+		//Texture::WriteToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png", tempTex.w, tempTex.h, 1, tempTex.data, 0);
+		//proceduralTerrain.GenFromTexture(tempTex.w, tempTex.h, fltVec);
 
 
 		///Terrain deformation testng
@@ -364,13 +377,16 @@ void Renderer::ProcessSpecialInput()
 
 		
 		///L-systems testing
+		/*
 		linden.addRule('f', "f[-f]*f[+f][/f]");
 		linden.rewrite(1);
 		linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
 		linden.setUp(_device);
-		
+		*/
+
 		proceduralTerrain.SetUp(_device);
 		isTerGenerated = true;
+		
 	}
 }
 
@@ -381,7 +397,7 @@ void Renderer::ProcessSpecialInput()
 
 
 
-//old scene stuff
+#pragma region oldScene
 
 /*
 ///PROJECT TEXTURE
@@ -510,3 +526,5 @@ _D3D->TurnOnAlphaBlending();
 _D3D->TurnOffAlphaBlending();
 
 */
+
+#pragma endregion oldScene

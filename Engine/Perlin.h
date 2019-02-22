@@ -21,7 +21,7 @@ namespace Procedural
 
 	public:
 
-		Perlin(unsigned int seed = 237);
+		Perlin();
 		~Perlin();
 
 		int _w = 0, _h = 0;

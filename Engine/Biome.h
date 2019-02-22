@@ -29,11 +29,11 @@ namespace Procedural
 		BiomeType type;
 		std::vector<std::pair<std::string, Texture>> textureMap;
 
-		void loadTextures(std::vector<std::pair<std::string, std::string>> texNamePathPairs)
+		void loadTextures(ID3D11Device* device, std::vector<std::pair<std::string, std::string>> texNamePathPairs)
 		{
 			for (auto p : texNamePathPairs)
 			{
-
+				textureMap.push_back(std::make_pair(p.first, Texture(device, p.second)));
 			}
 		}
 	};
