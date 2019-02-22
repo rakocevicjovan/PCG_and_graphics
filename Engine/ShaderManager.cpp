@@ -66,6 +66,10 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> waterNames = { L"Watervs.hlsl", L"Waterps.hlsl" };
 	shaderWater.Initialize(_device, hwnd, waterNames);
 
+	sbSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sbSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sbSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
 	std::vector<std::wstring> perlinNames = { L"perlin3dVS.hlsl", L"perlin3dPS.hlsl" };
 	shaderPerlin.Initialize(_device, hwnd, perlinNames, sbLayout, sbSamplerDesc);
 

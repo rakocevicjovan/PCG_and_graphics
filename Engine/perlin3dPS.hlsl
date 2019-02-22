@@ -1,3 +1,29 @@
+cbuffer LightBuffer {
+	float3 alc;
+	float ali;
+	float3 dlc;
+	float dli;
+	float3 slc;
+	float sli;
+	float4 lightPosition;
+	float4 eyePos;
+};
+
+
+struct PixelInputType {
+	float4 position : SV_POSITION;
+	float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float4 worldPos : WPOS;
+	float time : MYTIME;
+};
+
+Texture2D shaderTexture;
+SamplerState SampleType;
+
+
+
+
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex 
 //               noise functions.
@@ -75,7 +101,7 @@ float snoise(float3 v)
 	//float4 s1 = float4(lessThan(b1,0.0))*2.0 - 1.0;
 	float4 s0 = floor(b0)*2.0 + 1.0;
 	float4 s1 = floor(b1)*2.0 + 1.0;
-	float4 sh = -step(h, float4(0.0));
+	float4 sh = -step(h, float4(0., 0., 0., 0.));
 
 	float4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
 	float4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
@@ -95,6 +121,89 @@ float snoise(float3 v)
 	// Mix final noise value
 	float4 m = max(0.6 - float4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
 	m = m * m;
-	return 42.0 * dot(m*m, float4(dot(p0, x0), dot(p1, x1),
-		dot(p2, x2), dot(p3, x3)));
+	return 42.0 * dot(m*m, float4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
+}
+
+
+static const int NUM_OCTAVES = 5;
+
+float fbm(in float3 pos)
+{
+	float v = 0.0;
+
+	float amplitude = 1.f;
+	float frequency = 1.f;
+
+	float gain = .5317f;
+	float lacunarity = 1.9357f;
+	
+	for (int i = 0; i < NUM_OCTAVES; ++i)
+	{
+		v += snoise(frequency * pos) * amplitude;
+		frequency *= lacunarity;
+		amplitude *= gain;
+	}
+	return v;
+}
+
+
+float turbulentFBM(float3 x)
+{
+	float sum = 0.0f;
+
+	float frequency = 1.0f;
+	float amplitude = 1.0f;
+
+	float gain = .5317f;
+	float lacunarity = 1.9357f;
+
+	for (int i = 0; i < NUM_OCTAVES; ++i) {
+		float r = snoise(frequency * x) * amplitude;
+		r = r < 0 ? -r : r; // fabs()
+		sum += r;
+		frequency *= lacunarity;
+		amplitude *= gain;
+	}
+	return sum;
+}
+
+
+float4 LightPixelShader(PixelInputType input) : SV_TARGET
+{
+	
+	input.normal = normalize(input.normal);
+
+	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
+	float3 invLightDir = -lightDir;
+
+	float3 viewDir = input.worldPos.xyz - eyePos.xyz;
+	float distance = length(viewDir);
+	viewDir = viewDir / distance;
+	float3 invViewDir = -viewDir;
+
+	input.worldPos = (input.worldPos / 256.f * 2.f) - 1.0f;	//moves it to [0, 1], then to [0, 2] and finally to [-1, 1]
+
+	float x = input.worldPos.x;
+	float y = input.worldPos.y;
+	float z = input.worldPos.z;
+
+
+	float3 xyz = float3(x, y + input.time * 0.5f, z);
+	float mainTurbulence = turbulentFBM(xyz);
+	float smallTurbulence = snoise(xyz * 10.f);
+	
+	float inverseHeight = (1.f - z) * 0.66f;
+	
+	float displacement = pow(smallTurbulence, 2) * 0.1f;
+
+	float dist = pow(x / inverseHeight * (1.f + displacement), 2) + pow(z, 2) ;
+	float ratio = smoothstep(0., 1., 1.f - dist);
+
+
+	float r = dist * mainTurbulence;
+	float g = 0.1f * dist;
+	float b = min(pow(-z, 3), 1.f - r);
+	float4 colour = float4(r, g, b, r);
+
+	return colour;
 }

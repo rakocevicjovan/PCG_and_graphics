@@ -418,7 +418,7 @@ namespace Procedural
 
 
 
-	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderLight& s, const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, const PointLight& dLight, float deltaTime, SVec3 eyePos)
+	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, const PointLight& dLight, float deltaTime, SVec3 eyePos)
 	{
 		HRESULT result;
 		D3D11_MAPPED_SUBRESOURCE mappedResource;

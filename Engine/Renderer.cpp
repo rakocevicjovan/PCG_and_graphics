@@ -190,6 +190,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 bool Renderer::Frame(float dTime){
 	
 	_cam.update(dTime);
+	Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
 	ProcessSpecialInput();
 	elapsed += dTime;
@@ -204,14 +205,25 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(float dTime)
 {
+
+	PUD pud = { SVec3(-5, 2, 5), 1.f, dTime };
+	pSys.updateStdFunc(&pud);
+
+	shMan.spl.deltaTime = dTime;
+	shMan.spl.deviceContext = _deviceContext;
+	shMan.spl.dLight = &pointLight;
+	shMan.spl.eyePos = &(_cam.GetCameraMatrix().Translation());
+	shMan.spl.model = &pSys._model;
+	shMan.spl.proj = &(_cam.GetProjectionMatrix());
+	shMan.spl.view = &(_cam.GetViewMatrix());
+
+
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
 	_D3D->SetBackBufferRenderTarget();
 	_D3D->BeginScene(clearColour);
 
 
 	///RENDERING OLD TERRAIN 
-	Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
-
 	/*
 	for (auto tm : _terrainModels) {
 		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cam.GetViewMatrix(), offScreenTexture._view, _cam.GetProjectionMatrix(),
@@ -223,34 +235,34 @@ bool Renderer::RenderFrame(float dTime)
 
 	SMatrix identityMatrix = SMatrix::Identity;
 
+	_D3D->TurnOffCulling();
+	_D3D->SwitchDepthToLessEquals();
+	shMan.shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+	modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
+	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
+	_D3D->SwitchDepthToDefault();
+	_D3D->TurnOnCulling();
+
 	if (isTerGenerated) 
 	{
 		_D3D->TurnOffCulling();
-		
-		proceduralTerrain.Draw(_deviceContext, shMan.shaderLight,
+		_D3D->TurnOnAlphaBlending();
+		proceduralTerrain.Draw(_deviceContext, shMan.shaderPerlin,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-			pointLight, dTime, _cam.GetCameraMatrix().Translation());
+			pointLight, elapsed, _cam.GetCameraMatrix().Translation());
+		_D3D->TurnOffAlphaBlending();
 		_D3D->TurnOnCulling();
 
-		/*linden.draw(_deviceContext, shMan.shaderLight,
+		/*
+		linden.draw(_deviceContext, shMan.shaderLight,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
-	*/}
+		*/
+	}
 
-	PUD pud;
-	pud.windDirection = SVec3(-5, 2, 5);
-	pud.windVelocity = 1.f;
-	pud.dTime = dTime;
 
-	pSys.updateStdFunc(&pud);
-
-	shMan.spl.deltaTime = dTime;
-	shMan.spl.deviceContext = _deviceContext;
-	shMan.spl.dLight = &pointLight;
-	shMan.spl.eyePos = &(_cam.GetCameraMatrix().Translation());
-	shMan.spl.model = &pSys._model;
-	shMan.spl.proj = &(_cam.GetProjectionMatrix());
-	shMan.spl.view = &(_cam.GetViewMatrix());
+	
 	
 	std::vector<InstanceData> instanceData(100);
 
@@ -261,16 +273,6 @@ bool Renderer::RenderFrame(float dTime)
 	shMan.shaderInstanced.SetShaderParameters(&shMan.spl);
 	modBall.Draw(_deviceContext, shMan.shaderInstanced);
 	shMan.shaderInstanced.ReleaseShaderParameters(_deviceContext);
-	
-	/*
-	for (int i = 0; i < pSys._particles.size(); ++i) 
-	{
-		pSys._model.transform = pSys._particles[i]->transform;
-		shMan.shaderBase.SetShaderParameters(&shMan.spl);
-		pSys.draw(_deviceContext);
-		shMan.shaderBase.ReleaseShaderParameters(_deviceContext);
-	}
-	*/
 	
 
 	///rendering water and clouds
@@ -293,15 +295,7 @@ bool Renderer::RenderFrame(float dTime)
 	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
 
 	
-	_D3D->TurnOffCulling();
-	_D3D->SwitchDepthToLessEquals();
-	shMan.shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
-	modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
-	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
-	_D3D->SwitchDepthToDefault();
-	_D3D->TurnOnCulling();
-	
+
 
 	_D3D->EndScene();
 	return true;
@@ -348,7 +342,7 @@ void Renderer::ProcessSpecialInput()
 
 		///Noise testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great for perlin
 		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);	(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true)
-		perlin.generate2DTextureFBM(512, 512, 1.f, 1.f, 3, 2.f, .5f);
+		perlin.generate2DTextureFBM(256, 256, 1.f, 1.f, 3, 2.f, .5f);
 		proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
 		perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
 

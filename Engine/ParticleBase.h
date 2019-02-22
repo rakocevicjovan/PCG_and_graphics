@@ -9,7 +9,6 @@ struct PUD
 {
 	SVec3 windDirection;
 	float windVelocity;
-	SVec3 magicAccel1, magicAccel2;
 	float dTime;
 };
 
