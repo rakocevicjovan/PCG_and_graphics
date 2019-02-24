@@ -24,9 +24,6 @@
     <ClCompile Include="d3dclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lightclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -129,9 +126,6 @@
     <ClCompile Include="ShaderWireframe.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NavierStokes.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
@@ -165,12 +159,18 @@
     <ClCompile Include="PerlinShader.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="lightclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
@@ -281,9 +281,6 @@
     <ClInclude Include="ShaderWireframe.h">
       <Filter>Shading</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderDataStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -322,6 +319,15 @@
     </ClInclude>
     <ClInclude Include="PerlinShader.h">
       <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionEngine.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

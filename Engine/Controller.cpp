@@ -2,22 +2,12 @@
 #include "InputManager.h"
 
 
-Controller::Controller(){
-	inMan = 0;
-	dx = 0;
-	dy = 0;
-}
+Controller::Controller() : inMan(nullptr), dx(0), dy(0) {}
 
-Controller::Controller(InputManager* inputManager) 
-{
-	inMan = inputManager;
-}
+Controller::Controller(InputManager* inputManager) : inMan(inputManager) {}
 
+Controller::~Controller(){}
 
-Controller::~Controller()
-{
-	inMan = nullptr;
-}
 
 
 void Controller::processTransformationFPS(float dTime, SMatrix& transformation) {
@@ -29,13 +19,16 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transformation) 
 
 	if (!(dx == 0 && dy == 0))	//check if rotation happened, could optimize a lot since this is heavy
 		processRotationFPS(dTime, transformation);
-	else {
-		printf(" ");
-	}
 
 	Math::SetTranslation(transformation, translation);
 	processTranslationFPS(dTime, transformation);
+	
+	if (!_isFlying)
+		applyGravity(dTime, transformation);
+	else
+		resolveCollision(transformation);
 }
+
 
 
 void Controller::processRotationFPS(float dTime, SMatrix& transformation) const {
@@ -90,4 +83,37 @@ void Controller::processTranslationFPS(const float dTime, SMatrix& transformatio
 	deltaTranslation.Normalize();
 
 	Math::Translate(transformation, deltaTranslation * movCf * dTime);
+}
+
+
+
+void Controller::applyGravity(const float dTime, SMatrix& transformation) const
+{
+	Math::Translate(transformation, SVec3(0.f, -9.81f, 0.f) * dTime);
+}
+
+
+
+void Controller::toggleFly()
+{
+	_isFlying = _isFlying ? false : true;
+}
+
+
+
+void Controller::resolveCollision(SMatrix& transformation)
+{
+	if (_collided)
+	{
+		Math::Translate(transformation, _collisionOffset);
+		_collided = false;
+	}
+}
+
+
+
+void Controller::setCollisionOffset(const SVec3& collisionOffset)
+{
+	_collisionOffset = collisionOffset;
+	_collided = true;
 }

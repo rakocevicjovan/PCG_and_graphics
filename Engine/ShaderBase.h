@@ -8,10 +8,10 @@
 #include <vector>
 #include <string>
 #include "Math.h"
-#include "lightclass.h"
+#include "Light.h"
 #include "ShaderDataStructs.h"
 
-#define DECIMATE(x) x->Release(); x = nullptr;
+#define DECIMATE(x) if(x) { x->Release(); x = nullptr; }
 
 class ShaderBase
 {

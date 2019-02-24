@@ -1,6 +1,4 @@
-#ifndef _LIGHTCLASS_H_
-#define _LIGHTCLASS_H_
-
+#pragma once
 #include "Math.h"
 
 struct LightData {
@@ -9,17 +7,18 @@ public:
 
 	SVec3 alc;
 	float ali;
-	SVec3  dlc;
+	SVec3 dlc;
 	float dli;
 	SVec3 slc;
 	float sli;
 
-	LightData() {}
+	LightData(){}
+
 	LightData(SVec3 ambCol, float ambInt, SVec3 difCol, float difInt, SVec3 spcCol, float spcInt) 
 		: alc(ambCol), ali(ambInt), dlc(difCol), dli(difInt), slc(spcCol), sli(spcInt) {}
 
-	void Mix(const LightData other, float k, LightData& result) const{
-		
+	void Mix(const LightData other, float k, LightData& result) const
+	{	
 		result.alc = alc * (1 - k) + other.alc * k;
 		result.ali = ali * (1 - k) + other.ali * k;
 		result.dlc = dlc * (1 - k) + other.dlc * k;
@@ -31,7 +30,8 @@ public:
 
 
 
-struct DirectionalLight : public LightData {
+struct DirectionalLight : public LightData
+{
 	SVec4 dir;
 	
 	DirectionalLight(){}
@@ -41,22 +41,21 @@ struct DirectionalLight : public LightData {
 
 
 
-struct PointLight : LightData {
+struct PointLight : LightData
+{
 	SVec4 pos;
 
-	PointLight() {}
+	PointLight(){}
 
 	PointLight(LightData ld, SVec4 pos) : LightData(ld), pos(pos) {}
 };
 
 
 
-struct SpotLight : PointLight {
-	SVec3 coneAxis;
-	float dotProdMin;
+struct SpotLight : PointLight
+{
+	SVec4 coneAxisAngle;	//minimal dot product being the w component of the vector
 
 	SpotLight() {}
-	SpotLight(PointLight pl, SVec3 coneAxis, float dotProdMin) : PointLight(pl), coneAxis(coneAxis), dotProdMin(dotProdMin) {}
+	SpotLight(PointLight pl, SVec3 coneAxis, float dotProdMin) : PointLight(pl), coneAxisAngle(coneAxisAngle) {}
 };
-
-#endif

@@ -157,13 +157,15 @@ float turbulentFBM(float3 x)
 	float gain = .5317f;
 	float lacunarity = 1.9357f;
 
-	for (int i = 0; i < NUM_OCTAVES; ++i) {
+	for (int i = 0; i < NUM_OCTAVES; ++i)
+	{
 		float r = snoise(frequency * x) * amplitude;
-		r = r < 0 ? -r : r; // fabs()
+		r = r < 0 ? -r : r;
 		sum += r;
 		frequency *= lacunarity;
 		amplitude *= gain;
 	}
+
 	return sum;
 }
 
@@ -185,23 +187,26 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	float x = input.worldPos.x;
 	float y = input.worldPos.y;
-	float z = input.worldPos.z;
+	float z = input.worldPos.z;		//increase z based on x to split the flame in a bowtie (this means dividing by abs(x) because x -> [-1, 1]
 
 
 	float3 xyz = float3(x, y + input.time * 0.5f, z);
 	float mainTurbulence = turbulentFBM(xyz);
-	float smallTurbulence = snoise(xyz * 10.f);
+	float smallTurbulence = turbulentFBM(float3(xyz.x * 10.f, xyz.y, xyz.z * 5.f));
 	
-	float inverseHeight = (1.f - z) * 0.66f;
+	float inverseHeight = (1.f - z) * 0.66f;	//(1.f - z) * 0.66f for pointy tip	//or use abs(z) for a diamond shape
 	
-	float displacement = pow(smallTurbulence, 2) * 0.1f;
+	float displacement = pow(smallTurbulence, 2) * 0.3f  * smoothstep(-1.f, 1.f, z);
 
-	float dist = pow(x / inverseHeight * (1.f + displacement), 2) + pow(z, 2) ;
+	//vary x based on time (in a cycle) to give a more lively flame, where 2.f controls the cycling speed, cap the influence to 10% of the size using * 0.1f
+	//divide by inverse height - at z = 1, 1-z becomes 0 therefore x becomes huge (and the flame tapers to a point)
+	//modify inverse height by a small displacement, that also depends on z (maps z to 0-1 range, and increases the density as z increases, making tips of flames dense)
+	float dist = pow(x * (1.f + sin(input.time * 2.f) * 0.1f) / (inverseHeight * (1.f + displacement)), 2) + pow(z, 2) ;
 	float ratio = smoothstep(0., 1., 1.f - dist);
 
 
-	float r = dist * mainTurbulence;
-	float g = 0.1f * dist;
+	float r = ratio * mainTurbulence;
+	float g = 0.5f * z * ratio;
 	float b = min(pow(-z, 3), 1.f - r);
 	float4 colour = float4(r, g, b, r);
 

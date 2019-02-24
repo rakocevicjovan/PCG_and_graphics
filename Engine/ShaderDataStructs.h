@@ -3,7 +3,7 @@
 #include <vector>
 #include <d3d11.h>
 #include "Texture.h"
-#include "lightclass.h"
+#include "Light.h"
 
 
 //Shader structs for drawing

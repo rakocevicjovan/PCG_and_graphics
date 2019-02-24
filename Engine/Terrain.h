@@ -3,7 +3,7 @@
 #include <vector>
 #include "MeshDataStructs.h"
 #include "Math.h"
-#include "lightclass.h"
+#include "Light.h"
 #include "ShaderLight.h"
 
 

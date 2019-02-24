@@ -30,30 +30,29 @@ public:
 
 	Model() {}
 
-	Model(const std::string& path){
+	Model(const std::string& path)
+	{
 		this->name = path;
 	}
 
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1)
 	{
-
-		//@TODO could be fucky...
 		assert(fileExists(path) && "File does not exist! ...probably.");
 
-		unsigned int pFlags = aiProcessPreset_TargetRealtime_MaxQuality |
+		unsigned int pFlags = 
+			aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
 			aiProcess_FlipUVs |
 			aiProcess_PreTransformVertices |
 			aiProcess_ConvertToLeftHanded;
 
-		// Read file via ASSIMP
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, pFlags);
 
-		// Check for errors
-		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
+		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
 			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
 			OutputDebugStringA(errString.c_str());
 			return false;

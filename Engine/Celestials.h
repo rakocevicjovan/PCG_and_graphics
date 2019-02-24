@@ -1,5 +1,5 @@
 #pragma once
-#include "lightclass.h"
+#include "Light.h"
 
 class Celestials
 {

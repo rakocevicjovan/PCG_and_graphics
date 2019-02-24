@@ -97,6 +97,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Celestials.cpp" />
     <ClCompile Include="Chaos.cpp" />
+    <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="d3dclass.cpp" />
@@ -118,7 +119,7 @@
     <ClCompile Include="Rekt.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="lightclass.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="ShaderLight.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Celestials.h" />
     <ClInclude Include="Chaos.h" />
+    <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="d3dclass.h" />
@@ -170,7 +172,7 @@
     <ClInclude Include="Rekt.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="lightclass.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="ShaderLight.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Mesh.h" />

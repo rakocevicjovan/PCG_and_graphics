@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include "Math.h"
-#include "lightclass.h"
+#include "Light.h"
 
 class Model;
 class ShaderCM {

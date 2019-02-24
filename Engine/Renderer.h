@@ -1,13 +1,12 @@
 #include "d3dclass.h"
 #include "Camera.h"
-#include "Model.h"
 #include "ShaderManager.h"
+#include "ResourceManager.h"
 #include "Rekt.h"
-#include "OST.h"
 #include "CubeMapper.h"
 #include "GameClock.h"
 #include "ParticleSystem.h"
-#include "Audio.h"
+
 
 //procedural
 #include "Terrain.h"
@@ -44,35 +43,26 @@ private:
 	D3DClass* _D3D;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-	InputManager* _inMan;
 
+	InputManager* _inMan;
+	ResourceManager _resMan;
 	ShaderManager shMan;
 
-	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
-	std::vector<Model*> _terrainModels;
-	
-	Texture NST, DST, white, perlinTex, worley;
 	Camera _cam;
 	Controller _controller;
-	PointLight pointLight;
-	DirectionalLight dirLight;
 
-	OST offScreenTexture;
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
-
 
 	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
 
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
-	Procedural::LSystem linden, musicLSystem;
+	Procedural::LSystem linden;
+
 	ParticleSystem pSys;
-	Audio audio;
 
 	bool drawUI;
-
-	const unsigned int ostW = 1600, ostH = 900;
 
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
 

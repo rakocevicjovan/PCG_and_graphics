@@ -10,6 +10,7 @@ Renderer::Renderer() : proceduralTerrain(){
 
 Renderer::~Renderer(){}
 
+#define RES _resMan._level
 
 bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
 {
@@ -32,103 +33,13 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_deviceContext = _D3D->GetDeviceContext();
 
 	shMan.init(_device, hwnd);
+	_resMan.load(_device);
 
-	modBall.LoadModel(_device, "../Models/ball.fbx");
-	//Math::Scale(modBall.transform, SVec3(36.f));
-	//Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
-
-#pragma region Models
-	/*
-	modTerrain.LoadModel(_device, "../Models/Terrain/NewTerTex.fbx", 50, 50);
-	Math::Scale(modTerrain.transform, SVec3(2.f));
-	_terrainModels.push_back(&modTerrain);
-
-	modTreehouse.LoadModel(_device, "../Models/Terrain/Treehouse/thouse(formats).fbx");
-	Math::SetTranslation(modTreehouse.transform, SVec3(0.0f, -50.f, -100.f));
-	SMatrix treehouseRotation = SMatrix::CreateFromAxisAngle(SVec3::Up, 30.f);
-	Math::SetRotation(modTreehouse.transform, treehouseRotation);
-	_terrainModels.push_back(&modTreehouse);
-
-	modBallStand.LoadModel(_device, "../Models/ballstand.fbx");
-	SMatrix modBallStandRotation = SMatrix::CreateFromAxisAngle(SVec3::Right, PI * 0.5f);
-	Math::SetRotation(modBallStand.transform, modBallStandRotation);
-	Math::Scale(modBallStand.transform, SVec3(10.f));
-	Math::Translate(modBallStand.transform, SVec3(300.0f, -35.0f, -295.0f));
-
-	modDepths.LoadModel(_device, "../Models/WaterQuad.fbx");
-	Math::Scale(modDepths.transform, SVec3(120.0f));
-	Math::Translate(modDepths.transform, SVec3(0.0f, -50.0f, 0.0f));
-	*/
-#pragma endregion Models
-
-	modStrife.LoadModel(_device, "../Models/WaterQuad.fbx");
-	Math::Scale(modStrife.transform, SVec3(15.0f));
-	Math::RotateMatByMat(modStrife.transform, SMatrix::CreateFromAxisAngle(SVec3::Right, PI));
-	Math::Translate(modStrife.transform, SVec3(-200.f, 200.0f, -200.0f));
-
-	modSkybox.LoadModel(_device, "../Models/Skysphere.fbx");
-	Math::Scale(modSkybox.transform, SVec3(10.0f));
-	modWaterQuad.LoadModel(_device, "../Models/WaterQuad.fbx");
-	
-#pragma region Audio
-	/*
-	musicLSystem.reseed("d");
-	musicLSystem.addRule('d', "Fa");
-	musicLSystem.addRule('e', "Gb");
-	musicLSystem.addRule('f', "Ac");
-	musicLSystem.addRule('g', "bD");
-	musicLSystem.addRule('a', "cE");
-	musicLSystem.addRule('b', "dF");
-	musicLSystem.addRule('c', "Eg");
-
-	musicLSystem.addRule('D', "aD");
-	musicLSystem.addRule('E', "gB");
-	musicLSystem.addRule('F', "aC");
-	musicLSystem.addRule('G', "Bd");
-	musicLSystem.addRule('A', "Ce");
-	musicLSystem.addRule('B', "Df");
-	musicLSystem.addRule('C', "eG");
-
-	musicLSystem.rewrite(6);
-	
-	std::string lSystemNotes = musicLSystem.getString();
-	std::vector<std::string> notes;
-	for (char lsn : lSystemNotes)
-		notes.push_back(std::string(1, lsn));
-
-	audio.init();
-	audio.storeSequence(notes);
-	*/
-#pragma endregion Audio
-
-
-
-
-	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
-	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
-	
-	pointLight = PointLight(lightData, SVec4(2000.f, 1000.f, 1000.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
-	SVec3 lookAtPoint = SVec3(0.f, 100.0f, 0.0f);
-	SVec3 LVDIR = lookAtPoint - SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z);
-	LVDIR.Normalize();
-	SVec3 LVR = LVDIR.Cross(SVec3::Up);
-	LVR.Normalize();
-	SVec3 LVUP = LVR.Cross(LVDIR);
-	LVUP.Normalize();
-
-	dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
-
-
-
-	offScreenTexture.Init(_device, ostW, ostH);
-	offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
-	offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
-
-
+	
 
 	///CAMERA INITIALISATION
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
@@ -137,20 +48,11 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_controller = Controller(&inMan);
 	_cam._controller = &_controller;
 	
-
 	///CUBE MAPS SETUP
 	cubeMapper.Init(_device);
 	shadowCubeMapper.Init(_device);
 	skyboxCubeMapper.LoadFromFiles(_device, "../Textures/night.dds");
 
-
-	///NOISES
-	white.LoadFromFile("../Textures/noiz.png");
-	white.Setup(_device);
-	perlinTex.LoadFromFile("../Textures/strife.png");
-	perlinTex.Setup(_device);
-	worley.LoadFromFile("../Textures/worley.png");
-	worley.Setup(_device);
 
 	pSys.init(_device, 100, SVec3(0, 0, 100), "../Models/ball.fbx");
 	
@@ -190,7 +92,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 bool Renderer::Frame(float dTime){
 	
 	_cam.update(dTime);
-	Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
+	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
 	ProcessSpecialInput();
 	elapsed += dTime;
@@ -205,18 +107,16 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(float dTime)
 {
-
 	PUD pud = { SVec3(-5, 2, 5), 1.f, dTime };
 	pSys.updateStdFunc(&pud);
 
 	shMan.spl.deltaTime = dTime;
 	shMan.spl.deviceContext = _deviceContext;
-	shMan.spl.dLight = &pointLight;
+	shMan.spl.dLight = &(_resMan._level.pointLight);
 	shMan.spl.eyePos = &(_cam.GetCameraMatrix().Translation());
 	shMan.spl.model = &pSys._model;
 	shMan.spl.proj = &(_cam.GetProjectionMatrix());
 	shMan.spl.view = &(_cam.GetViewMatrix());
-
 
 	_deviceContext->RSSetViewports(1, &_D3D->viewport);
 	_D3D->SetBackBufferRenderTarget();
@@ -237,9 +137,9 @@ bool Renderer::RenderFrame(float dTime)
 
 	_D3D->TurnOffCulling();
 	_D3D->SwitchDepthToLessEquals();
-	shMan.shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+	shMan.shaderSkybox.SetShaderParameters(_deviceContext, RES.modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
-	modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
+	RES.modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
 	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
@@ -250,7 +150,7 @@ bool Renderer::RenderFrame(float dTime)
 		_D3D->TurnOnAlphaBlending();
 		proceduralTerrain.Draw(_deviceContext, shMan.shaderPerlin,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-			pointLight, elapsed, _cam.GetCameraMatrix().Translation());
+			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
 		_D3D->TurnOffAlphaBlending();
 		_D3D->TurnOnCulling();
 
@@ -271,7 +171,7 @@ bool Renderer::RenderFrame(float dTime)
 
 	shMan.shaderInstanced.UpdateInstanceData(instanceData);
 	shMan.shaderInstanced.SetShaderParameters(&shMan.spl);
-	modBall.Draw(_deviceContext, shMan.shaderInstanced);
+	RES.modBall.Draw(_deviceContext, shMan.shaderInstanced);
 	shMan.shaderInstanced.ReleaseShaderParameters(_deviceContext);
 	
 
@@ -293,9 +193,6 @@ bool Renderer::RenderFrame(float dTime)
 	*/
 
 	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
-
-	
-
 
 	_D3D->EndScene();
 	return true;
@@ -381,6 +278,11 @@ void Renderer::ProcessSpecialInput()
 		proceduralTerrain.SetUp(_device);
 		isTerGenerated = true;
 		
+	}
+
+	if(_inMan->IsKeyDown((short)'F'))
+	{
+		_controller.toggleFly();
 	}
 }
 

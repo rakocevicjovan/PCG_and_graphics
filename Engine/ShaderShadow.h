@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 #include "Math.h"
-#include "lightclass.h"
+#include "Light.h"
 #include "ShaderBase.h"
 #include "ShaderDataStructs.h"
 
