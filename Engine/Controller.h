@@ -10,7 +10,6 @@ private:
 	void processTranslationFPS(const float dTime, SMatrix& transformation) const;
 	void processRotationFPS(const float dTime, SMatrix& transformation) const;
 	void applyGravity(const float dTime, SMatrix& transformation) const;
-	void setCollisionOffset(const SVec3& collisionOffset);
 	void resolveCollision(SMatrix& transformation);
 
 	float rotCf = 15.f, movCf = 100.f;
@@ -31,5 +30,6 @@ public:
 	
 	void processTransformationFPS(const float dTime, SMatrix& transformation);
 	void toggleFly();
+	void setCollisionOffset(const SVec3& collisionOffset);
 };
 

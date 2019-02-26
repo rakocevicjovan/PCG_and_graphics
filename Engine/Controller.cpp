@@ -23,10 +23,12 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transformation) 
 	Math::SetTranslation(transformation, translation);
 	processTranslationFPS(dTime, transformation);
 	
+	//flying mode is used for testing and shouldn't collide or fall for convenience
 	if (!_isFlying)
+	{
 		applyGravity(dTime, transformation);
-	else
 		resolveCollision(transformation);
+	}
 }
 
 
