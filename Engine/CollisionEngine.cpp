@@ -116,6 +116,121 @@ Hull* CollisionEngine::genSphereHull(Mesh* mesh)
 }
 
 
+
+//helper function(s) for intersection
+inline float sq(float x)
+{
+	return x * x;
+}
+
+float Collider::SQD_PointAABB(SVec3 p, AABB b)
+{
+	float sqDist = 0.0f;
+	float x = p.x,
+		y = p.y,
+		z = p.z;
+
+	if (x < b.min.x) sqDist += sq(b.min.x - x);
+	if (x > b.max.x) sqDist += sq(x - b.max.x);
+
+	if (y < b.min.y) sqDist += sq(b.min.y - y);
+	if (y > b.max.y) sqDist += sq(y - b.max.y);
+
+	if (z < b.min.z) sqDist += sq(b.min.z - z);
+	if (z > b.max.z) sqDist += sq(z - b.max.z);
+
+	return sqDist;
+}
+
+
+
+///intersection tests
+bool Collider::Collide(const Collider& other, SVec3& resolutionVector)
+{
+	bool collides = false;
+
+	for (Hull* hull1 : hulls)
+	{
+		for (Hull* hull2 : other.hulls)
+		{
+			if(BVT == BVT_AABB)		collides = reinterpret_cast<AABB*>(hull1)->intersect(hull2, other.BVT);
+			if (BVT == BVT_SPHERE)	collides = reinterpret_cast<SphereHull*>(hull1)->intersect(hull2, other.BVT);
+			
+			if (collides)
+			{
+				resolutionVector += hull2->getPosition() - hull1->getPosition();
+				resolutionVector.Normalize();
+				break;
+			}
+		}
+	}
+
+	return collides;
+}
+
+
+
+bool Collider::AABBSphereIntersection(const AABB& b, const SphereHull& s)
+{
+	return  SQD_PointAABB(s.c, b) <= sq(s.r);
+}
+
+
+
+bool Collider::SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
+{
+	return SVec3::DistanceSquared(s1.c, s2.c) < sq(s1.r + s2.r);
+}
+
+
+
+bool Collider::AABBAABBIntersection(const AABB& a, const AABB& b)
+{
+	if (a.max.x < b.min.x || a.min.x > b.max.x) return false;
+	if (a.max.y < b.min.y || a.min.y > b.max.y) return false;
+	if (a.max.z < b.min.z || a.min.z > b.max.z) return false;
+	return true;
+}
+
+
+//not implemented @TODO
+bool Collider::RaySphereIntersection(const SRay& ray, const SphereHull& s)
+{
+	return false;
+}
+
+
+//not implemented @TODO
+bool Collider::RayAABBIntersection(const SRay& ray, const AABB& b)
+{
+	return false;
+}
+
+
+
+bool AABB::intersect(Hull* other, BoundingVolumeType otherType)
+{
+	if (otherType == BVT_SPHERE)		return Collider::AABBSphereIntersection(*this, *(reinterpret_cast<SphereHull*>(other)));
+	else if (otherType == BVT_AABB)		return Collider::AABBAABBIntersection(*this, *(reinterpret_cast<AABB*>(other)));
+}
+
+
+
+bool SphereHull::intersect(Hull* other, BoundingVolumeType otherType)
+{
+	if (otherType == BVT_SPHERE)		return Collider::SphereSphereIntersection(*this, *(reinterpret_cast<SphereHull*>(other)));
+	else if (otherType == BVT_AABB)		return Collider::AABBSphereIntersection(*(reinterpret_cast<AABB*>(other)), *this);
+}
+
+
+
+
+
+
+
+
+
+
 /*
 Hull* CollisionEngine::genQuickHull(Mesh* mesh)
 {
