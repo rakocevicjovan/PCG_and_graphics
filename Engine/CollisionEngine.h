@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
-#include "Model.h"
 #include "Controller.h"
 
-
+class Model;
+class Mesh;
 
 enum BoundingVolumeType
 {
@@ -65,11 +65,20 @@ struct Collider
 
 
 
+struct Grid
+{
+	UINT w, h, d;
+	float CELLSIZE;
+
+	
+
+};
+
 class CollisionEngine
 {
-
 	Controller* _controller;
 	std::vector<Model*> _models;
+	std::vector<Collider> _colliders;
 
 	Hull* genSphereHull(Mesh* mesh);
 	Hull* genBoxHull(Mesh* mesh);
@@ -79,7 +88,7 @@ public:
 	~CollisionEngine();
 
 	void registerModel(Model* model, BoundingVolumeType bvt);
-	Collider generateHulls(Model* model, BoundingVolumeType bvt);
+	Collider generateCollider(Model* model, BoundingVolumeType bvt);
 	void unregisterModel(const Model* model);
 
 	void registerController(Controller* controller);

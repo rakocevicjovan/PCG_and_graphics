@@ -2,13 +2,14 @@
 #include "SimpleMath.h"
 #include "InputManager.h"
 
-Renderer::Renderer() : proceduralTerrain(){
+Renderer::Renderer() : proceduralTerrain()
+{
 	_D3D = 0;
 	drawUI = false;
 }
 
 
-Renderer::~Renderer(){}
+Renderer::~Renderer() {}
 
 #define RES _resMan._level
 

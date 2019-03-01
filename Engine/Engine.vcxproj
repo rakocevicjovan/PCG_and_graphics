@@ -105,6 +105,7 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
     <ClCompile Include="LSystem.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="NavierStokes.cpp" />
     <ClCompile Include="ParticleBase.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
@@ -132,7 +133,6 @@
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="terrainclass.cpp" />
     <ClCompile Include="TerrainShader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
@@ -187,7 +187,6 @@
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Terrain.h" />
-    <ClInclude Include="terrainclass.h" />
     <ClInclude Include="TerrainShader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />

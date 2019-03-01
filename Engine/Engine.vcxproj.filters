@@ -87,9 +87,6 @@
     <ClCompile Include="Chaos.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="terrainclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LSystem.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
@@ -168,6 +165,9 @@
     <ClCompile Include="CollisionEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -241,9 +241,6 @@
     </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="terrainclass.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LSystem.h">
       <Filter>Procedural</Filter>

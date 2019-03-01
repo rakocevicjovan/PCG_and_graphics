@@ -1,5 +1,5 @@
 #include "CollisionEngine.h"
-
+#include "Model.h"
 
 CollisionEngine::CollisionEngine()
 {
@@ -12,15 +12,15 @@ CollisionEngine::~CollisionEngine()
 
 
 
-void CollisionEngine::registerModel(Model * model, BoundingVolumeType bvt)
+void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
 {
-	generateHulls(model, bvt);
+	_colliders.push_back(generateCollider(model, bvt));
 	_models.push_back(model);
 }
 
 
 
-Collider CollisionEngine::generateHulls(Model* model, BoundingVolumeType bvt)
+Collider CollisionEngine::generateCollider(Model* model, BoundingVolumeType bvt)
 {
 	std::vector<Hull*> hulls;
 	hulls.reserve(model->meshes.size());
@@ -34,10 +34,6 @@ Collider CollisionEngine::generateHulls(Model* model, BoundingVolumeType bvt)
 	case BVT_SPHERE:
 		for (Mesh m : model->meshes) hulls.push_back(genSphereHull(&m));
 		break;
-
-	/*case BVT_QUICKHULL:
-		for (Mesh m : model->meshes) hulls.push_back(genQuickHull(&m));
-		break;*/
 	}
 
 	return Collider(bvt, model, hulls);
@@ -158,7 +154,7 @@ bool Collider::Collide(const Collider& other, SVec3& resolutionVector)
 			
 			if (collides)
 			{
-				resolutionVector += hull2->getPosition() - hull1->getPosition();
+				resolutionVector = hull2->getPosition() - hull1->getPosition();
 				resolutionVector.Normalize();
 				break;
 			}

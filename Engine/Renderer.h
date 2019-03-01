@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "ShaderManager.h"
 #include "ResourceManager.h"
+#include "CollisionEngine.h"
 #include "Rekt.h"
 #include "CubeMapper.h"
 #include "GameClock.h"
@@ -47,6 +48,7 @@ private:
 	InputManager* _inMan;
 	ResourceManager _resMan;
 	ShaderManager shMan;
+	CollisionEngine _CE;
 
 	Camera _cam;
 	Controller _controller;
