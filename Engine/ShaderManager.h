@@ -13,9 +13,11 @@
 #include "ShaderSkybox.h"
 #include "ShaderStrife.h"
 #include "ShaderWater.h"
+#include "ShaderVolumetric.h"
 #include "InstancedShader.h"
 #include "TerrainShader.h"
 #include "PerlinShader.h"
+
 
 class ShaderManager
 {
@@ -40,6 +42,7 @@ public:
 	ShaderSkybox shaderSkybox;
 	ShaderStrife shaderStrife;
 	ShaderWater shaderWater;
+	ShaderVolumetric shaderVolumetric;
 	InstancedShader shaderInstanced;
 	PerlinShader shaderPerlin;
 	TerrainShader shaderTerrain;

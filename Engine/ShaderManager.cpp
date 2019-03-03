@@ -19,15 +19,15 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 {
 	_device = device;
 
+	D3D11_SAMPLER_DESC sbSamplerDesc;
 	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
 	{
-		// Data from the vertex buffer
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	D3D11_SAMPLER_DESC sbSamplerDesc;
+	//with wrap
 	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
 	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
 		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
@@ -66,6 +66,11 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> waterNames = { L"Watervs.hlsl", L"Waterps.hlsl" };
 	shaderWater.Initialize(_device, hwnd, waterNames);
 
+	std::vector<std::wstring> volumetricNames = { L"volumVS.hlsl", L"volumPS.hlsl" };
+	shaderVolumetric.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
+
+
+	//with clamp
 	sbSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sbSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sbSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -74,7 +79,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	shaderPerlin.Initialize(_device, hwnd, perlinNames, sbLayout, sbSamplerDesc);
 
 
-
+	//with instancing
 	std::vector<D3D11_INPUT_ELEMENT_DESC> instancedLayout =
 	{
 		// Data from the vertex buffer

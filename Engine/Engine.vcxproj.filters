@@ -168,6 +168,9 @@
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderVolumetric.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -326,6 +329,9 @@
     <ClInclude Include="CollisionEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderVolumetric.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -354,12 +360,6 @@
       <Filter>Shader Files</Filter>
     </None>
     <None Include="projectTex.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="SS.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="SS.ps">
       <Filter>Shader Files</Filter>
     </None>
     <None Include="cubemap.vs">
@@ -427,6 +427,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="perlin3dVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="volumVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="volumPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

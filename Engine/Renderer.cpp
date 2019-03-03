@@ -24,8 +24,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 		return false;
 
 	// Initialize the Direct3D object.
-	result = _D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
+	if(!_D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR)){
 		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
 	}
@@ -35,7 +34,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 	shMan.init(_device, hwnd);
 	_resMan.load(_device);
-
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
@@ -48,6 +46,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_cam = Camera(SMatrix::Identity, projectionMatrix);
 	_controller = Controller(&inMan);
 	_cam._controller = &_controller;
+
+	_colEngine.registerController(&_controller);
 	
 	///CUBE MAPS SETUP
 	cubeMapper.Init(_device);
@@ -92,14 +92,20 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 bool Renderer::Frame(float dTime){
 	
-	_cam.update(dTime);
-	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
 	ProcessSpecialInput();
 	elapsed += dTime;
 
-	//audio.playSequence();
-	//audio.update();
+	if (!_controller.isFlying())
+	{
+		SVec3 oldPos = _cam.GetCameraMatrix().Translation();
+		float newHeight = proceduralTerrain.getHeightAtPosition(_cam.GetCameraMatrix().Translation());	//_colEngine.adjustHeight();
+		SMatrix newMat = _cam.GetCameraMatrix();
+		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
+		_cam.SetCameraMatrix(newMat);
+	}
+	_cam.update(dTime);
+	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
 	return RenderFrame(dTime);
 }
@@ -147,13 +153,19 @@ bool Renderer::RenderFrame(float dTime)
 
 	if (isTerGenerated) 
 	{
-		_D3D->TurnOffCulling();
 		_D3D->TurnOnAlphaBlending();
+
+		/*
 		proceduralTerrain.Draw(_deviceContext, shMan.shaderPerlin,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
+		*/
+
+		proceduralTerrain.Draw(_deviceContext, shMan.shaderLight,
+			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
+		
 		_D3D->TurnOffAlphaBlending();
-		_D3D->TurnOnCulling();
 
 		/*
 		linden.draw(_deviceContext, shMan.shaderLight,
@@ -229,20 +241,22 @@ void Renderer::ProcessSpecialInput()
 	{
 
 		///TERRAIN GENERATION
-		//proceduralTerrain = Procedural::Terrain(256, 256, SVec3(1, 1, 1));
-		proceduralTerrain.setScales(1, 100, 1);
+		//proceduralTerrain = Procedural::Terrain(2, 2, SVec3(10, 30, 10));
+		proceduralTerrain.setScales(10, 500, 10);
 
 		///Diamond square testing
-		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 7u, 0.6f, 10.f);
+		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 4u, 0.6f, 10.f);
 
 		///Cellular automata testing
-		//proceduralTerrain.GenWithCA(0.5f, 4);
+		//proceduralTerrain.CellularAutomata(0.5f, 0);
 
 		///Noise testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great for perlin
 		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);	(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true)
 		perlin.generate2DTextureFBM(256, 256, 1.f, 1.f, 3, 2.f, .5f);
 		proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
-		perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
+		//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
+
+
 
 		///Ridge/turbluent noise testing
 		//Texture tempTex;
@@ -277,6 +291,11 @@ void Renderer::ProcessSpecialInput()
 		*/
 
 		proceduralTerrain.SetUp(_device);
+		std::vector<Procedural::Terrain*> terrains;
+		terrains.push_back(&proceduralTerrain);
+
+		_colEngine.grid.populateCells(terrains);
+
 		isTerGenerated = true;
 		
 	}

@@ -20,6 +20,7 @@
 #include "ShaderStrife.h"
 #include "ShaderWater.h"
 #include "ShaderBase.h"
+#include "ShaderVolumetric.h"
 #include "InstancedShader.h"
 
 
@@ -112,33 +113,6 @@ class Mesh
 			if (FAILED( res ))
 				return false;
 
-			/*
-			if (isInstanced)
-			{
-
-				if (instanceDataStructByteSize == 0u)
-					exit(666);
-
-				D3D11_BUFFER_DESC instanceBufferDesc;
-				D3D11_SUBRESOURCE_DATA instanceData;
-
-				instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-				instanceBufferDesc.ByteWidth = instanceDataStructByteSize * instances.size();
-				instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-				instanceBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-				instanceBufferDesc.MiscFlags = 0;
-				instanceBufferDesc.StructureByteStride = 0;
-
-				instanceData.pSysMem = instances.data();
-				instanceData.SysMemPitch = 0;
-				instanceData.SysMemSlicePitch = 0;
-
-				res = device->CreateBuffer(&instanceBufferDesc, &instanceData, &_instanceBuffer);
-				if (FAILED(res))
-					return false;
-			}
-			*/
-
 			indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 			indexBufferDesc.ByteWidth = sizeof(unsigned int) * indices.size();
 			indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -156,6 +130,20 @@ class Mesh
 				return false;
 
 			return true;
+		}
+
+
+
+		void draw(ID3D11DeviceContext* dc, ShaderVolumetric& s)
+		{
+			unsigned int stride = sizeof(Vert3D);
+			unsigned int offset = 0;
+
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s._sampleState);
+			dc->DrawIndexed(indices.size(), 0, 0);
 		}
 
 

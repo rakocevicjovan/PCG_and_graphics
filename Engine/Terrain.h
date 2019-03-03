@@ -29,9 +29,9 @@ namespace Procedural
 
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<std::vector<Vert3D>> verticesDoubleVector;
 		unsigned int _numRows, _numColumns;
 		float xScale = 1.0f, yScale = 1.0f, zScale = 1.0f;
+		SVec3 _offset;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
@@ -51,22 +51,16 @@ namespace Procedural
 
 		///generation methods
 
-		//random
-		void GenRandom(float chance);
-
 		//diamond square (midpoint displacement for 2D)
 		void GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax);
-
-		//cellular automata
-		void GenWithCA(float initialDistribtuion, unsigned int steps);
 
 		//load from heightmap
 		void GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data);
 
 
 		///manipulation methods
-
-		//faulting - using z = k * x + offset
+		void Tumble(float chance);
+		void CellularAutomata(float initialDistribtuion, unsigned int steps);
 		void Fault(const SRay& line, float displacement);
 		void NoisyFault(const SRay& line, float displacement);
 		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
@@ -87,8 +81,10 @@ namespace Procedural
 		unsigned int	getNumCols()	{ return _numColumns;	}
 		unsigned int	getNumRows()	{ return _numRows;		}
 		auto&			getVerts()		{ return vertices;		}
-
+		
+		///stuff
 		std::vector<SVec2> getHorizontalPositions();
+		float getHeightAtPosition(const SVec3& playerPos);
 	};
 }
 

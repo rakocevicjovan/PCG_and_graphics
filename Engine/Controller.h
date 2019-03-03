@@ -12,7 +12,7 @@ private:
 	void applyGravity(const float dTime, SMatrix& transformation) const;
 	void resolveCollision(SMatrix& transformation);
 
-	float rotCf = 15.f, movCf = 100.f;
+	float rotCf = 15.f, movCf = 50.f;
 	short dx = 0, dy = 0;
 
 	bool _isFlying = true;
@@ -31,5 +31,6 @@ public:
 	void processTransformationFPS(const float dTime, SMatrix& transformation);
 	void toggleFly();
 	void setCollisionOffset(const SVec3& collisionOffset);
+	bool isFlying() { return _isFlying; }
 };
 

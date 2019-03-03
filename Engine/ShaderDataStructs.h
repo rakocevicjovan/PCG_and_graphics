@@ -43,6 +43,14 @@ struct LightBuffer : public SIBase
 		SVec4 ePos;
 };
 
+
+struct ViewRayBUffer : SIBase
+{
+	SVec4 ePos;
+	SVec4 eDir;
+};
+
+
 struct LightBufferType2 : public SIBase
 {
 	SVec3 lightPosition;

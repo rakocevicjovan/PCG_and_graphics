@@ -2,7 +2,7 @@
 
 
 
-PerlinShader::PerlinShader()
+PerlinShader::PerlinShader() : ShaderBase()
 {
 }
 

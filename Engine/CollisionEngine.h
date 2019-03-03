@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
+#include <map>
 #include "Controller.h"
+#include "Terrain.h"
 
 class Model;
 class Mesh;
@@ -48,6 +50,8 @@ struct Collider
 
 	~Collider() { for (auto* hull : hulls) delete hull; }
 
+	bool operator ==(const Collider& other) const { return parent == other.parent; }
+
 	BoundingVolumeType BVT;
 	Model* parent;
 	std::vector<Hull*> hulls;
@@ -60,18 +64,50 @@ struct Collider
 	static bool RayAABBIntersection(const SRay& ray, const AABB& b);
 	static float SQD_PointAABB(SVec3 p, AABB b);
 
+	static bool RayPlaneIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c, SVec3& intersectionPoint);
+	static bool RayTriangleIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c);
+
 	bool Collider::Collide(const Collider& other, SVec3& resolutionVector);
+};
+
+
+
+struct CellKey
+{
+	int x = 0, y = 0, z = 0;
+	CellKey(int ix, int iy, int iz) : x(ix), y(iy), z(iz) {};
+	CellKey() : x(-1), y(-1), z(-1) {};
+	inline void assign(const SVec3& in) { x = floor(in.x); y = floor(in.y); z = floor(in.z); }
+
+	int total() const 
+	{ 
+		return x * y * z + y * z + z; 
+	}
+
+	bool operator <(const CellKey& other) const { return total() < other.total(); }
+};
+
+
+
+struct GridCell
+{
+	UINT x, y, z;
+	std::vector<Procedural::Terrain*> terrains;
+
+	GridCell() {};
+	GridCell(CellKey ck) : x(ck.x), y(ck.y), z(ck.z) {};
 };
 
 
 
 struct Grid
 {
-	UINT w, h, d;
-	float CELLSIZE;
+	//UINT _w, _h, _d;	Grid(UINT w, UINT h, UINT d) : _w(w), _h(h), _d(d)	{ cells.reserve(_w * _h * _d); }
+	const float CELLSIZE = 33.f;
+	float invCellSize = 1.f / CELLSIZE;
+	std::map<CellKey, GridCell> cells;
 
-	
-
+	void populateCells(std::vector<Procedural::Terrain*>& terrain);
 };
 
 class CollisionEngine
@@ -82,16 +118,20 @@ class CollisionEngine
 
 	Hull* genSphereHull(Mesh* mesh);
 	Hull* genBoxHull(Mesh* mesh);
+	Collider generateCollider(Model* model, BoundingVolumeType bvt);
 	
 public:
 	CollisionEngine();
 	~CollisionEngine();
 
 	void registerModel(Model* model, BoundingVolumeType bvt);
-	Collider generateCollider(Model* model, BoundingVolumeType bvt);
 	void unregisterModel(const Model* model);
 
 	void registerController(Controller* controller);
 	void notifyController(const SVec3& resolution) const;
+
+	SVec3 adjustHeight(const SVec3& playerPos);
+
+	Grid grid;
 };
 

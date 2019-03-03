@@ -43,6 +43,16 @@ Collider CollisionEngine::generateCollider(Model* model, BoundingVolumeType bvt)
 
 void CollisionEngine::unregisterModel(const Model* model)
 {
+	_models.erase(remove(_models.begin(), _models.end(), model), _models.end());
+	
+	for (Collider& c : _colliders)
+	{
+		if (c.parent == model) {
+			_colliders.erase(remove(_colliders.begin(), _colliders.end(), c), _colliders.end());
+			break;
+		}
+	}
+
 }
 
 
@@ -114,10 +124,7 @@ Hull* CollisionEngine::genSphereHull(Mesh* mesh)
 
 
 //helper function(s) for intersection
-inline float sq(float x)
-{
-	return x * x;
-}
+inline float sq(float x) { return x * x; }
 
 float Collider::SQD_PointAABB(SVec3 p, AABB b)
 {
@@ -204,10 +211,57 @@ bool Collider::RayAABBIntersection(const SRay& ray, const AABB& b)
 
 
 
+bool Collider::RayPlaneIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c, SVec3& intersectionPoint)
+{
+	SVec3 normal = (b - a).Cross(c - b);
+
+	float t = (c - ray.position).Dot(normal) / ray.direction.Dot(normal);
+
+	if (t > 0 && t < 1)
+	{
+		intersectionPoint = ray.position + t * ray.direction;
+		return true;
+	}
+	return false;
+}
+
+
+
+bool Collider::RayTriangleIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c)
+{
+	SVec3 i;
+	if (!RayPlaneIntersection(ray, a, b, c, i)) return false;
+
+	SVec3 ab = b - a;
+	SVec3 cb = b - c;
+	SVec3 ac = c - a;
+
+	SVec3 projABOntoCB = Math::projectVecOntoVec(ab, cb);
+	SVec3 v = ab - projABOntoCB;
+
+	SVec3 ai = i - a;
+
+	float aBar = 1 - (v.Dot(ai) / v.Dot(ab));
+
+	if (aBar < 0.f || aBar > 1.f)
+		return false;
+
+	SVec3 projABontoAC = Math::projectVecOntoVec(ab, ac);
+	v = -ab + projABontoAC;
+	SVec3 bi = i - b;
+
+	float bBar = 1 - (v.Dot(bi) / v.Dot(-ab));
+		
+	return bBar > 0.f && bBar < 1.f;
+}
+
+
+
 bool AABB::intersect(Hull* other, BoundingVolumeType otherType)
 {
 	if (otherType == BVT_SPHERE)		return Collider::AABBSphereIntersection(*this, *(reinterpret_cast<SphereHull*>(other)));
 	else if (otherType == BVT_AABB)		return Collider::AABBAABBIntersection(*this, *(reinterpret_cast<AABB*>(other)));
+	return false;
 }
 
 
@@ -216,8 +270,58 @@ bool SphereHull::intersect(Hull* other, BoundingVolumeType otherType)
 {
 	if (otherType == BVT_SPHERE)		return Collider::SphereSphereIntersection(*this, *(reinterpret_cast<SphereHull*>(other)));
 	else if (otherType == BVT_AABB)		return Collider::AABBSphereIntersection(*(reinterpret_cast<AABB*>(other)), *this);
+	return false;
 }
 
+
+
+void Grid::populateCells(std::vector<Procedural::Terrain*>& terrain)
+{
+
+	CellKey cellKey;
+
+	for (Procedural::Terrain* t : terrain)
+	{
+		for (Vert3D v : t->getVerts())
+		{
+			cellKey.assign( v.pos * invCellSize );
+
+			if (cells.find(cellKey) == cells.end())
+			{
+				GridCell gc = GridCell(cellKey);
+				gc.terrains.push_back(t);
+				cells.insert(std::make_pair(cellKey, gc));
+			}
+			else
+			{
+				if (std::find(cells.at(cellKey).terrains.begin(), cells.at(cellKey).terrains.end(), t) == cells.at(cellKey).terrains.end())
+					cells.at(cellKey).terrains.push_back(t);
+			}
+				
+		}
+	}
+}
+
+
+
+SVec3 CollisionEngine::adjustHeight(const SVec3& playerPos)
+{
+	
+	CellKey cellKey;
+	cellKey.assign(playerPos * grid.invCellSize);
+	
+	float finalHeight = 0.f;
+	
+
+	if (grid.cells.find(cellKey) == grid.cells.end())
+		return playerPos;
+
+	for (auto t : grid.cells.at(cellKey).terrains)
+	{
+		finalHeight = t->getHeightAtPosition(playerPos) + 10.f;
+		return SVec3(playerPos.x, finalHeight, playerPos.z);
+	}
+}
 
 
 

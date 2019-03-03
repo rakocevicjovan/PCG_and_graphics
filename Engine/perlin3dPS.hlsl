@@ -196,17 +196,17 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	
 	float inverseHeight = (1.f - z) * 0.66f;	//(1.f - z) * 0.66f for pointy tip	//or use abs(z) for a diamond shape
 	
-	float displacement = pow(smallTurbulence, 2) * 0.3f  * smoothstep(-1.f, 1.f, z);
+	float displacement = pow(smallTurbulence, 2) * 0.3f  * smoothstep(0.f, 1.f, z);
 
 	//vary x based on time (in a cycle) to give a more lively flame, where 2.f controls the cycling speed, cap the influence to 10% of the size using * 0.1f
 	//divide by inverse height - at z = 1, 1-z becomes 0 therefore x becomes huge (and the flame tapers to a point)
 	//modify inverse height by a small displacement, that also depends on z (maps z to 0-1 range, and increases the density as z increases, making tips of flames dense)
-	float dist = pow(x * (1.f + sin(input.time * 2.f) * 0.1f) / (inverseHeight * (1.f + displacement)), 2) + pow(z, 2) ;
+	float dist = pow(x * (1.f + sin(input.time * 2.f) * 0.25f) / (inverseHeight * (1.f + displacement)), 2) + pow(z, 2) ;
 	float ratio = smoothstep(0., 1., 1.f - dist);
 
 
 	float r = ratio * mainTurbulence;
-	float g = 0.5f * z * ratio;
+	float g = z * ratio;
 	float b = min(pow(-z, 3), 1.f - r);
 	float4 colour = float4(r, g, b, r);
 

@@ -77,9 +77,7 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	pixelShaderBuffer = nullptr;
 
 
-
-	result = device->CreateSamplerState(&samplerDesc, &_sampleState);
-	if (FAILED(result))
+	if (FAILED(device->CreateSamplerState(&samplerDesc, &_sampleState)))
 		return false;
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
@@ -208,10 +206,8 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 
 
 	// Lock the light constant buffer so it can be written to.
-	result = spl->deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
+	if (FAILED(spl->deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	}
 
 	// Get a pointer to the data in the constant buffer.
 	dataPtr2 = (LightBuffer*)mappedResource.pData;

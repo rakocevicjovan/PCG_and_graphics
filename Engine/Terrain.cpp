@@ -11,11 +11,11 @@ namespace Procedural
 		vertices.clear();
 		vertices.reserve(rows * columns);
 		Vert3D v;
-		for (int i = 0; i < rows; i++) 
+		for (int z = 0; z < rows; ++z) 
 		{
-			for(int j = 0; j < columns; j++)
+			for(int x = 0; x < columns; ++x)
 			{
-				v.pos = SVec3(j * xScale, 0, i * zScale);
+				v.pos = SVec3(x * xScale, 0, z * zScale);
 				vertices.push_back(v);
 			}
 		}
@@ -36,7 +36,7 @@ namespace Procedural
 
 
 
-	void Terrain::GenRandom(float chance) 
+	void Terrain::Tumble(float chance) 
 	{
 		Chaos chaos;
 
@@ -46,7 +46,7 @@ namespace Procedural
 
 		for (int i = 0; i < vertices.size(); i++)
 			if (wat[i] < chance)
-				vertices[i].pos.y = yScale;
+				vertices[i].pos.y += yScale;
 	}
 
 
@@ -77,27 +77,27 @@ namespace Procedural
 
 		return result;
 	}
+
 	void Terrain::GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax) 
 	{
-		//assume steps = 2
-		_numRows = _numColumns = pow(2, steps) + 1;		//5 by 5 grid
-		unsigned int stepSize = _numRows - 1;			//stepSize is 4
+		_numRows = _numColumns = pow(2, steps) + 1;
+		unsigned int stepSize = _numRows - 1;
 
 		vertices.clear();
-		vertices.resize(_numRows * _numColumns);	//25 vertices
+		vertices.resize(_numRows * _numRows);
 
-		for (int i = 0; i < _numRows; i++) 
-			for(int j = 0; j < _numColumns; j++)
-				vertices[i * _numColumns + j].pos = SVec3(j * xScale, 0.f, i * zScale);
+		for (int z = 0; z < _numRows; z++) 
+			for(int x = 0; x < _numRows; x++)
+				vertices[z * _numRows + x].pos = SVec3(x * xScale, 0.f, z * zScale);
 		
 
 		//assign the corner values
-		vertices.front().pos.y = corners.x;							//vertex at 0
-		vertices[vertices.size() - _numColumns].pos.y = corners.y;	//first vertex of last row (20 in 5x5)
-		vertices.back().pos.y = corners.z;							//vertex at 25
-		vertices[stepSize].pos.y = corners.w;						//vertex at 4
+		vertices.front().pos.y = corners.x;
+		vertices[vertices.size() - _numRows].pos.y = corners.y;
+		vertices.back().pos.y = corners.z;
+		vertices[stepSize].pos.y = corners.w;
 
-		Chaos c(0, randomMax);	//initialize chaos and set the limits of the distribution between 0 and randomMax
+		Chaos c(0, randomMax);
 
 		//run the loop
 		while (stepSize > 1)
@@ -105,18 +105,18 @@ namespace Procedural
 			int halfStep = stepSize / 2;	//half step, in this case 2 then 1
 
 			//square
-			for (int i = 0; i < _numRows - 1; i += stepSize)
+			for (int z = 0; z < _numRows - 1; z += stepSize)
 			{
-				for (int j = 0; j < _numColumns - 1; j += stepSize)
+				for (int x = 0; x < _numRows - 1; x += stepSize)
 				{
-					int midRow = i + halfStep, midColumn = j + halfStep;
-					int midVertIndex = midRow * _numColumns + midColumn;
+					int midRow = z + halfStep, midColumn = x + halfStep;
+					int midVertIndex = midRow * _numRows + midColumn;
 
 					float finHeight =
-							vertices[i * _numColumns + j].pos.y +
-							vertices[i * _numColumns + j + stepSize].pos.y +
-							vertices[(i + stepSize) * _numColumns + j].pos.y +
-							vertices[(i + stepSize) * _numColumns + j + stepSize].pos.y;
+							vertices[z * _numRows + x].pos.y +
+							vertices[z * _numRows + x + stepSize].pos.y +
+							vertices[(z + stepSize) * _numRows + x].pos.y +
+							vertices[(z + stepSize) * _numRows + x + stepSize].pos.y;
 					
 					finHeight *= 0.25f;
 					finHeight += (c.rollTheDice() * 2.f - randomMax);
@@ -127,16 +127,16 @@ namespace Procedural
 
 
 			//diamond
-			for (int i = 0; i < _numRows - 1; i += stepSize)
+			for (int x = 0; x < _numRows - 1; x += stepSize)
 			{
-				for (int j = 0; j < _numColumns - 1; j += stepSize)
+				for (int z = 0; z < _numRows - 1; z += stepSize)
 				{
 					float ro = c.rollTheDice() * 2.f - randomMax;
 
-					vertices[i * _numColumns +	j + halfStep].pos.y = sampleDiamond(i, j + halfStep, halfStep) + ro;
-					vertices[(i + halfStep) *	_numColumns + j].pos.y = sampleDiamond(i + halfStep, j, halfStep) + ro;
-					vertices[(i + halfStep) *	_numColumns + j + stepSize].pos.y = sampleDiamond(i + halfStep, j + stepSize, halfStep) + ro;
-					vertices[(i + stepSize) *	_numColumns + j + halfStep].pos.y = sampleDiamond(i + stepSize, j + halfStep, halfStep) + ro;
+					vertices[x * _numRows +	z + halfStep].pos.y = sampleDiamond(x, z + halfStep, halfStep) + ro;
+					vertices[(x + halfStep) *	_numRows + z].pos.y = sampleDiamond(x + halfStep, z, halfStep) + ro;
+					vertices[(x + halfStep) *	_numRows + z + stepSize].pos.y = sampleDiamond(x + halfStep, z + stepSize, halfStep) + ro;
+					vertices[(x + stepSize) *	_numRows + z + halfStep].pos.y = sampleDiamond(x + stepSize, z + halfStep, halfStep) + ro;
 				}
 			}
 
@@ -145,41 +145,14 @@ namespace Procedural
 			stepSize = stepSize / 2;
 			randomMax *= decay;
 			c.setRange(0, randomMax);
-
-
-			/*
-			for (int x = 0; x < _numRows; x += halfStep)
-			{
-				for (int y = (x + halfStep) % stepSize; y < _numColumns; y += stepSize)
-				{
-					float finHeight =
-						vertices[((x - halfStep + _numRows - 1) % (_numRows - 1))	* _numColumns	+ y].pos.y + 
-						vertices[((x + halfStep) % (_numRows - 1))					* _numColumns	+ y].pos.y + 
-						vertices[(x * _numColumns)	+ ((y + halfStep) % (_numColumns - 1))].pos.y + 
-						vertices[(x * _numColumns)	+ ((y - halfStep + _numColumns - 1) % (_numColumns - 1))].pos.y; 
-					
-					finHeight *= 0.25f;
-					finHeight += (c.rollTheDice() * 2.f - randomMax);
-
-					vertices[x * _numColumns + y].pos.y = finHeight * yScale;
-
-					//if (x == 0)  
-						//vertices[(_numRows - 1) * _numColumns + y].pos.y = finHeight * yScale;
-					//if (y == 0)  
-						//vertices[x * _numColumns + _numColumns - 1].pos.y = finHeight * yScale;
-				}
-			}
-			*/
 		}
 	}
 
 
 
-	void Terrain::GenWithCA(float initialDistribtuion, unsigned int steps)
+	void Terrain::CellularAutomata(float initialDistribtuion, unsigned int steps)
 	{
-
-		//give it a random seed
-		Chaos chaos;
+		Chaos chaos(0.f, 1.f);
 
 		std::vector<float> randoms;
 		randoms.resize(vertices.size());
@@ -193,36 +166,35 @@ namespace Procedural
 				cells[i] = true;
 		}
 
-		//instantiate the other array which will be used in the meantime 
 		std::vector<bool> cellsNext(vertices.size(), false);
 
 		//do the CA stuff
 		for (unsigned int step = 0; step < steps; ++step)
 		{
-			for (unsigned int i = 0; i < _numRows; ++i)
+			for (unsigned int z = 0; z < _numRows; ++z)
 			{
-				for (unsigned int j = 0; j < _numColumns; ++j)
+				for (unsigned int x = 0; x < _numColumns; ++x)
 				{
-					unsigned int index = i * _numColumns + j;
+					unsigned int index = z * _numColumns + x;
 
 					//wrap the grid
-					unsigned int topRow = (i == 0) ? _numRows - 1 : i - 1;
-					unsigned int bottomRow = (i == _numRows - 1) ? 0 : i + 1;
-					unsigned int leftColumn = (j == 0) ? _numColumns - 1 : j - 1;
-					unsigned int rightColumn = (j == _numColumns - 1) ? 0 : j + 1;
+					unsigned int topRow = (z == 0) ? _numRows - 1 : z - 1;
+					unsigned int bottomRow = (z == _numRows - 1) ? 0 : z + 1;
+					unsigned int leftColumn = (x == 0) ? _numColumns - 1 : x - 1;
+					unsigned int rightColumn = (x == _numColumns - 1) ? 0 : x + 1;
 					
 					unsigned int count = 0;
 
 					//check the 8 surrounding cells (Moor configuration)
 					if(cells[topRow * _numColumns + leftColumn]) count++;
-					if(cells[topRow * _numColumns + j]) count++;
+					if(cells[topRow * _numColumns + x]) count++;
 					if(cells[topRow * _numColumns + rightColumn]) count++;
 					
-					if(cells[i * _numColumns + leftColumn]) count++;
-					if(cells[i * _numColumns + rightColumn]) count++;
+					if(cells[z * _numColumns + leftColumn]) count++;
+					if(cells[z * _numColumns + rightColumn]) count++;
 
 					if (cells[bottomRow * _numColumns + leftColumn]) count++;
-					if (cells[bottomRow * _numColumns + j]) count++;
+					if (cells[bottomRow * _numColumns + x]) count++;
 					if (cells[bottomRow * _numColumns + rightColumn]) count++;
 
 					if (count >= 5)	//|| count <= 1
@@ -251,14 +223,14 @@ namespace Procedural
 		_numRows = height;
 
 		vertices.clear();
-		vertices.resize(width * height);
+		vertices.reserve(width * height);
 
-		for (int i = 0; i < vertices.size(); ++i)
+		for (int z = 0; z < _numRows; ++z)
 		{
-			int row = i / width;
-			int column = i % width;
-
-			vertices[i].pos = SVec3(column * xScale, data[i] * yScale, row * zScale);
+			for(int x = 0; x < _numColumns; ++x)
+			{
+				vertices.push_back(Vert3D(SVec3(x * xScale, data[z * _numColumns + x] * yScale, z * zScale)));
+			}
 		}
 	}
 
@@ -267,21 +239,18 @@ namespace Procedural
 	void Terrain::CalculateNormals()
 	{
 		std::vector<std::vector<std::pair<SVec3, SVec3>>> faces;
-
 		faces.resize(_numRows - 1);
-
-		for (auto fRow : faces)
-			fRow.reserve((_numColumns - 1) * 2);
+		for (auto fRow : faces) fRow.reserve((_numColumns - 1) * 2);
 
 		//creating a double vector of faces and calculating the normals for each face
-		for (int row = 0; row < _numRows - 1; row++)
+		for (int row = 0; row < _numRows - 1; ++row)
 		{
-			for (int column = 0; column < _numColumns - 1; column++)
+			for (int column = 0; column < _numColumns - 1; ++column)
 			{
-				int tli = row * _numColumns + column;
-				int tri = row * _numColumns + column + 1;
-				int bli = (row + 1) * _numColumns + column;
-				int bri = (row + 1) * _numColumns + column + 1;
+				int tli = (row + 1) * _numColumns + column;
+				int tri = tli + 1;
+				int bli = row * _numColumns + column;
+				int bri = bli + 1;
 
 				Vert3D topLeft = vertices[tli];
 				Vert3D topRight = vertices[tri];
@@ -328,10 +297,8 @@ namespace Procedural
 			pRow.reserve(pRow.capacity() + nRow.capacity());
 			pRow.insert(pRow.end(), nRow.begin(), nRow.end());
 
-
 			for (int j = 0; j < _numColumns; j++) 
 			{
-
 				int index = i * _numColumns + j;
 				unsigned int facesFound = 0;
 				SVec3 currentNormal;
@@ -348,7 +315,7 @@ namespace Procedural
 						break;
 				}
 
-				if (fabs(currentNormal.Length()) > 0.0001f)
+				if (fabs(currentNormal.LengthSquared()) > 0.000001f)
 					currentNormal.Normalize();
 
 				vertices[index].normal = currentNormal;
@@ -356,13 +323,13 @@ namespace Procedural
 		}
 
 
-		//assign indices for directX
 		indices.clear();
+		indices.reserve(faces.size() * faces.size() * 6);	//square grid of faces, 2 faces per square, 3 indices per face
 
-		indices.reserve(faces.size() * faces.size() * 2);
-
-		for (auto row : faces) {
-			for (auto face : row) {
+		for (auto row : faces)
+		{
+			for (auto face : row)
+			{
 				indices.push_back((unsigned int)face.first.x);
 				indices.push_back((unsigned int)face.first.y);
 				indices.push_back((unsigned int)face.first.z);
@@ -627,5 +594,58 @@ namespace Procedural
 			result.push_back(SVec2(vertices[i].pos.x, vertices[i].pos.z));
 
 		return result;
+	}
+
+
+
+	float getHeightByBarrycentric(const SVec3& p1, const SVec3& p2, const SVec3& p3, const SVec2& pos)
+	{
+		float detInverse  = 1.f / ((p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z));
+		float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) * detInverse;
+		float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) * detInverse;
+		float l3 = 1.0f - l1 - l2;
+		return l1 * p1.y + l2 * p2.y + l3 * p3.y;
+	}
+
+
+
+	float Terrain::getHeightAtPosition(const SVec3& playerPos)
+	{
+		float terX = playerPos.x - _offset.x;
+		float terZ = playerPos.z - _offset.z;
+
+		int gridX = (int)floorf(terX / xScale);
+		int gridZ = (int)floorf(terZ / zScale);
+
+		if (gridX >= _numColumns - 1 || gridZ >= _numRows - 1 || gridX < 0 || gridZ < 0)
+			return 0.0f;
+
+		//to barycentric
+		float xCoord = fmodf(terX, xScale) / xScale;
+		float zCoord = fmodf(terZ, zScale) / zScale;
+
+		int tli = (gridZ + 1) * _numColumns + gridX;
+		int tri = tli + 1;
+		int bli = gridZ * _numColumns + gridX;
+		int bri = bli + 1;
+
+		float finalHeight = 0.f;
+		float trh = vertices[tri].pos.y;
+		float blh = vertices[bli].pos.y;
+
+		float x = 0.f, y = 0.f, z = 0.f;
+
+		if (xCoord < zCoord)	//x = 1 - z is the center line for how I subdivide quads into two triangle faces
+		{//top left triangle
+			float tlh = vertices[tli].pos.y;
+			finalHeight = getHeightByBarrycentric(SVec3(0, tlh, 1), SVec3(1, trh, 1), SVec3(0, blh, 0), SVec2(xCoord, zCoord));
+		}
+		else
+		{//bottom right triangle
+			float brh = vertices[bri].pos.y;
+			finalHeight = getHeightByBarrycentric(SVec3(0, blh, 0), SVec3(1, trh, 1), SVec3(1, brh, 0), SVec2(xCoord, zCoord));
+		}
+
+		return finalHeight + 10.f;
 	}
 }

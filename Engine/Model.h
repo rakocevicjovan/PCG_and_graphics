@@ -41,7 +41,7 @@ public:
 
 	~Model()
 	{
-		delete collider;
+		if(collider) delete collider;
 	}
 
 
@@ -53,6 +53,20 @@ public:
 	bool LoadGLTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName);
 
 
+	template <class FlexibleShaderType>
+	void Draw(ID3D11DeviceContext* dc, FlexibleShaderType& shader)
+	{
+		for (unsigned int i = 0; i < this->meshes.size(); i++)
+			this->meshes[i].draw(dc, shader);
+	}
+
+private:
+	inline bool fileExists(const std::string& name);
+};
+
+
+
+/*
 #pragma region drawing
 	void Draw(ID3D11DeviceContext* dc, ShaderLight& shader)
 	{
@@ -114,13 +128,16 @@ public:
 			this->meshes[i].draw(dc, shader);
 	}
 
-	void Draw(ID3D11DeviceContext* dc, InstancedShader& shader) 
+	void Draw(ID3D11DeviceContext* dc, InstancedShader& shader)
+	{
+		for (unsigned int i = 0; i < this->meshes.size(); i++)
+			this->meshes[i].draw(dc, shader);
+	}
+
+	void Draw(ID3D11DeviceContext* dc, InstancedShader& shader)
 	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 #pragma endregion drawing
-
-private:
-	inline bool fileExists(const std::string& name);
-};
+	*/

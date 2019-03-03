@@ -48,46 +48,59 @@ public:
 			transform._41, transform._42, transform._43, 1);
 	}
 
-	static void SetRotation(SMatrix& transform, const SMatrix& rotatrix) {
+	static void SetRotation(SMatrix& transform, const SMatrix& rotatrix)
+	{
 		SVec3 pos = transform.Translation();
 		transform = rotatrix;
 		transform *= SMatrix::CreateTranslation(pos);	//might be wrong
 	}
 
-	static void Translate(SMatrix& transform, const SVec3& displacement) {
+	static void Translate(SMatrix& transform, const SVec3& displacement)
+	{
 		SetTranslation(transform,  transform.Translation() + displacement);
 	}
 
-	static void SetTranslation(SMatrix& transform, const SVec3& displacement) {
+	static void SetTranslation(SMatrix& transform, const SVec3& displacement)
+	{
 		transform._41 = displacement.x;
 		transform._42 = displacement.y;
 		transform._43 = displacement.z;
 	}
 
 	//only use when not rotated/translated... should wrap all that into a function as well
-	static void Scale(SMatrix& transform, const SVec3& xyz_factors) {
+	static void Scale(SMatrix& transform, const SVec3& xyz_factors)
+	{
 		transform = transform * SMatrix::CreateScale(xyz_factors);
 	}
 
-	static void CreatePerspectiveMatrix(SMatrix& projectionMatrix, float fov, float ar, float n, float f) {
+	static void CreatePerspectiveMatrix(SMatrix& projectionMatrix, float fov, float ar, float n, float f)
+	{
 		projectionMatrix = SMatrix::CreatePerspectiveFieldOfView(fov, ar, n, f);
 	}
 
-	static void CreatOrthoMatrix(SMatrix& orthographicMatrix, float w, float h, float n, float f) {
+	static void CreatOrthoMatrix(SMatrix& orthographicMatrix, float w, float h, float n, float f)
+	{
 		orthographicMatrix = SMatrix::CreateOrthographic(w, h, n, f);
 	}
 
-	static void CamToViewMatrix(SMatrix& viewMatrix, const SMatrix& cameraMatrix) {
+	static void CamToViewMatrix(SMatrix& viewMatrix, const SMatrix& cameraMatrix)
+	{
 		viewMatrix = cameraMatrix.Invert();
 	}
 	
-	static SMatrix CalcMatrixStack(SMatrix& total, const SMatrix& model, const SMatrix& view, const SMatrix& projection) {
+	static SMatrix CalcMatrixStack(SMatrix& total, const SMatrix& model, const SMatrix& view, const SMatrix& projection)
+	{
 		total =  model * view * projection;
 	}
 
 	static SVec3 getNormalizedVec3(const SVec3& vecToNormalize) 
 	{
 		return vecToNormalize / vecToNormalize.Length();
+	}
+
+	static SVec3 projectVecOntoVec(const SVec3& toProject, const SVec3& onto)
+	{
+		return ( onto.Dot(toProject) / onto.Dot(onto) ) * onto;
 	}
 
 };

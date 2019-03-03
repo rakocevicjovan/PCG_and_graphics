@@ -48,7 +48,7 @@ private:
 	InputManager* _inMan;
 	ResourceManager _resMan;
 	ShaderManager shMan;
-	CollisionEngine _CE;
+	CollisionEngine _colEngine;
 
 	Camera _cam;
 	Controller _controller;
