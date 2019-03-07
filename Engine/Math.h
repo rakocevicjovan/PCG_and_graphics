@@ -11,6 +11,7 @@ using SRay = DirectX::SimpleMath::Ray;
 
 static const float PI = 3.1415926f;
 
+
 class Math{
 
 public:
@@ -101,6 +102,11 @@ public:
 	static SVec3 projectVecOntoVec(const SVec3& toProject, const SVec3& onto)
 	{
 		return ( onto.Dot(toProject) / onto.Dot(onto) ) * onto;
+	}
+
+	static SVec4 fromVec3(SVec3 v, float w)
+	{
+		return SVec4(v.x, v.y, v.z, w);
 	}
 
 };

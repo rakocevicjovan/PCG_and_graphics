@@ -281,9 +281,6 @@
     <ClInclude Include="ShaderWireframe.h">
       <Filter>Shading</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderDataStructs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
     </ClInclude>
@@ -330,6 +327,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderDataStructs.h">
       <Filter>Shading</Filter>
     </ClInclude>
   </ItemGroup>
@@ -433,6 +433,9 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="volumPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="volumTreePS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

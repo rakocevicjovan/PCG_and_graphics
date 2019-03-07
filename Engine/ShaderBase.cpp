@@ -227,14 +227,11 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
-
-	spl->deviceContext->IASetInputLayout(_layout);
-
-	spl->deviceContext->VSSetShader(_vertexShader, NULL, 0);
-	spl->deviceContext->PSSetShader(_pixelShader, NULL, 0);
-
 	spl->deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
 
+	spl->deviceContext->IASetInputLayout(_layout);
+	spl->deviceContext->VSSetShader(_vertexShader, NULL, 0);
+	spl->deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	spl->deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
 	if(spl->model->textures_loaded.size() != 0)

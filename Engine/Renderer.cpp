@@ -86,6 +86,11 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	pSys.setUpdateFunction(lambda);
 	pSys.setShader(&shMan.shaderBase);
 
+	shMan.shaderVolumetric.setLightData(_deviceContext, RES.pointLight);
+
+	//_colEngine.registerModel(&RES.will, BoundingVolumeType::BVT_AABB);
+
+
 	return true;
 }
 
@@ -174,10 +179,8 @@ bool Renderer::RenderFrame(float dTime)
 		*/
 	}
 
-
 	
-	
-	std::vector<InstanceData> instanceData(100);
+ 	std::vector<InstanceData> instanceData(100);
 
 	for (int i = 0; i < instanceData.size(); ++i)
 		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
@@ -186,6 +189,11 @@ bool Renderer::RenderFrame(float dTime)
 	shMan.shaderInstanced.SetShaderParameters(&shMan.spl);
 	RES.modBall.Draw(_deviceContext, shMan.shaderInstanced);
 	shMan.shaderInstanced.ReleaseShaderParameters(_deviceContext);
+
+	_D3D->TurnOnAlphaBlending();
+	shMan.shaderVolumetric.SetShaderParameters(_deviceContext, RES.will, _cam, elapsed);
+	_resMan._level.will.Draw(_deviceContext, shMan.shaderVolumetric);
+	_D3D->TurnOffAlphaBlending();
 	
 
 	///rendering water and clouds

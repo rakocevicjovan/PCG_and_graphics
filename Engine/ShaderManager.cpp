@@ -69,6 +69,9 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> volumetricNames = { L"volumVS.hlsl", L"volumPS.hlsl" };
 	shaderVolumetric.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
 
+	std::vector<std::wstring> volTreeNames = { L"volumVS.hlsl", L"volumTreePS.hlsl" };
+	shaderVolumetricTree.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
+
 
 	//with clamp
 	sbSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;

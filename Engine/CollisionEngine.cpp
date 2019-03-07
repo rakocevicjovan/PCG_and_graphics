@@ -15,6 +15,7 @@ CollisionEngine::~CollisionEngine()
 void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
 {
 	_colliders.push_back(generateCollider(model, bvt));
+	model->collider = &(_colliders.back());
 	_models.push_back(model);
 }
 

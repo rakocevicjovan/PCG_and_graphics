@@ -17,10 +17,10 @@ namespace Procedural
 		Geometry();
 		~Geometry();
 
-		void GenRectangle(float ha, float hb);
+		void GenRectangle(float halfWidth, float halfHeight);
 
-		void GenCircle(float radius, unsigned int subdivs);
-		void GenDisk(float radius, unsigned int subdivs, unsigned int circles, float decay = 1.f);
+		void GenUVCircle(float radius, unsigned int subdivs);
+		void GenUVDisk(float radius, unsigned int subdivs, float thiccness);
 		void GenHalo(float radius, float innerRadius, unsigned int subdivs, unsigned int circles, float decay = 1.f);
 		void GenHelix(float angle, float length, float width, unsigned int subdivs, float xScale = 1.f, float zScale = 1.f);
 	};

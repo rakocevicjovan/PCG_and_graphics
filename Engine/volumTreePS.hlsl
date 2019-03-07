@@ -1,4 +1,4 @@
-cbuffer LightBuffer
+cbuffer LightBuffer : register(b0)
 {
 	float3 alc;
 	float ali;
@@ -7,8 +7,20 @@ cbuffer LightBuffer
 	float3 slc;
 	float sli;
 	float4 lightPosition;
+};
+
+cbuffer VariableBuffer : register(b1)
+{
+	float elapsed;
+	float3 padding;
+};
+
+
+cbuffer ViewDirBuffer : register(b2)
+{
 	float4 eyePos;
 };
+
 
 
 struct PixelInputType
@@ -16,27 +28,14 @@ struct PixelInputType
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
-	float4 worldPos : WPOS;
-	float time : MYTIME;
+	float4 msPos : MSPOS;
+	float4 wPos : WPOS;
 };
 
 Texture2D shaderTexture;
 SamplerState SampleType;
 
 
-
-
-//
-// Description : Array and textureless GLSL 2D/3D/4D simplex 
-//               noise functions.
-//      Author : Ian McEwan, Ashima Arts.
-//  Maintainer : stegu
-//     Lastmod : 20110822 (ijm)
-//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
-//               Distributed under the MIT License. See LICENSE file.
-//               https://github.com/ashima/webgl-noise
-//               https://github.com/stegu/webgl-noise
-// 
 
 float3 mod289(float3 x) {
 	return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -127,6 +126,8 @@ float snoise(float3 v)
 }
 
 
+
+
 static const int NUM_OCTAVES = 5;
 
 float fbm(in float3 pos)
@@ -138,7 +139,7 @@ float fbm(in float3 pos)
 
 	float gain = .5317f;
 	float lacunarity = 1.9357f;
-	
+
 	for (int i = 0; i < NUM_OCTAVES; ++i)
 	{
 		v += snoise(frequency * pos) * amplitude;
@@ -147,6 +148,7 @@ float fbm(in float3 pos)
 	}
 	return v;
 }
+
 
 
 float turbulentFBM(float3 x)
@@ -172,45 +174,66 @@ float turbulentFBM(float3 x)
 }
 
 
+static const int NUM_STEPS = 30;
+static const float STEP_SIZE = 2.0f / (float)NUM_STEPS;
+
+
+
+
+float4 raymarch(in float3 rayOrigin, in float3 rayDir) {
+
+	//initialize the sum of colours we will get in the end
+	float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	float density = 0.f;
+	float t = 0.f;
+
+	float3 sampleCoords = rayOrigin * 3.33f;
+
+	float warper = snoise(sampleCoords);
+	sampleCoords.xyz -= elapsed * warper;
+
+	for (int i = 0; i < NUM_STEPS; ++i)
+	{
+		float3 curPos = rayOrigin + t * rayDir;
+
+		float dist = curPos.x * curPos.x + curPos.y * curPos.y + curPos.z * curPos.z;	//max 1
+
+		float ratio1 = (1. - 3.f * dist);	//smoothstep(0.f, 2.0f, 1.f - dist);	//smoothstep(0.98f, 1.1f, dist)
+		ratio1 = clamp(pow(ratio1, 5), 0., 1.);
+
+		float ratio2 = smoothstep(0.95, 5.f, dist);
+
+		density = turbulentFBM(sampleCoords);
+
+		sum.ra += density * max(ratio1, ratio2);
+
+		t += STEP_SIZE;
+
+		//if (density >= .99f)	break;
+	}
+
+	return sum;
+}
+
+
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-	
 	input.normal = normalize(input.normal);
 
-	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
-	float3 invLightDir = -lightDir;
+//float ratio = smoothstep(0.f, 1.f, 1.f - (input.msPos.x * input.msPos.x + input.msPos.y * input.msPos.y + input.msPos.z * input.msPos.z));
 
-	float3 viewDir = input.worldPos.xyz - eyePos.xyz;
-	float distance = length(viewDir);
-	viewDir = viewDir / distance;
-	float3 invViewDir = -viewDir;
+//manipulating space should be done up there... at least some of it, here what's possible because it's a major optimization if it can be done here
+float x = input.msPos.x;
+float y = input.msPos.y;
+float z = input.msPos.z;
+float3 xyz = float3(x, y, z);
 
-	input.worldPos = (input.worldPos / 256.f * 2.f) - 1.0f;	//moves it to [0, 1], then to [0, 2] and finally to [-1, 1]
+float3 viewdir = normalize(input.wPos.xyz - eyePos.xyz);
 
-	float x = input.worldPos.x;
-	float y = input.worldPos.y;
-	float z = input.worldPos.z;		//increase z based on x to split the flame in a bowtie (this means dividing by abs(x) because x -> [-1, 1]
+float4 colour;
+//colour.ra = turbulentFBM(xyz) * ratio;
+colour = raymarch(xyz, viewdir);
 
-
-	float3 xyz = float3(x, y + input.time * 0.5f, z);
-	float mainTurbulence = turbulentFBM(xyz);
-	float smallTurbulence = turbulentFBM(float3(xyz.x * 10.f, xyz.y, xyz.z * 5.f));
-	
-	float inverseHeight = (1.f - z) * 0.66f;	//(1.f - z) * 0.66f for pointy tip	//or use abs(z) for a diamond shape
-	
-	float displacement = pow(smallTurbulence, 2) * 0.3f  * smoothstep(0.f, 1.f, z);
-
-	//vary x based on time (in a cycle) to give a more lively flame, where 2.f controls the cycling speed, cap the influence to 10% of the size using * 0.1f
-	//divide by inverse height - at z = 1, 1-z becomes 0 therefore x becomes huge (and the flame tapers to a point)
-	//modify inverse height by a small displacement, that also depends on z (maps z to 0-1 range, and increases the density as z increases, making tips of flames dense)
-	float dist = pow(x * (1.f + sin(input.time * 2.f) * 0.25f) / (inverseHeight * (1.f + displacement)), 2) + pow(z, 2) ;
-	float ratio = smoothstep(0., 1., 1.f - dist);
-
-
-	float r = ratio * mainTurbulence;
-	float g = z * ratio;
-	float b = min(pow(-z, 3), 1.f - r);
-	float4 colour = float4(r, g, b, r);
-
-	return colour;
+return colour;
 }

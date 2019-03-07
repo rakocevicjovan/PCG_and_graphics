@@ -4,6 +4,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 #include "ShaderBase.h"
+#include "Camera.h"
 
 class Model;
 
@@ -18,12 +19,12 @@ public:
 	
 	bool setLightData(ID3D11DeviceContext* dc, const PointLight& pLight);
 	
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p, const SMatrix& cameraMatrix, float deltaTime);
+	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera& camera, float elapsed);
 
 	
 
 private:
-
-	float timeElapsed;
+	ID3D11Buffer* _viewRayBuffer;
+	ID3D11Buffer* _lightBuffer2;
 };
 

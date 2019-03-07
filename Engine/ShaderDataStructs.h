@@ -33,21 +33,31 @@ struct VariableBuffer : public SIBase
 
 struct LightBuffer : public SIBase
 {
-		SVec3 alc;
-		float ali;
-		SVec3  dlc;
-		float dli;
-		SVec3 slc;
-		float sli;
-		SVec4 pos;
-		SVec4 ePos;
+	SVec3 alc;
+	float ali;
+	SVec3  dlc;
+	float dli;
+	SVec3 slc;
+	float sli;
+	SVec4 pos;
+	SVec4 ePos;
+};
+
+struct LightBuffer2 : public SIBase
+{
+	SVec3 alc;
+	float ali;
+	SVec3  dlc;
+	float dli;
+	SVec3 slc;
+	float sli;
+	SVec4 pos;
 };
 
 
-struct ViewRayBUffer : SIBase
+struct ViewRayBuffer : SIBase
 {
 	SVec4 ePos;
-	SVec4 eDir;
 };
 
 

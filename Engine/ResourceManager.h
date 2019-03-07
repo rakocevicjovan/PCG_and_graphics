@@ -13,7 +13,7 @@
 
 struct MyLevel
 {
-	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand;
+	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand, will;
 	std::vector<Model*> _terrainModels;
 
 	Texture NST, DST, white, perlinTex, worley;
@@ -36,6 +36,10 @@ struct MyLevel
 		modSkybox.LoadModel(device, "../Models/Skysphere.fbx");
 		Math::Scale(modSkybox.transform, SVec3(10.0f));
 		modWaterQuad.LoadModel(device, "../Models/WaterQuad.fbx");
+
+		will.LoadModel(device, "../Models/ball.fbx");
+		Math::Scale(will.transform, SVec3(5.f));
+		Math::Translate(will.transform, SVec3(50, 50, 50));
 
 		modBall.LoadModel(device, "../Models/ball.fbx");
 		/*
