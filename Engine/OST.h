@@ -27,7 +27,7 @@ public:
 	void SetRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*);
 	void ClearRenderTarget(ID3D11DeviceContext*, ID3D11DepthStencilView*, float*);
 	bool LoadToCpu(ID3D11Device* device, ID3D11DeviceContext*, std::vector<unsigned char>& result);
-	void DrawToTexture(D3DClass& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c);
+	void DrawDepthToTexture(D3DClass& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c);
 	void SaveToFile(D3DClass& d3d, const std::string& filepath);
 
 	SMatrix _view, _lens;

@@ -166,7 +166,7 @@ bool Renderer::RenderFrame(float dTime)
 			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
 		*/
 
-		proceduralTerrain.Draw(_deviceContext, shMan.shaderLight,
+		proceduralTerrain.Draw(_deviceContext, shMan.shaderTerrain,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
 		
@@ -179,7 +179,7 @@ bool Renderer::RenderFrame(float dTime)
 		*/
 	}
 
-	
+	/*
  	std::vector<InstanceData> instanceData(100);
 
 	for (int i = 0; i < instanceData.size(); ++i)
@@ -189,6 +189,7 @@ bool Renderer::RenderFrame(float dTime)
 	shMan.shaderInstanced.SetShaderParameters(&shMan.spl);
 	RES.modBall.Draw(_deviceContext, shMan.shaderInstanced);
 	shMan.shaderInstanced.ReleaseShaderParameters(_deviceContext);
+	*/
 
 	_D3D->TurnOnAlphaBlending();
 	shMan.shaderVolumetric.SetShaderParameters(_deviceContext, RES.will, _cam, elapsed);
@@ -250,7 +251,15 @@ void Renderer::ProcessSpecialInput()
 
 		///TERRAIN GENERATION
 		//proceduralTerrain = Procedural::Terrain(2, 2, SVec3(10, 30, 10));
-		proceduralTerrain.setScales(10, 500, 10);
+		proceduralTerrain.setScales(1, 50, 1);
+
+		std::vector<std::string> texNames = 
+		{
+			"../Textures/Biomes/grass.png", "../Textures/Biomes/ice_grass.jpg", 
+			"../Textures/Biomes/snow.jpg", "../Textures/Biomes/cliff.jpg"
+		};
+
+		proceduralTerrain.setTextureData(_device, 2.56f, 2.56f, texNames);
 
 		///Diamond square testing
 		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 4u, 0.6f, 10.f);
@@ -259,19 +268,19 @@ void Renderer::ProcessSpecialInput()
 		//proceduralTerrain.CellularAutomata(0.5f, 0);
 
 		///Noise testing	-SVec3(4, 100, 4) scaling with these fbm settings looks great for perlin
-		//perlin.generate2DTexturePerlin(512, 512, 64.f, 64.f);	(256, 256, 1, sqrt(3), 4u, 1.f, 1.f, true)
-		perlin.generate2DTextureFBM(256, 256, 1.f, 1.f, 3, 2.f, .5f);
-		proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
+		//perlin.generate2DTexturePerlin(512, 512, 16.f, 16.f);	//
+		//perlin.generate2DTextureFBM(256, 256, 1, 1., 4u, 2.1039f, .517f, true);	//(256, 256, 1.f, 1.f, 3, 2.f, .5f);
+		//proceduralTerrain.GenFromTexture(perlin._w, perlin._h, perlin.getFloatVector());
 		//perlin.writeToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png");
 
 
 
 		///Ridge/turbluent noise testing
-		//Texture tempTex;
-		//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 2.1737, 0.5793f, 10u);
-		//auto fltVec = tempTex.generateRidgey(256, 256, 0.f, 2.173f, 0.33f, 10u, 4.f);
+		Texture tempTex;
+		//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 1.61803, 0.5793f, 6u);
+		auto fltVec = tempTex.generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);
 		//Texture::WriteToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png", tempTex.w, tempTex.h, 1, tempTex.data, 0);
-		//proceduralTerrain.GenFromTexture(tempTex.w, tempTex.h, fltVec);
+		proceduralTerrain.GenFromTexture(tempTex.w, tempTex.h, fltVec);
 
 
 		///Terrain deformation testng
@@ -281,9 +290,10 @@ void Renderer::ProcessSpecialInput()
 		//proceduralTerrain.NoisyFault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), -20.f);
 		//proceduralTerrain.NoisyFault(SRay(SVec3(75.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), +15.f);
 		//proceduralTerrain.TerraSlash(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), 6.f, 64, 0.9f);
-		//proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, 0.5f, 64);
-		
-		///Voronoi tests
+		//proceduralTerrain.CircleOfScorn(SVec2(proceduralTerrain.getNumCols() / 2, proceduralTerrain.getNumRows() / 2), 40.f, PI * 0.01337f, .5f, 64);
+		//proceduralTerrain.Smooth(3);
+
+		///Voronoi tests - shatter stores an array of the same size as the vertPositions vector, each member containing the index of the closest seed
 		//Procedural::Voronoi v;
 		//v.init(25, proceduralTerrain.getNumCols(), proceduralTerrain.getNumRows());
 		//std::vector<SVec2> vertPositions = proceduralTerrain.getHorizontalPositions();
@@ -302,7 +312,7 @@ void Renderer::ProcessSpecialInput()
 		std::vector<Procedural::Terrain*> terrains;
 		terrains.push_back(&proceduralTerrain);
 
-		_colEngine.grid.populateCells(terrains);
+		//_colEngine.grid.populateCells(terrains);
 
 		isTerGenerated = true;
 		

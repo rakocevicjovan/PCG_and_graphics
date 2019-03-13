@@ -103,20 +103,20 @@ void OST::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencil
 
 void OST::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float* color)
 {
-
 	deviceContext->ClearRenderTargetView(rtv, color);
 	deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 
 
-void OST::DrawToTexture(D3DClass& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c)
+void OST::DrawDepthToTexture(D3DClass& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c)
 {
 	d3d.GetDeviceContext()->OMSetRenderTargets(1, &(rtv), d3d.GetDepthStencilView());	//switch to drawing on ost for the prepass	
 	d3d.GetDeviceContext()->ClearRenderTargetView(rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
 	d3d.GetDeviceContext()->ClearDepthStencilView(d3d.GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	for (auto tm : models) {
+	for (auto tm : models)
+	{
 		sd.SetShaderParameters(d3d.GetDeviceContext(), *tm, c.GetViewMatrix(), c.GetProjectionMatrix());	// offScreenTexture._view, offScreenTexture._lens
 		tm->Draw(d3d.GetDeviceContext(), sd);
 	}
@@ -145,7 +145,8 @@ bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<u
 	ID3D11Texture2D* stagingId = nullptr;
 
 	HRESULT res = device->CreateTexture2D(&texDesc, 0, &stagingId);
-	if (FAILED(res)) {
+	if (FAILED(res))
+	{
 		OutputDebugStringA("Can't create off-screen texture. \n");
 		exit(425);
 	}

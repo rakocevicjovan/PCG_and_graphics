@@ -373,7 +373,7 @@ bool Animator::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
 	//if(model.textures_loaded.size() != 0)
-	for (int i = 0; i < model.textures_loaded.size(); i++) {
+	for (unsigned int i = 0; i < model.textures_loaded.size(); i++) {
 		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
 	}
 

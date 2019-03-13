@@ -1,4 +1,5 @@
-cbuffer LightBuffer{
+cbuffer LightBuffer
+{
 	float3 alc;
 	float ali;
 	float3 dlc;
@@ -79,14 +80,13 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float3 invViewDir = -viewDir;
 
 	//texture colour
-	//float4 colour = shaderTexture.Sample(SampleType, input.tex);
-	float4 colour = float4(0.5f, 0.5f, 0.5f, 1.0f);
+	float4 colour = shaderTexture.Sample(SampleType, input.tex);
 
 	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);
 
 	//calculate diffuse light
-	float dFactor = 0;
+	float dFactor = 0.f;
 	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
 		
 	//calculate specular light
@@ -95,11 +95,12 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	colour = (ambient + diffuse) * colour + specular;
 
 	//apply fog
-	colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);
+	//colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);
 
 	//apply gamma correction
-	colour.xyz = pow( colour.xyz, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f) );
+	colour.xyz = pow( colour.xyz, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f));
 
+	colour.w = 1.f;
     return colour;
 }
 

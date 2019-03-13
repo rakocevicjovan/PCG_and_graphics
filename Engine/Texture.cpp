@@ -208,9 +208,6 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 		}
 	}
 
-	data = new unsigned char[w * h];
-	memcpy(data, curData.data(), curData.size());
-
 	return result;
 }
 
@@ -237,17 +234,14 @@ std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunari
 			float x = (float)i * wInverse;
 			float y = (float)j * hInverse;
 
-			float rgb = Texture::Ridge3D(x, y, z, lacunarity, gain, octaves, offset, xw, yw, zw);
-			int r = (int)((rgb + 1.f) * 0.5f * 255.f);
+			float rgb = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
+			int r = (int)((rgb + 1.f) * 0.5f);
 			unsigned char uc = (unsigned char)r;
 
 			result.push_back(rgb);
 			curData.push_back(uc);
 		}
 	}
-
-	data = new unsigned char[w * h];
-	memcpy(data, curData.data(), curData.size());
 
 	return result;
 }

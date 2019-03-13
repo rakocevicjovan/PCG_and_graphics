@@ -95,7 +95,7 @@ struct DrawParams : public SPBase
 
 
 class Model;
-class PointLight;
+struct PointLight;
 
 struct ShaderParametersLight : public SPBase
 {

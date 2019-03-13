@@ -123,9 +123,6 @@
     <ClCompile Include="ShaderWireframe.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
-    <ClCompile Include="NavierStokes.cpp">
-      <Filter>Procedural</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -170,6 +167,9 @@
     </ClCompile>
     <ClCompile Include="ShaderVolumetric.cpp">
       <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -282,9 +282,6 @@
       <Filter>Shading</Filter>
     </ClInclude>
     <ClInclude Include="Biome.h">
-      <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="NavierStokes.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
@@ -436,6 +433,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="volumTreePS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VolumJuliaPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="terrainPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -181,9 +181,23 @@ float4 addParticles(float3 xyz)
 	//float bling = turbulentFBM(float3(xyz.x, xyz.y - elapsed * 0.01f, xyz.z));
 	float bling = snoise(float3(xyz.x, xyz.y - elapsed * 1.1f, xyz.z));
 
-	if(bling < .71f && bling > .69f)	//ripple effect, might be nice for water
+	if(bling > .69f && bling < .71f)	//ripple effect, might be nice for water
 		return float4(bling, bling * .66f, bling * .66f, bling);
 
+	return float4(0., 0., 0., 0.);
+}
+
+
+
+float4 addHalo(float3 xyz)
+{
+	float circDistance = xyz.x * xyz.x + xyz.z * xyz.z;
+	float haloRadiusSquared = .95f * .95f;
+	float xzRatio = abs(haloRadiusSquared - circDistance);
+
+	if(abs(xyz.y) < .1f)
+		return float4(1., 1., 1., 1.) * xzRatio;
+	
 	return float4(0., 0., 0., 0.);
 }
 
@@ -208,20 +222,19 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir)
 	for (int i = 0; i < NUM_STEPS; ++i)
 	{
 		float3 curPos = rayOrigin + t * rayDir;
-		//sum += addParticles(curPos.xyz) ;
 
 		float dist = sqrt(curPos.x * curPos.x + curPos.y * curPos.y + curPos.z * curPos.z);	//get dist to middle of sphere
 	
 		// twist space - rotate each step around the center
-		curPos.xz = mul(curPos.xz, rotMat);
+		curPos.xy = mul(curPos.xz, rotMat);
 		curPos = normalize(curPos);	//renormalize
 
 		//use the warper to make the sphere contract and relax
-		float warper = snoise(curPos * .5f);
+		float warper = snoise(curPos * 5.f);
 		dist = smoothstep(0., 1., dist) * (1.f + warper * 0.25f); //* (1.f + warper * 0.33f);
 
 		//calcualte the fiery noise
-		float disturbance = turbulentFBM(curPos);	//cross(curPos, rayDir)
+		float disturbance = turbulentFBM(curPos * .200f);	//cross(curPos, rayDir)
 
 		//float alpha = min((1.f - 1.66 * dist), disturbance) * STEP_SIZE;
 		float alpha = min((1.f - 1.33f * dist), disturbance) * STEP_SIZE;
@@ -230,10 +243,10 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir)
 		sum.b += min(alpha, disturbance);
 		sum.a += alpha;
 
-		if (distance(particlePos, curPos) < .1f)
-			sum += 1.f;
-
 		t += STEP_SIZE;
+
+		//if (distance(particlePos, curPos) < .01f)
+			//sum += STEP_SIZE * 5.f;
 	}
 	
 	return sum;
@@ -253,9 +266,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float4 colour;
 
 	colour = raymarch(xyz, viewdir);
-
-
-	//colour += addParticles(xyz);
 
 	return colour;
 }

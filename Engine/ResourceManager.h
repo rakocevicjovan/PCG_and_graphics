@@ -21,7 +21,7 @@ struct MyLevel
 	PointLight pointLight;
 	DirectionalLight dirLight;
 	
-	OST offScreenTexture;
+	OST offScreenTexture, postProcessTexture;
 	const unsigned int ostW = 1600, ostH = 900;
 
 	Audio audio;
@@ -69,9 +69,9 @@ struct MyLevel
 
 
 		///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
-		LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .002f, SVec3(0.8f, 0.8f, 1.0f), .3f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
+		LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 
-		pointLight = PointLight(lightData, SVec4(2000.f, 1000.f, 1000.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
+		pointLight = PointLight(lightData, SVec4(0.f, 0.f, 1000.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
 
 		SVec3 lookAtPoint = SVec3(0.f, 100.0f, 0.0f);
@@ -87,6 +87,8 @@ struct MyLevel
 		offScreenTexture.Init(device, ostW, ostH);
 		offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
 		offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
+
+		postProcessTexture.Init(device, ostW, ostH);
 
 		///NOISES
 		white.LoadFromFile("../Textures/noiz.png");

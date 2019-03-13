@@ -36,6 +36,19 @@ namespace Procedural
 
 
 
+	void Terrain::setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames)
+	{
+		tcxr = xRepeat;
+		tczr = zRepeat;
+
+		for (auto tn : textureNames)
+		{
+			textures.push_back(Texture(device, tn));
+		}
+	}
+
+
+
 	void Terrain::Tumble(float chance) 
 	{
 		Chaos chaos;
@@ -260,14 +273,14 @@ namespace Procedural
 				//top left face
 				SVec3 ab = topLeft.pos - topRight.pos;
 				SVec3 ac = bottomLeft.pos - topRight.pos;
-				SVec3 normal = ab.Cross(ac);
+				SVec3 normal = ac.Cross(ab);
 
 				faces[row].push_back(std::make_pair(SVec3(tli, tri, bli), normal));
 
 				//bottom right face
 				ab = topRight.pos - bottomRight.pos;
 				ac = bottomLeft.pos - bottomRight.pos;
-				normal = ab.Cross(ac);
+				normal = ac.Cross(ab);
 
 				faces[row].push_back(std::make_pair(SVec3(bli, tri, bri), normal));
 			}
@@ -344,6 +357,12 @@ namespace Procedural
 	bool Terrain::SetUp(ID3D11Device* device) 
 	{
 		CalculateNormals();
+		
+		float invXScale = tcxr / (xScale * _numColumns), invZScale = tczr / (zScale * _numRows);
+		for (auto& v : vertices)
+		{
+			v.texCoords = SVec2(v.pos.x * invXScale, v.pos.z * invZScale);
+		}
 
 		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 		D3D11_SUBRESOURCE_DATA vertexData, indexData;
@@ -385,7 +404,7 @@ namespace Procedural
 
 
 
-	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, const PointLight& dLight, float deltaTime, SVec3 eyePos)
+	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, const PointLight& pointLight, float deltaTime, SVec3 eyePos)
 	{
 		HRESULT result;
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -441,13 +460,13 @@ namespace Procedural
 
 
 		dataPtr2 = (LightBuffer*)mappedResource.pData;
-		dataPtr2->alc = dLight.alc;
-		dataPtr2->ali = dLight.ali;
-		dataPtr2->dlc = dLight.dlc;
-		dataPtr2->dli = dLight.dli;
-		dataPtr2->slc = dLight.slc;
-		dataPtr2->sli = dLight.sli;
-		dataPtr2->pos = dLight.pos;
+		dataPtr2->alc = pointLight.alc;
+		dataPtr2->ali = pointLight.ali;
+		dataPtr2->dlc = pointLight.dlc;
+		dataPtr2->dli = pointLight.dli;
+		dataPtr2->slc = pointLight.slc;
+		dataPtr2->sli = pointLight.sli;
+		dataPtr2->pos = pointLight.pos;
 		dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 
 		dc->Unmap(s._lightBuffer, 0);
@@ -463,6 +482,12 @@ namespace Procedural
 		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 
+		for (int i = 0; i < textures.size(); ++i)
+		{
+			dc->PSSetShaderResources(i, 1, &(textures[i].srv));
+		}
+			
+
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -476,8 +501,8 @@ namespace Procedural
 
 	void Terrain::Fault(const SRay& line, float displacement) 
 	{
-		float adjX = line.position.x * xScale;
-		float adjZ = line.position.z * zScale;
+		float adjX = line.position.x;
+		float adjZ = line.position.z;
 
 		for (int i = 0; i < vertices.size(); ++i)
 			if (line.direction.z * (vertices[i].pos.x - adjX) - line.direction.x * (vertices[i].pos.z - adjZ) > 0)
@@ -486,20 +511,25 @@ namespace Procedural
 
 
 
-	void Terrain::NoisyFault(const SRay& line, float displacement)
+	void Terrain::NoisyFault(const SRay& line, float vertDp, float horiDp)
 	{
-		float adjX = line.position.x * xScale;
-		float adjZ = line.position.z * zScale;
+		float adjX = line.position.x;
+		float adjZ = line.position.z;
+
+		float inverseWidth = 1.f / ((float)_numColumns * xScale);
+		float inverseDepth = 1.f / ((float)_numRows    * zScale);
+		
 		Perlin p;
+
 
 		for (int i = 0; i < vertices.size(); ++i)
 		{
 			Vert3D cv = vertices[i];
-			SVec2 input = SVec2(cv.pos.x / (float)_numColumns, cv.pos.z / (float)_numRows);
-			float p2dVal = p.perlin2d(input) * 100.f;	// p.FBM(1.f, 2.f, 3u, 2.f, 0.5f, )
+			SVec2 input = SVec2(cv.pos.x * inverseWidth, cv.pos.z * inverseDepth);
+			float p2dVal = p.perlin2d(input) * horiDp;
 			
 			if (line.direction.z * (cv.pos.x - adjX) - line.direction.x * (cv.pos.z - adjZ) > p2dVal)
-				vertices[i].pos.y += displacement;
+				vertices[i].pos.y += vertDp;
 		}
 	}
 
@@ -532,8 +562,6 @@ namespace Procedural
 
 	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps)
 	{
-		SVec2 up(0.f, 1.f);
-
 		float curAngle = 0;
 
 		for (int i = 0; i < steps; ++i)
@@ -541,16 +569,15 @@ namespace Procedural
 			float cosAng = cos(curAngle);
 			float sinAng = sin(curAngle);
 
-			SVec2 dir(cosAng * up.x - sinAng * up.y, sinAng * up.x + cosAng * up.y);
-			dir.Normalize();
+			SVec2 dir(-sinAng, cosAng);
 
 			SVec2 curPoint = center + dir * radius;
 
 			SVec3 curPoint3D(curPoint.x, 0.f, curPoint.y);
 			SVec3 curTangent3D(-dir.y, 0.f, dir.x);
 
-			Fault(SRay(curPoint3D, curTangent3D), displacement * i);
-
+			Fault(SRay(curPoint3D, curTangent3D), displacement);
+			//NoisyFault(SRay(curPoint3D, curTangent3D), displacement, 200.f);
 			curAngle += angle;
 		}
 	}
@@ -558,28 +585,48 @@ namespace Procedural
 	
 	//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 	//apply this FIR function to rows and columns individually, in both directions
-	void Terrain::Smooth() 
+	void Terrain::Smooth(unsigned int steps) 
 	{
-
-		std::vector<Vert3D> smoothed(vertices.size());
-
-		for (int i = 0; i < _numRows; ++i)
+		for (int i = 0; i < steps; ++i)
 		{
-			for (int j = 0; j < _numColumns; ++j)
+		std::vector<float> smoothed;
+		smoothed.reserve(vertices.size());
+
+		for (int z = 0; z < _numRows; ++z)
+		{
+			for (int x = 0; x < _numColumns; ++x)
 			{
-				SVec3 newPos =
-					vertices[i * _numColumns + wc(j - 1)].pos +
-					vertices[i * _numColumns + j].pos +
-					vertices[i * _numColumns + wc(j + 1)].pos;
+				int pX = x == 0					? x : x - 1;
+				int nX = x == _numColumns - 1	? x : x + 1;
+
+				smoothed.push_back((
+					vertices[z * _numColumns + pX].pos.y +
+					vertices[z * _numColumns + x].pos.y +
+					vertices[z * _numColumns + nX].pos.y)
+					* .33333f);
 			}
 		}
 
-		for (int i = 0; i < _numColumns; ++i)
+		for (int z = 0; z < _numRows; ++z)
 		{
-			for (int j = 0; j < _numRows; ++j)
-			{
+			int pZ = z == 0				? z : z - 1;
+			int nZ = z == _numRows - 1	? z : z + 1;
 
+			for (int x = 0; x < _numColumns; ++x)
+			{
+				int thisSmoothed = z * _numColumns + x;
+				float newHeight =
+					vertices[pZ * _numColumns + x].pos.y +
+					vertices[thisSmoothed].pos.y +
+					vertices[nZ * _numColumns + x].pos.y;
+				
+				smoothed[thisSmoothed] += (newHeight * .333333f);
+				smoothed[thisSmoothed] *= .500000f;
 			}
+		}
+
+		for (int i = 0; i < vertices.size(); ++i)
+			vertices[i].pos.y = smoothed[i];
 		}
 	}
 

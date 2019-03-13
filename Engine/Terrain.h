@@ -5,6 +5,7 @@
 #include "Math.h"
 #include "Light.h"
 #include "ShaderLight.h"
+#include "Texture.h"
 
 
 namespace Procedural 
@@ -31,10 +32,13 @@ namespace Procedural
 		std::vector<unsigned int> indices;
 		unsigned int _numRows, _numColumns;
 		float xScale = 1.0f, yScale = 1.0f, zScale = 1.0f;
+		float tcxr = 1.f, tczr = 1.f;
 		SVec3 _offset;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
+
+		std::vector<Texture> textures;
 
 		///helper functions
 		inline unsigned int wr(int row);
@@ -47,7 +51,7 @@ namespace Procedural
 		~Terrain();
 
 		void setScales(float x, float y, float z);
-
+		void setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames);
 
 		///generation methods
 
@@ -62,10 +66,10 @@ namespace Procedural
 		void Tumble(float chance);
 		void CellularAutomata(float initialDistribtuion, unsigned int steps);
 		void Fault(const SRay& line, float displacement);
-		void NoisyFault(const SRay& line, float displacement);
+		void NoisyFault(const SRay& line, float vertDp, float horiDp);
 		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
 		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps);
-		void Smooth();	
+		void Smooth(unsigned int steps);	
 
 		
 
@@ -74,7 +78,7 @@ namespace Procedural
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, ShaderBase& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
-			const PointLight& dLight, float deltaTime, SVec3 eyePos);
+			const PointLight& pointLight, float deltaTime, SVec3 eyePos);
 
 
 		///getters

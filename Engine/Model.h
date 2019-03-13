@@ -30,20 +30,9 @@ public:
 
 	Collider* collider;
 
-	bool isInstanced = false;
-
 	Model() {}
-
-	Model(const std::string& path)
-	{
-		name = path;
-	}
-
-	~Model()
-	{
-		if(collider) delete collider;
-	}
-
+	Model(const std::string& path);
+	~Model();
 
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1);

@@ -58,7 +58,7 @@ public:
 	{
 		assert(timestamps.size() == transforms.size());	//@TODO check yourself before you wreck yourself
 
-		for (int i = 0; i < timestamps.size(); ++i) 	
+		for (unsigned int i = 0; i < timestamps.size(); ++i) 	
 			timeline.push_back(std::make_pair(timestamps[i], transforms[i]));
 	}
 };

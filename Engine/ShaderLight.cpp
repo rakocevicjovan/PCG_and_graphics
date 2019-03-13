@@ -18,7 +18,6 @@ ShaderLight::~ShaderLight()
 bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& p,
 									const PointLight& dLight, const SVec3& eyePos, float deltaTime)
 {
-	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBuffer* dataPtr;
