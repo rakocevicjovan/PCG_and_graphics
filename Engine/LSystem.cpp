@@ -1,6 +1,5 @@
 #include "LSystem.h" 
-
-
+#include "Geometry.h"
 
 
 namespace Procedural
@@ -140,6 +139,108 @@ namespace Procedural
 	}
 
 
+
+	Model LSystem::genModel(ID3D11Device* device, float length, float radius, float decay, float pitch, float yaw)
+	{
+		//initial mesh config
+		const float c_radius = radius;
+		const float c_length = length;
+		float accumulatedDecay = 1.f;
+		SVec3 globalUp(0, 1., 0);
+
+		//for traversing the tree
+		SMatrix orientation(SMatrix::Identity);
+		SVec3 pos(0.f, 0.f, 0.f);
+		SVec3 dir(0.f, 1.f, 0.f);
+		SVec3 nextPos(0.f, 0.f, 0.f);
+
+		//branching
+		std::vector<SVec3> storedPos;
+		std::vector<SMatrix> storedOri;
+		std::vector<unsigned int> storedIndices;
+		std::vector<float> storedDecays;
+
+
+		for (int i = 0; i < _current.size(); ++i)
+		{
+			char c = _current[i];
+			char n = _current[i + 1];
+			
+			nextPos = pos;
+			SVec3 rotated = SVec3::Transform(dir, orientation);
+			
+			Geometry g;
+			SVec3 curDir;
+
+			length = c_length * accumulatedDecay;
+			radius = c_radius * accumulatedDecay * accumulatedDecay;
+
+
+			switch (c)
+			{
+			case 'F':
+
+				g.GenTube(radius, length, 24, 2, 1.f);
+
+				nextPos += length * rotated;
+
+				for (int i = 0; i < g.positions.size(); ++ i)	//auto& vp : g.positions
+				{
+					Math::RotateVecByMat(g.positions[i], orientation);
+					Math::RotateVecByMat(g.normals[i], orientation);
+					g.positions[i] += pos; //+ curDir * 0.5f;
+				}
+
+				tree.meshes.push_back(Mesh(g, device));
+
+				break;
+
+			case '+':
+				orientation *= SMatrix::CreateFromAxisAngle(orientation.Forward(), pitch);
+				break;
+
+			case '-':
+				orientation *= SMatrix::CreateFromAxisAngle(orientation.Forward(), -pitch);
+				break;
+
+			case '*':
+				orientation *= SMatrix::CreateFromAxisAngle(orientation.Up(), yaw);
+				break;
+
+			case '/':
+				orientation *= SMatrix::CreateFromAxisAngle(orientation.Up(), -yaw);
+				break;
+
+			case '[':
+				storedPos.push_back(pos);
+				storedOri.push_back(orientation);
+				storedDecays.push_back(accumulatedDecay);
+				accumulatedDecay *= decay;
+				break;
+
+			case ']':
+				nextPos = storedPos.back();
+				storedPos.pop_back();
+
+				orientation = storedOri.back();
+				storedOri.pop_back();
+				
+				accumulatedDecay = storedDecays.back();
+				storedDecays.pop_back();
+				break;
+
+			default:
+				std::cout << c << std::endl;
+				break;
+			}
+			pos = nextPos;
+		}
+
+		return tree;
+	}
+
+
+
 	void LSystem::setUp(ID3D11Device* device)
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
@@ -180,64 +281,38 @@ namespace Procedural
 
 
 
-	void LSystem::draw(ID3D11DeviceContext* dc, ShaderLight& s, 
+	void LSystem::drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
 			const PointLight& dLight, float deltaTime, SVec3 eyePos)
 	{
-		HRESULT result;
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		unsigned int bufferNumber;
-		MatrixBufferTypeA* dataPtr;
-		LightBufferTypeA* dataPtr2;
-		VariableBufferTypeA* dataPtr3;
-
-		// Lock the constant matrix buffer so it can be written to.
-		result = dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-			return;
-
-		dataPtr = (MatrixBufferTypeA*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+		MatrixBuffer* dataPtr;
+		LightBuffer* dataPtr2;
+		VariableBuffer* dataPtr3;
 
 		SMatrix mT = mt.Transpose();
 		SMatrix vT = vt.Transpose();
 		SMatrix pT = pt.Transpose();
 
-		// Copy the matrices into the constant buffer.
+		// Lock the constant matrix buffer so it can be written to.
+		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))return;
+		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 		dataPtr->world = mT;
 		dataPtr->view = vT;
 		dataPtr->projection = pT;
-
-		// Unlock the constant buffer.
 		dc->Unmap(s._matrixBuffer, 0);
-
-		bufferNumber = 0;	// Set the position of the constant buffer in the vertex shader.
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s._matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
-		//END MATRIX BUFFER
+		dc->VSSetConstantBuffers(0, 1, &s._matrixBuffer);	
 
 
-
-		result = dc->Map(s._variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-			return;
-
-		dataPtr3 = (VariableBufferTypeA*)mappedResource.pData;
-
+		if (FAILED(dc->Map(s._variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource))) return;
+		dataPtr3 = (VariableBuffer*)mappedResource.pData;
 		dataPtr3->deltaTime = deltaTime;
 		dataPtr3->padding = SVec3();
-
 		dc->Unmap(s._variableBuffer, 0);
+		dc->VSSetConstantBuffers(1, 1, &s._variableBuffer);
 
-		bufferNumber = 1;
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s._variableBuffer);
-
-
-
-		result = dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-			return;
-
-
-		dataPtr2 = (LightBufferTypeA*)mappedResource.pData;
+		if (FAILED(dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource))) return;
+		dataPtr2 = (LightBuffer*)mappedResource.pData;
 		dataPtr2->alc = dLight.alc;
 		dataPtr2->ali = dLight.ali;
 		dataPtr2->dlc = dLight.dlc;
@@ -246,10 +321,8 @@ namespace Procedural
 		dataPtr2->sli = dLight.sli;
 		dataPtr2->pos = dLight.pos;
 		dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
-
 		dc->Unmap(s._lightBuffer, 0);
-
-		bufferNumber = 0;
+		dc->PSSetConstantBuffers(0, 1, &s._lightBuffer);
 
 		unsigned int stride = sizeof(Vert3D);
 		unsigned int offset = 0;
@@ -257,7 +330,6 @@ namespace Procedural
 		dc->VSSetShader(s._vertexShader, NULL, 0);
 		dc->PSSetShader(s._pixelShader, NULL, 0);
 
-		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
@@ -267,9 +339,6 @@ namespace Procedural
 		dc->IASetInputLayout(s._layout);
 
 		dc->DrawIndexed(indices.size(), 0, 0);
-
-
-
 	}
 
 }

@@ -10,7 +10,7 @@ struct Vert3D
 	SVec3 normal;
 
 	Vert3D() {};
-	Vert3D(SVec3& position) : pos(position) {};
+	Vert3D(const SVec3& position) : pos(position) {};
 };
 
 struct VertBoneData 

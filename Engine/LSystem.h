@@ -4,34 +4,10 @@
 #include "Math.h"
 #include "MeshDataStructs.h"
 #include "ShaderLight.h"
+#include "Model.h"
 
 namespace Procedural
 {
-
-	struct MatrixBufferTypeA
-	{
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-	struct VariableBufferTypeA
-	{
-		float deltaTime;
-		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
-	};
-	struct LightBufferTypeA
-	{
-		SVec3 alc;
-		float ali;
-		SVec3  dlc;
-		float dli;
-		SVec3 slc;
-		float sli;
-		SVec4 pos;
-		SVec4 ePos;
-	};
-
-
 
 	struct RewriteRule 
 	{
@@ -55,8 +31,10 @@ namespace Procedural
 		std::vector<unsigned int> indices;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
+		Model tree;
+
 	public:
-		LSystem() : _axiom("f"), _current("f") {};
+		LSystem() : _axiom("F"), _current("F") {};
 		LSystem(std::string axiom);
 		~LSystem();
 
@@ -64,11 +42,11 @@ namespace Procedural
 		bool addRule(char left, std::string right);
 		void rewrite(unsigned int steps);
 		void genVerts(float length, float decay, float pitch, float yaw);
+		Model genModel(ID3D11Device* device, float length, float radius, float decay, float pitch, float yaw);
 		void setUp(ID3D11Device* device);
-		void draw(ID3D11DeviceContext* dc, ShaderLight& s,
+		void drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s,
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);
-
 		std::string getString() { return _current; }
 	};
 

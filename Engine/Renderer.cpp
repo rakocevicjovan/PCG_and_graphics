@@ -177,6 +177,14 @@ bool Renderer::RenderFrame(float dTime)
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 		*/
+
+
+		shMan.shaderLight.SetShaderParameters(_deviceContext, 
+			t00bModel, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), 
+			RES.pointLight, _cam.GetCameraMatrix().Translation(), dTime);
+		t00bModel.Draw(_deviceContext, shMan.shaderLight);
+		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
+
 	}
 
 	/*
@@ -299,15 +307,6 @@ void Renderer::ProcessSpecialInput()
 		//std::vector<SVec2> vertPositions = proceduralTerrain.getHorizontalPositions();
 		//v.shatter(vertPositions);
 
-		
-		///L-systems testing
-		/*
-		linden.addRule('f', "f[-f]*f[+f][/f]");
-		linden.rewrite(1);
-		linden.genVerts(0.1f, 0.8f, PI * 0.16666f, PI * 0.16666f);
-		linden.setUp(_device);
-		*/
-
 		proceduralTerrain.SetUp(_device);
 		std::vector<Procedural::Terrain*> terrains;
 		terrains.push_back(&proceduralTerrain);
@@ -315,7 +314,20 @@ void Renderer::ProcessSpecialInput()
 		//_colEngine.grid.populateCells(terrains);
 
 		isTerGenerated = true;
+
+		///L-systems testing
+		linden.reseed("F");
+		linden.addRule('F', "FF+[+F-F-F]-[-F+F+F]/"); //"[-f]*f[+f][/f]");		//f[+f]f[-f]+f for planar looks ok
 		
+		//linden.reseed("F+F+F+F");
+		//linden.addRule('F', "FF+F-F+F+FF");
+
+		linden.rewrite(4);
+
+		float liangle = PI * 0.138888f; 
+		t00bModel = linden.genModel(_device, 2.f, .5f, 0.8f, liangle, liangle);
+
+		//linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);	
 	}
 
 	if(_inMan->IsKeyDown((short)'F'))

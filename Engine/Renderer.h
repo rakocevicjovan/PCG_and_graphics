@@ -16,6 +16,7 @@
 #include "Voronoi.h"
 #include "Volumetric.h"
 #include "BitMapper.h"
+#include "Geometry.h"
 
 
 const bool FULL_SCREEN = false;
@@ -61,6 +62,8 @@ private:
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
 	Procedural::LSystem linden;
+	Procedural::Geometry t00b;
+	Model t00bModel;
 
 	ParticleSystem pSys;
 

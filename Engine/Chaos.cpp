@@ -24,10 +24,10 @@ inline float Chaos::rollTheDice()
 
 
 
-void Chaos::fillVector(std::vector<float>& target) 
+void Chaos::fillVector(std::vector<float>& target, int count) 
 {
-	for (int i = 0; i < target.size(); i++)
-		target[i] = rollTheDice();
+	for (int i = 0; i < count; i++)
+		target.push_back(rollTheDice());
 }
 
 

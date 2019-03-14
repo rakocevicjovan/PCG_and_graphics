@@ -1,4 +1,5 @@
 #include "Geometry.h"
+#include "Chaos.h"
 
 namespace Procedural
 {
@@ -107,17 +108,19 @@ namespace Procedural
 	
 
 
-	void Geometry::GenTube(float radius, float height, UINT subdivsRadial, UINT rows)
+	void Geometry::GenTube(float radius, float height, UINT subdivsRadial, UINT rows, float decay)
 	{
 		positions.reserve(rows * subdivsRadial);
 		indices.reserve(subdivsRadial * 2 * 3 * (rows - 1));	//number of faces per column, times 2 for two subrows, times face rows, times 3
 
-		float subdivHeight = height / float(rows);
-		float halfHeight = height * 0.5f;
+		float subdivHeight = height / float(rows - 1);
+		//float halfHeight = height * 0.5f;
 
 		//create a ring
 		float angle = 0.f;
 		float dAngle = 2. * PI / float(subdivsRadial);
+
+		float radiusDelta = radius * (1.f - decay);
 
 		std::vector<float> sines, cosines;
 		sines.reserve(subdivsRadial);
@@ -131,25 +134,38 @@ namespace Procedural
 			angle += dAngle;
 		}
 
+
 		//iterate rows to create the vertices
-		for (unsigned int i = 0; i < rows; ++i)
+		for (UINT i = 0; i < rows; ++i)
 		{
-			for (unsigned int j = 0; j < subdivsRadial; ++j)
+			float adjRadius = radius - Math::smoothstep(0, rows - 1.f, i) * radiusDelta;
+
+			for (UINT j = 0; j < subdivsRadial; ++j)
 			{
-				positions.push_back(SVec3(cosines[j], i * subdivHeight - halfHeight, sines[j]) * radius);
+
+				positions.push_back(	SVec3(	cosines[j] * adjRadius,
+												i * subdivHeight,		// - halfHeight
+												sines[j] * adjRadius
+											 )
+				);
 				
-				//and link them with indices
-				if (i == rows - 1) break;
+				normals.push_back(Math::getNormalizedVec3(SVec3(positions.back().x, 0.f, positions.back().z)));
 				
-				if (j < subdivsRadial - 1)
+				//and link them with indices - except the last row, because the current row already takes the next one into account to build the index buffer
+				if (i == rows - 1) continue;
+
+				UINT indexAbove = (i + 1) * subdivsRadial + j;
+				UINT indexHere = i * subdivsRadial + j;
+				
+				if (j == subdivsRadial - 1)
 				{
-					indices.insert(indices.end(), { j + subdivsRadial, j + subdivsRadial + 1, j });
-					indices.insert(indices.end(), { j, j + subdivsRadial + 1, j + 1 });
+					indices.insert(indices.end(), { indexAbove, (i + 1) * subdivsRadial, indexHere });		//11, 6, 5
+					indices.insert(indices.end(), { indexHere, (i + 1) * subdivsRadial, i * subdivsRadial });	//5, 6, 0
 				}
 				else
 				{
-					indices.insert(indices.end(), { j + subdivsRadial, (i + 1) * subdivsRadial, j });
-					indices.insert(indices.end(), { j, (i + 1) * subdivsRadial, i * subdivsRadial });
+					indices.insert(indices.end(), { indexAbove, indexAbove + 1, indexHere });
+					indices.insert(indices.end(), { indexHere, indexAbove + 1, indexHere + 1 });
 				}
 			}
 		}

@@ -8,6 +8,8 @@
 		_indexBuffer = 0;
 	}
 
+
+
 	Mesh::Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind)
 		: vertices(vertices), indices(indices), textures(textures)
 	{
@@ -58,9 +60,14 @@
 	Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device)
 	{
 		vertices.reserve(g.positions.size());
+		Vert3D v;
 
-		for (auto pos : g.positions)
-			vertices.push_back(pos);
+		for (int i = 0; i < g.positions.size(); ++i)
+		{
+			v.pos = g.positions[i];
+			v.normal = g.normals[i];
+			vertices.push_back(v);
+		}
 
 		indices = g.indices;
 

@@ -24,7 +24,6 @@ class Mesh
 
 		ID3D11Buffer *_vertexBuffer = nullptr, *_indexBuffer = nullptr;
 
-
 		Mesh();
 
 		Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind);

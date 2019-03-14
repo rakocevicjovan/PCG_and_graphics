@@ -24,14 +24,14 @@ namespace Procedural
 		_ySize = maxY;
 		_seeds.resize(_numSeeds);
 
-		std::vector<float>axes(_numSeeds), eyes(_numSeeds);
+		std::vector<float>axes, eyes;
 
 		Chaos c;
 		c.setRange(0, _xSize);
-		c.fillVector(axes);
+		c.fillVector(axes, _numSeeds);
 
 		c.setRange(0, _ySize);
-		c.fillVector(eyes);
+		c.fillVector(eyes, _numSeeds);
 
 		for (int i = 0; i < _numSeeds; ++i)
 		{

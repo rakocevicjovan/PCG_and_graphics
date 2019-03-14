@@ -18,6 +18,6 @@ public:
 
 	inline float rollTheDice();
 	void setRange(float min, float max);
-	void fillVector(std::vector<float>& target);
+	void fillVector(std::vector<float>& target, int count);
 	void fillIntVector(std::vector<int>& target, int min, int max);
 };

@@ -54,8 +54,7 @@ namespace Procedural
 		Chaos chaos;
 
 		std::vector<float> wat;
-		wat.resize(vertices.size());
-		chaos.fillVector(wat);
+		chaos.fillVector(wat, vertices.size());
 
 		for (int i = 0; i < vertices.size(); i++)
 			if (wat[i] < chance)
@@ -168,8 +167,7 @@ namespace Procedural
 		Chaos chaos(0.f, 1.f);
 
 		std::vector<float> randoms;
-		randoms.resize(vertices.size());
-		chaos.fillVector(randoms);
+		chaos.fillVector(randoms, vertices.size());
 
 		std::vector<bool> cells(vertices.size(), false);
 

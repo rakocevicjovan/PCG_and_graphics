@@ -8,10 +8,14 @@ Model::Model(const std::string& path)
 	name = path;
 }
 
+
+
 Model::~Model()
 {
-	if (collider) delete collider;
+	if (collider)
+		delete collider;
 }
+
 
 
 bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx, float rUVy)

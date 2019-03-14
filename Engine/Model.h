@@ -28,7 +28,7 @@ public:
 
 	SMatrix transform;
 
-	Collider* collider;
+	Collider* collider = nullptr;
 
 	Model() {}
 	Model(const std::string& path);
