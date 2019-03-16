@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "SimpleMath.h"
 #include "InputManager.h"
 
 Renderer::Renderer() : proceduralTerrain()
@@ -38,6 +37,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
+	maze.Init(4, 4, 10.f);
+	maze.Eller();
 	
 
 	///CAMERA INITIALISATION
@@ -317,15 +318,16 @@ void Renderer::ProcessSpecialInput()
 
 		///L-systems testing
 		linden.reseed("F");
-		linden.addRule('F', "FF+[+F-F-F]-[-F+F+F]/"); //"[-f]*f[+f][/f]");		//f[+f]f[-f]+f for planar looks ok
+		linden.addRule('F', "FF+[+F-F+F]*-[-F+F-F]/"); //"[-f]*f[+f][/f]");		//f[+f]f[-f]+f for planar looks ok
 		
 		//linden.reseed("F+F+F+F");
 		//linden.addRule('F', "FF+F-F+F+FF");
 
 		linden.rewrite(4);
 
-		float liangle = PI * 0.138888f; 
-		t00bModel = linden.genModel(_device, 2.f, .5f, 0.8f, liangle, liangle);
+		float liangle = PI * 0.138888f;
+		//liangle = PI * .5f;
+		t00bModel = linden.genModel(_device, 10.f, 2.f, .9f, .8f, liangle, liangle);
 
 		//linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);	
 	}

@@ -42,7 +42,7 @@ namespace Procedural
 		bool addRule(char left, std::string right);
 		void rewrite(unsigned int steps);
 		void genVerts(float length, float decay, float pitch, float yaw);
-		Model genModel(ID3D11Device* device, float length, float radius, float decay, float pitch, float yaw);
+		Model genModel(ID3D11Device* device, float length, float radius, const float lengthConstriction, const float radiusConstriction, float pitch, float yaw);
 		void setUp(ID3D11Device* device);
 		void drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s,
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,

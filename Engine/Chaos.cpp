@@ -26,6 +26,7 @@ inline float Chaos::rollTheDice()
 
 void Chaos::fillVector(std::vector<float>& target, int count) 
 {
+	//target.reserve(count);
 	for (int i = 0; i < count; i++)
 		target.push_back(rollTheDice());
 }

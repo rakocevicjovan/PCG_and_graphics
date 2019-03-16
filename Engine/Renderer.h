@@ -17,6 +17,7 @@
 #include "Volumetric.h"
 #include "BitMapper.h"
 #include "Geometry.h"
+#include "Maze.h"
 
 
 const bool FULL_SCREEN = false;
@@ -64,6 +65,7 @@ private:
 	Procedural::LSystem linden;
 	Procedural::Geometry t00b;
 	Model t00bModel;
+	Procedural::Maze maze;
 
 	ParticleSystem pSys;
 

@@ -39,7 +39,7 @@ struct MyLevel
 
 		will.LoadModel(device, "../Models/ball.fbx");
 		Math::Scale(will.transform, SVec3(5.f));
-		Math::Translate(will.transform, SVec3(50, 50, 50));
+		Math::Translate(will.transform, SVec3(2, 35, 60));
 
 		modBall.LoadModel(device, "../Models/ball.fbx");
 		/*

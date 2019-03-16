@@ -140,13 +140,13 @@ namespace Procedural
 
 
 
-	Model LSystem::genModel(ID3D11Device* device, float length, float radius, float decay, float pitch, float yaw)
+	Model LSystem::genModel(ID3D11Device* device, float length, float radius, const float lengthConstriction, const float radiusConstriction, float pitch, float yaw)
 	{
 		//initial mesh config
 		const float c_radius = radius;
 		const float c_length = length;
-		float accumulatedDecay = 1.f;
-		SVec3 globalUp(0, 1., 0);
+		float accRadConstriction = 1.f;
+		float accLenConstriction = 1.f;
 
 		//for traversing the tree
 		SMatrix orientation(SMatrix::Identity);
@@ -158,40 +158,58 @@ namespace Procedural
 		std::vector<SVec3> storedPos;
 		std::vector<SMatrix> storedOri;
 		std::vector<unsigned int> storedIndices;
-		std::vector<float> storedDecays;
+		std::vector<float> storedLengths;
+		std::vector<float> storedRadii;
 
+		Geometry sphere, tube;
+		sphere.GenSphere(1.f);
+		Geometry tempSphere = sphere;	//avoid recalculating everything for the sphere, just copy it, scale and translate
 
 		for (int i = 0; i < _current.size(); ++i)
 		{
 			char c = _current[i];
 			char n = _current[i + 1];
-			
-			nextPos = pos;
-			SVec3 rotated = SVec3::Transform(dir, orientation);
-			
-			Geometry g;
+
 			SVec3 curDir;
 
-			length = c_length * accumulatedDecay;
-			radius = c_radius * accumulatedDecay * accumulatedDecay;
+			nextPos = pos;
+			SVec3 rotated = SVec3::Transform(dir, orientation);
 
+			length = c_length * accLenConstriction;
+			radius = c_radius * accRadConstriction;
 
 			switch (c)
 			{
 			case 'F':
 
-				g.GenTube(radius, length, 24, 2, 1.f);
-
 				nextPos += length * rotated;
 
-				for (int i = 0; i < g.positions.size(); ++ i)	//auto& vp : g.positions
+				tube.Clear();
+				//add tube
+				if(n == ']')
+					tube.GenTube(radius, length, 24, 10, 0.f);
+				else if(n == '[')
+					tube.GenTube(radius, length, 24, 10, radiusConstriction);
+				else
+					tube.GenTube(radius, length, 24, 10, 1.f);
+
+				for (int i = 0; i < tube.positions.size(); ++ i)	//auto& vp : g.positions
 				{
-					Math::RotateVecByMat(g.positions[i], orientation);
-					Math::RotateVecByMat(g.normals[i], orientation);
-					g.positions[i] += pos; //+ curDir * 0.5f;
+					Math::RotateVecByMat(tube.positions[i], orientation);
+					Math::RotateVecByMat(tube.normals[i], orientation);
+					tube.positions[i] += pos; //+ curDir * 0.5f;
 				}
 
-				tree.meshes.push_back(Mesh(g, device));
+				tree.meshes.push_back(Mesh(tube, device));
+
+				for (int i = 0; i < sphere.positions.size(); ++i)
+				{
+					tempSphere.positions[i] = sphere.positions[i] * radius * 1.05f;
+					tempSphere.positions[i] += pos;
+				}
+
+				tree.meshes.push_back(Mesh(tempSphere, device));
+				//accumulatedDecay *= decay;
 
 				break;
 
@@ -214,8 +232,10 @@ namespace Procedural
 			case '[':
 				storedPos.push_back(pos);
 				storedOri.push_back(orientation);
-				storedDecays.push_back(accumulatedDecay);
-				accumulatedDecay *= decay;
+				storedRadii.push_back(accRadConstriction);
+				storedLengths.push_back(accLenConstriction);
+				accRadConstriction *= radiusConstriction;
+				accLenConstriction *= lengthConstriction;
 				break;
 
 			case ']':
@@ -225,8 +245,12 @@ namespace Procedural
 				orientation = storedOri.back();
 				storedOri.pop_back();
 				
-				accumulatedDecay = storedDecays.back();
-				storedDecays.pop_back();
+				accRadConstriction = storedRadii.back();
+				storedRadii.pop_back();
+
+				accLenConstriction = storedLengths.back();
+				storedLengths.pop_back();
+				
 				break;
 
 			default:
@@ -235,6 +259,7 @@ namespace Procedural
 			}
 			pos = nextPos;
 		}
+
 
 		return tree;
 	}

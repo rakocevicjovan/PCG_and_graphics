@@ -1,4 +1,5 @@
 #include "Geometry.h"
+#include "GeometricPrimitive.h"
 #include "Chaos.h"
 
 namespace Procedural
@@ -114,7 +115,6 @@ namespace Procedural
 		indices.reserve(subdivsRadial * 2 * 3 * (rows - 1));	//number of faces per column, times 2 for two subrows, times face rows, times 3
 
 		float subdivHeight = height / float(rows - 1);
-		//float halfHeight = height * 0.5f;
 
 		//create a ring
 		float angle = 0.f;
@@ -142,14 +142,8 @@ namespace Procedural
 
 			for (UINT j = 0; j < subdivsRadial; ++j)
 			{
-
-				positions.push_back(	SVec3(	cosines[j] * adjRadius,
-												i * subdivHeight,		// - halfHeight
-												sines[j] * adjRadius
-											 )
-				);
-				
-				normals.push_back(Math::getNormalizedVec3(SVec3(positions.back().x, 0.f, positions.back().z)));
+				normals.push_back(SVec3(cosines[j], 0.f, sines[j]));
+				positions.push_back(SVec3(normals.back().x * adjRadius, i * subdivHeight, normals.back().z * adjRadius));
 				
 				//and link them with indices - except the last row, because the current row already takes the next one into account to build the index buffer
 				if (i == rows - 1) continue;
@@ -169,6 +163,31 @@ namespace Procedural
 				}
 			}
 		}
+	}
+
+	void Geometry::GenSphere(float radius)
+	{
+		std::vector<DirectX::VertexPositionNormalTexture> verts;
+		std::vector<uint16_t> inds;
+		DirectX::GeometricPrimitive::CreateSphere(verts, inds, radius * 2.f, 4u, false, false);	// DirectX::XMFLOAT3(1.f / 2.f, 2.f / 2.f, 3.f / 2.f)
+
+		positions.reserve(verts.size());
+		for (auto v : verts)
+		{
+			positions.push_back(v.position);
+			normals.push_back(v.normal);
+		}
+			
+		indices.reserve(inds.size());
+		for (auto i : inds)
+			indices.push_back(i);
+	}
+
+	void Geometry::Clear()
+	{
+		positions.clear();
+		normals.clear();
+		indices.clear();
 	}
 
 }
