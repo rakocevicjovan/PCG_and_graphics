@@ -1,19 +1,17 @@
 #include "Maze.h"
-#include <numeric>
+#include "Geometry.h"
 
 namespace Procedural
 {
 
-	Maze::Maze(unsigned int w, unsigned int h) :_w(w), _h(h)
+	Maze::Maze()
 	{
-		Eller();
 	}
 
 
 
 	Maze::~Maze()
 	{
-
 	}
 
 
@@ -23,6 +21,8 @@ namespace Procedural
 		_w = w;
 		_h = h;
 		_cellSize = cellSize; 
+
+		Eller();
 	}
 
 
@@ -139,9 +139,81 @@ namespace Procedural
 
 
 
-	void Maze::CreateModel()
+	void Maze::CreateModel(ID3D11Device* device)
 	{
-		model.LoadModel("");
+		Geometry g;
+
+		float halfLength = _cellSize * .5f;
+		
+		g.GenBox(SVec3(_cellSize + _width, _height, _width));
+		for (auto& pos : g.positions)	pos.x += halfLength;
+		Mesh bottom = Mesh(g, device, false);
+
+		for (auto& pos : g.positions)	pos.z += _cellSize;
+		Mesh top = Mesh(g, device, false);
+
+		g.Clear();
+
+		g.GenBox(SVec3(_width, _height, _cellSize + _width));
+
+		for (auto& pos : g.positions)	pos.z += halfLength;
+		Mesh left = Mesh(g, device, false);
+
+		for (auto& pos : g.positions)	pos.x += _cellSize;
+		Mesh right = Mesh(g, device, false);
+
+		for (auto& mc : cells)
+			BuildCellMeshes(mc, device, left, right, top, bottom);
 	}
 
+
+
+	void Maze::BuildCellMeshes(MazeCell& mc, ID3D11Device* device, Mesh& left, Mesh& right, Mesh& top, Mesh& bottom)
+	{
+
+		if (mc.x == 0)
+		{
+			AlignWall(mc, left, device);
+		}
+		if (mc.x == _w - 1)
+		{
+			AlignWall(mc, right, device);
+
+		}
+		if (mc.z == 0)
+		{
+			AlignWall(mc, bottom, device);
+		}
+		if (mc.z == _h - 1)
+		{
+			AlignWall(mc, top, device);
+		}
+
+		if (mc.r)
+		{
+			AlignWall(mc, right, device);
+		}
+
+		if (mc.t)
+		{
+			AlignWall(mc, top, device);
+		}
+	}
+
+
+
+	void Maze::AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* device)
+	{
+		Mesh aligned = m;
+
+		for (auto& v : aligned.vertices)
+		{
+			v.pos.x += mc.x * _cellSize;
+			v.pos.z += mc.z * _cellSize;
+		}
+
+		aligned.setupMesh(device);
+
+		model.meshes.push_back(aligned);
+	}
 }

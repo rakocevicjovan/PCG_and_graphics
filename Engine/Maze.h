@@ -22,33 +22,14 @@ namespace Procedural
 		bool r = true;
 	};
 
+
+
 	struct EllerSet
 	{
 		std::vector<int> cellIDs;
 
 		EllerSet() {}
 		EllerSet(int cellID) { cellIDs.push_back(cellID); }
-		
-		void VerticalMerge(std::vector<MazeCell>& cells)
-		{
-			Chaos chaos;
-
-			bool done = false;
-
-			for (auto& CID : cellIDs)
-			{
-				if (chaos.rollTheDice() > .5f)
-				{
-					cells[CID].t = false;
-					done = true;
-				}
-			}
-
-			//no cells in the set were opened -> randomly pick one from the range [0, size-1] and open it to connect the set
-			if (!done)
-				cells[floor(chaos.rollTheDice() * (cellIDs.size() - 1))].t = false;
-		}
-
 	};
 
 
@@ -58,20 +39,24 @@ class Maze
 	std::vector<MazeCell> cells;
 	unsigned int _w, _h;
 	float _cellSize;
-
-	Model model;
+	float _height = 30.f;
+	float _width = 10.f;
 
 public:
 
-	Maze() {};
-	Maze(unsigned int w, unsigned int h);
+	Model model;
+
+	Maze();
 	~Maze();
 
 	void Init(unsigned int w, unsigned int h, float cellSize);
 	
 	void Eller();
 	void PopulateRow(int z, std::map<int, EllerSet>& currentRow);
-	void CreateModel();
+	void CreateModel(ID3D11Device* device);
+	void BuildCellMeshes(MazeCell& mc, ID3D11Device* device, Mesh& left, Mesh& right, Mesh& top, Mesh& bottom);
+	void AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* device);
+	
 };
 
 }

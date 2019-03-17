@@ -63,8 +63,7 @@ private:
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
 	Procedural::LSystem linden;
-	Procedural::Geometry t00b;
-	Model t00bModel;
+	Model treeModel;
 	Procedural::Maze maze;
 
 	ParticleSystem pSys;

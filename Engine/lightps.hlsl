@@ -93,6 +93,8 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
 
 	colour = (ambient + diffuse) * colour + specular;
+	//colour += ambient + diffuse + specular;
+
 
 	//apply fog
 	//colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);

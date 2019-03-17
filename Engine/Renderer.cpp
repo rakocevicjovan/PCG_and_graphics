@@ -37,8 +37,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
-	maze.Init(4, 4, 10.f);
-	maze.Eller();
+	maze.Init(16, 16, 30.f);
+	maze.CreateModel(_device);
 	
 
 	///CAMERA INITIALISATION
@@ -90,7 +90,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shMan.shaderVolumetric.setLightData(_deviceContext, RES.pointLight);
 
 	//_colEngine.registerModel(&RES.will, BoundingVolumeType::BVT_AABB);
-
+	_colEngine.registerModel(&maze.model, BoundingVolumeType::BVT_AABB);
 
 	return true;
 }
@@ -181,12 +181,20 @@ bool Renderer::RenderFrame(float dTime)
 
 
 		shMan.shaderLight.SetShaderParameters(_deviceContext, 
-			t00bModel, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), 
+			treeModel, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), 
 			RES.pointLight, _cam.GetCameraMatrix().Translation(), dTime);
-		t00bModel.Draw(_deviceContext, shMan.shaderLight);
+		treeModel.Draw(_deviceContext, shMan.shaderLight);
 		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
 
 	}
+
+	
+	shMan.shaderLight.SetShaderParameters(_deviceContext,
+		maze.model, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		RES.pointLight, _cam.GetCameraMatrix().Translation(), dTime);
+	maze.model.Draw(_deviceContext, shMan.shaderLight);
+	shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
+	
 
 	/*
  	std::vector<InstanceData> instanceData(100);
@@ -327,7 +335,7 @@ void Renderer::ProcessSpecialInput()
 
 		float liangle = PI * 0.138888f;
 		//liangle = PI * .5f;
-		t00bModel = linden.genModel(_device, 10.f, 2.f, .9f, .8f, liangle, liangle);
+		treeModel = linden.genModel(_device, 10.f, 2.f, .9f, .8f, liangle, liangle);
 
 		//linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);	
 	}

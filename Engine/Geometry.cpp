@@ -28,6 +28,27 @@ namespace Procedural
 
 
 
+	void Geometry::GenBox(SVec3 hd)
+	{
+
+		std::vector<DirectX::VertexPositionNormalTexture> verts;
+		std::vector<uint16_t> inds;
+		DirectX::GeometricPrimitive::CreateBox(verts, inds, DirectX::XMFLOAT3(hd.x, hd.y, hd.z), false, false);
+
+		positions.reserve(verts.size());
+		for (auto v : verts)
+		{
+			positions.push_back(v.position);
+			normals.push_back(v.normal);
+		}
+
+		indices.reserve(inds.size());
+		for (auto i : inds)
+			indices.push_back(i);
+	}
+
+
+
 	void Geometry::GenUVCircle(float radius, unsigned int subdivs)
 	{
 		positions.reserve(subdivs + 1);

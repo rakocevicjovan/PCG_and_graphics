@@ -31,7 +31,7 @@ class Mesh
 		//this is used for the screen quads...
 		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device);
 
-		Mesh(const Procedural::Geometry& g, ID3D11Device* device);
+		Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true);
 
 		//@todo pull D3D11_BUFFER_DESC out of the function and into the parameter, which will allow flexibility (for instancing) and reuse etc...
 		//@todo level - IMPORTANT AS FUCC
@@ -50,5 +50,4 @@ class Mesh
 		void draw(ID3D11DeviceContext* dc, ShaderSkybox& s);
 		void draw(ID3D11DeviceContext* dc, ShaderStrife& s);
 		void draw(ID3D11DeviceContext* dc, ShaderWater& s);
-
 	};

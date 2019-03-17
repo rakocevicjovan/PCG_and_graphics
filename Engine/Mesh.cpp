@@ -57,7 +57,7 @@
 
 
 
-	Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device)
+	Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp)
 	{
 		vertices.reserve(g.positions.size());
 		Vert3D v;
@@ -71,7 +71,8 @@
 
 		indices = g.indices;
 
-		setupMesh(device);
+		if(setUp)
+			setupMesh(device);
 	}
 
 
