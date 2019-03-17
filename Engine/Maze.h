@@ -24,28 +24,29 @@ namespace Procedural
 
 	struct EllerSet
 	{
-		std::vector<MazeCell*> cells;
+		std::vector<int> cellIDs;
 
 		EllerSet() {}
-		EllerSet(MazeCell& cell) { cells.push_back(&cell); }
+		EllerSet(int cellID) { cellIDs.push_back(cellID); }
 		
-		void VerticalMerge()
+		void VerticalMerge(std::vector<MazeCell>& cells)
 		{
 			Chaos chaos;
 
 			bool done = false;
 
-			for (auto& c : cells)
+			for (auto& CID : cellIDs)
 			{
 				if (chaos.rollTheDice() > .5f)
 				{
-					c->t = false;
+					cells[CID].t = false;
 					done = true;
 				}
 			}
 
+			//no cells in the set were opened -> randomly pick one from the range [0, size-1] and open it to connect the set
 			if (!done)
-				cells[floor(chaos.rollTheDice() * (cells.size() - 1))]->t = false;
+				cells[floor(chaos.rollTheDice() * (cellIDs.size() - 1))].t = false;
 		}
 
 	};
@@ -58,6 +59,8 @@ class Maze
 	unsigned int _w, _h;
 	float _cellSize;
 
+	Model model;
+
 public:
 
 	Maze() {};
@@ -67,6 +70,8 @@ public:
 	void Init(unsigned int w, unsigned int h, float cellSize);
 	
 	void Eller();
+	void PopulateRow(int z, std::map<int, EllerSet>& currentRow);
+	void CreateModel();
 };
 
 }

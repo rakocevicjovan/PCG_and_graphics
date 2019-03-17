@@ -29,86 +29,119 @@ namespace Procedural
 
 	void Maze::Eller()
 	{
-		Chaos c;
-
 		cells.resize(_w * _h);
-		std::map<int, EllerSet> sets;
-		
-		//assign a set to each of the cells in the first row uniquely
-		for (int x = 0; x < _w; ++x)
-		{
-			cells[x] = MazeCell(x, 0);
-			cells.back().set = x;
-			sets.insert(std::map<int, EllerSet>::value_type(x, EllerSet(cells.back())));
-		}
 
-		//iterate through all rows and keep bridging vertically and horizontally
+		Chaos c;
+		std::map<int, EllerSet> currentRow;
+
 		for (int z = 0; z < _h - 1; ++z)
 		{
-			int offset = z * _w;
+			PopulateRow(z, currentRow);
 
 			for (int x = 0; x < _w - 1; ++x)
 			{
-				int index = offset + x;
-				
-				if (cells[index].set < 0)
-					cells[index].set = index;
+				int index = z * _w + x;
+				int curSet = cells[index].set, nxtSet = cells[index + 1].set;
 
-				sets.insert(std::map<int, EllerSet>::value_type(cells[index].set, EllerSet(cells[index])));
-			}
-
-
-			for (int x = 0; x < _w - 1; ++x)
-			{
-				int index = offset + x;
-				MazeCell currentCell = cells[index];
-
-				int currentSetID = currentCell.set;
-				int nextSetID = cells[index + 1].set;
-
-				//50% chance to join two different sets (can't join self in order to prevent looping)
-				if (currentSetID != nextSetID)
+				if (curSet != nxtSet && c.rollTheDice() > 0.5f)
 				{
-					if (c.rollTheDice() > 0.5f)
+					cells[index].r = false;
+					
+					//update cells
+					for (int cid : currentRow.at(nxtSet).cellIDs)
+						cells[cid].set = curSet;
+
+					//update sets
+					currentRow.at(curSet).cellIDs.insert(
+						currentRow.at(curSet).cellIDs.begin(), 
+						currentRow.at(nxtSet).cellIDs.begin(), 
+						currentRow.at(nxtSet).cellIDs.end());
+					currentRow.erase(nxtSet);
+				}
+
+				//if (curSet == nxtSet) add a wall - not necessary, walls are there by default
+			}
+			
+			//vertically connect some of the cells, but at least one per set!
+			for (auto& es : currentRow)
+			{
+				bool connected = false;
+
+				for (auto& cid : es.second.cellIDs)
+				{
+					if (c.rollTheDice() > .5f)
 					{
-						//notify the cells about their new set
-						for (auto& cell : sets.at(nextSetID).cells) cell->set = currentSetID;
-
-						//move the cells from their old set to their new set (aka merge next into current)
-						sets.at(currentSetID).cells.insert(sets.at(currentSetID).cells.end(), sets.at(nextSetID).cells.begin(), sets.at(nextSetID).cells.end());
-
-						//next set is now obsolete, as it has been merged, so it is erased from the map
-						sets.erase(nextSetID);
-
-						//right wall is removed from the current cell as a consequence of merging
-						cells[index].r = false;
+						cells[cid].t = false;
+						cells[cid + _w].set = es.first;
+						connected = true;
 					}
 				}
-			}
 
-			//iterate existing sets with their indices
-			for (auto& es : sets)
-			{
-				//merge each of them vertically
-				es.second.VerticalMerge();
-
-				//search for merged cells
-				for (auto setCell : es.second.cells)
+				//no cells in the set were opened -> randomly pick one from the range [0, size-1] and open it to connect the set
+				if (!connected)
 				{
-					if (!setCell->t)	//if a cell is merged, add the one above to the set, but also set the set in it, so the data stays consistent
-					{
-						cells[(setCell->z + 1) * _w + setCell->x].set = es.first;
-						es.second.cells.push_back(&cells[(setCell->z + 1) * _w + setCell->x]);
-					}
-						
-				}
+					int randIndex = floor(c.rollTheDice() * (es.second.cellIDs.size() - 1));
+					cells[es.second.cellIDs[randIndex]].t = false;
+					cells[es.second.cellIDs[randIndex] + _w].set = es.first;
+				}	
 			}
-
-
-			//cells.insert(cells.end(), currentRow.begin(), currentRow.end());
-			//currentRow = nextRow;
 		}
 
+		PopulateRow(_h - 1, currentRow);
+		
+		for (int x = 0; x < _w - 1; ++x)
+		{
+			int index = (_h - 1) * _w + x;
+			int curSet = cells[index].set, nxtSet = cells[index + 1].set;
+
+			if (curSet != nxtSet)
+			{
+				cells[index].r = false;
+
+				//update cells
+				for (int cid : currentRow.at(nxtSet).cellIDs)
+					cells[cid].set = curSet;
+
+				//update sets
+				currentRow.at(curSet).cellIDs.insert(
+					currentRow.at(curSet).cellIDs.begin(),
+					currentRow.at(nxtSet).cellIDs.begin(),
+					currentRow.at(nxtSet).cellIDs.end());
+				currentRow.erase(nxtSet);
+			}
+		}
+	}
+
+
+
+	void Maze::PopulateRow(int z, std::map<int, EllerSet>& row)
+	{
+
+		row.clear();
+
+		for (int x = 0; x < _w; ++x)
+		{
+			int index = z * _w + x;
+			int setIndex = cells[index].set < 0 ? index : cells[index].set;
+			cells[index] = MazeCell(setIndex, x, z);
+
+			//set exists already in current row
+			if (row.find(setIndex) != row.end())
+			{
+				row.at(setIndex).cellIDs.push_back(index);
+			}
+			else //does not exist yet in current row, therefore add it
+			{
+				row.insert(std::map<int, EllerSet>::value_type(setIndex, EllerSet(index)));
+			}
+		}
+	}
+
+
+
+	void Maze::CreateModel()
+	{
+		model.LoadModel("");
 	}
 
 }
