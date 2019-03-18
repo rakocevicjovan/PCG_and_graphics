@@ -2,6 +2,7 @@
 #include "Math.h"
 
 class InputManager;
+class CollisionEngine;
 
 class Controller{
 
@@ -17,20 +18,17 @@ private:
 
 	bool _isFlying = true;
 	bool _collided = false;
-
-	SVec3 _collisionOffset;
 	
-
 public:
 	Controller();
 	Controller(InputManager* inputManager);
 	~Controller();
 
-	InputManager* inMan;
+	InputManager* _inMan;
+	CollisionEngine* _colEng;
 	
 	void processTransformationFPS(const float dTime, SMatrix& transformation);
 	void toggleFly();
-	void setCollisionOffset(const SVec3& collisionOffset);
 	bool isFlying() { return _isFlying; }
 };
 

@@ -17,6 +17,7 @@ void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
 	_colliders.push_back(generateCollider(model, bvt));
 	model->collider = &(_colliders.back());
 	_models.push_back(model);
+	addToGrid(_colliders.back());
 }
 
 
@@ -48,7 +49,9 @@ void CollisionEngine::unregisterModel(const Model* model)
 	
 	for (Collider& c : _colliders)
 	{
-		if (c.parent == model) {
+		if (c.parent == model)
+		{
+			c.ReleaseMemory();
 			_colliders.erase(remove(_colliders.begin(), _colliders.end(), c), _colliders.end());
 			break;
 		}
@@ -58,16 +61,49 @@ void CollisionEngine::unregisterModel(const Model* model)
 
 
 
-void CollisionEngine::registerController(Controller* controller)
+void CollisionEngine::addToGrid(const Collider& collider)
 {
-	_controller = controller;
+	auto bvt = collider.BVT;
+
+	if (bvt == BVT_AABB)
+		for (Hull* h : collider.hulls)
+			grid.addAABB(reinterpret_cast<AABB*>(h));
+			
+
+	if (bvt == BVT_SPHERE)
+		for (Hull* h : collider.hulls)
+			grid.addSphere(reinterpret_cast<SphereHull*>(h));
 }
 
 
 
-void CollisionEngine::notifyController(const SVec3& resolution) const
+void CollisionEngine::registerController(Controller& controller)
 {
-	_controller->setCollisionOffset(resolution);
+	_controller = &controller;
+	controller._colEng = this;
+}
+
+
+
+SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform)
+{
+	CellKey ck(playerTransform.Translation(), grid._cellsize);
+
+	SphereHull playerHull;
+	playerHull.c = playerTransform.Translation();
+	playerHull.r = 5.f;
+
+	SVec3 result;
+
+	for (auto hull : grid.cells[ck].hulls)
+		if (hull->intersect(&playerHull, BVT_SPHERE))
+		{
+			result += Math::getNormalizedVec3(hull->getPosition() - playerHull.getPosition());
+			break;
+		}
+			
+
+	return result;
 }
 
 
@@ -258,79 +294,47 @@ bool Collider::RayTriangleIntersection(const SRay& ray, const SVec3& a, const SV
 
 
 
-bool AABB::intersect(Hull* other, BoundingVolumeType otherType)
+bool AABB::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
-	if (otherType == BVT_SPHERE)		return Collider::AABBSphereIntersection(*this, *(reinterpret_cast<SphereHull*>(other)));
-	else if (otherType == BVT_AABB)		return Collider::AABBAABBIntersection(*this, *(reinterpret_cast<AABB*>(other)));
+	if (otherType == BVT_SPHERE)		return Collider::AABBSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
+	else if (otherType == BVT_AABB)		return Collider::AABBAABBIntersection(*this, *(reinterpret_cast<const AABB*>(other)));
 	return false;
 }
 
 
 
-bool SphereHull::intersect(Hull* other, BoundingVolumeType otherType)
+bool SphereHull::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
-	if (otherType == BVT_SPHERE)		return Collider::SphereSphereIntersection(*this, *(reinterpret_cast<SphereHull*>(other)));
-	else if (otherType == BVT_AABB)		return Collider::AABBSphereIntersection(*(reinterpret_cast<AABB*>(other)), *this);
+	if (otherType == BVT_SPHERE)		return Collider::SphereSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
+	else if (otherType == BVT_AABB)		return Collider::AABBSphereIntersection(*(reinterpret_cast<const AABB*>(other)), *this);
 	return false;
 }
 
 
 
-void Grid::populateCells(std::vector<Procedural::Terrain*>& terrain)
+void Grid::addAABB(AABB* h)
 {
+	std::vector<SVec3> positions = h->getAllVertices();
 
-	CellKey cellKey;
-
-	for (Procedural::Terrain* t : terrain)
+	for (auto p : positions)
 	{
-		for (Vert3D v : t->getVerts())
-		{
-			cellKey.assign( v.pos * invCellSize );
-
-			if (cells.find(cellKey) == cells.end())
-			{
-				GridCell gc = GridCell(cellKey);
-				gc.terrains.push_back(t);
-				cells.insert(std::make_pair(cellKey, gc));
-			}
-			else
-			{
-				if (std::find(cells.at(cellKey).terrains.begin(), cells.at(cellKey).terrains.end(), t) == cells.at(cellKey).terrains.end())
-					cells.at(cellKey).terrains.push_back(t);
-			}
-				
-		}
+		CellKey ck(p, invCellSize);
+	
+		if (std::find(cells[ck].hulls.begin(), cells[ck].hulls.end(), h) == cells[ck].hulls.end())
+			cells[ck].hulls.push_back(h);
+		else
+			p.Normalize();
 	}
+
+	
 }
 
 
-
-SVec3 CollisionEngine::adjustHeight(const SVec3& playerPos)
+//@TODO
+void Grid::addSphere(SphereHull* h)
 {
-	
-	CellKey cellKey;
-	cellKey.assign(playerPos * grid.invCellSize);
-	
-	float finalHeight = 0.f;
-	
 
-	if (grid.cells.find(cellKey) == grid.cells.end())
-		return playerPos;
-
-	for (auto t : grid.cells.at(cellKey).terrains)
-	{
-		finalHeight = t->getHeightAtPosition(playerPos) + 10.f;
-		return SVec3(playerPos.x, finalHeight, playerPos.z);
-	}
 }
-
-
-
-
-
-
-
-
 
 /*
 Hull* CollisionEngine::genQuickHull(Mesh* mesh)

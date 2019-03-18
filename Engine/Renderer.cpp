@@ -37,9 +37,10 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
-	maze.Init(16, 16, 30.f);
+	maze.Init(10, 10, 32.f);
 	maze.CreateModel(_device);
-	
+
+	_colEngine.registerModel(&(maze.model), BVT_AABB);
 
 	///CAMERA INITIALISATION
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
@@ -48,7 +49,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_controller = Controller(&inMan);
 	_cam._controller = &_controller;
 
-	_colEngine.registerController(&_controller);
+	_colEngine.registerController(_controller);	//works both ways
 	
 	///CUBE MAPS SETUP
 	cubeMapper.Init(_device);
@@ -90,7 +91,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shMan.shaderVolumetric.setLightData(_deviceContext, RES.pointLight);
 
 	//_colEngine.registerModel(&RES.will, BoundingVolumeType::BVT_AABB);
-	_colEngine.registerModel(&maze.model, BoundingVolumeType::BVT_AABB);
+	//_colEngine.registerModel(&maze.model, BoundingVolumeType::BVT_AABB);
 
 	return true;
 }
@@ -111,6 +112,7 @@ bool Renderer::Frame(float dTime){
 		_cam.SetCameraMatrix(newMat);
 	}
 	_cam.update(dTime);
+
 	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
 	return RenderFrame(dTime);
@@ -188,13 +190,16 @@ bool Renderer::RenderFrame(float dTime)
 
 	}
 
-	
+	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, elapsed);
+	maze.model.Draw(_deviceContext, shMan.shaderMaze);
+
+	/*
 	shMan.shaderLight.SetShaderParameters(_deviceContext,
 		maze.model, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 		RES.pointLight, _cam.GetCameraMatrix().Translation(), dTime);
 	maze.model.Draw(_deviceContext, shMan.shaderLight);
 	shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
-	
+	*/
 
 	/*
  	std::vector<InstanceData> instanceData(100);
@@ -319,8 +324,6 @@ void Renderer::ProcessSpecialInput()
 		proceduralTerrain.SetUp(_device);
 		std::vector<Procedural::Terrain*> terrains;
 		terrains.push_back(&proceduralTerrain);
-
-		//_colEngine.grid.populateCells(terrains);
 
 		isTerGenerated = true;
 

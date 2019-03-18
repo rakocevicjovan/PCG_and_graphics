@@ -44,6 +44,7 @@ public:
 	ShaderWater shaderWater;
 	ShaderVolumetric shaderVolumetric;
 	ShaderVolumetric shaderVolumetricTree;
+	ShaderVolumetric shaderMaze;	//not actually used for volumetric rendering but needs same inputs
 	InstancedShader shaderInstanced;
 	PerlinShader shaderPerlin;
 	TerrainShader shaderTerrain;

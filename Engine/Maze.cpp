@@ -175,18 +175,10 @@ namespace Procedural
 		{
 			AlignWall(mc, left, device);
 		}
-		if (mc.x == _w - 1)
-		{
-			AlignWall(mc, right, device);
 
-		}
 		if (mc.z == 0)
 		{
 			AlignWall(mc, bottom, device);
-		}
-		if (mc.z == _h - 1)
-		{
-			AlignWall(mc, top, device);
 		}
 
 		if (mc.r)

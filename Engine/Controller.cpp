@@ -1,10 +1,11 @@
 #include "Controller.h"
 #include "InputManager.h"
+#include "CollisionEngine.h"
 
 
-Controller::Controller() : inMan(nullptr), dx(0), dy(0) {}
+Controller::Controller() : _inMan(nullptr), dx(0), dy(0) {}
 
-Controller::Controller(InputManager* inputManager) : inMan(inputManager) {}
+Controller::Controller(InputManager* inputManager) : _inMan(inputManager) {}
 
 Controller::~Controller(){}
 
@@ -12,12 +13,12 @@ Controller::~Controller(){}
 
 void Controller::processTransformationFPS(float dTime, SMatrix& transformation) {
 
-	inMan->GetXY(dx, dy);
+	_inMan->GetXY(dx, dy);
 
 	SVec3 translation = transformation.Translation();
 	Math::SetTranslation(transformation, SVec3());
 
-	if (!(dx == 0 && dy == 0))	//check if rotation happened, could optimize a lot since this is heavy
+	if (!(dx == 0 && dy == 0))	//check if rotation happened, can skip a lot of work
 		processRotationFPS(dTime, transformation);
 
 	Math::SetTranslation(transformation, translation);
@@ -58,27 +59,27 @@ void Controller::processTranslationFPS(const float dTime, SMatrix& transformatio
 
 	SVec3 deltaTranslation(0, 0, 0);
 
-	if (inMan->IsKeyDown((short)'W')) {
+	if (_inMan->IsKeyDown((short)'W')) {
 		deltaTranslation = deltaTranslation + dir;
 	}
 
-	if (inMan->IsKeyDown((short)'S')) {
+	if (_inMan->IsKeyDown((short)'S')) {
 		deltaTranslation = deltaTranslation - dir;
 	}
 
-	if (inMan->IsKeyDown((short)'A')) {
+	if (_inMan->IsKeyDown((short)'A')) {
 		deltaTranslation = deltaTranslation - right;
 	}
 
-	if (inMan->IsKeyDown((short)'D')) {
+	if (_inMan->IsKeyDown((short)'D')) {
 		deltaTranslation = deltaTranslation + right;
 	}
 
-	if (inMan->IsKeyDown(VK_NUMPAD8)) {
+	if (_inMan->IsKeyDown(VK_NUMPAD8)) {
 		deltaTranslation = deltaTranslation + SVec3::Up;
 	}
 
-	if (inMan->IsKeyDown(VK_NUMPAD2)) {
+	if (_inMan->IsKeyDown(VK_NUMPAD2)) {
 		deltaTranslation = deltaTranslation - SVec3::Up;
 	}
 
@@ -105,17 +106,9 @@ void Controller::toggleFly()
 
 void Controller::resolveCollision(SMatrix& transformation)
 {
-	if (_collided)
-	{
-		Math::Translate(transformation, _collisionOffset);
-		_collided = false;
-	}
-}
+	if (!_colEng) return;
 
+	SVec3 _collisionOffset = _colEng->resolvePlayerCollision(transformation);
 
-
-void Controller::setCollisionOffset(const SVec3& collisionOffset)
-{
-	_collisionOffset = collisionOffset;
-	_collided = true;
+	Math::Translate(transformation, _collisionOffset);
 }

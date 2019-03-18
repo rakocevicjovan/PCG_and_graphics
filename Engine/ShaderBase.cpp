@@ -157,14 +157,14 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	LightBuffer* dataPtr2;
 	VariableBuffer* dataPtr3;
 
-	ShaderParametersLight* spl = (ShaderParametersLight*)spb;
+	ShaderParametersLight spl = *(ShaderParametersLight*)spb;
 
-	SMatrix mT = spl->model->transform.Transpose();
-	SMatrix vT = spl->view->Transpose();
-	SMatrix pT = spl->proj->Transpose();
+	SMatrix mT = spl.model->transform.Transpose();
+	SMatrix vT = spl.view->Transpose();
+	SMatrix pT = spl.proj->Transpose();
 
 	// Lock the constant matrix buffer so it can be written to.
-	result = spl->deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = spl.deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
 
@@ -176,14 +176,14 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	dataPtr->projection = pT;
 
 	// Unlock the constant buffer.
-	spl->deviceContext->Unmap(_matrixBuffer, 0);
+	spl.deviceContext->Unmap(_matrixBuffer, 0);
 
 	bufferNumber = 0;
-	spl->deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
+	spl.deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
 
 
 	//VARIABLE BUFFER
-	result = spl->deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = spl.deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
 
@@ -191,52 +191,52 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 
 	// Copy the variablethe constant buffer.
-	dataPtr3->deltaTime = spl->deltaTime;
+	dataPtr3->deltaTime = spl.deltaTime;
 	dataPtr3->padding = SVec3(); //this is just padding so this data isn't used.
 
 	// Unlock the variable constant buffer.
-	spl->deviceContext->Unmap(_variableBuffer, 0);
+	spl.deviceContext->Unmap(_variableBuffer, 0);
 
 	// Set the position of the variable constant buffer in the vertex shader.
 	bufferNumber = 1;
 
 	// Now set the variable constant buffer in the vertex shader with the updated values.
-	spl->deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
+	spl.deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
 	//END VARIABLE BUFFER
 
 
 	// Lock the light constant buffer so it can be written to.
-	if (FAILED(spl->deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(spl.deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 
 	// Get a pointer to the data in the constant buffer.
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
 
 	// Copy the lighting variables into the constant buffer.
-	dataPtr2->alc = spl->dLight->alc;
-	dataPtr2->ali = spl->dLight->ali;
-	dataPtr2->dlc = spl->dLight->dlc;
-	dataPtr2->dli = spl->dLight->dli;
-	dataPtr2->slc = spl->dLight->slc;
-	dataPtr2->sli = spl->dLight->sli;
-	dataPtr2->pos = spl->dLight->pos;
-	dataPtr2->ePos = SVec4(spl->eyePos->x, spl->eyePos->y, spl->eyePos->z, 1.0f);
+	dataPtr2->alc = spl.dLight->alc;
+	dataPtr2->ali = spl.dLight->ali;
+	dataPtr2->dlc = spl.dLight->dlc;
+	dataPtr2->dli = spl.dLight->dli;
+	dataPtr2->slc = spl.dLight->slc;
+	dataPtr2->sli = spl.dLight->sli;
+	dataPtr2->pos = spl.dLight->pos;
+	dataPtr2->ePos = SVec4(spl.eyePos->x, spl.eyePos->y, spl.eyePos->z, 1.0f);
 
 	// Unlock the constant buffer.
-	spl->deviceContext->Unmap(_lightBuffer, 0);
+	spl.deviceContext->Unmap(_lightBuffer, 0);
 
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
-	spl->deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
+	spl.deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
 
-	spl->deviceContext->IASetInputLayout(_layout);
-	spl->deviceContext->VSSetShader(_vertexShader, NULL, 0);
-	spl->deviceContext->PSSetShader(_pixelShader, NULL, 0);
-	spl->deviceContext->PSSetSamplers(0, 1, &_sampleState);
+	spl.deviceContext->IASetInputLayout(_layout);
+	spl.deviceContext->VSSetShader(_vertexShader, NULL, 0);
+	spl.deviceContext->PSSetShader(_pixelShader, NULL, 0);
+	spl.deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
-	if(spl->model->textures_loaded.size() != 0)
-		for (int i = 0; i < spl->model->textures_loaded.size(); i++)
-			spl->deviceContext->PSSetShaderResources(0, 1, &(spl->model->textures_loaded[i].srv));
+	if(spl.model->textures_loaded.size() != 0)
+		for (int i = 0; i < spl.model->textures_loaded.size(); i++)
+			spl.deviceContext->PSSetShaderResources(0, 1, &(spl.model->textures_loaded[i].srv));
 
 	return true;
 }

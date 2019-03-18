@@ -72,6 +72,9 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> volTreeNames = { L"volumVS.hlsl", L"volumTreePS.hlsl" };
 	shaderVolumetricTree.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
 
+	std::vector<std::wstring> perlinMarbleNames = { L"volumVS.hlsl", L"mazePS.hlsl" };
+	shaderMaze.Initialize(_device, hwnd, perlinMarbleNames, sbLayout, sbSamplerDesc);
+
 	std::vector<std::wstring> terrainNames = { L"lightVS.hlsl", L"terrainPS.hlsl" };
 	shaderTerrain.Initialize(_device, hwnd, terrainNames, sbLayout, sbSamplerDesc);
 

@@ -2,7 +2,6 @@
 #include <vector>
 #include <map>
 #include "Controller.h"
-#include "Terrain.h"
 
 class Model;
 class Mesh;
@@ -17,8 +16,8 @@ enum BoundingVolumeType
 
 struct Hull
 {
-	virtual bool intersect(Hull* other, BoundingVolumeType otherType) = 0;
-	virtual SVec3 getPosition() = 0;
+	virtual bool intersect(const Hull* other, BoundingVolumeType otherType) const = 0;
+	virtual SVec3 getPosition() const = 0;
 };
 
 
@@ -27,8 +26,25 @@ struct AABB : Hull
 {
 	SVec3 min, max;
 
-	virtual bool intersect(Hull* other, BoundingVolumeType otherType) override;
-	virtual SVec3 getPosition() { return (min + max) * 0.5f; }
+	virtual bool intersect(const Hull* other, BoundingVolumeType otherType) const override;
+	virtual SVec3 getPosition() const { return (min + max) * 0.5f; }
+
+	bool operator ==(AABB other) { return ( (min - other.min + max - other.max).LengthSquared() > 0.001f ); }
+
+	std::vector<SVec3> getAllVertices()
+	{
+		return 
+		{
+			min,	//lower half
+			SVec3(min.x, min.y, max.z),
+			SVec3(max.x, min.y, min.z),
+			SVec3(max.x, min.y, max.z),
+			max,	//higher half
+			SVec3(min.x, max.y, max.z),
+			SVec3(max.x, max.y, min.z),
+			SVec3(min.x, max.y, min.z),
+		};
+	}
 };
 
 
@@ -38,8 +54,8 @@ struct SphereHull : Hull
 	SVec3 c;
 	float r;
 
-	virtual bool intersect(Hull* other, BoundingVolumeType otherType) override;
-	virtual SVec3 getPosition() { return c; }
+	virtual bool intersect(const Hull* other, BoundingVolumeType otherType) const override;
+	virtual SVec3 getPosition() const { return c; }
 };
 
 
@@ -48,7 +64,9 @@ struct Collider
 {
 	Collider(BoundingVolumeType type, Model* m, std::vector<Hull*> hullptrs) : BVT(type), parent(m), hulls(hullptrs) {}
 
-	~Collider() { for (auto* hull : hulls) delete hull; }
+	~Collider() { }
+
+	void ReleaseMemory() { for (auto* hull : hulls) delete hull; }
 
 	bool operator ==(const Collider& other) const { return parent == other.parent; }
 
@@ -75,9 +93,22 @@ struct Collider
 struct CellKey
 {
 	int x = 0, y = 0, z = 0;
+	
 	CellKey(int ix, int iy, int iz) : x(ix), y(iy), z(iz) {};
+	
 	CellKey() : x(-1), y(-1), z(-1) {};
+
+#define FASTFLOOR(x) ( (x >= 0.f) ? ((int)x) : ((int)x-1 ) )
+
+	CellKey(const SVec3& pos, float invCellSize)
+	{
+		x = FASTFLOOR(pos.x * invCellSize);
+		y = FASTFLOOR(pos.y * invCellSize);
+		z = FASTFLOOR(pos.z * invCellSize);
+	}
+#undef FASTFLOOR
 	inline void assign(const SVec3& in) { x = floor(in.x); y = floor(in.y); z = floor(in.z); }
+
 
 	int total() const 
 	{ 
@@ -91,23 +122,21 @@ struct CellKey
 
 struct GridCell
 {
-	UINT x, y, z;
-	std::vector<Procedural::Terrain*> terrains;
-
-	GridCell() {};
-	GridCell(CellKey ck) : x(ck.x), y(ck.y), z(ck.z) {};
+	std::vector<Hull*> hulls;
 };
 
 
 
 struct Grid
 {
-	//UINT _w, _h, _d;	Grid(UINT w, UINT h, UINT d) : _w(w), _h(h), _d(d)	{ cells.reserve(_w * _h * _d); }
-	const float CELLSIZE = 33.f;
-	float invCellSize = 1.f / CELLSIZE;
+	Grid() {};
+	Grid(float cellsize) : _cellsize(cellsize) {}
+	float _cellsize = 64.f;
+	float invCellSize = 1.f / _cellsize;
 	std::map<CellKey, GridCell> cells;
 
-	void populateCells(std::vector<Procedural::Terrain*>& terrain);
+	void addAABB(AABB* h);
+	void addSphere(SphereHull* h);
 };
 
 class CollisionEngine
@@ -115,6 +144,8 @@ class CollisionEngine
 	Controller* _controller;
 	std::vector<Model*> _models;
 	std::vector<Collider> _colliders;
+
+	Grid grid;
 
 	Hull* genSphereHull(Mesh* mesh);
 	Hull* genBoxHull(Mesh* mesh);
@@ -126,12 +157,8 @@ public:
 
 	void registerModel(Model* model, BoundingVolumeType bvt);
 	void unregisterModel(const Model* model);
+	void addToGrid(const Collider& collider);
 
-	void registerController(Controller* controller);
-	void notifyController(const SVec3& resolution) const;
-
-	SVec3 adjustHeight(const SVec3& playerPos);
-
-	Grid grid;
+	void registerController(Controller& controller);
+	SVec3 resolvePlayerCollision(const SMatrix& playerTransform);
 };
-

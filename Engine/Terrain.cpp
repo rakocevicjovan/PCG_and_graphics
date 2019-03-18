@@ -493,6 +493,8 @@ namespace Procedural
 		dc->IASetInputLayout(s._layout);
 
 		dc->DrawIndexed(indices.size(), 0, 0);
+
+		dc->PSSetShaderResources(0, 1, &(unbinder[0]));
 	}
 
 
