@@ -1,5 +1,5 @@
 #include "CollisionEngine.h"
-#include "Model.h"
+//#include "Model.h"
 
 CollisionEngine::CollisionEngine()
 {
@@ -16,6 +16,9 @@ void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
 {
 	_colliders.push_back(generateCollider(model, bvt));
 	model->collider = &(_colliders.back());
+	//Model colModel(_colliders.back(), _device);
+	_colModels.emplace_back(_colliders.back(), _device);
+
 	_models.push_back(model);
 	addToGrid(_colliders.back());
 }
@@ -85,25 +88,26 @@ void CollisionEngine::registerController(Controller& controller)
 
 
 
-SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform)
+SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity)
 {
-	CellKey ck(playerTransform.Translation(), grid._cellsize);
+	CellKey ck(playerTransform.Translation(), grid.invCellSize);
 
 	SphereHull playerHull;
 	playerHull.c = playerTransform.Translation();
 	playerHull.r = 5.f;
 
-	SVec3 result;
-
 	for (auto hull : grid.cells[ck].hulls)
-		if (hull->intersect(&playerHull, BVT_SPHERE))
+	{
+		HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
+		if (hr.hit)
 		{
-			result += Math::getNormalizedVec3(hull->getPosition() - playerHull.getPosition());
-			break;
-		}
-			
 
-	return result;
+
+			return hr.resolutionVector;
+		}		
+	}
+
+	return SVec3();
 }
 
 
@@ -160,43 +164,19 @@ Hull* CollisionEngine::genSphereHull(Mesh* mesh)
 
 
 
-//helper function(s) for intersection
-inline float sq(float x) { return x * x; }
-
-float Collider::SQD_PointAABB(SVec3 p, AABB b)
-{
-	float sqDist = 0.0f;
-	float x = p.x,
-		y = p.y,
-		z = p.z;
-
-	if (x < b.min.x) sqDist += sq(b.min.x - x);
-	if (x > b.max.x) sqDist += sq(x - b.max.x);
-
-	if (y < b.min.y) sqDist += sq(b.min.y - y);
-	if (y > b.max.y) sqDist += sq(y - b.max.y);
-
-	if (z < b.min.z) sqDist += sq(b.min.z - z);
-	if (z > b.max.z) sqDist += sq(z - b.max.z);
-
-	return sqDist;
-}
-
-
-
 ///intersection tests
-bool Collider::Collide(const Collider& other, SVec3& resolutionVector)
+HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector)
 {
-	bool collides = false;
+	HitResult hitRes;
 
 	for (Hull* hull1 : hulls)
 	{
 		for (Hull* hull2 : other.hulls)
 		{
-			if(BVT == BVT_AABB)		collides = reinterpret_cast<AABB*>(hull1)->intersect(hull2, other.BVT);
-			if (BVT == BVT_SPHERE)	collides = reinterpret_cast<SphereHull*>(hull1)->intersect(hull2, other.BVT);
+			if(BVT == BVT_AABB)		hitRes = reinterpret_cast<AABB*>(hull1)->intersect(hull2, other.BVT);
+			if (BVT == BVT_SPHERE)	hitRes = reinterpret_cast<SphereHull*>(hull1)->intersect(hull2, other.BVT);
 			
-			if (collides)
+			if (hitRes.hit)
 			{
 				resolutionVector = hull2->getPosition() - hull1->getPosition();
 				resolutionVector.Normalize();
@@ -205,31 +185,66 @@ bool Collider::Collide(const Collider& other, SVec3& resolutionVector)
 		}
 	}
 
-	return collides;
+	return hitRes;
 }
 
 
 
-bool Collider::AABBSphereIntersection(const AABB& b, const SphereHull& s)
+//helper function(s) for intersection
+inline float sq(float x) { return x * x; }
+
+float Collider::ClosestPointOnAABB(SVec3 p, AABB b, SVec3& out)
 {
-	return  SQD_PointAABB(s.c, b) <= sq(s.r);
+	out.x = Math::clamp(b.min.x, b.max.x, p.x);
+	out.y = Math::clamp(b.min.y, b.max.y, p.y);
+	out.z = Math::clamp(b.min.z, b.max.z, p.z);
+
+	return SVec3::DistanceSquared(p, out);
+}
+
+
+//resolution vector is the vector from the sphere center to the closest point
+HitResult Collider::AABBSphereIntersection(const AABB& b, const SphereHull& s)
+{
+	HitResult hr;
+	SVec3 closestPointOnAABB;
+
+	float sqdToClosestPoint = ClosestPointOnAABB(s.c, b, closestPointOnAABB);
+	float sqpenetrationDepth = sq(s.r) - sqdToClosestPoint;
+
+	hr.hit = sqpenetrationDepth > 0;
+	hr.sqPenetrationDepth = hr.hit ? sqpenetrationDepth : 0.f;
+
+	SVec3 resVec = closestPointOnAABB - s.c;	//if sphere is in the object this will be 0...
+
+	/*
+	SVec3 inBoxDir = closestPointOnAABB - b.getPosition();
+	
+	if (resVec.LengthSquared() < 0.0001f)
+		hr.resolutionVector = closestPointOnAABB - b.getPosition();
+	else
+		hr.resolutionVector = Math::getNormalizedVec3(resVec) * penetrationDepth;
+	*/
+
+	return hr;
 }
 
 
 
-bool Collider::SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
+HitResult Collider::SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
 {
-	return SVec3::DistanceSquared(s1.c, s2.c) < sq(s1.r + s2.r);
+	float distSquared = SVec3::DistanceSquared(s1.c, s2.c);
+	return HitResult(distSquared < sq(s1.r + s2.r), s1.c - s2.c, distSquared);
 }
 
 
-
-bool Collider::AABBAABBIntersection(const AABB& a, const AABB& b)
+//does not support penetration depth yet
+HitResult Collider::AABBAABBIntersection(const AABB& a, const AABB& b)
 {
-	if (a.max.x < b.min.x || a.min.x > b.max.x) return false;
-	if (a.max.y < b.min.y || a.min.y > b.max.y) return false;
-	if (a.max.z < b.min.z || a.min.z > b.max.z) return false;
-	return true;
+	if (a.max.x < b.min.x || a.min.x > b.max.x) return HitResult();
+	if (a.max.y < b.min.y || a.min.y > b.max.y) return HitResult();
+	if (a.max.z < b.min.z || a.min.z > b.max.z) return HitResult();
+	return HitResult(true, a.getPosition() - b.getPosition(), 0.f);
 }
 
 
@@ -241,8 +256,12 @@ bool Collider::RaySphereIntersection(const SRay& ray, const SphereHull& s)
 
 
 //not implemented @TODO
-bool Collider::RayAABBIntersection(const SRay& ray, const AABB& b)
+bool Collider::RayAABBIntersection(const SRay& ray, const AABB& b, SVec3& poi, float& t)
 {
+	DirectX::SimpleMath::Plane p;
+	b.get
+	float f = 
+
 	return false;
 }
 
@@ -294,20 +313,20 @@ bool Collider::RayTriangleIntersection(const SRay& ray, const SVec3& a, const SV
 
 
 
-bool AABB::intersect(const Hull* other, BoundingVolumeType otherType) const
+HitResult AABB::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
 	if (otherType == BVT_SPHERE)		return Collider::AABBSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
 	else if (otherType == BVT_AABB)		return Collider::AABBAABBIntersection(*this, *(reinterpret_cast<const AABB*>(other)));
-	return false;
+	return HitResult();
 }
 
 
 
-bool SphereHull::intersect(const Hull* other, BoundingVolumeType otherType) const
+HitResult SphereHull::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
 	if (otherType == BVT_SPHERE)		return Collider::SphereSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
 	else if (otherType == BVT_AABB)		return Collider::AABBSphereIntersection(*(reinterpret_cast<const AABB*>(other)), *this);
-	return false;
+	return HitResult();
 }
 
 
@@ -316,17 +335,21 @@ void Grid::addAABB(AABB* h)
 {
 	std::vector<SVec3> positions = h->getAllVertices();
 
+	CellKey minCellKey(h->min, invCellSize);
+	CellKey maxCellKey(h->max, invCellSize);
+
+	for (int i = minCellKey.x; i <= maxCellKey.x; ++i)
+		for (int j = minCellKey.y; j <= maxCellKey.y; ++j)
+			for (int k = minCellKey.z; k <= maxCellKey.z; ++k)
+				cells[CellKey(i, j, k)].hulls.push_back(h);
+
+	/*
 	for (auto p : positions)
 	{
 		CellKey ck(p, invCellSize);
-	
-		if (std::find(cells[ck].hulls.begin(), cells[ck].hulls.end(), h) == cells[ck].hulls.end())
-			cells[ck].hulls.push_back(h);
-		else
-			p.Normalize();
+		cells[ck].hulls.push_back(h);
 	}
-
-	
+	*/
 }
 
 
@@ -335,6 +358,42 @@ void Grid::addSphere(SphereHull* h)
 {
 
 }
+
+
+
+std::vector<SVec3> AABB::getVertices()
+{
+	return
+	{
+		min,						//left  lower  near
+		SVec3(min.x, min.y, max.z),	//left  lower  far
+		SVec3(max.x, min.y, min.z),	//right lower  near
+		SVec3(max.x, min.y, max.z),	//right lower  far
+		max,						//right higher far
+		SVec3(min.x, max.y, max.z),	//left  higher far
+		SVec3(max.x, max.y, min.z),	//right higher near
+		SVec3(min.x, max.y, min.z),	//left  higher near
+	};
+}
+
+
+
+std::vector<SPlane> AABB::getPlanes()
+{
+	
+	std::vector<SVec3> verts = getVertices();
+	std::vector<SPlane> result;
+	result.reserve(6);
+
+	result.emplace_back(verts[0], verts[1], verts[2]);	//lower
+	result.emplace_back(verts[0], verts[1], verts[2]);	//higher
+	result.emplace_back(verts[0], verts[1], verts[2]);	//near
+	result.emplace_back(verts[0], verts[1], verts[2]);	//far
+	result.emplace_back(verts[0], verts[1], verts[2]);	//left
+	result.emplace_back(verts[2], verts[3], verts[4]);	//right
+}
+
+
 
 /*
 Hull* CollisionEngine::genQuickHull(Mesh* mesh)

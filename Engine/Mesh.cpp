@@ -1,6 +1,7 @@
 #pragma once
 #include "Mesh.h"
-
+#include "CollisionEngine.h"
+#include "Geometry.h"
 
 	Mesh::Mesh()
 	{
@@ -74,6 +75,34 @@
 		if(setUp)
 			setupMesh(device);
 	}
+
+
+
+	Mesh::Mesh(Hull* hull, ID3D11Device* device)
+	{
+		AABB* aabb = reinterpret_cast<AABB*>(hull);
+
+		SVec3 sizes = (aabb->max - aabb->min);
+		SVec3 offset = aabb->min + sizes * 0.5f;
+
+		Procedural::Geometry g;
+		g.GenBox(sizes);
+
+		vertices.reserve(g.positions.size());
+		Vert3D v;
+
+		for (int i = 0; i < g.positions.size(); ++i)
+		{
+			v.pos = g.positions[i] + offset;
+			v.normal = g.normals[i];
+			vertices.push_back(v);
+		}
+
+		indices = g.indices;
+
+		setupMesh(device);
+	}
+
 
 
 	//@todo pull D3D11_BUFFER_DESC out of the function and into the parameter, which will allow flexibility (for instancing) and reuse etc...

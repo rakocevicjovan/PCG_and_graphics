@@ -665,7 +665,7 @@ namespace Procedural
 		int gridZ = (int)floorf(terZ / zScale);
 
 		if (gridX >= _numColumns - 1 || gridZ >= _numRows - 1 || gridX < 0 || gridZ < 0)
-			return 0.0f;
+			return 5.0f;
 
 		//to barycentric
 		float xCoord = fmodf(terX, xScale) / xScale;

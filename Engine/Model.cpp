@@ -10,6 +10,16 @@ Model::Model(const std::string& path)
 
 
 
+Model::Model(const Collider & collider, ID3D11Device* device)
+{
+	for each(auto hull in collider.hulls)
+	{
+		meshes.push_back(Mesh(hull, device));
+	}
+}
+
+
+
 Model::~Model()
 {
 	if (collider)

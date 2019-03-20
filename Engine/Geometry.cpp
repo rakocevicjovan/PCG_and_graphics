@@ -28,12 +28,12 @@ namespace Procedural
 
 
 
-	void Geometry::GenBox(SVec3 hd)
+	void Geometry::GenBox(SVec3 dims)
 	{
 
 		std::vector<DirectX::VertexPositionNormalTexture> verts;
 		std::vector<uint16_t> inds;
-		DirectX::GeometricPrimitive::CreateBox(verts, inds, DirectX::XMFLOAT3(hd.x, hd.y, hd.z), false, false);
+		DirectX::GeometricPrimitive::CreateBox(verts, inds, DirectX::XMFLOAT3(dims.x, dims.y, dims.z), false, false);
 
 		positions.reserve(verts.size());
 		for (auto v : verts)

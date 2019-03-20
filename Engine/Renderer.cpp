@@ -31,6 +31,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_device = _D3D->GetDevice();
 	_deviceContext = _D3D->GetDeviceContext();
 
+	_colEngine.init(_device, _deviceContext);
+
 	shMan.init(_device, hwnd);
 	_resMan.load(_device);
 
@@ -106,7 +108,7 @@ bool Renderer::Frame(float dTime){
 	if (!_controller.isFlying())
 	{
 		SVec3 oldPos = _cam.GetCameraMatrix().Translation();
-		float newHeight = proceduralTerrain.getHeightAtPosition(_cam.GetCameraMatrix().Translation());	//_colEngine.adjustHeight();
+		float newHeight = proceduralTerrain.getHeightAtPosition(_cam.GetCameraMatrix().Translation());
 		SMatrix newMat = _cam.GetCameraMatrix();
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
 		_cam.SetCameraMatrix(newMat);
@@ -190,8 +192,11 @@ bool Renderer::RenderFrame(float dTime)
 
 	}
 
-	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, elapsed);
-	maze.model.Draw(_deviceContext, shMan.shaderMaze);
+	//shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, elapsed);
+	//maze.model.Draw(_deviceContext, shMan.shaderMaze);
+
+	shMan.shaderMaze.SetShaderParameters(_deviceContext, _colEngine._colModels[0], _cam, elapsed);
+	_colEngine._colModels[0].Draw(_deviceContext, shMan.shaderMaze);
 
 	/*
 	shMan.shaderLight.SetShaderParameters(_deviceContext,

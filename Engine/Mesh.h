@@ -13,6 +13,8 @@
 
 #include "ShaderManager.h"
 
+class Hull;
+
 class Mesh
 {
 	public:
@@ -25,13 +27,10 @@ class Mesh
 		ID3D11Buffer *_vertexBuffer = nullptr, *_indexBuffer = nullptr;
 
 		Mesh();
-
 		Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind);
-
-		//this is used for the screen quads...
-		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device);
-
+		Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device);	//this is used for the screen quads...
 		Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true);
+		Mesh(Hull* hull, ID3D11Device* device);
 
 		//@todo pull D3D11_BUFFER_DESC out of the function and into the parameter, which will allow flexibility (for instancing) and reuse etc...
 		//@todo level - IMPORTANT AS FUCC

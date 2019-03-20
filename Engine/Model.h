@@ -32,6 +32,7 @@ public:
 
 	Model() {}
 	Model(const std::string& path);
+	Model(const Collider& collider, ID3D11Device* device);
 	~Model();
 
 

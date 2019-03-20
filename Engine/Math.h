@@ -3,11 +3,12 @@
 #include "SimpleMath.h"
 
 using SMatrix = DirectX::SimpleMath::Matrix;
-using SQuat = DirectX::SimpleMath::Quaternion;
-using SVec2 = DirectX::SimpleMath::Vector2;
-using SVec3 = DirectX::SimpleMath::Vector3;
-using SVec4 = DirectX::SimpleMath::Vector4;
-using SRay = DirectX::SimpleMath::Ray;
+using SQuat		= DirectX::SimpleMath::Quaternion;
+using SVec2		= DirectX::SimpleMath::Vector2;
+using SVec3		= DirectX::SimpleMath::Vector3;
+using SVec4		= DirectX::SimpleMath::Vector4;
+using SRay		= DirectX::SimpleMath::Ray;
+using SPlane	= DirectX::SimpleMath::Plane;
 
 static const float PI = 3.1415926f;
 
@@ -52,7 +53,7 @@ public:
 
 	static SVec4 fromVec3(SVec3 v, float w);
 
-	static float clamp(float minX, float maxX, float x);
+	static inline float clamp(float minX, float maxX, float x);
 
 	static float smoothstep(float edge0, float edge1, float x);
 

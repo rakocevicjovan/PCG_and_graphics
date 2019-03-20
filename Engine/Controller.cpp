@@ -22,14 +22,16 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transformation) 
 		processRotationFPS(dTime, transformation);
 
 	Math::SetTranslation(transformation, translation);
-	processTranslationFPS(dTime, transformation);
+	SVec3 velocityVector = processTranslationFPS(dTime, transformation) * movCf * dTime;
 	
 	//flying mode is used for testing and shouldn't collide or fall for convenience
 	if (!_isFlying)
 	{
 		applyGravity(dTime, transformation);
-		resolveCollision(transformation);
+		resolveCollision(transformation, dTime, velocityVector);	//change velocity vector first if affected by collision
 	}
+
+	Math::Translate(transformation, velocityVector);
 }
 
 
@@ -52,7 +54,7 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 
 
 
-void Controller::processTranslationFPS(const float dTime, SMatrix& transformation) const{
+SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transformation) const{
 
 	SVec3 dir = -transformation.Forward();	//this is for rh... fml
 	SVec3 right = SVec3::Up.Cross(dir);
@@ -85,7 +87,8 @@ void Controller::processTranslationFPS(const float dTime, SMatrix& transformatio
 
 	deltaTranslation.Normalize();
 
-	Math::Translate(transformation, deltaTranslation * movCf * dTime);
+	return deltaTranslation;
+	
 }
 
 
@@ -104,11 +107,10 @@ void Controller::toggleFly()
 
 
 
-void Controller::resolveCollision(SMatrix& transformation)
+void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity)
 {
 	if (!_colEng) return;
 
-	SVec3 _collisionOffset = _colEng->resolvePlayerCollision(transformation);
-
-	Math::Translate(transformation, _collisionOffset);
+	SVec3 collisionOffset = _colEng->resolvePlayerCollision(transformation, velocity);
+	velocity += collisionOffset;
 }

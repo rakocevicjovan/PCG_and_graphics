@@ -1,10 +1,26 @@
 #pragma once
 #include <vector>
 #include <map>
+#include <d3d11.h>
 #include "Controller.h"
+#include "Model.h"
+
 
 class Model;
 class Mesh;
+
+
+struct HitResult
+{
+	bool hit = false;
+	SVec3 resolutionVector = SVec3();
+	float sqPenetrationDepth = 0.f;
+
+	HitResult() {}
+	HitResult(bool h, SVec3 rv, float sqpd) : hit(h), resolutionVector(rv), sqPenetrationDepth(sqpd) {}
+};
+
+
 
 enum BoundingVolumeType
 {
@@ -16,7 +32,7 @@ enum BoundingVolumeType
 
 struct Hull
 {
-	virtual bool intersect(const Hull* other, BoundingVolumeType otherType) const = 0;
+	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const = 0;
 	virtual SVec3 getPosition() const = 0;
 };
 
@@ -26,25 +42,14 @@ struct AABB : Hull
 {
 	SVec3 min, max;
 
-	virtual bool intersect(const Hull* other, BoundingVolumeType otherType) const override;
+	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
 	virtual SVec3 getPosition() const { return (min + max) * 0.5f; }
 
 	bool operator ==(AABB other) { return ( (min - other.min + max - other.max).LengthSquared() > 0.001f ); }
 
-	std::vector<SVec3> getAllVertices()
-	{
-		return 
-		{
-			min,	//lower half
-			SVec3(min.x, min.y, max.z),
-			SVec3(max.x, min.y, min.z),
-			SVec3(max.x, min.y, max.z),
-			max,	//higher half
-			SVec3(min.x, max.y, max.z),
-			SVec3(max.x, max.y, min.z),
-			SVec3(min.x, max.y, min.z),
-		};
-	}
+	std::vector<SVec3> getVertices();
+
+	std::vector<SPlane> getPlanes();
 };
 
 
@@ -54,7 +59,7 @@ struct SphereHull : Hull
 	SVec3 c;
 	float r;
 
-	virtual bool intersect(const Hull* other, BoundingVolumeType otherType) const override;
+	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
 	virtual SVec3 getPosition() const { return c; }
 };
 
@@ -75,17 +80,17 @@ struct Collider
 	std::vector<Hull*> hulls;
 	bool dynamic;
 
-	static bool AABBSphereIntersection(const AABB& b, const SphereHull& s);
-	static bool SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2);
-	static bool AABBAABBIntersection(const AABB& a, const AABB& b);
+	static HitResult AABBSphereIntersection(const AABB& b, const SphereHull& s);
+	static HitResult SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2);
+	static HitResult AABBAABBIntersection(const AABB& a, const AABB& b);
 	static bool RaySphereIntersection(const SRay& ray, const SphereHull& s);
-	static bool RayAABBIntersection(const SRay& ray, const AABB& b);
-	static float SQD_PointAABB(SVec3 p, AABB b);
+	static bool RayAABBIntersection(const SRay& ray, const AABB& b, SVec3& poi, float& t);
+	static float ClosestPointOnAABB(SVec3 p, AABB b, SVec3& out);
 
 	static bool RayPlaneIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c, SVec3& intersectionPoint);
 	static bool RayTriangleIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c);
 
-	bool Collider::Collide(const Collider& other, SVec3& resolutionVector);
+	HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector);
 };
 
 
@@ -145,6 +150,9 @@ class CollisionEngine
 	std::vector<Model*> _models;
 	std::vector<Collider> _colliders;
 
+	ID3D11Device* _device;
+	ID3D11DeviceContext* _deviceContext;
+
 	Grid grid;
 
 	Hull* genSphereHull(Mesh* mesh);
@@ -152,13 +160,18 @@ class CollisionEngine
 	Collider generateCollider(Model* model, BoundingVolumeType bvt);
 	
 public:
+
+	std::vector<Model> _colModels;
+
 	CollisionEngine();
 	~CollisionEngine();
+
+	void init(ID3D11Device* d, ID3D11DeviceContext* dc) { _device = d; _deviceContext = dc; }
 
 	void registerModel(Model* model, BoundingVolumeType bvt);
 	void unregisterModel(const Model* model);
 	void addToGrid(const Collider& collider);
 
 	void registerController(Controller& controller);
-	SVec3 resolvePlayerCollision(const SMatrix& playerTransform);
+	SVec3 resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity);
 };
