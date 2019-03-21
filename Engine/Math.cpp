@@ -116,3 +116,10 @@ float Math::smoothstep(float edge0, float edge1, float x)
 	float  t = clamp(0.0, 1.0, (x - edge0) / (edge1 - edge0));
 	return t * t * (3.0 - 2.0 * t);
 }
+
+void Math::swap(float& f1, float& f2)
+{
+	float temp = f1;
+	f1 = f2;
+	f2 = temp;
+}

@@ -192,11 +192,11 @@ bool Renderer::RenderFrame(float dTime)
 
 	}
 
-	//shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, elapsed);
-	//maze.model.Draw(_deviceContext, shMan.shaderMaze);
+	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, elapsed);
+	maze.model.Draw(_deviceContext, shMan.shaderMaze);
 
-	shMan.shaderMaze.SetShaderParameters(_deviceContext, _colEngine._colModels[0], _cam, elapsed);
-	_colEngine._colModels[0].Draw(_deviceContext, shMan.shaderMaze);
+	//shMan.shaderMaze.SetShaderParameters(_deviceContext, _colEngine._colModels[0], _cam, elapsed);
+	//_colEngine._colModels[0].Draw(_deviceContext, shMan.shaderMaze);
 
 	/*
 	shMan.shaderLight.SetShaderParameters(_deviceContext,

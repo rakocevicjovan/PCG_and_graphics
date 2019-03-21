@@ -57,5 +57,7 @@ public:
 
 	static float smoothstep(float edge0, float edge1, float x);
 
+	static void swap(float& f1, float& f2);
+
 };
 

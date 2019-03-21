@@ -112,5 +112,5 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 	if (!_colEng) return;
 
 	SVec3 collisionOffset = _colEng->resolvePlayerCollision(transformation, velocity);
-	velocity += collisionOffset;
+	//Math::Translate(transformation, collisionOffset * dTime);
 }

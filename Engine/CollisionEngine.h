@@ -47,9 +47,9 @@ struct AABB : Hull
 
 	bool operator ==(AABB other) { return ( (min - other.min + max - other.max).LengthSquared() > 0.001f ); }
 
-	std::vector<SVec3> getVertices();
+	std::vector<SVec3> getVertices() const;
 
-	std::vector<SPlane> getPlanes();
+	std::vector<SPlane> getPlanes() const;
 };
 
 
@@ -84,7 +84,7 @@ struct Collider
 	static HitResult SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2);
 	static HitResult AABBAABBIntersection(const AABB& a, const AABB& b);
 	static bool RaySphereIntersection(const SRay& ray, const SphereHull& s);
-	static bool RayAABBIntersection(const SRay& ray, const AABB& b, SVec3& poi, float& t);
+	static HitResult RayAABBIntersection(const SRay& ray, const AABB& b, SVec3& poi, float& t);
 	static float ClosestPointOnAABB(SVec3 p, AABB b, SVec3& out);
 
 	static bool RayPlaneIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c, SVec3& intersectionPoint);
@@ -136,7 +136,7 @@ struct Grid
 {
 	Grid() {};
 	Grid(float cellsize) : _cellsize(cellsize) {}
-	float _cellsize = 64.f;
+	float _cellsize = 32.f;
 	float invCellSize = 1.f / _cellsize;
 	std::map<CellKey, GridCell> cells;
 

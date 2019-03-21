@@ -16,7 +16,6 @@ void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
 {
 	_colliders.push_back(generateCollider(model, bvt));
 	model->collider = &(_colliders.back());
-	//Model colModel(_colliders.back(), _device);
 	_colModels.emplace_back(_colliders.back(), _device);
 
 	_models.push_back(model);
@@ -90,24 +89,41 @@ void CollisionEngine::registerController(Controller& controller)
 
 SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity)
 {
-	CellKey ck(playerTransform.Translation(), grid.invCellSize);
-
 	SphereHull playerHull;
 	playerHull.c = playerTransform.Translation();
 	playerHull.r = 5.f;
 
-	for (auto hull : grid.cells[ck].hulls)
+	CellKey ck(playerTransform.Translation(), grid.invCellSize), adjCK;
+
+	SVec3 collisionNormal;
+	std::vector<Hull*> collidedHulls;
+
+	for (int i = -1; i < 2; ++i)
 	{
-		HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
-		if (hr.hit)
+		adjCK.x = ck.x + i;	//increment c
+
+		for (int j = -1; j < 2; ++j)
 		{
+			adjCK.z = ck.z + j;
+		
+			for (auto hull : grid.cells[adjCK].hulls)
+			{
+				HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
+				if (hr.hit)
+				{
+					collidedHulls.push_back(hull);
 
+					if (velocity.Dot(hr.resolutionVector) < 0.001f) velocity -= Math::projectVecOntoVec(velocity, hr.resolutionVector);
+					collisionNormal += hr.resolutionVector * sqrt(hr.sqPenetrationDepth);
+				}
+			}
 
-			return hr.resolutionVector;
-		}		
+		}
 	}
 
-	return SVec3();
+	//for (Hull* h : collidedHulls)
+
+	return collisionNormal;
 }
 
 
@@ -215,16 +231,12 @@ HitResult Collider::AABBSphereIntersection(const AABB& b, const SphereHull& s)
 	hr.hit = sqpenetrationDepth > 0;
 	hr.sqPenetrationDepth = hr.hit ? sqpenetrationDepth : 0.f;
 
-	SVec3 resVec = closestPointOnAABB - s.c;	//if sphere is in the object this will be 0...
+	SVec3 resVec = s.c - closestPointOnAABB ;	//if sphere is in the object this will be 0...
 
-	/*
-	SVec3 inBoxDir = closestPointOnAABB - b.getPosition();
-	
 	if (resVec.LengthSquared() < 0.0001f)
-		hr.resolutionVector = closestPointOnAABB - b.getPosition();
+		hr.resolutionVector = Math::getNormalizedVec3(closestPointOnAABB - b.getPosition());
 	else
-		hr.resolutionVector = Math::getNormalizedVec3(resVec) * penetrationDepth;
-	*/
+		hr.resolutionVector = Math::getNormalizedVec3(resVec);
 
 	return hr;
 }
@@ -255,14 +267,53 @@ bool Collider::RaySphereIntersection(const SRay& ray, const SphereHull& s)
 }
 
 
-//not implemented @TODO
-bool Collider::RayAABBIntersection(const SRay& ray, const AABB& b, SVec3& poi, float& t)
-{
-	DirectX::SimpleMath::Plane p;
-	b.get
-	float f = 
 
-	return false;
+bool ClipLine(int dim, const AABB& b, const SRay& lineSeg, float& lo, float& hi)
+{
+	float fDimLow, fDimHigh;
+	float inv = 1.f / (lineSeg.direction.at(dim) - lineSeg.position.at(dim));
+
+	fDimLow = (b.min.at(dim) - lineSeg.position.at(dim)) * inv;
+	fDimHigh = (b.max.at(dim) - lineSeg.position.at(dim)) * inv;
+
+	if (fDimHigh < fDimLow)
+		Math::swap(fDimHigh, fDimLow);
+
+	if (fDimHigh < lo) return false;
+	if (fDimLow > hi) return false;
+
+	lo = max(fDimLow, lo);
+	hi = max(fDimHigh, hi);
+
+	return (lo < hi);
+}
+
+
+
+//ray structure used for convenience, it's actually first and last point of the line
+HitResult Collider::RayAABBIntersection(const SRay& lineSeg, const AABB& b, SVec3& poi, float& t)
+{
+	HitResult hr;
+
+	SVec3 lineDirection = lineSeg.direction - lineSeg.position;
+
+	float invDeltaX = 1.f / (lineDirection.x);
+	float invDeltaY = 1.f / (lineDirection.y);
+	float invDeltaZ = 1.f / (lineDirection.z);
+
+	float flow = 0.f;
+	float fhigh = 1.f;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		hr.hit = ClipLine(i, b, lineSeg, flow, fhigh);
+		if (!hr.hit) return hr;
+	}
+
+	poi = lineSeg.position + lineDirection * flow;
+	t = flow;
+
+	return hr;
 }
 
 
@@ -333,7 +384,7 @@ HitResult SphereHull::intersect(const Hull* other, BoundingVolumeType otherType)
 
 void Grid::addAABB(AABB* h)
 {
-	std::vector<SVec3> positions = h->getAllVertices();
+	std::vector<SVec3> positions = h->getVertices();
 
 	CellKey minCellKey(h->min, invCellSize);
 	CellKey maxCellKey(h->max, invCellSize);
@@ -361,7 +412,7 @@ void Grid::addSphere(SphereHull* h)
 
 
 
-std::vector<SVec3> AABB::getVertices()
+std::vector<SVec3> AABB::getVertices() const
 {
 	return
 	{
@@ -377,20 +428,22 @@ std::vector<SVec3> AABB::getVertices()
 }
 
 
-
-std::vector<SPlane> AABB::getPlanes()
+//b t n f l r
+std::vector<SPlane> AABB::getPlanes() const
 {
 	
-	std::vector<SVec3> verts = getVertices();
+	std::vector<SVec3> v = getVertices();
 	std::vector<SPlane> result;
 	result.reserve(6);
 
-	result.emplace_back(verts[0], verts[1], verts[2]);	//lower
-	result.emplace_back(verts[0], verts[1], verts[2]);	//higher
-	result.emplace_back(verts[0], verts[1], verts[2]);	//near
-	result.emplace_back(verts[0], verts[1], verts[2]);	//far
-	result.emplace_back(verts[0], verts[1], verts[2]);	//left
-	result.emplace_back(verts[2], verts[3], verts[4]);	//right
+	result.emplace_back(v[0], v[1], v[2]);	//bottom
+	result.emplace_back(v[4], v[5], v[6]);	//top
+	result.emplace_back(v[0], v[2], v[6]);	//near
+	result.emplace_back(v[1], v[3], v[4]);	//far
+	result.emplace_back(v[0], v[1], v[5]);	//left
+	result.emplace_back(v[2], v[3], v[4]);	//right
+
+	return result;
 }
 
 
