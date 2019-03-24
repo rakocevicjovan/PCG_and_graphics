@@ -32,6 +32,7 @@ namespace Procedural
 	{
 
 		std::vector<DirectX::VertexPositionNormalTexture> verts;
+
 		std::vector<uint16_t> inds;
 		DirectX::GeometricPrimitive::CreateBox(verts, inds, DirectX::XMFLOAT3(dims.x, dims.y, dims.z), false, false);
 

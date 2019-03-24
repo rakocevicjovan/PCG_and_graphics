@@ -32,9 +32,9 @@ class Mesh
 		Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true);
 		Mesh(Hull* hull, ID3D11Device* device);
 
-		//@todo pull D3D11_BUFFER_DESC out of the function and into the parameter, which will allow flexibility (for instancing) and reuse etc...
-		//@todo level - IMPORTANT AS FUCC
-		bool setupMesh(ID3D11Device* device);
+
+		//@todo - pull D3D11_BUFFER_DESC from a parameter?
+		bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
 
 		void draw(ID3D11DeviceContext* dc, ShaderVolumetric& s);
 		void draw(ID3D11DeviceContext* dc, InstancedShader& s);

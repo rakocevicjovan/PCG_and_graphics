@@ -34,7 +34,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_colEngine.init(_device, _deviceContext);
 
 	shMan.init(_device, hwnd);
-	_resMan.load(_device);
+	_resMan.init(_device);
 
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
@@ -93,7 +93,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shMan.shaderVolumetric.setLightData(_deviceContext, RES.pointLight);
 
 	//_colEngine.registerModel(&RES.will, BoundingVolumeType::BVT_AABB);
-	//_colEngine.registerModel(&maze.model, BoundingVolumeType::BVT_AABB);
 
 	return true;
 }

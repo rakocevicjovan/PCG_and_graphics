@@ -105,27 +105,22 @@
 
 
 
-	//@todo pull D3D11_BUFFER_DESC out of the function and into the parameter, which will allow flexibility (for instancing) and reuse etc...
-	//@todo level - IMPORTANT AS FUCC
-	bool Mesh::setupMesh(ID3D11Device* device)
+	bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
 	{
-		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 		D3D11_SUBRESOURCE_DATA vertexData, indexData;
-		HRESULT res;
-
+		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
 		vertexBufferDesc.StructureByteStride = 0;
-
+		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
 		vertexData.pSysMem = vertices.data();
+
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;
 
-		res = device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
-		if (FAILED(res))
+		if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer)))
 			return false;
 
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -146,6 +141,29 @@
 
 		return true;
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

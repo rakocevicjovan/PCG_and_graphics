@@ -61,7 +61,6 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 
 bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
 {
-
 	aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -74,6 +73,7 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 	{
 		this->processNode(device, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
 	}
+
 	return true;
 }
 
@@ -83,7 +83,13 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 {
 	std::vector<Vert3D> vertices;
 	std::vector<unsigned int> indices;
+	std::vector<SVec3> faceTangents;
 	std::vector<Texture> locTextures;
+
+	vertices.reserve(mesh->mNumVertices);
+	faceTangents.reserve(mesh->mNumFaces);
+	indices.reserve(mesh->mNumFaces * 3);
+
 
 	bool hasTexCoords = false;
 
@@ -91,12 +97,10 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 	if (mesh->mTextureCoords[0])
 		hasTexCoords = true;
 
+	Vert3D vertex;
 
-
-	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
-		Vert3D vertex;
-
 		//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		//vertex.pos = SVec3(temp.x, temp.y, temp.z);
 		//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
@@ -118,11 +122,34 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
 		aiFace face = mesh->mFaces[i];
+
+		//populate indices from faces
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-		{
 			indices.push_back(face.mIndices[j]);
-		}
+
+		faceTangents.push_back(calculateTangent(vertices, face));
 	}
+
+
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	{
+		SVec3 tangent(0.f);
+		float found = 0.f;
+
+		for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
+		{
+			if (mesh->mFaces[j].mIndices[0] == i || mesh->mFaces[j].mIndices[1] == i || mesh->mFaces[j].mIndices[2] == i)
+			{
+				tangent += faceTangents[j];
+				found += 1.0f;
+			}
+		}
+
+		vertices[i].tangent = tangent /= found;
+	}
+
+
 
 	if (mesh->mMaterialIndex >= 0)
 	{
@@ -174,7 +201,7 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 
 			if (!loaded)
 			{
-				loaded = this->LoadGLTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
+				loaded = this->LoadEmbeddedTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
 
 				if (!loaded)
 					std::cout << "Texture did not load!" << std::endl;
@@ -193,7 +220,7 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 
 
 
-bool Model::LoadGLTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
+bool Model::LoadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
 {
 	if (scene->HasTextures())
 	{
@@ -211,7 +238,7 @@ bool Model::LoadGLTextures(ID3D11Device* device, std::vector<Texture>& textures,
 
 		return true;
 	}
-	return false;	//has no textures (at least according you ask assimp), so loading none is fine
+	return false;
 }
 
 
@@ -220,4 +247,35 @@ inline bool Model::fileExists(const std::string& name)
 {
 	std::ifstream f(name.c_str());
 	return f.good();
+}
+
+
+
+SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
+{
+	SVec3 tangent;
+	SVec3 edge1, edge2;
+	SVec2 duv1, duv2;
+
+	//Find first texture coordinate edge 2d vector
+	Vert3D v0 = vertices[face.mIndices[0]];
+	Vert3D v1 = vertices[face.mIndices[1]];
+	Vert3D v2 = vertices[face.mIndices[2]];
+
+	edge1 = v0.pos - v2.pos;
+	edge2 = v2.pos - v1.pos;
+
+	duv1 = v0.texCoords - v2.texCoords;
+	duv2 = v2.texCoords - v1.texCoords;
+
+	float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
+
+	//Find tangent using both tex coord edges and position edges
+	tangent.x = (duv1.y * edge1.x - duv2.y * edge2.x) * f;
+	tangent.y = (duv1.y * edge1.y - duv2.y * edge2.y) * f;
+	tangent.z = (duv1.y * edge1.z - duv2.y * edge2.z) * f;
+
+	tangent.Normalize();
+
+	return tangent;
 }

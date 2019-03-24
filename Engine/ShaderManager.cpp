@@ -24,7 +24,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{ "NORMAL",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
 	//with wrap
@@ -72,11 +72,18 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> volTreeNames = { L"volumVS.hlsl", L"volumTreePS.hlsl" };
 	shaderVolumetricTree.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
 
-	std::vector<std::wstring> perlinMarbleNames = { L"volumVS.hlsl", L"mazePS.hlsl" };
-	shaderMaze.Initialize(_device, hwnd, perlinMarbleNames, sbLayout, sbSamplerDesc);
-
 	std::vector<std::wstring> terrainNames = { L"lightVS.hlsl", L"terrainPS.hlsl" };
 	shaderTerrain.Initialize(_device, hwnd, terrainNames, sbLayout, sbSamplerDesc);
+
+
+
+	//maze neeeds the extended layout
+	std::vector<D3D11_INPUT_ELEMENT_DESC> extendedLayout = sbLayout;
+	extendedLayout.push_back({ "TANGENT",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+
+	std::vector<std::wstring> perlinMarbleNames = { L"volumVS.hlsl", L"mazePS.hlsl" };
+	shaderMaze.Initialize(_device, hwnd, perlinMarbleNames, extendedLayout, sbSamplerDesc);
+
 
 
 	//with clamp
@@ -87,6 +94,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> perlinNames = { L"perlin3dVS.hlsl", L"perlin3dPS.hlsl" };
 	shaderPerlin.Initialize(_device, hwnd, perlinNames, sbLayout, sbSamplerDesc);
 
+	
 
 	//with instancing
 	std::vector<D3D11_INPUT_ELEMENT_DESC> instancedLayout =

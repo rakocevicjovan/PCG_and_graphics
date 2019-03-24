@@ -1,6 +1,7 @@
 #pragma once
-
+#include <d3d11.h>
 #include "Math.h"
+#include "Texture.h"
 #include <vector>
 
 struct Vert3D 
@@ -8,16 +9,21 @@ struct Vert3D
 	SVec3 pos;
 	SVec2 texCoords;
 	SVec3 normal;
+	SVec3 tangent;
 
 	Vert3D() {};
 	Vert3D(const SVec3& position) : pos(position) {};
 };
+
+
 
 struct VertBoneData 
 {
 	unsigned int ids[4];
 	float weights[4];
 };
+
+
 
 //@TODO jointInfluences might need changing... should see how this works first...
 struct BonedVert3D : Vert3D 
@@ -27,7 +33,17 @@ struct BonedVert3D : Vert3D
 
 
 
-class Joint {
+struct Material
+{
+	Texture diffuse;	//hella fancy name for colour...
+	Texture normal;		//geometry blues
+	Texture height;		//for vertex displacement?
+};
+
+
+
+class Joint
+{
 public:
 
 	int index;
@@ -47,7 +63,8 @@ public:
 
 
 
-class Channel {
+class Channel
+{
 public:
 	
 	std::vector<std::pair<double, Joint>> timeline;

@@ -192,10 +192,10 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	float3 xyz = float3(input.wPos.x, input.wPos.y, input.wPos.z);
 
-	xyz.xz -= 60.f;					//bring center of rotation to the center of the maze
+	xyz.xz -= 160.f;					//bring center of rotation to the center of the maze
 	
-	//xyz.xz = mul(xyz.zx, rotMat);	//rotate around the center of the maze
-	//xyz.y -= elapsed * 5.f;		//move the texture upwards
+	xyz.xz = mul(xyz.zx, rotMat);	//rotate around the center of the maze
+	xyz.y -= elapsed * 5.f;		//move the texture upwards
 
 	//xyz.xy = mul(xyz.xy, rotMat);	UNCOMMENT THIS LATER
 
