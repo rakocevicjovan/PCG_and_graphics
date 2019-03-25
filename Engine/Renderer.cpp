@@ -277,8 +277,8 @@ void Renderer::ProcessSpecialInput()
 	{
 
 		///TERRAIN GENERATION
-		//proceduralTerrain = Procedural::Terrain(2, 2, SVec3(10, 30, 10));
-		proceduralTerrain.setScales(1, 50, 1);
+		proceduralTerrain = Procedural::Terrain(10 * 32, 10 * 32);
+		//proceduralTerrain.setScales(1, 1, 1);
 
 		std::vector<std::string> texNames = 
 		{
@@ -302,12 +302,12 @@ void Renderer::ProcessSpecialInput()
 
 
 
-		///Ridge/turbluent noise testing
-		Texture tempTex;
+		///Ridge/turbluent noise testing - looks quite nice actually
+		//Texture tempTex;
 		//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 1.61803, 0.5793f, 6u);
-		auto fltVec = tempTex.generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);
+		//auto fltVec = tempTex.generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);
 		//Texture::WriteToFile("C:\\Users\\metal\\Desktop\\Uni\\test.png", tempTex.w, tempTex.h, 1, tempTex.data, 0);
-		proceduralTerrain.GenFromTexture(tempTex.w, tempTex.h, fltVec);
+		//proceduralTerrain.GenFromTexture(tempTex.w, tempTex.h, fltVec);
 
 
 		///Terrain deformation testng
@@ -327,8 +327,6 @@ void Renderer::ProcessSpecialInput()
 		//v.shatter(vertPositions);
 
 		proceduralTerrain.SetUp(_device);
-		std::vector<Procedural::Terrain*> terrains;
-		terrains.push_back(&proceduralTerrain);
 
 		isTerGenerated = true;
 

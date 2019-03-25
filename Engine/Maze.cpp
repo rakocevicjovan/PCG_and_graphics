@@ -145,7 +145,7 @@ namespace Procedural
 
 		float halfLength = _cellSize * .5f;
 		
-		g.GenBox(SVec3(_cellSize + _width, _height, _width));	//+_width * 0.95f
+		g.GenBox(SVec3(_cellSize, _height, _width));	//+_width * 0.95f
 		for (auto& pos : g.positions)	pos.x += halfLength;
 		Mesh bottom = Mesh(g, device, false);
 
@@ -154,7 +154,7 @@ namespace Procedural
 
 		g.Clear();
 
-		g.GenBox(SVec3(_width, _height, _cellSize + _width));	// + _width * 0.95f
+		g.GenBox(SVec3(_width, _height, _cellSize));	// + _width * 0.95f
 
 		for (auto& pos : g.positions)	pos.z += halfLength;
 		Mesh left = Mesh(g, device, false);
@@ -164,6 +164,26 @@ namespace Procedural
 
 		for (auto& mc : cells)
 			BuildCellMeshes(mc, device, left, right, top, bottom);
+		
+		/*
+		g.Clear();
+
+		float floorWidth = _cellSize * _w, floorHalfWidth = floorWidth * 0.5f;;
+		float floorZDepth = _cellSize * _h, floorHalfZDepth = floorZDepth * 0.5f;
+		float floorThiccness = 2.f;
+		
+		g.GenBox(SVec3(floorWidth, floorThiccness, floorZDepth));
+		Mesh floor(g, device, false);
+
+		for (auto& v : floor.vertices)
+		{
+			v.pos.x += floorHalfWidth;
+			v.pos.z += floorHalfZDepth;
+		}
+		floor.setupMesh(device);
+		
+		model.meshes.push_back(floor);
+		*/	
 	}
 
 

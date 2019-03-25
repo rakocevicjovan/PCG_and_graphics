@@ -190,6 +190,7 @@ namespace Procedural
 	{
 		positions.reserve(rows * subdivsRadial);
 		indices.reserve(subdivsRadial * 2 * 3 * (rows - 1));	//number of faces per column, times 2 for two subrows, times face rows, times 3
+		texCoords.reserve(positions.size());
 
 		float subdivHeight = height / float(rows - 1);
 
@@ -219,9 +220,9 @@ namespace Procedural
 
 			for (UINT j = 0; j < subdivsRadial; ++j)
 			{
-				normals.push_back(SVec3(cosines[j], 0.f, sines[j]));
-				positions.push_back(SVec3(normals.back().x * adjRadius, i * subdivHeight, normals.back().z * adjRadius));
-				
+				normals.emplace_back(cosines[j], 0.f, sines[j]);
+				positions.emplace_back(normals.back().x * adjRadius, i * subdivHeight, normals.back().z * adjRadius);
+				texCoords.emplace_back(positions.back().x + positions.back().z, positions.back().y);
 				//and link them with indices - except the last row, because the current row already takes the next one into account to build the index buffer
 				if (i == rows - 1) continue;
 
@@ -240,6 +241,7 @@ namespace Procedural
 				}
 			}
 		}
+
 	}
 
 	void Geometry::GenSphere(float radius)
@@ -249,15 +251,18 @@ namespace Procedural
 		DirectX::GeometricPrimitive::CreateSphere(verts, inds, radius * 2.f, 4u, false, false);	// DirectX::XMFLOAT3(1.f / 2.f, 2.f / 2.f, 3.f / 2.f)
 
 		positions.reserve(verts.size());
+		normals.reserve(verts.size());
+		texCoords.reserve(verts.size());
 		for (auto v : verts)
 		{
-			positions.push_back(v.position);
-			normals.push_back(v.normal);
+			positions.emplace_back(v.position);
+			normals.emplace_back(v.normal);
+			texCoords.emplace_back(v.textureCoordinate);
 		}
 			
 		indices.reserve(inds.size());
 		for (auto i : inds)
-			indices.push_back(i);
+			indices.emplace_back(i);
 	}
 
 	void Geometry::Clear()
@@ -265,6 +270,7 @@ namespace Procedural
 		positions.clear();
 		normals.clear();
 		indices.clear();
+		tangents.clear();
 	}
 
 }

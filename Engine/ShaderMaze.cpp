@@ -11,7 +11,10 @@ ShaderMaze::~ShaderMaze()
 {
 }
 
-
+struct MazeVarBuff
+{
+	SVec4 lul;
+};
 
 bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Model& m, const Camera& cam, 
 										const PointLight& pLight, float deltaTime, const Texture& d, const Texture& n)
@@ -20,7 +23,7 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	unsigned int bufferNumber;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
-	VariableBuffer* dataPtr3;
+	MazeVarBuff* playerPosBuffer;
 
 	SMatrix mT = m.transform.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
@@ -37,10 +40,11 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	bufferNumber = 0;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
 
+	SVec4 pos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
+
 	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-	dataPtr3->deltaTime = deltaTime;
-	dataPtr3->padding = SVec3();
+	playerPosBuffer = (MazeVarBuff*)mappedResource.pData;
+	playerPosBuffer->lul = pos;
 	deviceContext->Unmap(_variableBuffer, 0);
 
 	bufferNumber = 1;

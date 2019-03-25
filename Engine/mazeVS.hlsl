@@ -8,8 +8,7 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer VariableBuffer : register(b1)
 {
-	float delta;
-	float3 padding;
+	float4 playerPos;
 };
 
 
@@ -36,6 +35,11 @@ PixelInputType LightVertexShader(VertexInputType input) {
 	PixelInputType output;
 
 	output.worldPos = mul(input.position, worldMatrix);	//careful... doing this to optimize and avoid copying
+
+	float distance = length(playerPos.xz - output.worldPos.xz);
+
+	output.worldPos.y -= smoothstep(48.f, 80.f, distance) * 15.f;
+
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 

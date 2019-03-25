@@ -200,7 +200,7 @@ namespace Procedural
 					tube.positions[i] += pos; //+ curDir * 0.5f;
 				}
 
-				tree.meshes.push_back(Mesh(tube, device));
+				tree.meshes.push_back(Mesh(tube, device, true, false));
 
 				for (int i = 0; i < sphere.positions.size(); ++i)
 				{
@@ -208,7 +208,7 @@ namespace Procedural
 					tempSphere.positions[i] += pos;
 				}
 
-				tree.meshes.push_back(Mesh(tempSphere, device));
+				tree.meshes.push_back(Mesh(tempSphere, device, true, false));
 				//accumulatedDecay *= decay;
 
 				break;

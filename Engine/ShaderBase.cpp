@@ -154,8 +154,8 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBuffer* dataPtr;
-	LightBuffer* dataPtr2;
 	VariableBuffer* dataPtr3;
+	LightBuffer* dataPtr2;
 
 	ShaderParametersLight spl = *(ShaderParametersLight*)spb;
 

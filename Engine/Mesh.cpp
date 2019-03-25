@@ -58,7 +58,7 @@
 
 
 
-	Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp)
+	Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool hasTangents)
 	{
 		vertices.reserve(g.positions.size());
 		Vert3D v;
@@ -68,7 +68,8 @@
 			v.pos = g.positions[i];
 			v.texCoords = g.texCoords[i];
 			v.normal = g.normals[i];
-			v.tangent = g.tangents[i];
+			if(hasTangents)
+				v.tangent = g.tangents[i];
 			vertices.push_back(v);
 		}
 
