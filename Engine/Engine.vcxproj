@@ -127,6 +127,7 @@
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="ShaderHUD.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="ShaderMaze.cpp" />
     <ClCompile Include="ShaderPT.cpp" />
     <ClCompile Include="ShaderShadow.cpp" />
     <ClCompile Include="ShaderSkybox.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ShaderHUD.h" />
     <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="ShaderMaze.h" />
     <ClInclude Include="ShaderPT.h" />
     <ClInclude Include="ShaderVolumetric.h" />
     <ClInclude Include="ShaderShadow.h" />
@@ -271,6 +273,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="InstancedVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="mazeVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="perlin3dPS.hlsl">

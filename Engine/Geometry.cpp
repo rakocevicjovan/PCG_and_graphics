@@ -1,6 +1,7 @@
 #include "Geometry.h"
 #include "GeometricPrimitive.h"
 #include "Chaos.h"
+#include <map>
 
 namespace Procedural
 {
@@ -28,24 +29,78 @@ namespace Procedural
 
 
 
+	SVec3 calculateTangent(const std::vector<SVec3>& positions, const std::vector<SVec2>& texCoords, int ind0, int ind1, int ind2)
+	{
+		SVec3 tangent;
+		SVec3 edge1, edge2;
+		SVec2 duv1, duv2;
+
+		//Find first texture coordinate edge 2d vector
+
+		edge1 = positions[ind0] - positions[ind2];
+		edge2 = positions[ind2] - positions[ind1];
+
+		duv1 = texCoords[ind0] - texCoords[ind2];
+		duv2 = texCoords[ind2] - texCoords[ind1];
+
+		float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
+
+		//Find tangent using both tex coord edges and position edges
+		tangent.x = (duv1.y * edge1.x - duv2.y * edge2.x) * f;
+		tangent.y = (duv1.y * edge1.y - duv2.y * edge2.y) * f;
+		tangent.z = (duv1.y * edge1.z - duv2.y * edge2.z) * f;
+
+		tangent.Normalize();
+
+		return tangent;
+	}
+
+
+
 	void Geometry::GenBox(SVec3 dims)
 	{
-
 		std::vector<DirectX::VertexPositionNormalTexture> verts;
-
 		std::vector<uint16_t> inds;
+
 		DirectX::GeometricPrimitive::CreateBox(verts, inds, DirectX::XMFLOAT3(dims.x, dims.y, dims.z), false, false);
 
 		positions.reserve(verts.size());
+		texCoords.reserve(verts.size());
+		normals.reserve(verts.size());
+		tangents.reserve(verts.size());
+
 		for (auto v : verts)
 		{
 			positions.push_back(v.position);
+			texCoords.push_back(v.textureCoordinate);
 			normals.push_back(v.normal);
 		}
 
 		indices.reserve(inds.size());
 		for (auto i : inds)
 			indices.push_back(i);
+
+		//go through faces 3 at a time
+		std::map<int, SVec3> indexTangentMap;
+		for (int i = 0; i < indices.size(); i += 3)
+		{
+			SVec3 curFaceTangent = calculateTangent(positions, texCoords, indices[i], indices[i + 1], indices[i + 2]);
+			indexTangentMap[indices[i]]		+= curFaceTangent;
+			indexTangentMap[indices[i + 1]] += curFaceTangent;
+			indexTangentMap[indices[i + 2]] += curFaceTangent;
+		}
+
+		//tangents are now added up, should be normalized
+		for (auto& tango : indexTangentMap)
+			tango.second.Normalize();
+
+		tangents.resize(positions.size());
+		for (int i = 0; i < tangents.size(); ++i)
+		{
+			tangents[i] = indexTangentMap[i];
+		}
+
+
 	}
 
 

@@ -76,13 +76,12 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	shaderTerrain.Initialize(_device, hwnd, terrainNames, sbLayout, sbSamplerDesc);
 
 
-
 	//maze neeeds the extended layout
 	std::vector<D3D11_INPUT_ELEMENT_DESC> extendedLayout = sbLayout;
-	extendedLayout.push_back({ "TANGENT",     0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 });
+	extendedLayout.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 
-	std::vector<std::wstring> perlinMarbleNames = { L"volumVS.hlsl", L"mazePS.hlsl" };
-	shaderMaze.Initialize(_device, hwnd, perlinMarbleNames, extendedLayout, sbSamplerDesc);
+	std::vector<std::wstring> mazeNames = { L"mazeVS.hlsl", L"mazePS.hlsl" };
+	shaderMaze.Initialize(_device, hwnd, mazeNames, extendedLayout, sbSamplerDesc);
 
 
 

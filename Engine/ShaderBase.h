@@ -30,7 +30,7 @@ public:
 	virtual bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths,
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
 	virtual bool SetShaderParameters(SPBase* spb);
-	virtual bool ReleaseShaderParameters(ID3D11DeviceContext*);
+	virtual void ReleaseShaderParameters(ID3D11DeviceContext*);
 	
 
 	ID3D11InputLayout* _layout;

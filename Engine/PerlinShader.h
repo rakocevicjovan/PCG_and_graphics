@@ -7,4 +7,3 @@ public:
 	PerlinShader();
 	~PerlinShader();
 };
-

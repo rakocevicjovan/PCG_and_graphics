@@ -49,4 +49,5 @@ class Mesh
 		void draw(ID3D11DeviceContext* dc, ShaderSkybox& s);
 		void draw(ID3D11DeviceContext* dc, ShaderStrife& s);
 		void draw(ID3D11DeviceContext* dc, ShaderWater& s);
+		void draw(ID3D11DeviceContext* dc, ShaderMaze& s);
 	};

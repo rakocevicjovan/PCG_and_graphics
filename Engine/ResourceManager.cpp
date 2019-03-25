@@ -84,13 +84,19 @@ void Level::init(ID3D11Device* device)
 
 	postProcessTexture.Init(device, ostW, ostH);
 
-	///NOISES
+	mazeDiffuseMap.LoadFromFile("../Textures/Rock/diffuse.jpg");
+	mazeDiffuseMap.Setup(device);
+	mazeNormalMap.LoadFromFile("../Textures/Rock/normal.jpg");
+	mazeNormalMap.Setup(device);
+
+	/*NOISES
 	white.LoadFromFile("../Textures/noiz.png");
 	white.Setup(device);
 	perlinTex.LoadFromFile("../Textures/strife.png");
 	perlinTex.Setup(device);
 	worley.LoadFromFile("../Textures/worley.png");
 	worley.Setup(device);
+	*/
 
 #pragma region Audio
 	/*

@@ -110,9 +110,6 @@ struct ShaderParametersLight : public SPBase
 
 
 
-
-
-
 //shader structs for initialization
 struct InitParamsBase 
 {};

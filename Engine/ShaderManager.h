@@ -17,6 +17,7 @@
 #include "InstancedShader.h"
 #include "TerrainShader.h"
 #include "PerlinShader.h"
+#include "ShaderMaze.h"
 
 
 class ShaderManager
@@ -44,10 +45,10 @@ public:
 	ShaderWater shaderWater;
 	ShaderVolumetric shaderVolumetric;
 	ShaderVolumetric shaderVolumetricTree;
-	ShaderVolumetric shaderMaze;	//not actually used for volumetric rendering but needs same inputs
 	InstancedShader shaderInstanced;
 	PerlinShader shaderPerlin;
 	TerrainShader shaderTerrain;
+	ShaderMaze shaderMaze;
 
 	ShaderManager();
 	~ShaderManager();

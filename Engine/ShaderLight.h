@@ -23,7 +23,7 @@ public:
 
 	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p, 
 								const PointLight& dLight, const SVec3& eyePos, float deltaTime);
-	bool ReleaseShaderParameters(ID3D11DeviceContext*);
+	void ReleaseShaderParameters(ID3D11DeviceContext*);
 
 private:
 	std::vector<std::wstring> filePaths;

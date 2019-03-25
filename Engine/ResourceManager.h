@@ -20,7 +20,7 @@ struct Level
 	std::map <std::string, Material> materials;
 
 	//textures
-	Texture NST, DST, white, perlinTex, worley;
+	Texture NST, DST, mazeDiffuseMap, mazeNormalMap;
 
 	//lights
 	PointLight pointLight;

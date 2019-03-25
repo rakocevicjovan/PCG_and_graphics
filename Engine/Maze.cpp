@@ -145,7 +145,7 @@ namespace Procedural
 
 		float halfLength = _cellSize * .5f;
 		
-		g.GenBox(SVec3(_cellSize + _width, _height, _width));
+		g.GenBox(SVec3(_cellSize + _width, _height, _width));	//+_width * 0.95f
 		for (auto& pos : g.positions)	pos.x += halfLength;
 		Mesh bottom = Mesh(g, device, false);
 
@@ -154,7 +154,7 @@ namespace Procedural
 
 		g.Clear();
 
-		g.GenBox(SVec3(_width, _height, _cellSize + _width));
+		g.GenBox(SVec3(_width, _height, _cellSize + _width));	// + _width * 0.95f
 
 		for (auto& pos : g.positions)	pos.z += halfLength;
 		Mesh left = Mesh(g, device, false);

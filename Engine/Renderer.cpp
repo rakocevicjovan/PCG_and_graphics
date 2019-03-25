@@ -11,6 +11,7 @@ Renderer::Renderer() : proceduralTerrain()
 Renderer::~Renderer() {}
 
 #define RES _resMan._level
+#define EYE_POS _cam.GetCameraMatrix().Translation()
 
 bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
 {
@@ -106,8 +107,8 @@ bool Renderer::Frame(float dTime){
 
 	if (!_controller.isFlying())
 	{
-		SVec3 oldPos = _cam.GetCameraMatrix().Translation();
-		float newHeight = proceduralTerrain.getHeightAtPosition(_cam.GetCameraMatrix().Translation());
+		SVec3 oldPos = EYE_POS;
+		float newHeight = proceduralTerrain.getHeightAtPosition(EYE_POS);
 		SMatrix newMat = _cam.GetCameraMatrix();
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
 		_cam.SetCameraMatrix(newMat);
@@ -185,13 +186,13 @@ bool Renderer::RenderFrame(float dTime)
 
 		shMan.shaderLight.SetShaderParameters(_deviceContext, 
 			treeModel, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), 
-			RES.pointLight, _cam.GetCameraMatrix().Translation(), dTime);
+			RES.pointLight, EYE_POS, dTime);
 		treeModel.Draw(_deviceContext, shMan.shaderLight);
 		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
 
 	}
 
-	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, elapsed);
+	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, RES.pointLight, elapsed, RES.mazeDiffuseMap, RES.mazeNormalMap);
 	maze.model.Draw(_deviceContext, shMan.shaderMaze);
 
 	//shMan.shaderMaze.SetShaderParameters(_deviceContext, _colEngine._colModels[0], _cam, elapsed);

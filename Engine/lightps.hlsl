@@ -18,7 +18,8 @@ struct PixelInputType{
 	float4 worldPos : WPOS;
 };
 
-Texture2D shaderTexture;
+Texture2D shaderTexture : register(t0);
+
 SamplerState SampleType;
 
 //go 2-4 times higher on this when using blinn phong compared to phong
@@ -100,9 +101,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	//colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);
 
 	//apply gamma correction
-	colour.xyz = pow( colour.xyz, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f));
+	colour.rgb = pow( colour.xyz, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f));
 
-	colour.w = 1.f;
+	colour.a = 1.f;
     return colour;
 }
 

@@ -243,8 +243,7 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 
 
 
-bool ShaderBase::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
+void ShaderBase::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
-	return true;
 }

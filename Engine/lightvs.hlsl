@@ -5,7 +5,8 @@ cbuffer MatrixBuffer{
 };
 
 
-cbuffer VariableBuffer{
+cbuffer VariableBuffer
+{
     float delta;
 	float3 padding;
 };
