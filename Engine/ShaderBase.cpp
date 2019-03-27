@@ -183,24 +183,12 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 
 
 	//VARIABLE BUFFER
-	result = spl.deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-		return false;
-
-	// Get a pointer to the data in the constant buffer.
+	if (FAILED(spl.deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-
-	// Copy the variablethe constant buffer.
 	dataPtr3->deltaTime = spl.deltaTime;
-	dataPtr3->padding = SVec3(); //this is just padding so this data isn't used.
-
-	// Unlock the variable constant buffer.
+	dataPtr3->padding = SVec3(); 
 	spl.deviceContext->Unmap(_variableBuffer, 0);
-
-	// Set the position of the variable constant buffer in the vertex shader.
 	bufferNumber = 1;
-
-	// Now set the variable constant buffer in the vertex shader with the updated values.
 	spl.deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
 	//END VARIABLE BUFFER
 

@@ -10,12 +10,13 @@ cbuffer LightBuffer
 	float4 eyePos;
 };
 
-
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
+	float3 tangent : TANGENT;
 };
 
 Texture2D tex0 : register(t0);
@@ -23,12 +24,10 @@ Texture2D tex1 : register(t1);
 Texture2D tex2 : register(t2);
 Texture2D tex3 : register(t3);
 
-SamplerState SampleType;
+SamplerState Sampler;
 
 //go 2-4 times higher on this when using blinn phong compared to phong
-static const float SpecularPower = 8.f;
-
-
+static const float SpecularPower = 256.f;
 
 
 float3 applyFog(in float3  rgb,		// original color of the pixel
@@ -46,13 +45,14 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
 
 
 
-float4 calcAmbient(in float3 alc, in float ali) {
+float4 calcAmbient(in float3 alc, in float ali)
+{
 	return saturate(float4(alc, 1.0f) * ali);
 }
 
 
-float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor) {
-
+float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor)
+{
 	dFactor = dFactor = clamp(0., 1., max(dot(normal, invLightDir), 0.0f));
 	return saturate(float4(dlc, 1.0f) * dli * dFactor);
 }
@@ -73,10 +73,29 @@ float map(float value, float min1, float max1, float min2, float max2)
 }
 
 
+#define MAZE_FLOOR
 
-float4 LightPixelShader(PixelInputType input) : SV_TARGET{
+float4 LightPixelShader(PixelInputType input) : SV_TARGET
+{
 
-	input.normal = normalize(input.normal);
+#ifdef MAZE_FLOOR
+	//sample normal from the map
+	float4 texNormal = tex1.Sample(Sampler, input.tex);
+
+	//remap it to [-1, 1]
+	texNormal = 2.0f * texNormal - 1.f;
+
+	//removes projection of tangent onto normal from tangent so they are orthogonal for sure
+	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
+
+	float3 bitangent = cross(input.normal, input.tangent);
+
+	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
+
+	input.normal = normalize(mul(texNormal, TBNMatrix));
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+#endif
 
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
@@ -87,26 +106,33 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	float3 invViewDir = -viewDir;
 
 	//texture colour
-	float4 colour;
+#ifdef MAZE_FLOOR
+	
+	float4 colour = tex0.Sample(Sampler, input.tex);
 
-	colour = lerp(tex0.Sample(SampleType, input.tex), tex2.Sample(SampleType, input.tex), smoothstep(0.f, 50.f, input.worldPos.y));
+#else
+
+	float4 colour = lerp(tex0.Sample(Sampler, input.tex), tex2.Sample(Sampler, input.tex), smoothstep(0.f, 50.f, input.worldPos.y));
 
 	float slope = dot(input.normal, float3(0., 1.f, 0.));
 	slope = smoothstep(.6, 0.1, slope);	//dot is [0, 1] because of no overhangs, smoothstep maps it to [1, 0] smoothly, works but its too smooth
 	//slope = step(slope, .5f);	//for params (a, b), return b >= a
-	colour = lerp(colour, tex3.Sample(SampleType, input.tex), slope);
+	colour = lerp(colour, tex3.Sample(Sampler, input.tex), slope);
+
+#endif
+	
 
 	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);
 
 	//calculate diffuse light
 	float dFactor = 0.f;
-	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
+	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, .1, dFactor);
 
 	//calculate specular light
-	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
+	float4 specular = calcSpecular(invLightDir, input.normal, slc, .3, viewDir, dFactor);
 
-	colour = (ambient + diffuse * 3.f + specular) * colour;
+	colour = (ambient + diffuse) * colour + specular;
 
 	//colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);	//apply fog
 

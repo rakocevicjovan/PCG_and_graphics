@@ -183,13 +183,12 @@ bool Renderer::RenderFrame(float dTime)
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 		*/
 
-
 		shMan.shaderLight.SetShaderParameters(_deviceContext, 
 			treeModel, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), 
 			RES.pointLight, EYE_POS, dTime);
 		treeModel.Draw(_deviceContext, shMan.shaderLight);
 		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
-
+		
 	}
 
 	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, RES.pointLight, elapsed, RES.mazeDiffuseMap, RES.mazeNormalMap);
@@ -277,16 +276,18 @@ void Renderer::ProcessSpecialInput()
 	{
 
 		///TERRAIN GENERATION
-		proceduralTerrain = Procedural::Terrain(10 * 32, 10 * 32);
+		proceduralTerrain = Procedural::Terrain(320, 320);
 		//proceduralTerrain.setScales(1, 1, 1);
 
+		//"../Textures/Biomes/grass.png", "../Textures/Biomes/ice_grass.jpg",  "../Textures/Biomes/snow.jpg", "../Textures/Biomes/cliff.jpg", 
+
 		std::vector<std::string> texNames = 
-		{
-			"../Textures/Biomes/grass.png", "../Textures/Biomes/ice_grass.jpg", 
-			"../Textures/Biomes/snow.jpg", "../Textures/Biomes/cliff.jpg"
+		{	
+			"../Textures/Lava/diffuse.jpg",
+			"../Textures/Lava/normal.jpg"
 		};
 
-		proceduralTerrain.setTextureData(_device, 2.56f, 2.56f, texNames);
+		proceduralTerrain.setTextureData(_device, 16, 16, texNames);
 
 		///Diamond square testing
 		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 4u, 0.6f, 10.f);
@@ -337,10 +338,10 @@ void Renderer::ProcessSpecialInput()
 		//linden.reseed("F+F+F+F");
 		//linden.addRule('F', "FF+F-F+F+FF");
 
-		linden.rewrite(4);
+		linden.rewrite(3);
 
 		float liangle = PI * 0.138888f;
-		//liangle = PI * .5f;
+		liangle = PI * .5f;
 		treeModel = linden.genModel(_device, 10.f, 2.f, .9f, .8f, liangle, liangle);
 
 		//linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);	

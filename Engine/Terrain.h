@@ -11,14 +11,34 @@
 namespace Procedural 
 {
 
-	class CACell
+	struct CACell
 	{
-	public:
 		CACell() {}
 		CACell(Vert3D vert, bool doa) : vertex(vert), deadOrAlive(doa) {}
 
 		Vert3D vertex;
 		bool deadOrAlive;
+	};
+
+
+
+	struct Triface
+	{
+		Triface() {}
+		Triface(UINT a, UINT b, UINT c) : x(a), y(b), z(c) {}
+		Triface(UINT a, UINT b, UINT c, SVec3 n) : x(a), y(b), z(c), normal(n) {}
+		
+		UINT x = 0, y = 0, z = 0;
+		SVec3 normal;
+	};
+
+	struct TangentTriface : Triface
+	{
+		TangentTriface() {}
+		TangentTriface(UINT a, UINT b, UINT c) : Triface(a, b, c) {}
+		TangentTriface(UINT a, UINT b, UINT c, const SVec3& n, const SVec3& t) : Triface(a, b, c, n), tangent(t) {}
+
+		SVec3 tangent;
 	};
 
 
@@ -30,6 +50,9 @@ namespace Procedural
 
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
+		std::vector<std::vector<TangentTriface>> faces;
+		std::vector<Texture> textures;
+
 		unsigned int _numRows, _numColumns;
 		float xScale = 1.0f, yScale = 1.0f, zScale = 1.0f;
 		float tcxr = 1.f, tczr = 1.f;
@@ -37,8 +60,6 @@ namespace Procedural
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
-
-		std::vector<Texture> textures;
 
 		///helper functions
 		inline unsigned int wr(int row);
@@ -75,6 +96,7 @@ namespace Procedural
 
 		///wrapping up and directX integration
 		void CalculateNormals();
+		SVec3 calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2);
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, ShaderBase& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 

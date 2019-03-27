@@ -69,19 +69,18 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> volumetricNames = { L"volumVS.hlsl", L"volumPS.hlsl" };
 	shaderVolumetric.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
 
-	std::vector<std::wstring> volTreeNames = { L"volumVS.hlsl", L"volumTreePS.hlsl" };
-	shaderVolumetricTree.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
-
-	std::vector<std::wstring> terrainNames = { L"lightVS.hlsl", L"terrainPS.hlsl" };
-	shaderTerrain.Initialize(_device, hwnd, terrainNames, sbLayout, sbSamplerDesc);
-
-
-	//maze neeeds the extended layout
+	//maze, trees and terrain neeed the extended layout for normal mapping
 	std::vector<D3D11_INPUT_ELEMENT_DESC> extendedLayout = sbLayout;
 	extendedLayout.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 
 	std::vector<std::wstring> mazeNames = { L"mazeVS.hlsl", L"mazePS.hlsl" };
 	shaderMaze.Initialize(_device, hwnd, mazeNames, extendedLayout, sbSamplerDesc);
+
+	std::vector<std::wstring> volTreeNames = { L"volumVS.hlsl", L"volumTreePS.hlsl" };
+	shaderVolumetricTree.Initialize(_device, hwnd, volTreeNames, extendedLayout, sbSamplerDesc);
+
+	std::vector<std::wstring> terrainNames = { L"mazefloorVS.hlsl", L"terrainPS.hlsl" };
+	shaderTerrain.Initialize(_device, hwnd, terrainNames, extendedLayout, sbSamplerDesc);
 
 
 
@@ -94,7 +93,6 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	shaderPerlin.Initialize(_device, hwnd, perlinNames, sbLayout, sbSamplerDesc);
 
 	
-
 	//with instancing
 	std::vector<D3D11_INPUT_ELEMENT_DESC> instancedLayout =
 	{

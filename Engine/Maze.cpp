@@ -144,9 +144,14 @@ namespace Procedural
 		Geometry g;
 
 		float halfLength = _cellSize * .5f;
+		float halfHeight = _height   * .45f;
 		
 		g.GenBox(SVec3(_cellSize, _height, _width));	//+_width * 0.95f
-		for (auto& pos : g.positions)	pos.x += halfLength;
+		for (auto& pos : g.positions)
+		{
+			pos.x += halfLength;
+			pos.y += halfHeight;
+		}	
 		Mesh bottom = Mesh(g, device, false);
 
 		for (auto& pos : g.positions)	pos.z += _cellSize;
@@ -155,8 +160,11 @@ namespace Procedural
 		g.Clear();
 
 		g.GenBox(SVec3(_width, _height, _cellSize));	// + _width * 0.95f
-
-		for (auto& pos : g.positions)	pos.z += halfLength;
+		for (auto& pos : g.positions)
+		{
+			pos.z += halfLength;
+			pos.y += halfHeight;
+		}
 		Mesh left = Mesh(g, device, false);
 
 		for (auto& pos : g.positions)	pos.x += _cellSize;

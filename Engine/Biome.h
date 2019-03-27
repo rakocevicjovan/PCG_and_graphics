@@ -19,7 +19,8 @@ namespace Procedural
 		BIO_SAVANNA,
 		BIO_DESERT,
 		BIO_SALT_WATER,
-		BIO_FRESH_WATER
+		BIO_FRESH_WATER, 
+		BIO_OTHER
 	};
 
 

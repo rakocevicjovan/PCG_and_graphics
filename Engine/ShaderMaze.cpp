@@ -36,7 +36,6 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
-
 	bufferNumber = 0;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
 
@@ -46,7 +45,6 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	playerPosBuffer = (MazeVarBuff*)mappedResource.pData;
 	playerPosBuffer->lul = pos;
 	deviceContext->Unmap(_variableBuffer, 0);
-
 	bufferNumber = 1;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
 

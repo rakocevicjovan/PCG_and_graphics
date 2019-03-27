@@ -21,6 +21,8 @@ namespace Procedural
 		}
 	}
 
+
+
 	Terrain::~Terrain()
 	{
 	}
@@ -63,8 +65,18 @@ namespace Procedural
 
 
 
-	inline unsigned int Terrain::wr(int row) { return row < 0 ? _numRows + row : row % _numRows; }
-	inline unsigned int Terrain::wc(int col) { return col < 0 ? _numColumns + col : col % _numColumns; }
+	inline unsigned int Terrain::wr(int row)
+	{
+		return row < 0 ? _numRows + row : row % _numRows;
+	}
+
+	inline unsigned int Terrain::wc(int col)
+	{
+		return col < 0 ? _numColumns + col : col % _numColumns;
+	}
+
+
+
 	float Terrain::sampleDiamond(int i, int j, int reach)
 	{
 		std::vector<float> heights;	
@@ -137,7 +149,6 @@ namespace Procedural
 				}
 			}
 
-
 			//diamond
 			for (int x = 0; x < _numRows - 1; x += stepSize)
 			{
@@ -151,7 +162,6 @@ namespace Procedural
 					vertices[(x + stepSize) *	_numRows + z + halfStep].pos.y = sampleDiamond(x + stepSize, z + halfStep, halfStep) + ro;
 				}
 			}
-
 
 			//prepare for next iteration
 			stepSize = stepSize / 2;
@@ -249,9 +259,11 @@ namespace Procedural
 
 	void Terrain::CalculateNormals()
 	{
-		std::vector<std::vector<std::pair<SVec3, SVec3>>> faces;
+		
 		faces.resize(_numRows - 1);
-		for (auto fRow : faces) fRow.reserve((_numColumns - 1) * 2);
+
+		for (auto fRow : faces) 
+			fRow.reserve((_numColumns - 1) * 2);
 
 		//creating a double vector of faces and calculating the normals for each face
 		for (int row = 0; row < _numRows - 1; ++row)
@@ -273,14 +285,14 @@ namespace Procedural
 				SVec3 ac = bottomLeft.pos - topRight.pos;
 				SVec3 normal = ac.Cross(ab);
 
-				faces[row].push_back(std::make_pair(SVec3(tli, tri, bli), normal));
+				faces[row].emplace_back(tli, tri, bli, normal, calculateTangent(vertices, tli, tri, bli));
 
 				//bottom right face
 				ab = topRight.pos - bottomRight.pos;
 				ac = bottomLeft.pos - bottomRight.pos;
 				normal = ac.Cross(ab);
 
-				faces[row].push_back(std::make_pair(SVec3(bli, tri, bri), normal));
+				faces[row].emplace_back(bli, tri, bri, normal, calculateTangent(vertices, bli, tri, bri));
 			}
 		}
 
@@ -288,8 +300,8 @@ namespace Procedural
 		//calculating vertex normals from containing faces
 		for(int i = 0; i < _numRows; i++)
 		{	
-			std::vector<std::pair<SVec3, SVec3>> pRow;
-			std::vector<std::pair<SVec3, SVec3>> nRow;
+			std::vector<TangentTriface> pRow;
+			std::vector<TangentTriface> nRow;
 
 			if (i == 0)
 			{
@@ -308,17 +320,20 @@ namespace Procedural
 			pRow.reserve(pRow.capacity() + nRow.capacity());
 			pRow.insert(pRow.end(), nRow.begin(), nRow.end());
 
-			for (int j = 0; j < _numColumns; j++) 
+			for (int j = 0; j < _numColumns; ++j) 
 			{
 				int index = i * _numColumns + j;
 				unsigned int facesFound = 0;
+				
 				SVec3 currentNormal;
+				SVec3 currentTangent;
 
-				for (auto face : pRow)
+				for (const auto& face : pRow)
 				{
-					if (index == face.first.x || index == face.first.y || index == face.first.z)
+					if (index == face.x || index == face.y || index == face.z)
 					{
-						currentNormal += face.second;
+						currentNormal += face.normal;
+						currentTangent += face.tangent;
 						facesFound++;
 					}
 
@@ -329,7 +344,11 @@ namespace Procedural
 				if (fabs(currentNormal.LengthSquared()) > 0.000001f)
 					currentNormal.Normalize();
 
+				if (fabs(currentTangent.LengthSquared()) > 0.000001f)
+					currentTangent.Normalize();
+
 				vertices[index].normal = currentNormal;
+				vertices[index].tangent = currentTangent;
 			}
 		}
 
@@ -341,30 +360,28 @@ namespace Procedural
 		{
 			for (auto face : row)
 			{
-				indices.push_back((unsigned int)face.first.x);
-				indices.push_back((unsigned int)face.first.y);
-				indices.push_back((unsigned int)face.first.z);
+				indices.push_back((unsigned int)face.x);
+				indices.push_back((unsigned int)face.y);
+				indices.push_back((unsigned int)face.z);
 			}
 		}
 
-		//generate UVs? I could normalize the whole terrain naively but it would stretch on slopes... proper calculations could be very long @TODO
+
 	}
 
 
 
 	bool Terrain::SetUp(ID3D11Device* device) 
 	{
-		CalculateNormals();
-		
 		float invXScale = tcxr / (xScale * _numColumns), invZScale = tczr / (zScale * _numRows);
+
 		for (auto& v : vertices)
-		{
 			v.texCoords = SVec2(v.pos.x * invXScale, v.pos.z * invZScale);
-		}
+
+		CalculateNormals();
 
 		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 		D3D11_SUBRESOURCE_DATA vertexData, indexData;
-		HRESULT res;
 
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
@@ -377,8 +394,7 @@ namespace Procedural
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;
 
-		res = device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
-		if (FAILED(res))
+		if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer)))
 			return false;
 
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -404,59 +420,29 @@ namespace Procedural
 
 	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, const PointLight& pointLight, float deltaTime, SVec3 eyePos)
 	{
-		HRESULT result;
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		unsigned int bufferNumber;
+
 		MatrixBuffer* dataPtr;
 		LightBuffer* dataPtr2;
-		VariableBuffer* dataPtr3;
 
-		// Lock the constant matrix buffer so it can be written to.
-		result = dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-			return;
-
-		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 
 		SMatrix mT = mt.Transpose();
 		SMatrix vT = vt.Transpose();
 		SMatrix pT = pt.Transpose();
 
-		// Copy the matrices into the constant buffer.
+		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return;
+		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 		dataPtr->world = mT;
 		dataPtr->view = vT;
 		dataPtr->projection = pT;
-
-		// Unlock the constant buffer.
 		dc->Unmap(s._matrixBuffer, 0);
-
-		bufferNumber = 0;	// Set the position of the constant buffer in the vertex shader.
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s._matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
-		//END MATRIX BUFFER
+		bufferNumber = 0;
+		dc->VSSetConstantBuffers(bufferNumber, 1, &s._matrixBuffer);
 
 
-
-		result = dc->Map(s._variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
+		if (FAILED(dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 			return;
-
-		dataPtr3 = (VariableBuffer*)mappedResource.pData;
-
-		dataPtr3->deltaTime = deltaTime;
-		dataPtr3->padding = SVec3();
-
-		dc->Unmap(s._variableBuffer, 0);
-
-		bufferNumber = 1;
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s._variableBuffer);
-
-
-
-		result = dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-		if (FAILED(result))
-			return;
-
-
 		dataPtr2 = (LightBuffer*)mappedResource.pData;
 		dataPtr2->alc = pointLight.alc;
 		dataPtr2->ali = pointLight.ali;
@@ -466,10 +452,9 @@ namespace Procedural
 		dataPtr2->sli = pointLight.sli;
 		dataPtr2->pos = pointLight.pos;
 		dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
-
 		dc->Unmap(s._lightBuffer, 0);
-
 		bufferNumber = 0;
+		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
 
 		unsigned int stride = sizeof(Vert3D);
 		unsigned int offset = 0;
@@ -477,23 +462,17 @@ namespace Procedural
 		dc->VSSetShader(s._vertexShader, NULL, 0);
 		dc->PSSetShader(s._pixelShader, NULL, 0);
 
-		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 
 		for (int i = 0; i < textures.size(); ++i)
-		{
 			dc->PSSetShaderResources(i, 1, &(textures[i].srv));
-		}
 			
-
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 		dc->IASetInputLayout(s._layout);
-
 		dc->DrawIndexed(indices.size(), 0, 0);
-
 		dc->PSSetShaderResources(0, 1, &(unbinder[0]));
 	}
 
@@ -520,7 +499,6 @@ namespace Procedural
 		float inverseDepth = 1.f / ((float)_numRows    * zScale);
 		
 		Perlin p;
-
 
 		for (int i = 0; i < vertices.size(); ++i)
 		{
@@ -589,44 +567,44 @@ namespace Procedural
 	{
 		for (int i = 0; i < steps; ++i)
 		{
-		std::vector<float> smoothed;
-		smoothed.reserve(vertices.size());
+			std::vector<float> smoothed;
+			smoothed.reserve(vertices.size());
 
-		for (int z = 0; z < _numRows; ++z)
-		{
-			for (int x = 0; x < _numColumns; ++x)
+			for (int z = 0; z < _numRows; ++z)
 			{
-				int pX = x == 0					? x : x - 1;
-				int nX = x == _numColumns - 1	? x : x + 1;
+				for (int x = 0; x < _numColumns; ++x)
+				{
+					int pX = x == 0					? x : x - 1;
+					int nX = x == _numColumns - 1	? x : x + 1;
 
-				smoothed.push_back((
-					vertices[z * _numColumns + pX].pos.y +
-					vertices[z * _numColumns + x].pos.y +
-					vertices[z * _numColumns + nX].pos.y)
-					* .33333f);
+					smoothed.push_back((
+						vertices[z * _numColumns + pX].pos.y +
+						vertices[z * _numColumns + x].pos.y +
+						vertices[z * _numColumns + nX].pos.y)
+						* .33333f);
+				}
 			}
-		}
 
-		for (int z = 0; z < _numRows; ++z)
-		{
-			int pZ = z == 0				? z : z - 1;
-			int nZ = z == _numRows - 1	? z : z + 1;
-
-			for (int x = 0; x < _numColumns; ++x)
+			for (int z = 0; z < _numRows; ++z)
 			{
-				int thisSmoothed = z * _numColumns + x;
-				float newHeight =
-					vertices[pZ * _numColumns + x].pos.y +
-					vertices[thisSmoothed].pos.y +
-					vertices[nZ * _numColumns + x].pos.y;
+				int pZ = z == 0				? z : z - 1;
+				int nZ = z == _numRows - 1	? z : z + 1;
+
+				for (int x = 0; x < _numColumns; ++x)
+				{
+					int thisSmoothed = z * _numColumns + x;
+					float newHeight =
+						vertices[pZ * _numColumns + x].pos.y +
+						vertices[thisSmoothed].pos.y +
+						vertices[nZ * _numColumns + x].pos.y;
 				
-				smoothed[thisSmoothed] += (newHeight * .333333f);
-				smoothed[thisSmoothed] *= .500000f;
+					smoothed[thisSmoothed] += (newHeight * .333333f);
+					smoothed[thisSmoothed] *= .500000f;
+				}
 			}
-		}
 
-		for (int i = 0; i < vertices.size(); ++i)
-			vertices[i].pos.y = smoothed[i];
+			for (int i = 0; i < vertices.size(); ++i)
+				vertices[i].pos.y = smoothed[i];
 		}
 	}
 
@@ -694,5 +672,35 @@ namespace Procedural
 		}
 
 		return finalHeight + 10.f;
+	}
+
+
+	SVec3 Terrain::calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2)
+	{
+		SVec3 tangent;
+		SVec3 edge1, edge2;
+		SVec2 duv1, duv2;
+
+		//Find first texture coordinate edge 2d vector
+		Vert3D v0 = vertices[i0];
+		Vert3D v1 = vertices[i1];
+		Vert3D v2 = vertices[i2];
+
+		edge1 = v0.pos - v2.pos;
+		edge2 = v2.pos - v1.pos;
+
+		duv1 = v0.texCoords - v2.texCoords;
+		duv2 = v2.texCoords - v1.texCoords;
+
+		float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
+
+		//Find tangent using both tex coord edges and position edges
+		tangent.x = (duv1.y * edge1.x - duv2.y * edge2.x) * f;
+		tangent.y = (duv1.y * edge1.y - duv2.y * edge2.y) * f;
+		tangent.z = (duv1.y * edge1.z - duv2.y * edge2.z) * f;
+
+		tangent.Normalize();
+
+		return tangent;
 	}
 }

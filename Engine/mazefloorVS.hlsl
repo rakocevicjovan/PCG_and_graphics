@@ -20,6 +20,7 @@ struct VertexInputType
 	float3 tangent : TANGENT;
 };
 
+
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
@@ -30,22 +31,17 @@ struct PixelInputType
 };
 
 
-PixelInputType LightVertexShader(VertexInputType input)
-{
+PixelInputType LightVertexShader(VertexInputType input) {
+
 	PixelInputType output;
 
-	output.worldPos = mul(input.position, worldMatrix);	//careful... doing this to optimize and avoid copying
-
-	float distance = length(playerPos.xz - output.worldPos.xz);
-
-	output.worldPos.y -= smoothstep(48.f, 80.f, distance) * 27.f;
-
+	output.worldPos = mul(input.position, worldMatrix);
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
 
-	output.normal = mul(input.normal, (float3x3)worldMatrix);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
+	output.normal = mul(input.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
 
 	output.tangent = mul(input.tangent, worldMatrix);
