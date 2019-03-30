@@ -80,7 +80,6 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	input.normal = normalize(mul(texNormal, TBNMatrix));
 
-
 	//use the normal in regular light calculations now
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;

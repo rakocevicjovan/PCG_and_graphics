@@ -19,6 +19,9 @@
     <Filter Include="Shading">
       <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ozz interface">
+      <UniqueIdentifier>{ee4567c5-4e2b-4bb3-a465-bf49029ab316}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="d3dclass.cpp">
@@ -347,6 +350,9 @@
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BigOzz.h">
+      <Filter>Ozz interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -447,9 +453,6 @@
     <FxCompile Include="volumVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="volumPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="volumTreePS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
@@ -466,6 +469,9 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="mazefloorVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="volumFirePS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

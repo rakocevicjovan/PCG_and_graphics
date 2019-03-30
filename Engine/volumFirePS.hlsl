@@ -1,23 +1,13 @@
-cbuffer LightBuffer : register(b0)
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightPosition;
-};
-
-cbuffer VariableBuffer : register(b1)
+cbuffer VariableBuffer : register(b0)
 {
 	float elapsed;
 	float3 padding;
 };
 
 
-cbuffer ViewDirBuffer : register(b2)
+cbuffer ViewDirBuffer : register(b1)
 {
+	float4x4 rotationMatrix;
 	float4 eyePos;
 };
 
@@ -138,9 +128,16 @@ float randomizer(in float2 seed)
 	return frac(seed.x * seed.y * 95.4337);
 }
 
+//Helpers
+static const float PI = 3.141592f;
+static const float INTENSITY = 1.61803f * PI;
+static const float3 PARTICLE_OFFSET = float3(-.5, .707, -.33);
 
+//FBM settings
+static const int NUM_OCTAVES = 7;
+static const float LACUNARITY = 2.13795;
+static const float GAIN = .497531;
 
-static const int NUM_OCTAVES = 3;
 
 float fbm(in float3 pos)
 {
@@ -149,14 +146,11 @@ float fbm(in float3 pos)
 	float amplitude = 1.f;
 	float frequency = 1.f;
 
-	float gain = .5317f;
-	float lacunarity = 1.9357f;
-
 	for (int i = 0; i < NUM_OCTAVES; ++i)
 	{
 		v += snoise(frequency * pos) * amplitude;
-		frequency *= lacunarity;
-		amplitude *= gain;
+		frequency *= LACUNARITY;
+		amplitude *= GAIN;
 	}
 	return v;
 }
@@ -170,25 +164,18 @@ float turbulentFBM(float3 x)
 	float frequency = 1.0f;
 	float amplitude =	 1.0f;
 
-	float gain = .5f;			//.5317f;
-	float lacunarity = 2.f;		//1.9357f;
-
 	for (int i = 0; i < NUM_OCTAVES; ++i)
 	{
 		float r = snoise(frequency * x) * amplitude;
-		//r = r < 0 ? -r : r;
+		r = r < 0 ? -r : r;
 		sum += r;
-		frequency *= lacunarity;
-		amplitude *= gain;
+		frequency *= LACUNARITY;
+		amplitude *= GAIN;
 	}
 
 	return sum;
 }
 
-////////////////////////////////////////
-float PI = 3.1415926535897932384626433832795;
-float LACUNARITY = 2.13795;
-float GAIN = .497531;
 
 float noiseStack(float3 pos) {
 
@@ -209,47 +196,57 @@ float noiseStack(float3 pos) {
 
 	return (1.0 + noise) / 2.0;
 }
-//////////////////////////////
 
 
-static const int NUM_STEPS = 10;
-static const float STEP_SIZE = 1.f / (float)NUM_STEPS;
 
-static const float den = 1.f;
-static const float co = cos(den);
-static const float si = sin(den);
-static const matrix<float, 2, 2> rotMat = { co, -si, si, co };
+float calcParticle(in float3 curPos)
+{
+	float3 between = PARTICLE_OFFSET - curPos * sin(elapsed);
+	return smoothstep(.02f, 0., dot(between, between));
+}
+
+
+//Raymarch settings
+static const int NUM_STEPS = 7;
+static const float STEP_SIZE = 2.f / (float)NUM_STEPS;
 
 float4 raymarch(in float3 rayOrigin, in float3 rayDir)
 {
 	float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float particle;
 
-	float mask = 0.f;
-	float density = 0.f;
-
+	float flame = 0.f;
 	float t = 0.f;
+	float3 noiseDir = float3(0., .66, .33);
 	
 	for (int i = 0; i < NUM_STEPS; ++i)
 	{
+		if (flame > 95.f)	break;
+
 		float3 curPos = rayOrigin + t * rayDir;
-		float dist = length(curPos);	//get dist to middle of sphere
 
-		if (dist > 1.f)	break;
-			
-		curPos.xz = mul(curPos.xz, rotMat);
-
-		mask = smoothstep(1.0f, 0.4f, dist);	//do not allow hard edges 
-		curPos.y -= elapsed ;
-
-		density += mask * noiseStack(curPos * 2.f) * STEP_SIZE * 2.f;
+		//float3 curPosAdj = float3(abs(curPos.x), curPos.y, curPos.z);
+		float3 rotatedPos = mul(curPos, rotationMatrix);
+		float3 noisePos = rotatedPos - noiseDir * elapsed;
+		
+		float dist = length(curPos) - .33f * snoise(noisePos);	//get dist to middle of sphere
+		float mask = smoothstep(.707, 0., dist);
+		
+		flame += 
+				STEP_SIZE * 
+				mask * 
+				turbulentFBM(noisePos * 2.1f) *
+				INTENSITY;
 
 		t += STEP_SIZE;
 	}
 
-	sum = float4(density, density * density, 0.f, density);
+	sum = smoothstep(float4(0., 0., 0., 0.), float4(1.2, 1.2, 1.2, 1.), float4(flame, flame * flame, .7f * flame * flame, flame));
 	
 	return sum;
 }
+
+
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -258,9 +255,11 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float z = input.msPos.z;
 	float3 xyz = float3(x, y, z);
 
-	float3 viewdir = normalize(input.wPos.xyz - eyePos.xyz);	//ray direction
+	float3 viewdir = normalize(input.wPos.xyz - eyePos.xyz); //ray direction
 
-	float4 colour = raymarch(xyz, viewdir);			//ray origin is the first pixel hit
+	float4 colour = raymarch(xyz, viewdir);	//ray origin is the first pixel hit
+	
+	//colour.rgb = pow(colour.rgb, float3(1.0f / 3.2f, 1.0f / 3.2f, 1.0f / 3.2f));
 
 	return colour;
 }

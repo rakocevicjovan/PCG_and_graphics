@@ -91,10 +91,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	pSys.setUpdateFunction(lambda);
 	pSys.setShader(&shMan.shaderBase);
 
-	shMan.shaderVolumetric.setLightData(_deviceContext, RES.pointLight);
-
-	//_colEngine.registerModel(&RES.will, BoundingVolumeType::BVT_AABB);
-
 	return true;
 }
 

@@ -66,7 +66,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> waterNames = { L"Watervs.hlsl", L"Waterps.hlsl" };
 	shaderWater.Initialize(_device, hwnd, waterNames);
 
-	std::vector<std::wstring> volumetricNames = { L"volumVS.hlsl", L"volumPS.hlsl" };
+	std::vector<std::wstring> volumetricNames = { L"volumVS.hlsl", L"volumFirePS.hlsl" };
 	shaderVolumetric.Initialize(_device, hwnd, volumetricNames, sbLayout, sbSamplerDesc);
 
 	//maze, trees and terrain neeed the extended layout for normal mapping
