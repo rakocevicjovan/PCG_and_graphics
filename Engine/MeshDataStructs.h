@@ -33,15 +33,6 @@ struct BonedVert3D : Vert3D
 
 
 
-struct Material
-{
-	Texture diffuse;	//hella fancy name for colour...
-	Texture normal;		//geometry blues
-	Texture height;		//for vertex displacement?
-};
-
-
-
 class Joint
 {
 public:

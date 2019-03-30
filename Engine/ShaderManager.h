@@ -44,10 +44,10 @@ public:
 	ShaderStrife shaderStrife;
 	ShaderWater shaderWater;
 	ShaderVolumetric shaderVolumetric;
-	ShaderVolumetric shaderVolumetricTree;
 	InstancedShader shaderInstanced;
 	PerlinShader shaderPerlin;
 	TerrainShader shaderTerrain;
+	TerrainShader shaderTree;
 	ShaderMaze shaderMaze;
 
 	ShaderManager();

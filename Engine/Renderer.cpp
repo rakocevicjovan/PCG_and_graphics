@@ -117,6 +117,8 @@ bool Renderer::Frame(float dTime){
 
 	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
 
+	OutputFPS(dTime);
+
 	return RenderFrame(dTime);
 }
 
@@ -154,10 +156,12 @@ bool Renderer::RenderFrame(float dTime)
 
 	_D3D->TurnOffCulling();
 	_D3D->SwitchDepthToLessEquals();
+
 	shMan.shaderSkybox.SetShaderParameters(_deviceContext, RES.modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
 	RES.modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
 	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
+
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
 
@@ -173,7 +177,7 @@ bool Renderer::RenderFrame(float dTime)
 
 		proceduralTerrain.Draw(_deviceContext, shMan.shaderTerrain,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
+			RES.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
 		
 		_D3D->TurnOffAlphaBlending();
 
@@ -183,9 +187,8 @@ bool Renderer::RenderFrame(float dTime)
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 		*/
 
-		shMan.shaderLight.SetShaderParameters(_deviceContext, 
-			treeModel, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), 
-			RES.pointLight, EYE_POS, dTime);
+		shMan.shaderTree.SetShaderParameters(_deviceContext, treeModel.transform,
+			_cam, RES.pointLight, elapsed);
 		treeModel.Draw(_deviceContext, shMan.shaderLight);
 		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
 		
@@ -333,17 +336,19 @@ void Renderer::ProcessSpecialInput()
 
 		///L-systems testing
 		linden.reseed("F");
-		linden.addRule('F', "FF+[+F-F+F]*-[-F+F-F]/"); //"[-f]*f[+f][/f]");		//f[+f]f[-f]+f for planar looks ok
-		
+		linden.addRule('F', "FF+[+F-F-F]*-[-F+F+F]/"); //"[-F]*F[+F][/F]"	//"F[+F]F[-F]+F" for planar		//"FF+[+F-F-F]*-[-F+F+F]/"
+		//linden.addRule('F', "F[+F]F[-F]+F");
+
 		//linden.reseed("F+F+F+F");
 		//linden.addRule('F', "FF+F-F+F+FF");
 
-		linden.rewrite(3);
+		linden.rewrite(4);
 
-		float liangle = PI * 0.138888f;
-		liangle = PI * .5f;
-		treeModel = linden.genModel(_device, 10.f, 2.f, .9f, .8f, liangle, liangle);
+		float liangle = PI * 0.138888f;		//liangle = PI * .5f;
 
+		treeModel = linden.genModel(_device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
+		
+		//Math::RotateMatByMat(treeModel.transform, SMatrix::CreateRotationX(-PI * .5f));
 		//linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);	
 	}
 

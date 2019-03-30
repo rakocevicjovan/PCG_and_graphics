@@ -123,3 +123,9 @@ void Math::swap(float& f1, float& f2)
 	f1 = f2;
 	f2 = temp;
 }
+
+float Math::remap(float value, float min1, float max1, float min2, float max2)
+{
+	float perc = (value - min1) / (max1 - min1);
+	return min2 + perc * (max2 - min2);
+}

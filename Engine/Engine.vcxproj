@@ -105,6 +105,7 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
     <ClCompile Include="LSystem.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Maze.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="InstancedShader.h" />
     <ClInclude Include="LSystem.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />
     <ClInclude Include="ParticleBase.h" />
     <ClInclude Include="ParticleSystem.h" />

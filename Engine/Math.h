@@ -59,5 +59,7 @@ public:
 
 	static void swap(float& f1, float& f2);
 
+	static float remap(float value, float min1, float max1, float min2, float max2);
+
 };
 

@@ -36,6 +36,10 @@ Texture2D shaderTexture;
 SamplerState SampleType;
 
 
+float remap(float value, float min1, float max1, float min2, float max2)
+{
+	return min2 + ((value - min1) / (max1 - min1)) * (max2 - min2);
+}
 
 float3 mod289(float3 x) {
 	return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -127,8 +131,16 @@ float snoise(float3 v)
 
 
 
+float randomizer(in float2 seed)
+{
+	seed = frac(seed * float2(5.3983, 5.4427));
+	seed += dot(seed.yx, seed.xy + float2(21.5351, 14.3137));
+	return frac(seed.x * seed.y * 95.4337);
+}
 
-static const int NUM_OCTAVES = 7;
+
+
+static const int NUM_OCTAVES = 3;
 
 float fbm(in float3 pos)
 {
@@ -156,15 +168,15 @@ float turbulentFBM(float3 x)
 	float sum = 0.0f;
 
 	float frequency = 1.0f;
-	float amplitude = 1.0f;
+	float amplitude =	 1.0f;
 
-	float gain = .5317f;
-	float lacunarity = 1.9357f;
+	float gain = .5f;			//.5317f;
+	float lacunarity = 2.f;		//1.9357f;
 
 	for (int i = 0; i < NUM_OCTAVES; ++i)
 	{
 		float r = snoise(frequency * x) * amplitude;
-		r = r < 0 ? -r : r;
+		//r = r < 0 ? -r : r;
 		sum += r;
 		frequency *= lacunarity;
 		amplitude *= gain;
@@ -173,86 +185,71 @@ float turbulentFBM(float3 x)
 	return sum;
 }
 
+////////////////////////////////////////
+float PI = 3.1415926535897932384626433832795;
+float LACUNARITY = 2.13795;
+float GAIN = .497531;
 
+float noiseStack(float3 pos) {
 
-float4 addParticles(float3 xyz)
-{
-	xyz *= 16.f;
-	//float bling = turbulentFBM(float3(xyz.x, xyz.y - elapsed * 0.01f, xyz.z));
-	float bling = snoise(float3(xyz.x, xyz.y - elapsed * 1.1f, xyz.z));
+	float noise = snoise(float3(pos));
+	float off = 1.0;
 
-	if(bling > .69f && bling < .71f)	//ripple effect, might be nice for water
-		return float4(bling, bling * .66f, bling * .66f, bling);
+	pos *= LACUNARITY;
+	off *= GAIN;
+	noise = (1.0 - off)* noise + off * snoise(float3(pos));
 
-	return float4(0., 0., 0., 0.);
+	pos *= LACUNARITY;
+	off *= GAIN;
+	noise = (1.0 - off) * noise + off * snoise(float3(pos));
+
+	pos *= LACUNARITY;
+	off *= GAIN;
+	noise = (1.0 - off) * noise + off * snoise(float3(pos));
+
+	return (1.0 + noise) / 2.0;
 }
+//////////////////////////////
 
 
+static const int NUM_STEPS = 10;
+static const float STEP_SIZE = 1.f / (float)NUM_STEPS;
 
-float4 addHalo(float3 xyz)
-{
-	float circDistance = xyz.x * xyz.x + xyz.z * xyz.z;
-	float haloRadiusSquared = .95f * .95f;
-	float xzRatio = abs(haloRadiusSquared - circDistance);
-
-	if(abs(xyz.y) < .1f)
-		return float4(1., 1., 1., 1.) * xzRatio;
-	
-	return float4(0., 0., 0., 0.);
-}
-
-
-static const int NUM_STEPS = 14;
-static const float STEP_SIZE = 2.0f / (float)NUM_STEPS;
-
-static const float3 particlePos = float3(.5773, .5773, .5773);
+static const float den = 1.f;
+static const float co = cos(den);
+static const float si = sin(den);
+static const matrix<float, 2, 2> rotMat = { co, -si, si, co };
 
 float4 raymarch(in float3 rayOrigin, in float3 rayDir)
 {
 	float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
 
+	float mask = 0.f;
 	float density = 0.f;
-	float t = 0.f;
 
-	float den = rayOrigin.y - elapsed;
-	float co = cos(den);
-	float si = sin(den);
-	matrix<float, 2, 2> rotMat = { co, -si, si, co };
+	float t = 0.f;
 	
 	for (int i = 0; i < NUM_STEPS; ++i)
 	{
 		float3 curPos = rayOrigin + t * rayDir;
+		float dist = length(curPos);	//get dist to middle of sphere
 
-		float dist = sqrt(curPos.x * curPos.x + curPos.y * curPos.y + curPos.z * curPos.z);	//get dist to middle of sphere
-	
-		// twist space - rotate each step around the center
-		curPos.xy = mul(curPos.xz, rotMat);
-		curPos = normalize(curPos);	//renormalize
+		if (dist > 1.f)	break;
+			
+		curPos.xz = mul(curPos.xz, rotMat);
 
-		//use the warper to make the sphere contract and relax
-		float warper = snoise(curPos * 5.f);
-		dist = smoothstep(0., 1., dist) * (1.f + warper * 0.25f); //* (1.f + warper * 0.33f);
+		mask = smoothstep(1.0f, 0.4f, dist);	//do not allow hard edges 
+		curPos.y -= elapsed ;
 
-		//calcualte the fiery noise
-		float disturbance = turbulentFBM(curPos * .200f);	//cross(curPos, rayDir)
-
-		//float alpha = min((1.f - 1.66 * dist), disturbance) * STEP_SIZE;
-		float alpha = min((1.f - 1.33f * dist), disturbance) * STEP_SIZE;
-		sum.r += max(alpha, disturbance);
-		sum.g += min(alpha, disturbance);
-		sum.b += min(alpha, disturbance);
-		sum.a += alpha;
+		density += mask * noiseStack(curPos * 2.f) * STEP_SIZE * 2.f;
 
 		t += STEP_SIZE;
-
-		//if (distance(particlePos, curPos) < .01f)
-			//sum += STEP_SIZE * 5.f;
 	}
+
+	sum = float4(density, density * density, 0.f, density);
 	
 	return sum;
 }
-
-
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
@@ -261,11 +258,20 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float z = input.msPos.z;
 	float3 xyz = float3(x, y, z);
 
-	float3 viewdir = normalize(input.wPos.xyz - eyePos.xyz);
+	float3 viewdir = normalize(input.wPos.xyz - eyePos.xyz);	//ray direction
 
-	float4 colour;
-
-	colour = raymarch(xyz, viewdir);
+	float4 colour = raymarch(xyz, viewdir);			//ray origin is the first pixel hit
 
 	return colour;
 }
+
+
+
+//curPos.xy = mul(curPos.xz, rotMat);
+//curPos = normalize(curPos);	//renormalize
+//curPos.y -= elapsed;
+
+//float thokkMakeBigFire =	(mask * snoise(curPos))			*	STEP_SIZE * 25.f;
+//float disturbance =			(mask * noiseStack(curPos))	*	STEP_SIZE * 25.f;
+
+//float final = max(thokkMakeBigFire, disturbance);	//, .5f

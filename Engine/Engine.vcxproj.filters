@@ -177,6 +177,9 @@
     <ClCompile Include="ShaderMaze.cpp">
       <Filter>Shading</Filter>
     </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dclass.h">
@@ -340,6 +343,9 @@
     </ClInclude>
     <ClInclude Include="ShaderMaze.h">
       <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

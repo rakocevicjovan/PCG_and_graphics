@@ -76,8 +76,8 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> mazeNames = { L"mazeVS.hlsl", L"mazePS.hlsl" };
 	shaderMaze.Initialize(_device, hwnd, mazeNames, extendedLayout, sbSamplerDesc);
 
-	std::vector<std::wstring> volTreeNames = { L"volumVS.hlsl", L"volumTreePS.hlsl" };
-	shaderVolumetricTree.Initialize(_device, hwnd, volTreeNames, extendedLayout, sbSamplerDesc);
+	std::vector<std::wstring> volTreeNames = { L"mazefloorVS.hlsl", L"terrainPS.hlsl" };
+	shaderTree.Initialize(_device, hwnd, volTreeNames, extendedLayout, sbSamplerDesc);
 
 	std::vector<std::wstring> terrainNames = { L"mazefloorVS.hlsl", L"terrainPS.hlsl" };
 	shaderTerrain.Initialize(_device, hwnd, terrainNames, extendedLayout, sbSamplerDesc);

@@ -186,7 +186,7 @@ namespace Procedural
 	
 
 
-	void Geometry::GenTube(float radius, float height, UINT subdivsRadial, UINT rows, float decay)
+	void Geometry::GenTube(float radius, float height, UINT subdivsRadial, UINT rows, float minRadiusPerc)
 	{
 		positions.reserve(rows * subdivsRadial);
 		indices.reserve(subdivsRadial * 2 * 3 * (rows - 1));	//number of faces per column, times 2 for two subrows, times face rows, times 3
@@ -194,11 +194,14 @@ namespace Procedural
 
 		float subdivHeight = height / float(rows - 1);
 
+		float radialSegment = 1.f / float(subdivsRadial);
+		float invRows = 1.f / float(rows);
+
 		//create a ring
 		float angle = 0.f;
 		float dAngle = 2. * PI / float(subdivsRadial);
 
-		float radiusDelta = radius * (1.f - decay);
+		float minRadius = radius * minRadiusPerc;
 
 		std::vector<float> sines, cosines;
 		sines.reserve(subdivsRadial);
@@ -216,14 +219,16 @@ namespace Procedural
 		//iterate rows to create the vertices
 		for (UINT i = 0; i < rows; ++i)
 		{
-			float adjRadius = radius - Math::smoothstep(0, rows - 1.f, i) * radiusDelta;
+			float adjRadius = Math::remap(i, 0.f, rows - 1.f, radius, minRadius);
 
 			for (UINT j = 0; j < subdivsRadial; ++j)
 			{
 				normals.emplace_back(cosines[j], 0.f, sines[j]);
 				positions.emplace_back(normals.back().x * adjRadius, i * subdivHeight, normals.back().z * adjRadius);
-				texCoords.emplace_back(positions.back().x + positions.back().z, positions.back().y);
+				texCoords.emplace_back(j * radialSegment, i * invRows);
+				tangents.emplace_back(-sines[j], 0.f, cosines[j]);
 				//and link them with indices - except the last row, because the current row already takes the next one into account to build the index buffer
+
 				if (i == rows - 1) continue;
 
 				UINT indexAbove = (i + 1) * subdivsRadial + j;
@@ -253,11 +258,14 @@ namespace Procedural
 		positions.reserve(verts.size());
 		normals.reserve(verts.size());
 		texCoords.reserve(verts.size());
+		tangents.reserve(verts.size());
 		for (auto v : verts)
 		{
 			positions.emplace_back(v.position);
 			normals.emplace_back(v.normal);
 			texCoords.emplace_back(v.textureCoordinate);
+			//not correct at all but it does not matter! they don't show
+			tangents.emplace_back(normals.back().Cross(SVec3(v.textureCoordinate.x, 0.f, v.textureCoordinate.y)));	
 		}
 			
 		indices.reserve(inds.size());

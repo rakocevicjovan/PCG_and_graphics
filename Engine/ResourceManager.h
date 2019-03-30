@@ -15,9 +15,6 @@ struct Level
 	//models
 	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand, will;
 	std::vector<Model*> _terrainModels;
-	
-	//materials
-	std::map <std::string, Material> materials;
 
 	//textures
 	Texture NST, DST, mazeDiffuseMap, mazeNormalMap;

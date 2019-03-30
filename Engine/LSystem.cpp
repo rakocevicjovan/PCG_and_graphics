@@ -6,7 +6,6 @@ namespace Procedural
 {
 	LSystem::LSystem(std::string axiom) : _axiom(axiom)
 	{
-
 	}
 
 
@@ -148,6 +147,10 @@ namespace Procedural
 		float accRadConstriction = 1.f;
 		float accLenConstriction = 1.f;
 
+		float sqrtRadCon = sqrt(radiusConstriction);
+		float sqrtLenCon = sqrt(lengthConstriction);
+
+
 		//for traversing the tree
 		SMatrix orientation(SMatrix::Identity);
 		SVec3 pos(0.f, 0.f, 0.f);
@@ -167,49 +170,47 @@ namespace Procedural
 
 		for (int i = 0; i < _current.size(); ++i)
 		{
+			nextPos = pos;
+
 			char c = _current[i];
 			char n = _current[i + 1];
-
-			SVec3 curDir;
-
-			nextPos = pos;
+			bool isEnd = n == ']';
+			
 			SVec3 rotated = SVec3::Transform(dir, orientation);
+			float branchTipRadiusPercent = 1.f;
 
-			length = c_length * accLenConstriction;
-			radius = c_radius * accRadConstriction;
+			if (isEnd)	//branch is at the end of the branch - make it a briar
+				branchTipRadiusPercent = 0.f;
 
 			switch (c)
 			{
 			case 'F':
 
-				nextPos += length * rotated;
+				nextPos = pos + length * rotated;
 
 				tube.Clear();
-				//add tube
-				if(n == ']')
-					tube.GenTube(radius, length, 24, 10, 0.f);
-				else if(n == '[')
-					tube.GenTube(radius, length, 24, 10, radiusConstriction);
-				else
-					tube.GenTube(radius, length, 24, 10, 1.f);
+				tube.GenTube(radius, length, 8, 4, branchTipRadiusPercent);
 
-				for (int i = 0; i < tube.positions.size(); ++ i)	//auto& vp : g.positions
+				//add tube
+				for (int i = 0; i < tube.positions.size(); ++i)
 				{
 					Math::RotateVecByMat(tube.positions[i], orientation);
 					Math::RotateVecByMat(tube.normals[i], orientation);
-					tube.positions[i] += pos; //+ curDir * 0.5f;
+					tube.positions[i] += pos;
 				}
 
-				tree.meshes.push_back(Mesh(tube, device, true, false));
-
-				for (int i = 0; i < sphere.positions.size(); ++i)
+				//add sphere
+				tree.meshes.emplace_back(tube, device, true, true);
+				
+				if (!isEnd)
 				{
-					tempSphere.positions[i] = sphere.positions[i] * radius * 1.05f;
-					tempSphere.positions[i] += pos;
+					for (int i = 0; i < sphere.positions.size(); ++i)
+					{
+						tempSphere.positions[i] = sphere.positions[i] * branchTipRadiusPercent * radius;
+						tempSphere.positions[i] += nextPos;
+					}
+					tree.meshes.emplace_back(tempSphere, device, true, true);
 				}
-
-				tree.meshes.push_back(Mesh(tempSphere, device, true, false));
-				//accumulatedDecay *= decay;
 
 				break;
 
@@ -230,10 +231,10 @@ namespace Procedural
 				break;
 
 			case '[':
-				storedPos.push_back(pos);
-				storedOri.push_back(orientation);
-				storedRadii.push_back(accRadConstriction);
-				storedLengths.push_back(accLenConstriction);
+				storedPos.emplace_back(pos);
+				storedOri.emplace_back(orientation);
+				storedRadii.emplace_back(accRadConstriction);
+				storedLengths.emplace_back(accLenConstriction);
 				accRadConstriction *= radiusConstriction;
 				accLenConstriction *= lengthConstriction;
 				break;
@@ -257,9 +258,18 @@ namespace Procedural
 				std::cout << c << std::endl;
 				break;
 			}
+
+			length = c_length * accLenConstriction;
+			radius = c_radius * accRadConstriction;
+
 			pos = nextPos;
 		}
 
+		tree.textures_loaded.emplace_back(device, "../Textures/Bark/diffuse.jpg");
+		tree.textures_loaded.emplace_back(device, "../Textures/Bark/normal.jpg");
+
+		for (auto& m : tree.meshes)
+			m.textures = tree.textures_loaded;
 
 		return tree;
 	}
@@ -367,3 +377,19 @@ namespace Procedural
 	}
 
 }
+
+
+/*
+bool isParentOfBranch = false;
+if (!isEnd)
+{
+	size_t nextBranch = _current.find('F', i + 1);
+	if (nextBranch != std::string::npos)
+	{
+		std::string untilNextBranch = _current.substr(i + 1, nextBranch - i - 1);
+		isParentOfBranch = untilNextBranch.find('[', 0) != std::string::npos;
+	}
+}
+*/
+//if (isParentOfBranch)	//branches sprout from the end of this branch... not sure what to do with that
+	//branchTipRadiusPercent = 1.f;//sqrtRadCon;
