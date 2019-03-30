@@ -57,6 +57,7 @@ struct LightBuffer2 : public SIBase
 
 struct ViewRayBuffer : SIBase
 {
+	SMatrix rot;
 	SVec4 ePos;
 };
 
