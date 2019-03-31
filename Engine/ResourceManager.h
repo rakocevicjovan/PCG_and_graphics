@@ -69,6 +69,7 @@ public:
 	//load and draw all that jazz
 	void init(ID3D11Device* device);
 	void draw(ID3D11DeviceContext* deviceContext);
+	void procGen(ID3D11Device* device);
 };
 
 

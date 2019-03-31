@@ -43,12 +43,17 @@ public:
 	ShaderSkybox shaderSkybox;
 	ShaderStrife shaderStrife;
 	ShaderWater shaderWater;
-	ShaderVolumetric shaderVolumetric;
 	InstancedShader shaderInstanced;
 	PerlinShader shaderPerlin;
 	TerrainShader shaderTerrain;
 	TerrainShader shaderTree;
 	ShaderMaze shaderMaze;
+
+	//wisps
+	ShaderVolumetric shVolumEarth;
+	ShaderVolumetric shVolumFire;
+	ShaderVolumetric shVolumWater;
+	ShaderVolumetric shVolumAir;
 
 	ShaderManager();
 	~ShaderManager();

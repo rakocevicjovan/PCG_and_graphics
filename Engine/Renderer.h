@@ -52,5 +52,4 @@ private:
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
 
 	float elapsed = 0.f;
-	bool uwotm8 = false;
 };

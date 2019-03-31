@@ -26,6 +26,6 @@ public:
 	void update(float deltaTime);
 	void draw(ID3D11DeviceContext* dc);
 
-	std::function<void(PUD*)> updateStdFunc;
+	std::function<void(ParticleUpdateData*)> updateStdFunc;
 };
 
