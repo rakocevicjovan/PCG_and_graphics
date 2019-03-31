@@ -43,7 +43,7 @@ void ParticleSystem::setShader(ShaderBase* shader)
 
 
 
-void ParticleSystem::setUpdateFunction(std::function<void(PUD* pud)> particleUpdFunc)	//void(*funcPtr)(PUD *pud)
+void ParticleSystem::setUpdateFunction(std::function<void(ParticleUpdateData* pud)> particleUpdFunc)	//void(*funcPtr)(PUD *pud)
 {
 	updateStdFunc = particleUpdFunc;
 }

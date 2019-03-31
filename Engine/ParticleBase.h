@@ -5,7 +5,7 @@
 
 class ParticleSystem;
 
-struct PUD
+struct ParticleUpdateData
 {
 	SVec3 windDirection;
 	float windVelocity;

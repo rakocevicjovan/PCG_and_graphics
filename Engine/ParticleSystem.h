@@ -13,7 +13,7 @@ public:
 	unsigned int _numParticles;
 	Model _model;
 	ShaderBase* _shader;
-	PUD pud;
+	ParticleUpdateData pud;
 	SVec3 _position;
 	std::vector<ParticleBase*> _particles;
 
@@ -22,7 +22,7 @@ public:
 
 	void init(ID3D11Device* device, unsigned int particleCount, SVec3 position, std::string meshPath);
 	void setShader(ShaderBase* shader);
-	void setUpdateFunction(std::function<void(PUD* pud)> particleUpdFunc);
+	void setUpdateFunction(std::function<void(ParticleUpdateData* pud)> particleUpdFunc);
 	void update(float deltaTime);
 	void draw(ID3D11DeviceContext* dc);
 

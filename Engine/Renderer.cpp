@@ -1,7 +1,7 @@
 #include "Renderer.h"
 #include "InputManager.h"
 
-Renderer::Renderer() : proceduralTerrain()
+Renderer::Renderer()
 {
 	_D3D = 0;
 	drawUI = false;
@@ -10,7 +10,7 @@ Renderer::Renderer() : proceduralTerrain()
 
 Renderer::~Renderer() {}
 
-#define RES _resMan._level
+#define RES _resMan._level1
 #define EYE_POS _cam.GetCameraMatrix().Translation()
 
 bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
@@ -37,13 +37,15 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shMan.init(_device, hwnd);
 	_resMan.init(_device);
 
+	RES.pSys.setShader(&shMan.shaderBase);
+
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
-	maze.Init(10, 10, 32.f);
-	maze.CreateModel(_device);
+	RES.maze.Init(10, 10, 32.f);
+	RES.maze.CreateModel(_device);
 
-	_colEngine.registerModel(&(maze.model), BVT_AABB);
+	_colEngine.registerModel(&(RES.maze.model), BVT_AABB);
 
 	///CAMERA INITIALISATION
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
@@ -53,43 +55,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_cam._controller = &_controller;
 
 	_colEngine.registerController(_controller);	//works both ways
-	
-	///CUBE MAPS SETUP
-	cubeMapper.Init(_device);
-	shadowCubeMapper.Init(_device);
-	skyboxCubeMapper.LoadFromFiles(_device, "../Textures/night.dds");
-
-
-	pSys.init(_device, 100, SVec3(0, 0, 100), "../Models/ball.fbx");
-	
-	lambda = [this](PUD* pud) -> void  
-	{
-		for (int i = 0; i < pSys._particles.size(); ++i)
-		{
-			pSys._particles[i]->age += pud->dTime * 0.1f;
-			SVec3 translation(pud->windDirection * pud->windVelocity);	// 
-			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
-			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * 0.33f);
-		}
-	};
-	
-	lambda1 = [this](PUD* pud) -> void
-	{
-		for (int i = 0; i < pSys._particles.size(); ++i)
-		{
-			pSys._particles[i]->age += pud->dTime * 0.1f;
-			SVec3 translation(pud->windDirection * pud->windVelocity);
-			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
-			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * -0.33f);
-		}
-	};
-
-	pSys.setUpdateFunction(lambda);
-	pSys.setShader(&shMan.shaderBase);
 
 	return true;
 }
@@ -104,7 +69,7 @@ bool Renderer::Frame(float dTime){
 	if (!_controller.isFlying())
 	{
 		SVec3 oldPos = EYE_POS;
-		float newHeight = proceduralTerrain.getHeightAtPosition(EYE_POS);
+		float newHeight = RES.proceduralTerrain.getHeightAtPosition(EYE_POS);
 		SMatrix newMat = _cam.GetCameraMatrix();
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
 		_cam.SetCameraMatrix(newMat);
@@ -122,14 +87,14 @@ bool Renderer::Frame(float dTime){
 
 bool Renderer::RenderFrame(float dTime)
 {
-	PUD pud = { SVec3(-5, 2, 5), 1.f, dTime };
-	pSys.updateStdFunc(&pud);
+	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, dTime };
+	RES.pSys.updateStdFunc(&pud);
 
 	shMan.spl.deltaTime = dTime;
 	shMan.spl.deviceContext = _deviceContext;
-	shMan.spl.dLight = &(_resMan._level.pointLight);
+	shMan.spl.dLight = &(RES.pointLight);
 	shMan.spl.eyePos = &(_cam.GetCameraMatrix().Translation());
-	shMan.spl.model = &pSys._model;
+	shMan.spl.model = &(RES.pSys._model);
 	shMan.spl.proj = &(_cam.GetProjectionMatrix());
 	shMan.spl.view = &(_cam.GetViewMatrix());
 
@@ -154,14 +119,14 @@ bool Renderer::RenderFrame(float dTime)
 	_D3D->SwitchDepthToLessEquals();
 
 	shMan.shaderSkybox.SetShaderParameters(_deviceContext, RES.modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
+		_cam.GetCameraMatrix().Translation(), dTime, RES.skyboxCubeMapper.cm_srv);
 	RES.modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
 	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
 
 	_D3D->SwitchDepthToDefault();
 	_D3D->TurnOnCulling();
 
-	if (isTerGenerated) 
+	if (RES.isTerGenerated) 
 	{
 		_D3D->TurnOnAlphaBlending();
 
@@ -171,7 +136,7 @@ bool Renderer::RenderFrame(float dTime)
 			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
 		*/
 
-		proceduralTerrain.Draw(_deviceContext, shMan.shaderTerrain,
+		RES.proceduralTerrain.Draw(_deviceContext, shMan.shaderTerrain,
 			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			RES.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
 		
@@ -183,15 +148,15 @@ bool Renderer::RenderFrame(float dTime)
 			pointLight, dTime, _cam.GetCameraMatrix().Translation());
 		*/
 
-		shMan.shaderTree.SetShaderParameters(_deviceContext, treeModel.transform,
+		shMan.shaderTree.SetShaderParameters(_deviceContext, RES.treeModel.transform,
 			_cam, RES.pointLight, elapsed);
-		treeModel.Draw(_deviceContext, shMan.shaderLight);
+		RES.treeModel.Draw(_deviceContext, shMan.shaderLight);
 		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
 		
 	}
 
-	shMan.shaderMaze.SetShaderParameters(_deviceContext, maze.model, _cam, RES.pointLight, elapsed, RES.mazeDiffuseMap, RES.mazeNormalMap);
-	maze.model.Draw(_deviceContext, shMan.shaderMaze);
+	shMan.shaderMaze.SetShaderParameters(_deviceContext, RES.maze.model, _cam, RES.pointLight, elapsed, RES.mazeDiffuseMap, RES.mazeNormalMap);
+	RES.maze.model.Draw(_deviceContext, shMan.shaderMaze);
 
 	//shMan.shaderMaze.SetShaderParameters(_deviceContext, _colEngine._colModels[0], _cam, elapsed);
 	//_colEngine._colModels[0].Draw(_deviceContext, shMan.shaderMaze);
@@ -218,7 +183,7 @@ bool Renderer::RenderFrame(float dTime)
 
 	_D3D->TurnOnAlphaBlending();
 	shMan.shaderVolumetric.SetShaderParameters(_deviceContext, RES.will, _cam, elapsed);
-	_resMan._level.will.Draw(_deviceContext, shMan.shaderVolumetric);
+	RES.will.Draw(_deviceContext, shMan.shaderVolumetric);
 	_D3D->TurnOffAlphaBlending();
 	
 
@@ -275,7 +240,7 @@ void Renderer::ProcessSpecialInput()
 	{
 
 		///TERRAIN GENERATION
-		proceduralTerrain = Procedural::Terrain(320, 320);
+		RES.proceduralTerrain = Procedural::Terrain(320, 320);
 		//proceduralTerrain.setScales(1, 1, 1);
 
 		//"../Textures/Biomes/grass.png", "../Textures/Biomes/ice_grass.jpg",  "../Textures/Biomes/snow.jpg", "../Textures/Biomes/cliff.jpg", 
@@ -286,7 +251,7 @@ void Renderer::ProcessSpecialInput()
 			"../Textures/Lava/normal.jpg"
 		};
 
-		proceduralTerrain.setTextureData(_device, 16, 16, texNames);
+		RES.proceduralTerrain.setTextureData(_device, 16, 16, texNames);
 
 		///Diamond square testing
 		//proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 4u, 0.6f, 10.f);
@@ -326,23 +291,23 @@ void Renderer::ProcessSpecialInput()
 		//std::vector<SVec2> vertPositions = proceduralTerrain.getHorizontalPositions();
 		//v.shatter(vertPositions);
 
-		proceduralTerrain.SetUp(_device);
+		RES.proceduralTerrain.SetUp(_device);
 
-		isTerGenerated = true;
+		RES.isTerGenerated = true;
 
 		///L-systems testing
-		linden.reseed("F");
-		linden.addRule('F', "FF+[+F-F-F]*-[-F+F+F]/"); //"[-F]*F[+F][/F]"	//"F[+F]F[-F]+F" for planar		//"FF+[+F-F-F]*-[-F+F+F]/"
+		RES.linden.reseed("F");
+		RES.linden.addRule('F', "FF+[+F-F-F]*-[-F+F+F]/"); //"[-F]*F[+F][/F]"	//"F[+F]F[-F]+F" for planar		//"FF+[+F-F-F]*-[-F+F+F]/"
 		//linden.addRule('F', "F[+F]F[-F]+F");
 
 		//linden.reseed("F+F+F+F");
 		//linden.addRule('F', "FF+F-F+F+FF");
 
-		linden.rewrite(4);
+		RES.linden.rewrite(4);
 
 		float liangle = PI * 0.138888f;		//liangle = PI * .5f;
 
-		treeModel = linden.genModel(_device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
+		RES.treeModel = RES.linden.genModel(_device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
 		
 		//Math::RotateMatByMat(treeModel.transform, SMatrix::CreateRotationX(-PI * .5f));
 		//linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);	
@@ -353,6 +318,11 @@ void Renderer::ProcessSpecialInput()
 		_controller.toggleFly();
 	}
 }
+
+
+
+
+
 
 
 
