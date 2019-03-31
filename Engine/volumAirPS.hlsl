@@ -110,30 +110,12 @@ float snoise(float3 v)
 //Helpers
 static const float PI = 3.141592f;
 static const float INTENSITY = 1.61803f * PI;
-static const float TWISTER = 10.;
+static const float TWISTER = 5.;
 
 //FBM settings
-static const int NUM_OCTAVES = 7;
-static const float LACUNARITY = 2.13795;
-static const float GAIN = .497531;
-
-
-float fbm(in float3 pos)
-{
-	float v = 0.0;
-
-	float amplitude = 1.f;
-	float frequency = 1.f;
-
-	for (int i = 0; i < NUM_OCTAVES; ++i)
-	{
-		v += snoise(frequency * pos) * amplitude;
-		frequency *= LACUNARITY;
-		amplitude *= GAIN;
-	}
-	return v;
-}
-
+static const int NUM_OCTAVES = 3;
+static const float LACUNARITY = 1.13795;
+static const float GAIN = .797531;
 
 float turbulentFBM(float3 x)
 {
@@ -154,40 +136,23 @@ float turbulentFBM(float3 x)
 	return sum;
 }
 
-
-float noiseStack(float3 pos) {
-
-	float noise = snoise(float3(pos));
-	float off = 1.0;
-
-	pos *= LACUNARITY;
-	off *= GAIN;
-	noise = (1.0 - off)* noise + off * snoise(float3(pos));
-
-	pos *= LACUNARITY;
-	off *= GAIN;
-	noise = (1.0 - off) * noise + off * snoise(float3(pos));
-
-	pos *= LACUNARITY;
-	off *= GAIN;
-	noise = (1.0 - off) * noise + off * snoise(float3(pos));
-
-	return (1.0 + noise) / 2.0;
-}
-
-
-//here for reference, changed to optimize
+//here for reference, changed it slightly
 float3 opTwist(in float3 p)
 {
-	float nani = TWISTER * p.y;
+	float nani = TWISTER * p.y - elapsed;
 	float c = cos(nani);
 	float s = sin(nani);
-	float2x2 rotMat = float2x2(c, -s, s, c);
-	return  float3(mul(p.xz, rotMat), p.y);
+	float2x2 rotoMato = float2x2(c, -s, s, c);
+	return  float3(mul(p.xz, rotoMato), p.y);
+}
+
+float sdTorus(float3 p, float2 t)
+{
+	return length(float2(length(p.xz) - t.x, p.y)) - t.y;
 }
 
 //Raymarch settings
-static const int NUM_STEPS = 10;
+static const int NUM_STEPS = 20;
 static const float STEP_SIZE = 2.f / (float)NUM_STEPS;
 
 float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
@@ -201,28 +166,25 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 
 	for (int i = 0; i < NUM_STEPS; ++i)
 	{
-		if (flame > 95.f)	break;
+		if (flame > .99f)	break;
 
 		float3 curPos = rayOrigin + t * rayDir;
-		curPos = float3(mul(curPos.xz, rotMat), curPos.y);
 
-		//float3 curPosAdj = float3(abs(curPos.x), curPos.y, curPos.z);
-		float3 rotatedPos = mul(curPos, rotationMatrix);
-		float3 noisePos = rotatedPos - noiseDir * elapsed;
+		float3 twisted = opTwist(curPos);
 
-		float dist = length(curPos) - .33f * snoise(noisePos);	//get dist to middle of sphere
-		float mask = smoothstep(.707, 0., dist);
+		float mask = 1.f - sdTorus(twisted, float2(0.4, 0.05));
+		mask *= turbulentFBM(twisted - elapsed);
 
-		flame +=
-			STEP_SIZE *
-			mask *
-			turbulentFBM(noisePos * 2.1f) *
-			INTENSITY;
+		mask = pow(mask, 5);
+
+		flame += STEP_SIZE * mask;
 
 		t += STEP_SIZE;
 	}
 
-	sum = smoothstep(float4(0., 0., 0., 0.), float4(1.2, 1.2, 1.2, 1.), float4(flame, flame * flame, .7f * flame * flame, flame));
+	//sum = smoothstep(float4(0., 0., 0., 0.), float4(1.2, 1.2, 1.2, 1.), float4(.2 * flame , flame, .7f * flame, flame));
+
+	sum = float4( smoothstep(.6, 1., flame) , flame, smoothstep(.6, 1.3, flame), flame);
 
 	return sum;
 }
@@ -230,21 +192,16 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-	float x = input.msPos.x;
-	float y = input.msPos.y;
-	float z = input.msPos.z;
-	float3 xyz = float3(x, y, z);
+	float3 xyz = input.msPos.xyz;
 
 	float3 viewdir = normalize(input.wPos.xyz - eyePos.xyz); //ray direction
 
-	float nani = TWISTER * xyz.y;
+	float nani = TWISTER * xyz.y + elapsed;
 	float c = cos(nani);
 	float s = sin(nani);
 	float2x2 rotMat = float2x2(c, -s, s, c);
 
-	float4 colour = raymarch(xyz, viewdir, rotMat);	//ray origin is the first pixel hit
-
-	//colour.rgb = pow(colour.rgb, float3(1.0f / 3.2f, 1.0f / 3.2f, 1.0f / 3.2f));
+	float4 colour = raymarch(xyz, viewdir, rotMat);
 
 	return colour;
 }
