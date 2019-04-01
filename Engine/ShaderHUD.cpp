@@ -189,7 +189,10 @@ void ShaderHUD::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WC
 	MessageBox(hwnd, L"Error compiling shader. Check shader-error.txt for message.", &shaderFilename, MB_OK);
 }
 
-bool ShaderHUD::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mesh& m) {
+
+
+bool ShaderHUD::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mesh& m)
+{
 
 
 	HRESULT result;

@@ -44,5 +44,6 @@ public:
 	ID3D11Buffer* _lightBuffer;
 
 	RenderFormat renderFormat;
+	unsigned int texturesAdded = 0;
 };
 

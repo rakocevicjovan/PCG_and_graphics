@@ -264,13 +264,16 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 
 
 	//VARIABLE BUFFER
-	
-	if (FAILED(result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
 		return false;
+
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
+
 	deviceContext->Unmap(m_variableBuffer, 0);
+
 	bufferNumber = 1;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
 	//END VARIABLE BUFFER

@@ -31,6 +31,7 @@ public:
 
 	ID3D11SamplerState* m_sampleState;
 	RenderFormat renderFormat;
+	unsigned int texturesAdded = 1;
 
 private:
 

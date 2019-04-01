@@ -1,23 +1,27 @@
-cbuffer MatrixBuffer {
+cbuffer MatrixBuffer
+{
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
 
-cbuffer VariableBuffer {
+cbuffer VariableBuffer
+{
 	float delta;
 	float3 padding;
 };
 
 
-struct VertexInputType {
+struct VertexInputType
+{
 	float4 position : POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float3 texCoord : TEXCOORD;
 };

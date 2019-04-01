@@ -42,8 +42,10 @@ class Mesh
 			unsigned int stride = s.renderFormat.stride;
 			unsigned int offset = s.renderFormat.offset;
 
-			if (textures.size() > 0)
-				dc->PSSetShaderResources(0, 1, &(textures[0].srv));
+			for (int i = 0; i < textures.size(); ++i)
+			{
+				dc->PSSetShaderResources(s.texturesAdded + i, 1, &(textures[i].srv));
+			}
 
 			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);

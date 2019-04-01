@@ -167,11 +167,13 @@ void EarthLevel::procGen(ID3D11Device* device)
 
 void EarthLevel::draw(RenderContext rc)
 {
+
 #define dc rc.d3d->GetDeviceContext()
+
 	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
 	pSys.updateStdFunc(&pud);
 
-	dc->RSSetViewports(1, &rc.d3d->viewport);	//use default viewport for output dimensions
+	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
@@ -221,8 +223,8 @@ void EarthLevel::draw(RenderContext rc)
 	will.Draw(dc, rc.shMan->shVolumAir);
 
 	rc.d3d->TurnOffAlphaBlending();
-
 	rc.d3d->EndScene();
+
 #undef dc
 }
 
