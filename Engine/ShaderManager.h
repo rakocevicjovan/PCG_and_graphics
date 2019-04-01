@@ -58,8 +58,17 @@ public:
 	ShaderManager();
 	~ShaderManager();
 
-	ShaderParametersLight spl;
-
 	void init(ID3D11Device* _device, HWND hwnd);
 };
 
+/*
+ShaderParametersLight spl;
+
+spl.deltaTime = dTime;
+spl.deviceContext = _deviceContext;
+spl.dLight = &(RES.pointLight);
+spl.eyePos = &(_cam.GetCameraMatrix().Translation());
+spl.model = &(RES.pSys._model);
+spl.proj = &(_cam.GetProjectionMatrix());
+spl.view = &(_cam.GetViewMatrix());
+*/

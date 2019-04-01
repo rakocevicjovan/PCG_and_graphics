@@ -1,5 +1,5 @@
-#ifndef _D3DCLASS_H_
-#define _D3DCLASS_H_
+#ifndef _D3D_H_
+#define _D3D_H_
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -9,11 +9,12 @@
 #include <d3d11.h>
 #include "Math.h"
 
-class D3DClass{
+class D3D
+{
 
 public:
-	D3DClass();
-	~D3DClass();
+	D3D();
+	~D3D();
 
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 	void Shutdown();

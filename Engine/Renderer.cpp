@@ -15,22 +15,22 @@ Renderer::~Renderer() {}
 
 bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
 {
-	_inMan = &inMan;
-	bool result;
-
-	// Create the Direct3D object.
-	_D3D = new D3DClass;
+	_D3D = new D3D;
 	if(!_D3D)
 		return false;
 
-	// Initialize the Direct3D object.
-	if(!_D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR)){
+	if(!_D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
+	{
 		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
 	}
 
 	_device = _D3D->GetDevice();
 	_deviceContext = _D3D->GetDeviceContext();
+
+
+
+	_inMan = &inMan;
 
 	_colEngine.init(_device, _deviceContext);
 
@@ -60,9 +60,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 }
 
 
-bool Renderer::Frame(float dTime){
-	
-
+bool Renderer::Frame(float dTime)
+{
 	ProcessSpecialInput();
 	elapsed += dTime;
 
@@ -74,6 +73,7 @@ bool Renderer::Frame(float dTime){
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
 		_cam.SetCameraMatrix(newMat);
 	}
+
 	_cam.update(dTime);
 
 	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
@@ -90,17 +90,9 @@ bool Renderer::RenderFrame(float dTime)
 	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, dTime };	//wind direction, wind velocity multiplier and delta time
 	RES.pSys.updateStdFunc(&pud);
 
-	shMan.spl.deltaTime = dTime;
-	shMan.spl.deviceContext = _deviceContext;
-	shMan.spl.dLight = &(RES.pointLight);
-	shMan.spl.eyePos = &(_cam.GetCameraMatrix().Translation());
-	shMan.spl.model = &(RES.pSys._model);
-	shMan.spl.proj = &(_cam.GetProjectionMatrix());
-	shMan.spl.view = &(_cam.GetViewMatrix());
-
-	_deviceContext->RSSetViewports(1, &_D3D->viewport);
-	_D3D->SetBackBufferRenderTarget();
-	_D3D->BeginScene(clearColour);
+	_deviceContext->RSSetViewports(1, &_D3D->viewport);	//use default viewport for output dimensions
+	_D3D->SetBackBufferRenderTarget();					//set default screen buffer as output target
+	_D3D->BeginScene(clearColour);						//clear colour and depth buffer
 
 	///RENDERING OLD TERRAIN 
 	/*
@@ -111,8 +103,6 @@ bool Renderer::RenderFrame(float dTime)
 		shaderShadow.ReleaseShaderParameters(_deviceContext);
 	}
 	*/
-
-	SMatrix identityMatrix = SMatrix::Identity;
 
 	_D3D->TurnOffCulling();
 	_D3D->SwitchDepthToLessEquals();
@@ -127,25 +117,10 @@ bool Renderer::RenderFrame(float dTime)
 
 	if (RES.isTerGenerated) 
 	{
-		_D3D->TurnOnAlphaBlending();
-
-		/*
-		proceduralTerrain.Draw(_deviceContext, shMan.shaderPerlin,
-			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-			_resMan._level.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
-		*/
 
 		RES.proceduralTerrain.Draw(_deviceContext, shMan.shaderTerrain,
-			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+			SMatrix(), _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
 			RES.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
-		
-		_D3D->TurnOffAlphaBlending();
-
-		/*
-		linden.draw(_deviceContext, shMan.shaderLight,
-			identityMatrix, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-			pointLight, dTime, _cam.GetCameraMatrix().Translation());
-		*/
 
 		shMan.shaderTree.SetShaderParameters(_deviceContext, RES.treeModel.transform,
 			_cam, RES.pointLight, elapsed);
@@ -156,17 +131,7 @@ bool Renderer::RenderFrame(float dTime)
 
 	shMan.shaderMaze.SetShaderParameters(_deviceContext, RES.maze.model, _cam, RES.pointLight, elapsed, RES.mazeDiffuseMap, RES.mazeNormalMap);
 	RES.maze.model.Draw(_deviceContext, shMan.shaderMaze);
-
-	//shMan.shaderMaze.SetShaderParameters(_deviceContext, _colEngine._colModels[0], _cam, elapsed);
-	//_colEngine._colModels[0].Draw(_deviceContext, shMan.shaderMaze);
-
-	/*
-	shMan.shaderLight.SetShaderParameters(_deviceContext,
-		maze.model, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		RES.pointLight, _cam.GetCameraMatrix().Translation(), dTime);
-	maze.model.Draw(_deviceContext, shMan.shaderLight);
-	shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
-	*/
+	shMan.shaderMaze.ReleaseShaderParameters(_deviceContext);
 
 	/*
  	std::vector<InstanceData> instanceData(100);
@@ -189,26 +154,6 @@ bool Renderer::RenderFrame(float dTime)
 	RES.will.Draw(_deviceContext, shMan.shVolumAir);
 
 	_D3D->TurnOffAlphaBlending();
-	
-
-	///rendering water and clouds
-	/*
-	///RENDERING WATER
-	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv);
-	modDepths.Draw(_deviceContext, shaderWater);
-	shaderWater.ReleaseShaderParameters(_deviceContext);
-
-	*/
-	///RENDERING CLOUD
-	/*
-	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
-	modStrife.Draw(_deviceContext, shaderStrife);
-	shaderStrife.ReleaseShaderParameters(_deviceContext);
-	*/
-
-	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
 
 	_D3D->EndScene();
 	return true;
@@ -246,16 +191,6 @@ void Renderer::ProcessSpecialInput()
 	if(_inMan->IsKeyDown((short)'F'))
 		_controller.toggleFly();
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

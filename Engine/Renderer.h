@@ -1,4 +1,4 @@
-#include "d3dclass.h"
+#include "D3D.h"
 #include "Camera.h"
 #include "ShaderManager.h"
 #include "ResourceManager.h"
@@ -30,7 +30,7 @@ private:
 	bool RenderFrame(float dTime);
 	void OutputFPS(float dTime);
 
-	D3DClass* _D3D;
+	D3D* _D3D;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 

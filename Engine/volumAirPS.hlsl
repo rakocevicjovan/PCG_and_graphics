@@ -184,7 +184,7 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 
 	//sum = smoothstep(float4(0., 0., 0., 0.), float4(1.2, 1.2, 1.2, 1.), float4(.2 * flame , flame, .7f * flame, flame));
 
-	sum = float4( smoothstep(.6, 1., flame) , flame, smoothstep(.6, 1.3, flame), flame);
+	sum = float4(smoothstep(.6, 1., flame), flame, smoothstep(1., .6, flame), flame);
 
 	return sum;
 }

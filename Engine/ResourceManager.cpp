@@ -251,5 +251,27 @@ for (char lsn : lSystemNotes)
 
 audio.init();
 audio.storeSequence(notes);
+
+	///rendering water and clouds
+	/*
+	///RENDERING WATER
+	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv);
+	modDepths.Draw(_deviceContext, shaderWater);
+	shaderWater.ReleaseShaderParameters(_deviceContext);
+
+	*/
+	///RENDERING CLOUD
+	/*
+	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
+		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
+	modStrife.Draw(_deviceContext, shaderStrife);
+	shaderStrife.ReleaseShaderParameters(_deviceContext);
+	*/
+
+	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+
+
+
 */
 #pragma endregion Audio

@@ -100,7 +100,7 @@
     <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
-    <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="D3D.cpp" />
     <ClCompile Include="GameClock.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
@@ -157,7 +157,7 @@
     <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
-    <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="D3D.h" />
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="InstancedShader.h" />

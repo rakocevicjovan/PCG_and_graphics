@@ -1,6 +1,6 @@
-#include "d3dclass.h"
+#include "D3D.h"
 
-D3DClass::D3DClass()
+D3D::D3D()
 {
 	m_swapChain = 0;
 	_device = 0;
@@ -14,12 +14,12 @@ D3DClass::D3DClass()
 }
 
 
-D3DClass::~D3DClass()
+D3D::~D3D()
 {
 }
 
 
-bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, 
+bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, 
 						  float screenDepth, float screenNear)
 {
 	HRESULT result;
@@ -345,7 +345,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 
 
-void D3DClass::Shutdown(){
+void D3D::Shutdown(){
 
 	// Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
 	if(m_swapChain){
@@ -396,52 +396,45 @@ void D3DClass::Shutdown(){
 }
 
 
-void D3DClass::BeginScene(float* clearColour){
-
-	// Clear the back buffer.
+void D3D::BeginScene(float* clearColour)
+{
 	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
-    
-	// Clear the depth buffer.
 	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	return;
 }
 
 
-void D3DClass::EndScene(){
+void D3D::EndScene(){
 	// Present the back buffer to the screen since rendering is complete.
-	if(m_vsync_enabled){
+	if(m_vsync_enabled)
 		m_swapChain->Present(1, 0);	// Lock to screen refresh rate.
-	}
-	else{
+	else
 		m_swapChain->Present(0, 0);	// Present as fast as possible.
-	}
 }
 
 
-ID3D11Device* D3DClass::GetDevice(){
+ID3D11Device* D3D::GetDevice(){
 	return _device;
 }
 
 
-ID3D11DeviceContext* D3DClass::GetDeviceContext(){
+ID3D11DeviceContext* D3D::GetDeviceContext(){
 	return _deviceContext;
 }
 
-void D3DClass::GetVideoCardInfo(char* cardName, int& memory){
+void D3D::GetVideoCardInfo(char* cardName, int& memory){
 	strcpy_s(cardName, 128, m_videoCardDescription);
 	memory = m_videoCardMemory;
 }
 
-ID3D11DepthStencilView* D3DClass::GetDepthStencilView() {
+ID3D11DepthStencilView* D3D::GetDepthStencilView() {
 	return m_depthStencilView;
 }
 
-void D3DClass::SetBackBufferRenderTarget(){
+void D3D::SetBackBufferRenderTarget(){
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 }
 
-void D3DClass::D3DClass::TurnOnAlphaBlending()
+void D3D::D3D::TurnOnAlphaBlending()
 {
 	float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 0.5f };
 
@@ -449,26 +442,26 @@ void D3DClass::D3DClass::TurnOnAlphaBlending()
 }
 
 
-void D3DClass::D3DClass::TurnOffAlphaBlending()
+void D3D::D3D::TurnOffAlphaBlending()
 {
 	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	_deviceContext->OMSetBlendState(m_noBlendState, blendFactor, 0xffffffff);
 }
 
-void D3DClass::TurnOnCulling() {
+void D3D::TurnOnCulling() {
 	_deviceContext->RSSetState(m_rasterState);
 }
 
-void D3DClass::TurnOffCulling() {
+void D3D::TurnOffCulling() {
 	_deviceContext->RSSetState(m_rasterStateNoCull);
 }
 
-void D3DClass::SwitchDepthToLessEquals()
+void D3D::SwitchDepthToLessEquals()
 {
 	_deviceContext->OMSetDepthStencilState(DSLessEqual, 1);
 }
 
-void D3DClass::SwitchDepthToDefault(){
+void D3D::SwitchDepthToDefault(){
 	_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 }
