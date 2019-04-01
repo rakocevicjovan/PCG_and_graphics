@@ -1,5 +1,5 @@
 #include "OST.h"
-#include "d3dclass.h"
+#include "D3D.h"
 #include "Model.h"
 #include "ShaderDepth.h"
 #include "Camera.h"
@@ -25,8 +25,6 @@ OST::~OST()
 
 void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAccessible) 
 {
-
-	HRESULT res;
 	isCPUAccessible = CPUAccessible;
 	_w = w;
 	_h = h;
@@ -57,8 +55,8 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	texDesc.MiscFlags = 0;
 
-	res = device->CreateTexture2D(&texDesc, 0, &ostId);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateTexture2D(&texDesc, 0, &ostId)))
+	{
 		OutputDebugStringA("Can't create off-screen texture. \n");
 		exit(420);
 	}
@@ -70,8 +68,8 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 	srvd.Texture2D.MostDetailedMip = 0;
 	srvd.Texture2D.MipLevels = 1;
 
-	res = device->CreateShaderResourceView(ostId, &srvd, &srv);	//&resViewDesc
-	if (FAILED(res)) {
+	if (FAILED(device->CreateShaderResourceView(ostId, &srvd, &srv)))
+	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(421);
 	}
@@ -82,8 +80,8 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 	rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	rtvd.Texture2D.MipSlice = 0;
 
-	res = device->CreateRenderTargetView(ostId, &rtvd, &rtv);	//&resViewDesc
-	if (FAILED(res)) {
+	if (FAILED(device->CreateRenderTargetView(ostId, &rtvd, &rtv)))
+	{
 		OutputDebugStringA("Can't create render target view. \n");
 		exit(422);
 	}
@@ -109,7 +107,7 @@ void OST::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStenc
 
 
 
-void OST::DrawDepthToTexture(D3DClass& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c)
+void OST::DrawDepthToTexture(D3D& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c)
 {
 	d3d.GetDeviceContext()->OMSetRenderTargets(1, &(rtv), d3d.GetDepthStencilView());	//switch to drawing on ost for the prepass	
 	d3d.GetDeviceContext()->ClearRenderTargetView(rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
@@ -162,7 +160,8 @@ bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<u
 	dc->Unmap(stagingId, 0);
 
 	result.reserve(tempFloatArr.size());
-	for (float& val : tempFloatArr) {
+	for (float& val : tempFloatArr)
+	{
 		unsigned char colChar = val * 255;
 		result.push_back(colChar);
 	}
@@ -172,7 +171,7 @@ bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<u
 
 
 
-void OST::SaveToFile(D3DClass& d3d, const std::string& filepath)
+void OST::SaveToFile(D3D& d3d, const std::string& filepath)
 {
 	std::vector<unsigned char> wat;
 	LoadToCpu(d3d.GetDevice(), d3d.GetDeviceContext(), wat);

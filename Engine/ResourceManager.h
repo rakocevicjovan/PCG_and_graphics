@@ -22,6 +22,8 @@
 #include "Geometry.h"
 #include "Maze.h"
 
+class D3D;
+
 class Level
 {
 	virtual void init(ID3D11Device* device) = 0;
