@@ -21,7 +21,6 @@ void ParticleSystem::init(ID3D11Device* device, unsigned int particleCount, SVec
 {
 	_model.LoadModel(device, pathToModel);
 
-
 	_numParticles = particleCount;
 	for (int i = 0; i < _numParticles; ++i)
 	{

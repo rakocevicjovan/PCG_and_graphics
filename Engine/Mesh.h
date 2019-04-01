@@ -36,18 +36,42 @@ class Mesh
 		//@todo - pull D3D11_BUFFER_DESC from a parameter?
 		bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
 
-		void draw(ID3D11DeviceContext* dc, ShaderVolumetric& s);
-		void draw(ID3D11DeviceContext* dc, InstancedShader& s);
-		void draw(ID3D11DeviceContext* dc, ShaderBase& s);
-		void draw(ID3D11DeviceContext* dc, ShaderLight& s);
-		void draw(ID3D11DeviceContext* dc, WireframeShader& s);
-		void draw(ID3D11DeviceContext* dc, ShaderShadow& s);
-		void draw(ID3D11DeviceContext* dc, ShaderHUD& s);
-		void draw(ID3D11DeviceContext* dc, ShaderDepth& s);
-		void draw(ID3D11DeviceContext* dc, ShaderPT& s);
-		void draw(ID3D11DeviceContext* dc, ShaderCM& s);
-		void draw(ID3D11DeviceContext* dc, ShaderSkybox& s);
-		void draw(ID3D11DeviceContext* dc, ShaderStrife& s);
-		void draw(ID3D11DeviceContext* dc, ShaderWater& s);
-		void draw(ID3D11DeviceContext* dc, ShaderMaze& s);
+		template <typename FlexibleShaderType>
+		void draw(ID3D11DeviceContext* dc, FlexibleShaderType& s)
+		{
+			unsigned int stride = s.renderFormat.stride;
+			unsigned int offset = s.renderFormat.offset;
+
+			if (textures.size() > 0)
+				dc->PSSetShaderResources(0, 1, &(textures[0].srv));
+
+			dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(s.renderFormat.primitiveTopology);	
+			dc->DrawIndexed(indices.size(), 0, 0);
+		}
+
+
+		template <class InstancedShader>
+		void Mesh::draw(ID3D11DeviceContext* dc, InstancedShader& s)
+		{
+			unsigned int strides[2];
+			unsigned int offsets[2];
+			ID3D11Buffer* bufferPointers[2];
+
+			strides[0] = sizeof(Vert3D);
+			strides[1] = sizeof(InstanceData);
+
+			offsets[0] = 0;
+			offsets[1] = 0;
+
+			bufferPointers[0] = _vertexBuffer;
+			bufferPointers[1] = s._instanceBuffer;
+
+			dc->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
+			dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+			dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dc->PSSetSamplers(0, 1, &s._sampleState);
+			dc->DrawIndexedInstanced(indices.size(), s._instanceCount, 0, 0, 0);
+		}
 	};

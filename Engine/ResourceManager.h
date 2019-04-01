@@ -24,32 +24,49 @@
 
 class D3D;
 
+struct RenderContext
+{
+	D3D* d3d;
+	float dTime;
+	float elapsed;
+	ShaderManager* shMan;
+	Camera* cam;
+};
+
 class Level
 {
+public:
 	virtual void init(ID3D11Device* device) = 0;
-	virtual void draw(ID3D11DeviceContext* deviceContext) = 0;
+	virtual void draw(RenderContext rc) = 0;
 };
+
+
+
+class OldLevel
+{
+public:
+	void init(ID3D11Device* device) {};
+	void draw(ID3D11DeviceContext* deviceContext, RenderContext rc) {};
+};
+
+
 
 class EarthLevel : public Level
 {
 public:
-	//models
-	Model modTerrain, modTreehouse, modBall, modSkybox, modWaterQuad, modStrife, modDepths, modBallStand, will;
-	std::vector<Model*> _terrainModels;
-
-	//skybox, reflections
-	
-	CubeMapper cubeMapper, shadowCubeMapper, skyboxCubeMapper;
-
-	//textures
-	Texture NST, DST, mazeDiffuseMap, mazeNormalMap;
-
-	//lights
+	///each level probably contains these
 	PointLight pointLight;
-	DirectionalLight dirLight;
+	Model skybox;
+	CubeMapper skyboxCubeMapper;
+	Model  will;
+	std::vector<Procedural::Terrain> procTerrains;
+
+	//specific to the level
+	Texture mazeDiffuseMap, mazeNormalMap;
+
 	
 	//off-screen render targets
-	OST offScreenTexture, postProcessTexture;
+	OST postProcessTexture;	//offScreenTexture
 	const unsigned int ostW = 1600, ostH = 900;
 
 	//sounds
@@ -70,50 +87,49 @@ public:
 
 	//load and draw all that jazz
 	void init(ID3D11Device* device);
-	void draw(ID3D11DeviceContext* deviceContext);
 	void procGen(ID3D11Device* device);
+	void draw(RenderContext rc);
 };
 
 
 
-class OldLevel
+class FireLevel : public Level
 {
+public:
 	void init(ID3D11Device* device) {};
-	void draw(ID3D11DeviceContext* deviceContext) {};
+	void draw(RenderContext rc) {};
 };
 
 
 
-class FireLevel
+class WaterLevel : public Level
 {
-	void init(ID3D11Device* device) {};
-	void draw(ID3D11DeviceContext* deviceContext) {};
+public:
+	PointLight pointLight;
+	Model skybox;
+	CubeMapper skyboxCubeMapper;
+	Model will;
+	std::map<std::string, Procedural::Terrain> terrainsMap;
+
+	void init(ID3D11Device* device);
+	void draw(RenderContext rc) {};
 };
 
 
 
-class WaterLevel
+class AirLevel : public Level
 {
+public:
 	void init(ID3D11Device* device) {};
-	void draw(ID3D11DeviceContext* deviceContext) {};
+	void draw(RenderContext rc) {};
 };
-
-
-
-class AirLevel
-{
-	void init(ID3D11Device* device) {};
-	void draw(ID3D11DeviceContext* deviceContext) {};
-};
-
-
 
 
 
 class ResourceManager
 {
+
 protected:
-	
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 
@@ -129,4 +145,3 @@ public:
 
 	void init(ID3D11Device* device);	//should eventually work from a file
 };
-

@@ -10,17 +10,12 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "ShaderDataStructs.h"
 
 class Model;
 
-class ShaderStrife{
-
-	struct MatrixBufferType {
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-
+class ShaderStrife
+{
 
 	struct LightBufferType {
 
@@ -74,5 +69,7 @@ private:
 	float timeElapsed;
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
+
+	RenderFormat renderFormat;
 };
 

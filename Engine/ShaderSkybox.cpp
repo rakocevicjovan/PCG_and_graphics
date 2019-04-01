@@ -130,7 +130,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
@@ -143,7 +143,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
 	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBufferType);
+	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
 	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	variableBufferDesc.MiscFlags = 0;
@@ -239,8 +239,8 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
-	MatrixBufferType* dataPtr;
-	VariableBufferType* dataPtr3;
+	MatrixBuffer* dataPtr;
+	VariableBuffer* dataPtr3;
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
@@ -251,7 +251,7 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 	if (FAILED(result))
 		return false;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
+	dataPtr = (MatrixBuffer*)mappedResource.pData;
 
 	dataPtr->world = mT;
 	dataPtr->view = vT;
@@ -264,16 +264,13 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 
 
 	//VARIABLE BUFFER
-	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
+	
+	if (FAILED(result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
-	dataPtr3 = (VariableBufferType*)mappedResource.pData;
+	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
-
 	deviceContext->Unmap(m_variableBuffer, 0);
-
 	bufferNumber = 1;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
 	//END VARIABLE BUFFER

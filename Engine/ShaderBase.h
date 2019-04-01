@@ -42,5 +42,7 @@ public:
 	ID3D11Buffer* _matrixBuffer;
 	ID3D11Buffer* _variableBuffer;
 	ID3D11Buffer* _lightBuffer;
+
+	RenderFormat renderFormat;
 };
 

@@ -136,7 +136,7 @@ bool ShaderWater::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
@@ -257,7 +257,7 @@ bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
-	MatrixBufferType* dataPtr;
+	MatrixBuffer* dataPtr;
 	LightBufferType* dataPtr2;
 
 	timeElapsed += deltaTime;
@@ -273,7 +273,7 @@ bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext,
 	if (FAILED(result))
 		return false;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+	dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 
 	// Copy the matrices into the constant buffer.
 	dataPtr->world = mT;

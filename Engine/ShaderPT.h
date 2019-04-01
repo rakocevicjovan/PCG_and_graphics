@@ -10,10 +10,12 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "ShaderDataStructs.h"
 
 class Model;
 
-class ShaderPT{
+class ShaderPT
+{
 
 public:
 	ShaderPT();
@@ -75,5 +77,6 @@ private:
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 
+	RenderFormat renderFormat;
 };
 

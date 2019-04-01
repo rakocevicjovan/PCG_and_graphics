@@ -10,21 +10,12 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "ShaderDataStructs.h"
 
 class Model;
-class ShaderSkybox {
 
-	struct MatrixBufferType {
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-
-	struct VariableBufferType {
-		float deltaTime;
-		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
-	};
-
+class ShaderSkybox
+{
 
 public:
 	ShaderSkybox();
@@ -39,6 +30,7 @@ public:
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
 
 	ID3D11SamplerState* m_sampleState;
+	RenderFormat renderFormat;
 
 private:
 

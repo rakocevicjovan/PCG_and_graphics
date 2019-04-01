@@ -10,6 +10,7 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "ShaderDataStructs.h"
 
 class Model;
 
@@ -42,4 +43,6 @@ public:
 private:
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 	std::vector<std::wstring> filePaths;
+
+	RenderFormat renderFormat;
 };

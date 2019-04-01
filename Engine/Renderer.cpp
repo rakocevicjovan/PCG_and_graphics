@@ -8,10 +8,21 @@ Renderer::Renderer()
 }
 
 
-Renderer::~Renderer() {}
 
-#define RES _resMan._level1
+Renderer::~Renderer()
+{
+
+}
+
+
+
+#define EARTH _resMan._level1
+#define FIRE  _resMan._level2
+#define WATER _resMan._level3
+#define AIR   _resMan._level4
 #define EYE_POS _cam.GetCameraMatrix().Translation()
+
+
 
 bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
 {
@@ -28,8 +39,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_device = _D3D->GetDevice();
 	_deviceContext = _D3D->GetDeviceContext();
 
-
-
 	_inMan = &inMan;
 
 	_colEngine.init(_device, _deviceContext);
@@ -37,15 +46,10 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	shMan.init(_device, hwnd);
 	_resMan.init(_device);
 
-	RES.pSys.setShader(&shMan.shaderBase);
-
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
-	RES.maze.Init(10, 10, 32.f);
-	RES.maze.CreateModel(_device);
-
-	_colEngine.registerModel(&(RES.maze.model), BVT_AABB);
+	_colEngine.registerModel(&(EARTH.maze.model), BVT_AABB);
 
 	///CAMERA INITIALISATION
 	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
@@ -55,6 +59,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_cam._controller = &_controller;
 
 	_colEngine.registerController(_controller);	//works both ways
+
+	_currentLevel = &_resMan._level1;
 
 	return true;
 }
@@ -68,7 +74,7 @@ bool Renderer::Frame(float dTime)
 	if (!_controller.isFlying())
 	{
 		SVec3 oldPos = EYE_POS;
-		float newHeight = RES.proceduralTerrain.getHeightAtPosition(EYE_POS);
+		float newHeight = EARTH.proceduralTerrain.getHeightAtPosition(EYE_POS);
 		SMatrix newMat = _cam.GetCameraMatrix();
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
 		_cam.SetCameraMatrix(newMat);
@@ -76,7 +82,7 @@ bool Renderer::Frame(float dTime)
 
 	_cam.update(dTime);
 
-	Math::SetTranslation(RES.modSkybox.transform, _cam.GetCameraMatrix().Translation());
+	Math::SetTranslation(EARTH.skybox.transform, _cam.GetCameraMatrix().Translation());
 
 	OutputFPS(dTime);
 
@@ -87,75 +93,14 @@ bool Renderer::Frame(float dTime)
 
 bool Renderer::RenderFrame(float dTime)
 {
-	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, dTime };	//wind direction, wind velocity multiplier and delta time
-	RES.pSys.updateStdFunc(&pud);
+	rc.cam = &_cam;
+	rc.d3d = _D3D;
+	rc.dTime = dTime;
+	rc.elapsed = elapsed;
+	rc.shMan = &shMan;
 
-	_deviceContext->RSSetViewports(1, &_D3D->viewport);	//use default viewport for output dimensions
-	_D3D->SetBackBufferRenderTarget();					//set default screen buffer as output target
-	_D3D->BeginScene(clearColour);						//clear colour and depth buffer
+	_currentLevel->draw(rc);
 
-	///RENDERING OLD TERRAIN 
-	/*
-	for (auto tm : _terrainModels) {
-		shaderShadow.SetShaderParameters(_deviceContext, *tm, _cam.GetViewMatrix(), offScreenTexture._view, _cam.GetProjectionMatrix(),
-			offScreenTexture._lens, pointLight, _cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
-		tm->Draw(_deviceContext, shaderShadow);
-		shaderShadow.ReleaseShaderParameters(_deviceContext);
-	}
-	*/
-
-	_D3D->TurnOffCulling();
-	_D3D->SwitchDepthToLessEquals();
-
-	shMan.shaderSkybox.SetShaderParameters(_deviceContext, RES.modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		_cam.GetCameraMatrix().Translation(), dTime, RES.skyboxCubeMapper.cm_srv);
-	RES.modSkybox.Draw(_deviceContext, shMan.shaderSkybox);
-	shMan.shaderSkybox.ReleaseShaderParameters(_deviceContext);
-
-	_D3D->SwitchDepthToDefault();
-	_D3D->TurnOnCulling();
-
-	if (RES.isTerGenerated) 
-	{
-
-		RES.proceduralTerrain.Draw(_deviceContext, shMan.shaderTerrain,
-			SMatrix(), _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-			RES.pointLight, elapsed, _cam.GetCameraMatrix().Translation());
-
-		shMan.shaderTree.SetShaderParameters(_deviceContext, RES.treeModel.transform,
-			_cam, RES.pointLight, elapsed);
-		RES.treeModel.Draw(_deviceContext, shMan.shaderLight);
-		shMan.shaderLight.ReleaseShaderParameters(_deviceContext);
-		
-	}
-
-	shMan.shaderMaze.SetShaderParameters(_deviceContext, RES.maze.model, _cam, RES.pointLight, elapsed, RES.mazeDiffuseMap, RES.mazeNormalMap);
-	RES.maze.model.Draw(_deviceContext, shMan.shaderMaze);
-	shMan.shaderMaze.ReleaseShaderParameters(_deviceContext);
-
-	/*
- 	std::vector<InstanceData> instanceData(100);
-
-	for (int i = 0; i < instanceData.size(); ++i)
-		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
-
-	shMan.shaderInstanced.UpdateInstanceData(instanceData);
-	shMan.shaderInstanced.SetShaderParameters(&shMan.spl);
-	RES.modBall.Draw(_deviceContext, shMan.shaderInstanced);
-	shMan.shaderInstanced.ReleaseShaderParameters(_deviceContext);
-	*/
-
-	_D3D->TurnOnAlphaBlending();
-
-	//shMan.shVolumFire.SetShaderParameters(_deviceContext, RES.will, _cam, elapsed);
-	//RES.will.Draw(_deviceContext, shMan.shVolumFire);
-
-	shMan.shVolumAir.SetShaderParameters(_deviceContext, RES.will, _cam, elapsed);
-	RES.will.Draw(_deviceContext, shMan.shVolumAir);
-
-	_D3D->TurnOffAlphaBlending();
-
-	_D3D->EndScene();
 	return true;
 }
 
@@ -186,7 +131,7 @@ void Renderer::OutputFPS(float dTime)
 void Renderer::ProcessSpecialInput() 
 {
 	if (_inMan->IsKeyDown(VK_SPACE))
-		RES.procGen(_device);
+		EARTH.procGen(_device);
 
 	if(_inMan->IsKeyDown((short)'F'))
 		_controller.toggleFly();
@@ -291,8 +236,6 @@ _D3D->TurnOffAlphaBlending();
 ///RENDERING WIREFRAME DONE
 
 
-
-
 ///RENDERING REFLECTION SPHERE/*
 shaderCM.SetShaderParameters(_deviceContext, modBall, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(), dirLight,
 	_cam.GetCameraMatrix().Translation(), dTime, cubeMapper.cm_srv);
@@ -301,26 +244,13 @@ shaderCM.ReleaseShaderParameters(_deviceContext);
 ///RENDERING REFLECTION SPHERE DONE
 
 
-
-///RENDERING SKYBOX
-_D3D->TurnOffCulling();
-_D3D->SwitchDepthToLessEquals();
-shaderSkybox.SetShaderParameters(_deviceContext, modSkybox, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-	_cam.GetCameraMatrix().Translation(), dTime, skyboxCubeMapper.cm_srv);
-modSkybox.Draw(_deviceContext, shaderSkybox);
-shaderSkybox.ReleaseShaderParameters(_deviceContext);
-_D3D->SwitchDepthToDefault();
-_D3D->TurnOnCulling();
-///RENDERING SKYBOX DONE
-
-
-_D3D->TurnOnAlphaBlending();
-
-
-
-
-
-_D3D->TurnOffAlphaBlending();
+///RENDERING OLD TERRAIN
+for (auto tm : _terrainModels) {
+	shaderShadow.SetShaderParameters(_deviceContext, *tm, _cam.GetViewMatrix(), offScreenTexture._view, _cam.GetProjectionMatrix(),
+		offScreenTexture._lens, pointLight, _cam.GetCameraMatrix().Translation(), offScreenTexture.srv);
+	tm->Draw(_deviceContext, shaderShadow);
+	shaderShadow.ReleaseShaderParameters(_deviceContext);
+}
 
 */
 

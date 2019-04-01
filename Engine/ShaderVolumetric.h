@@ -5,6 +5,7 @@
 
 #include "ShaderBase.h"
 #include "Camera.h"
+#include "ShaderDataStructs.h"
 
 class Model;
 

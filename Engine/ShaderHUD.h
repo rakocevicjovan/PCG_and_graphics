@@ -10,10 +10,12 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "ShaderDataStructs.h"
 
 class Mesh;
 
-class ShaderHUD{
+class ShaderHUD
+{
 public:
 	ShaderHUD();
 	~ShaderHUD();
@@ -29,6 +31,8 @@ public:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11SamplerState* m_sampleState;
+	RenderFormat renderFormat;
+
 private:
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 	std::vector<std::wstring> filePaths;

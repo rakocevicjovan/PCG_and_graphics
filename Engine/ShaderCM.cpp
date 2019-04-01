@@ -140,7 +140,7 @@ bool ShaderCM::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
@@ -154,7 +154,7 @@ bool ShaderCM::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
 	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBufferType);
+	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
 	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	variableBufferDesc.MiscFlags = 0;
@@ -170,7 +170,7 @@ bool ShaderCM::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBufferType);
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
 	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	lightBufferDesc.MiscFlags = 0;
@@ -272,9 +272,9 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
-	MatrixBufferType* dataPtr;
-	LightBufferType* dataPtr2;
-	VariableBufferType* dataPtr3;
+	MatrixBuffer* dataPtr;
+	LightBuffer* dataPtr2;
+	VariableBuffer* dataPtr3;
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = v.Transpose();
@@ -285,7 +285,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	if (FAILED(result))
 		return false;
 
-	dataPtr = (MatrixBufferType*)mappedResource.pData;
+	dataPtr = (MatrixBuffer*)mappedResource.pData;
 
 	dataPtr->world = mT;
 	dataPtr->view = vT;
@@ -302,7 +302,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	if (FAILED(result))
 		return false;
 
-	dataPtr3 = (VariableBufferType*)mappedResource.pData;
+	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
 
@@ -321,7 +321,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	}
 
 	// Get a pointer to the data in the constant buffer.
-	dataPtr2 = (LightBufferType*)mappedResource.pData;
+	dataPtr2 = (LightBuffer*)mappedResource.pData;
 
 	// Copy the lighting variables into the constant buffer.
 	dataPtr2->alc = dLight.alc;
@@ -330,7 +330,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	dataPtr2->dli = dLight.dli;
 	dataPtr2->slc = dLight.slc;
 	dataPtr2->sli = dLight.sli;
-	dataPtr2->dir = dLight.dir;
+	dataPtr2->pos = dLight.dir;	//actually direction but uses the same struct for convenience
 	dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 
 	// Unlock the constant buffer.

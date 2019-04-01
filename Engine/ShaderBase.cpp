@@ -150,7 +150,6 @@ void ShaderBase::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, W
 
 bool ShaderBase::SetShaderParameters(SPBase* spb)
 {
-	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBuffer* dataPtr;
@@ -164,8 +163,7 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	SMatrix pT = spl.proj->Transpose();
 
 	// Lock the constant matrix buffer so it can be written to.
-	result = spl.deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
+	if (FAILED(spl.deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 
 	dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.

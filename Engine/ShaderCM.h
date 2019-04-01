@@ -10,36 +10,11 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "ShaderDataStructs.h"
 
 class Model;
+
 class ShaderCM {
-
-	struct MatrixBufferType {
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-
-	struct VariableBufferType {
-		float deltaTime;
-		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
-	};
-
-	struct LightBufferType {
-
-		SVec3 alc;
-		float ali;
-
-		SVec3  dlc;
-		float dli;
-
-		SVec3 slc;
-		float sli;
-
-		SVec4 dir;
-
-		SVec4 ePos;
-	};
 
 
 public:
@@ -68,4 +43,6 @@ private:
 	std::vector<std::wstring> filePaths;
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
+
+	RenderFormat renderFormat;
 };

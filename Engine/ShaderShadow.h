@@ -18,11 +18,8 @@ class Model;
 class ShaderShadow : public ShaderBase 
 {
 protected:
-
 	ID3D11Buffer* _lightBuffer2;
-
 	std::vector<std::wstring> filePaths;
-
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 
 public:
@@ -34,5 +31,6 @@ public:
 		const SMatrix& p, const SMatrix& p2, const PointLight& dLight, const SVec3& eyePos, ID3D11ShaderResourceView* projectionTexture);
 
 	ID3D11SamplerState *_sampleStateClamp;
+	RenderFormat renderFormat;
 };
 

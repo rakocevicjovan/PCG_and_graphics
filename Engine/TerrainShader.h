@@ -1,12 +1,11 @@
 #include "ShaderBase.h"
 #include "Biome.h"
+#include "ShaderDataStructs.h"
 
 class Camera;
 
 class TerrainShader : public ShaderBase
 {
-	
-
 public:
 	TerrainShader();
 	~TerrainShader();

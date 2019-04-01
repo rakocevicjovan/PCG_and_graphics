@@ -1,6 +1,5 @@
 #include "ResourceManager.h"
-
-
+#include "D3D.h"
 
 ResourceManager::ResourceManager()
 {
@@ -17,46 +16,30 @@ void ResourceManager::init(ID3D11Device* device)
 {
 	_device = device;
 	_level1.init(device);
+	//_level3.init(device);
 }
 
 
 void EarthLevel::init(ID3D11Device* device)
 {
+	/*
 	modStrife.LoadModel(device, "../Models/WaterQuad.fbx");
 	Math::Scale(modStrife.transform, SVec3(15.0f));
 	Math::RotateMatByMat(modStrife.transform, SMatrix::CreateFromAxisAngle(SVec3::Right, PI));
 	Math::Translate(modStrife.transform, SVec3(-200.f, 200.0f, -200.0f));
 
-	modSkybox.LoadModel(device, "../Models/Skysphere.fbx");
-	Math::Scale(modSkybox.transform, SVec3(10.0f));
 	modWaterQuad.LoadModel(device, "../Models/WaterQuad.fbx");
+	*/
 
+	skybox.LoadModel(device, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+	
 	will.LoadModel(device, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(5.f));
 	Math::Translate(will.transform, SVec3(2, 35, 60));
 
-	modBall.LoadModel(device, "../Models/ball.fbx");
-
-
-	///LIGHT DATA, SHADOW MAP AND UI INITIALISATION
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
-
 	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
-
-
-	SVec3 lookAtPoint = SVec3(0.f, 100.0f, 0.0f);
-	SVec3 LVDIR = lookAtPoint - SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z);
-	LVDIR.Normalize();
-	SVec3 LVR = LVDIR.Cross(SVec3::Up);
-	LVR.Normalize();
-	SVec3 LVUP = LVR.Cross(LVDIR);
-	LVUP.Normalize();
-
-	dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
-
-	offScreenTexture.Init(device, ostW, ostH);
-	offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
-	offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
 
 	postProcessTexture.Init(device, ostW, ostH);
 
@@ -94,17 +77,13 @@ void EarthLevel::init(ID3D11Device* device)
 	};
 
 	pSys.setUpdateFunction(particleUpdFunc1);
+	//shader needs to be set for the particle system somehow as well...
 
-	cubeMapper.Init(device);
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+	maze.Init(10, 10, 32.f);
+	maze.CreateModel(device);
 }
 
 
-
-void EarthLevel::draw(ID3D11DeviceContext* deviceContext)
-{
-
-}
 
 void EarthLevel::procGen(ID3D11Device* device)
 {
@@ -186,6 +165,125 @@ void EarthLevel::procGen(ID3D11Device* device)
 
 
 
+void EarthLevel::draw(RenderContext rc)
+{
+#define dc rc.d3d->GetDeviceContext()
+	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
+	pSys.updateStdFunc(&pud);
+
+	dc->RSSetViewports(1, &rc.d3d->viewport);	//use default viewport for output dimensions
+	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
+	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
+
+	rc.d3d->TurnOffCulling();
+	rc.d3d->SwitchDepthToLessEquals();
+
+	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), rc.cam->GetCameraMatrix().Translation(), rc.dTime, skyboxCubeMapper.cm_srv);
+	skybox.Draw(dc, rc.shMan->shaderSkybox);
+	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
+
+	rc.d3d->SwitchDepthToDefault();
+	rc.d3d->TurnOnCulling();
+
+	if (isTerGenerated)
+	{
+		proceduralTerrain.Draw(dc, rc.shMan->shaderTerrain,
+			SMatrix(), rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
+			pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
+
+		rc.shMan->shaderTree.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
+		treeModel.Draw(dc, rc.shMan->shaderLight);
+		rc.shMan->shaderLight.ReleaseShaderParameters(dc);
+	}
+
+	rc.shMan->shaderMaze.SetShaderParameters(dc, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
+	maze.model.Draw(dc, rc.shMan->shaderMaze);
+	rc.shMan->shaderMaze.ReleaseShaderParameters(dc);
+
+	/*
+	std::vector<InstanceData> instanceData(100);
+
+	for (int i = 0; i < instanceData.size(); ++i)
+		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
+
+	rc.shMan->shaderInstanced.UpdateInstanceData(instanceData);
+	rc.shMan->shaderInstanced.SetShaderParameters(&rc.shMan->spl);
+	RES.modBall.Draw(deviceContext, rc.shMan->shaderInstanced);
+	rc.shMan->shaderInstanced.ReleaseShaderParameters(deviceContext);
+	*/
+
+	rc.d3d->TurnOnAlphaBlending();
+
+	//rc.shMan->shVolumFire.SetShaderParameters(deviceContext, RES.will, _cam, rc.elapsed);
+	//RES.will.Draw(deviceContext, rc.shMan->shVolumFire);
+
+	rc.shMan->shVolumAir.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
+	will.Draw(dc, rc.shMan->shVolumAir);
+
+	rc.d3d->TurnOffAlphaBlending();
+
+	rc.d3d->EndScene();
+#undef dc
+}
+
+
+
+void WaterLevel::init(ID3D11Device* device)
+{
+	skybox.LoadModel(device, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+
+	will.LoadModel(device, "../Models/ball.fbx");
+	Math::Scale(will.transform, SVec3(5.f));
+	Math::Translate(will.transform, SVec3(2, 35, 60));
+
+	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
+	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));
+
+	Procedural::Terrain valley = Procedural::Terrain(256, 256, SVec3(1.f, 50.f, 1.f));
+
+
+	terrainsMap.insert(std::map<std::string, Procedural::Terrain>::value_type("valley", valley));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #pragma region OldLevel
 /*OLD LEVEL
@@ -219,6 +317,7 @@ perlinTex.LoadFromFile("../Textures/strife.png");
 perlinTex.Setup(device);
 worley.LoadFromFile("../Textures/worley.png");
 worley.Setup(device);
+
 */
 
 #pragma endregion OldLevel
@@ -253,19 +352,39 @@ audio.init();
 audio.storeSequence(notes);
 
 	///RENDERING WATER
-	shaderWater.SetShaderParameters(_deviceContext, modDepths, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv);
-	modDepths.Draw(_deviceContext, shaderWater);
-	shaderWater.ReleaseShaderParameters(_deviceContext);
+	shaderWater.SetShaderParameters(deviceContext, modDepths, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
+		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.srv);
+	modDepths.Draw(deviceContext, shaderWater);
+	shaderWater.ReleaseShaderParameters(deviceContext);
 
 	
 	///RENDERING CLOUD
-	shaderStrife.SetShaderParameters(_deviceContext, modStrife, _cam.GetViewMatrix(), _cam.GetProjectionMatrix(),
-		dirLight, _cam.GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
-	modStrife.Draw(_deviceContext, shaderStrife);
-	shaderStrife.ReleaseShaderParameters(_deviceContext);
+	shaderStrife.SetShaderParameters(deviceContext, modStrife, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
+		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
+	modStrife.Draw(deviceContext, shaderStrife);
+	shaderStrife.ReleaseShaderParameters(deviceContext);
 	
 	///RENDERING UI 
-	//_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
+	//_rekt->draw(deviceContext, shaderHUD, offScreenTexture.srv);
 */
 #pragma endregion Audio
+
+#pragma region shadowMatrix
+
+/*
+SVec3 lookAtPoint = SVec3(0.f, 100.0f, 0.0f);
+SVec3 LVDIR = lookAtPoint - SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z);
+LVDIR.Normalize();
+SVec3 LVR = LVDIR.Cross(SVec3::Up);
+LVR.Normalize();
+SVec3 LVUP = LVR.Cross(LVDIR);
+LVUP.Normalize();
+
+dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
+
+offScreenTexture.Init(device, ostW, ostH);
+offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
+offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
+*/
+
+#pragma endregion shadowMatrix

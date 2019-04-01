@@ -1,28 +1,21 @@
 #pragma once
-#include "Math.h"
 #include <d3d11.h>
 #include <vector>
+#include "ShaderDataStructs.h"
 
 class Model;
 
-class ShaderDepth{
-
-	struct MatrixBufferType{
-		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
-	};
-
-
+class ShaderDepth
+{
 public:
 	ShaderDepth();
 	~ShaderDepth();
-
 
 bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring>);
 bool SetShaderParameters(ID3D11DeviceContext*, Model&, const SMatrix&, const SMatrix&);
 void ShaderDepth::ShutdownShader();
 
+RenderFormat renderFormat;
 private:
 	bool InitializeShader(ID3D11Device*, HWND);
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
