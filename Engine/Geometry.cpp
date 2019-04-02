@@ -5,8 +5,6 @@
 
 namespace Procedural
 {
-
-
 	Geometry::Geometry()
 	{
 	}
@@ -36,7 +34,6 @@ namespace Procedural
 		SVec2 duv1, duv2;
 
 		//Find first texture coordinate edge 2d vector
-
 		edge1 = positions[ind0] - positions[ind2];
 		edge2 = positions[ind2] - positions[ind1];
 
@@ -96,11 +93,7 @@ namespace Procedural
 
 		tangents.resize(positions.size());
 		for (int i = 0; i < tangents.size(); ++i)
-		{
 			tangents[i] = indexTangentMap[i];
-		}
-
-
 	}
 
 
@@ -146,9 +139,7 @@ namespace Procedural
 		indices.reserve(2 * oldSize + subdivs * 6);
 		
 		for(int i = 0 ; i < oldSize; ++i)
-		{
 			indices.push_back(indices[i] + oldVertCount);
-		}
 		
 		for (int i = 1; i < oldVertCount; ++i)
 		{
@@ -249,6 +240,8 @@ namespace Procedural
 
 	}
 
+
+
 	void Geometry::GenSphere(float radius)
 	{
 		std::vector<DirectX::VertexPositionNormalTexture> verts;
@@ -259,19 +252,70 @@ namespace Procedural
 		normals.reserve(verts.size());
 		texCoords.reserve(verts.size());
 		tangents.reserve(verts.size());
+
 		for (auto v : verts)
 		{
 			positions.emplace_back(v.position);
 			normals.emplace_back(v.normal);
 			texCoords.emplace_back(v.textureCoordinate);
-			//not correct at all but it does not matter! they don't show
-			tangents.emplace_back(normals.back().Cross(SVec3(v.textureCoordinate.x, 0.f, v.textureCoordinate.y)));	
+			tangents.emplace_back(normals.back().Cross(SVec3(v.textureCoordinate.x, 0.f, v.textureCoordinate.y)));	//not correct at all but it does not matter! they don't show
 		}
 			
 		indices.reserve(inds.size());
 		for (auto i : inds)
 			indices.emplace_back(i);
 	}
+
+
+
+	void Geometry::genHexaprism(float radius, float thiccness)
+	{
+		float height = thiccness * .5f;
+		SMatrix rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);
+		SVec3 point(0, height, 1);
+
+		positions.reserve(14);
+		normals.reserve(14);
+		texCoords.reserve(14);
+		tangents.reserve(14);
+
+		indices.reserve(72);	//6 faces up, 6 faces down, 12 faces around -> 24 faces, 3 indices each, 72 faces
+
+		//first vertex
+		positions.emplace_back(0, height, 0);
+		normals.emplace_back(0, 1, 0);
+		texCoords.emplace_back(0, 0);
+		tangents.emplace_back(0, 0, 1);
+
+		for (unsigned int i = 0; i < 6; ++i)
+		{
+			Math::RotateVecByMat(point, rot);
+			positions.emplace_back(point);
+			normals.emplace_back(Math::getNormalizedVec3(point));
+			texCoords.emplace_back(point.x, point.z);
+			indices.insert(indices.end(), {i + 1, i + 2, 0});
+			tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));	//cross normal with flipped xz normal pointing inwards
+		}
+		indices.back() = 1;	//close the hexagon
+
+		//8th vertex
+		positions.emplace_back(0, -height, 0);
+		normals.emplace_back(0, -1, 0);
+		texCoords.emplace_back(0, 0);
+		tangents.emplace_back(0, 0, -1);
+
+		for (unsigned int i = 1; i < 7; ++i)
+		{
+			positions.emplace_back(positions[i].x, -positions[i].y, positions[i].z);
+			normals.emplace_back(normals[i].x, -normals[i].y, normals[i].z);
+			texCoords.emplace_back(point.x, point.z + 1.f);
+			indices.insert(indices.end(), { i + 8, i + 9, 7 });
+			tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));
+		}
+		indices.back() = 7;	//close the hexagon
+	}
+
+
 
 	void Geometry::Clear()
 	{
@@ -280,5 +324,4 @@ namespace Procedural
 		indices.clear();
 		tangents.clear();
 	}
-
 }

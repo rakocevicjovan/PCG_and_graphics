@@ -203,7 +203,6 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	// Lock the constant matrix buffer so it can be written to.
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
 	dataPtr->view = vT;
@@ -215,7 +214,6 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	//VARIABLE BUFFER
 	if (FAILED(deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();

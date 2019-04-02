@@ -26,6 +26,7 @@ namespace Procedural
 		void GenHelix(float angle, float length, float width, unsigned int subdivs, float xScale = 1.f, float zScale = 1.f);
 		void GenTube(float radius, float height, UINT subdivsRadial, UINT rows, float minRadiusPerc = 1.f);
 		void GenSphere(float radius);
+		void genHexaprism(float radius, float thiccness);
 		void Clear();
 	};
 }

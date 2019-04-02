@@ -92,8 +92,6 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> terrainNames = { L"mazefloorVS.hlsl", L"terrainPS.hlsl" };
 	shaderTerrain.Initialize(_device, hwnd, terrainNames, extendedLayout, sbSamplerDesc);
 
-
-
 	//with clamp
 	sbSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sbSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
