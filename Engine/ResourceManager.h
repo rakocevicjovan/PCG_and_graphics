@@ -93,7 +93,7 @@ public:
 	void init(ID3D11Device* device);
 	void procGen(ID3D11Device* device);
 	void draw(const RenderContext& rc);
-	void demolish() {};
+	void demolish() { this->~EarthLevel(); };
 };
 
 
@@ -108,7 +108,7 @@ class FireLevel : public Level
 public:
 	void init(ID3D11Device* device);
 	void draw(const RenderContext& rc);
-	void demolish() {};
+	void demolish() { this->~FireLevel(); };
 };
 
 
@@ -117,14 +117,14 @@ class WaterLevel : public Level
 {
 public:
 	PointLight pointLight;
-	Model skybox;
-	CubeMapper skyboxCubeMapper;
+	Model skybox, modBall;
+	CubeMapper skyboxCubeMapper, cubeMapper;
 	Model will;
 	std::map<std::string, Procedural::Terrain> terrainsMap;
 
 	void init(ID3D11Device* device);
-	void draw(const RenderContext& rc) {};
-	void demolish() {};
+	void draw(const RenderContext& rc);
+	void demolish() { this->~WaterLevel(); };
 };
 
 
@@ -132,9 +132,9 @@ public:
 class AirLevel : public Level
 {
 public:
-	void init(ID3D11Device* device) {};
-	void draw(const RenderContext& rc) {};
-	void demolish() {};
+	void init(ID3D11Device* device);
+	void draw(const RenderContext& rc);
+	void demolish() { this->~AirLevel(); };
 };
 
 

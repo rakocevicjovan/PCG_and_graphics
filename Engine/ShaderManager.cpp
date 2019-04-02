@@ -67,14 +67,14 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	shaderWater.Initialize(_device, hwnd, waterNames);
 
 	//4 sprites, uncomment upon implementing
-	//std::vector<std::wstring> vEarthNames = { L"volumVS.hlsl", L"volumEarthPS.hlsl" };
-	//shVolumEarth.Initialize(_device, hwnd, vEarthNames, sbLayout, sbSamplerDesc);
+	std::vector<std::wstring> vEarthNames = { L"volumVS.hlsl", L"volumEarthPS.hlsl" };
+	shVolumEarth.Initialize(_device, hwnd, vEarthNames, sbLayout, sbSamplerDesc);
 	
 	std::vector<std::wstring> vFireNames = { L"volumVS.hlsl", L"volumFirePS.hlsl" };
 	shVolumFire.Initialize(_device, hwnd, vFireNames, sbLayout, sbSamplerDesc);
 
-	//std::vector<std::wstring> vWaterNames = { L"volumVS.hlsl", L"volumWaterPS.hlsl" };
-	//shVolumWater.Initialize(_device, hwnd, vWaterNames, sbLayout, sbSamplerDesc);
+	std::vector<std::wstring> vWaterNames = { L"volumVS.hlsl", L"volumWaterPS.hlsl" };
+	shVolumWater.Initialize(_device, hwnd, vWaterNames, sbLayout, sbSamplerDesc);
 
 	std::vector<std::wstring> vAirNames = { L"volumVS.hlsl", L"volumAirPS.hlsl" };
 	shVolumAir.Initialize(_device, hwnd, vAirNames, sbLayout, sbSamplerDesc);

@@ -52,5 +52,4 @@ private:
 	float elapsed = 0.f;
 
 	float sinceLastInput = 0.f;
-	
 };

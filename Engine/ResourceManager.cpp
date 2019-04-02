@@ -32,6 +32,9 @@ void ResourceManager::init(ID3D11Device* device)
 
 Level* ResourceManager::advanceLevel()
 {
+	if (_levels.size() <= 1)
+		return _levels[0]; 
+
 	_levels.front()->demolish();
 	_levels.erase(_levels.begin());
 	_levels[0]->init(_device);
@@ -141,7 +144,6 @@ void EarthLevel::draw(const RenderContext& rc)
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumAir.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
 	will.Draw(dc, rc.shMan->shVolumAir);
-
 	rc.d3d->TurnOffAlphaBlending();
 
 	rc.d3d->EndScene();
@@ -196,17 +198,68 @@ void WaterLevel::init(ID3D11Device* device)
 	Math::Translate(will.transform, SVec3(2, 35, 60));
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
-	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));
+	pointLight = PointLight(lightData, SVec4(0, 500.f, 0, 1.0f));
 
 	Procedural::Terrain valley = Procedural::Terrain(256, 256, SVec3(1.f, 50.f, 1.f));
-
 
 	terrainsMap.insert(std::map<std::string, Procedural::Terrain>::value_type("valley", valley));
 }
 
 
 
+void WaterLevel::draw(const RenderContext& rc)
+{
+	dc->RSSetViewports(1, &(cubeMapper.cm_viewport));
+	cubeMapper.UpdateCams(modBall.transform.Translation());
+
+	SMatrix wot = DirectX::XMMatrixInverse(nullptr, cubeMapper.cameras[0]);
+	Math::SetTranslation(skybox.transform, wot.Translation());
+	for (int i = 0; i < 6; i++) {
+
+		dc->ClearRenderTargetView(cubeMapper.cm_rtv[i], cubeMapper.clearCol);
+		dc->ClearDepthStencilView(cubeMapper.cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		dc->OMSetRenderTargets(1, &cubeMapper.cm_rtv[i], cubeMapper.cm_depthStencilView);
+
+		rc.d3d->TurnOffCulling();
+		rc.d3d->SwitchDepthToLessEquals();
+
+		rc.shMan->shaderSkybox.SetShaderParameters(dc, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
+		skybox.Draw(dc, rc.shMan->shaderSkybox);
+		rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
+
+		rc.d3d->SwitchDepthToDefault();
+		rc.d3d->TurnOnCulling();
+	}
+
+	///RENDERING REFLECTION SPHERE/*
+	rc.shMan->shaderCM.SetShaderParameters(dc, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
+	modBall.Draw(dc, rc.shMan->shaderCM);
+	rc.shMan->shaderCM.ReleaseShaderParameters(dc);
+
+	rc.d3d->TurnOnAlphaBlending();
+	rc.shMan->shVolumAir.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
+	will.Draw(dc, rc.shMan->shVolumAir);
+	rc.d3d->TurnOffAlphaBlending();
+}
+
+
+
+void AirLevel::init(ID3D11Device* device)
+{
+
+}
+
+
+
+void AirLevel::draw(const RenderContext& rc)
+{
+
+}
+
 #undef dc
+
+
+
 
 
 ///TREE RENDERING

@@ -22,9 +22,8 @@ bool ShaderSkybox::Initialize(ID3D11Device* device, HWND hwnd, const std::vector
 }
 
 
-bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
-
-	HRESULT result;
+bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd)
+{
 	ID3D10Blob* errorMessage = nullptr;
 
 	//these store the shaders while they are being processed and are released after compilation... I think...
@@ -39,10 +38,8 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	D3D11_BUFFER_DESC variableBufferDesc;
 
 	// Compile the vertex shader code.
-	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "CMVS", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&vertexShaderBuffer, &errorMessage);
 
-	if (FAILED(result)) {
+	if (FAILED(D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "CMVS", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage))) {
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
 		else
@@ -51,10 +48,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 		return false;
 	}
 
-	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "CMFS", "ps_5_0",
-		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
-
-	if (FAILED(result)) {
+	if (FAILED(D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "CMFS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage))) {
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()));
 		else
@@ -64,13 +58,11 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	}
 
 	// Create the vertex shader from the buffer.
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-	if (FAILED(result))
+	if (FAILED(device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader)))
 		return false;
 
 	// Create the pixel shader from the buffer.
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-	if (FAILED(result))
+	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
 		return false;
 
 	polygonLayout[0].SemanticName = "POSITION";
@@ -101,11 +93,8 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	// Create the vertex input layout.
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
-		&m_layout);
-	if (FAILED(result)) {
+	if (FAILED(device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout)))
 		return false;
-	}
 
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
 	vertexShaderBuffer->Release();
@@ -125,8 +114,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	// Create the texture sampler state.
-	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if (FAILED(result))
+	if (FAILED(device->CreateSamplerState(&samplerDesc, &m_sampleState)))
 		return false;
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
@@ -138,8 +126,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	matrixBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if (FAILED(result))
+	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer)))
 		return false;
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
@@ -151,8 +138,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	variableBufferDesc.StructureByteStride = 0;
 
 	// Create the variable constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&variableBufferDesc, NULL, &m_variableBuffer);
-	if (FAILED(result))
+	if (FAILED(device->CreateBuffer(&variableBufferDesc, NULL, &m_variableBuffer)))
 		return false;
 
 	return true;
@@ -161,42 +147,12 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 void ShaderSkybox::ShutdownShader()
 {
-
-	// Release the variable constant buffer.
-	if (m_variableBuffer) {
-		m_variableBuffer->Release();
-		m_variableBuffer = 0;
-	}
-	// Release the matrix constant buffer.
-	if (m_matrixBuffer) {
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
-	}
-
-	// Release the sampler state.
-	if (m_sampleState) {
-		m_sampleState->Release();
-		m_sampleState = 0;
-	}
-
-	// Release the layout.
-	if (m_layout) {
-		m_layout->Release();
-		m_layout = 0;
-	}
-
-	// Release the pixel shader.
-	if (m_pixelShader) {
-		m_pixelShader->Release();
-		m_pixelShader = 0;
-	}
-
-	// Release the vertex shader.
-	if (m_vertexShader) {
-		m_vertexShader->Release();
-		m_vertexShader = 0;
-	}
-
+	DECIMATE(m_variableBuffer);
+	DECIMATE(m_matrixBuffer);
+	DECIMATE(m_sampleState);
+	DECIMATE(m_layout);
+	DECIMATE(m_vertexShader);
+	DECIMATE(m_pixelShader);
 }
 
 
@@ -235,7 +191,6 @@ void ShaderSkybox::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 
 bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
 {
-
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
 	MatrixBuffer* dataPtr;
@@ -248,6 +203,7 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	// Lock the constant matrix buffer so it can be written to.
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
+
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
 	dataPtr->view = vT;
@@ -259,6 +215,7 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	//VARIABLE BUFFER
 	if (FAILED(deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
+
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
@@ -278,7 +235,8 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 
 
 
-bool ShaderSkybox::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+bool ShaderSkybox::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
+{
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }
