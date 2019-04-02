@@ -102,6 +102,7 @@
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="D3D.cpp" />
     <ClCompile Include="GameClock.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
     <ClCompile Include="LSystem.cpp" />
@@ -159,8 +160,10 @@
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="D3D.h" />
     <ClInclude Include="GameClock.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="InstancedShader.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />

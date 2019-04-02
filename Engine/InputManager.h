@@ -9,10 +9,6 @@ class InputManager{
 
 public:
 
-	struct DeltaCoords {
-
-	} xyDelta;
-
 	InputManager();
 	~InputManager();
 

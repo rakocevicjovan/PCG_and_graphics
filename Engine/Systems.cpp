@@ -9,52 +9,33 @@ Systems::~Systems(){
 }
 
 
-bool Systems::Initialize(){
+bool Systems::Initialize()
+{
+	screenWidth = screenHeight = 0;
 
-	bool result;
-
-	// Initialize the width and height of the screen to zero before sending the variables into the function.
-	screenWidth = 0;
-	screenHeight = 0;
-
-	// Initialize the windows api.
 	InitializeWindows(screenWidth, screenHeight);
 
-	// Create the input object.  This object will be used to handle reading the keyboard input from the user.
-
-	// Initialize the input object.
 	_input.Initialize();
 
-	// Create the graphics object.  This object will handle rendering all the graphics for this application.
 	_renderer = new Renderer;
-	if(!_renderer){
+	if(!_renderer)
 		return false;
-	}
 
-	// Initialize the graphics object.
-	result = _renderer->Initialize(windowWidth, windowHeight, m_hwnd, _input);
-	if(!result){
+	if(!_renderer->Initialize(windowWidth, windowHeight, m_hwnd, _input))
 		return false;
-	}
-
-	//_input.mouse->SetWindow(m_hwnd);
-	//_input.mouse->SetMode(DirectX::Mouse::Mode::MODE_RELATIVE);
-	//@TODO init audio
-
+	
 	return true;
 }
 
 
 
-void Systems::InitializeWindows(int& screenWidth, int& screenHeight){
-
+void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
+{
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
 	int posX, posY;
 
-
-	// Get an external pointer to this object.	
-	ApplicationHandle = this;
+	ApplicationHandle = this;	// Get an external pointer to this object.	
 
 	// Get the instance of this application.
 	m_hinstance = GetModuleHandle(NULL);
@@ -102,21 +83,15 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight){
 
 		// Set the position of the window to the top left corner.
 		posX = posY = 0;
-
-	}else{
-
+	}
+	else
+	{
 		windowWidth = 1600;
 		windowHeight = 900;
 
-		// Place the window in the middle of the screen.
 		posX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
 		posY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
 	}
-
-	//@TODO MIGHT NOT NEED THIS/////
-	midWindow.x = windowWidth / 2;
-	midWindow.y = windowHeight / 2;
-	////////////////////////////////
 
 	// Create the window with the screen settings and get the handle to it.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
@@ -146,18 +121,20 @@ void Systems::Run()
 	ZeroMemory(&msg, sizeof(MSG));
 	
 	// Loop until there is a quit message from the window or the user.
-	while(!done){
-		// Handle the windows messages.
-		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+	while(!done)
+	{
+		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
-		// If windows signals to end the application then exit out.
-		if(msg.message == WM_QUIT){
+		if(msg.message == WM_QUIT)
+		{
 			done = true;
 		}
-		else{
+		else
+		{
 			gc.Tick();
 			done = !Frame(gc.DeltaTime());	// Otherwise do the frame processing.
 		}
@@ -165,21 +142,15 @@ void Systems::Run()
 }
 
 
-bool Systems::Frame(float dTime){
+bool Systems::Frame(float dTime)
+{
+	bool res = _renderer->Frame(dTime);
 
-	// Check if the user pressed escape and wants to exit the application.
-	if(_input.IsKeyDown(VK_ESCAPE))
-		return false;
-
-	bool res = _renderer->Frame(dTime);// Do the frame processing for the graphics object.
-
-	//reset input so rotations don't keep happening
+	if (_input.IsKeyDown(VK_ESCAPE)) return false;
 	_input.SetXY(0, 0);
+
 	return res;
 }
-
-
-
 
 
 
@@ -192,66 +163,56 @@ void Systems::Shutdown()
 		delete _renderer;
 		_renderer = 0;
 	}
-
-	// Release the input object.
-	//no need, it's not a pointer any more
-
 	//@TODO this is where I'd delete my audio system... if I had one
 
-	// Shutdown the window.
 	ShutdownWindows();
-
-	return;
 }
 
 
 void Systems::ShutdownWindows()
 {
-	// Show the mouse cursor.
 	ShowCursor(true);
 
-	// Fix the display settings if leaving full screen mode.
-	if(FULL_SCREEN){
-		ChangeDisplaySettings(NULL, 0);
-	}
+	if(FULL_SCREEN) ChangeDisplaySettings(NULL, 0);
 
-	// Remove the window.
 	DestroyWindow(m_hwnd);
 	m_hwnd = NULL;
 
-	// Remove the application instance.
 	UnregisterClass(m_applicationName, m_hinstance);
 	m_hinstance = NULL;
 
-	// Release the pointer to this class.
 	ApplicationHandle = NULL;
-
-	return;
 }
 
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam){
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
+{
 	switch(umessage){
-		case WM_DESTROY:{
+		case WM_DESTROY:
+		{
 			PostQuitMessage(0);
 			return 0;
 		}
 
-		case WM_CLOSE:{
+		case WM_CLOSE:
+		{
 			PostQuitMessage(0);		
 			return 0;
 		}
 
-		default:{
+		default:
+		{
 			return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
 		}
 	}
 }
 
-LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
 
-	switch (umsg) {
 
+LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+{
+	switch (umsg)
+	{
 		case WM_KEYDOWN:
 		{
 			_input.KeyDown((unsigned int)wparam);
@@ -262,23 +223,14 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 			_input.KeyUp((unsigned int)wparam);
 			break;
 		}
-		/*
-		case WM_MOUSEMOVE:{
-			_input.SetXY(MAKEPOINTS(lparam).x, MAKEPOINTS(lparam).y);
-			//_input.mouse->ProcessMessage(umsg, wparam, lparam);
-			break;
-		}
-		*/
-
-		//DO NOT DELETE THIS CODE - IT WORKS AND MIGHT BE USEFUL
 		case WM_INPUT:
 		{
 			UINT dwSize;
 
 			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
 			
-			if (dwSize > 0) {
-
+			if (dwSize > 0)
+			{
 				LPBYTE lpb = new BYTE[dwSize];
 
 				if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
@@ -286,19 +238,20 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 
 				RAWINPUT* raw = (RAWINPUT*)lpb;
 
-				if (raw->header.dwType == RIM_TYPEMOUSE) {
+				if (raw->header.dwType == RIM_TYPEMOUSE)
+				{
 					_input.SetXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
-					//std::string wat = "RAW INPUT RECEIVED X:" + std::to_string(raw->data.mouse.lLastX) + "; Y: " + std::to_string(raw->data.mouse.lLastY) + "\n";
-					//OutputDebugStringA(wat.c_str());
 				}
 
 				delete[] lpb;
 			}		
 			break;
 		}
-		default: {
+		default:
+		{
 			return DefWindowProc(hwnd, umsg, wparam, lparam);
 		}
 	}
+
 	return 0;
 }

@@ -1,40 +1,6 @@
 #pragma once
-#include <d3d11.h>
-#include <vector>
-#include <map>
-#include <string>
 
-#include "Texture.h"
-#include "CubeMapper.h"
-#include "Model.h"
-#include "Light.h"
-#include "OST.h"
-#include "Audio.h"
-#include "ParticleSystem.h"
-
-//procedural
-#include "Terrain.h"
-#include "Perlin.h"
-#include "LSystem.h"
-#include "Voronoi.h"
-#include "Volumetric.h"
-#include "BitMapper.h"
-#include "Geometry.h"
-#include "Maze.h"
-
-class D3D;
-
-struct RenderContext
-{
-	D3D* d3d;
-	float dTime;
-	float elapsed;
-	ShaderManager* shMan;
-	Camera* cam;
-};
-
-
-
+/*
 class Level
 {
 public:
@@ -66,7 +32,7 @@ public:
 	//specific to the level
 	Texture mazeDiffuseMap, mazeNormalMap;
 
-	
+
 	//off-screen render targets
 	OST postProcessTexture;	//offScreenTexture
 	const unsigned int ostW = 1600, ostH = 900;
@@ -125,25 +91,4 @@ public:
 	void init(ID3D11Device* device) {};
 	void draw(RenderContext rc) {};
 };
-
-
-
-class ResourceManager
-{
-
-protected:
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
-
-public:
-	ResourceManager();
-	~ResourceManager();
-
-	OldLevel	_level0;
-	EarthLevel	_level1;
-	FireLevel	_level2;
-	WaterLevel	_level3;
-	AirLevel	_level4;
-
-	void init(ID3D11Device* device);	//should eventually work from a file
-};
+*/
