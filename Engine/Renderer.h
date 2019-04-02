@@ -23,7 +23,7 @@ public:
 	bool Initialize(int, int, HWND, InputManager& inMan);
 	bool Frame(float dTime);
 	void Shutdown();
-	void ProcessSpecialInput();
+	void ProcessSpecialInput(float dTime);
 
 private:
 
@@ -51,5 +51,6 @@ private:
 	bool drawUI;
 	float elapsed = 0.f;
 
+	float sinceLastInput = 0.f;
 	
 };

@@ -1,5 +1,6 @@
 #include "ShaderSkybox.h"
 #include "Model.h"
+#include "Camera.h"
 
 ShaderSkybox::ShaderSkybox() {
 	m_vertexShader = 0;
@@ -232,60 +233,44 @@ void ShaderSkybox::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 }
 
 
-bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& p,
-	const SVec3& eyePos, float deltaTime, ID3D11ShaderResourceView* tex) {
+bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
+{
 
-
-	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
 	MatrixBuffer* dataPtr;
 	VariableBuffer* dataPtr3;
 
-	SMatrix mT = model.transform.Transpose();
-	SMatrix vT = v.Transpose();
-	SMatrix pT = p.Transpose();
+	SMatrix mT = c.GetCameraMatrix().Transpose();
+	SMatrix vT = c.GetViewMatrix().Transpose();
+	SMatrix pT = c.GetProjectionMatrix().Transpose();
 
 	// Lock the constant matrix buffer so it can be written to.
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
+	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
-
 	dataPtr->world = mT;
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
-
 	deviceContext->Unmap(m_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 	//END MATRIX BUFFER
 
-
-
 	//VARIABLE BUFFER
-	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
+	if (FAILED(deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
-
 	deviceContext->Unmap(m_variableBuffer, 0);
-
 	bufferNumber = 1;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
 	//END VARIABLE BUFFER
 
-
 	deviceContext->IASetInputLayout(m_layout);
-
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
-
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
-
 	deviceContext->PSSetShaderResources(0, 1, &(tex));
 
 	return true;

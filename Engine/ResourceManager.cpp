@@ -1,6 +1,10 @@
 #include "ResourceManager.h"
 #include "D3D.h"
 
+
+#define dc rc.d3d->GetDeviceContext()
+
+
 ResourceManager::ResourceManager()
 {
 }
@@ -15,22 +19,29 @@ ResourceManager::~ResourceManager()
 void ResourceManager::init(ID3D11Device* device)
 {
 	_device = device;
-	_level1.init(device);
-	//_level3.init(device);
+
+	_levels.push_back(&_level1);
+	_levels.push_back(&_level2);
+	_levels.push_back(&_level3);
+	_levels.push_back(&_level4);
+
+	_levels[0]->init(_device);
 }
+
+
+
+Level* ResourceManager::advanceLevel()
+{
+	_levels.front()->demolish();
+	_levels.erase(_levels.begin());
+	_levels[0]->init(_device);
+	return _levels[0];
+}
+
 
 
 void EarthLevel::init(ID3D11Device* device)
 {
-	/*
-	modStrife.LoadModel(device, "../Models/WaterQuad.fbx");
-	Math::Scale(modStrife.transform, SVec3(15.0f));
-	Math::RotateMatByMat(modStrife.transform, SMatrix::CreateFromAxisAngle(SVec3::Right, PI));
-	Math::Translate(modStrife.transform, SVec3(-200.f, 200.0f, -200.0f));
-
-	modWaterQuad.LoadModel(device, "../Models/WaterQuad.fbx");
-	*/
-
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 	
@@ -95,18 +106,12 @@ void EarthLevel::procGen(ID3D11Device* device)
 	proceduralTerrain.SetUp(device);
 
 	isTerGenerated = true;
-
-
-
 }
 
 
 
-void EarthLevel::draw(RenderContext rc)
+void EarthLevel::draw(const RenderContext& rc)
 {
-
-#define dc rc.d3d->GetDeviceContext()
-
 	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
 	pSys.updateStdFunc(&pud);
 
@@ -117,7 +122,7 @@ void EarthLevel::draw(RenderContext rc)
 	rc.d3d->TurnOffCulling();
 	rc.d3d->SwitchDepthToLessEquals();
 
-	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), rc.cam->GetCameraMatrix().Translation(), rc.dTime, skyboxCubeMapper.cm_srv);
+	rc.shMan->shaderSkybox.SetShaderParameters(dc, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
 	skybox.Draw(dc, rc.shMan->shaderSkybox);
 	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
 
@@ -127,42 +132,58 @@ void EarthLevel::draw(RenderContext rc)
 	if (isTerGenerated)
 	{
 		proceduralTerrain.Draw(dc, rc.shMan->shaderTerrain, SMatrix::Identity, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
-
-		//rc.shMan->shaderTree.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-		//treeModel.Draw(dc, rc.shMan->shaderLight);
-		//rc.shMan->shaderLight.ReleaseShaderParameters(dc);
 	}
 
 	rc.shMan->shaderMaze.SetShaderParameters(dc, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
 	maze.model.Draw(dc, rc.shMan->shaderMaze);
 	rc.shMan->shaderMaze.ReleaseShaderParameters(dc);
 
-	/*
-	std::vector<InstanceData> instanceData(100);
-
-	for (int i = 0; i < instanceData.size(); ++i)
-		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
-
-	rc.shMan->shaderInstanced.UpdateInstanceData(instanceData);
-	rc.shMan->shaderInstanced.SetShaderParameters(&rc.shMan->spl);
-	RES.modBall.Draw(deviceContext, rc.shMan->shaderInstanced);
-	rc.shMan->shaderInstanced.ReleaseShaderParameters(deviceContext);
-	*/
-
 	rc.d3d->TurnOnAlphaBlending();
-
-	//rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
-	//will.Draw(dc, rc.shMan->shVolumFire);
-
 	rc.shMan->shVolumAir.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
 	will.Draw(dc, rc.shMan->shVolumAir);
 
 	rc.d3d->TurnOffAlphaBlending();
-	rc.d3d->EndScene();
 
-#undef dc
+	rc.d3d->EndScene();
 }
 
+
+
+void FireLevel::init(ID3D11Device* device)
+{
+	skybox.LoadModel(device, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+
+	will.LoadModel(device, "../Models/ball.fbx");
+	Math::Scale(will.transform, SVec3(5.f));
+	Math::Translate(will.transform, SVec3(2, 35, 60));
+}
+
+
+
+void FireLevel::draw(const RenderContext& rc)
+{
+	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
+	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
+	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
+
+	rc.d3d->TurnOffCulling();
+	rc.d3d->SwitchDepthToLessEquals();
+
+	rc.shMan->shaderSkybox.SetShaderParameters(dc, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
+	skybox.Draw(dc, rc.shMan->shaderSkybox);
+	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
+
+	rc.d3d->SwitchDepthToDefault();
+	rc.d3d->TurnOnCulling();
+
+	rc.d3d->TurnOnAlphaBlending();
+	rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
+	will.Draw(dc, rc.shMan->shVolumFire);
+	rc.d3d->TurnOffAlphaBlending();
+
+	rc.d3d->EndScene();
+}
 
 
 void WaterLevel::init(ID3D11Device* device)
@@ -185,40 +206,27 @@ void WaterLevel::init(ID3D11Device* device)
 
 
 
+#undef dc
 
 
+///TREE RENDERING
+//rc.shMan->shaderTree.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
+//treeModel.Draw(dc, rc.shMan->shaderLight);
+//rc.shMan->shaderLight.ReleaseShaderParameters(dc);
 
 
+///PARTICLE SYSTEM RENDERING
+/*
+std::vector<InstanceData> instanceData(100);
 
+for (int i = 0; i < instanceData.size(); ++i)
+	instanceData[i]._m = pSys._particles[i]->transform.Transpose();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+rc.shMan->shaderInstanced.UpdateInstanceData(instanceData);
+rc.shMan->shaderInstanced.SetShaderParameters(&rc.shMan->spl);
+RES.modBall.Draw(deviceContext, rc.shMan->shaderInstanced);
+rc.shMan->shaderInstanced.ReleaseShaderParameters(deviceContext);
+*/
 
 
 
@@ -383,4 +391,13 @@ treeModel = linden.genModel(device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
 
 //Math::RotateMatByMat(treeModel.transform, SMatrix::CreateRotationX(-PI * .5f));
 //linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);
+*/
+
+/*
+modStrife.LoadModel(device, "../Models/WaterQuad.fbx");
+Math::Scale(modStrife.transform, SVec3(15.0f));
+Math::RotateMatByMat(modStrife.transform, SMatrix::CreateFromAxisAngle(SVec3::Right, PI));
+Math::Translate(modStrife.transform, SVec3(-200.f, 200.0f, -200.0f));
+
+modWaterQuad.LoadModel(device, "../Models/WaterQuad.fbx");
 */

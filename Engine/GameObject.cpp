@@ -10,5 +10,3 @@ GraphicComponent::GraphicComponent(Model* m, ShaderBase* s) : model(m), shader(s
 
 
 Player::Player() {}
-
-Player::~Player() {}

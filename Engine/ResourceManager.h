@@ -39,16 +39,18 @@ class Level
 {
 public:
 	virtual void init(ID3D11Device* device) = 0;
-	virtual void draw(RenderContext rc) = 0;
+	virtual void draw(const RenderContext& rc) = 0;
+	virtual void demolish() = 0;
 };
 
 
 
-class OldLevel
+class OldLevel : public Level
 {
 public:
 	void init(ID3D11Device* device) {};
-	void draw(ID3D11DeviceContext* deviceContext, RenderContext rc) {};
+	void draw(const RenderContext& rc) {};
+	void demolish() {};
 };
 
 
@@ -90,16 +92,23 @@ public:
 	//load and draw all that jazz
 	void init(ID3D11Device* device);
 	void procGen(ID3D11Device* device);
-	void draw(RenderContext rc);
+	void draw(const RenderContext& rc);
+	void demolish() {};
 };
 
 
 
 class FireLevel : public Level
 {
+
+	Model skybox;
+	CubeMapper skyboxCubeMapper;
+	Model  will;
+
 public:
-	void init(ID3D11Device* device) {};
-	void draw(RenderContext rc) {};
+	void init(ID3D11Device* device);
+	void draw(const RenderContext& rc);
+	void demolish() {};
 };
 
 
@@ -114,7 +123,8 @@ public:
 	std::map<std::string, Procedural::Terrain> terrainsMap;
 
 	void init(ID3D11Device* device);
-	void draw(RenderContext rc) {};
+	void draw(const RenderContext& rc) {};
+	void demolish() {};
 };
 
 
@@ -123,7 +133,8 @@ class AirLevel : public Level
 {
 public:
 	void init(ID3D11Device* device) {};
-	void draw(RenderContext rc) {};
+	void draw(const RenderContext& rc) {};
+	void demolish() {};
 };
 
 
@@ -145,5 +156,8 @@ public:
 	WaterLevel	_level3;
 	AirLevel	_level4;
 
+	std::vector<Level*> _levels;
+
 	void init(ID3D11Device* device);	//should eventually work from a file
+	Level* advanceLevel();
 };

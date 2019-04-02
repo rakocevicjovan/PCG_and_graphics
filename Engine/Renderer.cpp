@@ -68,7 +68,7 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 
 bool Renderer::Frame(float dTime)
 {
-	ProcessSpecialInput();
+	ProcessSpecialInput(dTime);
 	elapsed += dTime;
 
 	if (!_controller.isFlying())
@@ -81,8 +81,6 @@ bool Renderer::Frame(float dTime)
 	}
 
 	_cam.update(dTime);
-
-	Math::SetTranslation(EARTH.skybox.transform, _cam.GetCameraMatrix().Translation());
 
 	OutputFPS(dTime);
 
@@ -128,13 +126,31 @@ void Renderer::OutputFPS(float dTime)
 
 
 
-void Renderer::ProcessSpecialInput() 
+void Renderer::ProcessSpecialInput(float dTime) 
 {
-	if (_inMan->IsKeyDown(VK_SPACE))
-		EARTH.procGen(_device);
+	sinceLastInput += dTime;
+	
+	if (sinceLastInput < .33f)
+		return;
 
-	if(_inMan->IsKeyDown((short)'F'))
+	if (_inMan->IsKeyDown(VK_SPACE))
+	{
+		EARTH.procGen(_device);
+		sinceLastInput = 0;
+	}
+
+	if (_inMan->IsKeyDown((short)'L'))
+	{
+		_currentLevel = _resMan.advanceLevel();
+		sinceLastInput = 0;
+	}
+
+	if (_inMan->IsKeyDown((short)'F'))
+	{
 		_controller.toggleFly();
+		sinceLastInput = 0;
+	}
+		
 }
 
 

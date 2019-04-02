@@ -13,6 +13,7 @@
 #include "ShaderDataStructs.h"
 
 class Model;
+class Camera;
 
 class ShaderSkybox
 {
@@ -23,8 +24,7 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(	ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p,
-								const SVec3& eyePos, float deltaTime, ID3D11ShaderResourceView* tex);
+	bool SetShaderParameters(ID3D11DeviceContext*, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
