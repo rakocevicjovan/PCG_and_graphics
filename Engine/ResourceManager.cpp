@@ -160,9 +160,27 @@ void FireLevel::init(ID3D11Device* device)
 	Math::Scale(will.transform, SVec3(5.f));
 	Math::Translate(will.transform, SVec3(2, 35, 60));
 
+	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
+	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
+
+	hexDiffuseMap.LoadFromFile("../Textures/Crymetal/diffuse.jpg");
+	hexDiffuseMap.Setup(device);
+	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
+	hexNormalMap.Setup(device);
+
 	Procedural::Geometry hex;
-	hex.genHexaprism(30.f, 10.f);
-	hexCluster.meshes.emplace_back(hex, device);
+	//hex.GenHexaprism(30.f, 10.f);
+	std::vector<Procedural::Geometry> hexes = hex.GenHexGrid(30.f, 10.f, 2);
+
+	for (auto& h : hexes)
+	{
+		hexCluster.meshes.emplace_back(h, device);
+		//hexCluster.meshes.back().textures.push_back(hexDiffuseMap);
+		//hexCluster.meshes.back().textures.push_back(hexNormalMap);
+	}
+		
+
+
 }
 
 
@@ -183,8 +201,11 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.d3d->TurnOnCulling();
 	*/
 
-	rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
-	hexCluster.Draw(dc, rc.shMan->shaderLight);
+	//rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
+	//hexCluster.Draw(dc, rc.shMan->shaderLight);
+
+	rc.shMan->shaderMaze.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+	hexCluster.Draw(dc, rc.shMan->shaderMaze);
 
 
 	rc.d3d->TurnOnAlphaBlending();

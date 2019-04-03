@@ -268,11 +268,13 @@ namespace Procedural
 
 
 
-	void Geometry::genHexaprism(float radius, float thiccness)
+	void Geometry::GenHexaprism(float radius, float thiccness)
 	{
 		float height = thiccness * .5f;
 		SMatrix rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);
 		SVec3 point(0, height, radius);
+
+		float invRadius = 1.f / radius;
 
 		positions.reserve(14);
 		normals.reserve(14);
@@ -292,8 +294,9 @@ namespace Procedural
 			Math::RotateVecByMat(point, rot);
 			positions.emplace_back(point);
 			normals.emplace_back(Math::getNormalizedVec3(point));
-			texCoords.emplace_back(point.x, point.z);
-			tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));	//cross normal with flipped xz normal pointing inwards
+			texCoords.emplace_back(point.x * invRadius, point.z * invRadius);
+			//tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));	//cross normal with flipped xz normal pointing inwards
+			tangents.emplace_back(point.x * invRadius, 0,  point.z * invRadius);
 			indices.insert(indices.end(), { 0, i + 1, i + 2 });
 		}
 		indices.back() = 1;	//close the hexagon
@@ -315,13 +318,57 @@ namespace Procedural
 
 		for (unsigned int i = 1; i < 7; ++i)
 		{
-			positions.emplace_back(positions[i].x, -positions[i].y, positions[i].z);
-			normals.emplace_back(normals[i].x, -normals[i].y, normals[i].z);
-			texCoords.emplace_back(point.x, point.z + 1.f);
+			SVec3 newPoint(positions[i].x, -positions[i].y, positions[i].z);
+			positions.emplace_back(newPoint);
+			normals.emplace_back(Math::getNormalizedVec3(newPoint));
+			texCoords.emplace_back(newPoint.x * invRadius, newPoint.z * invRadius);
 			tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));
 			indices.insert(indices.end(), { 7, i + 8, i + 7 });
 		}
 		indices[indices.size() - 2] = 8;	//close the hexagon
+	}
+
+
+
+	std::vector<Geometry> Geometry::GenHexGrid(float radius, float thiccness, UINT numHexes)
+	{
+		std::vector<Geometry> result;
+
+		int initRingSize = 6, currentRingSize = 0;
+		float hexHeight = radius * sqrt(3.f) * .5f;
+		float hexCentDist = 2.f * hexHeight;
+
+		SMatrix halfRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333 * .5f);
+		SMatrix fullRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);
+
+		SVec3 offset = SVec3(0, 0, hexCentDist);
+		offset = SVec3::Transform(offset, halfRot);	//this is the upper right hex position
+
+		Geometry g, temp;
+		g.GenHexaprism(radius, thiccness);
+		temp = g;
+		result.push_back(g);	//middle hex
+
+		for (UINT i = 0; i < g.positions.size(); ++i)
+			temp.positions[i] = g.positions[i] + offset;	//offset hex
+
+		result.push_back(temp);
+
+		temp.positions = g.positions;
+
+		for (int i = 0; i < 5; ++i)
+		{
+			offset = SVec3::Transform(offset, fullRot);
+
+			for (UINT i = 0; i < g.positions.size(); ++i)
+				temp.positions[i] = g.positions[i] + offset;
+
+			result.push_back(temp);
+
+			temp.positions = g.positions;
+		}
+
+		return result;
 	}
 
 

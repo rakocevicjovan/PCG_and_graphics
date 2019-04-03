@@ -105,6 +105,8 @@ class FireLevel : public Level
 	CubeMapper skyboxCubeMapper;
 	Model  will, hexCluster;
 
+	Texture hexDiffuseMap, hexNormalMap;
+
 public:
 	void init(ID3D11Device* device);
 	void draw(const RenderContext& rc);

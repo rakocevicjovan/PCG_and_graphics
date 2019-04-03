@@ -34,12 +34,12 @@ PixelInputType LightVertexShader(VertexInputType input)
 {
 	PixelInputType output;
 
-	output.worldPos = mul(input.position, worldMatrix);	//careful... doing this to optimize and avoid copying
+	output.worldPos = mul(input.position, worldMatrix);
 
-	float distance = length(playerPos.xz - output.worldPos.xz);
+	//float3 wMatPos = float3(worldMatrix._41, worldMatrix._42, worldMatrix._43);	works!, just don't want it for the maze, but later for the fire level
+	float distance = length(playerPos.xz - output.worldPos.xz);//wMatPos.xz);
 
 	output.worldPos.y -= smoothstep(48.f, 80.f, distance) * 27.f;
-
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
