@@ -200,7 +200,6 @@ void ShaderCM::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCH
 bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& dLight, float deltaTime, ID3D11ShaderResourceView* tex)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber = 0;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 	VariableBuffer* dataPtr3;
@@ -217,8 +216,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
 	deviceContext->Unmap(m_matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-
+	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);
 
 	//VARIABLE BUFFER
 	if (FAILED(deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
@@ -227,9 +225,9 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3();
 	deviceContext->Unmap(m_variableBuffer, 0);
-	bufferNumber = 1;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
+	deviceContext->VSSetConstantBuffers(1, 1, &m_variableBuffer);
 
+	SVec4 uwotm8 = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 
 	if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
@@ -241,10 +239,9 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& mo
 	dataPtr2->slc = dLight.slc;
 	dataPtr2->sli = dLight.sli;
 	dataPtr2->pos = dLight.pos;	//actually direction but uses the same struct for convenience
-	dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
+	dataPtr2->ePos = uwotm8;
 	deviceContext->Unmap(m_lightBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
 
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);

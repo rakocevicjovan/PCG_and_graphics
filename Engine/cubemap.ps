@@ -1,16 +1,18 @@
-cbuffer LightBuffer{
+cbuffer LightBuffer
+{
 	float3 alc;
 	float ali;
 	float3 dlc;
 	float dli;
 	float3 slc;
 	float sli;
-    float4 lightDirection;
-	float4 ePos;
+    float4 lightPosition;
+	float4 eyePos;
 };
 
 
-struct PixelInputType{
+struct PixelInputType
+{
     float4 position : SV_POSITION;
     float3 texCoord : TEXCOORD0;
 	float3 normal : NORMAL;
@@ -21,39 +23,51 @@ TextureCube cubeMapTexture;
 SamplerState Sampler;
 
 
-float4 CMFS(PixelInputType input) : SV_TARGET{
+static const float SpecularPower = 64.f;
+
+
+float4 calcAmbient(in float3 alc, in float ali)
+{
+	return saturate(float4(alc, 1.0f) * ali);
+}
+
+
+float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor)
+{	
+	dFactor = max(dot(normal, invLightDir), 0.0f);
+	return saturate(float4(dlc, 1.0f) * dli * dFactor);
+}
+
+
+float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float dFactor)
+{
+	float3 reflection = normalize(reflect(invLightDir, normal));
+	float sFactor = pow(saturate(dot(reflection, invViewDir)), SpecularPower);
+	return saturate(float4(slc, 1.0f) * sFactor * sli * dFactor);	// sli
+}
+
+
+float4 CMFS(PixelInputType input) : SV_TARGET
+{
 	
 	input.normal = normalize(input.normal);
 
-	float3 pToEye = normalize(ePos.xyz - input.worldPos.xyz);
+	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
+	float3 invLightDir = -lightDir;
 
-	float3 incident = -pToEye;
+	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);	
+
+	float3 incident = viewDir;
 	float3 refVec = reflect(incident, input.normal);
 	float4 colour = cubeMapTexture.Sample(Sampler, refVec);
 
-	// don't want the white background!
-	//if(length(colour) > 1.5f){
-		//colour.xyz = float3(0.1f, 0.15f, 0.25f); //lerp(, colour.xyz, 0.8f);
-	//}
+	float4 ambient = calcAmbient(alc, ali);
+	float dFactor = 0.f;
+	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
+	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
+	colour = (ambient + diffuse) * colour + specular;
 
-	//ambient
-	float4 ambient = saturate(float4(alc, 1.0f) * ali);
-	colour += ambient;
-
-	//diffuse
-	float4 inverseLightDir = -lightDirection;
-    float dFactor = saturate(dot(input.normal, inverseLightDir.xyz));
-	float4 diffuse = float4(dlc, 1.0f) * dli * dFactor;
-	colour += diffuse;
-
-	//specular
-	float SpecularPower = 64.f;
-	float3 reflectionVector = 2 * dot( input.normal, inverseLightDir.xyz ) * input.normal - inverseLightDir.xyz;
-	float sFactor = saturate(dot(reflectionVector, pToEye));
-	sFactor = pow(sFactor, SpecularPower);
-
-	float4 specular = float4(slc, 1.0f) * sli * sFactor;	
-	colour += saturate(specular);
+	colour.rgb = pow( colour.xyz, float3(0.454, 0.454, 0.454));
 
     return colour;
 }

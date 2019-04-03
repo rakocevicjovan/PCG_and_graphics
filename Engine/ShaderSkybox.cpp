@@ -189,20 +189,23 @@ void ShaderSkybox::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 }
 
 
-bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
+bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& smm, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
 	MatrixBuffer* dataPtr;
 	VariableBuffer* dataPtr3;
 
-	SMatrix mT = c.GetCameraMatrix().Transpose();
+	Math::SetTranslation(smm, c.GetCameraMatrix().Translation());
+
+	SMatrix mT = smm.Transpose();
 	SMatrix vT = c.GetViewMatrix().Transpose();
 	SMatrix pT = c.GetProjectionMatrix().Transpose();
 
 	// Lock the constant matrix buffer so it can be written to.
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
+
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
 	dataPtr->view = vT;

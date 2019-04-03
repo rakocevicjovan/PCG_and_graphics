@@ -15,9 +15,8 @@
 class Model;
 class Camera;
 
-class ShaderCM {
-
-
+class ShaderCM
+{
 public:
 	ShaderCM();
 	~ShaderCM();
@@ -34,7 +33,6 @@ public:
 	unsigned int texturesAdded = 1;
 
 private:
-
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;

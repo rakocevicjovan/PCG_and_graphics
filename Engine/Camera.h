@@ -17,8 +17,9 @@ public:
 	SMatrix GetViewMatrix() const;
 	SMatrix GetCameraMatrix() const;
 	SMatrix GetProjectionMatrix() const;
-
 	Controller* _controller;
+
+	static Camera CreateFromViewProjection(const SMatrix& view, const SMatrix& projection);
 	
 protected:
 	SMatrix _cameraMatrix;

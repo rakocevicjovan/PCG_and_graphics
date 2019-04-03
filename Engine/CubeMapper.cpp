@@ -1,4 +1,5 @@
 #include "CubeMapper.h"
+#include "Camera.h"
 #include "DDSTextureLoader.h"
 
 
@@ -14,10 +15,8 @@ CubeMapper::~CubeMapper()
 
 
 
-void CubeMapper::Init(ID3D11Device* device) {
-
-	HRESULT res;
-
+void CubeMapper::Init(ID3D11Device* device)
+{
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
 	texDesc.Width = edgeLength;
@@ -31,8 +30,8 @@ void CubeMapper::Init(ID3D11Device* device) {
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	res = device->CreateTexture2D(&texDesc, 0, &cm_id);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateTexture2D(&texDesc, 0, &cm_id)))
+	{
 		OutputDebugStringA("Can't create cube map texture. \n");
 		exit(520);
 	}
@@ -43,8 +42,8 @@ void CubeMapper::Init(ID3D11Device* device) {
 	srvd.TextureCube.MipLevels = texDesc.MipLevels;
 	srvd.TextureCube.MostDetailedMip = 0;
 
-	res = device->CreateShaderResourceView(cm_id, &srvd, &cm_srv);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateShaderResourceView(cm_id, &srvd, &cm_srv)))
+	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(521);
 	}
@@ -55,12 +54,12 @@ void CubeMapper::Init(ID3D11Device* device) {
 	rtvd.Texture2D.MipSlice = 0;
 	rtvd.Texture2DArray.ArraySize = 1;
 
-	for (int i = 0; i < 6; i++) {
-
+	for (int i = 0; i < 6; i++)
+	{
 		rtvd.Texture2DArray.FirstArraySlice = i;
 
-		res = device->CreateRenderTargetView(cm_id, &rtvd, &(cm_rtv[i]));
-		if (FAILED(res)) {
+		if (FAILED(device->CreateRenderTargetView(cm_id, &rtvd, &(cm_rtv[i]))))
+		{
 			OutputDebugStringA("Can't create 6 render target views. \n");
 			exit(522);
 		}
@@ -80,8 +79,8 @@ void CubeMapper::Init(ID3D11Device* device) {
 	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthTexDesc.MiscFlags = 0;
 
-	res = device->CreateTexture2D(&depthTexDesc, 0, &cm_depth_id);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateTexture2D(&depthTexDesc, 0, &cm_depth_id)))
+	{
 		OutputDebugStringA("Can't create cube map depth texture. \n");
 		exit(523);
 	}
@@ -92,8 +91,8 @@ void CubeMapper::Init(ID3D11Device* device) {
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvd.Texture2D.MipSlice = 0;
 
-	res = device->CreateDepthStencilView(cm_depth_id, &dsvd, &cm_depthStencilView);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateDepthStencilView(cm_depth_id, &dsvd, &cm_depthStencilView)))
+	{
 		OutputDebugStringA("Can't create cube map texture. \n");
 		exit(524);
 	}
@@ -108,8 +107,8 @@ void CubeMapper::Init(ID3D11Device* device) {
 	lens = DirectX::XMMatrixPerspectiveFovLH(PI * 0.5f, 1.0f, 0.1f, 500.0f);	//2.0 * atan(edgeLength / (edgeLength - 0.5))	
 }
 
-void CubeMapper::UpdateCams(const SVec3& pos) {
-
+void CubeMapper::UpdateCams(const SVec3& pos)
+{
 	cameras[0] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x + 1.f, pos.y, pos.z), SVec3::Up);
 	cameras[1] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x - 1.f, pos.y, pos.z), SVec3::Up);
 	cameras[2] = DirectX::XMMatrixLookAtLH(pos, SVec3(pos.x, pos.y + 1.f, pos.z), SVec3::Forward);	//flipped because simplemath...
@@ -124,13 +123,8 @@ void CubeMapper::UpdateCams(const SVec3& pos) {
 
 
 
-void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename) {	//std::vector<std::string>& filenames
-
-	//if (filenames.size() != 6) OutputDebugStringA("Odd number of filenames provided.");
-		
-	HRESULT res;
-
-	
+void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename)
+{
 	D3D11_TEXTURE2D_DESC texDesc;
 	ZeroMemory(&texDesc, sizeof(texDesc));
 	texDesc.Width = edgeLength;
@@ -144,8 +138,8 @@ void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
-	res = device->CreateTexture2D(&texDesc, 0, &cm_id);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateTexture2D(&texDesc, 0, &cm_id)))
+	{
 		OutputDebugStringA("Can't create cube map texture. \n");
 		exit(520);
 	}
@@ -156,8 +150,8 @@ void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename
 	srvd.TextureCube.MipLevels = texDesc.MipLevels;
 	srvd.TextureCube.MostDetailedMip = 0;
 
-	res = device->CreateShaderResourceView(cm_id, &srvd, &cm_srv);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateShaderResourceView(cm_id, &srvd, &cm_srv)))
+	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(521);
 	}
@@ -165,9 +159,15 @@ void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename
 	std::wstring widestr = std::wstring(filename.begin(), filename.end());
 	const wchar_t* fname = widestr.c_str();
 
-	res = DirectX::CreateDDSTextureFromFileEx(device, fname, (size_t)0, D3D11_USAGE_DEFAULT,
-		D3D11_BIND_SHADER_RESOURCE, (unsigned int)0, D3D11_RESOURCE_MISC_TEXTURECUBE,
-		false, (ID3D11Resource**)(cm_id), &(cm_srv), (DirectX::DDS_ALPHA_MODE*)nullptr);
+	if (
+			FAILED(DirectX::CreateDDSTextureFromFileEx(device, fname, (size_t)0, D3D11_USAGE_DEFAULT,
+			D3D11_BIND_SHADER_RESOURCE, (unsigned int)0, D3D11_RESOURCE_MISC_TEXTURECUBE,
+			false, (ID3D11Resource**)(cm_id), &(cm_srv), (DirectX::DDS_ALPHA_MODE*)nullptr))
+		)
+	{
+		OutputDebugStringA("Can't load dds texture \n");
+		exit(522);
+	}
 
 	
 	D3D11_TEXTURE2D_DESC depthTexDesc;
@@ -183,8 +183,8 @@ void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename
 	depthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthTexDesc.MiscFlags = 0;
 
-	res = device->CreateTexture2D(&depthTexDesc, 0, &cm_depth_id);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateTexture2D(&depthTexDesc, 0, &cm_depth_id)))
+	{
 		OutputDebugStringA("Can't create cube map depth texture. \n");
 		exit(523);
 	}
@@ -195,8 +195,8 @@ void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	dsvd.Texture2D.MipSlice = 0;
 
-	res = device->CreateDepthStencilView(cm_depth_id, &dsvd, &cm_depthStencilView);
-	if (FAILED(res)) {
+	if (FAILED(device->CreateDepthStencilView(cm_depth_id, &dsvd, &cm_depthStencilView)))
+	{
 		OutputDebugStringA("Can't create cube map texture. \n");
 		exit(524);
 	}
@@ -209,5 +209,11 @@ void CubeMapper::LoadFromFiles(ID3D11Device* device, const std::string& filename
 	cm_viewport.TopLeftY = 0;
 
 	lens = DirectX::XMMatrixPerspectiveFovLH(PI * 0.5f, 1.0f, 0.1f, 300.0f);	//2.0 * atan(edgeLength / (edgeLength - 0.5))	
+}
 
+
+
+Camera CubeMapper::getCameraAtIndex(unsigned int i)
+{
+	return Camera::CreateFromViewProjection(cameras[i], lens);
 }

@@ -28,6 +28,17 @@ SMatrix Camera::GetProjectionMatrix() const {
 	return _projectionMatrix;
 }
 
+Camera Camera::CreateFromViewProjection(const SMatrix& view, const SMatrix& projection)
+{
+	Camera c;
+	
+	c._viewMatrix = view;
+	c._projectionMatrix = projection;
+	c._cameraMatrix = view.Invert();
+	
+	return c;
+}
+
 void Camera::SetCameraMatrix(const SMatrix& transform) {
 	_cameraMatrix = transform;
 }
