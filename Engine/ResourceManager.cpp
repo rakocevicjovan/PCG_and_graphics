@@ -159,6 +159,10 @@ void FireLevel::init(ID3D11Device* device)
 	will.LoadModel(device, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(5.f));
 	Math::Translate(will.transform, SVec3(2, 35, 60));
+
+	Procedural::Geometry hex;
+	hex.genHexaprism(30.f, 10.f);
+	hexCluster.meshes.emplace_back(hex, device);
 }
 
 
@@ -169,15 +173,19 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
+	/*
 	rc.d3d->TurnOffCulling();
 	rc.d3d->SwitchDepthToLessEquals();
-
 	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
 	skybox.Draw(dc, rc.shMan->shaderSkybox);
 	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
-
 	rc.d3d->SwitchDepthToDefault();
 	rc.d3d->TurnOnCulling();
+	*/
+
+	rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
+	hexCluster.Draw(dc, rc.shMan->shaderLight);
+
 
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);

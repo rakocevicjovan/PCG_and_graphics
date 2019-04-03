@@ -47,19 +47,23 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 }
 
 
+
+static const float iceRefractionIndex = 1.309;
+
 float4 CMFS(PixelInputType input) : SV_TARGET
 {
-	
 	input.normal = normalize(input.normal);
 
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
-
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);	
 
 	float3 incident = viewDir;
-	float3 refVec = reflect(incident, input.normal);
-	float4 colour = cubeMapTexture.Sample(Sampler, refVec);
+	float3 reflected = reflect(incident, input.normal);
+
+	float3 refracted = refract(incident, input.normal, iceRefractionIndex);
+
+	float4 colour = cubeMapTexture.Sample(Sampler, reflected);
 
 	float4 ambient = calcAmbient(alc, ali);
 	float dFactor = 0.f;

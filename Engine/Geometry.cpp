@@ -272,7 +272,7 @@ namespace Procedural
 	{
 		float height = thiccness * .5f;
 		SMatrix rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);
-		SVec3 point(0, height, 1);
+		SVec3 point(0, height, radius);
 
 		positions.reserve(14);
 		normals.reserve(14);
@@ -293,10 +293,19 @@ namespace Procedural
 			positions.emplace_back(point);
 			normals.emplace_back(Math::getNormalizedVec3(point));
 			texCoords.emplace_back(point.x, point.z);
-			indices.insert(indices.end(), {i + 1, i + 2, 0});
 			tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));	//cross normal with flipped xz normal pointing inwards
+			indices.insert(indices.end(), { 0, i + 1, i + 2 });
 		}
 		indices.back() = 1;	//close the hexagon
+
+		for (unsigned int i = 1; i < 6; ++i)
+		{
+			indices.insert(indices.end(), { i + 8, i + 1, i + 7 });
+			indices.insert(indices.end(), { i + 7, i + 1, i     });	//side down
+		}
+
+		indices.insert(indices.end(), { 1 + 7, 1    , 6 + 7 });
+		indices.insert(indices.end(), { 6 + 7, 1    , 6     });
 
 		//8th vertex
 		positions.emplace_back(0, -height, 0);
@@ -309,10 +318,10 @@ namespace Procedural
 			positions.emplace_back(positions[i].x, -positions[i].y, positions[i].z);
 			normals.emplace_back(normals[i].x, -normals[i].y, normals[i].z);
 			texCoords.emplace_back(point.x, point.z + 1.f);
-			indices.insert(indices.end(), { i + 8, i + 9, 7 });
 			tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));
+			indices.insert(indices.end(), { 7, i + 8, i + 7 });
 		}
-		indices.back() = 7;	//close the hexagon
+		indices[indices.size() - 2] = 8;	//close the hexagon
 	}
 
 

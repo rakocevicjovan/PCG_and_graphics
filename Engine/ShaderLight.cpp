@@ -1,6 +1,6 @@
 #include "ShaderLight.h"
 #include "Model.h"
-
+#include "Camera.h"
 
 
 ShaderLight::ShaderLight() : ShaderBase()
@@ -15,8 +15,7 @@ ShaderLight::~ShaderLight()
 
 
 
-bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& p,
-									const PointLight& dLight, const SVec3& eyePos, float deltaTime)
+bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float deltaTime)
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
@@ -25,8 +24,8 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	VariableBuffer* dataPtr3;
 
 	SMatrix mT = model.transform.Transpose();
-	SMatrix vT = v.Transpose();
-	SMatrix pT = p.Transpose();
+	SMatrix vT = cam.GetViewMatrix().Transpose();
+	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
 	
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
@@ -51,14 +50,14 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 
 	if(FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
-	dataPtr2->alc = dLight.alc;
-	dataPtr2->ali = dLight.ali;
-	dataPtr2->dlc = dLight.dlc;
-	dataPtr2->dli = dLight.dli;
-	dataPtr2->slc = dLight.slc;
-	dataPtr2->sli = dLight.sli;
-	dataPtr2->pos = dLight.pos;
-	dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
+	dataPtr2->alc = pLight.alc;
+	dataPtr2->ali = pLight.ali;
+	dataPtr2->dlc = pLight.dlc;
+	dataPtr2->dli = pLight.dli;
+	dataPtr2->slc = pLight.slc;
+	dataPtr2->sli = pLight.sli;
+	dataPtr2->pos = pLight.pos;
+	dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 	deviceContext->Unmap(_lightBuffer, 0);
 	bufferNumber = 0;
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
@@ -69,9 +68,8 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
 	//if(model.textures_loaded.size() != 0)
-	for (int i = 0; i < model.textures_loaded.size(); i++) {
+	for (int i = 0; i < model.textures_loaded.size(); i++)
 		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
-	}
 		
 
 	return true;

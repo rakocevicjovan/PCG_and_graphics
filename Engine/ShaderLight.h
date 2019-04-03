@@ -13,6 +13,7 @@
 #include "ShaderBase.h"
 
 class Model;
+class Camera;
 
 class ShaderLight : public ShaderBase
 {
@@ -21,8 +22,7 @@ public:
 	ShaderLight();
 	~ShaderLight();
 
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p, 
-								const PointLight& dLight, const SVec3& eyePos, float deltaTime);
+	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera& cam, const PointLight& dLight, float deltaTime);
 	void ReleaseShaderParameters(ID3D11DeviceContext*);
 
 private:

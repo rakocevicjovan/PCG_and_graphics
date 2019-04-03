@@ -100,10 +100,10 @@ public:
 
 class FireLevel : public Level
 {
-
 	Model skybox;
+	PointLight pointLight;
 	CubeMapper skyboxCubeMapper;
-	Model  will;
+	Model  will, hexCluster;
 
 public:
 	void init(ID3D11Device* device);

@@ -1,17 +1,19 @@
-struct VertexInputType{
+struct VertexInputType
+{
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
-struct PixelInputType{
+struct PixelInputType
+{
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
-PixelInputType LightVertexShader(VertexInputType input){
-   
+PixelInputType LightVertexShader(VertexInputType input)
+{   
 	input.position.w = 1.0f;
 
 	PixelInputType output;
