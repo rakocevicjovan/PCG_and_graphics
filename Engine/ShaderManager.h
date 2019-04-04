@@ -45,7 +45,8 @@ public:
 	ShaderWater shaderWater;
 	InstancedShader shaderInstanced;
 	PerlinShader shaderPerlin;
-	TerrainShader shaderTerrain;
+	TerrainShader shaderTerMult;
+	TerrainShader shaderTerNorm;
 	TerrainShader shaderTree;
 	ShaderMaze shaderMaze;
 

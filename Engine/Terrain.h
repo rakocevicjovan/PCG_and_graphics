@@ -87,9 +87,10 @@ namespace Procedural
 		void Tumble(float chance);
 		void CellularAutomata(float initialDistribtuion, unsigned int steps);
 		void Fault(const SRay& line, float displacement);
-		void NoisyFault(const SRay& line, float vertDp, float horiDp);
+		void NoisyFault(const SRay& line, float vertDp, float horiDp, float perlinZoom);
 		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
 		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps);
+		void Mesa(const SVec2& center, float radius, float height, float bandWidth);
 		void Smooth(unsigned int steps);	
 
 		

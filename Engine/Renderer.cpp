@@ -135,7 +135,7 @@ void Renderer::ProcessSpecialInput(float dTime)
 
 	if (_inMan->IsKeyDown(VK_SPACE))
 	{
-		EARTH.procGen(_device);
+		_currentLevel->procGen(_device);
 		sinceLastInput = 0;
 	}
 

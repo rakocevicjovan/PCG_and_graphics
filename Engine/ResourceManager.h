@@ -41,6 +41,7 @@ public:
 	virtual void init(ID3D11Device* device) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
 	virtual void demolish() = 0;
+	virtual void procGen(ID3D11Device* device) = 0;
 };
 
 
@@ -49,6 +50,7 @@ class OldLevel : public Level
 {
 public:
 	void init(ID3D11Device* device) {};
+	void procGen(ID3D11Device* device) {};
 	void draw(const RenderContext& rc) {};
 	void demolish() {};
 };
@@ -88,7 +90,6 @@ public:
 	std::function<void(ParticleUpdateData*)> particleUpdFunc2;
 	bool isTerGenerated = false;
 
-
 	//load and draw all that jazz
 	void init(ID3D11Device* device);
 	void procGen(ID3D11Device* device);
@@ -100,15 +101,17 @@ public:
 
 class FireLevel : public Level
 {
+	Procedural::Terrain fireTerrain;
 	Model skybox;
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper;
 	Model  will, hexCluster;
-
 	Texture hexDiffuseMap, hexNormalMap;
+	bool isTerGenerated = false;
 
 public:
 	void init(ID3D11Device* device);
+	void procGen(ID3D11Device* device);
 	void draw(const RenderContext& rc);
 	void demolish() { this->~FireLevel(); };
 };
@@ -125,6 +128,7 @@ public:
 	std::map<std::string, Procedural::Terrain> terrainsMap;
 
 	void init(ID3D11Device* device);
+	void procGen(ID3D11Device* device) {};
 	void draw(const RenderContext& rc);
 	void demolish() { this->~WaterLevel(); };
 };
@@ -135,6 +139,7 @@ class AirLevel : public Level
 {
 public:
 	void init(ID3D11Device* device);
+	void procGen(ID3D11Device* device) {};
 	void draw(const RenderContext& rc);
 	void demolish() { this->~AirLevel(); };
 };

@@ -69,15 +69,27 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 
 float map(float value, float min1, float max1, float min2, float max2)
 {
-	return min2 + ( (value - min1) / (max1 - min1) ) * (max2 - min2);
+	return min2 + ((value - min1) / (max1 - min1)) * (max2 - min2);
 }
+
 
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-	input.normal = normalize(input.normal);
+	//sample normal from the map
+	float4 texNormal = tex1.Sample(Sampler, input.tex);
 
-	///////////////////////////////////////////////////////////////////////////////////////////////
+	//remap it to [-1, 1]
+	texNormal = 2.0f * texNormal - 1.f;
+
+	//removes projection of tangent onto normal from tangent so they are orthogonal for sure
+	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
+
+	float3 bitangent = cross(input.normal, input.tangent);
+
+	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
+
+	input.normal = normalize(mul(texNormal, TBNMatrix));
 
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
@@ -87,15 +99,10 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	viewDir = viewDir / distance;
 	float3 invViewDir = -viewDir;
 
-	//texture colour
 
-	float4 colour = lerp(tex0.Sample(Sampler, input.tex), tex2.Sample(Sampler, input.tex), smoothstep(0.f, 50.f, input.worldPos.y));
+	float4 colour = tex0.Sample(Sampler, input.tex);
 
-	float slope = dot(input.normal, float3(0., 1.f, 0.));
-	slope = smoothstep(.6, 0.1, slope);	//dot is [0, 1] because of no overhangs, smoothstep maps it to [1, 0] smoothly, works but its too smooth
-	//slope = step(slope, .5f);	//for params (a, b), return b >= a
-	colour = lerp(colour, tex3.Sample(Sampler, input.tex), slope);
-	
+
 	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);
 

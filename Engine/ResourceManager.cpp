@@ -134,7 +134,7 @@ void EarthLevel::draw(const RenderContext& rc)
 
 	if (isTerGenerated)
 	{
-		proceduralTerrain.Draw(dc, rc.shMan->shaderTerrain, SMatrix::Identity, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
+		proceduralTerrain.Draw(dc, rc.shMan->shaderTerNorm, SMatrix::Identity, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
 	}
 
 	rc.shMan->shaderMaze.SetShaderParameters(dc, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
@@ -163,24 +163,37 @@ void FireLevel::init(ID3D11Device* device)
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
+	Texture terrainTex;
+	auto fltVec = terrainTex.generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);	//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 1.61803, 0.5793f, 6u);
+	
+	fireTerrain.setScales(2, 100, 2);
+	fireTerrain.GenFromTexture(terrainTex.w, terrainTex.h, fltVec);
+	fireTerrain.Mesa(SVec2(256), 64, 64, 128);
+	//fireTerrain.NoisyFault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), -20.f, 200.f, 64);
+	//fireTerrain.CircleOfScorn(SVec2(256), 40.f, PI * 0.01337f, -PI, 2.f / 0.01337f);
+	//fireTerrain.CircleOfScorn(SVec2(256), 40.f, -PI * 0.01337f, -PI, 64);	//384
+
+	fireTerrain.setTextureData(device, 10, 10, {"../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png"});
+
+	fireTerrain.SetUp(device);
+}
+
+
+
+void FireLevel::procGen(ID3D11Device* device)
+{
+	Procedural::Geometry hex;
+	//hex.GenHexaprism(30.f, 10.f);
+	std::vector<Procedural::Geometry> hexes = hex.GenHexGrid(30.f, 10.f, 2);
+	for (auto& h : hexes)
+		hexCluster.meshes.emplace_back(h, device);
+
 	hexDiffuseMap.LoadFromFile("../Textures/Crymetal/diffuse.jpg");
 	hexDiffuseMap.Setup(device);
 	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
 	hexNormalMap.Setup(device);
 
-	Procedural::Geometry hex;
-	//hex.GenHexaprism(30.f, 10.f);
-	std::vector<Procedural::Geometry> hexes = hex.GenHexGrid(30.f, 10.f, 2);
-
-	for (auto& h : hexes)
-	{
-		hexCluster.meshes.emplace_back(h, device);
-		//hexCluster.meshes.back().textures.push_back(hexDiffuseMap);
-		//hexCluster.meshes.back().textures.push_back(hexNormalMap);
-	}
-		
-
-
+	isTerGenerated = true;
 }
 
 
@@ -204,10 +217,14 @@ void FireLevel::draw(const RenderContext& rc)
 	//rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
 	//hexCluster.Draw(dc, rc.shMan->shaderLight);
 
-	rc.shMan->shaderMaze.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
-	hexCluster.Draw(dc, rc.shMan->shaderMaze);
+	fireTerrain.Draw(dc, rc.shMan->shaderTerNorm, SMatrix::Identity, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
 
-
+	if (isTerGenerated)
+	{
+		rc.shMan->shaderMaze.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexCluster.Draw(dc, rc.shMan->shaderMaze);
+	}
+	
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
 	will.Draw(dc, rc.shMan->shVolumFire);

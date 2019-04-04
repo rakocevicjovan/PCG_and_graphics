@@ -490,11 +490,14 @@ namespace Procedural
 
 
 
-	void Terrain::NoisyFault(const SRay& line, float vertDp, float horiDp)
+	void Terrain::NoisyFault(const SRay& line, float vertDp, float horiDp, float perlinZoom)
 	{
-		float adjX = line.position.x;
-		float adjZ = line.position.z;
+		float rox = line.position.x;
+		float roz = line.position.z;
 
+		//SVec3 adjFaultPos = SVec3(Math::smoothstep(0, 1, line.position.x), 0, Math::smoothstep(0, 1, line.position.z));
+
+		//to put the vertices in the 0-1 range
 		float inverseWidth = 1.f / ((float)_numColumns * xScale);
 		float inverseDepth = 1.f / ((float)_numRows    * zScale);
 		
@@ -504,9 +507,9 @@ namespace Procedural
 		{
 			Vert3D cv = vertices[i];
 			SVec2 input = SVec2(cv.pos.x * inverseWidth, cv.pos.z * inverseDepth);
-			float p2dVal = p.perlin2d(input) * horiDp;
+			float p2dVal = p.perlin2d(input * perlinZoom) * horiDp;
 			
-			if (line.direction.z * (cv.pos.x - adjX) - line.direction.x * (cv.pos.z - adjZ) > p2dVal)
+			if (line.direction.z * (cv.pos.x - rox) - line.direction.x * (cv.pos.z - roz) > p2dVal)
 				vertices[i].pos.y += vertDp;
 		}
 	}
@@ -560,7 +563,22 @@ namespace Procedural
 		}
 	}
 
+
+
+	void Terrain::Mesa(const SVec2 &center, float radius, float height, float bandWidth)
+	{
+		float inner = radius * radius;
+		float outer = pow((radius + bandWidth), 2);
+
+		for (int i = 0; i < vertices.size(); ++i)
+		{
+			float sqDistToCenter = SVec2::DistanceSquared(SVec2(vertices[i].pos.x, vertices[i].pos.z), center);
+			vertices[i].pos.y += Math::smoothstep(outer, inner, sqDistToCenter) * height;
+		}
+	}
+
 	
+
 	//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 	//apply this FIR function to rows and columns individually, in both directions
 	void Terrain::Smooth(unsigned int steps) 
