@@ -1,6 +1,9 @@
 #include "Terrain.h"
 #include "Chaos.h"
 #include "Perlin.h"
+#include "ShaderBase.h"
+#include "Camera.h"
+
 
 namespace Procedural 
 {
@@ -418,7 +421,7 @@ namespace Procedural
 
 
 
-	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, const PointLight& pointLight, float deltaTime, SVec3 eyePos)
+	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		unsigned int bufferNumber;
@@ -427,9 +430,9 @@ namespace Procedural
 		LightBuffer* dataPtr2;
 
 
-		SMatrix mT = mt.Transpose();
-		SMatrix vT = vt.Transpose();
-		SMatrix pT = pt.Transpose();
+		SMatrix mT = SMatrix::CreateTranslation(_offset).Transpose();
+		SMatrix vT = cam.GetViewMatrix().Transpose();
+		SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
 		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return;
 		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
@@ -451,7 +454,7 @@ namespace Procedural
 		dataPtr2->slc = pointLight.slc;
 		dataPtr2->sli = pointLight.sli;
 		dataPtr2->pos = pointLight.pos;
-		dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
+		dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 		dc->Unmap(s._lightBuffer, 0);
 		bufferNumber = 0;
 		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
@@ -541,9 +544,9 @@ namespace Procedural
 
 
 
-	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps)
+	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps, float initAngle)
 	{
-		float curAngle = 0;
+		float curAngle = initAngle;
 
 		for (int i = 0; i < steps; ++i)
 		{
@@ -565,7 +568,7 @@ namespace Procedural
 
 
 
-	void Terrain::Mesa(const SVec2 &center, float radius, float height, float bandWidth)
+	void Terrain::Mesa(const SVec2& center, float radius, float bandWidth, float height)
 	{
 		float inner = radius * radius;
 		float outer = pow((radius + bandWidth), 2);

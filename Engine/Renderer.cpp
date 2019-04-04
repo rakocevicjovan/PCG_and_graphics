@@ -1,67 +1,44 @@
 #include "Renderer.h"
 #include "InputManager.h"
 
-Renderer::Renderer()
-{
-	_D3D = 0;
-	drawUI = false;
-}
+Renderer::Renderer() : drawUI(false) {}
 
 
 
-Renderer::~Renderer()
-{
-
-}
+Renderer::~Renderer() {}
 
 
-
-#define EARTH _resMan._level1
-#define FIRE  _resMan._level2
-#define WATER _resMan._level3
-#define AIR   _resMan._level4
+#define EARTH _resMan->_level1
+#define FIRE  _resMan->_level2
+#define WATER _resMan->_level3
+#define AIR   _resMan->_level4
 #define EYE_POS _cam.GetCameraMatrix().Translation()
 
 
-
-bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan)
+bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan, ResourceManager& resMan, D3D& d3d)
 {
-	_D3D = new D3D;
-	if(!_D3D)
-		return false;
-
-	if(!_D3D->Initialize(windowWidth, windowHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
-	{
-		MessageBox(hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
-		return false;
-	}
-
-	_device = _D3D->GetDevice();
-	_deviceContext = _D3D->GetDeviceContext();
-
 	_inMan = &inMan;
-
-	_colEngine.init(_device, _deviceContext);
+	_d3d = &d3d;
+	_resMan = &resMan;
+	
+	_device = d3d.GetDevice();
+	_deviceContext = d3d.GetDeviceContext();
 
 	shMan.init(_device, hwnd);
-	_resMan.init(_device);
 
+	
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
-	_colEngine.registerModel(&(EARTH.maze.model), BVT_AABB);
+	// Setup the projection matrix.
+	_fieldOfView = PI / 3.0f;
+	_screenAspect = (float)windowWidth / (float)windowHeight;
 
-	///CAMERA INITIALISATION
-	SMatrix projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(_D3D->_fieldOfView, _D3D->_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
-
-	_cam = Camera(SMatrix::Identity, projectionMatrix);
-	_controller = Controller(&inMan);
-	_cam._controller = &_controller;
-
-	_colEngine.registerController(_controller);	//works both ways
-
-	_currentLevel = &_resMan._level1;
-
+	//_colEngine.registerModel(&(EARTH.maze.model), BVT_AABB);
+	///CAMERA INITIALISATION - get this out of here, I want to support multiple cameras no reason to hardcode one like this
+	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
+	///get this out of here too!
+	_currentLevel = &_resMan->_level1;
 	return true;
 }
 
@@ -71,7 +48,7 @@ bool Renderer::Frame(float dTime)
 	ProcessSpecialInput(dTime);
 	elapsed += dTime;
 
-	if (!_controller.isFlying())
+	if (!_cam._controller->isFlying())
 	{
 		SVec3 oldPos = EYE_POS;
 		float newHeight = EARTH.proceduralTerrain.getHeightAtPosition(EYE_POS);
@@ -92,7 +69,7 @@ bool Renderer::Frame(float dTime)
 bool Renderer::RenderFrame(float dTime)
 {
 	rc.cam = &_cam;
-	rc.d3d = _D3D;
+	rc.d3d = _d3d;
 	rc.dTime = dTime;
 	rc.elapsed = elapsed;
 	rc.shMan = &shMan;
@@ -100,18 +77,6 @@ bool Renderer::RenderFrame(float dTime)
 	_currentLevel->draw(rc);
 
 	return true;
-}
-
-
-
-void Renderer::Shutdown() 
-{
-	if (_D3D) 
-	{
-		_D3D->Shutdown();
-		delete _D3D;
-		_D3D = 0;
-	}
 }
 
 
@@ -141,13 +106,13 @@ void Renderer::ProcessSpecialInput(float dTime)
 
 	if (_inMan->IsKeyDown((short)'L'))
 	{
-		_currentLevel = _resMan.advanceLevel();
+		_currentLevel = _resMan->advanceLevel();
 		sinceLastInput = 0;
 	}
 
 	if (_inMan->IsKeyDown((short)'F'))
 	{
-		_controller.toggleFly();
+		_cam._controller->toggleFly();
 		sinceLastInput = 0;
 	}
 		

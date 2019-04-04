@@ -7,6 +7,7 @@
 #include "InputManager.h"
 #include "Renderer.h"
 #include "GameClock.h"
+#include "CollisionEngine.h"
 
 class AudioEngine;
 
@@ -35,9 +36,17 @@ private:
 	HWND m_hwnd;
 	POINT midWindow;
 
-	InputManager _input;
-	Renderer* _renderer;
+	D3D _D3D;
+	Renderer _renderer;
+	ResourceManager _resMan;
+	InputManager _inputManager;
 	AudioEngine* _audio;
+	CollisionEngine _colEngine;
+	Controller _controller;
+
+	ID3D11Device* _device;
+	ID3D11DeviceContext* _deviceContext;
+	
 
 	int screenWidth, screenHeight, windowWidth, windowHeight;
 };

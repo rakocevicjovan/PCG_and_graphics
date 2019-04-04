@@ -4,9 +4,10 @@
 #include "MeshDataStructs.h"
 #include "Math.h"
 #include "Light.h"
-#include "ShaderLight.h"
 #include "Texture.h"
 
+class ShaderBase;
+class Camera;
 
 namespace Procedural 
 {
@@ -89,25 +90,24 @@ namespace Procedural
 		void Fault(const SRay& line, float displacement);
 		void NoisyFault(const SRay& line, float vertDp, float horiDp, float perlinZoom);
 		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
-		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps);
-		void Mesa(const SVec2& center, float radius, float height, float bandWidth);
+		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps, float initAngle = 0.f);
+		void Mesa(const SVec2& center, float radius, float bandWidth, float height);
 		void Smooth(unsigned int steps);	
 
 		
-
 		///wrapping up and directX integration
 		void CalculateNormals();
 		SVec3 calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2);
 		bool SetUp(ID3D11Device* device);
-		void Draw(ID3D11DeviceContext* dc, ShaderBase& s, 
-			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
-			const PointLight& pointLight, float deltaTime, SVec3 eyePos);
+		void Draw(ID3D11DeviceContext* dc, ShaderBase& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
 
 
 		///getters
 		unsigned int	getNumCols()	{ return _numColumns;	}
 		unsigned int	getNumRows()	{ return _numRows;		}
 		auto&			getVerts()		{ return vertices;		}
+
+		void setOffset(float x, float y, float z) { _offset = SVec3(x, y, z); }
 		
 		///stuff
 		std::vector<SVec2> getHorizontalPositions();

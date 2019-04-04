@@ -139,6 +139,19 @@ static const float LACUNARITY = 2.13795;
 static const float GAIN = .497531;
 
 
+/*not used *//*
+float calcEmbers(inout float3 diffuse, float3 norm, float time, float2 coord)
+{
+	diffuse *= (0.5 + 0.5 * norm.x) * 2.5 + float3(1.0, 0.35, 0.04) * 0.02;	//stronger colour when norm points to the right, weaker when to the left
+
+	//a bit of variation in the intensity using the time, really subtle though, and using the fbm with offset
+	float embers = smoothstep(0.77 + 0.01 * (sin(elapsed * 20.0) + sin(elapsed)), 1.0, fbm(coord*10.0 + float2(cos(coord.y * 0.8 + time * 0.7) * 10.0, time * 4.0)));
+
+	embers += smoothstep(0.77 + sin(time*22.0)*0.01 + sin(time*1.2)*0.01, 1.0, fbm(float2(100.0) + coord * 8.0 + float2(time*8.0 + cos(coord.y*0.3 + time * 0.3)*10.0, time*7.0)));
+	return embers;
+}*/
+
+
 float fbm(in float3 pos)
 {
 	float v = 0.0;

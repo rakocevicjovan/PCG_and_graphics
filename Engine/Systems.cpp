@@ -1,7 +1,7 @@
 #include "Systems.h"
 #include <string>
 
-Systems::Systems() : screenWidth(0), screenHeight(0), _renderer(0), _audio(0){
+Systems::Systems() : screenWidth(0), screenHeight(0), _audio(0){
 
 }
 
@@ -15,15 +15,27 @@ bool Systems::Initialize()
 
 	InitializeWindows(screenWidth, screenHeight);
 
-	_input.Initialize();
-
-	_renderer = new Renderer;
-	if(!_renderer)
+	_inputManager.Initialize();
+	_controller = Controller(&_inputManager);
+	
+	if (!_D3D.Initialize(windowWidth, windowHeight, VSYNC_ENABLED, m_hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
+	{
+		MessageBox(m_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
+	}
 
-	if(!_renderer->Initialize(windowWidth, windowHeight, m_hwnd, _input))
+	_device = _D3D.GetDevice();
+	_deviceContext = _D3D.GetDeviceContext();
+
+	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _inputManager, _resMan, _D3D))
 		return false;
 	
+	_colEngine.init();
+	_colEngine.registerController(_controller);	//works both ways
+	_renderer._cam._controller = &_controller;
+
+	_resMan.init(_device);
+
 	return true;
 }
 
@@ -144,10 +156,10 @@ void Systems::Run()
 
 bool Systems::Frame(float dTime)
 {
-	bool res = _renderer->Frame(dTime);
+	bool res = _renderer.Frame(dTime);
 
-	if (_input.IsKeyDown(VK_ESCAPE)) return false;
-	_input.SetXY(0, 0);
+	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
+	_inputManager.SetXY(0, 0);
 
 	return res;
 }
@@ -156,15 +168,6 @@ bool Systems::Frame(float dTime)
 
 void Systems::Shutdown()
 {
-	// Release the graphics object.
-	if (_renderer)
-	{
-		_renderer->Shutdown();
-		delete _renderer;
-		_renderer = 0;
-	}
-	//@TODO this is where I'd delete my audio system... if I had one
-
 	ShutdownWindows();
 }
 
@@ -215,12 +218,12 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 	{
 		case WM_KEYDOWN:
 		{
-			_input.KeyDown((unsigned int)wparam);
+			_inputManager.KeyDown((unsigned int)wparam);
 			break;
 		}
 		case WM_KEYUP:
 		{
-			_input.KeyUp((unsigned int)wparam);
+			_inputManager.KeyUp((unsigned int)wparam);
 			break;
 		}
 		case WM_INPUT:
@@ -240,7 +243,7 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 
 				if (raw->header.dwType == RIM_TYPEMOUSE)
 				{
-					_input.SetXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
+					_inputManager.SetXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
 				}
 
 				delete[] lpb;

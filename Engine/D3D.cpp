@@ -334,10 +334,6 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 	// Create the viewport.
     _deviceContext->RSSetViewports(1, &viewport);
 
-	// Setup the projection matrix.
-	_fieldOfView = PI / 3.0f;
-	_screenAspect = (float)screenWidth / (float)screenHeight;
-
     return true;
 }
 

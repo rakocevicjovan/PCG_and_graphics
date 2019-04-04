@@ -2,7 +2,6 @@
 #include "Camera.h"
 #include "ShaderManager.h"
 #include "ResourceManager.h"
-#include "CollisionEngine.h"
 #include "Rekt.h"
 #include "GameClock.h"
 
@@ -20,36 +19,33 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool Initialize(int, int, HWND, InputManager& inMan);
+	bool Initialize(int, int, HWND, InputManager& inMan, ResourceManager& resMan, D3D& d3d);
 	bool Frame(float dTime);
-	void Shutdown();
 	void ProcessSpecialInput(float dTime);
+
+	float _fieldOfView, _screenAspect;
+
+	Camera _cam;
 
 private:
 
 	bool RenderFrame(float dTime);
 	void OutputFPS(float dTime);
 
-	D3D* _D3D;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 
 	InputManager* _inMan;
-	ResourceManager _resMan;
+	ResourceManager* _resMan;
 	ShaderManager shMan;
-	CollisionEngine _colEngine;
-
-	Camera _cam;
-	Controller _controller;
+	D3D* _d3d;
 
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
-	RenderContext rc;
-
+	
 	Level* _currentLevel;
-
+	RenderContext rc;
 	bool drawUI;
 	float elapsed = 0.f;
-
 	float sinceLastInput = 0.f;
 };

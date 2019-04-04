@@ -38,7 +38,6 @@ public:
 	void SwitchDepthToLessEquals();
 	void SwitchDepthToDefault();
 
-	float _fieldOfView, _screenAspect;
 	ID3D11RenderTargetView* m_renderTargetView;
 	D3D11_VIEWPORT viewport;
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };

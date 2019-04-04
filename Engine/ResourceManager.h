@@ -12,6 +12,7 @@
 #include "Audio.h"
 #include "ParticleSystem.h"
 
+
 //procedural
 #include "Terrain.h"
 #include "Perlin.h"
@@ -21,6 +22,7 @@
 #include "BitMapper.h"
 #include "Geometry.h"
 #include "Maze.h"
+#include "Hexer.h"
 
 class D3D;
 
@@ -37,6 +39,8 @@ struct RenderContext
 
 class Level
 {
+protected:
+
 public:
 	virtual void init(ID3D11Device* device) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
@@ -94,18 +98,22 @@ public:
 	void init(ID3D11Device* device);
 	void procGen(ID3D11Device* device);
 	void draw(const RenderContext& rc);
-	void demolish() { this->~EarthLevel(); };
+	void demolish()
+	{
+		this->~EarthLevel(); 
+	};
 };
 
 
 
 class FireLevel : public Level
 {
-	Procedural::Terrain fireTerrain;
+	Procedural::Terrain terrain, island, lavaSheet;
+	Hexer hexer;
 	Model skybox;
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper;
-	Model  will, hexCluster;
+	Model will, hexCluster, hexModel;
 	Texture hexDiffuseMap, hexNormalMap;
 	bool isTerGenerated = false;
 

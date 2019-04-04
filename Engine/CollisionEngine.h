@@ -150,9 +150,6 @@ class CollisionEngine
 	std::vector<Model*> _models;
 	std::vector<Collider> _colliders;
 
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
-
 	Grid grid;
 
 	Hull* genSphereHull(Mesh* mesh);
@@ -161,12 +158,10 @@ class CollisionEngine
 	
 public:
 
-	std::vector<Model> _colModels;
-
 	CollisionEngine();
 	~CollisionEngine();
 
-	void init(ID3D11Device* d, ID3D11DeviceContext* dc) { _device = d; _deviceContext = dc; }
+	void init() {}
 
 	void registerModel(Model* model, BoundingVolumeType bvt);
 	void unregisterModel(const Model* model);

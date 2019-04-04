@@ -122,24 +122,22 @@ void EarthLevel::draw(const RenderContext& rc)
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
-	rc.d3d->TurnOffCulling();
-	rc.d3d->SwitchDepthToLessEquals();
-
-	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(dc, rc.shMan->shaderSkybox);
-	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
-
-	rc.d3d->SwitchDepthToDefault();
-	rc.d3d->TurnOnCulling();
-
 	if (isTerGenerated)
 	{
-		proceduralTerrain.Draw(dc, rc.shMan->shaderTerNorm, SMatrix::Identity, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
+		proceduralTerrain.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
 	}
 
 	rc.shMan->shaderMaze.SetShaderParameters(dc, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
 	maze.model.Draw(dc, rc.shMan->shaderMaze);
 	rc.shMan->shaderMaze.ReleaseShaderParameters(dc);
+
+	rc.d3d->TurnOffCulling();
+	rc.d3d->SwitchDepthToLessEquals();
+	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
+	skybox.Draw(dc, rc.shMan->shaderSkybox);
+	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
+	rc.d3d->SwitchDepthToDefault();
+	rc.d3d->TurnOnCulling();
 
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumAir.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
@@ -154,7 +152,7 @@ void EarthLevel::draw(const RenderContext& rc)
 void FireLevel::init(ID3D11Device* device)
 {
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
 
 	will.LoadModel(device, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(5.f));
@@ -166,16 +164,48 @@ void FireLevel::init(ID3D11Device* device)
 	Texture terrainTex;
 	auto fltVec = terrainTex.generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);	//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 1.61803, 0.5793f, 6u);
 	
-	fireTerrain.setScales(2, 100, 2);
-	fireTerrain.GenFromTexture(terrainTex.w, terrainTex.h, fltVec);
-	fireTerrain.Mesa(SVec2(256), 64, 64, 128);
-	//fireTerrain.NoisyFault(SRay(SVec3(25.f, 0.f, 0.f), SVec3(1.f, 0.f, 1.f)), -20.f, 200.f, 64);
-	//fireTerrain.CircleOfScorn(SVec2(256), 40.f, PI * 0.01337f, -PI, 2.f / 0.01337f);
-	//fireTerrain.CircleOfScorn(SVec2(256), 40.f, -PI * 0.01337f, -PI, 64);	//384
 
-	fireTerrain.setTextureData(device, 10, 10, {"../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png"});
+	//terrain generation
+	terrain.setScales(4, 100, 4);
+	terrain.GenFromTexture(terrainTex.w, terrainTex.h, fltVec);
+	terrain.Mesa(SVec2(512), 384, 128, -256);
+	terrain.CircleOfScorn(SVec2(768, 768), 40.f, PI * 0.01337f, 2 * PI, 64, 1.2 * PI);
+	terrain.setOffset(0, 128, 0);
 
-	fireTerrain.SetUp(device);
+	terrain.setTextureData(device, 10, 10, {"../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png"});
+	terrain.SetUp(device);
+
+	island = Procedural::Terrain(128, 128, SVec3(4, 300, 4));
+	island.Mesa(SVec2(128), 32, 64, 128);
+	island.setOffset(512, 0, 512);
+	island.setTextureData(device, 10, 10, {"../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg"});
+	island.SetUp(device);
+
+	lavaSheet = Procedural::Terrain(256, 256, SVec3(4, 2, 4));
+	lavaSheet.setTextureData(device, 10, 10, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
+	lavaSheet.setOffset(0, 32, 0);
+	lavaSheet.SetUp(device);
+
+
+	//textures
+	hexDiffuseMap.LoadFromFile("../Textures/Crymetal/diffuse.jpg");
+	hexDiffuseMap.Setup(device);
+	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
+	hexNormalMap.Setup(device);
+
+
+	//hexer
+	hexer.init();
+	hexer.addPlatform(hexer.root, 0);
+	for (int i = 0; i < 30; ++i)
+	{
+		hexer.addPlatform(hexer.platforms.back(), i % 6);
+	}
+	
+
+	Procedural::Geometry hex;
+	hex.GenHexaprism(30.f, 10.f);
+	hexModel.meshes.push_back(Mesh(hex, device));
 }
 
 
@@ -183,15 +213,9 @@ void FireLevel::init(ID3D11Device* device)
 void FireLevel::procGen(ID3D11Device* device)
 {
 	Procedural::Geometry hex;
-	//hex.GenHexaprism(30.f, 10.f);
 	std::vector<Procedural::Geometry> hexes = hex.GenHexGrid(30.f, 10.f, 2);
 	for (auto& h : hexes)
 		hexCluster.meshes.emplace_back(h, device);
-
-	hexDiffuseMap.LoadFromFile("../Textures/Crymetal/diffuse.jpg");
-	hexDiffuseMap.Setup(device);
-	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
-	hexNormalMap.Setup(device);
 
 	isTerGenerated = true;
 }
@@ -204,7 +228,19 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
-	/*
+	//rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
+	//hexCluster.Draw(dc, rc.shMan->shaderLight);
+
+	terrain.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
+	island.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed); 
+	lavaSheet.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed); 
+	
+	if (isTerGenerated)
+	{
+		rc.shMan->shaderMaze.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexCluster.Draw(dc, rc.shMan->shaderMaze);
+	}
+
 	rc.d3d->TurnOffCulling();
 	rc.d3d->SwitchDepthToLessEquals();
 	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
@@ -212,18 +248,15 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
 	rc.d3d->SwitchDepthToDefault();
 	rc.d3d->TurnOnCulling();
-	*/
 
-	//rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
-	//hexCluster.Draw(dc, rc.shMan->shaderLight);
-
-	fireTerrain.Draw(dc, rc.shMan->shaderTerNorm, SMatrix::Identity, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(), pointLight, rc.elapsed, rc.cam->GetCameraMatrix().Translation());
-
-	if (isTerGenerated)
+	hexer.update(rc.dTime);
+	for (auto& p : hexer.platforms)
 	{
-		rc.shMan->shaderMaze.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
-		hexCluster.Draw(dc, rc.shMan->shaderMaze);
+		hexModel.transform = SMatrix::CreateTranslation(p.position);
+		rc.shMan->shaderMaze.SetShaderParameters(dc, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexModel.Draw(dc, rc.shMan->shaderMaze);
 	}
+
 	
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);

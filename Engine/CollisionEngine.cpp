@@ -16,7 +16,6 @@ void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
 {
 	_colliders.push_back(generateCollider(model, bvt));
 	model->collider = &(_colliders.back());
-	_colModels.emplace_back(_colliders.back(), _device);
 
 	_models.push_back(model);
 	addToGrid(_colliders.back());
@@ -445,34 +444,3 @@ std::vector<SPlane> AABB::getPlanes() const
 
 	return result;
 }
-
-
-
-/*
-Hull* CollisionEngine::genQuickHull(Mesh* mesh)
-{
-	quickhull::QuickHull<float> qh;
-	std::vector<quickhull::Vector3<float>> pointCloud;
-
-	pointCloud.reserve(mesh->vertices.size());
-	for (Vert3D v : mesh->vertices)
-		pointCloud.push_back(quickhull::Vector3<float>(v.pos.x, v.pos.y, v.pos.z));
-
-	auto hull = qh.getConvexHull(pointCloud, false, false);
-	auto indexBuffer = hull.getIndexBuffer();
-	auto vertexBuffer = hull.getVertexBuffer();
-
-	CHull* ch = new CHull;
-	ch->convexHull = hull;
-
-	return ch;
-}
-
-
-
-template<typename FloatType>
-FloatType quickhull::defaultEps()
-{
-	return 0.0001f;
-}
-*/
