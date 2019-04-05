@@ -12,7 +12,6 @@
 #include "Audio.h"
 #include "ParticleSystem.h"
 
-
 //procedural
 #include "Terrain.h"
 #include "Perlin.h"
@@ -23,8 +22,6 @@
 #include "Geometry.h"
 #include "Maze.h"
 #include "Hexer.h"
-
-class D3D;
 
 class ResourceManager
 {

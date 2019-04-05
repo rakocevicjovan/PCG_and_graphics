@@ -1,7 +1,6 @@
 #include "D3D.h"
 #include "Camera.h"
 #include "ShaderManager.h"
-#include "ResourceManager.h"
 #include "Rekt.h"
 #include "GameClock.h"
 
@@ -10,7 +9,7 @@ const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
-
+class ResourceManager;
 
 struct RenderContext
 {
@@ -29,7 +28,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d);
+	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
 	bool Frame(float dTime);
 
 	float _fieldOfView, _screenAspect, elapsed = 0.f;
@@ -39,9 +38,11 @@ public:
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
 
+	RenderContext rc;
+
 private:
 	
-	bool RenderFrame(float dTime);
+	bool UpdateRenderContext(float dTime);
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
@@ -49,6 +50,4 @@ private:
 	ResourceManager* _resMan;
 	ShaderManager _shMan;
 	D3D* _d3d;
-
-	RenderContext rc;
 };

@@ -1,5 +1,8 @@
 #include "Renderer.h"
 #include "InputManager.h"
+#include "ResourceManager.h"
+
+
 
 Renderer::Renderer() {}
 
@@ -16,7 +19,7 @@ Renderer::~Renderer() {}
 #define EYE_POS _cam.GetCameraMatrix().Translation()
 
 
-bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d)
+bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d, Controller& ctrl)
 {
 	_d3d = &d3d;
 	_resMan = &resMan;
@@ -36,6 +39,8 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 	///CAMERA INITIALISATION - get this out of here, I want to support multiple cameras no reason to hardcode one like this
 	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
 
+	_cam._controller = &ctrl;
+
 	return true;
 }
 
@@ -46,12 +51,12 @@ bool Renderer::Frame(float dTime)
 	elapsed += dTime;
 	_cam.update(dTime);
 
-	return RenderFrame(dTime);
+	return UpdateRenderContext(dTime);
 }
 
 
 
-bool Renderer::RenderFrame(float dTime)
+bool Renderer::UpdateRenderContext(float dTime)
 {
 	rc.cam = &_cam;
 	rc.d3d = _d3d;

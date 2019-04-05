@@ -24,14 +24,14 @@ bool Systems::Initialize()
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _resMan, _D3D))
+	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _resMan, _D3D, _controller))
 		return false;
 	
 	_colEngine.init();
 	_colEngine.registerController(_controller);	//works both ways
 	_renderer._cam._controller = &_controller;
 
-	//_resMan.init(_device);
+	_levelMan = LevelManager(*this);
 
 	return true;
 }
@@ -151,16 +151,21 @@ void Systems::Run()
 }
 
 
+
 bool Systems::Frame(float dTime)
 {
-	bool res = _renderer.Frame(dTime);
+	if (!_renderer.Frame(dTime))
+		return false;
+
+	_levelMan.drawCurrentLevel(_renderer.rc);
+
 	OutputFPS(dTime);
 
 	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
 	
 	_inputManager.SetXY(0, 0);
 
-	return res;
+	return true;
 }
 
 

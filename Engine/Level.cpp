@@ -1,15 +1,8 @@
 #include "Level.h"
+#include "Controller.h"
+#include <d3d11.h>
 
-
-Level::Level(Systems& sys) : 
-	/*_renderer(sys._renderer), 
-	_resMan(sys._resMan),
-	_inputManager(sys._inputManager),
-	_audio(sys._audio),
-	_colEngine(sys._colEngine),
-	_controller(sys._controller),*/
-	_sys(&sys)
-{}
+Level::Level(Systems& sys) : _sys(&sys) {}
 
 #define device _sys->_device
 #define dc _sys->_deviceContext
@@ -89,7 +82,7 @@ void EarthLevel::draw(const RenderContext& rc)
 	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
 	pSys.updateStdFunc(&pud);
 
-	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
+	_sys->_deviceContext->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 

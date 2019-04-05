@@ -9,6 +9,8 @@
 #include "GameClock.h"
 #include "CollisionEngine.h"
 #include "Audio.h"
+#include "LevelManager.h"
+#include "ResourceManager.h"
 
 class Systems
 {
@@ -29,6 +31,7 @@ public:
 	Audio _audio;
 	CollisionEngine _colEngine;
 	Controller _controller;
+	LevelManager _levelMan;
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;

@@ -1,16 +1,21 @@
 #pragma once
-#include "Level.h"
+#include <vector>
 
+class Level;
+class Systems;
+class RenderContext;
 
 class LevelManager
 {
-	Systems& sys;
 	std::vector<Level*> _levels;
+	Level* current;
 
 public:
+	LevelManager() {};
 	LevelManager(Systems& systems);
 	~LevelManager();
 
-	Level* advanceLevel();
+	Level* advanceLevel(Systems& systems);
+	void drawCurrentLevel(RenderContext& renderContext);
 };
 
