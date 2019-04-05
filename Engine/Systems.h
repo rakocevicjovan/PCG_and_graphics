@@ -43,7 +43,6 @@ private:
 	void ProcessInput();
 
 	D3D _D3D;
-
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;

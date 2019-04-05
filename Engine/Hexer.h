@@ -10,6 +10,26 @@ struct Platform
 
 	SVec3 position;
 	float age = 0.f;
+	bool active = true;
+};
+
+
+
+struct AxialCoords
+{
+	AxialCoords() {}
+	AxialCoords(int q, int r) : q(q), r(r) {}
+
+	int q, r;
+};
+
+
+
+struct HexGridCell
+{
+	CellKey ck;
+
+
 };
 
 
@@ -18,19 +38,30 @@ class Hexer
 {
 	ID3D11Device* _device;
 	CollisionEngine* colEng;
-	float _lifeSpan = 25.f;
-	float cellSize = 10.f;
+	float _lifeSpan = 150.f, _cellSize = 0.f, _cellDist = 0.f, _triHeight = 0.f;
 	std::vector<SVec3> dirs;
 	Model model;
+
+	std::vector<CellKey> cubeDirs =
+	{ 
+		CellKey(+1, -1, 0), CellKey(+1, 0, -1), CellKey(0, +1, -1), CellKey(-1, +1, 0), CellKey(-1, 0, +1), CellKey(0, -1, +1)
+	};
 
 public:
 	Hexer() {};
 	~Hexer() {}
 
-	Platform root;
-	std::vector<Platform> platforms;
+	Platform _root;
+	SVec3 _lastPlatformPos;
+	std::vector<Platform> _platforms;
+	std::vector<SVec3> _obstacles;
 
-	void init();
-	void addPlatform(Platform p, int direction);
+	void init(float cellSize, SVec3 root);
+	void addPlatform(SVec3 parentPos, int direction);
 	void update(float dTime);
+	void createObstacleCourse();
+
+	SVec3 getCornerPos(const SVec3& center, UINT i);
+	CellKey axialToCube(AxialCoords ac);
+	AxialCoords cubeToAxial(CellKey ck);
 };

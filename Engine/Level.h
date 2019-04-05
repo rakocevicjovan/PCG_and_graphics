@@ -1,12 +1,18 @@
+#pragma once
 #include "Systems.h"
+#include "GameObject.h"
 
-
+#define device _sys->_device
+#define dc _sys->_deviceContext
 
 class Level
 {
 protected:
 	Systems* _sys;
-	float sinceLastInput = 0.f;
+	float sinceLastInput = 0.f;	//consequence of slightly changing rastertek input instead of completely redoing it... fucking hell
+
+	std::vector<GameObject*> objects;
+	std::vector<GraphicComponent*> lesRenderables;
 
 public:
 	Level(Systems& sys);
@@ -20,6 +26,17 @@ public:
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 class OldLevel : public Level
 {
 public:
@@ -29,104 +46,4 @@ public:
 	void draw(const RenderContext& rc) {};
 	void demolish() {};
 	void procGen() {};
-};
-
-
-
-class EarthLevel : public Level
-{
-public:
-	EarthLevel(Systems& sys) : Level(sys) {};
-
-	///each level probably contains these
-	PointLight pointLight;
-	Model skybox;
-	CubeMapper skyboxCubeMapper;
-	Model  will;
-	std::vector<Procedural::Terrain> procTerrains;
-
-	//specific to the level
-	Texture mazeDiffuseMap, mazeNormalMap;
-
-
-	//off-screen render targets
-	OST postProcessTexture;	//offScreenTexture
-	const unsigned int ostW = 1600, ostH = 900;
-
-	//sounds
-	Audio audio;
-
-	//procedural stuff
-	Procedural::Terrain proceduralTerrain;
-	Procedural::Perlin perlin;
-	Procedural::LSystem linden;
-	Model treeModel;
-	Procedural::Maze maze;
-
-	ParticleSystem pSys;
-	std::function<void(ParticleUpdateData*)> particleUpdFunc1;
-	std::function<void(ParticleUpdateData*)> particleUpdFunc2;
-	bool isTerGenerated = false;
-
-	//load and draw all that jazz
-	void init(Systems& sys);
-	void procGen();
-	void draw(const RenderContext& rc);
-	void demolish()
-	{
-		this->~EarthLevel();
-	};
-};
-
-
-
-class FireLevel : public Level
-{
-	Procedural::Terrain terrain, island, lavaSheet;
-	Hexer hexer;
-	Model skybox;
-	PointLight pointLight;
-	CubeMapper skyboxCubeMapper;
-	Model will, hexCluster, hexModel;
-	Texture hexDiffuseMap, hexNormalMap;
-	bool isTerGenerated = false;
-
-public:
-	FireLevel(Systems& sys) : Level(sys) {};
-
-	void init(Systems& sys);
-	void procGen();
-	void draw(const RenderContext& rc);
-	void demolish() { this->~FireLevel(); };
-};
-
-
-
-class WaterLevel : public Level
-{
-public:
-	WaterLevel(Systems& sys) : Level(sys) {};
-
-	PointLight pointLight;
-	Model skybox, modBall;
-	CubeMapper skyboxCubeMapper, cubeMapper;
-	Model will;
-	std::map<std::string, Procedural::Terrain> terrainsMap;
-
-	void init(Systems& sys);
-	void procGen() {};
-	void draw(const RenderContext& rc);
-	void demolish() { this->~WaterLevel(); };
-};
-
-
-
-class AirLevel : public Level
-{
-public:
-	AirLevel(Systems& sys) : Level(sys) {};
-	void init(Systems& sys);
-	void procGen() {};
-	void draw(const RenderContext& rc);
-	void demolish() { this->~AirLevel(); };
 };

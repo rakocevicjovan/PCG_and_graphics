@@ -22,6 +22,9 @@
     <Filter Include="Ozz interface">
       <UniqueIdentifier>{ee4567c5-4e2b-4bb3-a465-bf49029ab316}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Levels">
+      <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -183,17 +186,29 @@
     <ClCompile Include="D3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Hexer.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="Level.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="FireLevel.cpp">
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterLevel.cpp">
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="AirLevel.cpp">
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="EarthLevel.cpp">
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="LevelManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Levels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,17 +380,29 @@
     <ClInclude Include="D3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Level.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Hexer.h">
       <Filter>Procedural</Filter>
     </ClInclude>
+    <ClInclude Include="Level.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="FireLevel.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterLevel.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="AirLevel.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="EarthLevel.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
     <ClInclude Include="LevelManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Levels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

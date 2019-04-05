@@ -335,8 +335,7 @@ namespace Procedural
 		std::vector<Geometry> result;
 
 		int initRingSize = 6, currentRingSize = 0;
-		float hexHeight = radius * sqrt(3.f) * .5f;
-		float hexCentDist = 2.f * hexHeight;
+		float hexCentDist = radius * sqrt(3.f);
 
 		SMatrix halfRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333 * .5f);
 		SMatrix fullRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);

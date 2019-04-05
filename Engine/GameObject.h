@@ -9,6 +9,18 @@ class Collider;
 class Controller;
 
 
+class GraphicComponent
+{
+public:
+	GraphicComponent() {};
+	GraphicComponent(Model* m, ShaderBase* s);
+
+	Model* model;
+	ShaderBase* shader;
+};
+
+
+
 class GameObject
 {
 public:
@@ -18,14 +30,9 @@ public:
 
 
 
-class GraphicComponent
+class Actor : public GameObject
 {
-public:
-	GraphicComponent() {};
-	GraphicComponent(Model* m, ShaderBase* s);
-
-	Model* model;
-	ShaderBase* shader;
+	GraphicComponent gc;
 };
 
 
