@@ -1,11 +1,12 @@
 #include "Renderer.h"
 #include "InputManager.h"
 
-Renderer::Renderer() : drawUI(false) {}
+Renderer::Renderer() {}
 
 
 
 Renderer::~Renderer() {}
+
 
 
 #define EARTH _resMan->_level1
@@ -15,17 +16,15 @@ Renderer::~Renderer() {}
 #define EYE_POS _cam.GetCameraMatrix().Translation()
 
 
-bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputManager& inMan, ResourceManager& resMan, D3D& d3d)
+bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d)
 {
-	_inMan = &inMan;
 	_d3d = &d3d;
 	_resMan = &resMan;
 	
 	_device = d3d.GetDevice();
 	_deviceContext = d3d.GetDeviceContext();
 
-	shMan.init(_device, hwnd);
-
+	_shMan.init(_device, hwnd);
 	
 	_rekt = new Rekt(_device, _deviceContext);
 	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
@@ -34,32 +33,18 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, InputMan
 	_fieldOfView = PI / 3.0f;
 	_screenAspect = (float)windowWidth / (float)windowHeight;
 
-	//_colEngine.registerModel(&(EARTH.maze.model), BVT_AABB);
 	///CAMERA INITIALISATION - get this out of here, I want to support multiple cameras no reason to hardcode one like this
 	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
-	///get this out of here too!
-	_currentLevel = &_resMan->_level1;
+
 	return true;
 }
 
 
+
 bool Renderer::Frame(float dTime)
 {
-	ProcessSpecialInput(dTime);
 	elapsed += dTime;
-
-	if (!_cam._controller->isFlying())
-	{
-		SVec3 oldPos = EYE_POS;
-		float newHeight = EARTH.proceduralTerrain.getHeightAtPosition(EYE_POS);
-		SMatrix newMat = _cam.GetCameraMatrix();
-		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
-		_cam.SetCameraMatrix(newMat);
-	}
-
 	_cam.update(dTime);
-
-	OutputFPS(dTime);
 
 	return RenderFrame(dTime);
 }
@@ -72,51 +57,16 @@ bool Renderer::RenderFrame(float dTime)
 	rc.d3d = _d3d;
 	rc.dTime = dTime;
 	rc.elapsed = elapsed;
-	rc.shMan = &shMan;
-
-	_currentLevel->draw(rc);
+	rc.shMan = &_shMan;
 
 	return true;
 }
 
 
 
-void Renderer::OutputFPS(float dTime) 
-{
-	std::ostringstream ss;
-	ss << "Frame time: " << 1.0f / dTime << "\n";
-	std::string s(ss.str());
-	OutputDebugStringA(ss.str().c_str());
-}
 
 
 
-void Renderer::ProcessSpecialInput(float dTime) 
-{
-	sinceLastInput += dTime;
-	
-	if (sinceLastInput < .33f)
-		return;
-
-	if (_inMan->IsKeyDown(VK_SPACE))
-	{
-		_currentLevel->procGen(_device);
-		sinceLastInput = 0;
-	}
-
-	if (_inMan->IsKeyDown((short)'L'))
-	{
-		_currentLevel = _resMan->advanceLevel();
-		sinceLastInput = 0;
-	}
-
-	if (_inMan->IsKeyDown((short)'F'))
-	{
-		_cam._controller->toggleFly();
-		sinceLastInput = 0;
-	}
-		
-}
 
 
 

@@ -1,18 +1,15 @@
 #include "Systems.h"
 #include <string>
 
-Systems::Systems() : screenWidth(0), screenHeight(0), _audio(0){
+Systems::Systems() : screenWidth(0), screenHeight(0) {}
 
-}
+Systems::~Systems(){}
 
-Systems::~Systems(){
-}
 
 
 bool Systems::Initialize()
 {
 	screenWidth = screenHeight = 0;
-
 	InitializeWindows(screenWidth, screenHeight);
 
 	_inputManager.Initialize();
@@ -27,14 +24,14 @@ bool Systems::Initialize()
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _inputManager, _resMan, _D3D))
+	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _resMan, _D3D))
 		return false;
 	
 	_colEngine.init();
 	_colEngine.registerController(_controller);	//works both ways
 	_renderer._cam._controller = &_controller;
 
-	_resMan.init(_device);
+	//_resMan.init(_device);
 
 	return true;
 }
@@ -157,8 +154,10 @@ void Systems::Run()
 bool Systems::Frame(float dTime)
 {
 	bool res = _renderer.Frame(dTime);
+	OutputFPS(dTime);
 
 	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
+	
 	_inputManager.SetXY(0, 0);
 
 	return res;
@@ -166,17 +165,51 @@ bool Systems::Frame(float dTime)
 
 
 
-void Systems::Shutdown()
+void Systems::ProcessSpecialInput(float dTime)
 {
-	ShutdownWindows();
+	/*
+	sinceLastInput += dTime;
+
+	if (sinceLastInput < .33f)
+		return;
+
+	if (_inputManager.IsKeyDown(VK_SPACE))
+	{
+		_currentLevel->procGen(_device);
+		sinceLastInput = 0;
+	}
+
+	if (_inputManager.IsKeyDown((short)'L'))
+	{
+		_currentLevel = _resMan->advanceLevel();
+		sinceLastInput = 0;
+	}
+
+	if (_inputManager.IsKeyDown((short)'F'))
+	{
+		_cam._controller->toggleFly();
+		sinceLastInput = 0;
+	}
+	*/
 }
 
 
-void Systems::ShutdownWindows()
+
+void Systems::OutputFPS(float dTime)
+{
+	std::ostringstream ss;
+	ss << "Frame time: " << 1.0f / dTime << "\n";
+	std::string s(ss.str());
+	OutputDebugStringA(ss.str().c_str());
+}
+
+
+
+void Systems::Shutdown()
 {
 	ShowCursor(true);
 
-	if(FULL_SCREEN) ChangeDisplaySettings(NULL, 0);
+	if (FULL_SCREEN) ChangeDisplaySettings(NULL, 0);
 
 	DestroyWindow(m_hwnd);
 	m_hwnd = NULL;
@@ -186,6 +219,7 @@ void Systems::ShutdownWindows()
 
 	ApplicationHandle = NULL;
 }
+
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)

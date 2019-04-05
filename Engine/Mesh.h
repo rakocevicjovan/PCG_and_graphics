@@ -54,6 +54,7 @@ class Mesh
 		}
 
 
+
 		template <class InstancedShader>
 		void Mesh::draw(ID3D11DeviceContext* dc, InstancedShader& s)
 		{

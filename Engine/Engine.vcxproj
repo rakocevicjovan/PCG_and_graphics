@@ -106,6 +106,8 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Hexer.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
+    <ClCompile Include="Level.cpp" />
+    <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Maze.cpp" />
@@ -166,6 +168,7 @@
     <ClInclude Include="Hexer.h" />
     <ClInclude Include="InstancedShader.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="LevelManager.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />

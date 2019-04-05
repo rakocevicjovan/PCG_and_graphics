@@ -1,20 +1,32 @@
-#pragma once
+#include "Systems.h"
 
-/*
+
+
 class Level
 {
+protected:
+	Systems* _sys;
+
 public:
-	virtual void init(ID3D11Device* device) = 0;
-	virtual void draw(RenderContext rc) = 0;
+	Level(Systems& sys);
+
+	virtual void init(Systems& sys) = 0;
+	virtual void draw(const RenderContext& rc) = 0;
+	virtual void demolish() = 0;
+	virtual void procGen() = 0;
 };
 
 
 
-class OldLevel
+class OldLevel : public Level
 {
 public:
-	void init(ID3D11Device* device) {};
-	void draw(ID3D11DeviceContext* deviceContext, RenderContext rc) {};
+	OldLevel(Systems& sys) : Level(sys) {};
+
+	void init(Systems& sys) {};
+	void draw(const RenderContext& rc) {};
+	void demolish() {};
+	void procGen() {};
 };
 
 
@@ -22,6 +34,8 @@ public:
 class EarthLevel : public Level
 {
 public:
+	EarthLevel(Systems& sys) : Level(sys) {};
+
 	///each level probably contains these
 	PointLight pointLight;
 	Model skybox;
@@ -52,20 +66,36 @@ public:
 	std::function<void(ParticleUpdateData*)> particleUpdFunc2;
 	bool isTerGenerated = false;
 
-
 	//load and draw all that jazz
-	void init(ID3D11Device* device);
-	void procGen(ID3D11Device* device);
-	void draw(RenderContext rc);
+	void init(Systems& sys);
+	void procGen();
+	void draw(const RenderContext& rc);
+	void demolish()
+	{
+		this->~EarthLevel();
+	};
 };
 
 
 
 class FireLevel : public Level
 {
+	Procedural::Terrain terrain, island, lavaSheet;
+	Hexer hexer;
+	Model skybox;
+	PointLight pointLight;
+	CubeMapper skyboxCubeMapper;
+	Model will, hexCluster, hexModel;
+	Texture hexDiffuseMap, hexNormalMap;
+	bool isTerGenerated = false;
+
 public:
-	void init(ID3D11Device* device) {};
-	void draw(RenderContext rc) {};
+	FireLevel(Systems& sys) : Level(sys) {};
+
+	void init(Systems& sys);
+	void procGen();
+	void draw(const RenderContext& rc);
+	void demolish() { this->~FireLevel(); };
 };
 
 
@@ -73,14 +103,18 @@ public:
 class WaterLevel : public Level
 {
 public:
+	WaterLevel(Systems& sys) : Level(sys) {};
+
 	PointLight pointLight;
-	Model skybox;
-	CubeMapper skyboxCubeMapper;
+	Model skybox, modBall;
+	CubeMapper skyboxCubeMapper, cubeMapper;
 	Model will;
 	std::map<std::string, Procedural::Terrain> terrainsMap;
 
-	void init(ID3D11Device* device);
-	void draw(RenderContext rc) {};
+	void init(Systems& sys);
+	void procGen() {};
+	void draw(const RenderContext& rc);
+	void demolish() { this->~WaterLevel(); };
 };
 
 
@@ -88,7 +122,8 @@ public:
 class AirLevel : public Level
 {
 public:
-	void init(ID3D11Device* device) {};
-	void draw(RenderContext rc) {};
+	void init(Systems& sys);
+	void procGen() {};
+	void draw(const RenderContext& rc);
+	void demolish() { this->~AirLevel(); };
 };
-*/

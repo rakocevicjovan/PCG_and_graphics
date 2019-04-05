@@ -44,7 +44,8 @@ void Camera::SetCameraMatrix(const SMatrix& transform) {
 }
 
 //@todo add type of update as a short or some other lightweight argument or do something else...
-void Camera::update(float dTime) {
+void Camera::update(float dTime)
+{
 	_controller->processTransformationFPS(dTime, _cameraMatrix);
 	_viewMatrix = _cameraMatrix.Invert();
 }

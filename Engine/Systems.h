@@ -8,11 +8,10 @@
 #include "Renderer.h"
 #include "GameClock.h"
 #include "CollisionEngine.h"
+#include "Audio.h"
 
-class AudioEngine;
-
-class Systems{
-
+class Systems
+{
 public:
 	Systems();
 	~Systems();
@@ -24,31 +23,31 @@ public:
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 	
 	GameClock gc;
-
-private:
-	bool Frame(float dTime);
-	void InitializeWindows(int& w, int& h);
-	void ShutdownWindows();
-
-private:
-	LPCWSTR m_applicationName;
-	HINSTANCE m_hinstance;
-	HWND m_hwnd;
-	POINT midWindow;
-
-	D3D _D3D;
 	Renderer _renderer;
 	ResourceManager _resMan;
 	InputManager _inputManager;
-	AudioEngine* _audio;
+	Audio _audio;
 	CollisionEngine _colEngine;
 	Controller _controller;
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-	
 
+private:
+	bool Frame(float dTime);
+	void InitializeWindows(int& w, int& h);
+	void ProcessSpecialInput(float dTime);
+	void OutputFPS(float dTime);
+
+	D3D _D3D;
+
+	LPCWSTR m_applicationName;
+	HINSTANCE m_hinstance;
+	HWND m_hwnd;
+	POINT midWindow;
+	
 	int screenWidth, screenHeight, windowWidth, windowHeight;
+	float sinceLastInput = 0.f;
 };
 
 
