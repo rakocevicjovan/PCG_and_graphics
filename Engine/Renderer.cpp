@@ -46,12 +46,25 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 
 
 
-bool Renderer::Frame(float dTime)
+bool Renderer::Frame(float dTime, InputManager* inMan)
 {
 	elapsed += dTime;
+	sinceInput += dTime;
+	
 	_cam.update(dTime);
+	
+	bool res = UpdateRenderContext(dTime);
 
-	return UpdateRenderContext(dTime);
+	if (sinceInput < .33f)
+		return true;
+
+	if (inMan->IsKeyDown((short)'F'))
+	{
+		_cam._controller->toggleFly();
+		sinceInput = 0;
+	}
+
+	return res;
 }
 
 

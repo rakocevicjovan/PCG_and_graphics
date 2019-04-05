@@ -11,8 +11,8 @@ Controller::~Controller(){}
 
 
 
-void Controller::processTransformationFPS(float dTime, SMatrix& transformation) {
-
+void Controller::processTransformationFPS(float dTime, SMatrix& transformation)
+{
 	_inMan->GetXY(dx, dy);
 
 	SVec3 translation = transformation.Translation();

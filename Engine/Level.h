@@ -6,9 +6,11 @@ class Level
 {
 protected:
 	Systems* _sys;
+	float sinceLastInput = 0.f;
 
 public:
 	Level(Systems& sys);
+	void ProcessSpecialInput(float dTime);
 
 	virtual void init(Systems& sys) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
@@ -122,6 +124,7 @@ public:
 class AirLevel : public Level
 {
 public:
+	AirLevel(Systems& sys) : Level(sys) {};
 	void init(Systems& sys);
 	void procGen() {};
 	void draw(const RenderContext& rc);

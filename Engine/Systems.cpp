@@ -154,48 +154,25 @@ void Systems::Run()
 
 bool Systems::Frame(float dTime)
 {
-	if (!_renderer.Frame(dTime))
+	if (!_renderer.Frame(dTime, &_inputManager))
 		return false;
 
+	_levelMan.update(*this, dTime);
 	_levelMan.drawCurrentLevel(_renderer.rc);
 
-	OutputFPS(dTime);
-
 	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
-	
 	_inputManager.SetXY(0, 0);
+
+	OutputFPS(dTime);
 
 	return true;
 }
 
 
 
-void Systems::ProcessSpecialInput(float dTime)
+void Systems::ProcessInput()
 {
-	/*
-	sinceLastInput += dTime;
 
-	if (sinceLastInput < .33f)
-		return;
-
-	if (_inputManager.IsKeyDown(VK_SPACE))
-	{
-		_currentLevel->procGen(_device);
-		sinceLastInput = 0;
-	}
-
-	if (_inputManager.IsKeyDown((short)'L'))
-	{
-		_currentLevel = _resMan->advanceLevel();
-		sinceLastInput = 0;
-	}
-
-	if (_inputManager.IsKeyDown((short)'F'))
-	{
-		_cam._controller->toggleFly();
-		sinceLastInput = 0;
-	}
-	*/
 }
 
 

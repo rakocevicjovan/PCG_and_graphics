@@ -1,8 +1,25 @@
 #include "Level.h"
 #include "Controller.h"
+#include "InputManager.h"
 #include <d3d11.h>
 
 Level::Level(Systems& sys) : _sys(&sys) {}
+
+
+
+void Level::ProcessSpecialInput(float dTime)
+{
+	sinceLastInput += dTime;
+
+	if (sinceLastInput < .33f)
+		return;
+
+	if (_sys->_inputManager.IsKeyDown(VK_SPACE))
+	{
+		procGen();
+		sinceLastInput = 0;
+	}
+}
 
 #define device _sys->_device
 #define dc _sys->_deviceContext
@@ -59,7 +76,10 @@ void EarthLevel::init(Systems& sys)
 
 	maze.Init(10, 10, 32.f);
 	maze.CreateModel(device);
+
+	sys._colEngine.registerModel(&maze.model, BoundingVolumeType::BVT_AABB);
 }
+
 
 
 
@@ -115,10 +135,12 @@ void EarthLevel::draw(const RenderContext& rc)
 		float newHeight = proceduralTerrain.getHeightAtPosition(_sys->_renderer._cam.GetCameraMatrix().Translation());
 		SMatrix newMat = _sys->_renderer._cam.GetCameraMatrix();
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
-		_sys->_renderer._cam.GetCameraMatrix() = newMat;
+		rc.cam->SetCameraMatrix(newMat);
 	}
 
 	rc.d3d->EndScene();
+
+	ProcessSpecialInput(rc.dTime);
 }
 
 
@@ -238,6 +260,8 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.d3d->TurnOffAlphaBlending();
 
 	rc.d3d->EndScene();
+	
+	ProcessSpecialInput(rc.dTime);
 }
 
 
@@ -312,6 +336,7 @@ void WaterLevel::draw(const RenderContext& rc)
 	rc.d3d->TurnOffAlphaBlending();
 
 	rc.d3d->EndScene();
+	ProcessSpecialInput(rc.dTime);
 }
 
 
@@ -325,7 +350,7 @@ void AirLevel::init(Systems& sys)
 
 void AirLevel::draw(const RenderContext& rc)
 {
-
+	ProcessSpecialInput(rc.dTime);
 }
 
 #undef dc

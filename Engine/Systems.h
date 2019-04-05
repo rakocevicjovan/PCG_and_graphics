@@ -39,8 +39,8 @@ public:
 private:
 	bool Frame(float dTime);
 	void InitializeWindows(int& w, int& h);
-	void ProcessSpecialInput(float dTime);
 	void OutputFPS(float dTime);
+	void ProcessInput();
 
 	D3D _D3D;
 
