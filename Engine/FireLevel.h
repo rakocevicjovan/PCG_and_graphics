@@ -2,12 +2,12 @@
 #include "Level.h"
 
 
-
 class FireLevel : public Level
 {
-	Procedural::Terrain terrain, island, lavaSheet;
+	Procedural::Terrain terrain, lavaSheet;
+	std::vector<Procedural::Terrain> _islands;
 	Hexer hexer;
-	Model skybox;
+	Model skybox, lavaSheetModel;
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper;
 	Model will, hexCluster, hexModel;

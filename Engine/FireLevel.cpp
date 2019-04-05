@@ -27,36 +27,41 @@ void FireLevel::init(Systems& sys)
 	terrain.setTextureData(device, 10, 10, { "../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png" });
 	terrain.SetUp(device);
 
-	island = Procedural::Terrain(128, 128, SVec3(4, 300, 4));
+	//hexer initialization
+	float hexRadius = 30.f;
+	hexer.init(hexRadius, SVec3(0, 0, 0));
+
+	Procedural::Geometry hex;
+	hex.GenHexaprism(hexRadius, 10.f);
+	hexModel.meshes.push_back(Mesh(hex, device));
+
+
+	//other items
+	Procedural::Terrain island = Procedural::Terrain(128, 128, SVec3(4, 300, 4));
 	island.Mesa(SVec2(256), 32, 64, 128);
-	island.setOffset(512, 0, 512);
-	island.setTextureData(device, 10, 10, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
-	island.SetUp(device);
+	island.setTextureData(device, 10, 10, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
+
+	for (auto& pos : hexer._points)
+	{
+		island.setOffset(pos.x - 256.f, 0, pos.z - 256.f);
+		island.SetUp(device);
+		_islands.push_back(island);
+	}
+
 
 	lavaSheet = Procedural::Terrain(256, 256, SVec3(4, 2, 4));
 	lavaSheet.setTextureData(device, 10, 10, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
 	lavaSheet.setOffset(0, 32, 0);
-	lavaSheet.SetUp(device);
+	lavaSheet.CalculateTexCoords();
+	lavaSheet.CalculateNormals();
 
+	lavaSheetModel = Model(lavaSheet, device);
 
 	//textures
 	hexDiffuseMap.LoadFromFile("../Textures/Crymetal/diffuse.jpg");
 	hexDiffuseMap.Setup(device);
 	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
 	hexNormalMap.Setup(device);
-
-	float hexRadius = 30.f;
-	Procedural::Geometry hex;
-	
-	hex.GenHexaprism(hexRadius, 10.f);
-	hexModel.meshes.push_back(Mesh(hex, device));
-
-	//hexer
-	hexer.init(hexRadius, SVec3(0, 0, 0));
-	for (int i = 0; i < 2; ++i)
-	{
-		hexer.addPlatform(hexer._lastPlatformPos, i % 6);
-	}
 }
 
 
@@ -82,12 +87,12 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
-	//rc.shMan->shaderLight.SetShaderParameters(dc, hexCluster, *rc.cam, pointLight, rc.dTime);
-	//hexCluster.Draw(dc, rc.shMan->shaderLight);
-
 	terrain.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
-	island.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
-	lavaSheet.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
+
+	for (auto& island : _islands) 
+	{
+		island.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
+	}
 
 	if (isTerGenerated)
 	{
@@ -112,12 +117,18 @@ void FireLevel::draw(const RenderContext& rc)
 		hexModel.Draw(dc, rc.shMan->shaderMaze);
 	}
 
-
+	//transparent items
 	rc.d3d->TurnOnAlphaBlending();
+
+	rc.shMan->shVolumLava.SetShaderParameters(dc, lavaSheetModel, *rc.cam, rc.elapsed);
+	lavaSheetModel.Draw(dc, rc.shMan->shVolumLava);
+
 	rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
 	will.Draw(dc, rc.shMan->shVolumFire);
+
 	rc.d3d->TurnOffAlphaBlending();
 
+	//finish up
 	rc.d3d->EndScene();
 
 	ProcessSpecialInput(rc.dTime);

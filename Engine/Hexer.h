@@ -15,10 +15,26 @@ struct Platform
 
 
 
+struct CubeCoords
+{
+	CubeCoords() {};
+	CubeCoords(int x, int y, int z) : x(x), y(y), z(z) {}
+
+	static CubeCoords cubeAdd(CubeCoords c1, CubeCoords c2) { return CubeCoords(c1.x + c2.x, c1.y + c2.y, c1.z + c2.z); }
+	static std::vector<CubeCoords> cubeDirs;
+
+
+	int x, y, z;
+};
+
+
+
 struct AxialCoords
 {
 	AxialCoords() {}
 	AxialCoords(int q, int r) : q(q), r(r) {}
+
+	static std::vector<AxialCoords> axialCoords;
 
 	int q, r;
 };
@@ -27,8 +43,7 @@ struct AxialCoords
 
 struct HexGridCell
 {
-	CellKey ck;
-
+	CubeCoords ck;
 
 };
 
@@ -42,11 +57,6 @@ class Hexer
 	std::vector<SVec3> dirs;
 	Model model;
 
-	std::vector<CellKey> cubeDirs =
-	{ 
-		CellKey(+1, -1, 0), CellKey(+1, 0, -1), CellKey(0, +1, -1), CellKey(-1, +1, 0), CellKey(-1, 0, +1), CellKey(0, -1, +1)
-	};
-
 public:
 	Hexer() {};
 	~Hexer() {}
@@ -54,7 +64,12 @@ public:
 	Platform _root;
 	SVec3 _lastPlatformPos;
 	std::vector<Platform> _platforms;
-	std::vector<SVec3> _obstacles;
+	std::vector<SVec3> _points = 
+	{
+		SVec3(190, 128, 185), SVec3(508, 128, 208),
+		SVec3(417, 128, 570), SVec3(243, 128, 782),
+		SVec3(675, 128, 896), SVec3(768, 128, 782)
+	};
 
 	void init(float cellSize, SVec3 root);
 	void addPlatform(SVec3 parentPos, int direction);
@@ -62,6 +77,8 @@ public:
 	void createObstacleCourse();
 
 	SVec3 getCornerPos(const SVec3& center, UINT i);
-	CellKey axialToCube(AxialCoords ac);
-	AxialCoords cubeToAxial(CellKey ck);
+	CubeCoords axialToCube(AxialCoords ac);
+	AxialCoords cubeToAxial(CubeCoords ck);
+	CubeCoords getCubeDir(UINT direction);
+	CubeCoords getNeighbourAtDirection(CubeCoords cube, UINT direction);
 };

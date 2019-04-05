@@ -66,6 +66,8 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<std::wstring> waterNames = { L"Watervs.hlsl", L"Waterps.hlsl" };
 	shaderWater.Initialize(_device, hwnd, waterNames);
 
+
+
 	//4 sprites, uncomment upon implementing
 	std::vector<std::wstring> vEarthNames = { L"volumVS.hlsl", L"volumEarthPS.hlsl" };
 	shVolumEarth.Initialize(_device, hwnd, vEarthNames, sbLayout, sbSamplerDesc);
@@ -78,6 +80,11 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	std::vector<std::wstring> vAirNames = { L"volumVS.hlsl", L"volumAirPS.hlsl" };
 	shVolumAir.Initialize(_device, hwnd, vAirNames, sbLayout, sbSamplerDesc);
+
+	//other volumetric
+	shVolumLava.Initialize(_device, hwnd, { L"volumVS.hlsl", L"volumLavaPS.hlsl" }, sbLayout, sbSamplerDesc);
+
+
 
 	//maze, trees and terrain neeed the extended layout for normal mapping
 	std::vector<D3D11_INPUT_ELEMENT_DESC> extendedLayout = sbLayout;

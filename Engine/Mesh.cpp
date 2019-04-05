@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "CollisionEngine.h"
 #include "Geometry.h"
+#include "Terrain.h"
 
 Mesh::Mesh()
 {
@@ -19,6 +20,14 @@ Mesh::Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std:
 
 	indexIntoModelMeshArray = ind;
 	setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
+}
+
+
+
+Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
+{
+	terrain.populateMesh(vertices, indices, textures);
+	setupMesh(device);
 }
 
 

@@ -7,7 +7,6 @@
 
 namespace Procedural 
 {
-
 	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scales) 
 		: _numRows(rows), _numColumns(columns), xScale(scales.x), yScale(scales.y), zScale(scales.z)
 	{
@@ -262,7 +261,6 @@ namespace Procedural
 
 	void Terrain::CalculateNormals()
 	{
-		
 		faces.resize(_numRows - 1);
 
 		for (auto fRow : faces) 
@@ -368,19 +366,23 @@ namespace Procedural
 				indices.push_back((unsigned int)face.z);
 			}
 		}
+	}
 
 
+
+	void Terrain::CalculateTexCoords()
+	{
+		float invXScale = tcxr / (xScale * _numColumns), invZScale = tczr / (zScale * _numRows);
+
+		for (auto& v : vertices)
+			v.texCoords = SVec2(v.pos.x * invXScale, v.pos.z * invZScale);
 	}
 
 
 
 	bool Terrain::SetUp(ID3D11Device* device) 
 	{
-		float invXScale = tcxr / (xScale * _numColumns), invZScale = tczr / (zScale * _numRows);
-
-		for (auto& v : vertices)
-			v.texCoords = SVec2(v.pos.x * invXScale, v.pos.z * invZScale);
-
+		CalculateTexCoords();
 		CalculateNormals();
 
 		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
@@ -694,6 +696,7 @@ namespace Procedural
 
 		return finalHeight + 10.f;
 	}
+
 
 
 	SVec3 Terrain::calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2)

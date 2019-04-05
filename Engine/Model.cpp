@@ -1,6 +1,6 @@
 #include "Model.h"
 #include "CollisionEngine.h"
-
+#include "Terrain.h"
 
 
 Model::Model(const std::string& path)
@@ -14,6 +14,14 @@ Model::Model(const Collider & collider, ID3D11Device* device)
 {
 	for each(auto hull in collider.hulls)
 		meshes.push_back(Mesh(hull, device));
+}
+
+
+
+Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device)
+{
+	meshes.emplace_back(terrain, device);
+	transform = SMatrix::CreateTranslation(terrain.getOffset());
 }
 
 

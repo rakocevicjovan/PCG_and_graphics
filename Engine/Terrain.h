@@ -11,6 +11,7 @@ class Camera;
 
 namespace Procedural 
 {
+	//helper structs
 
 	struct CACell
 	{
@@ -20,8 +21,6 @@ namespace Procedural
 		Vert3D vertex;
 		bool deadOrAlive;
 	};
-
-
 
 	struct Triface
 	{
@@ -46,9 +45,6 @@ namespace Procedural
 
 	class Terrain
 	{
-
-	private:
-
 		std::vector<Vert3D> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<std::vector<TangentTriface>> faces;
@@ -83,7 +79,6 @@ namespace Procedural
 		//load from heightmap
 		void GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data);
 
-
 		///manipulation methods
 		void Tumble(float chance);
 		void CellularAutomata(float initialDistribtuion, unsigned int steps);
@@ -97,6 +92,7 @@ namespace Procedural
 		
 		///wrapping up and directX integration
 		void CalculateNormals();
+		void CalculateTexCoords();
 		SVec3 calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2);
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, ShaderBase& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
@@ -107,7 +103,16 @@ namespace Procedural
 		unsigned int	getNumRows()	{ return _numRows;		}
 		auto&			getVerts()		{ return vertices;		}
 
+
+		SVec3 getOffset() const	{ return _offset; }
 		void setOffset(float x, float y, float z) { _offset = SVec3(x, y, z); }
+
+		void populateMesh(std::vector<Vert3D>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
+		{ 
+			verts = vertices;
+			inds = indices;
+			tex = textures;
+		}
 		
 		///stuff
 		std::vector<SVec2> getHorizontalPositions();

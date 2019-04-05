@@ -55,6 +55,7 @@ public:
 	ShaderVolumetric shVolumFire;
 	ShaderVolumetric shVolumWater;
 	ShaderVolumetric shVolumAir;
+	ShaderVolumetric shVolumLava;
 
 	ShaderManager();
 	~ShaderManager();

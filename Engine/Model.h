@@ -14,6 +14,7 @@
 #include "Mesh.h"
 
 class Collider;
+namespace Procedural { class Terrain; }
 
 class Model{
 
@@ -31,6 +32,7 @@ public:
 	Model() {}
 	Model(const std::string& path);
 	Model(const Collider& collider, ID3D11Device* device);
+	Model(const Procedural::Terrain& terrain, ID3D11Device* device);
 	~Model();
 
 

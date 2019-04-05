@@ -537,7 +537,7 @@
     <FxCompile Include="normalsTerrainPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="lavaPS.hlsl">
+    <FxCompile Include="volumLavaPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

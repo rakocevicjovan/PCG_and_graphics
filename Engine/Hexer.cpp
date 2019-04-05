@@ -67,14 +67,47 @@ void Hexer::createObstacleCourse()
 
 
 
-AxialCoords Hexer::cubeToAxial(CellKey ck)
+static std::vector<CubeCoords> cubeDirs =
+{
+	CubeCoords(+1, -1, 0), CubeCoords(+1, 0, -1), CubeCoords(0, +1, -1), CubeCoords(-1, +1, 0), CubeCoords(-1, 0, +1), CubeCoords(0, -1, +1)
+};
+
+static std::vector<AxialCoords> axialDirs =
+{
+	AxialCoords(+1, 0), AxialCoords(+1, -1), AxialCoords(0, -1), AxialCoords(-1, 0), AxialCoords(-1, +1), AxialCoords(0, +1)
+};
+
+
+
+AxialCoords Hexer::cubeToAxial(CubeCoords ck)
 {
 	return AxialCoords(ck.x, ck.z);
 }
 
 
 
-CellKey Hexer::axialToCube(AxialCoords ac)
+CubeCoords Hexer::axialToCube(AxialCoords ac)
 {
-		return CellKey(ac.q, -ac.q - ac.r, ac.r)
+	return CubeCoords(ac.q, -ac.q - ac.r, ac.r);
+}
+
+
+
+CubeCoords Hexer::getCubeDir(UINT direction)
+{
+	return cubeDirs[direction];
+}
+	
+
+
+CubeCoords Hexer::getNeighbourAtDirection(CubeCoords cube, UINT direction)
+{
+	return CubeCoords::cubeAdd(cube, getCubeDir(direction));
+}
+
+
+
+float cubeDistance(CubeCoords a, CubeCoords b)
+{
+	return (abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z)) * 0.5f;	//half of manhattan distance because we can take diagonals if we need? not sure
 }
