@@ -12,10 +12,6 @@ Renderer::~Renderer() {}
 
 
 
-#define EARTH _resMan->_level1
-#define FIRE  _resMan->_level2
-#define WATER _resMan->_level3
-#define AIR   _resMan->_level4
 #define EYE_POS _cam.GetCameraMatrix().Translation()
 
 
@@ -38,7 +34,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 
 	///CAMERA INITIALISATION - get this out of here, I want to support multiple cameras no reason to hardcode one like this
 	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
-
 	_cam._controller = &ctrl;
 
 	return true;
@@ -65,6 +60,13 @@ bool Renderer::Frame(float dTime, InputManager* inMan)
 	}
 
 	return res;
+}
+
+
+
+void Renderer::setCameraMatrix(const SMatrix& camMatrix)
+{
+	_cam.SetCameraMatrix(camMatrix);
 }
 
 

@@ -32,23 +32,22 @@ public:
 	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
 	bool Frame(float dTime, InputManager* inMan);
 
+	void setCameraMatrix(const SMatrix& camMatrix);
+
 	float _fieldOfView, _screenAspect, elapsed = 0.f, sinceInput = 1.f;
-	bool drawUI = false;
-	Camera _cam;
-
-	Rekt* _rekt;
-	Rekt::UINODE* screenRect;
-
 	RenderContext rc;
+	Camera _cam;
 
 private:
 	
 	bool UpdateRenderContext(float dTime);
-
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-
 	ResourceManager* _resMan;
 	ShaderManager _shMan;
 	D3D* _d3d;
+	
+	Rekt* _rekt;
+	Rekt::UINODE* screenRect;
+	bool drawUI = false;
 };
