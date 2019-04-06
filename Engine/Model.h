@@ -12,12 +12,12 @@
 #include "assimp\scene.h"
 #include "assimp\postprocess.h" 
 #include "Mesh.h"
+#include "CollisionEngine.h"
 
-class Collider;
 namespace Procedural { class Terrain; }
 
-class Model{
-
+class Model
+{
 public:
 	std::vector<Texture> textures_loaded;
 	std::vector<Mesh> meshes;
@@ -27,7 +27,7 @@ public:
 
 	SMatrix transform;
 
-	Collider* collider = nullptr;
+	Collider collider;
 
 	Model() {}
 	Model(const std::string& path);

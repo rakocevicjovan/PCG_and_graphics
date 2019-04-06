@@ -11,7 +11,6 @@ class LevelManager
 	Level* current;
 
 public:
-	LevelManager() {};
 	LevelManager(Systems& systems);
 	~LevelManager();
 
@@ -21,4 +20,3 @@ public:
 
 	float sinceLastInput = 0.f;
 };
-

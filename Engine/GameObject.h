@@ -1,13 +1,16 @@
 #pragma once
 #include "Math.h"
+#include "Model.h"
+#include "ShaderManager.h"
+#include "CollisionEngine.h"
 
-
+/*
 class Model;
 class ShaderBase;
 class Camera;
 class Collider;
 class Controller;
-
+*/
 
 class GraphicComponent
 {
@@ -32,7 +35,13 @@ public:
 
 class Actor : public GameObject
 {
+public:
+	Actor() {};
+	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc) {}
+
+	SMatrix transform;
 	GraphicComponent gc;
+	Collider collider;
 };
 
 

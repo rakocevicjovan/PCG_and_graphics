@@ -28,8 +28,6 @@ Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device)
 
 Model::~Model()
 {
-	if (collider)
-		delete collider;
 }
 
 

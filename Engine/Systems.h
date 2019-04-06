@@ -1,6 +1,4 @@
-#ifndef _SYSTEMCLASS_H_
-#define _SYSTEMCLASS_H_
-
+#pragma once
 #define WIN32_LEAN_AND_MEAN
 
 #include <windows.h>
@@ -31,7 +29,7 @@ public:
 	Audio _audio;
 	CollisionEngine _colEngine;
 	Controller _controller;
-	LevelManager _levelMan;
+	LevelManager* _levelMan;
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
@@ -55,5 +53,3 @@ private:
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 static Systems* ApplicationHandle = 0;
-
-#endif

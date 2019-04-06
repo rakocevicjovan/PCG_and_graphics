@@ -1,5 +1,12 @@
 #include "CollisionEngine.h"
-//#include "Model.h"
+#include "Model.h"
+#include "GameObject.h"
+
+#define SCREAM(bloodyMurder) std::ostringstream ss;	\
+	ss << bloodyMurder << "\n"; \
+	std::string s(ss.str()); \
+	OutputDebugStringA(ss.str().c_str());
+
 
 CollisionEngine::CollisionEngine()
 {
@@ -12,68 +19,114 @@ CollisionEngine::~CollisionEngine()
 
 
 
-void CollisionEngine::registerModel(Model *model, BoundingVolumeType bvt)
+void CollisionEngine::registerModel(Model& model, BoundingVolumeType bvt)
 {
-	_colliders.push_back(generateCollider(model, bvt));
-	model->collider = &(_colliders.back());
-
-	_models.push_back(model);
-	addToGrid(_colliders.back());
+	fillCollider(model, bvt);
+	model.collider.modParent = &model;
+	_colliders.push_back(&model.collider);
+	addToGrid(&model.collider);
 }
 
 
 
-Collider CollisionEngine::generateCollider(Model* model, BoundingVolumeType bvt)
+void CollisionEngine::registerActor(Actor& actor, BoundingVolumeType bvt)
 {
-	std::vector<Hull*> hulls;
-	hulls.reserve(model->meshes.size());
-
-	switch (bvt)
-	{
-	case BVT_AABB:
-		for (Mesh m : model->meshes) hulls.push_back(genBoxHull(&m));
-		break;
-
-	case BVT_SPHERE:
-		for (Mesh m : model->meshes) hulls.push_back(genSphereHull(&m));
-		break;
-	}
-
-	return Collider(bvt, model, hulls);
+	fillCollider(actor, bvt);
+	actor.collider.actParent = &actor;
+	_colliders.push_back(&actor.collider);
+	addToGrid(&actor.collider);
 }
 
 
 
-void CollisionEngine::unregisterModel(const Model* model)
+void CollisionEngine::unregisterModel(Model& model)	//	_models.erase(remove(_models.begin(), _models.end(), model), _models.end());
 {
-	_models.erase(remove(_models.begin(), _models.end(), model), _models.end());
-	
-	for (Collider& c : _colliders)
+	for (Collider* c : _colliders)
 	{
-		if (c.parent == model)
+		if (c->modParent == &model)
 		{
-			c.ReleaseMemory();
+			removeFromGrid(*c);
+			c->ReleaseMemory();
+			_colliders.erase(remove(_colliders.begin(), _colliders.end(), c), _colliders.end());
+			
+			break;
+		}
+	}
+}
+
+
+
+void CollisionEngine::unregisterActor(Actor* actor)
+{
+	//SCREAM(REEEEE)
+
+	for (Collider* c : _colliders)
+	{
+		if (*c == actor->collider)
+		{
+			removeFromGrid(*c);
+			c->ReleaseMemory();
 			_colliders.erase(remove(_colliders.begin(), _colliders.end(), c), _colliders.end());
 			break;
 		}
 	}
-
 }
 
 
 
-void CollisionEngine::addToGrid(const Collider& collider)
+void CollisionEngine::addToGrid(Collider* collider)
 {
-	auto bvt = collider.BVT;
+	auto bvt = collider->BVT;
 
 	if (bvt == BVT_AABB)
-		for (Hull* h : collider.hulls)
+		for (Hull* h : collider->hulls)
 			grid.addAABB(reinterpret_cast<AABB*>(h));
 			
 
 	if (bvt == BVT_SPHERE)
-		for (Hull* h : collider.hulls)
+		for (Hull* h : collider->hulls)
 			grid.addSphere(reinterpret_cast<SphereHull*>(h));
+}
+
+
+
+void CollisionEngine::removeFromGrid(Collider& collider)
+{
+
+	std::ostringstream ss;
+	ss << "REMOVE FROM GRID FIRED" << "\n";
+	std::string s(ss.str());
+	OutputDebugStringA(ss.str().c_str());
+
+	for (Hull* h : collider.hulls)
+	{
+		for (auto& keyCellPair : grid.cells)
+		{
+			//keyCellPair.second.hulls.erase(std::remove(keyCellPair.second.hulls.begin(), keyCellPair.second.hulls.end(), h), keyCellPair.second.hulls.end());
+			keyCellPair.second.hulls.erase(h);
+
+			std::ostringstream ss;
+			ss << "Hulls erased!" << "\n";
+			std::string s(ss.str());
+			OutputDebugStringA(ss.str().c_str());
+		}
+	}
+}
+
+
+
+void CollisionEngine::update()
+{
+	for (auto& collider : _colliders)
+	{
+		if (collider->dynamic)
+		{
+			collider->transform = collider->actParent->transform;
+			for (Hull* h : collider->hulls)
+				h->setPosition(collider->transform.Translation());
+		}
+	}
+
 }
 
 
@@ -103,24 +156,30 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 
 		for (int j = -1; j < 2; ++j)
 		{
-			adjCK.z = ck.z + j;
-		
-			for (auto hull : grid.cells[adjCK].hulls)
+			adjCK.y = ck.y + j;
+
+			for (int k = -1; k < 2; ++k)
 			{
-				HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
-				if (hr.hit)
+				adjCK.z = ck.z + k;
+
+				
+				
+				for (auto hull : grid.cells[adjCK].hulls)
 				{
-					collidedHulls.push_back(hull);
+					HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
+					if (hr.hit)
+					{
+						collidedHulls.push_back(hull);
 
-					if (velocity.Dot(hr.resolutionVector) < 0.001f) velocity -= Math::projectVecOntoVec(velocity, hr.resolutionVector);
-					collisionNormal += hr.resolutionVector * sqrt(hr.sqPenetrationDepth);
+						if (velocity.Dot(hr.resolutionVector) < 0.001f) velocity -= Math::projectVecOntoVec(velocity, hr.resolutionVector);
+						collisionNormal += hr.resolutionVector * sqrt(hr.sqPenetrationDepth);
+					}
 				}
-			}
 
+
+			}
 		}
 	}
-
-	//for (Hull* h : collidedHulls)
 
 	return collisionNormal;
 }
@@ -153,6 +212,47 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh)
 	aabb->max = SVec3(maxX, maxY, maxZ);
 
 	return aabb;
+}
+
+
+
+void CollisionEngine::fillCollider(Model& model, BoundingVolumeType bvt)
+{
+	model.collider.hulls.reserve(model.meshes.size());
+
+	switch (bvt)
+	{
+	case BVT_AABB:
+		for (Mesh m : model.meshes) model.collider.hulls.push_back(genBoxHull(&m));
+		break;
+
+	case BVT_SPHERE:
+		for (Mesh m : model.meshes) model.collider.hulls.push_back(genSphereHull(&m));
+		break;
+	}
+
+	model.collider.BVT = bvt;
+}
+
+
+
+void CollisionEngine::fillCollider(Actor& actor, BoundingVolumeType bvt)
+{
+	actor.collider.hulls.reserve(actor.gc.model->meshes.size());
+
+	switch (bvt)
+	{
+	case BVT_AABB:
+		for (Mesh m : actor.gc.model->meshes) actor.collider.hulls.push_back(genBoxHull(&m));
+		break;
+
+	case BVT_SPHERE:
+		for (Mesh m : actor.gc.model->meshes) actor.collider.hulls.push_back(genSphereHull(&m));
+		break;
+	}
+
+	actor.collider.BVT = bvt;
+	actor.collider.dynamic = true;
 }
 
 
@@ -391,23 +491,17 @@ void Grid::addAABB(AABB* h)
 	for (int i = minCellKey.x; i <= maxCellKey.x; ++i)
 		for (int j = minCellKey.y; j <= maxCellKey.y; ++j)
 			for (int k = minCellKey.z; k <= maxCellKey.z; ++k)
-				cells[CellKey(i, j, k)].hulls.push_back(h);
-
-	/*
-	for (auto p : positions)
-	{
-		CellKey ck(p, invCellSize);
-		cells[ck].hulls.push_back(h);
-	}
-	*/
+				cells[CellKey(i, j, k)].hulls.insert(h);
 }
 
 
 //@TODO
 void Grid::addSphere(SphereHull* h)
 {
-
+	
 }
+
+
 
 
 

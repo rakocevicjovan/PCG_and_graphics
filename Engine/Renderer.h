@@ -35,6 +35,8 @@ public:
 	void setCameraMatrix(const SMatrix& camMatrix);
 
 	float _fieldOfView, _screenAspect, elapsed = 0.f, sinceInput = 1.f;
+
+	ShaderManager _shMan;
 	RenderContext rc;
 	Camera _cam;
 
@@ -44,7 +46,6 @@ private:
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	ResourceManager* _resMan;
-	ShaderManager _shMan;
 	D3D* _d3d;
 	
 	Rekt* _rekt;

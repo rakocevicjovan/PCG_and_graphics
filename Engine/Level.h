@@ -2,13 +2,13 @@
 #include "Systems.h"
 #include "GameObject.h"
 
-#define device _sys->_device
-#define dc _sys->_deviceContext
+#define device _sys._device
+#define dc _sys._deviceContext
 
 class Level
 {
 protected:
-	Systems* _sys;
+	Systems& _sys;
 	float sinceLastInput = 0.f;	//consequence of slightly changing rastertek input instead of completely redoing it... fucking hell
 
 	std::vector<GameObject*> objects;

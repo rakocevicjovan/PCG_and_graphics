@@ -1,50 +1,116 @@
 #include "Hexer.h"
+#include "Chaos.h"
+#include "Systems.h"
 
 
-void Hexer::init(float cellSize, SVec3 rootPos)
+
+
+Platform::Platform(SVec3 position, Model* m, ShaderMaze* s)
+{
+	actor.transform = SMatrix::CreateTranslation(position);
+	actor.gc.model = m;
+	actor.gc.shader = s;
+}
+
+
+
+void Hexer::init(float cellSize)
 {
 	_cellSize = cellSize;
 	_cellDist = sqrt(3) * _cellSize;
 	_triHeight = _cellDist * .5f;
 
+	_lastPlatformPos = _points[0];
+
 	SMatrix mat;
 	mat = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333f);
 
-	SVec3 dir(0, 0, 1);
-	dir = SVec3::Transform(dir, SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .166667f));
-	dir *= _cellDist;
+	SVec3 point(0, 0, 1);
+	point = SVec3::Transform(point, SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .166667f));	//shift 30 degrees initially
+	point *= _cellDist;	//offset by distance to point
 
 	for (int i = 0; i < 6; ++i)
 	{
-		Math::RotateVecByMat(dir, mat);
-		dirs.emplace_back(dir);
+		Math::RotateVecByMat(point, mat);	//keep shifting 60 degrees
+		_edgeNormals.emplace_back(point);
 	}
-
-	_lastPlatformPos = rootPos;
-	_platforms.emplace_back(rootPos);
 }
 
 
 
-void Hexer::addPlatform(SVec3 parentPos, int dirIndex)
+SVec3 Hexer::calcPlatformPos(SVec3 parentPos, int dirIndex)
 {
-	_platforms.emplace_back(parentPos + dirs[dirIndex]);
+	SVec3 newPos = parentPos + _edgeNormals[dirIndex];
+	_lastPlatformPos = newPos;
+	sincePlatformAdded = 0;
+	return newPos;
 }
 
 
 
 void Hexer::update(float dTime)
 {
+	sincePlatformAdded += dTime;
+
 	for (auto& p : _platforms)
 	{
-		if (!p.active) continue;
+		p.age += dTime;
 
 		if (p.age >= _lifeSpan)
+		{
 			p.active = false;
-
-		p.age += dTime;
+			_sys._colEngine.unregisterActor(&p.actor);
+		}
 	}
-	//platforms.erase(std::remove_if(platforms.begin(), platforms.end(), [&](const Platform& p) { return p.age >= _lifeSpan; }), platforms.end());
+	_platforms.erase(std::remove_if(_platforms.begin(), _platforms.end(), [&](const Platform& p) { return !p.active; }), _platforms.end());
+}
+
+
+bool Hexer::marchTowardsPoint(SVec3& newPlatformPos)
+{
+	if (done || sincePlatformAdded < platformSpawnRate)
+		return false;
+
+	SVec3 heading = _points[targetIndex] - _lastPlatformPos;
+	std::vector<int> facingTarget;
+
+	for (int i = 0; i < _edgeNormals.size(); ++i)
+	{
+		SVec3 newPos = _lastPlatformPos + _edgeNormals[i];
+		
+		//reject duplicates
+		bool duplicate = false;
+		for (auto&p : previousPositions)
+		{
+			if (SVec3::DistanceSquared(newPos, p) < 1.f)
+			{
+				duplicate = true;
+				break;
+			}
+		}
+
+		if (heading.Dot(_edgeNormals[i]) > 0.f && !duplicate)
+			facingTarget.push_back(i);
+	}
+	
+	Chaos c;
+	int neighbourPos = facingTarget[c.rollTheDice() * (facingTarget.size() - 1)];
+
+	if (SVec3::DistanceSquared(_lastPlatformPos, _points[targetIndex]) < _cellSize * _cellSize)
+	{
+		++targetIndex;
+		if (targetIndex >= _points.size())
+			done = true;
+	}
+
+	newPlatformPos = calcPlatformPos(_lastPlatformPos, neighbourPos);
+
+	if (previousPositions.size() >= 6)
+		previousPositions.pop_front();
+
+	previousPositions.push_back(_lastPlatformPos);
+
+	return true;
 }
 
 
@@ -58,22 +124,51 @@ SVec3 Hexer::getCornerPos(const SVec3& center, UINT i)
 
 
 
-void Hexer::createObstacleCourse()
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+struct CubeCoords
 {
-	std::vector<SVec3> rests;
-	SVec3 finalPlatform;
+	CubeCoords() {};
+	CubeCoords(int x, int y, int z) : x(x), y(y), z(z) {}
 
-}
+	static CubeCoords cubeAdd(CubeCoords c1, CubeCoords c2) { return CubeCoords(c1.x + c2.x, c1.y + c2.y, c1.z + c2.z); }
+	static std::vector<CubeCoords> cubeDirs;
 
 
-
-static std::vector<CubeCoords> cubeDirs =
+	int x, y, z;
+};
+struct AxialCoords
 {
+	AxialCoords() {}
+	AxialCoords(int q, int r) : q(q), r(r) {}
+
+	static std::vector<AxialCoords> axialCoords;
+
+	int q, r;
+};
+struct HexGridCell
+{
+	CubeCoords ck;
+};
+
+
+static std::vector<CubeCoords> cubeDirs = {
 	CubeCoords(+1, -1, 0), CubeCoords(+1, 0, -1), CubeCoords(0, +1, -1), CubeCoords(-1, +1, 0), CubeCoords(-1, 0, +1), CubeCoords(0, -1, +1)
 };
 
-static std::vector<AxialCoords> axialDirs =
-{
+static std::vector<AxialCoords> axialDirs = {
 	AxialCoords(+1, 0), AxialCoords(+1, -1), AxialCoords(0, -1), AxialCoords(-1, 0), AxialCoords(-1, +1), AxialCoords(0, +1)
 };
 
@@ -111,3 +206,11 @@ float cubeDistance(CubeCoords a, CubeCoords b)
 {
 	return (abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z)) * 0.5f;	//half of manhattan distance because we can take diagonals if we need? not sure
 }
+
+
+
+CubeCoords axialToCube(AxialCoords ac);
+AxialCoords cubeToAxial(CubeCoords ck);
+CubeCoords getCubeDir(UINT direction);
+CubeCoords getNeighbourAtDirection(CubeCoords cube, UINT direction);
+*/

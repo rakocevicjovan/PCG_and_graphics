@@ -54,7 +54,7 @@ void EarthLevel::init(Systems& sys)
 	maze.Init(10, 10, 32.f);
 	maze.CreateModel(device);
 
-	sys._colEngine.registerModel(&maze.model, BoundingVolumeType::BVT_AABB);
+	sys._colEngine.registerModel(maze.model, BoundingVolumeType::BVT_AABB);
 }
 
 
@@ -79,7 +79,7 @@ void EarthLevel::draw(const RenderContext& rc)
 	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
 	pSys.updateStdFunc(&pud);
 
-	_sys->_deviceContext->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
+	_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
@@ -106,11 +106,11 @@ void EarthLevel::draw(const RenderContext& rc)
 	rc.d3d->TurnOffAlphaBlending();
 
 	//move out of here
-	if (!_sys->_controller.isFlying())
+	if (!_sys._controller.isFlying())
 	{
-		SVec3 oldPos = _sys->_renderer._cam.GetCameraMatrix().Translation();
-		float newHeight = proceduralTerrain.getHeightAtPosition(_sys->_renderer._cam.GetCameraMatrix().Translation());
-		SMatrix newMat = _sys->_renderer._cam.GetCameraMatrix();
+		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
+		float newHeight = proceduralTerrain.getHeightAtPosition(_sys._renderer._cam.GetCameraMatrix().Translation());
+		SMatrix newMat = _sys._renderer._cam.GetCameraMatrix();
 		Math::SetTranslation(newMat, SVec3(oldPos.x, newHeight, oldPos.z));
 		rc.cam->SetCameraMatrix(newMat);
 	}

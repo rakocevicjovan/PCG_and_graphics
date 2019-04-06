@@ -3,7 +3,7 @@
 #include "InputManager.h"
 #include <d3d11.h>
 
-Level::Level(Systems& sys) : _sys(&sys)
+Level::Level(Systems& sys) : _sys(sys)
 {
 
 }
@@ -16,7 +16,7 @@ void Level::ProcessSpecialInput(float dTime)
 	if (sinceLastInput < .33f)
 		return;
 
-	if (_sys->_inputManager.IsKeyDown(VK_SPACE))
+	if (_sys._inputManager.IsKeyDown(VK_SPACE))
 	{
 		procGen();
 		sinceLastInput = 0;

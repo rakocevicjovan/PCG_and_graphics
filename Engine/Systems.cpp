@@ -31,7 +31,7 @@ bool Systems::Initialize()
 	_colEngine.registerController(_controller);	//works both ways
 	_renderer._cam._controller = &_controller;
 
-	_levelMan = LevelManager(*this);
+	_levelMan = new LevelManager(*this);
 
 	return true;
 }
@@ -157,8 +157,8 @@ bool Systems::Frame(float dTime)
 	if (!_renderer.Frame(dTime, &_inputManager))
 		return false;
 
-	_levelMan.update(*this, dTime);
-	_levelMan.drawCurrentLevel(_renderer.rc);
+	_levelMan->update(*this, dTime);
+	_levelMan->drawCurrentLevel(_renderer.rc);
 
 	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
 	_inputManager.SetXY(0, 0);
