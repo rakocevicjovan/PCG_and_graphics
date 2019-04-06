@@ -163,7 +163,7 @@ bool Systems::Frame(float dTime)
 	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
 	_inputManager.SetXY(0, 0);
 
-	OutputFPS(dTime);
+	//OutputFPS(dTime);
 
 	return true;
 }

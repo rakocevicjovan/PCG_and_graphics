@@ -49,6 +49,7 @@ public:
 	TerrainShader shaderTerNorm;
 	TerrainShader shaderTree;
 	ShaderMaze shaderMaze;
+	ShaderMaze shaderNormalMaps;
 
 	//wisps
 	ShaderVolumetric shVolumEarth;

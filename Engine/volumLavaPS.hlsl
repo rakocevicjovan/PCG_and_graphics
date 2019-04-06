@@ -127,28 +127,49 @@ float snoise(float3 v)
 }
 
 
-static const int NUM_OCTAVES = 10;
+float2x2 otherMat = float2x2(0.80, 0.60, -0.60, 0.80);
 
-float fbm(in float3 pos)
+float2x2 makeRotMat(in float theta)
 {
-	float v = 0.0;
+	float c = cos(theta);
+	float s = sin(theta);
+	return float2x2(c, -s, s, c);
+}
 
-	float amplitude = 1.f;
-	float frequency = 1.f;
-
-	float gain = .666;	//.5317f;
-	float lacunarity = 3.14159f;
-
-	for (int i = 0; i < NUM_OCTAVES; ++i)
-	{
-		v += snoise(frequency * pos) * amplitude;
-		frequency *= lacunarity;
-		amplitude *= gain;
-	}
-	return v;
+float grid(float2 p)
+{
+	float s = sin(p.x)*cos(p.y);
+	return s;
 }
 
 
+float flow(in float2 p)
+{
+	float z = 2.;
+	float rz = 0.;
+	float2 bp = p;
+	for (float i = 1.; i < 7.; i++)
+	{
+		bp += elapsed * 1.5;
+		float2 gr = float2(grid(p * 3. - elapsed * 2.), grid(p * 3. + 4. - elapsed * 2.)) * 0.4;
+		gr = normalize(gr) * 0.4;
+		gr = mul(gr, makeRotMat((p.x + p.y) *.3 + elapsed * 10.));
+		p += gr * 0.5;
+
+		rz += (sin(snoise(float3(p.x, 0, p.y) * 8.)) * 0.5 + 0.5) / z;
+
+		p = lerp(bp, p, 0.5);
+		z *= 1.7;
+		p *= 2.5;
+		p = mul(p, otherMat);
+		bp *= 2.5;
+		bp = mul(bp, otherMat);
+	}
+	return rz;
+}
+
+
+static const int NUM_OCTAVES = 10;
 float turbulentFBM(float3 x)
 {
 	float sum = 0.0f;
@@ -188,6 +209,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float3 scaledPos = xyz * .05f;
 
 	float r = turbulentFBM(scaledPos);
+	//float r = flow(scaledPos.xz);
 
 	float g = smoothstep(LOWER * 2.f, UPPER, r);
 	r = smoothstep(LOWER, UPPER, r);
