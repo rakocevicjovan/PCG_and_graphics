@@ -9,7 +9,7 @@
 
 LevelManager::LevelManager(Systems& systems) //: sys(systems)
 {
-	current = new FireLevel(systems);	//EarthLevel(systems);
+	current = new WaterLevel(systems);	//EarthLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
 	_levels.push_back(new FireLevel(systems));

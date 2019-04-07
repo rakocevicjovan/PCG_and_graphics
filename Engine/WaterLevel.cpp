@@ -4,23 +4,36 @@
 
 void WaterLevel::init(Systems& sys)
 {
+	_sys._colEngine.registerController(_sys._controller);
+
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 
 	cubeMapper.Init(device);
 
+	/*
 	will.LoadModel(device, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(5.f));
 	Math::Translate(will.transform, SVec3(2, 35, 60));
 	modBall.LoadModel(device, "../Models/ball.fbx");
+	*/
 
-	lotus.LoadModel(device, "../Models/crownles_smoother.obj");
+	lotus.LoadModel(device, "../Models/crownless.obj");
 	Math::Scale(lotus.transform, SVec3(100));
 
 	lotusTex.LoadFromFile("../Textures/Lotus/diffuse.jpg");
 	lotusTex.Setup(device);
 	for (auto& m : lotus.meshes)
 		m.textures.push_back(lotusTex);
+
+
+	waterTerrain = Procedural::Terrain(256, 256);
+	waterTerrain.setTextureData(device, 10, 10, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
+	waterTerrain.setOffset(0, 32, 0);
+	waterTerrain.CalculateTexCoords();
+	waterTerrain.CalculateNormals();
+
+	waterSheet = Model(waterTerrain, _sys._device);
 
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
@@ -31,6 +44,8 @@ void WaterLevel::init(Systems& sys)
 
 void WaterLevel::draw(const RenderContext& rc)
 {
+	updateCam(rc.dTime);
+
 	rc.d3d->BeginScene(rc.d3d->clearColour);
 
 	dc->RSSetViewports(1, &(cubeMapper.cm_viewport));
@@ -73,11 +88,12 @@ void WaterLevel::draw(const RenderContext& rc)
 	rc.d3d->SwitchDepthToDefault();
 	rc.d3d->TurnOnCulling();
 
-
+	/*
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumAir.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
 	will.Draw(dc, rc.shMan->shVolumAir);
 	rc.d3d->TurnOffAlphaBlending();
+	*/
 
 	rc.d3d->EndScene();
 	ProcessSpecialInput(rc.dTime);

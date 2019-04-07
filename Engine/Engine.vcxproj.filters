@@ -471,12 +471,6 @@
     <FxCompile Include="strifeps.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="Watervs.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="Waterps.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
@@ -538,6 +532,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="volumLavaPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="waterPS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="waterVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

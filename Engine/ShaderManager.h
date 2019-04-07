@@ -50,6 +50,7 @@ public:
 	TerrainShader shaderTree;
 	ShaderMaze shaderMaze;
 	ShaderMaze shaderNormalMaps;
+	ShaderWater shaderFresnel;
 
 	//wisps
 	ShaderVolumetric shVolumEarth;

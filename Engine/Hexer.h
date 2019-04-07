@@ -25,12 +25,12 @@ class Hexer
 	std::deque<SVec3> previousPositions;
 
 	UINT targetIndex = 1;
-	float _lifeSpan = 16.66f, _cellSize = 0.f, _cellDist = 0.f, _triHeight = 0.f;
+	float _lifeSpan = 3.33f, _cellSize = 0.f, _cellDist = 0.f, _triHeight = 0.f, 
+		platformSpawnRate = _lifeSpan * 0.666666f, sincePlatformAdded = 0.f;
 	bool done = false;
 
 public:
 
-	float sincePlatformAdded = 0.f, platformSpawnRate = _lifeSpan * 0.666666f;
 	
 	Hexer(Systems& sys) : _sys(sys) {};
 	~Hexer() {}

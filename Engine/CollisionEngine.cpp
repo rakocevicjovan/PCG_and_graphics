@@ -140,6 +140,7 @@ void CollisionEngine::removeFromGrid(Collider& collider)
 
 void CollisionEngine::update()
 {
+	/*
 	for (Collider* collider : _colliders)
 	{
 		if (collider->dynamic)
@@ -148,24 +149,20 @@ void CollisionEngine::update()
 			SVec3 pos3 = SVec3(pos.x, pos.y, pos.z);
 			collider->transform = collider->actParent->transform; 
 
-			for (Hull* h : collider->hulls)
-			{
-				h->setPosition(pos3);
-			}
-				
+			for (Hull* h : collider->hulls) h->setPosition(pos3);
 
 			addToGrid(collider);
 		}
 	}
+	*/
 
-	/* probably works but im a bit scared now...
 	for (auto iterator = grid.cells.begin(); iterator != grid.cells.end();)
 	{
 		if (iterator->second.hulls.empty())
 			iterator = grid.cells.erase(iterator);
 		else
 			iterator++;
-	}*/
+	}
 }
 
 

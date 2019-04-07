@@ -43,7 +43,8 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	shaderCM.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
 	shaderSkybox.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
 	shaderStrife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
-	shaderWater.Initialize(_device, hwnd, { L"Watervs.hlsl", L"Waterps.hlsl" });
+	shaderWater.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
+	shaderFresnel.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
 
 	//4 sprites, uncomment upon implementing
 	shVolumEarth.Initialize(_device, hwnd, { L"volumVS.hlsl", L"volumEarthPS.hlsl" }, sbLayout, sbSamplerDesc);

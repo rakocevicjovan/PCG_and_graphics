@@ -161,7 +161,7 @@ bool Systems::Frame(float dTime)
 
 	_levelMan->drawCurrentLevel(_renderer.rc);
 
-	//_colEngine.update();
+	_colEngine.update();
 
 	if (_inputManager.IsKeyDown(VK_ESCAPE))
 		return false;

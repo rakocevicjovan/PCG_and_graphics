@@ -92,10 +92,7 @@ void FireLevel::draw(const RenderContext& rc)
 
 	SVec3 potentialPlatformPos;
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
-	{
 		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.shaderNormalMaps));
-		//_sys._colEngine.registerActor(hexer._platforms.back().actor, BoundingVolumeType::BVT_AABB);
-	}
 
 	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
