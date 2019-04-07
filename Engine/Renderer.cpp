@@ -46,8 +46,6 @@ bool Renderer::Frame(float dTime, InputManager* inMan)
 	elapsed += dTime;
 	sinceInput += dTime;
 	
-	_cam.update(dTime);
-	
 	bool res = UpdateRenderContext(dTime);
 
 	if (sinceInput < .33f)

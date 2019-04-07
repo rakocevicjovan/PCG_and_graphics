@@ -1,12 +1,15 @@
 #include "CollisionEngine.h"
 #include "Model.h"
+#include "Math.h"
 #include "GameObject.h"
 
-#define SCREAM(bloodyMurder) std::ostringstream ss;	\
+
+/*
+	SCREAM(bloodyMurder) std::ostringstream ss;	\
 	ss << bloodyMurder << "\n"; \
 	std::string s(ss.str()); \
 	OutputDebugStringA(ss.str().c_str());
-
+*/
 
 CollisionEngine::CollisionEngine()
 {
@@ -18,28 +21,58 @@ CollisionEngine::~CollisionEngine()
 }
 
 
-
+//tbd
 void CollisionEngine::registerModel(Model& model, BoundingVolumeType bvt)
 {
-	fillCollider(model, bvt);
-	model.collider.modParent = &model;
-	_colliders.push_back(&model.collider);
-	addToGrid(&model.collider);
+	_colliders.push_back(new Collider());
+	_colliders.back()->modParent = &model;
+	_colliders.back()->BVT = bvt;
+	_colliders.back()->dynamic = false;
+
+	model.collider = _colliders.back();
+
+	switch (bvt)
+	{
+	case BVT_AABB:
+		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genBoxHull(&m));
+		break;
+
+	case BVT_SPHERE:
+		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genSphereHull(&m));
+		break;
+	}
+
+	addToGrid(_colliders.back());
 }
 
 
 
 void CollisionEngine::registerActor(Actor& actor, BoundingVolumeType bvt)
 {
-	fillCollider(actor, bvt);
-	actor.collider.actParent = &actor;
-	_colliders.push_back(&actor.collider);
-	addToGrid(&actor.collider);
+	_colliders.push_back(new Collider());
+	_colliders.back()->actParent = &actor;
+	_colliders.back()->BVT = bvt;
+	_colliders.back()->dynamic = true;
+
+	actor.collider = _colliders.back();
+
+	switch (bvt)
+	{
+	case BVT_AABB:
+		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genBoxHull(&m));
+		break;
+
+	case BVT_SPHERE:
+		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genSphereHull(&m));
+		break;
+	}
+
+	addToGrid(_colliders.back());
 }
 
 
 
-void CollisionEngine::unregisterModel(Model& model)	//	_models.erase(remove(_models.begin(), _models.end(), model), _models.end());
+void CollisionEngine::unregisterModel(Model& model)
 {
 	for (Collider* c : _colliders)
 	{
@@ -47,29 +80,30 @@ void CollisionEngine::unregisterModel(Model& model)	//	_models.erase(remove(_mod
 		{
 			removeFromGrid(*c);
 			c->ReleaseMemory();
-			_colliders.erase(remove(_colliders.begin(), _colliders.end(), c), _colliders.end());
-			
-			break;
+			delete c;
+			c = nullptr;
 		}
 	}
+	_colliders.erase(remove(_colliders.begin(), _colliders.end(), model.collider), _colliders.end());
 }
 
 
 
-void CollisionEngine::unregisterActor(Actor* actor)
+void CollisionEngine::unregisterActor(Actor& actor)
 {
-	//SCREAM(REEEEE)
 
 	for (Collider* c : _colliders)
 	{
-		if (*c == actor->collider)
+		if (c == actor.collider)
 		{
 			removeFromGrid(*c);
 			c->ReleaseMemory();
-			_colliders.erase(remove(_colliders.begin(), _colliders.end(), c), _colliders.end());
-			break;
+			delete c;
+			c = nullptr;
 		}
 	}
+
+	_colliders.erase(remove(_colliders.begin(), _colliders.end(), actor.collider), _colliders.end());
 }
 
 
@@ -92,23 +126,12 @@ void CollisionEngine::addToGrid(Collider* collider)
 
 void CollisionEngine::removeFromGrid(Collider& collider)
 {
-
-	std::ostringstream ss;
-	ss << "REMOVE FROM GRID FIRED" << "\n";
-	std::string s(ss.str());
-	OutputDebugStringA(ss.str().c_str());
-
 	for (Hull* h : collider.hulls)
 	{
 		for (auto& keyCellPair : grid.cells)
 		{
 			//keyCellPair.second.hulls.erase(std::remove(keyCellPair.second.hulls.begin(), keyCellPair.second.hulls.end(), h), keyCellPair.second.hulls.end());
 			keyCellPair.second.hulls.erase(h);
-
-			std::ostringstream ss;
-			ss << "Hulls erased!" << "\n";
-			std::string s(ss.str());
-			OutputDebugStringA(ss.str().c_str());
 		}
 	}
 }
@@ -117,16 +140,32 @@ void CollisionEngine::removeFromGrid(Collider& collider)
 
 void CollisionEngine::update()
 {
-	for (auto& collider : _colliders)
+	for (Collider* collider : _colliders)
 	{
 		if (collider->dynamic)
 		{
-			collider->transform = collider->actParent->transform;
+			SVec4 pos = collider->actParent->transform.Translation();
+			SVec3 pos3 = SVec3(pos.x, pos.y, pos.z);
+			collider->transform = collider->actParent->transform; 
+
 			for (Hull* h : collider->hulls)
-				h->setPosition(collider->transform.Translation());
+			{
+				h->setPosition(pos3);
+			}
+				
+
+			addToGrid(collider);
 		}
 	}
 
+	/* probably works but im a bit scared now...
+	for (auto iterator = grid.cells.begin(); iterator != grid.cells.end();)
+	{
+		if (iterator->second.hulls.empty())
+			iterator = grid.cells.erase(iterator);
+		else
+			iterator++;
+	}*/
 }
 
 
@@ -152,7 +191,7 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 
 	for (int i = -1; i < 2; ++i)
 	{
-		adjCK.x = ck.x + i;	//increment c
+		adjCK.x = ck.x + i;
 
 		for (int j = -1; j < 2; ++j)
 		{
@@ -162,8 +201,6 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 			{
 				adjCK.z = ck.z + k;
 
-				
-				
 				for (auto hull : grid.cells[adjCK].hulls)
 				{
 					HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
@@ -171,7 +208,9 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 					{
 						collidedHulls.push_back(hull);
 
-						if (velocity.Dot(hr.resolutionVector) < 0.001f) velocity -= Math::projectVecOntoVec(velocity, hr.resolutionVector);
+						if (velocity.Dot(hr.resolutionVector) < 0.001f) 
+							velocity -= Math::projectVecOntoVec(velocity, hr.resolutionVector);
+
 						collisionNormal += hr.resolutionVector * sqrt(hr.sqPenetrationDepth);
 					}
 				}
@@ -208,51 +247,10 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh)
 	}
 
 	AABB* aabb = new AABB;
-	aabb->min = SVec3(minX, minY, minZ);
-	aabb->max = SVec3(maxX, maxY, maxZ);
+	aabb->minPoint = SVec3(minX, minY, minZ);
+	aabb->maxPoint = SVec3(maxX, maxY, maxZ);
 
 	return aabb;
-}
-
-
-
-void CollisionEngine::fillCollider(Model& model, BoundingVolumeType bvt)
-{
-	model.collider.hulls.reserve(model.meshes.size());
-
-	switch (bvt)
-	{
-	case BVT_AABB:
-		for (Mesh m : model.meshes) model.collider.hulls.push_back(genBoxHull(&m));
-		break;
-
-	case BVT_SPHERE:
-		for (Mesh m : model.meshes) model.collider.hulls.push_back(genSphereHull(&m));
-		break;
-	}
-
-	model.collider.BVT = bvt;
-}
-
-
-
-void CollisionEngine::fillCollider(Actor& actor, BoundingVolumeType bvt)
-{
-	actor.collider.hulls.reserve(actor.gc.model->meshes.size());
-
-	switch (bvt)
-	{
-	case BVT_AABB:
-		for (Mesh m : actor.gc.model->meshes) actor.collider.hulls.push_back(genBoxHull(&m));
-		break;
-
-	case BVT_SPHERE:
-		for (Mesh m : actor.gc.model->meshes) actor.collider.hulls.push_back(genSphereHull(&m));
-		break;
-	}
-
-	actor.collider.BVT = bvt;
-	actor.collider.dynamic = true;
 }
 
 
@@ -305,14 +303,14 @@ HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector)
 
 
 
-//helper function(s) for intersection
+//ACTUAL INTERSECTION CODE AFTER ALL THIS PAPERWORK
 inline float sq(float x) { return x * x; }
 
 float Collider::ClosestPointOnAABB(SVec3 p, AABB b, SVec3& out)
 {
-	out.x = Math::clamp(b.min.x, b.max.x, p.x);
-	out.y = Math::clamp(b.min.y, b.max.y, p.y);
-	out.z = Math::clamp(b.min.z, b.max.z, p.z);
+	out.x = Math::clamp(b.minPoint.x, b.maxPoint.x, p.x);
+	out.y = Math::clamp(b.minPoint.y, b.maxPoint.y, p.y);
+	out.z = Math::clamp(b.minPoint.z, b.maxPoint.z, p.z);
 
 	return SVec3::DistanceSquared(p, out);
 }
@@ -349,12 +347,12 @@ HitResult Collider::SphereSphereIntersection(const SphereHull& s1, const SphereH
 }
 
 
-//does not support penetration depth yet
+
 HitResult Collider::AABBAABBIntersection(const AABB& a, const AABB& b)
 {
-	if (a.max.x < b.min.x || a.min.x > b.max.x) return HitResult();
-	if (a.max.y < b.min.y || a.min.y > b.max.y) return HitResult();
-	if (a.max.z < b.min.z || a.min.z > b.max.z) return HitResult();
+	if (a.maxPoint.x < b.minPoint.x || a.minPoint.x > b.maxPoint.x) return HitResult();
+	if (a.maxPoint.y < b.minPoint.y || a.minPoint.y > b.maxPoint.y) return HitResult();
+	if (a.maxPoint.z < b.minPoint.z || a.minPoint.z > b.maxPoint.z) return HitResult();
 	return HitResult(true, a.getPosition() - b.getPosition(), 0.f);
 }
 
@@ -372,8 +370,8 @@ bool ClipLine(int dim, const AABB& b, const SRay& lineSeg, float& lo, float& hi)
 	float fDimLow, fDimHigh;
 	float inv = 1.f / (lineSeg.direction.at(dim) - lineSeg.position.at(dim));
 
-	fDimLow = (b.min.at(dim) - lineSeg.position.at(dim)) * inv;
-	fDimHigh = (b.max.at(dim) - lineSeg.position.at(dim)) * inv;
+	fDimLow = (b.minPoint.at(dim) - lineSeg.position.at(dim)) * inv;
+	fDimHigh = (b.maxPoint.at(dim) - lineSeg.position.at(dim)) * inv;
 
 	if (fDimHigh < fDimLow)
 		Math::swap(fDimHigh, fDimLow);
@@ -485,8 +483,8 @@ void Grid::addAABB(AABB* h)
 {
 	std::vector<SVec3> positions = h->getVertices();
 
-	CellKey minCellKey(h->min, invCellSize);
-	CellKey maxCellKey(h->max, invCellSize);
+	CellKey minCellKey(h->minPoint, invCellSize);
+	CellKey maxCellKey(h->maxPoint, invCellSize);
 
 	for (int i = minCellKey.x; i <= maxCellKey.x; ++i)
 		for (int j = minCellKey.y; j <= maxCellKey.y; ++j)
@@ -495,7 +493,7 @@ void Grid::addAABB(AABB* h)
 }
 
 
-//@TODO
+//@TODO...
 void Grid::addSphere(SphereHull* h)
 {
 	
@@ -509,14 +507,14 @@ std::vector<SVec3> AABB::getVertices() const
 {
 	return
 	{
-		min,						//left  lower  near
-		SVec3(min.x, min.y, max.z),	//left  lower  far
-		SVec3(max.x, min.y, min.z),	//right lower  near
-		SVec3(max.x, min.y, max.z),	//right lower  far
-		max,						//right higher far
-		SVec3(min.x, max.y, max.z),	//left  higher far
-		SVec3(max.x, max.y, min.z),	//right higher near
-		SVec3(min.x, max.y, min.z),	//left  higher near
+		minPoint,						//left  lower  near
+		SVec3(minPoint.x, minPoint.y, maxPoint.z),	//left  lower  far
+		SVec3(maxPoint.x, minPoint.y, minPoint.z),	//right lower  near
+		SVec3(maxPoint.x, minPoint.y, maxPoint.z),	//right lower  far
+		maxPoint,						//right higher far
+		SVec3(minPoint.x, maxPoint.y, maxPoint.z),	//left  higher far
+		SVec3(maxPoint.x, maxPoint.y, minPoint.z),	//right higher near
+		SVec3(minPoint.x, maxPoint.y, minPoint.z),	//left  higher near
 	};
 }
 

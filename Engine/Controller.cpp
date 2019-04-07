@@ -27,8 +27,8 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transformation)
 	//flying mode is used for testing and shouldn't collide or fall for convenience
 	if (!_isFlying)
 	{
-		applyGravity(dTime, transformation);
 		resolveCollision(transformation, dTime, velocityVector);	//change velocity vector first if affected by collision
+		applyGravity(dTime, transformation);
 	}
 
 	Math::Translate(transformation, velocityVector);
@@ -88,14 +88,14 @@ SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transf
 	deltaTranslation.Normalize();
 
 	return deltaTranslation;
-	
 }
 
 
 
 void Controller::applyGravity(const float dTime, SMatrix& transformation) const
 {
-	Math::Translate(transformation, SVec3(0.f, -9.81f, 0.f) * dTime);
+	if(!_grounded)
+		Math::Translate(transformation, SVec3(0.f, -9.81f, 0.f) * dTime);
 }
 
 
@@ -112,5 +112,9 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 	if (!_colEng) return;
 
 	SVec3 collisionOffset = _colEng->resolvePlayerCollision(transformation, velocity);
-	//Math::Translate(transformation, collisionOffset * dTime);
+
+	if (collisionOffset.LengthSquared() > .1f)
+		_grounded = true;
+	else
+		_grounded = false;
 }

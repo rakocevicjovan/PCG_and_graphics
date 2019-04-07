@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <list>
 #include <d3d11.h>
 #include "Controller.h"
 
@@ -41,18 +42,21 @@ struct Hull
 
 struct AABB : Hull
 {
-	SVec3 min, max;
+	SVec3 minPoint, maxPoint;
 
 	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
-	virtual SVec3 getPosition() const { return (min + max) * 0.5f; }
+	virtual SVec3 getPosition() const
+	{ 
+		return SVec3(minPoint.x + maxPoint.x, minPoint.y + maxPoint.y, minPoint.z + maxPoint.z) * 0.5f; 
+	}
 	virtual void setPosition(SVec3 newPos)
 	{
 		SVec3 posDelta = newPos - getPosition();
-		min += posDelta;
-		max += posDelta;
+		minPoint += posDelta;
+		maxPoint += posDelta;
 	}
 
-	bool operator ==(AABB other) { return ( (min - other.min + max - other.max).LengthSquared() > 0.001f ); }
+	bool operator ==(AABB other) { return ( (minPoint - other.minPoint + maxPoint - other.maxPoint).LengthSquared() > 0.001f ); }
 
 	std::vector<SVec3> getVertices() const;
 
@@ -91,7 +95,7 @@ struct Collider
 
 	void ReleaseMemory()
 	{
-		for (auto* hull : hulls)
+		for (Hull* hull : hulls)
 		{
 			delete hull;
 			hull = nullptr;
@@ -177,14 +181,12 @@ class CollisionEngine
 	Grid grid;
 
 	Controller* _controller;
-	std::vector<Collider*> _colliders;
+	std::list<Collider*> _colliders;
+
+public:
 
 	Hull* genSphereHull(Mesh* mesh);
 	Hull* genBoxHull(Mesh* mesh);
-	void fillCollider(Model& model, BoundingVolumeType bvt);
-	void fillCollider(Actor& actor, BoundingVolumeType bvt);
-
-public:
 
 	CollisionEngine();
 	~CollisionEngine();
@@ -194,7 +196,7 @@ public:
 	void registerModel(Model& model, BoundingVolumeType bvt);
 	void registerActor(Actor& actor, BoundingVolumeType bvt);
 	void unregisterModel(Model& model);
-	void unregisterActor(Actor* actor);
+	void unregisterActor(Actor& actor);
 	void addToGrid(Collider* collider);
 	void removeFromGrid(Collider& collider);
 	void update();

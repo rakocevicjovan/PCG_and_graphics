@@ -41,7 +41,7 @@ public:
 
 	SMatrix transform;
 	GraphicComponent gc;
-	Collider collider;
+	Collider* collider;
 };
 
 

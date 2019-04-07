@@ -59,7 +59,7 @@ void Hexer::update(float dTime)
 		if (p.age >= _lifeSpan)
 		{
 			p.active = false;
-			_sys._colEngine.unregisterActor(&p.actor);
+			//_sys._colEngine.unregisterActor(p.actor);
 		}
 	}
 	_platforms.erase(std::remove_if(_platforms.begin(), _platforms.end(), [&](const Platform& p) { return !p.active; }), _platforms.end());

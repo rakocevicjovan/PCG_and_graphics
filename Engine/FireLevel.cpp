@@ -14,8 +14,6 @@ void FireLevel::init(Systems& sys)
 	hexer.init(hexRadius);
 	sys._renderer.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
 
-
-
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
 
@@ -87,16 +85,17 @@ void FireLevel::procGen()
 
 void FireLevel::draw(const RenderContext& rc)
 {
+	setUpCollision();
 	processInput(rc.dTime);
+	updateCam(rc.dTime);
 	hexer.update(rc.dTime);
 
 	SVec3 potentialPlatformPos;
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
 	{
 		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.shaderNormalMaps));
-		_sys._colEngine.registerActor(hexer._platforms.back().actor, BoundingVolumeType::BVT_AABB);
+		//_sys._colEngine.registerActor(hexer._platforms.back().actor, BoundingVolumeType::BVT_AABB);
 	}
-
 
 	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
@@ -143,6 +142,51 @@ void FireLevel::draw(const RenderContext& rc)
 
 	//finish up
 	rc.d3d->EndScene();
+
+	resetCollision();
+}
+
+
+
+void FireLevel::setUpCollision()
+{
+	for (Platform& platform : hexer._platforms)
+	{
+		Collider c;
+		c.BVT = BVT_AABB;
+		c.actParent = &platform.actor;
+		c.dynamic = true;
+		
+		for (Mesh m : platform.actor.gc.model->meshes)
+			c.hulls.push_back(_sys._colEngine.genBoxHull(&m));
+
+		for (Hull* h : c.hulls)
+		{
+			SVec4 daddyPos = c.actParent->transform.Translation();
+			SVec3 kiddyPos = SVec3(daddyPos.x, daddyPos.y, daddyPos.z);
+			h->setPosition(kiddyPos);
+		}
+
+		_sys._colEngine.addToGrid(&c);
+
+		_levelColliders.push_back(c);
+	}
+
+
+	
+}
+
+
+
+void FireLevel::resetCollision()
+{
+	for (Collider& collider : _levelColliders)
+	{
+		_sys._colEngine.removeFromGrid(collider);
+		collider.ReleaseMemory();
+	}
+
+	_levelColliders.clear();
 }
 
 

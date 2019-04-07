@@ -22,4 +22,6 @@ public:
 	void draw(const RenderContext& rc);
 	void demolish() { this->~FireLevel(); };
 	bool processInput(float dTime);
+	void setUpCollision();
+	void resetCollision();
 };

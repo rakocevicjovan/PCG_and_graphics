@@ -158,9 +158,14 @@ bool Systems::Frame(float dTime)
 		return false;
 
 	_levelMan->update(*this, dTime);
+
 	_levelMan->drawCurrentLevel(_renderer.rc);
 
-	if (_inputManager.IsKeyDown(VK_ESCAPE)) return false;
+	//_colEngine.update();
+
+	if (_inputManager.IsKeyDown(VK_ESCAPE))
+		return false;
+
 	_inputManager.SetXY(0, 0);
 
 	//OutputFPS(dTime);

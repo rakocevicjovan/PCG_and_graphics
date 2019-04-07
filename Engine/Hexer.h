@@ -3,6 +3,7 @@
 #include "Math.h"
 #include "GameObject.h"
 #include <deque>
+#include <list>
 
 class Systems;
 
@@ -24,7 +25,7 @@ class Hexer
 	std::deque<SVec3> previousPositions;
 
 	UINT targetIndex = 1;
-	float _lifeSpan = 2.66f, _cellSize = 0.f, _cellDist = 0.f, _triHeight = 0.f;
+	float _lifeSpan = 16.66f, _cellSize = 0.f, _cellDist = 0.f, _triHeight = 0.f;
 	bool done = false;
 
 public:
@@ -34,7 +35,7 @@ public:
 	Hexer(Systems& sys) : _sys(sys) {};
 	~Hexer() {}
 
-	std::vector<Platform> _platforms;
+	std::list<Platform> _platforms;
 	SVec3 _lastPlatformPos;
 
 	void init(float cellSize);

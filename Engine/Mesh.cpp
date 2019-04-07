@@ -94,8 +94,8 @@ Mesh::Mesh(Hull* hull, ID3D11Device* device)
 {
 	AABB* aabb = reinterpret_cast<AABB*>(hull);
 
-	SVec3 sizes = (aabb->max - aabb->min);
-	SVec3 offset = aabb->min + sizes * 0.5f;
+	SVec3 sizes = (aabb->maxPoint - aabb->minPoint);
+	SVec3 offset = aabb->minPoint + sizes * 0.5f;
 
 	Procedural::Geometry g;
 	g.GenBox(sizes);

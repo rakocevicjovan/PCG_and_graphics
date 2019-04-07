@@ -18,6 +18,7 @@ private:
 
 	bool _isFlying = true;
 	bool _collided = false;
+	bool _grounded = false;
 	
 public:
 	Controller();
