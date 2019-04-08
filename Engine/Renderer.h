@@ -1,5 +1,6 @@
 #include "D3D.h"
 #include "Camera.h"
+#include "OST.h"
 #include "ShaderManager.h"
 #include "GameClock.h"
 #include "Rekt.h"
@@ -31,6 +32,8 @@ public:
 
 	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
 	bool Frame(float dTime, InputManager* inMan);
+	void SetOSTRenderTarget(OST& ost);
+	void RevertRenderTarget();
 
 	void setCameraMatrix(const SMatrix& camMatrix);
 
@@ -50,5 +53,4 @@ private:
 	
 	Rekt* _rekt;
 	Rekt::UINODE* screenRect;
-	bool drawUI = false;
 };

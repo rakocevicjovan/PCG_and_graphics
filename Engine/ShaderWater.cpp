@@ -195,8 +195,8 @@ void ShaderWater::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 
 
 
-bool ShaderWater::SetShaderParameters (ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam,
-	const DirectionalLight& dirLight, float elapsed, ID3D11ShaderResourceView* whiteSRV)
+bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, 
+	float elapsed, ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* reflectionMap, ID3D11ShaderResourceView* refractionMap)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
@@ -221,13 +221,13 @@ bool ShaderWater::SetShaderParameters (ID3D11DeviceContext* deviceContext, Model
 	if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
-	dataPtr2->alc = dirLight.alc;
-	dataPtr2->ali = dirLight.ali;
-	dataPtr2->dlc = dirLight.dlc;
-	dataPtr2->dli = dirLight.dli;
-	dataPtr2->slc = dirLight.slc;
-	dataPtr2->sli = dirLight.sli;
-	dataPtr2->dir = dirLight.dir;
+	dataPtr2->alc = pLight.alc;
+	dataPtr2->ali = pLight.ali;
+	dataPtr2->dlc = pLight.dlc;
+	dataPtr2->dli = pLight.dli;
+	dataPtr2->slc = pLight.slc;
+	dataPtr2->sli = pLight.sli;
+	dataPtr2->dir = pLight.pos;
 	dataPtr2->eyePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 	dataPtr2->elapsed = elapsed;
 	dataPtr2->padding = SVec3();

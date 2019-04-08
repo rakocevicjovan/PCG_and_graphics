@@ -9,8 +9,10 @@ public:
 	WaterLevel(Systems& sys) : Level(sys) {};
 
 	Procedural::Terrain islands, waterTerrain;
-	Model skybox, modBall, will, lotus, waterSheet;
-	Texture lotusTex;
+	Model skybox, modBall, will, lotus, waterSheet, fence;
+	Texture lotusTex, waterNoiseMap;
+	OST reflectionMap, refractionMap;
+	SPlane clippingPlane;
 
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper, cubeMapper;

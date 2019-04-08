@@ -81,12 +81,19 @@ bool Renderer::UpdateRenderContext(float dTime)
 }
 
 
+//tell the gpu to draw on this off screen texture
+void Renderer::SetOSTRenderTarget(OST& ost)
+{
+	ost.SetRenderTarget(_deviceContext);	// _d3d->GetDepthStencilView()
+}
 
 
 
-
-
-
+void Renderer::RevertRenderTarget()
+{
+	_deviceContext->RSSetViewports(1, &_d3d->viewport);
+	_d3d->SetBackBufferRenderTarget();
+}
 
 #pragma region oldScene
 
@@ -141,10 +148,6 @@ Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
 _deviceContext->RSSetViewports(1, &_D3D->viewport);
 _D3D->SetBackBufferRenderTarget();
 _D3D->BeginScene(clearColour);
-
-if (drawUI)
-_rekt->draw(_deviceContext, shaderHUD, offScreenTexture.srv);
-///RENDERING UI DONE
 
 
 ///RENDERING DEPTH TEXTURE

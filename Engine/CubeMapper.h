@@ -40,7 +40,5 @@ public:
 	ID3D11DepthStencilView* cm_depthStencilView;
 
 	float clearCol[4] = { 0.7f, 0.7f, 0.7f, 1.0f };
-
-private:
 };
 

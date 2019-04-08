@@ -44,13 +44,16 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera&, const DirectionalLight&, float, ID3D11ShaderResourceView*);
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& dirLight,
+		float elapsed, ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* reflectionMap, ID3D11ShaderResourceView* refractionMap);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
 
 	ID3D11SamplerState* m_sampleState;
-	UINT texturesAdded = 1;
+	
+	RenderFormat renderFormat;
+	UINT texturesAdded = 3;
 
 private:
 	ID3D11VertexShader* m_vertexShader;
@@ -61,9 +64,6 @@ private:
 	ID3D11Buffer* m_lightBuffer;
 
 	std::vector<std::wstring> filePaths;
-
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
-
-	RenderFormat renderFormat;
 };
 

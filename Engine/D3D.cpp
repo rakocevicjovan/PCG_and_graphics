@@ -169,8 +169,8 @@ bool D3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, b
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	// Create the swap chain, Direct3D device, and Direct3D device context.
-	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1, 
+	// Create the swap chain, Direct3D device, and Direct3D device context.	//@TODO DELETE THE DEBUG FLAG ONCE IT'S NO LONGER NEEDED
+	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_FLAG::D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1,
 										   D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &_device, NULL, &_deviceContext);
 	if(FAILED(result)){
 		return false;
@@ -422,12 +422,16 @@ void D3D::GetVideoCardInfo(char* cardName, int& memory){
 	memory = m_videoCardMemory;
 }
 
-ID3D11DepthStencilView* D3D::GetDepthStencilView() {
+ID3D11DepthStencilView* D3D::GetDepthStencilView()
+{
 	return m_depthStencilView;
 }
 
-void D3D::SetBackBufferRenderTarget(){
+void D3D::SetBackBufferRenderTarget()
+{
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
 }
 
 void D3D::D3D::TurnOnAlphaBlending()

@@ -40,19 +40,12 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 
-	if (CPUAccessible)
-	{
-		texDesc.Usage = D3D11_USAGE_DYNAMIC;
-		texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	}
-	else
-	{
-		texDesc.Usage = D3D11_USAGE_DEFAULT;
-		texDesc.CPUAccessFlags = 0;
-	}
-		
+	//if (CPUAccessible) { texDesc.Usage = D3D11_USAGE_STAGING; texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ; }
 
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
 	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	texDesc.CPUAccessFlags = 0;
+
 	texDesc.MiscFlags = 0;
 
 	if (FAILED(device->CreateTexture2D(&texDesc, 0, &ostId)))
@@ -86,23 +79,70 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 		exit(422);
 	}
 
+
+
+	//MIGHT NOT NEED THIS EVERY TIME BUT IT'S USEFUL!
+	D3D11_TEXTURE2D_DESC ostDepthTexDesc;
+	ZeroMemory(&ostDepthTexDesc, sizeof(ostDepthTexDesc));
+	ostDepthTexDesc.Width = _w;
+	ostDepthTexDesc.Height = _h;
+	ostDepthTexDesc.MipLevels = 1;
+	ostDepthTexDesc.ArraySize = 1;
+	ostDepthTexDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	ostDepthTexDesc.CPUAccessFlags = 0;
+	ostDepthTexDesc.SampleDesc = { 1, 0 };
+	ostDepthTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	ostDepthTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	ostDepthTexDesc.MiscFlags = 0;
+
+	if (FAILED(device->CreateTexture2D(&ostDepthTexDesc, 0, &ostDepthId)))
+	{
+		OutputDebugStringA("Can't create cube map depth texture. \n");
+		exit(523);
+	}
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	dsvd.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvd.Flags = 0;
+	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvd.Texture2D.MipSlice = 0;
+
+	if (FAILED(device->CreateDepthStencilView(ostDepthId, &dsvd, &ostDepthStencilView)))
+	{
+		OutputDebugStringA("Can't create cube map texture. \n");
+		exit(524);
+	}
+
+	ostViewport.Width = (float)_w;
+	ostViewport.Height = (float)_h;
+	ostViewport.MinDepth = 0.0f;
+	ostViewport.MaxDepth = 1.0f;
+	ostViewport.TopLeftX = 0;
+	ostViewport.TopLeftY = 0;
+
 	_ar = float(w) / (float)h;
 	_fov = PI * 0.5f;
 }
 
 
 
-void OST::SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView)
+void OST::SetRenderTarget(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->OMSetRenderTargets(1, &rtv, depthStencilView);
+	//deviceContext->OMSetRenderTargets(1, &rtv, depthStencilView);
+
+	deviceContext->RSSetViewports(1, &(ostViewport));
+	deviceContext->OMSetRenderTargets(1, &rtv, ostDepthStencilView);
+	deviceContext->ClearRenderTargetView(rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
+	deviceContext->ClearDepthStencilView(ostDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 }
 
 
 
-void OST::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float* color)
+void OST::ClearRenderTarget(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->ClearRenderTargetView(rtv, color);
-	deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	deviceContext->ClearRenderTargetView(rtv, ccb);
+	deviceContext->ClearDepthStencilView(ostDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 
@@ -118,7 +158,6 @@ void OST::DrawDepthToTexture(D3D& d3d, std::vector<Model*>& models, ShaderDepth&
 		sd.SetShaderParameters(d3d.GetDeviceContext(), *tm, c.GetViewMatrix(), c.GetProjectionMatrix());	// offScreenTexture._view, offScreenTexture._lens
 		tm->Draw(d3d.GetDeviceContext(), sd);
 	}
-
 }
 
 
