@@ -210,6 +210,12 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Levels</Filter>
     </ClCompile>
+    <ClCompile Include="Lillies.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderClipper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -404,6 +410,12 @@
     <ClInclude Include="GameObject.h">
       <Filter>Levels</Filter>
     </ClInclude>
+    <ClInclude Include="Lillies.h">
+      <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderClipper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -538,6 +550,12 @@
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="waterVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="clipperVS.hlsl">
+      <Filter>Shader Files</Filter>
+    </FxCompile>
+    <FxCompile Include="clipperPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -18,9 +18,8 @@ class Camera;
 
 class ShaderWater
 {
-	struct LightBufferType
+	struct WaterBuffer
 	{
-
 		SVec3 alc;
 		float ali;
 
@@ -31,7 +30,6 @@ class ShaderWater
 		float sli;
 
 		SVec4 dir;
-
 		SVec4 eyePos;
 
 		float elapsed;
@@ -44,8 +42,8 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& dirLight,
-		float elapsed, ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* reflectionMap, ID3D11ShaderResourceView* refractionMap);
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& dirLight, float elapsed,
+		ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* reflectionMap, ID3D11ShaderResourceView* refractionMap);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
@@ -59,9 +57,7 @@ private:
 	ID3D11VertexShader* m_vertexShader;
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer;
-	ID3D11Buffer* m_variableBuffer;
-	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* _matrixBuffer, *_variableBuffer, *_lightBuffer;
 
 	std::vector<std::wstring> filePaths;
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };

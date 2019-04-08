@@ -24,8 +24,4 @@ public:
 
 	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera& cam, const PointLight& dLight, float deltaTime);
 	void ReleaseShaderParameters(ID3D11DeviceContext*);
-
-private:
-	std::vector<std::wstring> filePaths;
-	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 };

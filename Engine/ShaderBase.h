@@ -15,7 +15,6 @@
 
 class ShaderBase
 {
-
 protected:
 
 	std::vector<std::wstring> filePaths;

@@ -33,17 +33,17 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
 
 
-	shaderBase.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
-	shaderLight.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
-	shaderWireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
-	shaderHUD.Initialize(_device, hwnd, { L"rekt.vs", L"rekt.ps" });
-	shaderDepth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
-	shaderPT.Initialize(_device, hwnd, { L"projectTex.vs", L"projectTex.ps" });
-	shaderShadow.Initialize(_device, hwnd, { L"shadowvs.hlsl", L"shadowps.hlsl" });
-	shaderCM.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
-	shaderSkybox.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
-	shaderStrife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
-	shaderWater.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
+	base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+	light.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+	wireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
+	HUD.Initialize(_device, hwnd, { L"rekt.vs", L"rekt.ps" });
+	depth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
+	texProjector.Initialize(_device, hwnd, { L"projectTex.vs", L"projectTex.ps" });
+	shadow.Initialize(_device, hwnd, { L"shadowvs.hlsl", L"shadowps.hlsl" });
+	cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
+	skyboxShader.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
+	strife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
+	water.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
 	shaderFresnel.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
 
 	//4 sprites, uncomment upon implementing
@@ -59,18 +59,18 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	std::vector<D3D11_INPUT_ELEMENT_DESC> extendedLayout = sbLayout;
 	extendedLayout.push_back({ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 });
 
-	shaderMaze.Initialize(_device, hwnd, { L"mazeVS.hlsl", L"mazePS.hlsl" }, extendedLayout, sbSamplerDesc);
-	shaderNormalMaps.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"mazePS.hlsl" }, extendedLayout, sbSamplerDesc);
-	shaderTree.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"terrainPS.hlsl" }, extendedLayout, sbSamplerDesc);
-	shaderTerMult.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"terrainPS.hlsl" }, extendedLayout, sbSamplerDesc);
-	shaderTerNorm.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"normalsTerrainPS.hlsl" }, extendedLayout, sbSamplerDesc);
+	dynamicHeightMaze.Initialize(_device, hwnd, { L"mazeVS.hlsl", L"mazePS.hlsl" }, extendedLayout, sbSamplerDesc);
+	normalMapper.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"mazePS.hlsl" }, extendedLayout, sbSamplerDesc);
+	treeShader.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"terrainPS.hlsl" }, extendedLayout, sbSamplerDesc);
+	terrainMultiTex.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"terrainPS.hlsl" }, extendedLayout, sbSamplerDesc);
+	terrainNormals.Initialize(_device, hwnd, { L"mazefloorVS.hlsl", L"normalsTerrainPS.hlsl" }, extendedLayout, sbSamplerDesc);
 
 	//with clamp
 	sbSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sbSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sbSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-	shaderPerlin.Initialize(_device, hwnd, { L"perlin3dVS.hlsl", L"perlin3dPS.hlsl" }, sbLayout, sbSamplerDesc);
+	perlin.Initialize(_device, hwnd, { L"perlin3dVS.hlsl", L"perlin3dPS.hlsl" }, sbLayout, sbSamplerDesc);
 
 	//with instancing
 	std::vector<D3D11_INPUT_ELEMENT_DESC> instancedLayout =
@@ -85,5 +85,5 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 		{ "WORLDMATRIX",	3, DXGI_FORMAT_R32G32B32A32_FLOAT,	1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_INSTANCE_DATA, 1}
 	};
 
-	shaderInstanced.Initialize(_device, hwnd, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
+	instanced.Initialize(_device, hwnd, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
 }

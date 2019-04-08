@@ -92,18 +92,18 @@ void FireLevel::draw(const RenderContext& rc)
 
 	SVec3 potentialPlatformPos;
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
-		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.shaderNormalMaps));
+		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.normalMapper));
 
 	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
 
 	/*
-	terrain.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
+	terrain.Draw(dc, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	for (auto& island : _islands) 
 	{
-		island.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
+		island.Draw(dc, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 	}
 	*/
 
@@ -113,15 +113,15 @@ void FireLevel::draw(const RenderContext& rc)
 			continue;
 
 		hexModel.transform = p.actor.transform;
-		rc.shMan->shaderNormalMaps.SetShaderParameters(dc, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
-		hexModel.Draw(dc, rc.shMan->shaderNormalMaps);
+		rc.shMan->normalMapper.SetShaderParameters(dc, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexModel.Draw(dc, rc.shMan->normalMapper);
 	}
 
 	rc.d3d->TurnOffCulling();
 	rc.d3d->SwitchDepthToLessEquals();
-	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(dc, rc.shMan->shaderSkybox);
-	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
+	rc.shMan->skyboxShader.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
+	skybox.Draw(dc, rc.shMan->skyboxShader);
+	rc.shMan->skyboxShader.ReleaseShaderParameters(dc);
 	rc.d3d->SwitchDepthToDefault();
 	rc.d3d->TurnOnCulling();
 

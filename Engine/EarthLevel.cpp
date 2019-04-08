@@ -85,18 +85,18 @@ void EarthLevel::draw(const RenderContext& rc)
 
 	if (isTerGenerated)
 	{
-		proceduralTerrain.Draw(dc, rc.shMan->shaderTerNorm, *rc.cam, pointLight, rc.elapsed);
+		proceduralTerrain.Draw(dc, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 	}
 
-	rc.shMan->shaderMaze.SetShaderParameters(dc, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
-	maze.model.Draw(dc, rc.shMan->shaderMaze);
-	rc.shMan->shaderMaze.ReleaseShaderParameters(dc);
+	rc.shMan->dynamicHeightMaze.SetShaderParameters(dc, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
+	maze.model.Draw(dc, rc.shMan->dynamicHeightMaze);
+	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(dc);
 
 	rc.d3d->TurnOffCulling();
 	rc.d3d->SwitchDepthToLessEquals();
-	rc.shMan->shaderSkybox.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(dc, rc.shMan->shaderSkybox);
-	rc.shMan->shaderSkybox.ReleaseShaderParameters(dc);
+	rc.shMan->skyboxShader.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
+	skybox.Draw(dc, rc.shMan->skyboxShader);
+	rc.shMan->skyboxShader.ReleaseShaderParameters(dc);
 	rc.d3d->SwitchDepthToDefault();
 	rc.d3d->TurnOnCulling();
 

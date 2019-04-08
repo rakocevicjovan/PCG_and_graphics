@@ -18,6 +18,7 @@
 #include "TerrainShader.h"
 #include "PerlinShader.h"
 #include "ShaderMaze.h"
+#include "ShaderClipper.h"
 
 
 class ShaderManager
@@ -32,25 +33,25 @@ protected:
 
 public:
 
-	ShaderBase shaderBase;
-	ShaderLight shaderLight;
-	WireframeShader shaderWireframe;
-	ShaderHUD shaderHUD;
-	ShaderDepth shaderDepth;
-	ShaderPT shaderPT;
-	ShaderShadow shaderShadow;
-	ShaderCM shaderCM;
-	ShaderSkybox shaderSkybox;
-	ShaderStrife shaderStrife;
-	ShaderWater shaderWater;
-	InstancedShader shaderInstanced;
-	PerlinShader shaderPerlin;
-	TerrainShader shaderTerMult;
-	TerrainShader shaderTerNorm;
-	TerrainShader shaderTree;
-	ShaderMaze shaderMaze;
-	ShaderMaze shaderNormalMaps;
-	ShaderWater shaderFresnel;
+	ShaderBase base;
+	ShaderLight light;
+	WireframeShader wireframe;
+	ShaderHUD HUD;
+	ShaderDepth depth;
+	ShaderPT texProjector;
+	ShaderShadow shadow;
+	ShaderCM cubeMapShader;
+	ShaderSkybox skyboxShader;
+	ShaderStrife strife;
+	ShaderWater water;
+	InstancedShader instanced;
+	PerlinShader perlin;
+	TerrainShader terrainMultiTex;
+	TerrainShader terrainNormals;
+	TerrainShader treeShader;
+	ShaderMaze dynamicHeightMaze;
+	ShaderMaze normalMapper;
+	ShaderClipper clipper;
 
 	//wisps
 	ShaderVolumetric shVolumEarth;

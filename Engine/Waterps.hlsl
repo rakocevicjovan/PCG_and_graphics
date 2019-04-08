@@ -1,17 +1,19 @@
-cbuffer LightBuffer {
+cbuffer LightBuffer
+{
 	float3 alc;
 	float ali;
 	float3 dlc;
 	float dli;
 	float3 slc;
 	float sli;
-	float4 lightDir;
+	float4 lightPos;
 	float4 eyePos;
 	float elapsed;
 	float3 padding;
 };
 
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
@@ -20,15 +22,16 @@ struct PixelInputType {
 Texture2D wnTexture : register(t0);
 SamplerState CloudSampler;
 
-static const int NUM_OCTAVES = 5;
-
-
-float random(in float2 _st) {
+float random(in float2 _st)
+{
 	return frac(sin(dot(_st.xy, float2(12.9898, 78.233))) * 43758.5453123);
 }
 
+
+
 // Based on Morgan McGuire @morgan3d
-float noise2d(in float2 _st) {
+float noise2d(in float2 _st)
+{
 
 	float2 p = floor(_st);
 	float2 f = frac(_st);
@@ -44,26 +47,35 @@ float noise2d(in float2 _st) {
 	return lerp(a, b, u.x) + (c - a) * u.y * (1.0f - u.x) + (d - b) * u.x * u.y;
 }
 
-//fractal brownian motion
-float fbm(in float2 _st) {
+
+
+static const int NUM_OCTAVES = 5;
+
+float fbm(in float2 hPos)
+{
 	float v = 0.0;
 	float amplitude = 0.5;
 	float2 shift = float2(100.0f, 100.0f);
 	// Rotate to reduce axial bias
 	float2x2 rot = float2x2(cos(0.5f), sin(0.5f), -sin(0.5f), cos(0.50f));
 	for (int i = 0; i < NUM_OCTAVES; ++i) {
-		v += amplitude * noise2d(_st);
-		_st = mul(_st, rot) * 2.0f + shift;
+		v += amplitude * noise2d(hPos);
+		hPos = mul(hPos, rot) * 2.0f + shift;
 		amplitude *= 0.6f;
 	}
 	return v;
 }
 
-float4 strifeFragment(PixelInputType input) : SV_TARGET{
+
+
+float4 strifeFragment(PixelInputType input) : SV_TARGET
+{
 
 	float3 eyeToFrag = input.worldPos.xyz - eyePos.xyz;
 	float dist = length(eyeToFrag);
 	eyeToFrag = eyeToFrag / dist;
+
+	float3 lightDir = normalize(input.worldPos.xyz - lightPos);
 
 	float normDist = dist / 1000.0f;
 
@@ -76,7 +88,7 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET{
 	float3 colour = lerp(float3(0.15f, 0.3f, 0.45f), dli, clamp((f*f)*1.0f, 0.0f, 1.0f));	//lerp between diffuse light and dark water colours
 
 	//apply scattering, but also darken a little if away from light for nicer contrast
-	float scattering = clamp(dot(eyeToFrag, -lightDir.xyz), -0.1f, 1.0f);
+	float scattering = clamp(dot(eyeToFrag, -lightDir), -0.1f, 1.0f);
 
 	float uwotm8 = ( pow(f, 3.0f) + 0.66f * f * f + 0.33f * f);
 

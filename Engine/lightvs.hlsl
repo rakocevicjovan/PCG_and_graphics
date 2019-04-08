@@ -26,8 +26,8 @@ struct PixelInputType{
 };
 
 
-PixelInputType LightVertexShader(VertexInputType input){
-   
+PixelInputType LightVertexShader(VertexInputType input)
+{
 	PixelInputType output;
 
     output.worldPos = mul(input.position, worldMatrix);	//careful... doing this to optimize and avoid copying

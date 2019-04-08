@@ -112,6 +112,7 @@
     <ClCompile Include="InstancedShader.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="LevelManager.cpp" />
+    <ClCompile Include="Lillies.cpp" />
     <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Maze.cpp" />
@@ -123,6 +124,7 @@
     <ClCompile Include="PerlinShader.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
+    <ClCompile Include="ShaderClipper.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -177,6 +179,7 @@
     <ClInclude Include="InstancedShader.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelManager.h" />
+    <ClInclude Include="Lillies.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />
@@ -186,6 +189,7 @@
     <ClInclude Include="PerlinShader.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderBase.h" />
+    <ClInclude Include="ShaderClipper.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
@@ -287,6 +291,12 @@
     </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="clipperPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="clipperVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="InstancedPS.hlsl">

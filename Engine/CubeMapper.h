@@ -28,6 +28,7 @@ public:
 	unsigned int edgeLength;
 	void Init(ID3D11Device* device);
 	void UpdateCams(const SVec3& pos);
+	void Advance(ID3D11DeviceContext* dc, UINT i);
 	void LoadFromFiles(ID3D11Device* device, const std::string& filename);	//std::vector<std::string>& filenames
 	Camera getCameraAtIndex(unsigned int i);
 

@@ -12,7 +12,7 @@ public:
 	Model skybox, modBall, will, lotus, waterSheet, fence;
 	Texture lotusTex, waterNoiseMap;
 	OST reflectionMap, refractionMap;
-	SPlane clippingPlane;
+	SPlane clipper;
 
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper, cubeMapper;

@@ -6,6 +6,12 @@ cbuffer MatrixBuffer  : register(b0)
 };
 
 
+cbuffer ClipperBuffer  : register(b1)
+{
+	float4 clipper;
+};
+
+
 struct VertexInputType
 {
 	float4 position : POSITION;
@@ -14,16 +20,17 @@ struct VertexInputType
 };
 
 
-struct PixelInputType
-{
+struct PixelInputType {
 	float4 position : SV_POSITION;
+	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
+	float planeDistSigned;
 };
 
 
-PixelInputType strifeVertex(VertexInputType input) {
-
+PixelInputType LightVertexShader(VertexInputType input)
+{
 	PixelInputType output;
 
 	output.worldPos = mul(input.position, worldMatrix);
@@ -32,6 +39,8 @@ PixelInputType strifeVertex(VertexInputType input) {
 
 	output.normal = mul(input.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
+
+	output.planeDistSigned = dot(output.worldPos, clipper);
 
 	return output;
 }

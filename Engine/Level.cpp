@@ -29,9 +29,9 @@ void Level::ProcessSpecialInput(float dTime)
 
 
 ///TREE RENDERING
-//rc.shMan->shaderTree.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-//treeModel.Draw(dc, rc.shMan->shaderLight);
-//rc.shMan->shaderLight.ReleaseShaderParameters(dc);
+//rc.shMan->treeShader.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
+//treeModel.Draw(dc, rc.shMan->light);
+//rc.shMan->light.ReleaseShaderParameters(dc);
 
 
 ///PARTICLE SYSTEM RENDERING
@@ -41,10 +41,10 @@ std::vector<InstanceData> instanceData(100);
 for (int i = 0; i < instanceData.size(); ++i)
 	instanceData[i]._m = pSys._particles[i]->transform.Transpose();
 
-rc.shMan->shaderInstanced.UpdateInstanceData(instanceData);
-rc.shMan->shaderInstanced.SetShaderParameters(&rc.shMan->spl);
-RES.modBall.Draw(deviceContext, rc.shMan->shaderInstanced);
-rc.shMan->shaderInstanced.ReleaseShaderParameters(deviceContext);
+rc.shMan->instanced.UpdateInstanceData(instanceData);
+rc.shMan->instanced.SetShaderParameters(&rc.shMan->spl);
+RES.modBall.Draw(deviceContext, rc.shMan->instanced);
+rc.shMan->instanced.ReleaseShaderParameters(deviceContext);
 */
 
 
@@ -116,20 +116,20 @@ audio.init();
 audio.storeSequence(notes);
 
 	///RENDERING WATER
-	shaderWater.SetShaderParameters(deviceContext, modDepths, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
+	water.SetShaderParameters(deviceContext, modDepths, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
 		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.srv);
-	modDepths.Draw(deviceContext, shaderWater);
-	shaderWater.ReleaseShaderParameters(deviceContext);
+	modDepths.Draw(deviceContext, water);
+	water.ReleaseShaderParameters(deviceContext);
 
 
 	///RENDERING CLOUD
-	shaderStrife.SetShaderParameters(deviceContext, modStrife, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
+	strife.SetShaderParameters(deviceContext, modStrife, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
 		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
-	modStrife.Draw(deviceContext, shaderStrife);
-	shaderStrife.ReleaseShaderParameters(deviceContext);
+	modStrife.Draw(deviceContext, strife);
+	strife.ReleaseShaderParameters(deviceContext);
 
 	///RENDERING UI
-	//_rekt->draw(deviceContext, shaderHUD, offScreenTexture.srv);
+	//_rekt->draw(deviceContext, HUD, offScreenTexture.srv);
 */
 #pragma endregion Audio
 
