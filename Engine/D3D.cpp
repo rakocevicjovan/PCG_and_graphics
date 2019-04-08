@@ -430,8 +430,8 @@ ID3D11DepthStencilView* D3D::GetDepthStencilView()
 void D3D::SetBackBufferRenderTarget()
 {
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
-	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
+	//_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
 }
 
 void D3D::D3D::TurnOnAlphaBlending()

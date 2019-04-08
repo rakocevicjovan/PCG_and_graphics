@@ -33,6 +33,7 @@ public:
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
+	D3D _D3D;
 
 private:
 	bool Frame(float dTime);
@@ -40,7 +41,6 @@ private:
 	void OutputFPS(float dTime);
 	void ProcessInput();
 
-	D3D _D3D;
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
 	HWND m_hwnd;

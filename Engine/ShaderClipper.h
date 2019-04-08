@@ -20,7 +20,7 @@ class ShaderClipper : public ShaderBase
 {
 	struct ClipperBuffer
 	{
-		SPlane clipper;
+		SVec4 clipper;
 	};
 
 	ID3D11Buffer* _clipperBuffer;
@@ -31,8 +31,10 @@ public:
 
 	virtual bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths,
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
-	bool SetClipper(ID3D11DeviceContext* deviceContext, const SPlane& clipper);
+	bool SetClipper(ID3D11DeviceContext* deviceContext, const SVec4& clipper);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float deltaTime);
 	void ReleaseShaderParameters(ID3D11DeviceContext* deviceContext);
+
+	unsigned int texturesAdded = 0;
 };
 

@@ -23,7 +23,7 @@ bool ShaderClipper::Initialize(ID3D11Device* device, HWND hwnd, const std::vecto
 	D3D11_BUFFER_DESC clipperBufferDesc;
 	clipperBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	clipperBufferDesc.ByteWidth = sizeof(ClipperBuffer);
-	clipperBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	clipperBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	clipperBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	clipperBufferDesc.MiscFlags = 0;
 	clipperBufferDesc.StructureByteStride = 0;
@@ -36,7 +36,7 @@ bool ShaderClipper::Initialize(ID3D11Device* device, HWND hwnd, const std::vecto
 
 
 
-bool ShaderClipper::SetClipper(ID3D11DeviceContext* deviceContext, const SPlane& clipper)
+bool ShaderClipper::SetClipper(ID3D11DeviceContext* deviceContext, const SVec4& clipper)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ClipperBuffer* dataPtr;
@@ -56,15 +56,12 @@ bool ShaderClipper::SetClipper(ID3D11DeviceContext* deviceContext, const SPlane&
 bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float elapsed)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
-	VariableBuffer* dataPtr3;
 
 	SMatrix mT = model.transform.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
-
 
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
@@ -73,17 +70,9 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mode
 	dataPtr->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
 
-	bufferNumber = 0;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
+	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 
-	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-	dataPtr3->deltaTime = elapsed;
-	dataPtr3->padding = SVec3();
-	deviceContext->Unmap(_variableBuffer, 0);
-
-	bufferNumber = 1;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
+	deviceContext->VSSetConstantBuffers(1, 1, &_clipperBuffer);
 
 
 	if (FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
@@ -97,8 +86,7 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mode
 	dataPtr2->pos = pLight.pos;
 	dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 	deviceContext->Unmap(_lightBuffer, 0);
-	bufferNumber = 0;
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
 
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);

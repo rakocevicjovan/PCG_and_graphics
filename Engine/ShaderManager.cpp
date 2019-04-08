@@ -35,6 +35,8 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
 	light.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+	clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
+	water.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
 	wireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
 	HUD.Initialize(_device, hwnd, { L"rekt.vs", L"rekt.ps" });
 	depth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
@@ -43,8 +45,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
 	skyboxShader.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
 	strife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
-	water.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
-	shaderFresnel.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
+	
 
 	//4 sprites, uncomment upon implementing
 	shVolumEarth.Initialize(_device, hwnd, { L"volumVS.hlsl", L"volumEarthPS.hlsl" }, sbLayout, sbSamplerDesc);

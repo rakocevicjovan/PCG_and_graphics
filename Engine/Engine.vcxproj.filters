@@ -214,7 +214,7 @@
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Shading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -414,7 +414,7 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
-      <Filter>Header Files</Filter>
+      <Filter>Shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,12 +15,16 @@ cbuffer LightBuffer
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
+	float2 texCoords : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
 };
 
 Texture2D wnTexture : register(t0);
-SamplerState CloudSampler;
+Texture2D reflectionMap : register(t1);
+Texture2D refractionMap :register(t2);
+
+SamplerState Sampler : register(s0);
 
 float random(in float2 _st)
 {
@@ -70,7 +74,7 @@ float fbm(in float2 hPos)
 
 float4 strifeFragment(PixelInputType input) : SV_TARGET
 {
-
+	/*
 	float3 eyeToFrag = input.worldPos.xyz - eyePos.xyz;
 	float dist = length(eyeToFrag);
 	eyeToFrag = eyeToFrag / dist;
@@ -93,4 +97,9 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	float uwotm8 = ( pow(f, 3.0f) + 0.66f * f * f + 0.33f * f);
 
 	return float4((uwotm8 + 5 * scattering) * colour, uwotm8 * uwotm8 / exp(normDist * 5.0f));	//fades with distance relative to view frustum depth
+	*/
+
+	float4 colour = reflectionMap.Sample(Sampler, float2(input.texCoords.x, -input.texCoords.y));
+
+	return colour;
 }

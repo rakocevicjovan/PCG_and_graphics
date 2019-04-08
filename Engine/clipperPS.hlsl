@@ -17,13 +17,12 @@ struct PixelInputType
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
-	float planeDistSigned;
+	float planeDistSigned : PDS;
 };
 
 Texture2D shaderTexture : register(t0);
 
 SamplerState SampleType;
-
 
 static const float SpecularPower = 8.f;
 
@@ -62,6 +61,8 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
+	if (input.planeDistSigned < 0) discard;
+
 	input.normal = normalize(input.normal);
 
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);

@@ -12,12 +12,11 @@ public:
 	Model skybox, modBall, will, lotus, waterSheet, fence;
 	Texture lotusTex, waterNoiseMap;
 	OST reflectionMap, refractionMap;
-	SPlane clipper;
+	SVec4 clippingPlane;
 
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper, cubeMapper;
 	
-
 	void init(Systems& sys);
 	void procGen() {};
 	void draw(const RenderContext& rc);

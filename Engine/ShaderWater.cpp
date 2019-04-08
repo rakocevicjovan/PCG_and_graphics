@@ -235,8 +235,9 @@ bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 	deviceContext->PSSetShaderResources(0, 1, &(whiteSRV));
+	deviceContext->PSSetShaderResources(1, 1, &(reflectionMap));
+	deviceContext->PSSetShaderResources(2, 1, &(refractionMap));
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
-	deviceContext->PSSetShaderResources(0, 1, &(whiteSRV));
 
 	return true;
 }
