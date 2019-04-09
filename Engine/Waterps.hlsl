@@ -31,12 +31,14 @@ static const float PI = 3.141592f;
 static const float INTENSITY = 1.61803f * PI;
 static const float TWISTER = 5.;
 static const int NUM_OCTAVES = 5;
+static const float3 GLOBAL_UP = float3(0.0, 1.0, 0.0);
+static const float distortionIntensity = .033f;
+static const float SpecularPower = 8.f;
 
 float4 calcAmbient(in float3 alc, in float ali)
 {
 	return saturate(float4(alc, 1.0f) * ali);
 }
-
 
 float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor)
 {
@@ -45,15 +47,13 @@ float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in fl
 	return saturate(float4(dlc, 1.0f) * dli * dFactor);
 }
 
-static const float distortionIntensity = .02f;
-static const float SpecularPower = 8.f;
-
 float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float dFactor)
 {
 	float3 reflection = normalize(reflect(invLightDir, normal));
 	float sFactor = pow(saturate(dot(reflection, invViewDir)), SpecularPower);
 	return saturate(float4(slc, 1.0f) * sFactor * sli * dFactor);	// sli
 }
+
 
 static const float co = cos(.5f);
 static const float si = sin(.5f);
@@ -83,13 +83,18 @@ float noise2d(in float2 _st)
 float fbm(in float2 hPos)
 {
 	float v = 0.0;
-	float amplitude = 0.5;
+	float amplitude = 1.0;
+	float frequency = 1.f;
+	float gain = .5973f;
+	float lacunarity = 1.01f;
 	float2 shift = float2(100.0f, 100.0f);
 	// Rotate to reduce axial bias
-	for (int i = 0; i < NUM_OCTAVES; ++i) {
-		v += amplitude * noise2d(hPos);
+	for (int i = 0; i < NUM_OCTAVES; ++i)
+	{
+		v += amplitude * noise2d(frequency * hPos);
 		hPos = mul(hPos, rotMat) * 2.0f + shift;
-		amplitude *= 0.6f;
+		amplitude *= gain;
+		frequency *= lacunarity;
 	}
 	return v;
 }
@@ -97,11 +102,12 @@ float fbm(in float2 hPos)
 
 float4 strifeFragment(PixelInputType input) : SV_TARGET
 {	
-	float2 p = input.worldPos.xz * 0.066f;
-	float2 q = float2(fbm(p + 0.2f * elapsed), fbm(p));
-	float2 r = float2(fbm(p + q + float2(17, 92) + 0.66f * elapsed), fbm(p + 1.0f * q + float2(83, 28) + 0.66f * elapsed));
-	float whirly = fbm(p + 2.f * q + 6.f * 1.0f * r);
+	float time = elapsed * .2f;
 
+	float2 p = input.worldPos.xz * 0.03f;
+	float2 q = float2(fbm(p + time), fbm(p));
+	float2 r = float2(fbm(p + q + time), fbm(p + 1.0f * q + time));
+	float whirly = fbm(p + 2.f * q + 6.f * 1.0f * r);
 
 	float4 texNormal = normalMap.Sample(Sampler, (input.texCoords + whirly));
 	texNormal = 2.0f * texNormal - 1.f;
@@ -109,35 +115,33 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	float3 bitangent = cross(input.normal, input.tangent);
 	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
 	input.normal = normalize(mul(texNormal, TBNMatrix));
-	
-	//ndc being [-1, 1] range, then remapped into texture coordinate range
 
-	float2 distortion = pow(input.normal.xy, 1) * distortionIntensity;
+	float2 distortion = (input.normal.xy * 2.f - 1.f) * distortionIntensity;
 
 	float2 NDC_xy;
-	NDC_xy.x = input.clipSpace.x / input.clipSpace.w;
-	NDC_xy.y = -input.clipSpace.y / input.clipSpace.w;
-	NDC_xy /= float2(2.0f, 2.0f);
-	NDC_xy += float2(0.5f, 0.5f);
-	NDC_xy += distortion;
+	NDC_xy.x =  input.clipSpace.x / input.clipSpace.w / 2.f + 0.5f;
+	NDC_xy.y = -input.clipSpace.y / input.clipSpace.w / 2.f + 0.5f;
+	//NDC_xy += distortion;
 	
 
 	//light
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
-
 	float3 lightDir = normalize(input.worldPos.xyz - lightPos.xyz);
 	float4 ambient = calcAmbient(alc, ali);
 	float dFactor = 0.f;
 	float4 diffuse = calcDiffuse(-lightDir, input.normal, dlc, dli, dFactor);
-
-	//calculate specular light
 	float4 specular = calcSpecular(-lightDir, input.normal, slc, sli, viewDir, dFactor);
 
 	float4 reflection = reflectionMap.Sample(Sampler, NDC_xy);
 	float4 refraction = refractionMappu.Sample(Sampler, NDC_xy);
-	float4 colour = lerp(reflection, refraction, 0.5);
 
-	colour = colour + specular; //+ specular;
+	float fresnel = dot(-viewDir, GLOBAL_UP);	//refractive factor - low angle means it's lower, and pow decreases it further
+	fresnel = pow(fresnel, 4.f);
+
+	float4 colour = lerp(reflection, refraction, fresnel);
+
+	colour = (ambient * 20.f + diffuse) * colour + specular; //+ specular;
+
 
 	return colour;
 }
