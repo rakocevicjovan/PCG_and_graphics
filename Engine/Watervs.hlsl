@@ -30,6 +30,8 @@ PixelInputType strifeVertex(VertexInputType input) {
 
 	PixelInputType output;
 
+	input.position.w = 1.0f;
+
 	output.worldPos = mul(input.position, worldMatrix);
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);

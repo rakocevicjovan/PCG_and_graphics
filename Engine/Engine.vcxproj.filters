@@ -186,9 +186,6 @@
     <ClCompile Include="D3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hexer.cpp">
-      <Filter>Procedural</Filter>
-    </ClCompile>
     <ClCompile Include="Level.cpp">
       <Filter>Levels</Filter>
     </ClCompile>
@@ -210,11 +207,14 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Levels</Filter>
     </ClCompile>
-    <ClCompile Include="Lillies.cpp">
-      <Filter>Procedural</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
       <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="Hexer.cpp">
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="Lillies.cpp">
+      <Filter>Levels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -386,9 +386,6 @@
     <ClInclude Include="D3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hexer.h">
-      <Filter>Procedural</Filter>
-    </ClInclude>
     <ClInclude Include="Level.h">
       <Filter>Levels</Filter>
     </ClInclude>
@@ -410,11 +407,14 @@
     <ClInclude Include="GameObject.h">
       <Filter>Levels</Filter>
     </ClInclude>
-    <ClInclude Include="Lillies.h">
-      <Filter>Procedural</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderClipper.h">
       <Filter>Shading</Filter>
+    </ClInclude>
+    <ClInclude Include="Hexer.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="Lillies.h">
+      <Filter>Levels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -31,9 +31,8 @@ static const float PI = 3.141592f;
 static const float INTENSITY = 1.61803f * PI;
 static const float TWISTER = 5.;
 static const int NUM_OCTAVES = 5;
-static const float3 GLOBAL_UP = float3(0.0, 1.0, 0.0);
-static const float distortionIntensity = .033f;
 static const float SpecularPower = 8.f;
+static const float DISTORTION_INTENSITY = .0003333f;
 
 float4 calcAmbient(in float3 alc, in float ali)
 {
@@ -116,13 +115,12 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
 	input.normal = normalize(mul(texNormal, TBNMatrix));
 
-	float2 distortion = (input.normal.xy * 2.f - 1.f) * distortionIntensity;
+	float2 distortion = ((input.normal.xy * 2.0f) - 1.0f) * DISTORTION_INTENSITY;
 
 	float2 NDC_xy;
 	NDC_xy.x =  input.clipSpace.x / input.clipSpace.w / 2.f + 0.5f;
 	NDC_xy.y = -input.clipSpace.y / input.clipSpace.w / 2.f + 0.5f;
 	
-
 	//light
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
 	float3 lightDir = normalize(input.worldPos.xyz - lightPos.xyz);
@@ -131,11 +129,11 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	float4 diffuse = calcDiffuse(-lightDir, input.normal, dlc, dli, dFactor);
 	float4 specular = calcSpecular(-lightDir, input.normal, slc, sli, viewDir, dFactor);
 
-	float4 reflection = reflectionMap.Sample(Sampler, NDC_xy);
-	float4 refraction = refractionMappu.Sample(Sampler, NDC_xy);
+	float4 reflection = reflectionMap.Sample(Sampler, NDC_xy + distortion);		//clamp(NDC_xy + distortion, 0.000001, 0.999999)
+	float4 refraction = refractionMappu.Sample(Sampler, NDC_xy + distortion);	//clamp(NDC_xy + distortion, 0.000001, 0.999999));
 
-	float fresnel = dot(-viewDir, GLOBAL_UP);	//refractive factor - low angle means it's lower, and pow decreases it further
-	fresnel = pow(fresnel, 4.f);
+	float fresnel = dot(-viewDir, input.normal);	//refractive factor - low angle means it's lower, and pow decreases it further
+	fresnel = fresnel * fresnel * fresnel * fresnel;
 
 	float4 colour = lerp(reflection, refraction, fresnel);
 
