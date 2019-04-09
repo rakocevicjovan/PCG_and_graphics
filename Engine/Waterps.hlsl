@@ -121,7 +121,6 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	float2 NDC_xy;
 	NDC_xy.x =  input.clipSpace.x / input.clipSpace.w / 2.f + 0.5f;
 	NDC_xy.y = -input.clipSpace.y / input.clipSpace.w / 2.f + 0.5f;
-	//NDC_xy += distortion;
 	
 
 	//light
