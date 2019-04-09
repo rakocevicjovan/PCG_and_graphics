@@ -71,7 +71,7 @@ float4 CMFS(PixelInputType input) : SV_TARGET
 	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
 	colour = (ambient + diffuse) * colour + specular;
 
-	colour.rgb = pow( colour.xyz, float3(0.454, 0.454, 0.454));
+	colour.rgb = pow( colour.xyz, float3(0.333, 0.333, 0.333));
 
     return colour;
 }

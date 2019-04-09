@@ -81,7 +81,7 @@ void EarthLevel::draw(const RenderContext& rc)
 
 	_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
-	rc.d3d->BeginScene(rc.d3d->clearColour);				//clear colour and depth buffer
+	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
 
 	if (isTerGenerated)
 	{

@@ -392,7 +392,7 @@ void D3D::Shutdown(){
 }
 
 
-void D3D::BeginScene(float* clearColour)
+void D3D::ClearColourDepthBuffers(float* clearColour)
 {
 	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
 	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);

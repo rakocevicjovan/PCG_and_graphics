@@ -35,52 +35,29 @@ void WaterLevel::init(Systems& sys)
 
 	waterSheet = Model(waterTerrain, _sys._device);
 
-	waterNoiseMap.LoadFromFile("../Textures/Noiz.png");
-	waterNoiseMap.Setup(device);
+	waterNormalMap.LoadFromFile("../Textures/Water/normal.jpg");
+	waterNormalMap.Setup(device);
 	
 	reflectionMap.Init(device, 1600, 900);	//@make false after testing for both of them!
 	refractionMap.Init(device, 1600, 900);
-	clippingPlane = SVec4(0, -1, 0, waterSheet.transform.Translation().y);
+	waterReflectionMatrix = SMatrix::CreateReflection(SPlane(SVec3(0, 1, 0), -waterSheet.transform.Translation().y));
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(0, 500.f, 0, 1.0f));
-
-	_sys._renderer._shMan.clipper.SetClipper(sys._deviceContext, clippingPlane);
 }
 
 
 void WaterLevel::draw(const RenderContext& rc)
 {
-	rc.d3d->BeginScene(rc.d3d->clearColour);
+	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	
 	updateCam(rc.dTime);
 	ProcessSpecialInput(rc.dTime);
-
-	reflectionMap.SetRenderTarget(_sys._deviceContext);
-
-	//lotus
-	rc.shMan->light.SetShaderParameters(dc, lotus, *rc.cam, pointLight, rc.dTime);
-	lotus.Draw(dc, rc.shMan->light);
-	rc.shMan->light.ReleaseShaderParameters(dc);
-
-	//reflectionMap.SaveToFile(_sys._D3D, "C:\\Users\\metal\\Desktop\\Wattttt.png");
-
-	_sys._renderer.RevertRenderTarget();
-	//_sys._deviceContext->ClearRenderTargetView(rc.d3d->m_renderTargetView, rc.d3d->clearColour);
-	//_sys._deviceContext->ClearDepthStencilView(rc.d3d->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//_sys._deviceContext->OMSetRenderTargets(1, &rc.d3d->m_renderTargetView, rc.d3d->GetDepthStencilView());
-
-	//water
-	rc.shMan->water.SetShaderParameters(dc, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNoiseMap.srv, reflectionMap.srv, waterNoiseMap.srv);
-	waterSheet.Draw(dc, rc.shMan->water);
-	rc.shMan->water.ReleaseShaderParameters(dc);
-
 	
-	dc->RSSetViewports(1, &(cubeMapper.cm_viewport));
 	cubeMapper.UpdateCams(modBall.transform.Translation());
-
 	for (int i = 0; i < 6; i++)
 	{
+		updateReflectionRefraction(rc, cubeMapper.getCameraAtIndex(i));
 		cubeMapper.Advance(_sys._deviceContext, i);
 
 		//lotus
@@ -89,39 +66,39 @@ void WaterLevel::draw(const RenderContext& rc)
 		rc.shMan->light.ReleaseShaderParameters(dc);
 
 		//water
-		rc.shMan->water.SetShaderParameters(dc, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNoiseMap.srv, reflectionMap.srv, waterNoiseMap.srv);
+		rc.shMan->water.SetShaderParameters(dc, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
 		waterSheet.Draw(dc, rc.shMan->water);
 		rc.shMan->water.ReleaseShaderParameters(dc);
 
 		_sys._renderer.RenderSkybox(cubeMapper.getCameraAtIndex(i), skybox, cubeMapper, skyboxCubeMapper);
 	}
-
-
 	
-	dc->RSSetViewports(1, &rc.d3d->viewport);
-	rc.d3d->SetBackBufferRenderTarget();
+
+	updateReflectionRefraction(rc, *rc.cam);
+
+	///scene
+	_sys._renderer.RevertRenderTarget();
+
+	//water
+	rc.shMan->water.SetShaderParameters(dc, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+	waterSheet.Draw(dc, rc.shMan->water);
+	rc.shMan->water.ReleaseShaderParameters(dc);
 
 	
 	//lotus
 	rc.shMan->light.SetShaderParameters(dc, lotus, *rc.cam, pointLight, rc.dTime);
 	lotus.Draw(dc, rc.shMan->light);
 	rc.shMan->light.ReleaseShaderParameters(dc);
-	
-	/*
+
 
 	//reflection sphere
 	rc.shMan->cubeMapShader.SetShaderParameters(dc, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
 	modBall.Draw(dc, rc.shMan->cubeMapShader);
 	rc.shMan->cubeMapShader.ReleaseShaderParameters(dc);
 
+
 	//SKYBOX
-	rc.d3d->TurnOffCulling();
-	rc.d3d->SwitchDepthToLessEquals();
-	rc.shMan->skyboxShader.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(dc, rc.shMan->skyboxShader);
-	rc.shMan->skyboxShader.ReleaseShaderParameters(dc);
-	rc.d3d->SwitchDepthToDefault();
-	rc.d3d->TurnOnCulling();
+	_sys._renderer.RenderSkybox(*rc.cam, skybox, cubeMapper, skyboxCubeMapper);
 
 	/*
 	rc.d3d->TurnOnAlphaBlending();
@@ -131,4 +108,26 @@ void WaterLevel::draw(const RenderContext& rc)
 	*/
 
 	rc.d3d->EndScene();
+}
+
+
+
+void WaterLevel::updateReflectionRefraction(const RenderContext& rc, const Camera& cam)
+{
+	///reflection
+	reflectionMap.SetRenderTarget(_sys._deviceContext);
+	_sys._renderer._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, 1, 0, -waterSheet.transform.Translation().y));
+	Camera reflectionCam = Camera(cam.GetCameraMatrix() * waterReflectionMatrix, cam.GetProjectionMatrix());
+
+	rc.shMan->clipper.SetShaderParameters(dc, lotus, reflectionCam, pointLight, rc.dTime);
+	lotus.Draw(dc, rc.shMan->clipper);
+	rc.shMan->clipper.ReleaseShaderParameters(dc);
+
+	///refraction
+	refractionMap.SetRenderTarget(_sys._deviceContext);
+	_sys._renderer._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, -1, 0, waterSheet.transform.Translation().y));
+
+	rc.shMan->clipper.SetShaderParameters(dc, lotus, cam, pointLight, rc.dTime);
+	lotus.Draw(dc, rc.shMan->clipper);
+	rc.shMan->clipper.ReleaseShaderParameters(dc);
 }

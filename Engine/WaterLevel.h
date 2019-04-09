@@ -10,9 +10,9 @@ public:
 
 	Procedural::Terrain islands, waterTerrain;
 	Model skybox, modBall, will, lotus, waterSheet, fence;
-	Texture lotusTex, waterNoiseMap;
+	Texture lotusTex, waterNormalMap;
 	OST reflectionMap, refractionMap;
-	SVec4 clippingPlane;
+	SMatrix waterReflectionMatrix;
 
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper, cubeMapper;
@@ -20,5 +20,6 @@ public:
 	void init(Systems& sys);
 	void procGen() {};
 	void draw(const RenderContext& rc);
+	void updateReflectionRefraction(const RenderContext& rc, const Camera& c);
 	void demolish() { this->~WaterLevel(); };
 };

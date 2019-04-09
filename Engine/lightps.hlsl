@@ -43,19 +43,22 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
 
 
 
-float4 calcAmbient(in float3 alc, in float ali) {
+float4 calcAmbient(in float3 alc, in float ali)
+{
 	return saturate(float4(alc, 1.0f) * ali);
 }
 
 
-float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor) {
+float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor)
+{
 	
 	dFactor = max(dot(normal, invLightDir), 0.0f);
 	return saturate(float4(dlc, 1.0f) * dli * dFactor);
 }
 
 
-float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float dFactor) {
+float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float dFactor)
+{
 
 	//float3 halfVec = normalize(invLightDir + invViewDir);
 	//float sFactor = pow(max(dot(normal, halfVec), 0.0f), SpecularPower);

@@ -121,6 +121,7 @@ void CubeMapper::UpdateCams(const SVec3& pos)
 
 void CubeMapper::Advance(ID3D11DeviceContext* dc, UINT i)
 {
+	dc->RSSetViewports(1, &(cm_viewport));
 	dc->ClearRenderTargetView(cm_rtv[i], clearCol);
 	dc->ClearDepthStencilView(cm_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	dc->OMSetRenderTargets(1, &cm_rtv[i], cm_depthStencilView);

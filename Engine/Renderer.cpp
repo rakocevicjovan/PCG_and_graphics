@@ -160,7 +160,7 @@ Math::SetTranslation(modSkybox.transform, _cam.GetCameraMatrix().Translation());
 ///RENDERING UI
 _deviceContext->RSSetViewports(1, &_D3D->viewport);
 _D3D->SetBackBufferRenderTarget();
-_D3D->BeginScene(clearColour);
+_D3D->ClearColourDepthBuffers(clearColour);
 
 
 ///RENDERING DEPTH TEXTURE
