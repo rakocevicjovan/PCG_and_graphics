@@ -1,6 +1,6 @@
 #pragma once
 #include "Level.h"
-
+#include "Lillies.h"
 
 
 class WaterLevel : public Level
@@ -9,7 +9,14 @@ public:
 	WaterLevel(Systems& sys) : Level(sys) {};
 
 	Procedural::Terrain islands, waterTerrain;
-	Model skybox, modBall, will, lotus, waterSheet, fence;
+	Procedural::LSystem linden;
+
+	std::vector<Collider> _levelColliders;
+	Model colModel;
+
+	Model skybox, modBall, will, lotus, waterSheet, fence, lillyModel, treeModel;
+	
+	Lillies _lillies;
 	Texture lotusTex, waterNormalMap;
 	OST reflectionMap, refractionMap;
 	SMatrix waterReflectionMatrix;
@@ -21,5 +28,7 @@ public:
 	void procGen() {};
 	void draw(const RenderContext& rc);
 	void updateReflectionRefraction(const RenderContext& rc, const Camera& c);
+	void setUpCollision();
+	void updateCollision();
 	void demolish() { this->~WaterLevel(); };
 };

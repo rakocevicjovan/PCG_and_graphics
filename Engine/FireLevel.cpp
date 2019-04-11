@@ -117,14 +117,7 @@ void FireLevel::draw(const RenderContext& rc)
 		hexModel.Draw(dc, rc.shMan->normalMapper);
 	}
 
-	rc.d3d->TurnOffCulling();
-	rc.d3d->SwitchDepthToLessEquals();
-	rc.shMan->skyboxShader.SetShaderParameters(dc, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(dc, rc.shMan->skyboxShader);
-	rc.shMan->skyboxShader.ReleaseShaderParameters(dc);
-	rc.d3d->SwitchDepthToDefault();
-	rc.d3d->TurnOnCulling();
-
+	_sys._renderer.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	//transparent items
 	rc.d3d->TurnOnAlphaBlending();
@@ -168,9 +161,6 @@ void FireLevel::setUpCollision()
 
 		_levelColliders.push_back(c);
 	}
-
-
-	
 }
 
 

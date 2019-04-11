@@ -10,12 +10,14 @@ class Actor;
 class Model;
 class Mesh;
 
+class Collider;
 
 struct HitResult
 {
 	bool hit = false;
 	SVec3 resolutionVector = SVec3();
 	float sqPenetrationDepth = 0.f;
+	Collider* c;
 
 	HitResult() {}
 	HitResult(bool h, SVec3 rv, float sqpd) : hit(h), resolutionVector(rv), sqPenetrationDepth(sqpd) {}
@@ -33,6 +35,8 @@ enum BoundingVolumeType
 
 struct Hull
 {
+	Collider* c;
+
 	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const = 0;
 	virtual SVec3 getPosition() const = 0;
 	virtual void setPosition(SVec3 newPos) = 0;
@@ -45,10 +49,12 @@ struct AABB : Hull
 	SVec3 minPoint, maxPoint;
 
 	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
+
 	virtual SVec3 getPosition() const
 	{ 
 		return SVec3(minPoint.x + maxPoint.x, minPoint.y + maxPoint.y, minPoint.z + maxPoint.z) * 0.5f; 
 	}
+
 	virtual void setPosition(SVec3 newPos)
 	{
 		SVec3 posDelta = newPos - getPosition();
@@ -186,7 +192,7 @@ class CollisionEngine
 public:
 
 	Hull* genSphereHull(Mesh* mesh);
-	Hull* genBoxHull(Mesh* mesh);
+	Hull* genBoxHull(Mesh* mesh, Collider* collider = nullptr);
 
 	CollisionEngine();
 	~CollisionEngine();
@@ -202,5 +208,5 @@ public:
 	void update();
 
 	void registerController(Controller& controller);
-	SVec3 resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity);
+	HitResult resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity);
 };

@@ -19,8 +19,8 @@ struct PixelInputType
 	float4 worldPos : WPOS;
 };
 
-Texture2D shaderTexture;
-SamplerState SampleType;
+Texture2D shaderTexture : register(t0);
+SamplerState Sampler;
 
 static const float SpecularPower = 8.f;
 
@@ -60,7 +60,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	viewDir = viewDir / distance;
 	float3 invViewDir = -viewDir;
 
-	float4 colour = float4(0.5f, 0.5f, 0.5f, 1.0f);
+	float4 colour = shaderTexture.Sample(Sampler, input.tex);
 
 	float4 ambient = calcAmbient(alc, ali);
 
@@ -69,7 +69,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 
 	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
 
-	colour = (ambient + diffuse) * colour + specular;
+	colour.xyz = (ambient.xyz + diffuse.xyz + specular.xyz) * colour.xyz;
+
 	colour.xyz = pow(colour.xyz, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
+
 	return colour;
 }

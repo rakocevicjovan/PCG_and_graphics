@@ -40,11 +40,6 @@ std::vector<InstanceData> instanceData(100);
 
 for (int i = 0; i < instanceData.size(); ++i)
 	instanceData[i]._m = pSys._particles[i]->transform.Transpose();
-
-rc.shMan->instanced.UpdateInstanceData(instanceData);
-rc.shMan->instanced.SetShaderParameters(&rc.shMan->spl);
-RES.modBall.Draw(deviceContext, rc.shMan->instanced);
-rc.shMan->instanced.ReleaseShaderParameters(deviceContext);
 */
 
 

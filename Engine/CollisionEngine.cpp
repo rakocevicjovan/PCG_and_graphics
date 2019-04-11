@@ -175,7 +175,7 @@ void CollisionEngine::registerController(Controller& controller)
 
 
 
-SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity)
+HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity)
 {
 	SphereHull playerHull;
 	playerHull.c = playerTransform.Translation();
@@ -185,6 +185,10 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 
 	SVec3 collisionNormal;
 	std::vector<Hull*> collidedHulls;
+
+	float maxPenDepth = -1.f;
+
+	HitResult hitRes;
 
 	for (int i = -1; i < 2; ++i)
 	{
@@ -208,7 +212,17 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 						if (velocity.Dot(hr.resolutionVector) < 0.001f) 
 							velocity -= Math::projectVecOntoVec(velocity, hr.resolutionVector);
 
-						collisionNormal += hr.resolutionVector * sqrt(hr.sqPenetrationDepth);
+						float curPenDepth = sqrt(hr.sqPenetrationDepth);
+						collisionNormal += hr.resolutionVector * curPenDepth;
+
+						if (curPenDepth > maxPenDepth)
+						{
+							hitRes = hr;
+							maxPenDepth = hr.sqPenetrationDepth;
+						}
+
+						hr.resolutionVector = collisionNormal;
+							
 					}
 				}
 
@@ -217,12 +231,13 @@ SVec3 CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SV
 		}
 	}
 
-	return collisionNormal;
+
+	return hitRes;
 }
 
 
 
-Hull* CollisionEngine::genBoxHull(Mesh* mesh)
+Hull* CollisionEngine::genBoxHull(Mesh* mesh, Collider* c)
 {
 	float minX, minY, minZ, maxX, maxY, maxZ;
 	auto pos = mesh->vertices[0].pos;
@@ -246,6 +261,8 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh)
 	AABB* aabb = new AABB;
 	aabb->minPoint = SVec3(minX, minY, minZ);
 	aabb->maxPoint = SVec3(maxX, maxY, maxZ);
+
+	aabb->c = c;
 
 	return aabb;
 }

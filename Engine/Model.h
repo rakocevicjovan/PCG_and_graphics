@@ -51,6 +51,12 @@ public:
 			this->meshes[i].draw(dc, shader);
 	}
 
+	void DrawInstanced(ID3D11DeviceContext* dc, InstancedShader& shader)
+	{
+		for (unsigned int i = 0; i < this->meshes.size(); i++)
+			this->meshes[i].draw(dc, shader);
+	}
+
 private:
 	inline bool fileExists(const std::string& name);
 };

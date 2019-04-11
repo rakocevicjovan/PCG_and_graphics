@@ -97,7 +97,7 @@ void Renderer::RevertRenderTarget()
 
 
 
-void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& cubeMapper, const CubeMapper& skyboxCubeMapper) 
+void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper) 
 {
 	_d3d->TurnOffCulling();
 	_d3d->SwitchDepthToLessEquals();

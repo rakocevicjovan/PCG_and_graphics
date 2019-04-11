@@ -29,8 +29,6 @@ public:
 	//procedural stuff
 	Procedural::Terrain proceduralTerrain;
 	Procedural::Perlin perlin;
-	Procedural::LSystem linden;
-	Model treeModel;
 	Procedural::Maze maze;
 
 	ParticleSystem pSys;

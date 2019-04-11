@@ -150,7 +150,8 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 			}
 		}
 
-		vertices[i].tangent = tangent /= found;
+		if (found > 0.0001f)
+			vertices[i].tangent = found > 0.0f ? tangent /= found : tangent;
 	}
 
 

@@ -111,9 +111,9 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 {
 	if (!_colEng) return;
 
-	SVec3 collisionOffset = _colEng->resolvePlayerCollision(transformation, velocity);
+	HitResult hr = _colEng->resolvePlayerCollision(transformation, velocity);
 
-	if (collisionOffset.LengthSquared() > .1f)
+	if (hr.resolutionVector.LengthSquared() > .1f)
 		_grounded = true;
 	else
 		_grounded = false;

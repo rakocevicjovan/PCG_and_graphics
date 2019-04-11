@@ -45,9 +45,7 @@ public:
 		unsigned int offset = s.renderFormat.offset;
 
 		for (int i = 0; i < textures.size(); ++i)
-		{
 			dc->PSSetShaderResources(s.texturesAdded + i, 1, &(textures[i].srv));
-		}
 
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
@@ -57,7 +55,6 @@ public:
 
 
 
-	template <class InstancedShader>
 	void Mesh::draw(ID3D11DeviceContext* dc, InstancedShader& s)
 	{
 		unsigned int strides[2];
@@ -77,6 +74,10 @@ public:
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		dc->PSSetSamplers(0, 1, &s._sampleState);
+
+		for (int i = 0; i < textures.size(); ++i)
+			dc->PSSetShaderResources(i, 1, &(textures[i].srv));
+
 		dc->DrawIndexedInstanced(indices.size(), s._instanceCount, 0, 0, 0);
 	}
 };

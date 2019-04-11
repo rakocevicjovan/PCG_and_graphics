@@ -38,18 +38,69 @@ bool InstancedShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vec
 
 
 
-bool InstancedShader::SetShaderParameters(SPBase* spb)
+bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float dTime)
 {
-	ShaderBase::SetShaderParameters(spb);
-
-	ShaderParametersLight* spl = (ShaderParametersLight*)spb;
-	
-	InstanceData* instanceData;
-
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	if (FAILED(spl->deviceContext->Map(_instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
+	MatrixBuffer* matrixBufferPtr;
+	InstanceData* instanceDataPtr;
+	VariableBuffer* varBufferPtr;
+	LightBuffer* lightBufferPtr;
+
+	SMatrix mT = model.transform.Transpose();
+	SMatrix vT = cam.GetViewMatrix().Transpose();
+	SMatrix pT = cam.GetProjectionMatrix().Transpose();
+
+	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+	matrixBufferPtr = (MatrixBuffer*)mappedResource.pData;
+	matrixBufferPtr->world = mT;
+	matrixBufferPtr->view = vT;
+	matrixBufferPtr->projection = pT;
+	deviceContext->Unmap(_matrixBuffer, 0);
+	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
+
+	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+	varBufferPtr = (VariableBuffer*)mappedResource.pData;
+	varBufferPtr->deltaTime = dTime;
+	varBufferPtr->padding = SVec3();
+	deviceContext->Unmap(_variableBuffer, 0);
+	deviceContext->VSSetConstantBuffers(1, 1, &_variableBuffer);
+
+
+	if (FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+	lightBufferPtr = (LightBuffer*)mappedResource.pData;
+	lightBufferPtr->alc = pLight.alc;
+	lightBufferPtr->ali = pLight.ali;
+	lightBufferPtr->dlc = pLight.dlc;
+	lightBufferPtr->dli = pLight.dli;
+	lightBufferPtr->slc = pLight.slc;
+	lightBufferPtr->sli = pLight.sli;
+	lightBufferPtr->pos = pLight.pos;
+	lightBufferPtr->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
+	deviceContext->Unmap(_lightBuffer, 0);
+	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
+
+	deviceContext->IASetInputLayout(_layout);
+	deviceContext->VSSetShader(_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(_pixelShader, NULL, 0);
+	deviceContext->PSSetSamplers(0, 1, &_sampleState);
+	
+
+	if (FAILED(deviceContext->Map(_instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
 	memcpy(mappedResource.pData, _instanceData.data(), _instanceData.size() * sizeof(InstanceData));
-	spl->deviceContext->Unmap(_instanceBuffer, 0);
+	deviceContext->Unmap(_instanceBuffer, 0);
+
+	return true;
+}
+
+
+
+void InstancedShader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
+{
+	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 }
 
 

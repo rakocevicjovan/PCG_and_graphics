@@ -76,6 +76,9 @@ void EarthLevel::procGen()
 
 void EarthLevel::draw(const RenderContext& rc)
 {
+
+	updateCam(rc.dTime);
+
 	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
 	pSys.updateStdFunc(&pud);
 
