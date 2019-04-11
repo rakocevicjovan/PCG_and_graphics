@@ -19,7 +19,7 @@ void Lillies::init(float lillyRadius, float rotationRate, SVec2 edges, SVec3 cen
 	_ringThickness = 2.f * lillyRadius;
 	_numRings = floor((edges.y - edges.x) / _ringThickness);
 
-	_lillyRings.reserve(_numRings);	//assume its bigger than it is
+	_lillyRings.reserve(_numRings);
 
 	//inside out, ring by ring
 	for (int i = 0; i < _numRings; ++i)
@@ -69,7 +69,11 @@ void Lillies::luckOfTheDraw()
 		
 		for (Lilly& lilly : ring._lillies)
 			if (c.rollTheDice() > .66f)
-				lilly.real = connected = true;
+			{
+				lilly.real = true;
+				connected = true;
+			}
+			
 
 		//assure at least one is real in order to connect all rings... can't let lady luck do it all
 		if (!connected)
@@ -86,25 +90,32 @@ void Lillies::update(float dTime)
 		SMatrix rotMatrix = SMatrix::CreateFromAxisAngle(SVec3::Up, ring.rotSpeed * dTime);
 		for (Lilly& lilly : ring._lillies)
 		{
-			Math::Scale(lilly.act.transform, SVec3(33.333333));
 			Math::RotateMatByMat(lilly.act.transform, rotMatrix);
-			lilly.act.collider->transform = lilly.act.transform;
+			//lilly.act.collider->transform = lilly.act.transform;
 		}
-			
 	}
 		
 	instanceData.clear();
+	realData.clear();
 
 	for (Ring& ring : _lillyRings)
 		for (Lilly& lilly : ring._lillies)
+		{
 			instanceData.emplace_back(lilly.act.transform.Transpose());
+			if (lilly.real)
+				realData.emplace_back(instanceData.back());
+		}
+		
 }
 
 
 
 void Lillies::draw(const RenderContext & rc, Model& lillyModel, const PointLight& pLight, bool isFiltering)
 {
-	rc.shMan->instanced.UpdateInstanceData(instanceData);
+	if(isFiltering)
+		rc.shMan->instanced.UpdateInstanceData(realData);
+	else
+		rc.shMan->instanced.UpdateInstanceData(instanceData);
 	rc.shMan->instanced.SetShaderParameters(rc.d3d->GetDeviceContext(), lillyModel, *rc.cam, pLight, rc.dTime);
 	lillyModel.Draw(rc.d3d->GetDeviceContext(), rc.shMan->instanced);
 	rc.shMan->instanced.ReleaseShaderParameters(rc.d3d->GetDeviceContext());

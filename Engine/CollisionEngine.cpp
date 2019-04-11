@@ -222,7 +222,7 @@ HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform
 						}
 
 						hr.resolutionVector = collisionNormal;
-							
+
 					}
 				}
 

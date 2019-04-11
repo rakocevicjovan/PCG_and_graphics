@@ -13,6 +13,11 @@ namespace Procedural
 	{
 		RewriteRule(char left, std::string right) : l(left), r(right) {};
 
+		bool operator==(const RewriteRule& other) const
+		{
+			return (l == other.l && r == other.r);
+		}
+
 		char l;
 		std::string r;
 	};
@@ -40,9 +45,11 @@ namespace Procedural
 
 		void reseed(std::string axiom);
 		bool addRule(char left, std::string right);
+		void removeRule(char left, std::string right);
 		void rewrite(unsigned int steps);
 		void genVerts(float length, float decay, float pitch, float yaw);
 		Model genModel(ID3D11Device* device, float length, float radius, const float lengthConstriction, const float radiusConstriction, float pitch, float yaw);
+		Model genFlower(ID3D11Device* device, Model* petalModel, float stalkSegmentLength, float stalkRadius, float deescalator, float angle, float tilt);
 		void setUp(ID3D11Device* device);
 		void drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s,
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,

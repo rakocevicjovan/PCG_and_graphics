@@ -12,9 +12,10 @@ public:
 	Procedural::LSystem linden;
 
 	std::vector<Collider> _levelColliders;
-	Model colModel;
+	Lilly* parentLilly;
+	SVec3 oldTranslation;
 
-	Model skybox, modBall, will, lotus, waterSheet, fence, lillyModel, treeModel;
+	Model skybox, modBall, will, lotus, waterSheet, fence, treeModel, lillyModel, lillyPetalModel;
 	
 	Lillies _lillies;
 	Texture lotusTex, waterNormalMap;
@@ -30,5 +31,6 @@ public:
 	void updateReflectionRefraction(const RenderContext& rc, const Camera& c);
 	void setUpCollision();
 	void updateCollision();
+	void fakeCollision();
 	void demolish() { this->~WaterLevel(); };
 };

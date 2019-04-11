@@ -69,6 +69,14 @@ namespace Procedural
 
 
 
+	void LSystem::removeRule(char left, std::string right)
+	{
+		RewriteRule inRule(left, right);
+		_rules.erase(std::remove(_rules.begin(), _rules.end(), inRule), _rules.end());
+	}
+
+
+
 	void LSystem::genVerts(float length, float decay, float pitch, float yaw)
 	{
 		SMatrix orientation(SMatrix::Identity);
@@ -160,7 +168,6 @@ namespace Procedural
 		//branching
 		std::vector<SVec3> storedPos;
 		std::vector<SMatrix> storedOri;
-		std::vector<unsigned int> storedIndices;
 		std::vector<float> storedLengths;
 		std::vector<float> storedRadii;
 
@@ -180,7 +187,7 @@ namespace Procedural
 			float branchTipRadiusPercent = 1.f;
 
 			if (isEnd)	//branch is at the end of the branch - make it a briar
-				branchTipRadiusPercent = 0.f;
+				branchTipRadiusPercent = 1.f;
 
 			switch (c)
 			{
@@ -202,15 +209,15 @@ namespace Procedural
 				//add sphere
 				tree.meshes.emplace_back(tube, device, true, true);
 				
-				if (!isEnd)
-				{
+				//if (!isEnd)
+				//{
 					for (int i = 0; i < sphere.positions.size(); ++i)
 					{
 						tempSphere.positions[i] = sphere.positions[i] * branchTipRadiusPercent * radius;
 						tempSphere.positions[i] += nextPos;
 					}
 					tree.meshes.emplace_back(tempSphere, device, true, true);
-				}
+				//}
 
 				break;
 
@@ -272,6 +279,107 @@ namespace Procedural
 			m.textures = tree.textures_loaded;
 
 		return tree;
+	}
+
+
+
+	Model LSystem::genFlower(ID3D11Device* device, Model * petalModel, float stalkSegmentLength, float stalkRadius, float deescalator, float angle, float tilt)
+	{
+		SMatrix orientation(SMatrix::Identity);
+		SVec3 pos(0.f, 0.f, 0.f);
+		SVec3 dir(0.f, 1.f, 0.f);
+		SVec3 nextPos(0.f, 0.f, 0.f);
+
+		//branching
+		std::vector<SVec3> storedPos;
+		std::vector<SMatrix> storedOri;
+		std::vector<unsigned int> storedIndices;
+
+
+		//matrix that rotates the petal around the stalk
+		SMatrix petalRotMat = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), angle);
+
+		Geometry tube;
+		tube.GenTube(1.f, stalkSegmentLength, 5, 2, 1.f);
+		
+		Mesh stalkMesh(tube, device);
+		Mesh tempStalkMesh;
+
+		Mesh petalMesh = petalModel->meshes[0];
+		Mesh tempPetalMesh = petalMesh;
+		
+		Model result;
+
+		for (int i = 0; i < _current.size(); ++i)
+		{
+			nextPos = pos;
+
+			char c = _current[i];
+			
+			SVec3 rotated = SVec3::Transform(dir, orientation);
+
+			switch (c)
+			{
+			case 'D':	//advance a floor up
+
+				nextPos = pos + stalkSegmentLength * rotated;
+				tilt *= deescalator;
+
+			case 'S':	//create stalk
+
+				tempStalkMesh = stalkMesh;
+				for (int i = 0; i < stalkMesh.vertices.size(); ++i)
+				{
+					tempStalkMesh.vertices[i].pos = SVec3::Transform(stalkMesh.vertices[i].pos, orientation);
+					tempStalkMesh.vertices[i].pos += nextPos;
+				}
+
+				result.meshes.push_back(tempStalkMesh);
+				break;
+
+			case 'P':
+
+				for (int i = 0; i < petalMesh.vertices.size(); ++i)
+				{
+					tempPetalMesh.vertices[i].pos = SVec3::Transform(petalMesh.vertices[i].pos, orientation);
+					tempPetalMesh.vertices[i].pos += nextPos;
+				}
+					
+				result.meshes.push_back(tempPetalMesh);
+				
+				break;
+
+			case '+':
+				orientation *= SMatrix::CreateFromAxisAngle(orientation.Forward(), -tilt);
+
+			case '*':
+				orientation *= petalRotMat;
+				break;
+
+			case '[':
+				storedPos.emplace_back(pos);
+				storedOri.emplace_back(orientation);
+				break;
+
+			case ']':
+				nextPos = storedPos.back();
+				storedPos.pop_back();
+				orientation = storedOri.back();
+				storedOri.pop_back();
+				break;
+
+			default:
+				std::cout << c << std::endl;
+				break;
+			}
+
+			pos = nextPos;
+		}
+
+		for (Mesh& m : result.meshes)
+			m.setupMesh(device);
+
+		return result;
 	}
 
 

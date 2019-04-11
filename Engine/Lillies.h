@@ -13,7 +13,7 @@ struct Lilly
 
 	Actor act;
 	UINT ring;
-	bool real = true;
+	bool real = false;
 };
 
 
@@ -37,6 +37,7 @@ class Lillies
 	SVec3 _midPoint;
 
 	std::vector<InstanceData> instanceData;
+	std::vector<InstanceData> realData;
 
 public:
 

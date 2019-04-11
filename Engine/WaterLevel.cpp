@@ -9,10 +9,6 @@ void WaterLevel::init(Systems& sys)
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 
 	fence.LoadModel(device, "../Models/WaterFence.obj");
-	
-	lillyModel.LoadModel(device, "../Models/Lilly/pizzaBox.obj");	//Lilly.obj
-	Math::Scale(lillyModel.transform, SVec3(33.333333f));
-	colModel.LoadModel(device, "../Models/Lilly/pizzaBox.obj");
 
 	cubeMapper.Init(device);
 
@@ -48,22 +44,33 @@ void WaterLevel::init(Systems& sys)
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(0, 500.f, 0, 1.0f));
 
-	_lillies.init(20.f, .666666f, SVec2(40, 200), SVec3(0, waterTerrain.getOffset().y - .2f, 0));
+	_lillies.init(33.333f, .1667f, SVec2(33.333, 200.f), SVec3(0, waterTerrain.getOffset().y - .2f, 0));
+	lillyModel.LoadModel(device, "../Models/Lilly/Lilly.obj");
+	
+	SMatrix petalScale = SMatrix::CreateScale(SVec3(5));
 
-	setUpCollision();
+	lillyPetalModel.LoadModel(device, "../Models/lotus_petal_upright.obj");
+	for (Vert3D& v : lillyPetalModel.meshes[0].vertices)
+		v.pos = SVec3::Transform(v.pos, petalScale);
+	
+	Texture lillyPetalTex(device, "../Textures/Lotus/diffuse.jpg");
+	lillyPetalModel.meshes[0].textures.push_back(lillyPetalTex);
 
-	/*
 	linden.reseed("F");
-	linden.addRule('F', "FF+[+F-F-F]*-[-F+F+F]/"); //"[-F]*F[+F][/F]"	//"F[+F]F[-F]+F" for planar		//"FF+[+F-F-F]*-[-F+F+F]/"
-	//linden.addRule('F', "F*[+F-F-F]-[-F+F+F]/");
+	linden.addRule('F', "FDSL");	// f just controls iterations, d is a displacement, s is a stalk, l becomes a level of petals
 	linden.rewrite(4);
-	float liangle = 24.f * PI / 180.f;		//liangle = PI * .5f;
+	linden.removeRule('F', "FDSL");
+	linden.addRule('L', "[+P*P*P*P*P*P]");
+	linden.rewrite(1);
 
-	treeModel = linden.genModel(device, 3.f, .4f, .7f, .7f, liangle, liangle);
+	float petalToPetalAngle = 60.f * PI / 180.f;
+	float stalkToPetalAngle = 90.f * PI / 180.f;
+
+	treeModel = linden.genFlower(device, &lillyPetalModel, 1, .33, .7f, petalToPetalAngle, stalkToPetalAngle);
 	Math::Scale(treeModel.transform, SVec3(2));
 	Math::RotateMatByMat(treeModel.transform, SMatrix::CreateRotationY(PI));
-	Math::SetTranslation(treeModel.transform, SVec3(-6, 143, 56));	// SVec3(-10, 126, 20)
-	*/
+	Math::SetTranslation(treeModel.transform, SVec3(0, 90, 0));	// SVec3(-10, 126, 20)
+
 }
 
 
@@ -73,29 +80,40 @@ void WaterLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	
 	_lillies.update(rc.dTime);
-	updateCollision();
+	fakeCollision();
+	//updateCollision();
 	updateCam(rc.dTime);
+		
 	ProcessSpecialInput(rc.dTime);
 	
+#pragma region reflectionRendering
 	cubeMapper.UpdateCams(modBall.transform.Translation());
 	for (int i = 0; i < 6; i++)
 	{
-		updateReflectionRefraction(rc, cubeMapper.getCameraAtIndex(i));
+		updateReflectionRefraction(rc, cubeMapper.getCameraAtIndex(i)); 
 		cubeMapper.Advance(_sys._deviceContext, i);
+
+		//water
+		rc.shMan->water.SetShaderParameters(dc, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+		waterSheet.Draw(dc, rc.shMan->water);
+		rc.shMan->water.ReleaseShaderParameters(dc);
+
+
+		RenderContext rcTemp = rc;
+		rcTemp.cam = &cubeMapper.getCameraAtIndex(i);
+		_lillies.draw(rcTemp, lillyModel, pointLight, true);
 
 		//lotus
 		rc.shMan->light.SetShaderParameters(dc, lotus, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
 		lotus.Draw(dc, rc.shMan->light);
 		rc.shMan->light.ReleaseShaderParameters(dc);
 		
-		//water
-		rc.shMan->water.SetShaderParameters(dc, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
-		waterSheet.Draw(dc, rc.shMan->water);
-		rc.shMan->water.ReleaseShaderParameters(dc);
 
 		_sys._renderer.RenderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
 	}
 	updateReflectionRefraction(rc, *rc.cam);
+#pragma endregion reflectionRendering
+
 
 	///scene
 	_sys._renderer.RevertRenderTarget();
@@ -105,27 +123,19 @@ void WaterLevel::draw(const RenderContext& rc)
 	lotus.Draw(dc, rc.shMan->light);
 	rc.shMan->light.ReleaseShaderParameters(dc);
 
-	//rc.shMan->terrainNormals.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-	//treeModel.Draw(dc, rc.shMan->terrainNormals);
-	//rc.shMan->terrainNormals.ReleaseShaderParameters(dc);
+	//lsystems
+	rc.shMan->terrainNormals.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
+	treeModel.Draw(dc, rc.shMan->terrainNormals);
+	rc.shMan->terrainNormals.ReleaseShaderParameters(dc);
 
 	//water
 	rc.d3d->TurnOnAlphaBlending();
-	
 	rc.shMan->water.SetShaderParameters(dc, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
 	waterSheet.Draw(dc, rc.shMan->water);
 	rc.shMan->water.ReleaseShaderParameters(dc);
 
-	//_lillies.draw(rc, lillyModel, pointLight, true);
+	_lillies.draw(rc, lillyModel, pointLight, false);
 	rc.d3d->TurnOffAlphaBlending();
-
-	for (int i = 0; i < _levelColliders.size(); ++i)
-	{
-		colModel.transform = _levelColliders[i].actParent->transform;
-		rc.shMan->shVolumLava.SetShaderParameters(dc, colModel, *rc.cam, rc.dTime);
-		colModel.Draw(dc, rc.shMan->shVolumLava);
-		rc.shMan->light.ReleaseShaderParameters(_sys._deviceContext);
-	}
 
 	//reflection sphere
 	rc.shMan->cubeMapShader.SetShaderParameters(dc, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
@@ -174,9 +184,9 @@ void WaterLevel::setUpCollision()
 {
 	_levelColliders.reserve(100);
 
-	for (Mesh& m : lillyModel.meshes)
-		for (Vert3D& v : m.vertices)
-			v.pos = SVec3::Transform(v.pos, lillyModel.transform);
+	//for (Mesh& m : lillyModel.meshes)
+		//for (Vert3D& v : m.vertices)
+			//v.pos = SVec3::Transform(v.pos, lillyModel.transform);
 
 	for (Ring& ring : _lillies._lillyRings)
 	{
@@ -218,3 +228,52 @@ void WaterLevel::updateCollision()
 		}
 	}
 }
+
+
+
+void WaterLevel::fakeCollision()
+{
+	bool wasOnLilly = parentLilly != nullptr;
+	bool onLilly = false;
+
+	for (Ring& ring : _lillies._lillyRings)
+		for (Lilly& l : ring._lillies)
+			if (SVec3::DistanceSquared(_sys._renderer._cam.GetCameraMatrix().Translation(), l.act.transform.Translation()) < 33.333 * 33.333
+				&& !_sys._controller.isFlying()
+				&& l.real)
+			{
+				onLilly = true;
+				if (!wasOnLilly)
+					oldTranslation = l.act.transform.Translation();
+				parentLilly = &l;
+			}
+				
+
+	if (onLilly)
+	{
+		SMatrix old = _sys._renderer._cam.GetCameraMatrix();
+		SVec3 oldTranslation = old.Translation();
+		oldTranslation.y = waterSheet.transform.Translation().y + 5.f;
+		Math::SetTranslation(old, oldTranslation);
+		_sys._renderer._cam.SetCameraMatrix(old);
+	}
+	else
+	{
+		parentLilly = nullptr;
+	}
+	
+	if (parentLilly != nullptr)
+	{
+		SMatrix old = _sys._renderer._cam.GetCameraMatrix();
+		SVec3 delta = parentLilly->act.transform.Translation() - oldTranslation;
+		Math::Translate(old, delta);
+		_sys._renderer._cam.SetCameraMatrix(old);
+		oldTranslation = parentLilly->act.transform.Translation();
+	}
+}
+
+
+//linden.addRule('F', "FF+[+F-F-F]*-[-F+F+F]/");		//float liangle = 24.f * PI / 180.f;
+//linden.addRule('F', "F*[+F-F-F]-[-F+F+F]/");
+//linden.addRule('F', "F[+F]F[-F]F");
+//treeModel = linden.genModel(device, 3.f, .4f, .7f, .7f, liangle, liangle);
