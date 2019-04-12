@@ -29,9 +29,9 @@ void Level::ProcessSpecialInput(float dTime)
 
 
 ///TREE RENDERING
-//rc.shMan->treeShader.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-//treeModel.Draw(dc, rc.shMan->light);
-//rc.shMan->light.ReleaseShaderParameters(dc);
+//rc.shMan->treeShader.SetShaderParameters(context, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
+//treeModel.Draw(context, rc.shMan->light);
+//rc.shMan->light.ReleaseShaderParameters(context);
 
 
 ///PARTICLE SYSTEM RENDERING

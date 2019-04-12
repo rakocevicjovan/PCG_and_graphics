@@ -27,7 +27,7 @@ void WaterLevel::init(Systems& sys)
 		m.textures.push_back(lotusTex);
 
 	waterTerrain = Procedural::Terrain(256, 256, SVec3(2, 1, 2));
-	waterTerrain.setTextureData(device, 1, 1, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
+	//waterTerrain.setTextureData(device, 1, 1, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
 	waterTerrain.setOffset(-256, 96, -256);
 	waterTerrain.CalculateTexCoords();
 	waterTerrain.CalculateNormals();
@@ -94,9 +94,9 @@ void WaterLevel::draw(const RenderContext& rc)
 		cubeMapper.Advance(_sys._deviceContext, i);
 
 		//water
-		rc.shMan->water.SetShaderParameters(dc, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
-		waterSheet.Draw(dc, rc.shMan->water);
-		rc.shMan->water.ReleaseShaderParameters(dc);
+		rc.shMan->water.SetShaderParameters(context, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+		waterSheet.Draw(context, rc.shMan->water);
+		rc.shMan->water.ReleaseShaderParameters(context);
 
 
 		RenderContext rcTemp = rc;
@@ -104,10 +104,10 @@ void WaterLevel::draw(const RenderContext& rc)
 		_lillies.draw(rcTemp, lillyModel, pointLight, true);
 
 		//lotus
-		rc.shMan->light.SetShaderParameters(dc, lotus, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
-		lotus.Draw(dc, rc.shMan->light);
-		rc.shMan->light.ReleaseShaderParameters(dc);
-		
+		rc.shMan->light.SetShaderParameters(context, lotus, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
+		lotus.Draw(context, rc.shMan->light);
+		rc.shMan->light.ReleaseShaderParameters(context);
+
 
 		_sys._renderer.RenderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
 	}
@@ -119,28 +119,28 @@ void WaterLevel::draw(const RenderContext& rc)
 	_sys._renderer.RevertRenderTarget();
 
 	//lotus
-	rc.shMan->light.SetShaderParameters(dc, lotus, *rc.cam, pointLight, rc.dTime);
-	lotus.Draw(dc, rc.shMan->light);
-	rc.shMan->light.ReleaseShaderParameters(dc);
+	rc.shMan->light.SetShaderParameters(context, lotus, *rc.cam, pointLight, rc.dTime);
+	lotus.Draw(context, rc.shMan->light);
+	rc.shMan->light.ReleaseShaderParameters(context);
 
 	//lsystems
-	rc.shMan->terrainNormals.SetShaderParameters(dc, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-	treeModel.Draw(dc, rc.shMan->terrainNormals);
-	rc.shMan->terrainNormals.ReleaseShaderParameters(dc);
+	rc.shMan->terrainNormals.SetShaderParameters(context, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
+	treeModel.Draw(context, rc.shMan->terrainNormals);
+	rc.shMan->terrainNormals.ReleaseShaderParameters(context);
 
 	//water
 	rc.d3d->TurnOnAlphaBlending();
-	rc.shMan->water.SetShaderParameters(dc, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
-	waterSheet.Draw(dc, rc.shMan->water);
-	rc.shMan->water.ReleaseShaderParameters(dc);
+	rc.shMan->water.SetShaderParameters(context, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+	waterSheet.Draw(context, rc.shMan->water);
+	rc.shMan->water.ReleaseShaderParameters(context);
 
 	_lillies.draw(rc, lillyModel, pointLight, false);
 	rc.d3d->TurnOffAlphaBlending();
 
 	//reflection sphere
-	rc.shMan->cubeMapShader.SetShaderParameters(dc, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
-	modBall.Draw(dc, rc.shMan->cubeMapShader);
-	rc.shMan->cubeMapShader.ReleaseShaderParameters(dc);
+	rc.shMan->cubeMapShader.SetShaderParameters(context, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
+	modBall.Draw(context, rc.shMan->cubeMapShader);
+	rc.shMan->cubeMapShader.ReleaseShaderParameters(context);
 
 
 	//SKYBOX
@@ -148,8 +148,8 @@ void WaterLevel::draw(const RenderContext& rc)
 
 	/*
 	rc.d3d->TurnOnAlphaBlending();
-	rc.shMan->shVolumWater.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
-	will.Draw(dc, rc.shMan->shVolumWater);
+	rc.shMan->shVolumWater.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
+	will.Draw(context, rc.shMan->shVolumWater);
 	rc.d3d->TurnOffAlphaBlending();
 	*/
 
@@ -165,17 +165,17 @@ void WaterLevel::updateReflectionRefraction(const RenderContext& rc, const Camer
 	_sys._renderer._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, 1, 0, -waterSheet.transform.Translation().y));
 	Camera reflectionCam = Camera(cam.GetCameraMatrix() * waterReflectionMatrix, cam.GetProjectionMatrix());
 
-	rc.shMan->clipper.SetShaderParameters(dc, lotus, reflectionCam, pointLight, rc.dTime);
-	lotus.Draw(dc, rc.shMan->clipper);
-	rc.shMan->clipper.ReleaseShaderParameters(dc);
+	rc.shMan->clipper.SetShaderParameters(context, lotus, reflectionCam, pointLight, rc.dTime);
+	lotus.Draw(context, rc.shMan->clipper);
+	rc.shMan->clipper.ReleaseShaderParameters(context);
 
 	///refraction
 	refractionMap.SetRenderTarget(_sys._deviceContext);
 	_sys._renderer._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, -1, 0, waterSheet.transform.Translation().y));
 
-	rc.shMan->clipper.SetShaderParameters(dc, lotus, cam, pointLight, rc.dTime);
-	lotus.Draw(dc, rc.shMan->clipper);
-	rc.shMan->clipper.ReleaseShaderParameters(dc);
+	rc.shMan->clipper.SetShaderParameters(context, lotus, cam, pointLight, rc.dTime);
+	lotus.Draw(context, rc.shMan->clipper);
+	rc.shMan->clipper.ReleaseShaderParameters(context);
 }
 
 

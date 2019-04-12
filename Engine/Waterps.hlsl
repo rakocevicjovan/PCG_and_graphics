@@ -27,12 +27,9 @@ Texture2D reflectionMap : register(t1);
 Texture2D refractionMappu :register(t2);
 SamplerState Sampler : register(s0);
 
-static const float PI = 3.141592f;
-static const float INTENSITY = 1.61803f * PI;
-static const float TWISTER = 5.;
 static const int NUM_OCTAVES = 5;
 static const float SpecularPower = 8.f;
-static const float DISTORTION_INTENSITY = .0003333f;
+static const float DISTORTION_INTENSITY = .033333f;
 
 float4 calcAmbient(in float3 alc, in float ali)
 {
@@ -113,7 +110,7 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
 	float3 bitangent = cross(input.normal, input.tangent);
 	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
-	input.normal = normalize(mul(texNormal, TBNMatrix));
+	input.normal = normalize(mul(texNormal.xyz, TBNMatrix));
 
 	float2 distortion = ((input.normal.xy * 2.0f) - 1.0f) * DISTORTION_INTENSITY;
 
@@ -128,9 +125,12 @@ float4 strifeFragment(PixelInputType input) : SV_TARGET
 	float dFactor = 0.f;
 	float4 diffuse = calcDiffuse(-lightDir, input.normal, dlc, dli, dFactor);
 	float4 specular = calcSpecular(-lightDir, input.normal, slc, sli, viewDir, dFactor);
+	
+	//float2 sampleCoords = NDC_xy + distortion;
+	//sampleCoords = clamp(sampleCoords, 0.0001f, 0.9999f);
 
-	float4 reflection = reflectionMap.Sample(Sampler, NDC_xy + distortion);		//clamp(NDC_xy + distortion, 0.000001, 0.999999)
-	float4 refraction = refractionMappu.Sample(Sampler, NDC_xy + distortion);	//clamp(NDC_xy + distortion, 0.000001, 0.999999));
+	float4 reflection = reflectionMap.Sample(Sampler, NDC_xy);		//clamp(NDC_xy + distortion, 0.000001, 0.999999)
+	float4 refraction = refractionMappu.Sample(Sampler, NDC_xy);	//clamp(NDC_xy + distortion, 0.000001, 0.999999));
 
 	float fresnel = dot(-viewDir, input.normal);	//refractive factor - low angle means it's lower, and pow decreases it further
 	fresnel = fresnel * fresnel * fresnel * fresnel;

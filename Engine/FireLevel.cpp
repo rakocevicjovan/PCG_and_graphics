@@ -94,16 +94,16 @@ void FireLevel::draw(const RenderContext& rc)
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
 		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.normalMapper));
 
-	dc->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
+	context->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
 
 	/*
-	terrain.Draw(dc, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
+	terrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	for (auto& island : _islands) 
 	{
-		island.Draw(dc, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
+		island.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 	}
 	*/
 
@@ -113,8 +113,8 @@ void FireLevel::draw(const RenderContext& rc)
 			continue;
 
 		hexModel.transform = p.actor.transform;
-		rc.shMan->normalMapper.SetShaderParameters(dc, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
-		hexModel.Draw(dc, rc.shMan->normalMapper);
+		rc.shMan->normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexModel.Draw(context, rc.shMan->normalMapper);
 	}
 
 	_sys._renderer.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
@@ -122,11 +122,11 @@ void FireLevel::draw(const RenderContext& rc)
 	//transparent items
 	rc.d3d->TurnOnAlphaBlending();
 
-	rc.shMan->shVolumLava.SetShaderParameters(dc, lavaSheetModel, *rc.cam, rc.elapsed);
-	lavaSheetModel.Draw(dc, rc.shMan->shVolumLava);
+	rc.shMan->shVolumLava.SetShaderParameters(context, lavaSheetModel, *rc.cam, rc.elapsed);
+	lavaSheetModel.Draw(context, rc.shMan->shVolumLava);
 
-	rc.shMan->shVolumFire.SetShaderParameters(dc, will, *rc.cam, rc.elapsed);
-	will.Draw(dc, rc.shMan->shVolumFire);
+	rc.shMan->shVolumFire.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
+	will.Draw(context, rc.shMan->shVolumFire);
 
 	rc.d3d->TurnOffAlphaBlending();
 

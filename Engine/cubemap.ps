@@ -61,9 +61,11 @@ float4 CMFS(PixelInputType input) : SV_TARGET
 	float3 incident = viewDir;
 	float3 reflected = reflect(incident, input.normal);
 
-	float3 refracted = refract(incident, input.normal, iceRefractionIndex);
-
 	float4 colour = cubeMapTexture.Sample(Sampler, reflected);
+
+	//float3 refracted = refract(incident, input.normal, iceRefractionIndex);
+	//float4 refrColour = cubeMapTexture.Sample(Sampler, refracted);
+	//colour = lerp(colour, refrColour, .5f);
 
 	float4 ambient = calcAmbient(alc, ali);
 	float dFactor = 0.f;

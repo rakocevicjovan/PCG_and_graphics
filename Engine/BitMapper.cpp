@@ -90,7 +90,7 @@
 			x++;
 			inVertMap[y].push_back(std::make_pair(y*t.w + x, currentVertex));
 
-			//update everything for the next pixel->vertex conversion
+			//Update everything for the next pixel->vertex conversion
 			colours.clear();
 
 			if (x == t.w) {

@@ -47,11 +47,11 @@ namespace Procedural
 				{
 					cells[index].r = false;
 					
-					//update cells
+					//Update cells
 					for (int cid : currentRow.at(nxtSet).cellIDs)
 						cells[cid].set = curSet;
 
-					//update sets
+					//Update sets
 					currentRow.at(curSet).cellIDs.insert(
 						currentRow.at(curSet).cellIDs.begin(), 
 						currentRow.at(nxtSet).cellIDs.begin(), 
@@ -98,11 +98,11 @@ namespace Procedural
 			{
 				cells[index].r = false;
 
-				//update cells
+				//Update cells
 				for (int cid : currentRow.at(nxtSet).cellIDs)
 					cells[cid].set = curSet;
 
-				//update sets
+				//Update sets
 				currentRow.at(curSet).cellIDs.insert(
 					currentRow.at(curSet).cellIDs.begin(),
 					currentRow.at(nxtSet).cellIDs.begin(),

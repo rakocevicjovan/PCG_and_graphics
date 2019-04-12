@@ -8,7 +8,7 @@ class WaterLevel : public Level
 public:
 	WaterLevel(Systems& sys) : Level(sys) {};
 
-	Procedural::Terrain islands, waterTerrain;
+	Procedural::Terrain waterTerrain;
 	Procedural::LSystem linden;
 
 	std::vector<Collider> _levelColliders;

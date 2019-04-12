@@ -11,15 +11,25 @@ public:
 	Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix);
 	~Camera();
 
-	void update(float dTime);
+	void Update(float dTime);
 	void SetCameraMatrix(const SMatrix& transform);
 
-	SMatrix GetViewMatrix() const;
-	SMatrix GetCameraMatrix() const;
-	SMatrix GetProjectionMatrix() const;
+	void Translate(const SVec3& t);
+	void SetTranslation(const SVec3& t);
+
+	void Rotate(const SMatrix& inRotMat);
+	void Rotate(const SQuat& inQuat);
+	void SetRotation(const SMatrix& inRotMat);
+	void SetRotation(const SQuat& inQuat);
+
+	void Transform(const SMatrix& inTransform);
+
 	Controller* _controller;
 
 	static Camera CreateFromViewProjection(const SMatrix& view, const SMatrix& projection);
+	SMatrix GetViewMatrix() const;
+	SMatrix GetCameraMatrix() const;
+	SMatrix GetProjectionMatrix() const;
 	
 protected:
 	SMatrix _cameraMatrix;

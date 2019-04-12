@@ -21,45 +21,45 @@ public:
 
 	~Math();
 
-	static void RotateVecByQuat(SVec3& vec, const SQuat& rotator);
+	static inline  void RotateVecByQuat(SVec3& vec, const SQuat& rotator);
 
-	static void RotateVecByMat(SVec3& vec, const SMatrix& rotatrix);
+	static inline void RotateVecByMat(SVec3& vec, const SMatrix& rotatrix);
 
-	static void RotateMatByQuat(SMatrix& transform, const SQuat& rotator);
+	static inline void RotateMatByQuat(SMatrix& transform, const SQuat& rotator);
 
-	static void RotateMatByMat(SMatrix& transform, const SMatrix& rotatrix);
+	static inline void RotateMatByMat(SMatrix& transform, const SMatrix& rotatrix);
 
-	static void RotationFromForwardUp(SMatrix& transform, const SVec3 fw, const SVec3 up);	 //might be incorrect
+	static inline void RotationFromForwardUp(SMatrix& transform, const SVec3 fw, const SVec3 up);	 //might be incorrect
 
-	static void SetRotation(SMatrix& transform, const SMatrix& rotatrix);
+	static inline void SetRotation(SMatrix& transform, const SMatrix& rotatrix);
 
-	static void Translate(SMatrix& transform, const SVec3& displacement);
+	static inline void Translate(SMatrix& transform, const SVec3& displacement);
 
-	static void SetTranslation(SMatrix& transform, const SVec3& displacement);
+	static inline void SetTranslation(SMatrix& transform, const SVec3& displacement);
 
-	static void Scale(SMatrix& transform, const SVec3& xyz_factors);
+	static inline void Scale(SMatrix& transform, const SVec3& xyz_factors);
 
-	static void CreatePerspectiveMatrix(SMatrix& projectionMatrix, float fov, float ar, float n, float f);
+	static inline void CreatePerspectiveMatrix(SMatrix& projectionMatrix, float fov, float ar, float n, float f);
 
-	static void CreatOrthoMatrix(SMatrix& orthographicMatrix, float w, float h, float n, float f);
+	static inline void CreatOrthoMatrix(SMatrix& orthographicMatrix, float w, float h, float n, float f);
 
-	static void CamToViewMatrix(SMatrix& viewMatrix, const SMatrix& cameraMatrix);
+	static inline void CamToViewMatrix(SMatrix& viewMatrix, const SMatrix& cameraMatrix);
 	
-	static SMatrix CalcMatrixStack(SMatrix& total, const SMatrix& model, const SMatrix& view, const SMatrix& projection);
+	static inline SMatrix CalcMatrixStack(SMatrix& total, const SMatrix& model, const SMatrix& view, const SMatrix& projection);
 
-	static SVec3 getNormalizedVec3(const SVec3& vecToNormalize);
+	static inline SVec3 getNormalizedVec3(const SVec3& vecToNormalize);
 
-	static SVec3 projectVecOntoVec(const SVec3& toProject, const SVec3& onto);
+	static inline SVec3 projectVecOntoVec(const SVec3& toProject, const SVec3& onto);
 
-	static SVec4 fromVec3(SVec3 v, float w);
+	static inline SVec4 fromVec3(SVec3 v, float w);
 
 	static inline float clamp(float minX, float maxX, float x);
 
-	static float smoothstep(float edge0, float edge1, float x);
+	static inline float smoothstep(float edge0, float edge1, float x);
 
-	static void swap(float& f1, float& f2);
+	static inline void swap(float& f1, float& f2);
 
-	static float remap(float value, float min1, float max1, float min2, float max2);
+	static inline float remap(float value, float min1, float max1, float min2, float max2);
 
 };
 
