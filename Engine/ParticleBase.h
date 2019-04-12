@@ -1,7 +1,6 @@
 #pragma once
 #include <d3d11.h>
 #include "Math.h"
-#include "Model.h"
 
 class ParticleSystem;
 

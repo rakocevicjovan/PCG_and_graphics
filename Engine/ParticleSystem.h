@@ -3,15 +3,14 @@
 #include "ParticleBase.h"
 #include "ShaderBase.h"
 
+class Model;
+
 class ParticleSystem
 {
-protected:
-
-
 public:
 
 	unsigned int _numParticles;
-	Model _model;
+	Model* _model;
 	ShaderBase* _shader;
 	ParticleUpdateData pud;
 	SVec3 _position;
@@ -20,7 +19,7 @@ public:
 	ParticleSystem();
 	~ParticleSystem();
 
-	void init(ID3D11Device* device, unsigned int particleCount, SVec3 position, std::string meshPath);
+	void init(Model* pModel, unsigned int particleCount, SVec3 position);
 	void setShader(ShaderBase* shader);
 	void setUpdateFunction(std::function<void(ParticleUpdateData* pud)> particleUpdFunc);
 	void update(float deltaTime);

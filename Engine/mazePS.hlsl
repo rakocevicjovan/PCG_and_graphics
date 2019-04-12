@@ -67,18 +67,11 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 
 	//sample normal from the map
 	float4 texNormal = normalMap.Sample(Sampler, input.tex);
-
-	//remap it to [-1, 1]
 	texNormal = 2.0f * texNormal - 1.f;
-
-	//removes projection of tangent onto normal from tangent so they are orthogonal for sure
 	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
-
 	float3 bitangent = cross(input.normal, input.tangent);
-
 	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
-
-	input.normal = normalize(mul(texNormal, TBNMatrix));
+	input.normal = normalize(mul(texNormal.xyz, TBNMatrix));
 
 	//use the normal in regular light calculations now
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);

@@ -4,7 +4,7 @@
 
 void FireLevel::init(Systems& sys)
 {
-	_sys._colEngine.registerController(_sys._controller);
+	collision.registerController(_sys._controller);
 
 	//hexer initialization
 	float hexRadius = 30.f;
@@ -99,11 +99,11 @@ void FireLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
 
 	/*
-	terrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
+	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	for (auto& island : _islands) 
 	{
-		island.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
+		island.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 	}
 	*/
 
@@ -113,20 +113,20 @@ void FireLevel::draw(const RenderContext& rc)
 			continue;
 
 		hexModel.transform = p.actor.transform;
-		rc.shMan->normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
-		hexModel.Draw(context, rc.shMan->normalMapper);
+		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexModel.Draw(context, shady.normalMapper);
 	}
 
-	_sys._renderer.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	//transparent items
 	rc.d3d->TurnOnAlphaBlending();
 
-	rc.shMan->shVolumLava.SetShaderParameters(context, lavaSheetModel, *rc.cam, rc.elapsed);
-	lavaSheetModel.Draw(context, rc.shMan->shVolumLava);
+	shady.shVolumLava.SetShaderParameters(context, lavaSheetModel, *rc.cam, rc.elapsed);
+	lavaSheetModel.Draw(context, shady.shVolumLava);
 
-	rc.shMan->shVolumFire.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
-	will.Draw(context, rc.shMan->shVolumFire);
+	shady.shVolumFire.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
+	will.Draw(context, shady.shVolumFire);
 
 	rc.d3d->TurnOffAlphaBlending();
 
@@ -148,7 +148,7 @@ void FireLevel::setUpCollision()
 		c.dynamic = true;
 		
 		for (Mesh m : platform.actor.gc.model->meshes)
-			c.hulls.push_back(_sys._colEngine.genBoxHull(&m));
+			c.hulls.push_back(collision.genBoxHull(&m));
 
 		for (Hull* h : c.hulls)
 		{
@@ -157,7 +157,7 @@ void FireLevel::setUpCollision()
 			h->setPosition(kiddyPos);
 		}
 
-		_sys._colEngine.addToGrid(&c);
+		collision.addToGrid(&c);
 
 		_levelColliders.push_back(c);
 	}
@@ -169,7 +169,7 @@ void FireLevel::resetCollision()
 {
 	for (Collider& collider : _levelColliders)
 	{
-		_sys._colEngine.removeFromGrid(collider);
+		collision.removeFromGrid(collider);
 		collider.ReleaseMemory();
 	}
 

@@ -59,6 +59,7 @@ public:
 	ShaderVolumetric shVolumWater;
 	ShaderVolumetric shVolumAir;
 	ShaderVolumetric shVolumLava;
+	ShaderVolumetric dragonCurve;
 
 	ShaderManager();
 	~ShaderManager();

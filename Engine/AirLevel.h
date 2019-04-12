@@ -7,6 +7,7 @@ class AirLevel : public Level
 {
 public:
 
+	PointLight pointLight;
 	Model skybox;
 	CubeMapper skyboxCubeMapper;
 

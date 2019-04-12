@@ -18,7 +18,6 @@ public:
 	//specific to the level
 	Texture mazeDiffuseMap, mazeNormalMap;
 
-
 	//off-screen render targets
 	OST postProcessTexture;	//offScreenTexture
 	const unsigned int ostW = 1600, ostH = 900;
@@ -32,8 +31,7 @@ public:
 	Procedural::Maze maze;
 
 	ParticleSystem pSys;
-	std::function<void(ParticleUpdateData*)> particleUpdFunc1;
-	std::function<void(ParticleUpdateData*)> particleUpdFunc2;
+	std::function<void(ParticleUpdateData*)> particleUpdFunc;
 	bool isTerGenerated = false;
 
 	//load and draw all that jazz

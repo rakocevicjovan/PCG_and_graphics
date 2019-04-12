@@ -180,9 +180,6 @@ float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain,
 
 std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	this->w = w;
-	this->h = h;
-
 	std::vector<unsigned char> curData;
 	std::vector<float> result;
 	
@@ -215,9 +212,6 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 
 std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	this->w = w;
-	this->h = h;
-
 	std::vector<unsigned char> curData;
 	std::vector<float> result;
 	

@@ -103,6 +103,7 @@
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="D3D.cpp" />
+    <ClCompile Include="Dragon.cpp" />
     <ClCompile Include="EarthLevel.cpp" />
     <ClCompile Include="FireLevel.cpp" />
     <ClCompile Include="GameClock.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="D3D.h" />
+    <ClInclude Include="Dragon.h" />
     <ClInclude Include="EarthLevel.h" />
     <ClInclude Include="FireLevel.h" />
     <ClInclude Include="GameClock.h" />
@@ -299,6 +301,12 @@
     <FxCompile Include="clipperVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="dragonCurvePS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="dragonCurveVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="InstancedPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
@@ -364,12 +372,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="volumWaterPS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="VoronoiPS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="VoronoiVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="waterPS.hlsl">

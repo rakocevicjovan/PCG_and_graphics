@@ -21,8 +21,6 @@ struct PixelInputType
 
 Texture2D tex0 : register(t0);
 Texture2D tex1 : register(t1);
-Texture2D tex2 : register(t2);
-Texture2D tex3 : register(t3);
 
 SamplerState Sampler;
 
@@ -66,7 +64,6 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 }
 
 
-
 float map(float value, float min1, float max1, float min2, float max2)
 {
 	return min2 + ((value - min1) / (max1 - min1)) * (max2 - min2);
@@ -76,21 +73,14 @@ float map(float value, float min1, float max1, float min2, float max2)
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-	//sample normal from the map
-	float4 texNormal = tex1.Sample(Sampler, input.tex);
-
-	//remap it to [-1, 1]
-	texNormal = 2.0f * texNormal - 1.f;
+	float4 texNormal = tex1.Sample(Sampler, input.tex);	//sample normal from the map
+	texNormal = 2.0f * texNormal - 1.f;					//remap it to [-1, 1]
 
 	//removes projection of tangent onto normal from tangent so they are orthogonal for sure
 	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
-
 	float3 bitangent = cross(input.normal, input.tangent);
-
 	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
-
-	input.normal = normalize(mul(texNormal, TBNMatrix));
-
+	input.normal = normalize(mul(texNormal.xyz, TBNMatrix));
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
 

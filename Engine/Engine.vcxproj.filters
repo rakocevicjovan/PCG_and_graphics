@@ -25,6 +25,15 @@
     <Filter Include="Game">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Volumetric">
+      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Common">
+      <UniqueIdentifier>{dc171221-b077-4f1b-afb0-932d39c23157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Specific">
+      <UniqueIdentifier>{e1bad4ba-8d4f-45de-93e9-ad1efd03f633}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -214,6 +223,9 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="Lillies.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Dragon.cpp">
       <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
@@ -416,53 +428,56 @@
     <ClInclude Include="Lillies.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Dragon.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="wireframe.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="wireframe.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="wireframe.gs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="rekt.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="rekt.vs">
-      <Filter>Shader Files</Filter>
-    </None>
     <None Include="depth.vs">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Common</Filter>
     </None>
     <None Include="depth.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="projectTex.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="projectTex.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="cubemap.vs">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="cubemap.ps">
-      <Filter>Shader Files</Filter>
-    </None>
-    <None Include="shadowps.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Common</Filter>
     </None>
     <None Include="shadowvs.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Common</Filter>
+    </None>
+    <None Include="wireframe.gs">
+      <Filter>Shader Files\Common</Filter>
+    </None>
+    <None Include="wireframe.ps">
+      <Filter>Shader Files\Common</Filter>
+    </None>
+    <None Include="wireframe.vs">
+      <Filter>Shader Files\Common</Filter>
     </None>
     <None Include="lightvs.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Common</Filter>
     </None>
     <None Include="lightps.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Common</Filter>
+    </None>
+    <None Include="cubemap.ps">
+      <Filter>Shader Files\Common</Filter>
+    </None>
+    <None Include="cubemap.vs">
+      <Filter>Shader Files\Common</Filter>
+    </None>
+    <None Include="projectTex.ps">
+      <Filter>Shader Files\Specific</Filter>
+    </None>
+    <None Include="projectTex.vs">
+      <Filter>Shader Files\Specific</Filter>
+    </None>
+    <None Include="rekt.ps">
+      <Filter>Shader Files\Specific</Filter>
+    </None>
+    <None Include="rekt.vs">
+      <Filter>Shader Files\Specific</Filter>
+    </None>
+    <None Include="shadowps.hlsl">
+      <Filter>Shader Files\Common</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -471,92 +486,92 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="skyboxvs.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="skyboxps.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="strifevs.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="strifeps.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="AnimaVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="AnimaPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="VoronoiVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="VoronoiPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="InstancedVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="InstancedPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="perlin3dPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="perlin3dVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumTreePS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="VolumJuliaPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="terrainPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="mazePS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="mazeVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="mazefloorVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumFirePS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumAirPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumWaterPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumEarthPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="normalsTerrainPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="volumLavaPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="waterPS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="waterVS.hlsl">
       <Filter>Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="clipperVS.hlsl">
-      <Filter>Shader Files</Filter>
+    <FxCompile Include="volumAirPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="volumEarthPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="volumFirePS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="VolumJuliaPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="volumTreePS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="volumLavaPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="volumVS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="volumWaterPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="clipperPS.hlsl">
-      <Filter>Shader Files</Filter>
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="clipperVS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="skyboxps.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedVS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedPS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="AnimaPS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="AnimaVS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="dragonCurvePS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="dragonCurveVS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="mazefloorVS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="mazePS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="mazeVS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="skyboxvs.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="perlin3dVS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="perlin3dPS.hlsl">
+      <Filter>Shader Files\Specific</Filter>
+    </FxCompile>
+    <FxCompile Include="strifeps.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="strifevs.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="normalsTerrainPS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="terrainPS.hlsl">
+      <Filter>Shader Files\Common</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

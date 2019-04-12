@@ -20,37 +20,6 @@ void EarthLevel::init(Systems& sys)
 	mazeNormalMap.LoadFromFile("../Textures/Rock/normal.jpg");
 	mazeNormalMap.Setup(device);
 
-	pSys.init(device, 100, SVec3(0, 0, 100), "../Models/ball.fbx");
-
-	particleUpdFunc1 = [this](ParticleUpdateData* pud) -> void
-	{
-		for (int i = 0; i < pSys._particles.size(); ++i)
-		{
-			pSys._particles[i]->age += pud->dTime * 0.1f;
-			SVec3 translation(pud->windDirection * pud->windVelocity);	// 
-			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
-			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * 0.33f);
-		}
-	};
-
-	particleUpdFunc2 = [this](ParticleUpdateData* pud) -> void
-	{
-		for (int i = 0; i < pSys._particles.size(); ++i)
-		{
-			pSys._particles[i]->age += pud->dTime * 0.1f;
-			SVec3 translation(pud->windDirection * pud->windVelocity);
-			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
-			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
-			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * -0.33f);
-		}
-	};
-
-	pSys.setUpdateFunction(particleUpdFunc1);
-	//shader needs to be set for the particle system somehow as well...
-
 	maze.Init(10, 10, 32.f);
 	maze.CreateModel(device);
 
@@ -69,6 +38,22 @@ void EarthLevel::procGen()
 
 	proceduralTerrain.SetUp(device);
 
+	/*pSys.init(&will, 10, SVec3(0, 50, 0));
+
+	particleUpdFunc = [this](ParticleUpdateData* pud) -> void
+	{
+		for (int i = 0; i < pSys._particles.size(); ++i)
+		{
+			pSys._particles[i]->age += pud->dTime * 0.1f;
+			SVec3 translation(pud->windDirection * pud->windVelocity);
+			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
+			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * -0.33f);
+		}
+	};
+	*/
+
 	isTerGenerated = true;
 }
 
@@ -76,32 +61,19 @@ void EarthLevel::procGen()
 
 void EarthLevel::draw(const RenderContext& rc)
 {
-
 	updateCam(rc.dTime);
 
-	ParticleUpdateData pud = { SVec3(-5, 2, 5), 1.f, rc.dTime };	//wind direction, wind velocity multiplier and delta time
-	pSys.updateStdFunc(&pud);
-
-	_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
-	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
+	//_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);	rc.d3d->SetBackBufferRenderTarget();
+	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 
 	if (isTerGenerated)
-	{
 		proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
-	}
 
 	rc.shMan->dynamicHeightMaze.SetShaderParameters(context, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
 	maze.model.Draw(context, rc.shMan->dynamicHeightMaze);
 	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(context);
 
-	rc.d3d->TurnOffCulling();
-	rc.d3d->SwitchDepthToLessEquals();
-	rc.shMan->skyboxShader.SetShaderParameters(context, skybox.transform, *rc.cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(context, rc.shMan->skyboxShader);
-	rc.shMan->skyboxShader.ReleaseShaderParameters(context);
-	rc.d3d->SwitchDepthToDefault();
-	rc.d3d->TurnOnCulling();
+	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumAir.SetShaderParameters(context, will, *rc.cam, rc.elapsed);

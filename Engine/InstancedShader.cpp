@@ -82,16 +82,15 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 	deviceContext->Unmap(_lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
 
-	deviceContext->IASetInputLayout(_layout);
-	deviceContext->VSSetShader(_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(_pixelShader, NULL, 0);
-	deviceContext->PSSetSamplers(0, 1, &_sampleState);
-	
-
 	if (FAILED(deviceContext->Map(_instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	memcpy(mappedResource.pData, _instanceData.data(), _instanceData.size() * sizeof(InstanceData));
 	deviceContext->Unmap(_instanceBuffer, 0);
+
+	deviceContext->IASetInputLayout(_layout);
+	deviceContext->VSSetShader(_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(_pixelShader, NULL, 0);
+	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
 	return true;
 }

@@ -55,6 +55,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	//other volumetric
 	shVolumLava.Initialize(_device, hwnd, { L"volumVS.hlsl", L"volumLavaPS.hlsl" }, sbLayout, sbSamplerDesc);
+	dragonCurve.Initialize(_device, hwnd, { L"dragonCurveVS.hlsl", L"dragonCurvePS.hlsl" }, sbLayout, sbSamplerDesc);
 
 	//maze, trees and terrain neeed the extended layout for normal mapping
 	std::vector<D3D11_INPUT_ELEMENT_DESC> extendedLayout = sbLayout;

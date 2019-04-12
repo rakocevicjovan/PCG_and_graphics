@@ -1,4 +1,5 @@
 #include "ParticleSystem.h"
+#include "Model.h"
 
 
 
@@ -17,11 +18,12 @@ ParticleSystem::~ParticleSystem()
 
 
 
-void ParticleSystem::init(ID3D11Device* device, unsigned int particleCount, SVec3 position, std::string pathToModel)
+void ParticleSystem::init(Model* pModel, unsigned int particleCount, SVec3 position)
 {
-	_model.LoadModel(device, pathToModel);
+	_model = pModel;
 
 	_numParticles = particleCount;
+
 	for (int i = 0; i < _numParticles; ++i)
 	{
 		_particles.push_back(new ParticleBase());
@@ -34,6 +36,8 @@ void ParticleSystem::init(ID3D11Device* device, unsigned int particleCount, SVec
 
 	_position = position;
 }
+
+
 
 void ParticleSystem::setShader(ShaderBase* shader)
 {
@@ -51,8 +55,8 @@ void ParticleSystem::setUpdateFunction(std::function<void(ParticleUpdateData* pu
 
 void ParticleSystem::update(float deltaTime)
 {
-	//for (ParticleBase* p : _particles)
-		//p->_ps->updateStdFunc(&pud);
+	for (ParticleBase* p : _particles)
+		p->_ps->updateStdFunc(&pud);
 }
 
 
@@ -60,5 +64,5 @@ void ParticleSystem::update(float deltaTime)
 void ParticleSystem::draw(ID3D11DeviceContext* dc)
 {
 	for (ParticleBase* p : _particles)
-		_model.Draw(dc, *_shader);
+		_model->Draw(dc, *_shader);
 }

@@ -57,5 +57,8 @@ void TerrainShader::SetShaderParameters(ID3D11DeviceContext* dc, const SMatrix& 
 	dc->Unmap(_lightBuffer, 0);
 	dc->PSSetConstantBuffers(0, 1, &_lightBuffer);
 
+	dc->IASetInputLayout(_layout);
+	dc->VSSetShader(_vertexShader, NULL, 0);
+	dc->PSSetShader(_pixelShader, NULL, 0);
 	dc->PSSetSamplers(0, 1, &_sampleState);
 }

@@ -5,10 +5,12 @@
 #define device		_sys._device
 #define context		_sys._deviceContext
 #define randy		_sys._renderer
-#define collision	_sys.colEngine
+#define shady		_sys._renderer._shMan
+#define collision	_sys._colEngine
 #define resources	_sys._resMan
 #define doot		_sys._audio
 #define inman		_sys._inputManager
+
 
 class Level
 {
