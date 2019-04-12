@@ -24,7 +24,7 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext*, SMatrix& smm, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex);
+	bool SetShaderParameters(ID3D11DeviceContext*, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
@@ -39,7 +39,6 @@ private:
 	ID3D11PixelShader* m_pixelShader;
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
-	ID3D11Buffer* m_variableBuffer;
 	std::vector<std::wstring> filePaths;
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };

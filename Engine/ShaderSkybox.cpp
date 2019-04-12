@@ -129,25 +129,12 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd)
 	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer)))
 		return false;
 
-	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
-	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
-	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	variableBufferDesc.MiscFlags = 0;
-	variableBufferDesc.StructureByteStride = 0;
-
-	// Create the variable constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	if (FAILED(device->CreateBuffer(&variableBufferDesc, NULL, &m_variableBuffer)))
-		return false;
-
 	return true;
 }
 
 
 void ShaderSkybox::ShutdownShader()
 {
-	DECIMATE(m_variableBuffer);
 	DECIMATE(m_matrixBuffer);
 	DECIMATE(m_sampleState);
 	DECIMATE(m_layout);
@@ -189,41 +176,26 @@ void ShaderSkybox::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 }
 
 
-bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& smm, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
+bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
 	MatrixBuffer* dataPtr;
-	VariableBuffer* dataPtr3;
 
-	Math::SetTranslation(smm, c.GetCameraMatrix().Translation());
+	SMatrix fake = SMatrix::CreateTranslation(c.GetCameraMatrix().Translation());
 
-	SMatrix mT = smm.Transpose();
+	SMatrix mT = fake.Transpose();
 	SMatrix vT = c.GetViewMatrix().Transpose();
 	SMatrix pT = c.GetProjectionMatrix().Transpose();
 
-	// Lock the constant matrix buffer so it can be written to.
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr = (MatrixBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
 	deviceContext->Unmap(m_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-	//END MATRIX BUFFER
-
-	//VARIABLE BUFFER
-	if (FAILED(deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-		return false;
-	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-	dataPtr3->deltaTime = deltaTime;
-	dataPtr3->padding = SVec3();
-	deviceContext->Unmap(m_variableBuffer, 0);
-	bufferNumber = 1;
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
-	//END VARIABLE BUFFER
 
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);

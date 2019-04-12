@@ -1,18 +1,13 @@
-cbuffer MatrixBuffer{
+cbuffer MatrixBuffer : register(b0)
+{
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
 
-cbuffer VariableBuffer
+struct VertexInputType
 {
-    float delta;
-	float3 padding;
-};
-
-
-struct VertexInputType{
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;

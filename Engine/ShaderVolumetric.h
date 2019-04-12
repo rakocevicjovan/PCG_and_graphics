@@ -18,7 +18,7 @@ public:
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths, 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
 	
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera& camera, float elapsed);
+	bool SetShaderParameters(ID3D11DeviceContext*, const Model& m, const Camera& camera, float elapsed);
 
 	
 

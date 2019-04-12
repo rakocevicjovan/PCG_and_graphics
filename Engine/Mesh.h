@@ -73,7 +73,6 @@ public:
 		dc->IASetVertexBuffers(0, 2, bufferPointers, strides, offsets);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		dc->PSSetSamplers(0, 1, &s._sampleState);
 
 		for (int i = 0; i < textures.size(); ++i)
 			dc->PSSetShaderResources(i, 1, &(textures[i].srv));

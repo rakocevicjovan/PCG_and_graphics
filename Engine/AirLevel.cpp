@@ -7,6 +7,8 @@ void AirLevel::init(Systems& sys)
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
 
+	testBall.LoadModel(device, "../Models/Ball.fbx");
+
 	Procedural::Terrain barrensTerrain;
 	auto fltVec = Texture::generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);
 	barrensTerrain.setScales(2, 128, 2);
@@ -18,7 +20,7 @@ void AirLevel::init(Systems& sys)
 	barrens = Model(barrensTerrain, device);
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
-	pointLight = PointLight(lightData, SVec4(0, 500.f, 0, 1.0f));
+	pointLight = PointLight(lightData, SVec4(0., 500.f, 0, 1.0f));
 	
 }
 
@@ -31,8 +33,12 @@ void AirLevel::draw(const RenderContext& rc)
 
 	updateCam(rc.dTime);
 
-	_sys._renderer._shMan.terrainNormals.SetShaderParameters(context, barrens.transform, *rc.cam, pointLight, rc.dTime);
+	shady.terrainNormals.SetShaderParameters(context, barrens.transform, *rc.cam, pointLight, rc.dTime);
 	barrens.Draw(context, shady.terrainNormals);
+
+	shady.dragonCurve.SetShaderParameters(context, testBall, *rc.cam, rc.elapsed);
+	testBall.Draw(context, shady.dragonCurve);
+	shady.dragonCurve.ReleaseShaderParameters(context);
 
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 

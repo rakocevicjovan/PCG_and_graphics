@@ -6,13 +6,6 @@ cbuffer MatrixBuffer
 };
 
 
-cbuffer VariableBuffer
-{
-	float delta;
-	float3 padding;
-};
-
-
 struct VertexInputType
 {
 	float4 position : POSITION;

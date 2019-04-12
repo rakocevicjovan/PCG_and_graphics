@@ -9,6 +9,7 @@ public:
 
 	PointLight pointLight;
 	Model skybox;
+	Model testBall;
 	CubeMapper skyboxCubeMapper;
 
 	Model barrens;

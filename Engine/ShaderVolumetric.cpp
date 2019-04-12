@@ -33,7 +33,7 @@ bool ShaderVolumetric::Initialize(ID3D11Device* device, HWND hwnd, const std::ve
 }
 
 
-bool ShaderVolumetric::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& camera, float elapsed)
+bool ShaderVolumetric::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Model& model, const Camera& camera, float elapsed)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
@@ -51,26 +51,24 @@ bool ShaderVolumetric::SetShaderParameters(ID3D11DeviceContext* deviceContext, M
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0u, 1, &_matrixBuffer);
+	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 
 	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
 	dataPtr3->deltaTime = elapsed;
 	dataPtr3->padding = SVec3();
 	deviceContext->Unmap(_variableBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0u, 1, &_variableBuffer);
+	deviceContext->PSSetConstantBuffers(0, 1, &_variableBuffer);
 
 	//view data - updates per frame
 	if (FAILED(deviceContext->Map(_viewRayBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-
 	dataPtr2 = (ViewRayBuffer*)mappedResource.pData;
 	dataPtr2->rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * 0.5f * elapsed);
 	dataPtr2->ePos = Math::fromVec3(camera.GetCameraMatrix().Translation(), 1.0f);
 	deviceContext->Unmap(_viewRayBuffer, 0);
-	deviceContext->PSSetConstantBuffers(1u, 1, &_viewRayBuffer);
+	deviceContext->PSSetConstantBuffers(1, 1, &_viewRayBuffer);
 
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);

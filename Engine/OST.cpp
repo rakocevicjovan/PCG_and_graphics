@@ -23,9 +23,8 @@ OST::~OST()
 
 
 
-void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAccessible) 
+void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h) 
 {
-	isCPUAccessible = CPUAccessible;
 	_w = w;
 	_h = h;
 
@@ -80,7 +79,6 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 	}
 
 
-
 	//MIGHT NOT NEED THIS EVERY TIME BUT IT'S USEFUL!
 	D3D11_TEXTURE2D_DESC ostDepthTexDesc;
 	ZeroMemory(&ostDepthTexDesc, sizeof(ostDepthTexDesc));
@@ -119,9 +117,6 @@ void OST::Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAcc
 	ostViewport.MaxDepth = 1.0f;
 	ostViewport.TopLeftX = 0;
 	ostViewport.TopLeftY = 0;
-
-	_ar = float(w) / (float)h;
-	_fov = PI * 0.5f;
 }
 
 
@@ -165,8 +160,8 @@ void OST::DrawDepthToTexture(D3D& d3d, std::vector<Model*>& models, ShaderDepth&
 bool OST::LoadToCpu(ID3D11Device* device, ID3D11DeviceContext* dc, std::vector<unsigned char>& result)
 {
 	D3D11_TEXTURE2D_DESC texDesc;
-	ZeroMemory(&texDesc, sizeof(texDesc));
 
+	ZeroMemory(&texDesc, sizeof(texDesc));
 	texDesc.Width = _w;
 	texDesc.Height = _h;
 	texDesc.MipLevels = 1;

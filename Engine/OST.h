@@ -24,7 +24,7 @@ public:
 	ID3D11RenderTargetView* rtv;
 	ID3D11DepthStencilView* ostDepthStencilView;
 
-	void Init(ID3D11Device* device, unsigned int w, unsigned int h, bool CPUAccessible = false);
+	void Init(ID3D11Device* device, unsigned int w, unsigned int h);
 	void SetRenderTarget(ID3D11DeviceContext*);	//, ID3D11DepthStencilView*
 	void ClearRenderTarget(ID3D11DeviceContext*);
 	bool LoadToCpu(ID3D11Device* device, ID3D11DeviceContext*, std::vector<unsigned char>& result);
@@ -33,9 +33,6 @@ public:
 	float* getClearColourPointer() { return ccb; }
 
 	D3D11_VIEWPORT ostViewport;
-	SMatrix _view, _lens;
-	float _fov, _ar;
-	bool isCPUAccessible;
 	unsigned int _w, _h;
 };
 

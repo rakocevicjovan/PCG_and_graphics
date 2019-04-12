@@ -101,7 +101,7 @@ void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& 
 {
 	_d3d->TurnOffCulling();
 	_d3d->SwitchDepthToLessEquals();
-	_shMan.skyboxShader.SetShaderParameters(_deviceContext, skybox.transform, cam, rc.dTime, skyboxCubeMapper.cm_srv);
+	_shMan.skyboxShader.SetShaderParameters(_deviceContext, cam, rc.dTime, skyboxCubeMapper.cm_srv);
 	skybox.Draw(_deviceContext, _shMan.skyboxShader);
 	rc.shMan->skyboxShader.ReleaseShaderParameters(_deviceContext);
 	_d3d->SwitchDepthToDefault();

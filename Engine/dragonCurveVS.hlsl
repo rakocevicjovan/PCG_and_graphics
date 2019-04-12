@@ -13,20 +13,18 @@ struct VertexInputType
 	float3 normal : NORMAL;
 };
 
-
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
-	float4 msPos : MSPOS;
+	float4 msPos : WATDIS;
 	float4 wPos : WPOS;
 };
 
 
+PixelInputType LightVertexShader(VertexInputType input) {
 
-PixelInputType LightVertexShader(VertexInputType input)
-{
 	PixelInputType output;
 
 	output.msPos = input.position;

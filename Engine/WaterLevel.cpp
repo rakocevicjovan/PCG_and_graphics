@@ -109,14 +109,14 @@ void WaterLevel::draw(const RenderContext& rc)
 		rc.shMan->light.ReleaseShaderParameters(context);
 
 
-		_sys._renderer.RenderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
+		randy.RenderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
 	}
 	updateReflectionRefraction(rc, *rc.cam);
 #pragma endregion reflectionRendering
 
 
 	///scene
-	_sys._renderer.RevertRenderTarget();
+	randy.RevertRenderTarget();
 
 	//lotus
 	rc.shMan->light.SetShaderParameters(context, lotus, *rc.cam, pointLight, rc.dTime);
@@ -144,7 +144,7 @@ void WaterLevel::draw(const RenderContext& rc)
 
 
 	//SKYBOX
-	_sys._renderer.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	/*
 	rc.d3d->TurnOnAlphaBlending();
@@ -162,7 +162,7 @@ void WaterLevel::updateReflectionRefraction(const RenderContext& rc, const Camer
 {
 	///reflection
 	reflectionMap.SetRenderTarget(_sys._deviceContext);
-	_sys._renderer._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, 1, 0, -waterSheet.transform.Translation().y));
+	randy._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, 1, 0, -waterSheet.transform.Translation().y));
 	Camera reflectionCam = Camera(cam.GetCameraMatrix() * waterReflectionMatrix, cam.GetProjectionMatrix());
 
 	rc.shMan->clipper.SetShaderParameters(context, lotus, reflectionCam, pointLight, rc.dTime);
@@ -171,7 +171,7 @@ void WaterLevel::updateReflectionRefraction(const RenderContext& rc, const Camer
 
 	///refraction
 	refractionMap.SetRenderTarget(_sys._deviceContext);
-	_sys._renderer._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, -1, 0, waterSheet.transform.Translation().y));
+	randy._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, -1, 0, waterSheet.transform.Translation().y));
 
 	rc.shMan->clipper.SetShaderParameters(context, lotus, cam, pointLight, rc.dTime);
 	lotus.Draw(context, rc.shMan->clipper);
@@ -238,7 +238,7 @@ void WaterLevel::fakeCollision()
 
 	for (Ring& ring : _lillies._lillyRings)
 		for (Lilly& l : ring._lillies)
-			if (SVec3::DistanceSquared(_sys._renderer._cam.GetCameraMatrix().Translation(), l.act.transform.Translation()) < 33.333 * 33.333
+			if (SVec3::DistanceSquared(randy._cam.GetCameraMatrix().Translation(), l.act.transform.Translation()) < 33.333 * 33.333
 				&& !_sys._controller.isFlying()
 				&& l.real)
 			{
@@ -251,11 +251,11 @@ void WaterLevel::fakeCollision()
 
 	if (onLilly)
 	{
-		SMatrix old = _sys._renderer._cam.GetCameraMatrix();
+		SMatrix old = randy._cam.GetCameraMatrix();
 		SVec3 oldTranslation = old.Translation();
 		oldTranslation.y = waterSheet.transform.Translation().y + 5.f;
 		Math::SetTranslation(old, oldTranslation);
-		_sys._renderer._cam.SetCameraMatrix(old);
+		randy._cam.SetCameraMatrix(old);
 	}
 	else
 	{
@@ -264,10 +264,10 @@ void WaterLevel::fakeCollision()
 	
 	if (parentLilly != nullptr)
 	{
-		SMatrix old = _sys._renderer._cam.GetCameraMatrix();
+		SMatrix old = randy._cam.GetCameraMatrix();
 		SVec3 delta = parentLilly->act.transform.Translation() - oldTranslation;
 		Math::Translate(old, delta);
-		_sys._renderer._cam.SetCameraMatrix(old);
+		randy._cam.SetCameraMatrix(old);
 		oldTranslation = parentLilly->act.transform.Translation();
 	}
 }
