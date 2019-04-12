@@ -53,50 +53,59 @@ void Camera::Update(float dTime)
 void Camera::Translate(const SVec3& t)
 {
 	Math::Translate(_cameraMatrix, t);
-	_viewMatrix = _cameraMatrix.Invert();	//@todo optimize this? I assume they can be direcly assigned if one knows how without invert()
+	_viewMatrix = _cameraMatrix.Invert();	//@todo can this be optimized to not invert the whole matrix :thinking: probably yes!
 }
 
 
 
 void Camera::SetTranslation(const SVec3& t)
 {
-
-
+	Math::SetTranslation(_cameraMatrix, t);
+	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
 
 void Camera::Rotate(const SMatrix& inRotMat)
 {
-
+	_cameraMatrix *= inRotMat;
+	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
 
 void Camera::Rotate(const SQuat& inQuat)
 {
-
+	_cameraMatrix = SMatrix::Transform(_cameraMatrix, inQuat);
+	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
 
 void Camera::SetRotation(const SMatrix& inRotMat)
 {
-
+	SVec3 tempTranslation = _cameraMatrix.Translation();
+	_cameraMatrix = inRotMat;
+	Math::SetTranslation(_cameraMatrix, tempTranslation);
+	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
 
 void Camera::SetRotation(const SQuat& inQuat)
 {
-
+	SVec3 tempTranslation = _cameraMatrix.Translation();
+	_cameraMatrix = SMatrix::CreateFromQuaternion(inQuat);
+	Math::SetTranslation(_cameraMatrix, tempTranslation);
+	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
 
 void Camera::Transform(const SMatrix& inTransform)
 {
-
+	_cameraMatrix *= inTransform;
+	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
