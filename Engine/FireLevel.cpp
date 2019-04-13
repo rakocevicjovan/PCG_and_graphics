@@ -139,8 +139,6 @@ void FireLevel::draw(const RenderContext& rc)
 	brightnessMask.SetRenderTarget(context);
 	postProcessor.draw(context, shady.brightnessMasker, sceneTex.srv);
 
-
-
 	//blurring horizontally
 	blurredTex1.SetRenderTarget(context);
 	postProcessor.draw(context, shady.blurHor, brightnessMask.srv);

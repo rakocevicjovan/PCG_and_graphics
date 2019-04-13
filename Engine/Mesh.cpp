@@ -34,7 +34,7 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 
 Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device)
 {
-	float originX = (pos.x - 0.5f) * 2.f;
+	float originX = (pos.x - 0.5f) * 2.f;	//[0, 1] -> [-1, 1]
 	float originY = (pos.y - 0.5f) * 2.f;
 	float width = size.x * 2.f;
 	float height = size.y * 2.f;
