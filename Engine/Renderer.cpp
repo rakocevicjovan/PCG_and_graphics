@@ -24,9 +24,6 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 	_deviceContext = d3d.GetDeviceContext();
 
 	_shMan.init(_device, hwnd);
-	
-	_rekt = new Rekt(_device, _deviceContext);
-	screenRect = _rekt->AddUINODE(_rekt->getRoot(), SVec2(0.75f, 0.75f), SVec2(0.25f, 0.25f));
 
 	// Setup the projection matrix.
 	_fieldOfView = PI / 3.0f;

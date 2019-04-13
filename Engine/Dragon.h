@@ -9,9 +9,8 @@ public:
 	Dragon() {}
 	~Dragon() {}
 
-
-
 	void init(const Model& head, const Model& segment);
+	void update(RenderContext& rc);
 
 	Model _head, _segment;
 

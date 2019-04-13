@@ -34,6 +34,9 @@
     <Filter Include="Shader Files\Specific">
       <UniqueIdentifier>{e1bad4ba-8d4f-45de-93e9-ad1efd03f633}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\PostProcessing">
+      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -572,6 +575,27 @@
     </FxCompile>
     <FxCompile Include="terrainPS.hlsl">
       <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="brightMaskVS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="brightmaskPS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="blurVS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="bloomVS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="bloomPS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="blurHorPS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="blurVerPS.hlsl">
+      <Filter>Shader Files\PostProcessing</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

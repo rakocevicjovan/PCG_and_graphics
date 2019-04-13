@@ -13,13 +13,13 @@ public:
 	Model* _model;
 	ShaderBase* _shader;
 	ParticleUpdateData pud;
-	SVec3 _position;
+	SMatrix _transform;
 	std::vector<ParticleBase*> _particles;
 
 	ParticleSystem();
 	~ParticleSystem();
 
-	void init(Model* pModel, unsigned int particleCount, SVec3 position);
+	void init(Model* pModel, unsigned int particleCount, SMatrix transform);
 	void setShader(ShaderBase* shader);
 	void setUpdateFunction(std::function<void(ParticleUpdateData* pud)> particleUpdFunc);
 	void update(float deltaTime);

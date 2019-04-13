@@ -35,6 +35,11 @@ public:
 	ID3D11DeviceContext* _deviceContext;
 	D3D _D3D;
 
+	UINT getScrW() { return screenWidth;  }
+	UINT getScrH() { return screenHeight; }
+	UINT getWinW() { return windowWidth;  }
+	UINT getWinH() { return windowHeight; }
+
 private:
 	bool Frame(float dTime);
 	void InitializeWindows(int& w, int& h);

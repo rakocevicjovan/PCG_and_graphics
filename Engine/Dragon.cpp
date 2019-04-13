@@ -7,7 +7,7 @@ void Dragon::init(const Model& head, const Model& segment)
 	_head = head;
 	_segment = segment;
 
-	pSys.init(&_segment, 10, SVec3(0, 50, 0));
+	pSys.init(&_segment, 10, SMatrix::CreateTranslation(SVec3(0, 50, 0)));
 
 	particleUpdFunc = [this](ParticleUpdateData* pud) -> void
 	{
@@ -25,3 +25,9 @@ void Dragon::init(const Model& head, const Model& segment)
 	pSys.setUpdateFunction(particleUpdFunc);
 }
 
+
+
+void Dragon::update(RenderContext& rc)
+{
+	pSys.update(rc.dTime);
+}

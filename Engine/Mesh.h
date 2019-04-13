@@ -14,6 +14,7 @@
 
 
 namespace Procedural { class Terrain; }
+
 class Hull;
 
 class Mesh

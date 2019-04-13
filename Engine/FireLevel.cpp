@@ -6,6 +6,14 @@ void FireLevel::init(Systems& sys)
 {
 	collision.registerController(_sys._controller);
 
+	sceneTex.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
+	brightnessMask.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
+	blurredTex1.Init(device, _sys.getWinW() / 4, _sys.getWinH() / 4);
+	blurredTex2.Init(device, _sys.getWinW() / 4, _sys.getWinH() / 4);
+
+	screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1));
+
+
 	//hexer initialization
 	float hexRadius = 30.f;
 	Procedural::Geometry hex;
@@ -86,17 +94,15 @@ void FireLevel::procGen()
 void FireLevel::draw(const RenderContext& rc)
 {
 	setUpCollision();
-	processInput(rc.dTime);
-	updateCam(rc.dTime);
+	//processInput(rc.dTime);
+	//updateCam(rc.dTime);
 	hexer.update(rc.dTime);
 
 	SVec3 potentialPlatformPos;
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
 		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.normalMapper));
 
-	context->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
-	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
+	sceneTex.SetRenderTarget(context);
 
 	/*
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
@@ -129,6 +135,31 @@ void FireLevel::draw(const RenderContext& rc)
 	will.Draw(context, shady.shVolumFire);
 
 	rc.d3d->TurnOffAlphaBlending();
+
+
+	//brightnessMask
+	brightnessMask.SetRenderTarget(context);
+	postProcessor.draw(context, shady.brightnessMasker, sceneTex.srv);
+
+	//blurring horizontally
+	blurredTex1.SetRenderTarget(context);
+	postProcessor.draw(context, shady.blurHor, brightnessMask.srv);
+
+	//blurringVertically
+	blurredTex2.SetRenderTarget(context);
+	postProcessor.draw(context, shady.blurVer, blurredTex1.srv);
+
+	bloomTex.SetRenderTarget(context);
+	postProcessor.draw(context, shady.bloom, blurredTex1.srv);
+
+	//final scene
+	context->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
+	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
+	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
+
+	
+	postProcessor.draw(context, shady.HUD, blurredTex2.srv);
+
 
 	//finish up
 	rc.d3d->EndScene();

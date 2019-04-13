@@ -1,4 +1,5 @@
-cbuffer LightBuffer {
+cbuffer LightBuffer
+{
 	float3 alc;
 	float ali;
 	float3 dlc;

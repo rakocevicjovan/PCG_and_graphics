@@ -15,13 +15,23 @@ namespace Procedural
 	}
 
 
-	//2D geometry generater in the xz plane
+
 	void Geometry::GenRectangle(float hw, float hh, bool vertical)
 	{
-		if(!vertical)
-			positions = { SVec3(-hw, 0, hh), SVec3(hw, 0, hh), SVec3(-hw, 0, -hh), SVec3(hw, 0, -hh) };
-		else
+		if (vertical)
+		{
 			positions = { SVec3(-hw, hh, 0), SVec3(hw, hh, 0), SVec3(-hw, -hh, 0), SVec3(hw, -hh, 0) };
+			normals =	{ SVec3(0, 0, 1), SVec3(0, 0, 1), SVec3(0, 0, 1), SVec3(0, 0, 1) };
+			tangents =	{ SVec3(1, 0, 0),  SVec3(1, 0, 0),  SVec3(1, 0, 0),  SVec3(1, 0, 0) };
+		}
+		else
+		{
+			positions = { SVec3(-hw, 0, hh), SVec3(hw, 0, hh), SVec3(-hw, 0, -hh), SVec3(hw, 0, -hh) };
+			normals =	{ SVec3::Up, SVec3::Up, SVec3::Up, SVec3::Up };
+			tangents =	{ SVec3(0, 0, 1), SVec3(0, 0, 1), SVec3(0, 0, 1), SVec3(0, 0, 1) };
+		}
+	
+		texCoords = {SVec2(0, 1), SVec2(1, 1), SVec2(0, 0), SVec2(1, 0)};
 		indices = { 0, 1, 2, 2, 1, 3 };
 	}
 

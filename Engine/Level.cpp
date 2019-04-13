@@ -124,7 +124,7 @@ audio.storeSequence(notes);
 	strife.ReleaseShaderParameters(deviceContext);
 
 	///RENDERING UI
-	//_rekt->draw(deviceContext, HUD, offScreenTexture.srv);
+	//postProcessor->draw(deviceContext, HUD, offScreenTexture.srv);
 */
 #pragma endregion Audio
 

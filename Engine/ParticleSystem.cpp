@@ -18,7 +18,7 @@ ParticleSystem::~ParticleSystem()
 
 
 
-void ParticleSystem::init(Model* pModel, unsigned int particleCount, SVec3 position)
+void ParticleSystem::init(Model* pModel, unsigned int particleCount, SMatrix transform)
 {
 	_model = pModel;
 
@@ -34,7 +34,7 @@ void ParticleSystem::init(Model* pModel, unsigned int particleCount, SVec3 posit
 		p->_ps = this;
 	}
 
-	_position = position;
+	_transform = transform;
 }
 
 

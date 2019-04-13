@@ -55,7 +55,5 @@ private:
 	ID3D11DeviceContext* _deviceContext;
 	ResourceManager* _resMan;
 	D3D* _d3d;
-	
-	Rekt* _rekt;
-	Rekt::UINODE* screenRect;
+
 };

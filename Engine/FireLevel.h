@@ -1,9 +1,13 @@
 #pragma once
 #include "Level.h"
+#include "OST.h"
 
 class FireLevel : public Level
 {
 	Hexer hexer;
+	OST sceneTex, brightnessMask, blurredTex1, blurredTex2, bloomTex;
+	ScreenspaceDrawer postProcessor;
+	ScreenspaceDrawer::UINODE* screenRectangleNode;
 
 	Procedural::Terrain terrain, lavaSheet;
 	std::vector<Procedural::Terrain> _islands;

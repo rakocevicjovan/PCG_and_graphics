@@ -22,6 +22,11 @@ void AirLevel::init(Systems& sys)
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(0., 500.f, 0, 1.0f));
 	
+	Model headModel, segmentModel;
+	headModel.LoadModel(device, "");
+	segmentModel.LoadModel(device, "../Models/Ball.fbx");
+
+	dragon.init(headModel, segmentModel);
 }
 
 

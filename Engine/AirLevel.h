@@ -1,6 +1,6 @@
 #pragma once
 #include "Level.h"
-
+#include "Dragon.h"
 
 
 class AirLevel : public Level
@@ -14,7 +14,9 @@ public:
 
 	Model barrens;
 
+	Dragon dragon;
 	Texture dragonScales;
+	
 
 	AirLevel(Systems& sys) : Level(sys) {};
 	void init(Systems& sys);

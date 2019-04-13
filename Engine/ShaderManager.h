@@ -36,7 +36,7 @@ public:
 	ShaderBase base;
 	ShaderLight light;
 	WireframeShader wireframe;
-	ShaderHUD HUD;
+	ShaderHUD HUD, brightnessMasker, blurHor, blurVer, bloom;
 	ShaderDepth depth;
 	ShaderPT texProjector;
 	ShaderShadow shadow;
