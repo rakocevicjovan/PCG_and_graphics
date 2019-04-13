@@ -13,9 +13,9 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
 	float4 colour = shaderTexture.Sample(SampleType, input.tex);
 
-	float brightness = dot(colour.rgb, float3(0.2126, 0.7152, 0.0722));
+	float brightness = dot(colour.rgb, colour.rgb);//float3(0.2126, 0.7152, 0.0722));
 
-	colour = smoothstep(.3, 1.1, brightness) * colour;
+	colour = smoothstep(.8, 1., brightness) * colour;
 
 	return colour;
 }

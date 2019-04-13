@@ -6,13 +6,12 @@ void FireLevel::init(Systems& sys)
 {
 	collision.registerController(_sys._controller);
 
-	sceneTex.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
-	brightnessMask.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
-	blurredTex1.Init(device, _sys.getWinW() / 4, _sys.getWinH() / 4);
-	blurredTex2.Init(device, _sys.getWinW() / 4, _sys.getWinH() / 4);
+	sceneTex.Init(device, _sys.getWinW(), _sys.getWinH());
+	brightnessMask.Init(device, _sys.getWinW(), _sys.getWinH());
+	blurredTex1.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
+	blurredTex2.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
 
 	screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1));
-
 
 	//hexer initialization
 	float hexRadius = 30.f;
@@ -32,13 +31,12 @@ void FireLevel::init(Systems& sys)
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
-	/*
+	
 	//terrain generation
-
 	Texture terrainTex;
 	auto fltVec = terrainTex.generateRidgey(256, 256, 0.f, 1.61803f, 0.5793f, 1.f, 6u);	//auto fltVec = tempTex.generateTurbulent(256, 256, 1.f, 1.61803, 0.5793f, 6u);
 	terrain.setScales(4, 100, 4);
-	terrain.GenFromTexture(terrainTex.w, terrainTex.h, fltVec);
+	terrain.GenFromTexture(256, 256, fltVec);
 	terrain.Mesa(SVec2(512), 384, 128, -256);
 	terrain.CircleOfScorn(SVec2(768, 768), 40.f, PI * 0.01337f, 2 * PI, 64, 1.2 * PI);
 	terrain.setOffset(0, 128, 0);
@@ -57,7 +55,7 @@ void FireLevel::init(Systems& sys)
 		island.setOffset(pos.x - 256.f, 0, pos.z - 256.f);
 		island.SetUp(device);
 		_islands.push_back(island);
-	}*/
+	}
 
 	lavaSheet = Procedural::Terrain(256, 256, SVec3(4, 2, 4));
 	lavaSheet.setTextureData(device, 10, 10, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
@@ -94,8 +92,8 @@ void FireLevel::procGen()
 void FireLevel::draw(const RenderContext& rc)
 {
 	setUpCollision();
-	//processInput(rc.dTime);
-	//updateCam(rc.dTime);
+	processInput(rc.dTime);
+	updateCam(rc.dTime);
 	hexer.update(rc.dTime);
 
 	SVec3 potentialPlatformPos;
@@ -104,14 +102,14 @@ void FireLevel::draw(const RenderContext& rc)
 
 	sceneTex.SetRenderTarget(context);
 
-	/*
+	
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	for (auto& island : _islands) 
 	{
 		island.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 	}
-	*/
+	
 
 	for (Platform p : hexer._platforms)
 	{
@@ -141,25 +139,41 @@ void FireLevel::draw(const RenderContext& rc)
 	brightnessMask.SetRenderTarget(context);
 	postProcessor.draw(context, shady.brightnessMasker, sceneTex.srv);
 
+
+
 	//blurring horizontally
 	blurredTex1.SetRenderTarget(context);
 	postProcessor.draw(context, shady.blurHor, brightnessMask.srv);
 
-	//blurringVertically
+	//blurring vertically
 	blurredTex2.SetRenderTarget(context);
 	postProcessor.draw(context, shady.blurVer, blurredTex1.srv);
 
-	bloomTex.SetRenderTarget(context);
-	postProcessor.draw(context, shady.bloom, blurredTex1.srv);
+	for (int i = 0; i < 3; ++i)
+	{
+		//blurring horizontally
+		blurredTex1.SetRenderTarget(context);
+		postProcessor.draw(context, shady.blurHor, blurredTex2.srv);
 
-	//final scene
+		//blurring vertically
+		blurredTex2.SetRenderTarget(context);
+		postProcessor.draw(context, shady.blurVer, blurredTex1.srv);
+	}
+	
+	//final scene rendering - the screen quad
 	context->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
 
 	
-	postProcessor.draw(context, shady.HUD, blurredTex2.srv);
-
+	if (inman.IsKeyDown(short('P')))
+	{
+		postProcessor.draw(context, shady.bloom, sceneTex.srv, blurredTex2.srv);
+	}
+	else
+	{
+		postProcessor.draw(context, shady.HUD, sceneTex.srv);
+	}
 
 	//finish up
 	rc.d3d->EndScene();

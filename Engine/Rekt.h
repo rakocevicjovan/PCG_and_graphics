@@ -27,18 +27,18 @@ public:
 		void drawUINODE(ID3D11DeviceContext* deviceContext, FlexibleShaderType& s, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* bloomSRV = nullptr)
 		{
 			s.SetShaderParameters(deviceContext, m);
-			
 			deviceContext->PSSetShaderResources(0, 1, &srv);
 			
-			if(bloomSRV)
-				deviceContext->PSSetShaderResources(1, 1, &bloomSRV)
+			if (bloomSRV)
+				deviceContext->PSSetShaderResources(1, 1, &bloomSRV);
 
 			if(m.vertices.size() > 0)
 				m.draw(deviceContext, s);
+
 			s.ReleaseShaderParameters(deviceContext);
 
 			for (auto c : children)
-				c->drawUINODE(deviceContext, s, srv);
+				c->drawUINODE(deviceContext, s, srv, bloomSRV);
 		}
 
 

@@ -37,11 +37,9 @@ ScreenspaceDrawer::UINODE* ScreenspaceDrawer::AddUINODE(ID3D11Device* device, Sc
 	return uinode;
 }
 
-/*void ScreenspaceDrawer::draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s) {
-	_ROOT.drawUINODE(deviceContext, s);
-}*/
+
 
 void ScreenspaceDrawer::draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* bloomSRV)
 {
-	_ROOT.drawUINODE(deviceContext, s, srv);
+	_ROOT.drawUINODE(deviceContext, s, srv, bloomSRV);
 }

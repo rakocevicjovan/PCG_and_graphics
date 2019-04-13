@@ -193,8 +193,8 @@ float turbulentFBM(float3 x)
 }
 
 
-static const float LOWER = .5;
-static const float UPPER = 1.5;
+static const float LOWER = .4;
+static const float UPPER = 1.2;
 
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
@@ -211,10 +211,14 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float r = turbulentFBM(scaledPos);
 	//float r = flow(scaledPos.xz);
 
+	
 	float g = smoothstep(LOWER * 2.f, UPPER, r);
 	r = smoothstep(LOWER, UPPER, r);
 
+
 	float4 colour = { r, g, 0., 1.f };
+
+	//colour.rgb = pow(colour.xyz, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
 
 	return colour;
 }
