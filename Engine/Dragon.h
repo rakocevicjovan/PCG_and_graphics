@@ -7,10 +7,12 @@ class Dragon
 public:
 
 	Dragon() {}
-	~Dragon() {}
+	~Dragon() { delete dud; }
 
 	void init(const Model& head, const Model& segment);
-	void update(RenderContext& rc);
+	void update(const RenderContext& rc, const SVec3& wind);
+	void draw(const RenderContext& rc);
+	DragonUpdateData* dud;
 
 	Model _head, _segment;
 

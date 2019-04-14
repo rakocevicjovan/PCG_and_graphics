@@ -8,14 +8,17 @@ class AirLevel : public Level
 public:
 
 	PointLight pointLight;
-	Model skybox;
-	Model testBall;
-	CubeMapper skyboxCubeMapper;
+	DirectionalLight dirLight;
+	SMatrix lightView;
 
-	Model barrens;
+	Model skybox, barrens, headModel, segmentModel;
+	CubeMapper skyboxCubeMapper;
 
 	Dragon dragon;
 	Texture dragonScales;
+
+	SVec3 windDir = SVec3(1, 0, 0);
+	float windInt = 10.f;
 	
 
 	AirLevel(Systems& sys) : Level(sys) {};

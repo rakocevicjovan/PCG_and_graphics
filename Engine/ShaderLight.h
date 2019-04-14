@@ -22,6 +22,6 @@ public:
 	ShaderLight();
 	~ShaderLight();
 
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera& cam, const PointLight& dLight, float deltaTime);
+	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const Camera& cam, const PointLight& pLight, float deltaTime);
 	void ReleaseShaderParameters(ID3D11DeviceContext*);
 };

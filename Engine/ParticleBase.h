@@ -4,7 +4,11 @@
 
 class ParticleSystem;
 
-struct ParticleUpdateData
+struct ParticleUpdateData {};
+
+
+
+struct WindUpdateData : ParticleUpdateData
 {
 	SVec3 windDirection;
 	float windVelocity;
@@ -12,6 +16,14 @@ struct ParticleUpdateData
 };
 
 
+
+struct DragonUpdateData : ParticleUpdateData
+{
+	SVec3 playerPos;
+	SVec3 wind;
+	float speed;
+	float dTime;
+};
 
 struct ParticleBase
 {

@@ -128,3 +128,8 @@ SMatrix Camera::GetProjectionMatrix() const
 {
 	return _projectionMatrix;
 }
+
+SVec3 Camera::GetPosition() const
+{
+	return GetCameraMatrix().Translation();
+}

@@ -30,6 +30,7 @@ public:
 	SMatrix GetViewMatrix() const;
 	SMatrix GetCameraMatrix() const;
 	SMatrix GetProjectionMatrix() const;
+	SVec3   GetPosition() const;
 	
 protected:
 	SMatrix _cameraMatrix;

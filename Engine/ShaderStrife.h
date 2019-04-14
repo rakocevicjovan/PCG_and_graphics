@@ -17,26 +17,19 @@ class Model;
 class ShaderStrife
 {
 
-	struct LightBufferType {
+	struct CloudBuffer {
 
 		SVec3 alc;
 		float ali;
-
 		SVec3  dlc;
 		float dli;
-
 		SVec3 slc;
 		float sli;
-
 		SVec4 dir;
 
 		SVec4 eyePos;
-
-		SVec4 viewDir;
-
 		float elapsed;
 		SVec3 padding;
-
 		SMatrix lightView;
 	};
 
@@ -46,9 +39,8 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p,
-		const DirectionalLight& dirLight, const SVec3& eyePos, float deltaTime, 
-		ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const DirectionalLight& dirLight,
+		float elapsed, ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
@@ -65,8 +57,6 @@ private:
 	ID3D11Buffer* m_lightBuffer;
 
 	std::vector<std::wstring> filePaths;
-
-	float timeElapsed;
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 

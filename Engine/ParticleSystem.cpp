@@ -56,7 +56,7 @@ void ParticleSystem::setUpdateFunction(std::function<void(ParticleUpdateData* pu
 void ParticleSystem::update(float deltaTime)
 {
 	for (ParticleBase* p : _particles)
-		p->_ps->updateStdFunc(&pud);
+		p->_ps->updateStdFunc(pud);
 }
 
 

@@ -12,7 +12,7 @@ public:
 	unsigned int _numParticles;
 	Model* _model;
 	ShaderBase* _shader;
-	ParticleUpdateData pud;
+	ParticleUpdateData* pud;
 	SMatrix _transform;
 	std::vector<ParticleBase*> _particles;
 
