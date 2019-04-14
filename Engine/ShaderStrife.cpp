@@ -1,6 +1,6 @@
 #include "ShaderStrife.h"
 #include "Model.h"
-#include "ShaderBase.h"
+#include "Camera.h"
 
 
 ShaderStrife::ShaderStrife()
@@ -36,9 +36,6 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	ID3D10Blob* vertexShaderBuffer = nullptr;
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[3];
-	unsigned int numElements;
-
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
@@ -69,33 +66,15 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
 		return false;
 
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
+	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
-
-	polygonLayout[2].SemanticName = "NORMAL";
-	polygonLayout[2].SemanticIndex = 0;
-	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[2].InputSlot = 0;
-	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[2].InstanceDataStepRate = 0;
-
-	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
-
-	if (FAILED(device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout)))
+	if (FAILED(device->CreateInputLayout(sbLayout.data(), sbLayout.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout)))
 		return false;
 
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
@@ -180,7 +159,7 @@ void ShaderStrife::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 
 
 bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const DirectionalLight& dirLight,
-	float elapsed, ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView)
+	float elapsed, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
@@ -212,7 +191,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 	dataPtr2->eyePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 	dataPtr2->elapsed = elapsed;
 	dataPtr2->padding = SVec3();
-	dataPtr2->lightView = lightView.Transpose();
+	dataPtr2->lightView = lightView;
 	deviceContext->Unmap(m_lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
 
@@ -221,8 +200,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(perlinSRV));
-	deviceContext->PSSetShaderResources(1, 1, &(worleySRV));
+	deviceContext->PSSetShaderResources(0, 1, &(worleySRV));
 
 	return true;
 }
@@ -231,7 +209,6 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 
 bool ShaderStrife::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }

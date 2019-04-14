@@ -13,6 +13,7 @@
 #include "ShaderDataStructs.h"
 
 class Model;
+class Camera;
 
 class ShaderStrife
 {
@@ -40,12 +41,15 @@ public:
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const DirectionalLight& dirLight,
-		float elapsed, ID3D11ShaderResourceView* perlinSRV, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
+		float elapsed, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
 
 	ID3D11SamplerState* m_sampleState;
+
+	RenderFormat renderFormat;
+	UINT texturesAdded = 1;
 
 private:
 
@@ -59,7 +63,5 @@ private:
 	std::vector<std::wstring> filePaths;
 
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
-
-	RenderFormat renderFormat;
 };
 

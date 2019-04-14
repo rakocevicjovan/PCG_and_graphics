@@ -1,21 +1,26 @@
-cbuffer MatrixBuffer {
+cbuffer MatrixBuffer
+{
 	matrix worldMatrix;
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
 
-struct VertexInputType {
+struct VertexInputType
+{
 	float4 position : POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
 };
 
 
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
+	float4 msPos : MSPOS;
 };
 
 

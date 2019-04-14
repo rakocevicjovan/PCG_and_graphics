@@ -10,6 +10,7 @@ public:
 	PointLight pointLight;
 	DirectionalLight dirLight;
 	SMatrix lightView;
+	Texture worley;
 
 	Model skybox, barrens, headModel, segmentModel;
 	CubeMapper skyboxCubeMapper;

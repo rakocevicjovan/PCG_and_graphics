@@ -21,7 +21,14 @@ void AirLevel::init(Systems& sys)
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pointLight = PointLight(lightData, SVec4(0, 500, 0, 1));
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 1));
-	lightView = SMatrix::CreateLookAt(SVec3(pointLight.pos), SVec3(), SVec3(0, 0, 1));
+
+	//light "camera matrix"
+	lightView = SMatrix::CreateFromAxisAngle(SVec3(1, 0, 0), PI * 0.5) * SMatrix::CreateTranslation(SVec3(pointLight.pos));
+	lightView.Invert();		//get the view matrix of the light
+	lightView.Transpose();	//transpose so it doesn't have to be transposed by the shader class each frame
+
+	worley = Texture(device, "../Textures/worley.png");
+
 	headModel.LoadModel(device, "../Models/Ball.fbx");	//../Models/Dragon/dragonhead.obj
 	segmentModel.LoadModel(device, "../Models/Ball.fbx");
 
@@ -38,10 +45,11 @@ void AirLevel::draw(const RenderContext& rc)
 
 	dragon.update(rc, windDir * windInt);
 
-	shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, nullptr, nullptr, SMatrix());
+	_sys._D3D.TurnOnAlphaBlending();
+	shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, worley.srv, lightView);
 	headModel.Draw(context, shady.strife);
 	shady.strife.ReleaseShaderParameters(context);
-
+	_sys._D3D.TurnOffAlphaBlending();
 
 	//shady.terrainNormals.SetShaderParameters(context, barrens.transform, *rc.cam, pointLight, rc.dTime);
 	//barrens.Draw(context, shady.terrainNormals);
