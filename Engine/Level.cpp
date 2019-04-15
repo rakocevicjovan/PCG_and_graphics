@@ -34,16 +34,6 @@ void Level::ProcessSpecialInput(float dTime)
 //rc.shMan->light.ReleaseShaderParameters(context);
 
 
-///PARTICLE SYSTEM RENDERING
-/*
-std::vector<InstanceData> instanceData(100);
-
-for (int i = 0; i < instanceData.size(); ++i)
-	instanceData[i]._m = pSys._particles[i]->transform.Transpose();
-*/
-
-
-
 #pragma region OldLevel
 /*OLD LEVEL
 

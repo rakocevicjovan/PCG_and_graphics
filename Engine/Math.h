@@ -61,5 +61,7 @@ public:
 
 	static float remap(float value, float min1, float max1, float min2, float max2);
 
+	static void rotateTowardsNoRoll(SMatrix& transform, const SVec3& target, float dTime);
+
 };
 

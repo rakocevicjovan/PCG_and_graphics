@@ -17,14 +17,6 @@ struct WindUpdateData : ParticleUpdateData
 
 
 
-struct DragonUpdateData : ParticleUpdateData
-{
-	SVec3 playerPos;
-	SVec3 wind;
-	float speed;
-	float dTime;
-};
-
 struct ParticleBase
 {
 	ParticleSystem* _ps;
@@ -35,9 +27,6 @@ struct ParticleBase
 	SMatrix transform;
 
 	float age;
-
-	void update(float deltaTime);
-	void draw(ID3D11DeviceContext* dc);
 };
 
 

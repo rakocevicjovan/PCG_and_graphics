@@ -40,12 +40,12 @@ void EarthLevel::procGen()
 
 	/*pSys.init(&will, 10, SVec3(0, 50, 0));
 
-	particleUpdFunc = [this](ParticleUpdateData* pud) -> void
+	particleUpdFunc = [this](ParticleUpdateData* _pud) -> void
 	{
 		for (int i = 0; i < pSys._particles.size(); ++i)
 		{
-			pSys._particles[i]->age += pud->dTime * 0.1f;
-			SVec3 translation(pud->windDirection * pud->windVelocity);
+			pSys._particles[i]->age += _pud->dTime * 0.1f;
+			SVec3 translation(_pud->windDirection * _pud->windVelocity);
 			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
 			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
 			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));

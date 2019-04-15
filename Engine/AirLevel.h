@@ -20,7 +20,7 @@ public:
 
 	SVec3 windDir = SVec3(1, 0, 0);
 	float windInt = 10.f;
-	
+	std::vector<InstanceData> instanceData;
 
 	AirLevel(Systems& sys) : Level(sys) {};
 	void init(Systems& sys);

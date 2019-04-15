@@ -127,3 +127,23 @@ float Math::remap(float value, float min1, float max1, float min2, float max2)
 	float perc = (value - min1) / (max1 - min1);
 	return min2 + perc * (max2 - min2);
 }
+
+void Math::rotateTowardsNoRoll(SMatrix& transform, const SVec3& target, float dTime)
+{
+	SVec3 fw = transform.Backward();	//because god damn SimpleMath that's why!
+	SVec3 r = transform.Right();
+
+	SVec3 toTarget = target - transform.Translation();
+	toTarget.Normalize();
+
+	float angle = fw.Dot(toTarget);
+
+	SQuat curOri = SQuat::CreateFromRotationMatrix(transform);
+	SQuat hRot = SQuat::CreateFromAxisAngle(SVec3(0, 1, 0), angle);
+	SQuat vRot = SQuat::CreateFromAxisAngle(SVec3(1, 0, 0), angle);
+	SQuat finalOri = SQuat::Concatenate(hRot, curOri);
+	finalOri = SQuat::Concatenate(vRot, finalOri);
+	SQuat rotDelta = SQuat::Slerp(curOri, finalOri, dTime);
+	
+	Math::SetRotation(transform, SMatrix::CreateFromQuaternion(rotDelta));
+}

@@ -30,9 +30,10 @@ void AirLevel::init(Systems& sys)
 	worley = Texture(device, "../Textures/worley.png");
 
 	headModel.LoadModel(device, "../Models/Ball.fbx");	//../Models/Dragon/dragonhead.obj
-	segmentModel.LoadModel(device, "../Models/Ball.fbx");
+	segmentModel.LoadModel(device, "../Models/cate.fbx");
 
-	dragon.init(headModel, segmentModel);
+	dragon.init(10, SVec3(0, 0, 200));
+	instanceData.resize(10);
 }
 
 
@@ -45,11 +46,19 @@ void AirLevel::draw(const RenderContext& rc)
 
 	dragon.update(rc, windDir * windInt);
 
-	_sys._D3D.TurnOnAlphaBlending();
-	shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, worley.srv, lightView);
-	headModel.Draw(context, shady.strife);
-	shady.strife.ReleaseShaderParameters(context);
-	_sys._D3D.TurnOffAlphaBlending();
+	for (int i = 0; i < dragon.springs.size(); ++i)
+		instanceData[i]._m = dragon.springs[i].transform.Transpose();
+
+	shady.instanced.UpdateInstanceData(instanceData);
+	shady.instanced.SetShaderParameters(context, segmentModel, *rc.cam, pointLight, rc.dTime);
+	segmentModel.Draw(context, shady.instanced);
+	shady.instanced.ReleaseShaderParameters(context);
+
+	//_sys._D3D.TurnOnAlphaBlending();
+	//shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, worley.srv, lightView);
+	//headModel.Draw(context, shady.strife);
+	//shady.strife.ReleaseShaderParameters(context);
+	//_sys._D3D.TurnOffAlphaBlending();
 
 	//shady.terrainNormals.SetShaderParameters(context, barrens.transform, *rc.cam, pointLight, rc.dTime);
 	//barrens.Draw(context, shady.terrainNormals);
