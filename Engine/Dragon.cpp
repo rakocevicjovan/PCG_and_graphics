@@ -38,16 +38,21 @@ void Dragon::update(const RenderContext& rc, const SVec3& wind)
 		SVec3 fw = springs[0].transform.Backward();
 		SVec3 trUp = springs[0].transform.Up();
 
-		float angle = acos(Math::clamp(0.000001, 0.999999, fw.Dot(toPlayer)));
-		float upToGlobalUp = acos(Math::clamp(0.000001, 0.999999, trUp.Dot(SVec3(0, 1, 0))));
+		float angle = acos(Math::clamp(-0.999999, 0.999999, fw.Dot(toPlayer)));
+		float upToGlobalUp = acos(Math::clamp(-0.999999, 0.999999, trUp.Dot(SVec3(0, 1, 0))));
 
-		//correct roll somehow...
 		SQuat curOri = SQuat::CreateFromRotationMatrix(springs[0].transform);
 		SQuat rotOri = SQuat::CreateFromAxisAngle(cross, angle);
 		SQuat finalOri = SQuat::Concatenate(rotOri, curOri);
 
-		//SQuat rollCorrector = SQuat::CreateFromAxisAngle(fw, upToGlobalUp);
-		//finalOri = SQuat::Concatenate(finalOri, rollCorrector);
+		//correct roll!!! YAY I MANAGED!
+		SVec3 rollCorrecionAxis = trUp.Cross(SVec3(0, 1, 0));
+		if (rollCorrecionAxis.LengthSquared() > 0.0001f)
+		{
+			rollCorrecionAxis.Normalize();
+			SQuat rollCorrector = SQuat::CreateFromAxisAngle(rollCorrecionAxis, upToGlobalUp);
+			finalOri = SQuat::Concatenate(rollCorrector, finalOri);
+		}
 		
 		SQuat rotDelta = SQuat::Slerp(curOri, finalOri, rc.dTime);
 
