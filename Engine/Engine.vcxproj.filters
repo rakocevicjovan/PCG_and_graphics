@@ -594,5 +594,8 @@
     <FxCompile Include="blurVerPS.hlsl">
       <Filter>Shader Files\PostProcessing</Filter>
     </FxCompile>
+    <FxCompile Include="dragonPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

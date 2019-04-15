@@ -60,16 +60,17 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET{
 	viewDir = viewDir / distance;
 	float3 invViewDir = -viewDir;
 
+
+
+
 	float4 colour = shaderTexture.Sample(Sampler, input.tex);
-
 	float4 ambient = calcAmbient(alc, ali);
-
 	float dFactor = 0;
 	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
 
 	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
 
-	colour.xyz = (ambient.xyz + diffuse.xyz + specular.xyz) * colour.xyz;
+    colour.xyz = (ambient.xyz + diffuse.xyz) * colour.xyz + specular.xyz;
 
 	colour.xyz = pow(colour.xyz, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
 

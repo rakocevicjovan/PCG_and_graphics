@@ -81,7 +81,8 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	float3 bitangent = cross(input.normal, input.tangent);
 	float3x3 TBNMatrix = float3x3(input.tangent, bitangent, input.normal);
 	input.normal = normalize(mul(texNormal.xyz, TBNMatrix));
-	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
+	
+    float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
 
 	float3 viewDir = input.worldPos.xyz - eyePos.xyz;
@@ -89,9 +90,7 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
 	viewDir = viewDir / distance;
 	float3 invViewDir = -viewDir;
 
-
 	float4 colour = tex0.Sample(Sampler, input.tex);
-
 
 	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);

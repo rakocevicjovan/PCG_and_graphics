@@ -14,31 +14,31 @@ void Dragon::init(UINT segments, SVec3 initPos)
 
 
 
-void Dragon::update(const RenderContext& rc, const SVec3& wind)
+void Dragon::update(const RenderContext& rc, const SVec3& wind, SVec3 target)
 {	
 	dragonUpdData.dTime = rc.dTime;
-	dragonUpdData.playerPos = rc.cam->GetPosition();
+	dragonUpdData.playerPos = target;
 	dragonUpdData.wind = wind;
 	dragonUpdData.speed = 1.f;
 
 #pragma region headMovement 
 	//head movement
-	SVec3 toPlayer = dragonUpdData.playerPos - springs[0].transform.Translation();
-	float lenToPlayer = toPlayer.Length();
+	SVec3 toTarget = dragonUpdData.playerPos - springs[0].transform.Translation();
+	float lenToPlayer = toTarget.Length();
 
 	if (lenToPlayer > 0.0001f)
-		toPlayer.Normalize();
+		toTarget.Normalize();
 	else
 		return;	//already caught the player, no need to update its game over anyways...
 	
-	SVec3 cross = springs[0].transform.Backward().Cross(toPlayer);
+	SVec3 cross = springs[0].transform.Backward().Cross(toTarget);
 	if (cross.LengthSquared() > 0.0001f)
 	{
 		cross.Normalize();
 		SVec3 fw = springs[0].transform.Backward();
 		SVec3 trUp = springs[0].transform.Up();
 
-		float angle = acos(Math::clamp(-0.999999, 0.999999, fw.Dot(toPlayer)));
+		float angle = acos(Math::clamp(-0.999999, 0.999999, fw.Dot(toTarget)));
 		float upToGlobalUp = acos(Math::clamp(-0.999999, 0.999999, trUp.Dot(SVec3(0, 1, 0))));
 
 		SQuat curOri = SQuat::CreateFromRotationMatrix(springs[0].transform);
@@ -54,13 +54,12 @@ void Dragon::update(const RenderContext& rc, const SVec3& wind)
 			finalOri = SQuat::Concatenate(rollCorrector, finalOri);
 		}
 		
-		SQuat rotDelta = SQuat::Slerp(curOri, finalOri, rc.dTime);
+		SQuat rotDelta = SQuat::Slerp(curOri, finalOri, rc.dTime * agility);
 
-		//springs[0].transform = SMatrix::Transform(springs[0].transform, rotDelta);
 		Math::SetRotation(springs[0].transform, SMatrix::CreateFromQuaternion(rotDelta));
 	}
-
-	Math::Translate(springs[0].transform, toPlayer * rc.dTime * flyingSpeed);
+	
+	Math::Translate(springs[0].transform, springs[0].transform.Backward() * flyingSpeed * rc.dTime);
 #pragma endregion headMovement
 
 	massSpring();

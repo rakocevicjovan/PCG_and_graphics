@@ -63,8 +63,11 @@ void EarthLevel::draw(const RenderContext& rc)
 {
 	updateCam(rc.dTime);
 
-	//_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);	rc.d3d->SetBackBufferRenderTarget();
+
+	_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);
+	rc.d3d->SetBackBufferRenderTarget();
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
+
 
 	if (isTerGenerated)
 		proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);

@@ -44,22 +44,14 @@ public:
 	ShaderSkybox skyboxShader;
 	ShaderStrife strife;
 	ShaderWater water;
-	InstancedShader instanced;
+	InstancedShader instanced, dragon;
 	PerlinShader perlin;
-	TerrainShader terrainMultiTex;
-	TerrainShader terrainNormals;
-	TerrainShader treeShader;
-	ShaderMaze dynamicHeightMaze;
-	ShaderMaze normalMapper;
+	TerrainShader terrainMultiTex, terrainNormals, treeShader;
+	ShaderMaze dynamicHeightMaze, normalMapper;
 	ShaderClipper clipper;
 
 	//wisps
-	ShaderVolumetric shVolumEarth;
-	ShaderVolumetric shVolumFire;
-	ShaderVolumetric shVolumWater;
-	ShaderVolumetric shVolumAir;
-	ShaderVolumetric shVolumLava;
-	ShaderVolumetric dragonCurve;
+	ShaderVolumetric shVolumEarth, shVolumFire, shVolumWater, shVolumAir, shVolumLava, dragonCurve;
 
 	ShaderManager();
 	~ShaderManager();

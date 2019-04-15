@@ -16,10 +16,9 @@ public:
 	CubeMapper skyboxCubeMapper;
 
 	Dragon dragon;
-	Texture dragonScales;
 
 	SVec3 windDir = SVec3(1, 0, 0);
-	float windInt = 10.f;
+	float windInt = 33.f;
 	std::vector<InstanceData> instanceData;
 
 	AirLevel(Systems& sys) : Level(sys) {};

@@ -42,12 +42,11 @@ public:
 	~Dragon() {}
 
 	void init(UINT segments, SVec3 initPos);
-	void update(const RenderContext& rc, const SVec3& wind);
+	void update(const RenderContext& rc, const SVec3& wind, SVec3 target);
 	
 	DragonUpdateData dragonUpdData;
 	std::vector<SpringMass> springs;
 
-	float restLength = 2.f, mass = 5.0, k = 1.f, friction = .92f, flyingSpeed = 33.f;
+	float restLength = 15.f, mass = 5.0, k = 1.f, friction = .94f, flyingSpeed = 66.f, agility = 1.f;
 	float invMass = 1.f / mass;
-
 };
