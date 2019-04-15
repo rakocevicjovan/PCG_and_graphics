@@ -47,7 +47,7 @@ public:
 	DragonUpdateData dragonUpdData;
 	std::vector<SpringMass> springs;
 
-	float restLength = 1.f, mass = 10.0, stiffness = 1.f, friction = .1f, flyingSpeed = 10.f;
+	float restLength = 2.f, mass = 5.0, k = 1.f, friction = .92f, flyingSpeed = 33.f;
 	float invMass = 1.f / mass;
 
 };

@@ -30,10 +30,10 @@ void AirLevel::init(Systems& sys)
 	worley = Texture(device, "../Textures/worley.png");
 
 	headModel.LoadModel(device, "../Models/Ball.fbx");	//../Models/Dragon/dragonhead.obj
-	segmentModel.LoadModel(device, "../Models/cate.fbx");
+	segmentModel.LoadModel(device, "../Models/Ball.fbx");
 
-	dragon.init(10, SVec3(0, 0, 200));
-	instanceData.resize(10);
+	dragon.init(50, SVec3(0, 0, 200));
+	instanceData.resize(50);
 }
 
 

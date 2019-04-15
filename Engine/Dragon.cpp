@@ -21,7 +21,7 @@ void Dragon::update(const RenderContext& rc, const SVec3& wind)
 	dragonUpdData.wind = wind;
 	dragonUpdData.speed = 1.f;
 
-	
+#pragma region headMovement 
 	//head movement
 	SVec3 toPlayer = dragonUpdData.playerPos - springs[0].transform.Translation();
 	float lenToPlayer = toPlayer.Length();
@@ -61,6 +61,7 @@ void Dragon::update(const RenderContext& rc, const SVec3& wind)
 	}
 
 	Math::Translate(springs[0].transform, toPlayer * rc.dTime * flyingSpeed);
+#pragma endregion headMovement
 
 	massSpring();
 }
@@ -73,15 +74,15 @@ void Dragon::massSpring()
 	for (int i = 1; i < springs.size(); ++i)
 	{
 		//wind influence
-		//SVec3 translation(dragonUpdData.wind * dragonUpdData.dTime * 1.f);
-		//Math::Translate(springs[i].transform, translation);
-
+		SVec3 translation(dragonUpdData.wind * dragonUpdData.dTime * 1.f);
+		Math::Translate(springs[i].transform, translation);
 
 		//spring influence
-		SVec3 toPredecessor(springs[i - 1].transform.Translation() - springs[i].transform.Translation());
+		SVec3 toPredecessor = springs[i - 1].transform.Translation() - springs[i].transform.Translation();
 
 		SVec3 deltaVel = resolveSpring(toPredecessor, dragonUpdData.dTime);
 		springs[i].vel += deltaVel;
+		springs[i].vel *= friction;
 
 		Math::Translate(springs[i].transform, springs[i].vel);
 	}
@@ -91,11 +92,11 @@ void Dragon::massSpring()
 
 SVec3 Dragon::resolveSpring(SVec3 toNeighbour, float dTime)
 {
-	float deltaDist = toNeighbour.Length() - restLength;	// deltaDist < 0 when compressed, > 0 when elongated
+	float deltaDist = restLength - toNeighbour.Length();		
 
-	SVec3 forceVec = Math::getNormalizedVec3(toNeighbour) * deltaDist;
+	SVec3 forceVec = Math::getNormalizedVec3(toNeighbour) * deltaDist;	//ma = -kd!
 
-	SVec3 FS = -stiffness * forceVec;
+	SVec3 FS = -k * forceVec;
 
 	SVec3 accel = FS * invMass;	//assume all masses are the same; a = dv / dt 
 
