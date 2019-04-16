@@ -1,17 +1,13 @@
 #include "Rekt.h"
 
+
 ScreenspaceDrawer::ScreenspaceDrawer()
 {
-
 	_ROOT.pos = SVec2(0.f, 0.f);
 	_ROOT.size = SVec2(1.f, 1.f);
 }
 
-
-
-ScreenspaceDrawer::~ScreenspaceDrawer()
-{
-}
+ScreenspaceDrawer::~ScreenspaceDrawer() {}
 
 
 

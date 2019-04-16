@@ -20,8 +20,6 @@ public:
 	
 	bool SetShaderParameters(ID3D11DeviceContext*, const Model& m, const Camera& camera, float elapsed);
 
-	
-
 private:
 	ID3D11Buffer* _viewRayBuffer;
 };

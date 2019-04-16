@@ -19,6 +19,8 @@
 #include "PerlinShader.h"
 #include "ShaderMaze.h"
 #include "ShaderClipper.h"
+#include "VolumetricScreen.h"
+
 
 
 class ShaderManager
@@ -52,6 +54,7 @@ public:
 
 	//wisps
 	ShaderVolumetric shVolumEarth, shVolumFire, shVolumWater, shVolumAir, shVolumLava, dragonCurve;
+	VolumetricScreen shVolumScreen;
 
 	ShaderManager();
 	~ShaderManager();

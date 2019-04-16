@@ -15,6 +15,10 @@ public:
 	Model skybox, barrens, headModel, segmentModel;
 	CubeMapper skyboxCubeMapper;
 
+	OST windPipeTexture;
+	ScreenspaceDrawer windPiper;
+	ScreenspaceDrawer::UINODE* screenRectangleNode;
+
 	Dragon dragon;
 
 	SVec3 windDir = SVec3(1, 0, 0);

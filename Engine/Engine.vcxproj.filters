@@ -228,6 +228,9 @@
     <ClCompile Include="Dragon.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="VolumetricScreen.cpp">
+      <Filter>Shading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -431,6 +434,9 @@
     <ClInclude Include="Dragon.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="VolumetricScreen.h">
+      <Filter>Shading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -595,6 +601,12 @@
       <Filter>Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="dragonPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="windpipePS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
+    <FxCompile Include="windpipeVS.hlsl">
       <Filter>Shader Files\Volumetric</Filter>
     </FxCompile>
   </ItemGroup>

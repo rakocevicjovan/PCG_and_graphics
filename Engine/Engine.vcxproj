@@ -152,6 +152,7 @@
     <ClCompile Include="ShaderWireframe.cpp" />
     <ClCompile Include="ShaderWater.cpp" />
     <ClCompile Include="Volumetric.cpp" />
+    <ClCompile Include="VolumetricScreen.cpp" />
     <ClCompile Include="Voronoi.cpp" />
     <ClCompile Include="WaterLevel.cpp" />
   </ItemGroup>
@@ -221,6 +222,7 @@
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
     <ClInclude Include="Volumetric.h" />
+    <ClInclude Include="VolumetricScreen.h" />
     <ClInclude Include="Voronoi.h" />
     <ClInclude Include="WaterLevel.h" />
   </ItemGroup>
@@ -404,6 +406,12 @@
     <FxCompile Include="waterVS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="windpipePS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="windpipeVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
