@@ -6,10 +6,8 @@
 void Dragon::init(UINT segments, SVec3 initPos)
 {
 	for (int i = 0; i < segments; ++i)
-	{
 		springs.emplace_back(initPos + i * SVec3(1, 0, 0) * restLength);
-	}
-	
+
 }
 
 

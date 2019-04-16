@@ -609,5 +609,8 @@
     <FxCompile Include="windpipeVS.hlsl">
       <Filter>Shader Files\Volumetric</Filter>
     </FxCompile>
+    <FxCompile Include="dragonVS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

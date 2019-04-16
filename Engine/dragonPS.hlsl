@@ -19,7 +19,8 @@ struct PixelInputType
     float4 worldPos : WPOS;
 };
 
-Texture2D shaderTexture : register(t0);
+Texture2D tex0 : register(t0);
+Texture2D tex1 : register(t1);
 SamplerState Sampler;
 
 static const float SpecularPower = 8.f;
@@ -47,17 +48,9 @@ float noise(in float3 x) //3d noise from iq
     float3 f = frac(x);
     f = f * f * (3.0 - 2.0 * f);
     float2 uv = (p.xy + float2(37.0, 17.0) * p.z) + f.xy;
-    float2 rg = shaderTexture.Sample(Sampler, (uv + 0.5) / 256.0).yx;
+    float2 rg = tex0.Sample(Sampler, (uv + 0.5) / 256.0).yx;
     return lerp(rg.x, rg.y, f.z);
 }
-
-
-#define STEPS 12
-#define STEP_SIZE 1.f / (float)STEPS
-
-#define OCTAVES 8
-#define GAIN .497351
-#define LACUNARITY 1.719f
 
 
 float3 mod289(float3 x)
@@ -151,6 +144,12 @@ float snoise(float3 v)
     return 42.0 * dot(m * m, float4(dot(p0, x0), dot(p1, x1), dot(p2, x2), dot(p3, x3)));
 }
 
+
+
+#define OCTAVES 8
+#define GAIN .79
+#define LACUNARITY 3.14159
+
 float turbulentFBM(float3 x)
 {
     float sum = 0.0f;
@@ -171,26 +170,27 @@ float turbulentFBM(float3 x)
 
 
 
-
+#define STEPS 12
+#define STEP_SIZE 1.f / (float)STEPS
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-
     input.normal = normalize(input.normal);
 
     float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
-    float3 invLightDir = -lightDir;
 
     float3 viewDir = input.worldPos.xyz - eyePos.xyz;
     float distance = length(viewDir);
     viewDir = viewDir / distance;
     float3 invViewDir = -viewDir;
 
-    float4 colour = shaderTexture.Sample(Sampler, input.tex);
+    float4 colour = tex0.Sample(Sampler, input.tex);
+    colour += turbulentFBM(input.worldPos.xyz / 10.f);
+
     float4 ambient = calcAmbient(alc, ali);
     float dFactor = 0;
-    float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
-    float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
+    float4 diffuse = calcDiffuse(-lightDir, input.normal, dlc, dli, dFactor);
+    float4 specular = calcSpecular(-lightDir, input.normal, slc, sli, viewDir, dFactor);
     colour.xyz = (ambient.xyz + diffuse.xyz) * colour.xyz + specular.xyz;
     colour.xyz = pow(colour.xyz, float3(1.0f / 2.2f, 1.0f / 2.2f, 1.0f / 2.2f));
  

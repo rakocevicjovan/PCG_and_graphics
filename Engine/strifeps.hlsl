@@ -26,8 +26,6 @@ struct PixelInputType
 
 
 ///Constants
-static const float3 BG_COL = float3(0.7f, 0.6f, 0.4f);
-static const int2 iResolution = int2(1600, 900);
 static const float GAIN = 0.707f;
 static const float LACUNARITY = 2.5789f;
 
@@ -134,7 +132,7 @@ float snoise(float3 v)
 
 
 //fractal brownian motion across the texture
-float map5(in float3 p)
+float fbmUnrolled(in float3 p)
 {
 
 	float3 q = p - float3(0.3, 0.1, 0.2) * elapsed;
@@ -159,10 +157,8 @@ float map5(in float3 p)
 float4 integrate(in float4 sum, in float dif, in float den, in float t)
 {
 	// lighting
-	float3 lin = dlc * 1.4f + slc * dif;
 	float4 col = float4(lerp(slc, alc, den), den);
-	col.xyz *= lin;
-	col.xyz = lerp(col.xyz, BG_COL, 1.0 - exp(-0.003f * t * t));
+    col.xyz *= den * col;
 	// front to back blending    
 	col.a *= 0.4f;
 	col.rgb *= col.a;
@@ -183,12 +179,11 @@ void march(in float3 rayOrigin, in float3 rayDir, inout float4 sum)
 		if (sum.a > 0.99f)
 			break;
 
-		density = map5(pos);
+		density = fbmUnrolled(pos);
 
 		if (density > 0.01f)
 		{
-			//dif is the difference between current density and density of the area closer to the light, clamped 0 to 1
-			float dif = clamp((density - map5(pos - 0.3f * lightDir.xyz)), 0.0f, 1.0f);
+			float dif = clamp((density - fbmUnrolled(pos - 0.3f * lightDir.xyz)), 0.0f, 1.0f);  //sample density towards light
 			sum = integrate(sum, dif, density, t);
 		}
 

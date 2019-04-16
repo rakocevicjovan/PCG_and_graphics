@@ -80,7 +80,7 @@ namespace Procedural
 		void GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data);
 
 		///manipulation methods
-		void Tumble(float chance);
+		void Tumble(float chance, float displacement);
 		void CellularAutomata(float initialDistribtuion, unsigned int steps);
 		void Fault(const SRay& line, float displacement);
 		void NoisyFault(const SRay& line, float vertDp, float horiDp, float perlinZoom);

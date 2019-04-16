@@ -53,7 +53,7 @@ namespace Procedural
 
 
 
-	void Terrain::Tumble(float chance) 
+	void Terrain::Tumble(float chance, float displacement) 
 	{
 		Chaos chaos;
 
@@ -62,7 +62,7 @@ namespace Procedural
 
 		for (int i = 0; i < vertices.size(); i++)
 			if (wat[i] < chance)
-				vertices[i].pos.y += yScale;
+				vertices[i].pos.y += displacement * yScale;
 	}
 
 

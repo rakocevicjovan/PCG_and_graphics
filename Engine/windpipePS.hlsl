@@ -8,7 +8,7 @@ cbuffer VolumetricScreenBuffer : register(b0)
     float4 gale4;
 };
 
-
+#define elapsed cameraPosition.w
 
 struct PixelInputType
 {
@@ -103,19 +103,16 @@ float snoise(float3 v)
 
 //Helpers
 static const float PI = 3.141592f;
-static const float TWISTER = 5.;
 
 //FBM settings
-static const int NUM_OCTAVES = 3;
-static const float LACUNARITY = 1.13795;
-static const float GAIN = .797531;
+static const int NUM_OCTAVES = 5;
+static const float LACUNARITY = PI;
+static const float GAIN = .79;
 
 //Raymarch settings
 static const int STEPS = 100;
 static const float MAX_DIST = 1000.f;
 static const float EPS = 0.0001f;
-
-float elapsed;
 
 
 float turbulentFBM(float3 x)
@@ -128,7 +125,7 @@ float turbulentFBM(float3 x)
     for (int i = 0; i < NUM_OCTAVES; ++i)
     {
         float r = snoise(frequency * x) * amplitude;
-        r = r < 0 ? -r : r;
+        //r = abs(r);
         sum += r;
         frequency *= LACUNARITY;
         amplitude *= GAIN;
@@ -143,76 +140,102 @@ struct Windpipe
 {
     float3 a;
     float3 b;
-    float r;
+    float rad;
 };
-
-
-Windpipe makeWindpipe(float3 ia, float3 ib, float ir)
+Windpipe makeWindpipe(float4 gale)
 {
     Windpipe w;
-    w.a = ia;
-    w.b = ib;
-    w.r = ir;
+    w.a = float3(gale.x, 200, gale.z);
+    w.b = float3(gale.x, gale.y, gale.z);
+    w.rad = gale.w;
     return w;
 }
 
-static const Windpipe windPipe = makeWindpipe((float3) 0, float3(0, 100, 0), 20);
-
-
-float3 opTwist(in float3 p)
+float2 myRot(float2 k, float t)
 {
-    float nani = TWISTER * p.y - elapsed;
-    float c = cos(nani);
-    float s = sin(nani);
-    float2x2 rotoMato = float2x2(c, -s, s, c);
-    return float3(mul(p.xz, rotoMato), p.y);
-}
-
-float sdTorus(float3 p, float2 t)
-{
-    return length(float2(length(p.xz) - t.x, p.y)) - t.y;
-}
-
-float sdCapsule(float3 p, float3 a, float3 b, float r)
-{
-    float3 ap = p - a;
-    float3 ab = b - a;
-    float t = clamp((dot(ap, ab) / dot(ab, ab)), 0., 1.);
-    float3 c = a + t * ab;
-    return distance(p, c) - r;
+    float ct = cos(t);
+    float st = sin(t);
+    return float2(ct * k.x - st * k.y, st * k.x + ct * k.y);
 }
 
 
 
-float4 raymarch(in float3 rayOrigin, in float3 rayDir, Windpipe wp, float elapsed)
+float ridged(float f)
+{
+    return 1.0 - 2.0 * abs(f);
+}
+
+
+//c is windpipes xzw, aka horizontal position and radius
+float sdCylinder(float3 p, float3 c, float bottom, float top)   //expanded to look like a tornado
+{
+    float heightScale = smoothstep(bottom, top, p.y) * 2.f + .1f;
+
+    float radius = c.z;
+    radius *= heightScale;
+    
+    float2 center = c.xy;
+    center += myRot(float2(sin(elapsed), 33), elapsed) * heightScale;
+
+    float distToCenter = length(p.xz - center) - radius;
+
+    distToCenter = p.y < bottom ? 100000 : distToCenter;
+
+    return p.y > top ? 100000 : distToCenter;
+}
+
+
+
+float4 getCol(in float3 rayOrigin, in float3 rayDir)
+{
+    
+    float colour = 0.f;
+    for (int i = 0; i < 24; ++i)
+    {
+        float3 curPos = rayOrigin + i * rayDir;
+
+        float3 adjustedPos = curPos - float3(0, elapsed * 10.f, 0);
+        adjustedPos.xz = myRot(adjustedPos.xz, elapsed) * .01f;
+        adjustedPos.y -= 3. * elapsed;
+        adjustedPos.y *= .1;
+
+        colour += turbulentFBM(adjustedPos) / 24.;
+    }
+  
+    //colour = smoothstep(.6, 1.8, colour);
+    float b = colour;
+    float g = smoothstep(.3, 1., colour);
+    return float4(b * b, g, b, min(b, g));
+}
+
+
+
+float4 raymarch(in float3 rayOrigin, in float3 rayDir, Windpipe wp)
 {
     float4 sum = (float4) 0;
     float3 curPos = rayOrigin;
 
-    float density = 0.f;
+    float mask = 0.f;
     float totalDist = 0;
 
     for (int i = 0; i < STEPS; ++i)
     {
-        float capsuleDist = sdCapsule(opTwist(curPos), wp.a, wp.b, wp.r);
-        totalDist += capsuleDist;
         curPos = rayOrigin + totalDist * rayDir;
 
-        if(totalDist > MAX_DIST || capsuleDist < EPS)
+        float tornadoDist = sdCylinder(curPos, float3(wp.a.xz, wp.rad), wp.a.y, wp.b.y);
+        totalDist += tornadoDist;
+
+        if (totalDist > MAX_DIST || tornadoDist < EPS)
             break;
     }
 
-    density = (1.f - totalDist / MAX_DIST);
+    mask = (1.f - totalDist / MAX_DIST);
 
-    if(density < 0.0001f)
+    if (mask < 0.0001f)
         return sum;
 
-    float3 adjustedPos = curPos - float3(0, elapsed * 20.f, 0);
-    float colour = turbulentFBM(adjustedPos / 20.f) * density;
+    sum = getCol(curPos, rayDir);
 
-    float b = colour * colour;
-    float g = smoothstep(.3, 1., colour);
-    sum = float4(0, g, b, min(b, g));
     return sum;
 }
 
@@ -220,7 +243,6 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, Windpipe wp, float elapse
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-    float elapsed = cameraPosition.w;
     float3 camPos = cameraPosition.xyz;
 
     float2 uv = input.position.xy / float2(1600, 900);
@@ -230,11 +252,16 @@ float4 LightPixelShader(PixelInputType input) : SV_TARGET
     float3 viewDir = normalize(input.wPos.xyz - camPos);
     
     //try just one gale first - capsule shape defined there!
-    //Windpipe wp1 = makeWindpipe(float3(gale1.x, 0, gale1.z), float3(gale1.x, gale1.y, gale1.z), gale1.w);
-    Windpipe wp1 = makeWindpipe(float3(0, 0, 100), float3(0, 100, 100), 20);
+    Windpipe wp1 = makeWindpipe(gale1);
+    Windpipe wp2 = makeWindpipe(gale2);
+    Windpipe wp3 = makeWindpipe(gale3);
+    Windpipe wp4 = makeWindpipe(gale4);
 
     float4 colour;
-    colour = raymarch(camPos, viewDir.xyz, wp1, elapsed);
+    colour = raymarch(camPos, viewDir.xyz, wp1);
+    colour = max(raymarch(camPos, viewDir.xyz, wp2), colour);
+    colour = max(raymarch(camPos, viewDir.xyz, wp3), colour);
+    colour = max(raymarch(camPos, viewDir.xyz, wp4), colour);
 
     return colour;
 }

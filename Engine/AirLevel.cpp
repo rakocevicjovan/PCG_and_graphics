@@ -7,12 +7,14 @@ void AirLevel::init(Systems& sys)
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
 
-	/*
+	
 	Procedural::Terrain barrensTerrain;
-	auto fltVec = Texture::generateRidgey(128, 128, 0.f, 1.61803f, 0.5793f, 1.f, 6u);
-	barrensTerrain.setScales(4, 128, 4);
+	auto fltVec = Texture::generateRidgey(128, 128, 1.f, 1.61803f, 0.5793f, 1.f, 6u);
+	barrensTerrain.setScales(4, 256, 4);
 	barrensTerrain.GenFromTexture(128, 128, fltVec);
 	barrensTerrain.Mesa(SVec2(400), 48, 48, 150);
+	barrensTerrain.Mesa(SVec2(256), 400, 1, -66);
+	barrensTerrain.Tumble(.5f, .03f);
 
 	barrensTerrain.setOffset(-256, 0, -256);
 
@@ -29,7 +31,7 @@ void AirLevel::init(Systems& sys)
 	barrensTerrain.SetUp(device);
 	
 	barrens = Model(barrensTerrain, device);
-	*/
+	
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pointLight = PointLight(lightData, SVec4(0, 500, 0, 1));
@@ -41,12 +43,13 @@ void AirLevel::init(Systems& sys)
 	lightView.Transpose();	//transpose so it doesn't have to be transposed by the shader class each frame
 
 	worley = Texture(device, "../Textures/worley.png");
+	dragonTex = Texture(device, "../Textures/Abstract/diffuse.jpg");
 
-	headModel.LoadModel(device, "../Models/Ball.fbx");	//../Models/Dragon/dragonhead.obj
+	headModel.LoadModel(device, "../Models/glider/glider.fbx");	//../Models/Dragon/dragonhead.obj
 	segmentModel.LoadModel(device, "../Models/Ball.fbx");
 	segmentModel.transform = SMatrix::CreateScale(15);
 
-	segmentModel.meshes[0].textures[0] = Texture(device, "../Textures/Quilty/diffuse.jpg");
+	segmentModel.meshes[0].textures[0] = dragonTex;
 	//segmentModel.meshes[0].textures.push_back(Texture(device, "../Textures/Quilty/normal.jpg"));
 
 	dragon.init(17, SVec3(0, 0, 200));
@@ -61,38 +64,47 @@ void AirLevel::init(Systems& sys)
 
 void AirLevel::draw(const RenderContext& rc)
 {
+	gales.r[0] = SVec4(0, 100, 100, 13);
+	gales.r[1] = SVec4(100, 100, 33, 15);
+	gales.r[2] = SVec4(0, 100, 120, 12);
+	gales.r[3] = SVec4(-170, 100, 15, 17);
+
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	ProcessSpecialInput(rc.dTime);
 	updateCam(rc.dTime);
 
 	dragon.update(rc, windDir * windInt, rc.cam->GetPosition());
 
-	for (int i = 0; i < dragon.springs.size(); ++i)
+	for (int i = 1; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
 
-	/*
+	
 	_sys._D3D.TurnOnAlphaBlending();
 	
-	shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, worley.srv, lightView);
-	headModel.Draw(context, shady.strife);
-	shady.strife.ReleaseShaderParameters(context);
+	//shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, worley.srv, lightView);
+	//headModel.Draw(context, shady.strife);
+	//shady.strife.ReleaseShaderParameters(context);
 
 	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, *rc.cam, pointLight, rc.dTime);
 	barrens.Draw(context, shady.terrainMultiTex);
 
 	_sys._D3D.TurnOffAlphaBlending();
-	*/
+	
+
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 
 	_sys._D3D.TurnOnAlphaBlending();
 
-	//shady.dragon.UpdateInstanceData(instanceData);
-	//shady.dragon.SetShaderParameters(context, segmentModel, *rc.cam, pointLight, rc.dTime);
-	//segmentModel.Draw(context, shady.dragon);
-	//shady.dragon.ReleaseShaderParameters(context);
+	shady.light.SetShaderParameters(context, headModel, *rc.cam, pointLight, rc.dTime);
+	headModel.Draw(context, shady.light);
 
-	shady.shVolumScreen.SetShaderParameters(context, *rc.cam, rc.elapsed);
+	shady.dragon.UpdateInstanceData(instanceData);
+	shady.dragon.SetShaderParameters(context, segmentModel, *rc.cam, pointLight, rc.dTime);
+	segmentModel.Draw(context, shady.dragon);
+	shady.dragon.ReleaseShaderParameters(context);
+
+	shady.shVolumScreen.SetShaderParameters(context, *rc.cam, gales, rc.elapsed);
 	shady.shVolumScreen.screenQuad->draw(context, shady.shVolumScreen);
 	shady.shVolumScreen.ReleaseShaderParameters(context);
 

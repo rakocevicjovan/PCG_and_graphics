@@ -95,5 +95,5 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	};
 
 	instanced.Initialize(_device, hwnd, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
-	dragon.Initialize(_device, hwnd, { L"InstancedVS.hlsl", L"dragonPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
+	dragon.Initialize(_device, hwnd, { L"dragonVS.hlsl", L"dragonPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
 }

@@ -5,12 +5,13 @@
 
 class AirLevel : public Level
 {
+
 public:
 
 	PointLight pointLight;
 	DirectionalLight dirLight;
 	SMatrix lightView;
-	Texture worley;
+	Texture worley, dragonTex;
 
 	Model skybox, barrens, headModel, segmentModel;
 	CubeMapper skyboxCubeMapper;
@@ -20,6 +21,7 @@ public:
 	ScreenspaceDrawer::UINODE* screenRectangleNode;
 
 	Dragon dragon;
+	DirectX::XMMATRIX gales;
 
 	SVec3 windDir = SVec3(1, 0, 0);
 	float windInt = 33.f;
