@@ -158,14 +158,14 @@ void ShaderStrife::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 
 
 
-bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const DirectionalLight& dirLight,
+bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& modelMat, const Camera& cam, const DirectionalLight& dirLight,
 	float elapsed, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
 	CloudBuffer* dataPtr2;
 
-	SMatrix mT = model.transform.Transpose();
+	SMatrix mT = modelMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 

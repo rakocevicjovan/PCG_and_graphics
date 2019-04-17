@@ -104,7 +104,7 @@ void WaterLevel::draw(const RenderContext& rc)
 		_lillies.draw(rcTemp, lillyModel, pointLight, true);
 
 		//lotus
-		rc.shMan->light.SetShaderParameters(context, lotus, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
+		rc.shMan->light.SetShaderParameters(context, lotus.transform, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
 		lotus.Draw(context, rc.shMan->light);
 		rc.shMan->light.ReleaseShaderParameters(context);
 
@@ -119,7 +119,7 @@ void WaterLevel::draw(const RenderContext& rc)
 	randy.RevertRenderTarget();
 
 	//lotus
-	rc.shMan->light.SetShaderParameters(context, lotus, *rc.cam, pointLight, rc.dTime);
+	rc.shMan->light.SetShaderParameters(context, lotus.transform, *rc.cam, pointLight, rc.dTime);
 	lotus.Draw(context, rc.shMan->light);
 	rc.shMan->light.ReleaseShaderParameters(context);
 

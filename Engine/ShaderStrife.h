@@ -40,7 +40,7 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const DirectionalLight& dirLight,
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& modelMat, const Camera& cam, const DirectionalLight& dirLight,
 		float elapsed, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();

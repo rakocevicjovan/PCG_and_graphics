@@ -6,7 +6,6 @@ void AirLevel::init(Systems& sys)
 {
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
-
 	
 	Procedural::Terrain barrensTerrain;
 	auto fltVec = Texture::generateRidgey(128, 128, 1.f, 1.61803f, 0.5793f, 1.f, 6u);
@@ -31,7 +30,6 @@ void AirLevel::init(Systems& sys)
 	barrensTerrain.SetUp(device);
 	
 	barrens = Model(barrensTerrain, device);
-	
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pointLight = PointLight(lightData, SVec4(0, 500, 0, 1));
@@ -45,7 +43,16 @@ void AirLevel::init(Systems& sys)
 	worley = Texture(device, "../Textures/worley.png");
 	dragonTex = Texture(device, "../Textures/Abstract/diffuse.jpg");
 
-	headModel.LoadModel(device, "../Models/glider/glider.fbx");	//../Models/Dragon/dragonhead.obj
+	glider.LoadModel(device, "../Models/glider/gliderNoSkelly.obj");
+	gliderPlayer.a.gc.model = &glider;
+	gliderPlayer.a.gc.shader = &shady.light;
+	gliderPlayer.a.transform = SMatrix::CreateTranslation(SVec3(0, 0, 100));
+	gliderPlayer.con = _sys._controller;
+	gliderPlayer.cam = randy._cam;
+
+	camera = randy._cam;
+
+
 	segmentModel.LoadModel(device, "../Models/Ball.fbx");
 	segmentModel.transform = SMatrix::CreateScale(15);
 
@@ -64,44 +71,41 @@ void AirLevel::init(Systems& sys)
 
 void AirLevel::draw(const RenderContext& rc)
 {
-	gales.r[0] = SVec4(0, 100, 100, 13);
-	gales.r[1] = SVec4(100, 100, 33, 15);
-	gales.r[2] = SVec4(0, 100, 120, 12);
-	gales.r[3] = SVec4(-170, 100, 15, 17);
-
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	ProcessSpecialInput(rc.dTime);
-	updateCam(rc.dTime);
+	gliderPlayer.UpdateCamTP(rc.dTime);
+	camera.Update(rc.dTime);
 
-	dragon.update(rc, windDir * windInt, rc.cam->GetPosition());
+	Camera c = camera;	//c
+	
+	dragon.update(rc, windDir * windInt, c.GetPosition());
 	
 	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
 	
 	_sys._D3D.TurnOnAlphaBlending();
 	
-	//shady.strife.SetShaderParameters(context, headModel, *rc.cam, dirLight, rc.elapsed, worley.srv, lightView);
-	//headModel.Draw(context, shady.strife);
-	//shady.strife.ReleaseShaderParameters(context);
+	shady.light.SetShaderParameters(context, gliderPlayer.a.transform, gliderPlayer.cam, pointLight, rc.elapsed);
+	glider.Draw(context, shady.light);
+	shady.light.ReleaseShaderParameters(context);
 
-	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, *rc.cam, pointLight, rc.dTime);
+	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, c, pointLight, rc.dTime);
 	barrens.Draw(context, shady.terrainMultiTex);
 
 	_sys._D3D.TurnOffAlphaBlending();
 	
-	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.RenderSkybox(c, skybox, skyboxCubeMapper);
 
 	_sys._D3D.TurnOnAlphaBlending();
 
-	shady.light.SetShaderParameters(context, headModel, *rc.cam, pointLight, rc.dTime);
-	headModel.Draw(context, shady.light);
+	gliderPlayer.Draw(context, pointLight, rc.dTime);
 
 	shady.dragon.UpdateInstanceData(instanceData);
-	shady.dragon.SetShaderParameters(context, segmentModel, *rc.cam, pointLight, rc.dTime);
+	shady.dragon.SetShaderParameters(context, segmentModel, c, pointLight, rc.dTime);
 	segmentModel.Draw(context, shady.dragon);
 	shady.dragon.ReleaseShaderParameters(context);
 
-	shady.shVolumScreen.SetShaderParameters(context, *rc.cam, gales, rc.elapsed);
+	shady.shVolumScreen.SetShaderParameters(context, c, gales, rc.elapsed);
 	shady.shVolumScreen.screenQuad->draw(context, shady.shVolumScreen);
 	shady.shVolumScreen.ReleaseShaderParameters(context);
 

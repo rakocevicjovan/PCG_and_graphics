@@ -3,23 +3,18 @@
 #include "Model.h"
 #include "ShaderManager.h"
 #include "CollisionEngine.h"
-
-/*
-class Model;
-class ShaderBase;
-class Camera;
-class Collider;
-class Controller;
-*/
+#include "Camera.h"
 
 class GraphicComponent
 {
 public:
 	GraphicComponent() {};
-	GraphicComponent(Model* m, ShaderBase* s);
+	
+	template <typename FlexibleShaderType>
+	GraphicComponent(Model* m, FlexibleShaderType* s) : model(m), shader(s) {}
 
 	Model* model;
-	ShaderBase* shader;
+	ShaderLight* shader;
 };
 
 
@@ -42,6 +37,13 @@ public:
 	SMatrix transform;
 	GraphicComponent gc;
 	Collider* collider;
+
+	void Draw(ID3D11DeviceContext* context, Camera& cam, PointLight& pl, float dTime)
+	{
+		gc.shader->SetShaderParameters(context, transform, cam, pl, dTime);
+		gc.model->Draw(context, *gc.shader);
+		gc.shader->ReleaseShaderParameters(context);
+	}
 };
 
 
@@ -49,13 +51,32 @@ public:
 class Player
 {
 public:
-	Player();
+
+	Actor a;
+	Controller& con;
+	Camera cam;
+
+	Player(Controller& c) : con(c) 
+	{
+		cam._controller = &con;
+	};
+
 	~Player() {};
 
-	SMatrix transform;
-	Collider* collider = nullptr;
+	void setCamera(Camera& camera)
+	{
+		cam = camera;
+	}
 
-	GraphicComponent gfx_comp;
-	Controller* con;
-	Camera* cam;
+	void Draw(ID3D11DeviceContext* context, PointLight& pl, float dTime)
+	{
+		a.Draw(context, cam, pl, dTime);
+	}
+
+	void UpdateCamTP(float dTime)
+	{
+		SMatrix camMat = cam.GetCameraMatrix();
+		con.processTransformationTP(dTime, a.transform, camMat);
+		cam.SetCameraMatrix(camMat);
+	}
 };

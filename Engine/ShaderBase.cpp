@@ -156,9 +156,9 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	VariableBuffer* dataPtr3;
 	LightBuffer* dataPtr2;
 
-	ShaderParametersLight spl = *(ShaderParametersLight*)spb;
+	SPLight spl = *(SPLight*)spb;
 
-	SMatrix mT = spl.model->transform.Transpose();
+	SMatrix mT = spl.modelMatrix->Transpose();
 	SMatrix vT = spl.view->Transpose();
 	SMatrix pT = spl.proj->Transpose();
 
@@ -219,10 +219,6 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	spl.deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	spl.deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	spl.deviceContext->PSSetSamplers(0, 1, &_sampleState);
-
-	if(spl.model->textures_loaded.size() != 0)
-		for (int i = 0; i < spl.model->textures_loaded.size(); i++)
-			spl.deviceContext->PSSetShaderResources(0, 1, &(spl.model->textures_loaded[i].srv));
 
 	return true;
 }

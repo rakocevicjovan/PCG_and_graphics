@@ -15,13 +15,13 @@ ShaderLight::~ShaderLight()
 
 
 
-bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float deltaTime)
+bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
 {
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 
-	SMatrix mT = model.transform.Transpose();
+	SMatrix mT = modelMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
@@ -53,11 +53,6 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
-
-	//if(model.textures_loaded.size() != 0)
-	//for (int i = 0; i < model.textures_loaded.size(); i++)
-		//deviceContext->PSSetShaderResources(i, 1, &(model.textures_loaded[i].srv));
-		
 
 	return true;
 }

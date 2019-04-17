@@ -106,10 +106,12 @@ struct DrawParams : public SPBase
 class Model;
 struct PointLight;
 
-struct ShaderParametersLight : public SPBase
+struct SPLight : public SPBase
 {
+	SPLight() : SPBase() {}
+
 	ID3D11DeviceContext* deviceContext;
-	Model* model;
+	SMatrix* modelMatrix;
 	SMatrix* view;
 	SMatrix* proj;
 	PointLight* dLight;

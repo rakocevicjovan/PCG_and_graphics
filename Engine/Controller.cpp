@@ -7,7 +7,7 @@ Controller::Controller() : _inMan(nullptr), dx(0), dy(0) {}
 
 Controller::Controller(InputManager* inputManager) : _inMan(inputManager) {}
 
-Controller::~Controller(){}
+Controller::~Controller() {}
 
 
 
@@ -36,18 +36,6 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 
 
 
-void Controller::processTransformationTP(float dTime, SMatrix & transform, SMatrix & camTransform)
-{
-	_inMan->GetXY(dx, dy);
-
-	processRotationTP(dTime, transform, camTransform);
-
-	SVec3 velocityVector = processTranslationFPS(dTime, transform) * movCf * dTime;
-	Math::Translate(transform, velocityVector);
-}
-
-
-
 void Controller::processRotationFPS(float dTime, SMatrix& transformation) const {
 
 	SMatrix rh;
@@ -59,9 +47,60 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 	right.Normalize();
 
 	SMatrix rv;
-	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime );
+	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime);
 
-	transformation = transformation * rv ;
+	transformation = transformation * rv;
+}
+
+
+
+SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transformation) const {
+
+	SVec3 dir = -transformation.Forward();	//this is for rh... fml
+	SVec3 right = SVec3::Up.Cross(dir);
+
+	SVec3 deltaTranslation(0, 0, 0);
+
+	if (_inMan->IsKeyDown((short)'W')) {
+		deltaTranslation = deltaTranslation + dir;
+	}
+
+	if (_inMan->IsKeyDown((short)'S')) {
+		deltaTranslation = deltaTranslation - dir;
+	}
+
+	if (_inMan->IsKeyDown((short)'A')) {
+		deltaTranslation = deltaTranslation - right;
+	}
+
+	if (_inMan->IsKeyDown((short)'D')) {
+		deltaTranslation = deltaTranslation + right;
+	}
+
+	if (_inMan->IsKeyDown(VK_NUMPAD8)) {
+		deltaTranslation = deltaTranslation + SVec3::Up;
+	}
+
+	if (_inMan->IsKeyDown(VK_NUMPAD2)) {
+		deltaTranslation = deltaTranslation - SVec3::Up;
+	}
+
+	deltaTranslation.Normalize();
+
+	return deltaTranslation;
+}
+
+
+
+void Controller::processTransformationTP(float dTime, SMatrix & transform, SMatrix & camTransform)
+{
+	_inMan->GetXY(dx, dy);
+
+	processRotationTP(dTime, transform, camTransform);
+
+	SVec3 velocityVector = processTranslationTP(dTime, transform, camTransform) * movCf * dTime;
+	Math::Translate(transform, velocityVector);
+	Math::Translate(camTransform, velocityVector);
 }
 
 
@@ -96,8 +135,6 @@ SVec3 Controller::processTranslationTP(float dTime, const SMatrix & transformati
 
 	deltaTranslation.Normalize();
 
-	Math::Translate(camTransform, deltaTranslation);
-
 	return deltaTranslation;
 }
 
@@ -111,12 +148,12 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 	float rotator = 0;
 
 	if (_inMan->IsKeyDown((short)'A'))
-		rotator -= dx *rotCf * dTime;
+		rotator -= dx * rotCf * dTime;
 
 	if (_inMan->IsKeyDown((short)'D'))
 		rotator += dx * rotCf * dTime;
 
-	transform *= SMatrix::CreateRotationY(rotator);
+	transform *= SMatrix::CreateRotationY(-rotator);
 	Math::SetTranslation(transform, tempTranslation);
 
 	//camera position updates
@@ -128,44 +165,6 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 	//face camera to player
 	SMatrix camRot = SMatrix::CreateLookAt(camTransform.Translation(), tempTranslation, SVec3(0, 1, 0)).Invert();
 	Math::SetRotation(camTransform, camRot);
-}
-
-
-
-SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transformation) const{
-
-	SVec3 dir = -transformation.Forward();	//this is for rh... fml
-	SVec3 right = SVec3::Up.Cross(dir);
-
-	SVec3 deltaTranslation(0, 0, 0);
-
-	if (_inMan->IsKeyDown((short)'W')) {
-		deltaTranslation = deltaTranslation + dir;
-	}
-
-	if (_inMan->IsKeyDown((short)'S')) {
-		deltaTranslation = deltaTranslation - dir;
-	}
-
-	if (_inMan->IsKeyDown((short)'A')) {
-		deltaTranslation = deltaTranslation - right;
-	}
-
-	if (_inMan->IsKeyDown((short)'D')) {
-		deltaTranslation = deltaTranslation + right;
-	}
-
-	if (_inMan->IsKeyDown(VK_NUMPAD8)) {
-		deltaTranslation = deltaTranslation + SVec3::Up;
-	}
-
-	if (_inMan->IsKeyDown(VK_NUMPAD2)) {
-		deltaTranslation = deltaTranslation - SVec3::Up;
-	}
-
-	deltaTranslation.Normalize();
-
-	return deltaTranslation;
 }
 
 

@@ -23,7 +23,9 @@ public:
 	void SetRotation(const SQuat& inQuat);
 
 	void Transform(const SMatrix& inTransform);
-
+	
+	//CTRL_MODE ctrlMode = CTRL_MODE::CTRL_FPS;	void SetMode(CTRL_MODE cm) { ctrlMode = cm; }
+	
 	Controller* _controller;
 
 	static Camera CreateFromViewProjection(const SMatrix& view, const SMatrix& projection);

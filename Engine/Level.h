@@ -21,14 +21,16 @@ protected:
 	std::vector<GameObject*> objects;
 	std::vector<GraphicComponent*> lesRenderables;
 	std::vector<Collider> _levelColliders;
+	Camera camera;
 
 public:
 	Level(Systems& sys);
 	
 	void updateCam(float dTime)
 	{
-		_sys._renderer._cam.Update(_sys._renderer.rc.dTime);
+		randy._cam.Update(randy.rc.dTime);
 	}
+
 	void ProcessSpecialInput(float dTime);
 
 	virtual void init(Systems& sys) = 0;

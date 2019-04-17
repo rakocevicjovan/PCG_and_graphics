@@ -129,7 +129,6 @@ void OST::SetRenderTarget(ID3D11DeviceContext* deviceContext)
 	deviceContext->OMSetRenderTargets(1, &rtv, ostDepthStencilView);
 	deviceContext->ClearRenderTargetView(rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
 	deviceContext->ClearDepthStencilView(ostDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 }
 
 

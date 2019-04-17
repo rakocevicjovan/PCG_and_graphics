@@ -4,6 +4,15 @@
 class InputManager;
 class CollisionEngine;
 
+
+enum CTRL_MODE
+{
+	CTRL_FPS,
+	CTRL_TP,
+	CTRL_FREEFLY
+};
+
+
 class Controller{
 
 private:

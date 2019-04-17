@@ -48,7 +48,7 @@ void Math::SetRotation(SMatrix& transform, const SMatrix& rotatrix)
 {
 	SVec3 pos = transform.Translation();
 	transform = rotatrix;
-	transform *= SMatrix::CreateTranslation(pos);
+	Math::SetTranslation(transform, pos);
 }
 
 void Math::Translate(SMatrix& transform, const SVec3& displacement)
