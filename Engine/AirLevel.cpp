@@ -74,10 +74,9 @@ void AirLevel::draw(const RenderContext& rc)
 	updateCam(rc.dTime);
 
 	dragon.update(rc, windDir * windInt, rc.cam->GetPosition());
-
-	for (int i = 1; i < dragon.springs.size(); ++i)
+	
+	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
-
 	
 	_sys._D3D.TurnOnAlphaBlending();
 	
@@ -90,9 +89,7 @@ void AirLevel::draw(const RenderContext& rc)
 
 	_sys._D3D.TurnOffAlphaBlending();
 	
-
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
-
 
 	_sys._D3D.TurnOnAlphaBlending();
 

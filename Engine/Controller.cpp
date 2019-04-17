@@ -11,27 +11,39 @@ Controller::~Controller(){}
 
 
 
-void Controller::processTransformationFPS(float dTime, SMatrix& transformation)
+void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 {
 	_inMan->GetXY(dx, dy);
 
-	SVec3 translation = transformation.Translation();
-	Math::SetTranslation(transformation, SVec3());
+	SVec3 translation = transform.Translation();
+	Math::SetTranslation(transform, SVec3());
 
 	if (!(dx == 0 && dy == 0))	//check if rotation happened, can skip a lot of work
-		processRotationFPS(dTime, transformation);
+		processRotationFPS(dTime, transform);
 
-	Math::SetTranslation(transformation, translation);
-	SVec3 velocityVector = processTranslationFPS(dTime, transformation) * movCf * dTime;
+	Math::SetTranslation(transform, translation);
+	SVec3 velocityVector = processTranslationFPS(dTime, transform) * movCf * dTime;
 	
 	//flying mode is used for testing and shouldn't collide or fall for convenience
 	if (!_isFlying)
 	{
-		resolveCollision(transformation, dTime, velocityVector);	//change velocity vector first if affected by collision
-		applyGravity(dTime, transformation);
+		resolveCollision(transform, dTime, velocityVector);
+		applyGravity(dTime, transform);
 	}
 
-	Math::Translate(transformation, velocityVector);
+	Math::Translate(transform, velocityVector);
+}
+
+
+
+void Controller::processTransformationTP(float dTime, SMatrix & transform, SMatrix & camTransform)
+{
+	_inMan->GetXY(dx, dy);
+
+	processRotationTP(dTime, transform, camTransform);
+
+	SVec3 velocityVector = processTranslationFPS(dTime, transform) * movCf * dTime;
+	Math::Translate(transform, velocityVector);
 }
 
 
@@ -50,6 +62,72 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime );
 
 	transformation = transformation * rv ;
+}
+
+
+
+SVec3 Controller::processTranslationTP(float dTime, const SMatrix & transformation, SMatrix& camTransform) const
+{
+
+	SVec3 dir = -transformation.Forward();	//this is for rh... fml
+	SVec3 right = transformation.Right();
+
+	SVec3 deltaTranslation(0, 0, 0);
+
+	if (_inMan->IsKeyDown((short)'W'))
+	{
+		deltaTranslation = deltaTranslation + dir;
+	}
+
+	if (_inMan->IsKeyDown((short)'S'))
+	{
+		deltaTranslation = deltaTranslation - dir;
+	}
+
+	if (_inMan->IsKeyDown((short)'Q'))
+	{
+		deltaTranslation = deltaTranslation - right;
+	}
+
+	if (_inMan->IsKeyDown((short)'E'))
+	{
+		deltaTranslation = deltaTranslation + right;
+	}
+
+	deltaTranslation.Normalize();
+
+	Math::Translate(camTransform, deltaTranslation);
+
+	return deltaTranslation;
+}
+
+
+
+void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& camTransform) const
+{
+	SVec3 tempTranslation = transform.Translation();
+	Math::SetTranslation(transform, SVec3());
+
+	float rotator = 0;
+
+	if (_inMan->IsKeyDown((short)'A'))
+		rotator -= dx *rotCf * dTime;
+
+	if (_inMan->IsKeyDown((short)'D'))
+		rotator += dx * rotCf * dTime;
+
+	transform *= SMatrix::CreateRotationY(rotator);
+	Math::SetTranslation(transform, tempTranslation);
+
+	//camera position updates
+	SVec3 playerToCam = camTransform.Translation() - tempTranslation;
+	SMatrix rh = SMatrix::CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
+	playerToCam = SVec3::Transform(playerToCam, rh);
+	Math::SetTranslation(camTransform, playerToCam);
+
+	//face camera to player
+	SMatrix camRot = SMatrix::CreateLookAt(camTransform.Translation(), tempTranslation, SVec3(0, 1, 0)).Invert();
+	Math::SetRotation(camTransform, camRot);
 }
 
 
