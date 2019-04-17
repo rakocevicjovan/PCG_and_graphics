@@ -92,13 +92,14 @@ SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transf
 
 
 
-void Controller::processTransformationTP(float dTime, SMatrix & transform, SMatrix & camTransform)
+void Controller::processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform)
 {
 	_inMan->GetXY(dx, dy);
 
 	processRotationTP(dTime, transform, camTransform);
 
 	SVec3 velocityVector = processTranslationTP(dTime, transform, camTransform) * movCf * dTime;
+
 	Math::Translate(transform, velocityVector);
 	Math::Translate(camTransform, velocityVector);
 }
@@ -142,29 +143,32 @@ SVec3 Controller::processTranslationTP(float dTime, const SMatrix & transformati
 
 void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& camTransform) const
 {
+	//old translation of the player
 	SVec3 tempTranslation = transform.Translation();
 	Math::SetTranslation(transform, SVec3());
 
 	float rotator = 0;
 
 	if (_inMan->IsKeyDown((short)'A'))
-		rotator -= dx * rotCf * dTime;
+		rotator += rotCf * .1f * dTime;
 
 	if (_inMan->IsKeyDown((short)'D'))
-		rotator += dx * rotCf * dTime;
+		rotator -= rotCf * .1f * dTime;
 
 	transform *= SMatrix::CreateRotationY(-rotator);
 	Math::SetTranslation(transform, tempTranslation);
 
-	//camera position updates
-	SVec3 playerToCam = camTransform.Translation() - tempTranslation;
-	SMatrix rh = SMatrix::CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
-	playerToCam = SVec3::Transform(playerToCam, rh);
-	Math::SetTranslation(camTransform, playerToCam);
+	//camera rotation around player
+	SVec3 playerToCam = Math::getNormalizedVec3(camTransform.Translation() - transform.Translation());
 
-	//face camera to player
-	SMatrix camRot = SMatrix::CreateLookAt(camTransform.Translation(), tempTranslation, SVec3(0, 1, 0)).Invert();
-	Math::SetRotation(camTransform, camRot);
+	if (dx > 0)
+		playerToCam = playerToCam;
+
+	SMatrix rh = SMatrix::CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
+	Math::RotateVecByMat(playerToCam, rh);
+	Math::SetTranslation(camTransform, transform.Translation() + playerToCam * camDist);
+
+	camTransform = SMatrix::CreateWorld(camTransform.Translation(), playerToCam, SVec3(0, 1, 0));
 }
 
 

@@ -43,15 +43,14 @@ void AirLevel::init(Systems& sys)
 	worley = Texture(device, "../Textures/worley.png");
 	dragonTex = Texture(device, "../Textures/Abstract/diffuse.jpg");
 
-	glider.LoadModel(device, "../Models/glider/gliderNoSkelly.obj");
-	gliderPlayer.a.gc.model = &glider;
-	gliderPlayer.a.gc.shader = &shady.light;
-	gliderPlayer.a.transform = SMatrix::CreateTranslation(SVec3(0, 0, 100));
-	gliderPlayer.con = _sys._controller;
-	gliderPlayer.cam = randy._cam;
-
-	camera = randy._cam;
-
+	glider.LoadModel(device, "../Models/glider/rrrr.fbx");
+	player.a.gc.model = &glider;
+	player.a.transform = SMatrix::CreateScale(0.1);
+	player.a.transform *= SMatrix::CreateTranslation(SVec3(0, 200, 333));
+	player.a.gc.shader = &shady.light;
+	player.con = _sys._controller;
+	player.cam = randy._cam;
+	player.cam.SetTranslation(player.a.transform.Translation() + SVec3(0, 200, -400));
 
 	segmentModel.LoadModel(device, "../Models/Ball.fbx");
 	segmentModel.transform = SMatrix::CreateScale(15);
@@ -73,32 +72,30 @@ void AirLevel::draw(const RenderContext& rc)
 {
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	ProcessSpecialInput(rc.dTime);
-	gliderPlayer.UpdateCamTP(rc.dTime);
-	camera.Update(rc.dTime);
-
-	Camera c = camera;	//c
-	
-	dragon.update(rc, windDir * windInt, c.GetPosition());
+	player.UpdateCamTP(rc.dTime);
+	dragon.update(rc, windDir * windInt, player);
 	
 	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
 	
 	_sys._D3D.TurnOnAlphaBlending();
 	
-	shady.light.SetShaderParameters(context, gliderPlayer.a.transform, gliderPlayer.cam, pointLight, rc.elapsed);
+	shady.light.SetShaderParameters(context, player.a.transform, player.cam, pointLight, rc.elapsed);
 	glider.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
-	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, c, pointLight, rc.dTime);
+	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, player.cam, pointLight, rc.dTime);
 	barrens.Draw(context, shady.terrainMultiTex);
 
 	_sys._D3D.TurnOffAlphaBlending();
 	
-	randy.RenderSkybox(c, skybox, skyboxCubeMapper);
+	randy.RenderSkybox(player.cam, skybox, skyboxCubeMapper);
 
 	_sys._D3D.TurnOnAlphaBlending();
 
-	gliderPlayer.Draw(context, pointLight, rc.dTime);
+	//player.Draw(context, pointLight, rc.dTime);
+	//shady.light.SetShaderParameters(context, player.a.transform, camera, pointLight, rc.dTime);
+	player.a.Draw(context, player.cam, pointLight, rc.dTime);
 
 	shady.dragon.UpdateInstanceData(instanceData);
 	shady.dragon.SetShaderParameters(context, segmentModel, c, pointLight, rc.dTime);

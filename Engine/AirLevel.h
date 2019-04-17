@@ -13,7 +13,7 @@ public:
 	SMatrix lightView;
 	Texture worley, dragonTex;
 
-	Player gliderPlayer;
+	Player player;
 
 	Model skybox, barrens, glider, segmentModel;
 	CubeMapper skyboxCubeMapper;
@@ -29,7 +29,7 @@ public:
 	float windInt = 33.f;
 	std::vector<InstanceData> instanceData;
 
-	AirLevel(Systems& sys) : Level(sys), gliderPlayer(sys._controller) {};
+	AirLevel(Systems& sys) : Level(sys), player(sys._controller) {};
 	void init(Systems& sys);
 	void procGen() {};
 	void draw(const RenderContext& rc);

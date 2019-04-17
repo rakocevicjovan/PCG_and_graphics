@@ -38,6 +38,11 @@ public:
 	GraphicComponent gc;
 	Collider* collider;
 
+	SVec3 getPosition()
+	{
+		return transform.Translation();
+	}
+
 	void Draw(ID3D11DeviceContext* context, Camera& cam, PointLight& pl, float dTime)
 	{
 		gc.shader->SetShaderParameters(context, transform, cam, pl, dTime);
@@ -79,4 +84,6 @@ public:
 		con.processTransformationTP(dTime, a.transform, camMat);
 		cam.SetCameraMatrix(camMat);
 	}
+
+	SVec3 getPosition() { return a.transform.Translation(); }
 };

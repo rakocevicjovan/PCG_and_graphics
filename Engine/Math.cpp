@@ -34,7 +34,7 @@ void Math::RotateMatByMat(SMatrix& transform, const SMatrix& rotatrix)
 
 void Math::RotationFromForwardUp(SMatrix& transform, const SVec3 fw, const SVec3 up)
 {
-	SVec3 right = fw.Cross(up);
+	SVec3 right = up.Cross(fw);
 	right.Normalize();
 
 	transform = DirectX::XMMatrixSet(
