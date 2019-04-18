@@ -68,11 +68,6 @@ public:
 
 	~Player() {};
 
-	void setCamera(Camera& camera)
-	{
-		cam = camera;
-	}
-
 	void Draw(ID3D11DeviceContext* context, PointLight& pl, float dTime)
 	{
 		a.Draw(context, cam, pl, dTime);
@@ -86,4 +81,6 @@ public:
 	}
 
 	SVec3 getPosition() { return a.transform.Translation(); }
+
+	void setCamera(Camera& camera) { cam = camera; }
 };

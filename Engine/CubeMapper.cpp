@@ -3,15 +3,11 @@
 #include "DDSTextureLoader.h"
 
 
-CubeMapper::CubeMapper(unsigned int edgeLength) : edgeLength(edgeLength)
-{
-}
+CubeMapper::CubeMapper(unsigned int edgeLength) : edgeLength(edgeLength) {}
 
 
 
-CubeMapper::~CubeMapper()
-{
-}
+CubeMapper::~CubeMapper() {}
 
 
 
@@ -106,6 +102,8 @@ void CubeMapper::Init(ID3D11Device* device)
 
 	lens = DirectX::XMMatrixPerspectiveFovLH(PI * 0.5f, 1.0f, 0.1f, 500.0f);	//2.0 * atan(edgeLength / (edgeLength - 0.5))	
 }
+
+
 
 void CubeMapper::UpdateCams(const SVec3& pos)
 {

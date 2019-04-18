@@ -161,11 +161,12 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 	//camera rotation around player
 	SVec3 playerToCam = Math::getNormalizedVec3(camTransform.Translation() - transform.Translation());
 
-	if (dx > 0)
-		playerToCam = playerToCam;
-
 	SMatrix rh = SMatrix::CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
 	Math::RotateVecByMat(playerToCam, rh);
+	
+	SMatrix rv = SMatrix::CreateFromAxisAngle(transform.Right(), DirectX::XMConvertToRadians(dy) * rotCf * dTime);
+	Math::RotateVecByMat(playerToCam, rv);
+
 	Math::SetTranslation(camTransform, transform.Translation() + playerToCam * camDist);
 
 	camTransform = SMatrix::CreateWorld(camTransform.Translation(), playerToCam, SVec3(0, 1, 0));
@@ -198,4 +199,19 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 		_grounded = true;
 	else
 		_grounded = false;
+}
+
+
+void Controller::processCommonInputs(float dTime)
+{
+	sinceInput += dTime;
+
+	if (sinceInput < .33f)
+		return;
+
+	if (_inMan->IsKeyDown((short)'F'))
+	{
+		toggleFly();
+		sinceInput = 0;
+	}
 }

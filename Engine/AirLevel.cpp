@@ -73,7 +73,7 @@ void AirLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	ProcessSpecialInput(rc.dTime);
 	player.UpdateCamTP(rc.dTime);
-	dragon.update(rc, windDir * windInt, player);
+	dragon.update(rc, windDir * windInt, player.getPosition());
 	
 	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
@@ -98,11 +98,11 @@ void AirLevel::draw(const RenderContext& rc)
 	player.a.Draw(context, player.cam, pointLight, rc.dTime);
 
 	shady.dragon.UpdateInstanceData(instanceData);
-	shady.dragon.SetShaderParameters(context, segmentModel, c, pointLight, rc.dTime);
+	shady.dragon.SetShaderParameters(context, segmentModel, player.cam, pointLight, rc.dTime);
 	segmentModel.Draw(context, shady.dragon);
 	shady.dragon.ReleaseShaderParameters(context);
 
-	shady.shVolumScreen.SetShaderParameters(context, c, gales, rc.elapsed);
+	shady.shVolumScreen.SetShaderParameters(context, player.cam, gales, rc.elapsed);
 	shady.shVolumScreen.screenQuad->draw(context, shady.shVolumScreen);
 	shady.shVolumScreen.ReleaseShaderParameters(context);
 

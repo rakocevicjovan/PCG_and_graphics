@@ -44,7 +44,6 @@ private:
 	bool Frame(float dTime);
 	void InitializeWindows(int& w, int& h);
 	void OutputFPS(float dTime);
-	void ProcessInput();
 
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;

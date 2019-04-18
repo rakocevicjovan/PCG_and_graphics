@@ -42,7 +42,7 @@ public:
 
 	void setCameraMatrix(const SMatrix& camMatrix);
 
-	float _fieldOfView, _screenAspect, elapsed = 0.f, sinceInput = 1.f;
+	float _fieldOfView, _screenAspect, elapsed = 0.f;
 
 	ShaderManager _shMan;
 	RenderContext rc;

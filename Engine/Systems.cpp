@@ -166,18 +166,12 @@ bool Systems::Frame(float dTime)
 	if (_inputManager.IsKeyDown(VK_ESCAPE))
 		return false;
 
+	_controller.processCommonInputs(dTime);
 	_inputManager.SetXY(0, 0);
 
 	//OutputFPS(dTime);
 
 	return true;
-}
-
-
-
-void Systems::ProcessInput()
-{
-
 }
 
 
