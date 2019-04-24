@@ -236,4 +236,19 @@ namespace Procedural
 
 		model.meshes.push_back(aligned);
 	}
+
+
+
+	SVec3 Maze::GetRandCellPos()
+	{
+		Chaos c;
+		
+		c.setRange(_w / 2, _w);
+		UINT randWidth = c.rollTheDice();
+
+		c.setRange(_h / 2, _h);
+		UINT randDepth = c.rollTheDice();
+
+		return SVec3(randWidth * _cellSize, _height * 0.5, randDepth * _cellSize);
+	}
 }

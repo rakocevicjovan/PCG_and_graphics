@@ -8,8 +8,8 @@ void FireLevel::init(Systems& sys)
 
 	sceneTex.Init(device, _sys.getWinW(), _sys.getWinH());
 	brightnessMask.Init(device, _sys.getWinW(), _sys.getWinH());
-	blurredTex1.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
-	blurredTex2.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
+	blurredTex1.Init(device, _sys.getWinW(), _sys.getWinH());
+	blurredTex2.Init(device, _sys.getWinW(), _sys.getWinH());
 
 	screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1));
 
@@ -102,7 +102,6 @@ void FireLevel::draw(const RenderContext& rc)
 
 	sceneTex.SetRenderTarget(context);
 
-	
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	for (auto& island : _islands) 
@@ -117,7 +116,7 @@ void FireLevel::draw(const RenderContext& rc)
 			continue;
 
 		hexModel.transform = p.actor.transform;
-		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap, hexNormalMap);
+		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
 		hexModel.Draw(context, shady.normalMapper);
 	}
 
@@ -160,19 +159,11 @@ void FireLevel::draw(const RenderContext& rc)
 	
 	//final scene rendering - the screen quad
 	context->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
-	rc.d3d->SetBackBufferRenderTarget();					//set default screen buffer as output target
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);				//clear colour and depth buffer
+	rc.d3d->SetBackBufferRenderTarget();						//set default screen buffer as output target
+	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);		//clear colour and depth buffer
 
+	postProcessor.draw(context, shady.bloom, sceneTex.srv, blurredTex2.srv);
 	
-	if (inman.IsKeyDown(short('P')))
-	{
-		postProcessor.draw(context, shady.bloom, sceneTex.srv, blurredTex2.srv);
-	}
-	else
-	{
-		postProcessor.draw(context, shady.HUD, sceneTex.srv);
-	}
-
 	//finish up
 	rc.d3d->EndScene();
 

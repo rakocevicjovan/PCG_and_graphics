@@ -17,7 +17,7 @@ struct MazeVarBuff
 };
 
 bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Model& m, const Camera& cam, 
-										const PointLight& pLight, float deltaTime, const Texture& diff, const Texture& n, const Texture& disp)
+										const PointLight& pLight, float deltaTime, const Texture& diff, const Texture& n)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;

@@ -1,12 +1,11 @@
 #include "Level.h"
 #include "Controller.h"
 #include "InputManager.h"
+#include "LevelManager.h"
 #include <d3d11.h>
 
-Level::Level(Systems& sys) : _sys(sys)
-{
+Level::Level(Systems& sys, LevelManager* lMan) : _sys(sys), lMan(lMan) {}
 
-}
 
 
 void Level::ProcessSpecialInput(float dTime)

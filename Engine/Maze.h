@@ -56,6 +56,8 @@ public:
 	void CreateModel(ID3D11Device* device);
 	void BuildCellMeshes(MazeCell& mc, ID3D11Device* device, Mesh& left, Mesh& right, Mesh& top, Mesh& bottom);
 	void AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* device);
+
+	SVec3 GetRandCellPos();
 	
 };
 

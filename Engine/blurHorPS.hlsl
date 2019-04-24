@@ -11,7 +11,7 @@ static const float weight[5] = { 0.227027, 0.1945946, 0.1216216, 0.054054, 0.016
 
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
-	float2 tex_offset = float2(1.0f, 1.0f) / float2(1600.f, 900.f); // gets size of single texel
+    float2 tex_offset = float2(1.0f, 1.0f) / float2(800.f, 450.f); // gets size of single texel
 	float3 res = shaderTexture.Sample(SampleType, input.tex).rgb * weight[0]; // current fragment's contribution
 
 	for (int i = 1; i < 5; ++i)

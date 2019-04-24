@@ -19,19 +19,26 @@ void EarthLevel::init(Systems& sys)
 
 	mazeDiffuseMap = Texture(device, "../Textures/Rock/diffuse.jpg");
 	mazeNormalMap = Texture(device, "../Textures/Rock/normal.jpg");
-	mazeDisplacementMap = Texture(device, "../Textures/Rock/height.png");
 
 	maze.Init(10, 10, 32.f);
 	maze.CreateModel(device);
 
 	sys._colEngine.registerModel(maze.model, BoundingVolumeType::BVT_AABB);
-}
 
+	SMatrix goalMat = SMatrix::CreateTranslation(maze.GetRandCellPos());
+	pSys.init(&will, 10, goalMat);
 
-
-
-void EarthLevel::procGen()
-{
+	particleUpdFunc = [this](ParticleUpdateData* _pud) -> void
+	{
+		for (int i = 0; i < pSys._particles.size(); ++i)
+		{
+			SVec3 translation(1, 1, 1);
+			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
+			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * -0.33f);
+		}
+	};
 
 }
 
@@ -40,14 +47,12 @@ void EarthLevel::procGen()
 void EarthLevel::draw(const RenderContext& rc)
 {
 	updateCam(rc.dTime);
-
-	_sys._deviceContext->RSSetViewports(1, &rc.d3d->viewport);
+	
 	rc.d3d->SetBackBufferRenderTarget();
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 
 	proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
-	rc.shMan->dynamicHeightMaze.SetShaderParameters(context, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap, mazeDisplacementMap);
+	rc.shMan->dynamicHeightMaze.SetShaderParameters(context, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
 	maze.model.Draw(context, rc.shMan->dynamicHeightMaze);
 	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(context);
 

@@ -20,6 +20,6 @@ PixelInputType LightVertexShader(VertexInputType input)
 	PixelInputType output;
 
 	output.position = input.position;
-	output.tex = float2(input.tex.x, -input.tex.y);
+	output.tex = float2(input.tex.x, 1. - input.tex.y);
 	return output;
 }

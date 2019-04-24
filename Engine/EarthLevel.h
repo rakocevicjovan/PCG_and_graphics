@@ -16,11 +16,7 @@ public:
 	std::vector<Procedural::Terrain> procTerrains;
 
 	//specific to the level
-	Texture mazeDiffuseMap, mazeNormalMap, mazeDisplacementMap;
-
-	//off-screen render targets
-	OST postProcessTexture;	//offScreenTexture
-	const unsigned int ostW = 1600, ostH = 900;
+	Texture mazeDiffuseMap, mazeNormalMap;
 
 	//sounds
 	Audio audio;
@@ -35,7 +31,7 @@ public:
 
 	//load and draw all that jazz
 	void init(Systems& sys);
-	void procGen();
+	void procGen() {};
 	void draw(const RenderContext& rc);
 	void demolish()
 	{

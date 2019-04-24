@@ -11,11 +11,14 @@
 #define doot		_sys._audio
 #define inman		_sys._inputManager
 
+class LevelManager;
 
 class Level
 {
 protected:
 	Systems& _sys;
+	LevelManager* lMan;
+
 	float sinceLastInput = 0.f;	//consequence of slightly changing rastertek input instead of completely redoing it... fucking hell
 
 	std::vector<GameObject*> objects;
@@ -23,42 +26,17 @@ protected:
 	std::vector<Collider> _levelColliders;
 	Camera camera;
 
+	bool finished = false;
+
 public:
-	Level(Systems& sys);
+	Level(Systems& sys, LevelManager* lMan);
 	
-	void updateCam(float dTime)
-	{
-		randy._cam.Update(randy.rc.dTime);
-	}
+	void updateCam(float dTime) { randy._cam.Update(randy.rc.dTime); }
 
 	void ProcessSpecialInput(float dTime);
 
 	virtual void init(Systems& sys) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
 	virtual void demolish() = 0;
-	void procGen() {};
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class OldLevel : public Level
-{
-public:
-	OldLevel(Systems& sys) : Level(sys) {};
-
-	void init(Systems& sys) {};
-	void draw(const RenderContext& rc) {};
-	void demolish() {};
 	void procGen() {};
 };

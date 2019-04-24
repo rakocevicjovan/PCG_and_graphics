@@ -130,9 +130,8 @@ bool ShaderHUD::InitializeShader(ID3D11Device* device, HWND hwnd)
 
 	// Create the texture sampler state.
 	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
 	return true;
 }
@@ -193,8 +192,6 @@ void ShaderHUD::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WC
 
 bool ShaderHUD::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mesh& m)
 {
-
-
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
