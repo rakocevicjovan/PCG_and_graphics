@@ -27,6 +27,7 @@ namespace Procedural
 		void GenTube(float radius, float height, UINT subdivsRadial, UINT rows, float minRadiusPerc = 1.f);
 		void GenSphere(float radius);
 		void GenHexaprism(float radius, float thiccness);
+		void GenPipe(float innerRadius, float outerRadius, float height, UINT subdivs);
 		std::vector<Geometry> GenHexGrid(float radius, float thiccness, UINT numHexes);
 		void Clear();
 	};

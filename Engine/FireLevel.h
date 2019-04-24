@@ -5,7 +5,7 @@
 class FireLevel : public Level
 {
 	Hexer hexer;
-	OST sceneTex, brightnessMask, blurredTex1, blurredTex2, bloomTex;
+	OST sceneTex, brightnessMask, blurredTex1, blurredTex2;
 	ScreenspaceDrawer postProcessor;
 	ScreenspaceDrawer::UINODE* screenRectangleNode;
 

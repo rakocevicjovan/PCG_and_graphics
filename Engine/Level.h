@@ -36,7 +36,7 @@ public:
 	virtual void init(Systems& sys) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
 	virtual void demolish() = 0;
-	virtual void procGen() = 0;
+	void procGen() {};
 };
 
 

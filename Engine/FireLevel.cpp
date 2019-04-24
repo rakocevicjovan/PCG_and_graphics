@@ -117,7 +117,7 @@ void FireLevel::draw(const RenderContext& rc)
 			continue;
 
 		hexModel.transform = p.actor.transform;
-		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap, hexNormalMap);
 		hexModel.Draw(context, shady.normalMapper);
 	}
 

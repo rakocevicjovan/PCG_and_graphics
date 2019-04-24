@@ -17,6 +17,7 @@ struct PixelInputType
 {
 	float4 position : SV_POSITION;
 	float3 texCoord : TEXCOORD;
+    float3 normal : NORMAL;
 };
 
 PixelInputType CMVS(VertexInputType input) {
@@ -28,6 +29,8 @@ PixelInputType CMVS(VertexInputType input) {
 	output.position = mul(output.position, projectionMatrix).xyww;
 
 	output.texCoord = input.position.xyz;
+
+    output.normal = input.normal;
 
 	return output;
 }

@@ -16,7 +16,7 @@ public:
 	std::vector<Procedural::Terrain> procTerrains;
 
 	//specific to the level
-	Texture mazeDiffuseMap, mazeNormalMap;
+	Texture mazeDiffuseMap, mazeNormalMap, mazeDisplacementMap;
 
 	//off-screen render targets
 	OST postProcessTexture;	//offScreenTexture
@@ -32,7 +32,6 @@ public:
 
 	ParticleSystem pSys;
 	std::function<void(ParticleUpdateData*)> particleUpdFunc;
-	bool isTerGenerated = false;
 
 	//load and draw all that jazz
 	void init(Systems& sys);

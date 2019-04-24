@@ -17,7 +17,7 @@ struct MazeVarBuff
 };
 
 bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Model& m, const Camera& cam, 
-										const PointLight& pLight, float deltaTime, const Texture& d, const Texture& n)
+										const PointLight& pLight, float deltaTime, const Texture& diff, const Texture& n, const Texture& disp)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
@@ -67,10 +67,13 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
+	
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
-
-	deviceContext->PSSetShaderResources(0, 1, &(d.srv));
+	deviceContext->PSSetShaderResources(0, 1, &(diff.srv));
 	deviceContext->PSSetShaderResources(1, 1, &(n.srv));
+
+	//deviceContext->VSSetSamplers(0, 1, &_sampleState);
+	//deviceContext->VSSetShaderResources(0, 1, &(disp.srv));
 
 	return true;
 }
@@ -80,4 +83,5 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 void ShaderMaze::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
+	deviceContext->VSSetShaderResources(0, 1, &(unbinder[0]));
 }

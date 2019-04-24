@@ -8,8 +8,6 @@ void WaterLevel::init(Systems& sys)
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 
-	fence.LoadModel(device, "../Models/WaterFence.obj");
-
 	cubeMapper.Init(device);
 
 	will.LoadModel(device, "../Models/ball.fbx");
