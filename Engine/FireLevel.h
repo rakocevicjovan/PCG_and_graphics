@@ -19,7 +19,7 @@ class FireLevel : public Level
 	bool isTerGenerated = false;
 
 public:
-	FireLevel(Systems& sys) : Level(sys), hexer(sys) {};
+	FireLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan), hexer(sys) {};
 
 	void init(Systems& sys);
 	void procGen();

@@ -17,7 +17,7 @@ class Level
 {
 protected:
 	Systems& _sys;
-	LevelManager* lMan;
+	LevelManager* lvlMan;
 
 	float sinceLastInput = 0.f;	//consequence of slightly changing rastertek input instead of completely redoing it... fucking hell
 

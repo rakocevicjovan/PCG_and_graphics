@@ -6,7 +6,7 @@
 class WaterLevel : public Level
 {
 public:
-	WaterLevel(Systems& sys) : Level(sys) {};
+	WaterLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan) { };
 
 	Procedural::Terrain waterTerrain;
 	Procedural::LSystem linden;

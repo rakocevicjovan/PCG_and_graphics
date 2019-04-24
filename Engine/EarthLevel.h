@@ -6,7 +6,7 @@
 class EarthLevel : public Level
 {
 public:
-	EarthLevel(Systems& sys) : Level(sys) {};
+	EarthLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan) {};
 
 	///each level probably contains these
 	PointLight pointLight;

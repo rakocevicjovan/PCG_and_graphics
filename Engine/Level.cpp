@@ -4,7 +4,7 @@
 #include "LevelManager.h"
 #include <d3d11.h>
 
-Level::Level(Systems& sys, LevelManager* lMan) : _sys(sys), lMan(lMan) {}
+Level::Level(Systems& sys, LevelManager* lMan) : _sys(sys), lvlMan(lMan) {}
 
 
 
