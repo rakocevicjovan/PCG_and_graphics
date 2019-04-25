@@ -19,11 +19,12 @@ class FireLevel : public Level
 	bool isTerGenerated = false;
 
 public:
-	FireLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan), hexer(sys) {};
+	FireLevel(Systems& sys) : Level(sys), hexer(sys) {};
 
 	void init(Systems& sys);
 	void procGen();
 	void draw(const RenderContext& rc);
+	void update(const RenderContext& rc);
 	void demolish() { this->~FireLevel(); };
 	bool processInput(float dTime);
 	void setUpCollision();

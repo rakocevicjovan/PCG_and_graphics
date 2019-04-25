@@ -6,7 +6,7 @@
 class WaterLevel : public Level
 {
 public:
-	WaterLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan) { };
+	WaterLevel(Systems& sys) : Level(sys) {};
 
 	Procedural::Terrain waterTerrain;
 	Procedural::LSystem linden;
@@ -15,7 +15,7 @@ public:
 	Lilly* parentLilly;
 	SVec3 oldTranslation;
 
-	Model skybox, modBall, will, lotus, waterSheet, fence, treeModel, lillyModel, lillyPetalModel;
+	Model skybox, modBall, will, lotus, waterSheet, fence, treeModel, lillyModel, lillyPetalModel, throne;
 	
 	Lillies _lillies;
 	Texture lotusTex, waterNormalMap;
@@ -27,6 +27,7 @@ public:
 	
 	void init(Systems& sys);
 	void procGen() {};
+	void update(const RenderContext& rc);
 	void draw(const RenderContext& rc);
 	void updateReflectionRefraction(const RenderContext& rc, const Camera& c);
 	void setUpCollision();

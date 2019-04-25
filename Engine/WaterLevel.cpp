@@ -44,6 +44,14 @@ void WaterLevel::init(Systems& sys)
 
 	_lillies.init(33.333f, .1667f, SVec2(33.333, 200.f), SVec3(0, waterTerrain.getOffset().y - .2f, 0));
 	lillyModel.LoadModel(device, "../Models/Lilly/Lilly.obj");
+
+	throne.LoadModel(device, "../Models/FlowerThrone/flowerThrone.fbx");
+	Math::Scale(throne.transform, SVec3(.33));
+	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(1, 0, 0), PI * 0.5f));
+	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), -PI * 0.5f));
+	throne.transform *= SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y - 20.f, 200));
+	goal = throne.transform.Translation();
+	
 	
 	SMatrix petalScale = SMatrix::CreateScale(SVec3(5));
 
@@ -73,16 +81,22 @@ void WaterLevel::init(Systems& sys)
 
 
 
-void WaterLevel::draw(const RenderContext& rc)
+void WaterLevel::update(const RenderContext& rc)
 {
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
-	
+	win(rc.cam->GetPosition());
+
 	_lillies.update(rc.dTime);
 	fakeCollision();
-	//updateCollision();
 	updateCam(rc.dTime);
-		
+
 	ProcessSpecialInput(rc.dTime);
+}
+
+
+
+void WaterLevel::draw(const RenderContext& rc)
+{
+	rc.d3d->SetBackBufferRenderTarget();
 	
 #pragma region reflectionRendering
 	cubeMapper.UpdateCams(modBall.transform.Translation());
@@ -95,7 +109,6 @@ void WaterLevel::draw(const RenderContext& rc)
 		rc.shMan->water.SetShaderParameters(context, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
 		waterSheet.Draw(context, rc.shMan->water);
 		rc.shMan->water.ReleaseShaderParameters(context);
-
 
 		RenderContext rcTemp = rc;
 		rcTemp.cam = &cubeMapper.getCameraAtIndex(i);
@@ -134,6 +147,9 @@ void WaterLevel::draw(const RenderContext& rc)
 
 	_lillies.draw(rc, lillyModel, pointLight, false);
 	rc.d3d->TurnOffAlphaBlending();
+
+	shady.terrainNormals.SetShaderParameters(context, throne.transform, *rc.cam, pointLight, rc.dTime);
+	throne.Draw(context, shady.terrainNormals);
 
 	//reflection sphere
 	rc.shMan->cubeMapShader.SetShaderParameters(context, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
@@ -216,15 +232,9 @@ void WaterLevel::setUpCollision()
 void WaterLevel::updateCollision()
 {
 	for (Ring& ring : _lillies._lillyRings)
-	{
 		for (Lilly& l : ring._lillies)
-		{
 			for (Hull* h : l.act.collider->hulls)
-			{
 				h->setPosition(l.act.transform.Translation());
-			}
-		}
-	}
 }
 
 

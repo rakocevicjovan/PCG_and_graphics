@@ -429,6 +429,7 @@ ID3D11DepthStencilView* D3D::GetDepthStencilView()
 
 void D3D::SetBackBufferRenderTarget()
 {
+	_deviceContext->RSSetViewports(1, &viewport);
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 	ClearColourDepthBuffers(clearColour);
 }

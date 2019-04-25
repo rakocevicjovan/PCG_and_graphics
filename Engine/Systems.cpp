@@ -159,7 +159,7 @@ bool Systems::Frame(float dTime)
 
 	_levelMan->update(*this, dTime);
 
-	_levelMan->drawCurrentLevel(_renderer.rc);
+	_levelMan->UpdateDrawCurrent(_renderer.rc);
 
 	_colEngine.update();
 

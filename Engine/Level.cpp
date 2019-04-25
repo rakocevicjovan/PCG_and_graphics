@@ -1,10 +1,9 @@
 #include "Level.h"
 #include "Controller.h"
 #include "InputManager.h"
-#include "LevelManager.h"
 #include <d3d11.h>
 
-Level::Level(Systems& sys, LevelManager* lMan) : _sys(sys), lvlMan(lMan) {}
+Level::Level(Systems& sys) : _sys(sys) {}
 
 
 
@@ -21,16 +20,6 @@ void Level::ProcessSpecialInput(float dTime)
 		sinceLastInput = 0;
 	}
 }
-
-
-
-
-
-
-///TREE RENDERING
-//rc.shMan->treeShader.SetShaderParameters(context, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-//treeModel.Draw(context, rc.shMan->light);
-//rc.shMan->light.ReleaseShaderParameters(context);
 
 
 #pragma region OldLevel

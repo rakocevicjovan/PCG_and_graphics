@@ -9,19 +9,17 @@
 
 LevelManager::LevelManager(Systems& systems)
 {
-	current = new FireLevel(systems, this);
+	current = new WaterLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
-	_levels.push_back(new FireLevel(systems, this));
-	_levels.push_back(new WaterLevel(systems, this));
-	_levels.push_back(new AirLevel(systems, this));
+	_levels.push_back(new FireLevel(systems));
+	_levels.push_back(new WaterLevel(systems));
+	_levels.push_back(new AirLevel(systems));
 }
 
 
 
-LevelManager::~LevelManager()
-{
-}
+LevelManager::~LevelManager() {}
 
 
 
@@ -31,7 +29,7 @@ Level* LevelManager::advanceLevel(Systems& systems)
 		return _levels[0];
 
 	_levels.front()->demolish();
-	//delete _levels.front();
+	delete _levels.front();
 	_levels.erase(_levels.begin());
 	_levels[0]->init(systems);
 	current = _levels[0];
@@ -47,7 +45,7 @@ void LevelManager::update(Systems& systems, float dTime)
 	if (sinceLastInput < .33f)
 		return;
 
-	if (systems._inputManager.IsKeyDown((short)'L'))
+	if (systems._inputManager.IsKeyDown((short)'L') || current->finished)
 	{
 		advanceLevel(systems);
 		sinceLastInput = 0;
@@ -56,7 +54,8 @@ void LevelManager::update(Systems& systems, float dTime)
 
 
 
-void LevelManager::drawCurrentLevel(RenderContext& renderContext)
+void LevelManager::UpdateDrawCurrent(RenderContext& renderContext)
 {
+	current->update(renderContext);
 	current->draw(renderContext);
 }

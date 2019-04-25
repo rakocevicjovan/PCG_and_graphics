@@ -77,7 +77,6 @@ void Renderer::SetOSTRenderTarget(OST& ost)
 
 void Renderer::RevertRenderTarget()
 {
-	_deviceContext->RSSetViewports(1, &_d3d->viewport);
 	_d3d->SetBackBufferRenderTarget();
 }
 

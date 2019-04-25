@@ -6,7 +6,7 @@
 class EarthLevel : public Level
 {
 public:
-	EarthLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan) {};
+	EarthLevel(Systems& sys) : Level(sys) {};
 
 	///each level probably contains these
 	PointLight pointLight;
@@ -32,6 +32,7 @@ public:
 	//load and draw all that jazz
 	void init(Systems& sys);
 	void procGen() {};
+	void update(const RenderContext& rc);
 	void draw(const RenderContext& rc);
 	void demolish()
 	{

@@ -27,6 +27,7 @@ void FireLevel::init(Systems& sys)
 	will.LoadModel(device, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(10.f));
 	Math::Translate(will.transform, SVec3(768, 138, 768));
+	goal = will.transform.Translation();
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
@@ -77,7 +78,8 @@ void FireLevel::init(Systems& sys)
 	float liangle = PI * 0.138888f;		//liangle = PI * .5f;
 	tree = linden.genModel(device, 12.f, 3.f, .77f, .77f, liangle, liangle);
 	tree.transform = SMatrix::CreateFromAxisAngle(SVec3(0, 0, 1), PI * 0.5);
-	tree.transform *= SMatrix::CreateTranslation(808, 60, 723);
+	tree.transform *= SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), -PI * 0.4);
+	tree.transform *= SMatrix::CreateTranslation(860, 60, 800);
 }
 
 
@@ -97,7 +99,7 @@ void FireLevel::procGen()
 
 
 
-void FireLevel::draw(const RenderContext& rc)
+void FireLevel::update(const RenderContext & rc)
 {
 	setUpCollision();
 	processInput(rc.dTime);
@@ -108,6 +110,23 @@ void FireLevel::draw(const RenderContext& rc)
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
 		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.normalMapper));
 
+	if (!_sys._controller.isFlying())
+	{
+		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
+		float newHeight = terrain.getHeightAtPosition(rc.cam->GetPosition());
+		if (rc.cam->GetPosition().y < newHeight)
+			rc.cam->SetTranslation(SVec3(oldPos.x, newHeight, oldPos.z));
+	}
+
+	win(rc.cam->GetPosition());
+}
+
+
+
+void FireLevel::draw(const RenderContext& rc)
+{
+
+
 	sceneTex.SetRenderTarget(context);
 
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
@@ -115,11 +134,9 @@ void FireLevel::draw(const RenderContext& rc)
 	for (auto& island : _islands) 
 		island.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 	
-
 	for (Platform p : hexer._platforms)
 	{
-		if (!p.active)
-			continue;
+		if (!p.active) continue;
 
 		hexModel.transform = p.actor.transform;
 		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
@@ -133,14 +150,13 @@ void FireLevel::draw(const RenderContext& rc)
 
 	//transparent items
 	rc.d3d->TurnOnAlphaBlending();
-
 	shady.shVolumLava.SetShaderParameters(context, lavaSheetModel, *rc.cam, rc.elapsed);
 	lavaSheetModel.Draw(context, shady.shVolumLava);
 
 	shady.shVolumFire.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
 	will.Draw(context, shady.shVolumFire);
-
 	rc.d3d->TurnOffAlphaBlending();
+
 
 
 	//brightnessMask
@@ -167,24 +183,12 @@ void FireLevel::draw(const RenderContext& rc)
 	}
 	
 	//final scene rendering - the screen quad
-	context->RSSetViewports(1, &rc.d3d->viewport);				//use default viewport for output dimensions
 	rc.d3d->SetBackBufferRenderTarget();						//set default screen buffer as output target
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);		//clear colour and depth buffer
 
 	postProcessor.draw(context, shady.bloom, sceneTex.srv, blurredTex2.srv);
 	
 	//finish up
 	rc.d3d->EndScene();
-
-	//move out of here
-	if (!_sys._controller.isFlying())
-	{
-		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
-		float newHeight = terrain.getHeightAtPosition(rc.cam->GetPosition());
-		if(rc.cam->GetPosition().y < newHeight)
-			rc.cam->SetTranslation(SVec3(oldPos.x, newHeight, oldPos.z));
-	}
-
 
 	resetCollision();
 }

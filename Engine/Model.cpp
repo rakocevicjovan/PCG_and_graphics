@@ -258,10 +258,12 @@ inline bool Model::fileExists(const std::string& name)
 
 SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
 {
+	if (face.mNumIndices < 3) return SVec3(0, 0, 0);
+
 	SVec3 tangent;
 	SVec3 edge1, edge2;
 	SVec2 duv1, duv2;
-
+	
 	//Find first texture coordinate edge 2d vector
 	Vert3D v0 = vertices[face.mIndices[0]];
 	Vert3D v1 = vertices[face.mIndices[1]];

@@ -27,6 +27,7 @@ void EarthLevel::init(Systems& sys)
 
 	SMatrix goalMat = SMatrix::CreateTranslation(maze.GetRandCellPos());
 	pSys.init(&will, 10, goalMat);
+	goal = goalMat.Translation();
 
 	particleUpdFunc = [this](ParticleUpdateData* _pud) -> void
 	{
@@ -44,9 +45,17 @@ void EarthLevel::init(Systems& sys)
 
 
 
-void EarthLevel::draw(const RenderContext& rc)
+void EarthLevel::update(const RenderContext & rc)
 {
 	updateCam(rc.dTime);
+	win(rc.cam->GetPosition());
+}
+
+
+
+void EarthLevel::draw(const RenderContext& rc)
+{
+	
 	
 	rc.d3d->SetBackBufferRenderTarget();
 

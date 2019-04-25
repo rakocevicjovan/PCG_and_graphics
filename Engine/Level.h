@@ -17,26 +17,31 @@ class Level
 {
 protected:
 	Systems& _sys;
-	LevelManager* lvlMan;
 
 	float sinceLastInput = 0.f;	//consequence of slightly changing rastertek input instead of completely redoing it... fucking hell
 
 	std::vector<GameObject*> objects;
 	std::vector<GraphicComponent*> lesRenderables;
 	std::vector<Collider> _levelColliders;
+
+	SVec3 goal;
+
 	Camera camera;
 
-	bool finished = false;
-
 public:
-	Level(Systems& sys, LevelManager* lMan);
+	Level(Systems& sys);
 	
 	void updateCam(float dTime) { randy._cam.Update(randy.rc.dTime); }
 
 	void ProcessSpecialInput(float dTime);
 
 	virtual void init(Systems& sys) = 0;
+	virtual void update(const RenderContext& rc) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
 	virtual void demolish() = 0;
+	void win(SVec3 playerPos) { if (SVec3::Distance(playerPos, goal) < 30.f) finished = true; };
 	void procGen() {};
+
+
+	bool finished = false;
 };

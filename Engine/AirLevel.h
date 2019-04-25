@@ -29,9 +29,10 @@ public:
 	float windInt = 33.f;
 	std::vector<InstanceData> instanceData;
 
-	AirLevel(Systems& sys, LevelManager* lMan) : Level(sys, lMan), player(sys._controller) {};
+	AirLevel(Systems& sys) : Level(sys), player(sys._controller) {};
 	void init(Systems& sys);
 	void procGen() {};
+	void update(const RenderContext& rc);
 	void draw(const RenderContext& rc);
 	void demolish() { this->~AirLevel(); };
 };
