@@ -694,7 +694,7 @@ namespace Procedural
 			finalHeight = getHeightByBarrycentric(SVec3(0, blh, 0), SVec3(1, trh, 1), SVec3(1, brh, 0), SVec2(xCoord, zCoord));
 		}
 
-		return finalHeight + 10.f;
+		return finalHeight + _offset.y + 10.f;
 	}
 
 

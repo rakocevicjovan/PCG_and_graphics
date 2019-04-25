@@ -11,7 +11,7 @@ class FireLevel : public Level
 
 	Procedural::Terrain terrain, lavaSheet;
 	std::vector<Procedural::Terrain> _islands;
-	Model skybox, lavaSheetModel;
+	Model skybox, lavaSheetModel, tree;
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper;
 	Model will, hexCluster, hexModel;

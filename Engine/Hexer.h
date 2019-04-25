@@ -46,8 +46,7 @@ public:
 	SVec3 getCornerPos(const SVec3& center, UINT i);
 
 	std::vector<SVec3> _points = {
-		SVec3(190, 128, 185), SVec3(508, 128, 208),
-		SVec3(417, 128, 570), SVec3(243, 128, 782),
-		SVec3(675, 128, 777), SVec3(768, 128, 782)
+		SVec3(190, 128, 185), SVec3(408, 128, 308),
+		SVec3(417, 128, 570), SVec3(243, 128, 782), SVec3(768, 128, 782)
 	};
 };

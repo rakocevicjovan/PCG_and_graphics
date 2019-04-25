@@ -4,7 +4,6 @@
 
 
 
-
 Platform::Platform(SVec3 position, Model* m, ShaderMaze* s)
 {
 	actor.transform = SMatrix::CreateTranslation(position);

@@ -187,7 +187,7 @@ namespace Procedural
 			float branchTipRadiusPercent = 1.f;
 
 			if (isEnd)	//branch is at the end of the branch - make it a briar
-				branchTipRadiusPercent = 1.f;
+				branchTipRadiusPercent = .1f;
 
 			switch (c)
 			{
@@ -207,17 +207,17 @@ namespace Procedural
 				}
 
 				//add sphere
-				tree.meshes.emplace_back(tube, device, true, true);
-				
-				//if (!isEnd)
-				//{
+				tree.meshes.emplace_back(tube, device, false, true);
+
+				if (!isEnd)
+				{
 					for (int i = 0; i < sphere.positions.size(); ++i)
 					{
 						tempSphere.positions[i] = sphere.positions[i] * branchTipRadiusPercent * radius;
 						tempSphere.positions[i] += nextPos;
 					}
-					tree.meshes.emplace_back(tempSphere, device, true, true);
-				//}
+					tree.meshes.emplace_back(tempSphere, device, false, true);
+				}
 
 				break;
 
@@ -275,9 +275,31 @@ namespace Procedural
 		tree.textures_loaded.emplace_back(device, "../Textures/Bark/diffuse.jpg");
 		tree.textures_loaded.emplace_back(device, "../Textures/Bark/normal.jpg");
 
-		for (auto& m : tree.meshes)
-			m.textures = tree.textures_loaded;
+		Mesh finalMesh;
+		finalMesh.textures = tree.textures_loaded;
+		int totalVerts = 0, totalInds = 0;
 
+		for (auto&m : tree.meshes)
+		{
+			totalVerts += m.vertices.size();
+			totalInds += m.indices.size();
+		}
+			
+		finalMesh.vertices.reserve(totalVerts);
+		finalMesh.indices.reserve(totalInds);
+
+		for (auto&m : tree.meshes)
+		{
+			int accIndSize = finalMesh.vertices.size();
+			for (auto& ind : m.indices)
+				ind += accIndSize;
+			finalMesh.indices.insert(finalMesh.indices.end(), m.indices.begin(), m.indices.end());
+			finalMesh.vertices.insert(finalMesh.vertices.end(), m.vertices.begin(), m.vertices.end());
+		}
+		//finalMesh.setupMesh(device);
+		tree.meshes.clear();
+		tree.meshes.emplace_back(finalMesh.vertices, finalMesh.indices, tree.textures_loaded, device, 0);
+		
 		return tree;
 	}
 

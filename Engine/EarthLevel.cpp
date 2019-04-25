@@ -63,14 +63,6 @@ void EarthLevel::draw(const RenderContext& rc)
 	will.Draw(context, rc.shMan->shVolumAir);
 	rc.d3d->TurnOffAlphaBlending();
 
-	//move out of here
-	if (!_sys._controller.isFlying())
-	{
-		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
-		float newHeight = proceduralTerrain.getHeightAtPosition(_sys._renderer._cam.GetCameraMatrix().Translation());
-		rc.cam->SetTranslation(SVec3(oldPos.x, newHeight, oldPos.z));
-	}
-
 	rc.d3d->EndScene();
 
 	ProcessSpecialInput(rc.dTime);

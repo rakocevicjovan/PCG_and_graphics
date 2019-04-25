@@ -45,8 +45,8 @@ void FireLevel::init(Systems& sys)
 	terrain.SetUp(device);
 	
 	//other items
-	Procedural::Terrain island = Procedural::Terrain(128, 128, SVec3(4, 300, 4));
-	island.Mesa(SVec2(256), 32, 64, 128);
+	Procedural::Terrain island = Procedural::Terrain(64, 64, SVec3(16, 300, 16));
+	island.Mesa(SVec2(256), 32, 64, 64);
 	island.setTextureData(device, 10, 10, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
 
 	
@@ -57,8 +57,7 @@ void FireLevel::init(Systems& sys)
 		_islands.push_back(island);
 	}
 
-	lavaSheet = Procedural::Terrain(256, 256, SVec3(4, 2, 4));
-	lavaSheet.setTextureData(device, 10, 10, { "../Textures/LavaIntense/diffuse.jpg", "../Textures/LavaIntense/normal.jpg" });
+	lavaSheet = Procedural::Terrain(2, 2, SVec3(1024, 1, 1024));
 	lavaSheet.setOffset(0, 32, 0);
 	lavaSheet.CalculateTexCoords();
 	lavaSheet.CalculateNormals();
@@ -70,6 +69,15 @@ void FireLevel::init(Systems& sys)
 	hexDiffuseMap.Setup(device);
 	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
 	hexNormalMap.Setup(device);
+
+	Procedural::LSystem linden;
+	linden.reseed("F");
+	linden.addRule('F', "FF+[+*F-F-/F]*-[-F/+F+*F]/");
+	linden.rewrite(4);
+	float liangle = PI * 0.138888f;		//liangle = PI * .5f;
+	tree = linden.genModel(device, 12.f, 3.f, .77f, .77f, liangle, liangle);
+	tree.transform = SMatrix::CreateFromAxisAngle(SVec3(0, 0, 1), PI * 0.5);
+	tree.transform *= SMatrix::CreateTranslation(808, 60, 723);
 }
 
 
@@ -105,9 +113,7 @@ void FireLevel::draw(const RenderContext& rc)
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	for (auto& island : _islands) 
-	{
 		island.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
-	}
 	
 
 	for (Platform p : hexer._platforms)
@@ -119,6 +125,9 @@ void FireLevel::draw(const RenderContext& rc)
 		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
 		hexModel.Draw(context, shady.normalMapper);
 	}
+
+	shady.normalMapper.SetShaderParameters(context, tree, *rc.cam, pointLight, rc.dTime, tree.textures_loaded[0], tree.textures_loaded[1]);
+	tree.Draw(context, shady.normalMapper);
 
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
@@ -166,6 +175,16 @@ void FireLevel::draw(const RenderContext& rc)
 	
 	//finish up
 	rc.d3d->EndScene();
+
+	//move out of here
+	if (!_sys._controller.isFlying())
+	{
+		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
+		float newHeight = terrain.getHeightAtPosition(rc.cam->GetPosition());
+		if(rc.cam->GetPosition().y < newHeight)
+			rc.cam->SetTranslation(SVec3(oldPos.x, newHeight, oldPos.z));
+	}
+
 
 	resetCollision();
 }
