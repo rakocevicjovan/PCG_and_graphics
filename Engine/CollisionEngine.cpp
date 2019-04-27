@@ -34,11 +34,11 @@ void CollisionEngine::registerModel(Model& model, BoundingVolumeType bvt)
 	switch (bvt)
 	{
 	case BVT_AABB:
-		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genBoxHull(&m));
+		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genBoxHull(&m, model.transform));
 		break;
 
 	case BVT_SPHERE:
-		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genSphereHull(&m));
+		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genSphereHull(&m, model.transform));
 		break;
 	}
 
@@ -59,11 +59,11 @@ void CollisionEngine::registerActor(Actor& actor, BoundingVolumeType bvt)
 	switch (bvt)
 	{
 	case BVT_AABB:
-		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genBoxHull(&m));
+		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genBoxHull(&m, actor.transform));
 		break;
 
 	case BVT_SPHERE:
-		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genSphereHull(&m));
+		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genSphereHull(&m, actor.transform));
 		break;
 	}
 
@@ -140,21 +140,20 @@ void CollisionEngine::removeFromGrid(Collider& collider)
 
 void CollisionEngine::update()
 {
-	/*
+	
 	for (Collider* collider : _colliders)
 	{
 		if (collider->dynamic)
 		{
-			SVec4 pos = collider->actParent->transform.Translation();
-			SVec3 pos3 = SVec3(pos.x, pos.y, pos.z);
+		
 			collider->transform = collider->actParent->transform; 
 
-			for (Hull* h : collider->hulls) h->setPosition(pos3);
+			for (Hull* h : collider->hulls) h->setPosition(collider->transform.Translation());
 
 			addToGrid(collider);
 		}
 	}
-	*/
+	
 
 	for (auto iterator = grid.cells.begin(); iterator != grid.cells.end();)
 	{
@@ -237,7 +236,7 @@ HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform
 
 
 
-Hull* CollisionEngine::genBoxHull(Mesh* mesh, Collider* c)
+Hull* CollisionEngine::genBoxHull(Mesh* mesh, const SMatrix& transform, Collider* c)
 {
 	float minX, minY, minZ, maxX, maxY, maxZ;
 	auto pos = mesh->vertices[0].pos;
@@ -246,16 +245,18 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh, Collider* c)
 	minY = maxY = pos.y;
 	minZ = maxZ = pos.z;
 
-	for (const Vert3D& v : mesh->vertices) 
+	for (const Vert3D& vert : mesh->vertices) 
 	{
-		minX = min(v.pos.x, minX);
-		maxX = max(v.pos.x, maxX);
+		SVec3 pos = SVec3::Transform(vert.pos, transform);
 
-		minY = min(v.pos.y, minY);
-		maxY = max(v.pos.y, maxY);
+		minX = min(pos.x, minX);
+		maxX = max(pos.x, maxX);
 
-		minZ = min(v.pos.z, minZ);
-		maxZ = max(v.pos.z, maxZ);
+		minY = min(pos.y, minY);
+		maxY = max(pos.y, maxY);
+
+		minZ = min(pos.z, minZ);
+		maxZ = max(pos.z, maxZ);
 	}
 
 	AABB* aabb = new AABB;
@@ -269,7 +270,7 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh, Collider* c)
 
 
 
-Hull* CollisionEngine::genSphereHull(Mesh* mesh)
+Hull* CollisionEngine::genSphereHull(Mesh* mesh, const SMatrix& transform, Collider* collider)
 {
 	SVec3 center;
 	float radius = 0.f;

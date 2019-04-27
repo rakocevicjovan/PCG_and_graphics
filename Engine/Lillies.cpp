@@ -88,6 +88,7 @@ void Lillies::update(float dTime)
 	for (Ring& ring : _lillyRings)
 	{
 		SMatrix rotMatrix = SMatrix::CreateFromAxisAngle(SVec3::Up, ring.rotSpeed * dTime);
+		
 		for (Lilly& lilly : ring._lillies)
 		{
 			Math::RotateMatByMat(lilly.act.transform, rotMatrix);

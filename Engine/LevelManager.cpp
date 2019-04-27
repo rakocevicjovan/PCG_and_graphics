@@ -23,17 +23,16 @@ LevelManager::~LevelManager() {}
 
 
 
-Level* LevelManager::advanceLevel(Systems& systems)
+void LevelManager::advanceLevel(Systems& systems)
 {
 	if (_levels.size() <= 1)
-		return _levels[0];
+		return;
 
-	_levels.front()->demolish();
-	delete _levels.front();
+	delete _levels[0];
 	_levels.erase(_levels.begin());
 	_levels[0]->init(systems);
 	current = _levels[0];
-	return _levels[0];
+	return;
 }
 
 

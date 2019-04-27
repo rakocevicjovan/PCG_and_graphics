@@ -55,8 +55,6 @@ void EarthLevel::update(const RenderContext & rc)
 
 void EarthLevel::draw(const RenderContext& rc)
 {
-	
-	
 	rc.d3d->SetBackBufferRenderTarget();
 
 	proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);

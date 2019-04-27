@@ -30,6 +30,7 @@ protected:
 
 public:
 	Level(Systems& sys);
+	virtual ~Level() {};
 	
 	void updateCam(float dTime) { randy._cam.Update(randy.rc.dTime); }
 

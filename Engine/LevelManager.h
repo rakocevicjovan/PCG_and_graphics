@@ -14,7 +14,7 @@ public:
 	LevelManager(Systems& systems);
 	~LevelManager();
 
-	Level* advanceLevel(Systems& systems);
+	void advanceLevel(Systems& systems);
 	void UpdateDrawCurrent(RenderContext& renderContext);
 	void update(Systems& systems, float dTime);
 

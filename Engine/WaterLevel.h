@@ -15,7 +15,9 @@ public:
 	Lilly* parentLilly;
 	SVec3 oldTranslation;
 
-	Model skybox, modBall, will, lotus, waterSheet, fence, treeModel, lillyModel, lillyPetalModel, throne;
+	SMatrix _startingTransform;
+
+	Model skybox, modBall, will, lotus, waterSheet, fence, flowerModel, lillyModel, lillyPetalModel, throne, plat;
 	
 	Lillies _lillies;
 	Texture lotusTex, waterNormalMap;

@@ -14,7 +14,8 @@ void Dragon::init(UINT segments, SVec3 initPos)
 
 void Dragon::update(const RenderContext& rc, const SVec3& wind, SVec3 target)
 {	
-	dragonUpdData.dTime = rc.dTime;
+	float time = min(rc.dTime, .02);
+	dragonUpdData.dTime = time;
 	dragonUpdData.playerPos = target;
 	dragonUpdData.wind = wind;
 	dragonUpdData.speed = 1.f;
@@ -52,12 +53,12 @@ void Dragon::update(const RenderContext& rc, const SVec3& wind, SVec3 target)
 			finalOri = SQuat::Concatenate(rollCorrector, finalOri);
 		}
 		
-		SQuat rotDelta = SQuat::Slerp(curOri, finalOri, rc.dTime * agility);
+		SQuat rotDelta = SQuat::Slerp(curOri, finalOri, time * agility);
 
 		Math::SetRotation(springs[0].transform, SMatrix::CreateFromQuaternion(rotDelta));
 	}
 	
-	Math::Translate(springs[0].transform, springs[0].transform.Backward() * flyingSpeed * rc.dTime);
+	Math::Translate(springs[0].transform, springs[0].transform.Backward() * flyingSpeed * time);
 #pragma endregion headMovement
 
 	massSpring();

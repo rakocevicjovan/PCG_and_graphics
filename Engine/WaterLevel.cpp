@@ -51,16 +51,30 @@ void WaterLevel::init(Systems& sys)
 	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), -PI * 0.5f));
 	throne.transform *= SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y - 20.f, 200));
 	goal = throne.transform.Translation();
+
+	_startingTransform = SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y + 10.f, -200));
+	randy.setCameraMatrix(_startingTransform);
 	
-	
+	plat.LoadModel(device, "../Models/leaf.fbx");
+	plat.transform = SMatrix::CreateScale(10);
+	plat.transform *= SMatrix::CreateRotationY(-PI * 0.5f);
+	plat.transform *= _startingTransform;
+	collision.registerModel(plat, BVT_AABB);
+	collision.registerController(_sys._controller);
+
 	SMatrix petalScale = SMatrix::CreateScale(SVec3(5));
 
 	lillyPetalModel.LoadModel(device, "../Models/lotus_petal_upright.obj");
 	for (Vert3D& v : lillyPetalModel.meshes[0].vertices)
 		v.pos = SVec3::Transform(v.pos, petalScale);
-	
+
 	Texture lillyPetalTex(device, "../Textures/Lotus/diffuse.jpg");
 	lillyPetalModel.meshes[0].textures.push_back(lillyPetalTex);
+
+	fence.LoadModel(device, "../Models/barrier.obj");
+	Math::Scale(fence.transform, SVec3(2));
+	fence.transform *= SMatrix::CreateTranslation(SVec3(132, waterTerrain.getOffset().y, 22));
+	fence.meshes[0].textures.push_back(lillyPetalTex);
 
 	linden.reseed("F");
 	linden.addRule('F', "FDSL");	// f just controls iterations, d is a displacement, s is a stalk, l becomes a level of petals
@@ -72,11 +86,10 @@ void WaterLevel::init(Systems& sys)
 	float petalToPetalAngle = 60.f * PI / 180.f;
 	float stalkToPetalAngle = 90.f * PI / 180.f;
 
-	treeModel = linden.genFlower(device, &lillyPetalModel, 1, .33, .7f, petalToPetalAngle, stalkToPetalAngle);
-	Math::Scale(treeModel.transform, SVec3(2));
-	Math::RotateMatByMat(treeModel.transform, SMatrix::CreateRotationY(PI));
-	Math::SetTranslation(treeModel.transform, SVec3(0, 90, 0));	// SVec3(-10, 126, 20)
-
+	flowerModel = linden.genFlower(device, &lillyPetalModel, 1, .33, .7f, petalToPetalAngle, stalkToPetalAngle);
+	Math::Scale(flowerModel.transform, SVec3(2));
+	Math::RotateMatByMat(flowerModel.transform, SMatrix::CreateRotationY(PI));
+	Math::SetTranslation(flowerModel.transform, SVec3(0, 90, 0));	// SVec3(-10, 126, 20)
 }
 
 
@@ -88,6 +101,19 @@ void WaterLevel::update(const RenderContext& rc)
 	_lillies.update(rc.dTime);
 	fakeCollision();
 	updateCam(rc.dTime);
+
+	//death resets position to the beginning
+	if (rc.cam->GetPosition().y < waterTerrain.getOffset().y - 5)
+	{
+		rc.cam->SetCameraMatrix(_startingTransform);
+	}
+
+	SVec3 fenceToCam = rc.cam->GetPosition() - fence.transform.Translation();
+	if (fenceToCam.Length() < 33.f)
+	{
+		rc.cam->SetTranslation(fence.transform.Translation() + Math::getNormalizedVec3(fenceToCam) * 33.f);
+	}
+
 
 	ProcessSpecialInput(rc.dTime);
 }
@@ -129,21 +155,26 @@ void WaterLevel::draw(const RenderContext& rc)
 	///scene
 	randy.RevertRenderTarget();
 
+	//lsystems
+	rc.shMan->light.SetShaderParameters(context, flowerModel.transform, *rc.cam, pointLight, rc.elapsed);
+	flowerModel.Draw(context, rc.shMan->light);
+	rc.shMan->light.ReleaseShaderParameters(context);
+
 	//lotus
 	rc.shMan->light.SetShaderParameters(context, lotus.transform, *rc.cam, pointLight, rc.dTime);
 	lotus.Draw(context, rc.shMan->light);
 	rc.shMan->light.ReleaseShaderParameters(context);
 
-	//lsystems
-	rc.shMan->terrainNormals.SetShaderParameters(context, treeModel.transform, *rc.cam, pointLight, rc.elapsed);
-	treeModel.Draw(context, rc.shMan->terrainNormals);
-	rc.shMan->terrainNormals.ReleaseShaderParameters(context);
+	//platform
+	rc.shMan->light.SetShaderParameters(context, plat.transform, *rc.cam, pointLight, rc.dTime);
+	plat.Draw(context, rc.shMan->light);
+	rc.shMan->light.ReleaseShaderParameters(context);
 
 	//water
 	rc.d3d->TurnOnAlphaBlending();
-	rc.shMan->water.SetShaderParameters(context, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+	shady.water.SetShaderParameters(context, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
 	waterSheet.Draw(context, rc.shMan->water);
-	rc.shMan->water.ReleaseShaderParameters(context);
+	shady.water.ReleaseShaderParameters(context);
 
 	_lillies.draw(rc, lillyModel, pointLight, false);
 	rc.d3d->TurnOffAlphaBlending();
@@ -151,6 +182,9 @@ void WaterLevel::draw(const RenderContext& rc)
 	shady.terrainNormals.SetShaderParameters(context, throne.transform, *rc.cam, pointLight, rc.dTime);
 	throne.Draw(context, shady.terrainNormals);
 
+	shady.light.SetShaderParameters(context, fence.transform, *rc.cam, pointLight, rc.dTime);
+	fence.Draw(context, shady.terrainNormals);
+	
 	//reflection sphere
 	rc.shMan->cubeMapShader.SetShaderParameters(context, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
 	modBall.Draw(context, rc.shMan->cubeMapShader);
@@ -211,8 +245,8 @@ void WaterLevel::setUpCollision()
 			c.actParent = &lil.act;
 			c.dynamic = true;
 
-			c.hulls.push_back(_sys._colEngine.genBoxHull(&lillyModel.meshes[0], &c));
-			c.hulls.push_back(_sys._colEngine.genBoxHull(&lillyModel.meshes[1], &c));
+			c.hulls.push_back(_sys._colEngine.genBoxHull(&lillyModel.meshes[0], lil.act.transform, &c));
+			c.hulls.push_back(_sys._colEngine.genBoxHull(&lillyModel.meshes[1], lil.act.transform, &c));
 
 			for (Hull* h : c.hulls)
 			{
@@ -284,4 +318,4 @@ void WaterLevel::fakeCollision()
 //linden.addRule('F', "FF+[+F-F-F]*-[-F+F+F]/");		//float liangle = 24.f * PI / 180.f;
 //linden.addRule('F', "F*[+F-F-F]-[-F+F+F]/");
 //linden.addRule('F', "F[+F]F[-F]F");
-//treeModel = linden.genModel(device, 3.f, .4f, .7f, .7f, liangle, liangle);
+//flowerModel = linden.genModel(device, 3.f, .4f, .7f, .7f, liangle, liangle);

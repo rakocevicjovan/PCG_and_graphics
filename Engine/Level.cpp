@@ -179,9 +179,9 @@ linden.rewrite(4);
 
 float liangle = PI * 0.138888f;		//liangle = PI * .5f;
 
-treeModel = linden.genModel(device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
+flowerModel = linden.genModel(device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
 
-//Math::RotateMatByMat(treeModel.transform, SMatrix::CreateRotationX(-PI * .5f));
+//Math::RotateMatByMat(flowerModel.transform, SMatrix::CreateRotationX(-PI * .5f));
 //linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);
 */
 

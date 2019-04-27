@@ -191,8 +191,8 @@ class CollisionEngine
 
 public:
 
-	Hull* genSphereHull(Mesh* mesh);
-	Hull* genBoxHull(Mesh* mesh, Collider* collider = nullptr);
+	Hull* genSphereHull(Mesh* mesh, const SMatrix& transform, Collider* collider = nullptr);
+	Hull* genBoxHull(Mesh* mesh, const SMatrix& transform, Collider* collider = nullptr);
 
 	CollisionEngine();
 	~CollisionEngine();

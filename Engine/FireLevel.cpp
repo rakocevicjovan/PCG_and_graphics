@@ -19,7 +19,7 @@ void FireLevel::init(Systems& sys)
 	hex.GenHexaprism(hexRadius, 10.f);
 	hexModel.meshes.push_back(Mesh(hex, device));
 	hexer.init(hexRadius);
-	sys._renderer.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
+	randy.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
 
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
@@ -49,14 +49,10 @@ void FireLevel::init(Systems& sys)
 	Procedural::Terrain island = Procedural::Terrain(64, 64, SVec3(16, 300, 16));
 	island.Mesa(SVec2(256), 32, 64, 64);
 	island.setTextureData(device, 10, 10, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
+	island.CalculateNormals();
+	island.CalculateTexCoords();
+	islandModel = Model(island, device);
 
-	
-	for (auto& pos : hexer._points)
-	{
-		island.setOffset(pos.x - 256.f, 0, pos.z - 256.f);
-		island.SetUp(device);
-		_islands.push_back(island);
-	}
 
 	lavaSheet = Procedural::Terrain(2, 2, SVec3(1024, 1, 1024));
 	lavaSheet.setOffset(0, 32, 0);
@@ -131,8 +127,12 @@ void FireLevel::draw(const RenderContext& rc)
 
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
-	for (auto& island : _islands) 
-		island.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
+		
+	for (auto& pos : hexer._points)
+	{
+		shady.terrainNormals.SetShaderParameters(context, SMatrix::CreateTranslation(pos.x - 256.f, 0, pos.z - 256.f), *rc.cam, pointLight, rc.dTime);
+		islandModel.Draw(context, shady.terrainNormals);
+	}
 	
 	for (Platform p : hexer._platforms)
 	{
@@ -205,7 +205,7 @@ void FireLevel::setUpCollision()
 		c.dynamic = true;
 		
 		for (Mesh m : platform.actor.gc.model->meshes)
-			c.hulls.push_back(collision.genBoxHull(&m));
+			c.hulls.push_back(collision.genBoxHull(&m, SMatrix::Identity));
 
 		for (Hull* h : c.hulls)
 		{

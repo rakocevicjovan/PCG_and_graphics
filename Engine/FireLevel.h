@@ -10,8 +10,7 @@ class FireLevel : public Level
 	ScreenspaceDrawer::UINODE* screenRectangleNode;
 
 	Procedural::Terrain terrain, lavaSheet;
-	std::vector<Procedural::Terrain> _islands;
-	Model skybox, lavaSheetModel, tree;
+	Model skybox, lavaSheetModel, tree, islandModel;
 	PointLight pointLight;
 	CubeMapper skyboxCubeMapper;
 	Model will, hexCluster, hexModel;
