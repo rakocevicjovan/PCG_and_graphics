@@ -11,7 +11,7 @@ void AirLevel::init(Systems& sys)
 	barrensTerrain.setScales(4, 256, 4);
 	barrensTerrain.GenFromTexture(256, 256, fltVec);
 	barrensTerrain.Mesa(SVec2(128, 128), 128, 96, 150);
-	barrensTerrain.CircleOfScorn(SVec2(768, 768), 40.f, PI * 0.01337f, 6, 64, PI * 1.25);
+	barrensTerrain.CircleOfScorn(SVec2(768, 768), 40.f, PI * 0.01337f, 5, 64, PI * 1.25);
 	barrensTerrain.Smooth(5);
 	//barrensTerrain.Tumble(.5f, .015f);
 	barrensTerrain.setOffset(-512, 0, -512);
@@ -59,8 +59,8 @@ void AirLevel::init(Systems& sys)
 	dragon.init(17, SVec3(0, 0, 200));
 	instanceData.resize(17);
 
-	windPipeTexture.Init(device, 1600, 900);
-	screenRectangleNode = windPiper.AddUINODE(device, windPiper.getRoot(), SVec2(0, 0), SVec2(1, 1));
+	winTex = Texture(device, "../Textures/Victory.png");
+	winScreenNode = winScreen.AddUINODE(device, winScreen.getRoot(), SVec2(0, 0), SVec2(1, 1));
 }
 
 
@@ -83,7 +83,7 @@ void AirLevel::update(const RenderContext& rc)
 	else
 		Math::Translate(player.a.transform, SVec3(0, -8.f * rc.dTime, 0));
 
-	bool dead = ph <= barrensTerrain.getHeightAtPosition(pp)
+	bool dead = ph <= barrensTerrain.getHeightAtPosition(pp) 
 		|| 
 		(SVec3::Distance(pp, dragon.springs[0].transform.Translation()) < 32.f);
 
@@ -94,7 +94,22 @@ void AirLevel::update(const RenderContext& rc)
 		player.a.transform *= SMatrix::CreateTranslation(SVec3(256, 400, 256));
 	}
 
-	win(pp);
+	if (SVec3::Distance(pp, goal) < 30.f)
+	{
+		++winCount;
+
+		Chaos c;
+		c.setRange(-1, 1);
+		float x = c.rollTheDice() * 512.;
+		float z = c.rollTheDice() * 512.;
+
+		goal = SVec3(x, 0, z);
+		goal.y = barrensTerrain.getHeightAtPosition(goal) + 33.f;
+		Math::SetTranslation(will.transform, goal);
+	}
+
+	if (winCount >= 3)
+		finished = true;
 
 	shady.dragon.UpdateInstanceData(instanceData);
 }
@@ -103,6 +118,14 @@ void AirLevel::update(const RenderContext& rc)
 
 void AirLevel::draw(const RenderContext& rc)
 {
+	if (winCount >= 1)
+	{
+		rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
+		winScreen.draw(context, shady.HUD, winTex.srv);
+		rc.d3d->EndScene();
+		return;
+	}
+
 	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 	
 	_sys._D3D.TurnOffCulling();

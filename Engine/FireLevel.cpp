@@ -121,8 +121,6 @@ void FireLevel::update(const RenderContext & rc)
 
 void FireLevel::draw(const RenderContext& rc)
 {
-
-
 	sceneTex.SetRenderTarget(context);
 
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);

@@ -18,16 +18,17 @@ public:
 	Model skybox, barrens, glider, segmentModel, tornado, will;
 	CubeMapper skyboxCubeMapper;
 
-	OST windPipeTexture;
-	ScreenspaceDrawer windPiper;
-	ScreenspaceDrawer::UINODE* screenRectangleNode;
-
 	Dragon dragon;
 	DirectX::XMMATRIX gales;
 
 	SVec3 windDir = SVec3(1, 0, 0);
 	float windInt = 33.f;
 	std::vector<InstanceData> instanceData;
+
+	int winCount = 0;
+	Texture winTex;
+	ScreenspaceDrawer winScreen;
+	ScreenspaceDrawer::UINODE* winScreenNode;
 
 	AirLevel(Systems& sys) : Level(sys), player(sys._controller) {};
 	~AirLevel() {};
