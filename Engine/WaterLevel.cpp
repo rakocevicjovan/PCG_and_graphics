@@ -10,8 +10,6 @@ void WaterLevel::init(Systems& sys)
 
 	cubeMapper.Init(device);
 
-	will.LoadModel(device, "../Models/ball.fbx");
-
 	modBall.LoadModel(device, "../Models/ball.fbx");
 	Math::Scale(modBall.transform, SVec3(20));
 	Math::Translate(modBall.transform, SVec3(0, 164, 0));
@@ -45,12 +43,17 @@ void WaterLevel::init(Systems& sys)
 	_lillies.init(33.333f, .1667f, SVec2(33.333, 200.f), SVec3(0, waterTerrain.getOffset().y - .2f, 0));
 	lillyModel.LoadModel(device, "../Models/Lilly/Lilly.obj");
 
+	
 	throne.LoadModel(device, "../Models/FlowerThrone/flowerThrone.fbx");
 	Math::Scale(throne.transform, SVec3(.33));
 	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(1, 0, 0), PI * 0.5f));
 	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), -PI * 0.5f));
 	throne.transform *= SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y - 20.f, 200));
 	goal = throne.transform.Translation();
+
+	will.LoadModel(device, "../Models/ball.fbx");
+	Math::Scale(will.transform, SVec3(10.f));
+	will.transform *= SMatrix::CreateTranslation(SVec3(goal.x, goal.y + 50, goal.z));
 
 	_startingTransform = SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y + 10.f, -200));
 	randy.setCameraMatrix(_startingTransform);
@@ -194,12 +197,12 @@ void WaterLevel::draw(const RenderContext& rc)
 	//SKYBOX
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
-	/*
+	//water fairy
 	rc.d3d->TurnOnAlphaBlending();
 	rc.shMan->shVolumWater.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
 	will.Draw(context, rc.shMan->shVolumWater);
 	rc.d3d->TurnOffAlphaBlending();
-	*/
+
 
 	rc.d3d->EndScene();
 }

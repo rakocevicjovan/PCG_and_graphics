@@ -68,10 +68,10 @@ bool VolumetricScreen::SetShaderParameters(ID3D11DeviceContext* deviceContext, c
 	volumScreenBuffer = (VolumetricScreenBuffer*)mappedResource.pData;
 	volumScreenBuffer->cameraPosition = Math::fromVec3(camera.GetPosition(), elapsed);
 	volumScreenBuffer->cameraDirection = Math::fromVec3(camera.GetCameraMatrix().Backward(), 1.f);
-	volumScreenBuffer->gale1 = SVec4(120,	333,	150,	20);
-	volumScreenBuffer->gale2 = SVec4(100,	333,	120,		20);
-	volumScreenBuffer->gale3 = SVec4(80,	333,	100,	20);
-	volumScreenBuffer->gale4 = SVec4(110,	333,	130,		20);
+	volumScreenBuffer->gale1 = SVec4(256,	333,	256,	20);
+	volumScreenBuffer->gale2 = SVec4(280,	333,	240,	20);
+	volumScreenBuffer->gale3 = SVec4(220,	333,	256,	20);
+	volumScreenBuffer->gale4 = SVec4(277,	333,	215,	20);
 	deviceContext->Unmap(_viewRayBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_viewRayBuffer);
 

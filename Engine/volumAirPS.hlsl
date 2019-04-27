@@ -136,7 +136,7 @@ float turbulentFBM(float3 x)
 //here for reference, changed it slightly
 float3 opTwist(in float3 p)
 {
-	float nani = TWISTER * p.y - elapsed;
+	float nani = TWISTER * p.y - elapsed * .66;
 	float c = cos(nani);
 	float s = sin(nani);
 	float2x2 rotoMato = float2x2(c, -s, s, c);
@@ -149,7 +149,7 @@ float sdTorus(float3 p, float2 t)
 }
 
 //Raymarch settings
-static const int NUM_STEPS = 20;
+static const int NUM_STEPS = 33;
 static const float STEP_SIZE = 2.f / (float)NUM_STEPS;
 
 float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
@@ -180,8 +180,9 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 	}
 
 	//sum = smoothstep(float4(0., 0., 0., 0.), float4(1.2, 1.2, 1.2, 1.), float4(.2 * flame , flame, .7f * flame, flame));
-
-	sum = float4(smoothstep(.6, 1., flame), flame, smoothstep(1., .6, flame), flame);
+    float g = smoothstep(.0, .7, flame);
+    float rb = min(flame * flame, g);
+    sum = float4(rb, g, rb, g);
 
 	return sum;
 }

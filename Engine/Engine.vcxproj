@@ -393,6 +393,9 @@
     <FxCompile Include="volumFirePS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="volumTornadoPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="volumTreePS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>

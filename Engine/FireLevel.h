@@ -19,6 +19,7 @@ class FireLevel : public Level
 
 public:
 	FireLevel(Systems& sys) : Level(sys), hexer(sys) {};
+	~FireLevel() {};
 
 	void init(Systems& sys);
 	void procGen();

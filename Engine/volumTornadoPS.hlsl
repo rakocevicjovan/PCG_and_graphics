@@ -110,7 +110,7 @@ float snoise(float3 v)
 //Helpers
 static const float PI = 3.141592f;
 static const float INTENSITY = 1.61803f * PI;
-static const float TWISTER = 8.;
+static const float TWISTER = 12.;
 
 //FBM settings
 static const int NUM_OCTAVES = 3;
@@ -127,7 +127,7 @@ float turbulentFBM(float3 x)
     for (int i = 0; i < NUM_OCTAVES; ++i)
     {
         float r = snoise(frequency * x) * amplitude;
-        r = abs(r);
+        r = r < 0 ? -r : r;
         sum += r;
         frequency *= LACUNARITY;
         amplitude *= GAIN;
@@ -139,21 +139,22 @@ float turbulentFBM(float3 x)
 //here for reference, changed it slightly
 float3 opTwist(in float3 p)
 {
-    float nani = TWISTER * p.y - elapsed * .33;
+    float nani = TWISTER * p.y - elapsed * .66;
     float c = cos(nani);
     float s = sin(nani);
     float2x2 rotoMato = float2x2(c, -s, s, c);
-    return float3(mul(p.xy, rotoMato), p.z);
+    return float3(mul(p.xz, rotoMato), p.y);
 }
 
-float sdTorus(float3 p, float2 t)
+
+float sdCylinder(float3 p, float3 c)
 {
-    return length(float2(length(p.xz) - t.x, p.y)) - t.y;
+    return length(p.xz - c.xy) - c.z;
 }
 
 //Raymarch settings
 static const int NUM_STEPS = 33;
-static const float STEP_SIZE = 2.f / (float) NUM_STEPS;
+static const float STEP_SIZE = sqrt(2) / (float) NUM_STEPS;
 
 float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 {
@@ -162,6 +163,7 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 
     float flame = 0.f;
     float t = 0.f;
+    float3 noiseDir = float3(0., .66, .33);
 
     for (int i = 0; i < NUM_STEPS; ++i)
     {
@@ -170,22 +172,27 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, in float2x2 rotMat)
 
         float3 curPos = rayOrigin + t * rayDir;
 
-        float3 twisted = opTwist(curPos);
+        //float3 twisted = opTwist(curPos);
+        //float3 twisted = float3(mul(curPos.xz, rotMat), curPos.y);
 
-        float mask = 1.f - sdTorus(twisted, float2(0.33, 0.167));
-        mask *= turbulentFBM(twisted - elapsed);
+        curPos.xz *= 4.f;
+        float mask = clamp(-sdCylinder(curPos, float3(0., 0., 1.)), 0., 1.);
 
-        mask = pow(mask, 5);
+        mask *= turbulentFBM(curPos * 2.f - float3(0, elapsed, 0) * 3.f);
+
+        mask = pow(mask, .5);
 
         flame += STEP_SIZE * mask;
 
         t += STEP_SIZE;
     }
 
+    return (float4) flame;
+
 	//sum = smoothstep(float4(0., 0., 0., 0.), float4(1.2, 1.2, 1.2, 1.), float4(.2 * flame , flame, .7f * flame, flame));
-    float b = smoothstep(-.1, .5, flame);
-    float rg = min(flame * flame, b);
-    sum = float4(rg, rg, b, min(1.f - b, flame) * 5.);
+    float g = smoothstep(.3, 1.6, flame);
+    float rb = g * g;
+    sum = float4(rb, g, rb, g);
 
     return sum;
 }

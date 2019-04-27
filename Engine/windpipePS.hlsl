@@ -175,13 +175,13 @@ float sdCylinder(float3 p, float3 c, float bottom, float top)   //expanded to lo
     radius *= heightScale;
     
     float2 center = c.xy;
-    center += myRot(float2(sin(elapsed), 33), elapsed) * heightScale;
+    center += myRot(float2(sin(elapsed), 33), elapsed) * heightScale; //+ sin(heightScale - elapsed) * 33;
 
     float distToCenter = length(p.xz - center) - radius;
 
-    distToCenter = p.y < bottom ? 100000 : distToCenter;
-
-    return p.y > top ? 100000 : distToCenter;
+    //distToCenter = p.y < bottom ? 100000 : distToCenter;
+    //return p.y > top ? 100000 : distToCenter;
+    return distToCenter;
 }
 
 
@@ -199,7 +199,7 @@ float4 getCol(in float3 rayOrigin, in float3 rayDir)
         adjustedPos.y -= 3. * elapsed;
         adjustedPos.y *= .1;
 
-        colour += turbulentFBM(adjustedPos) / 24.;
+        colour += turbulentFBM(adjustedPos) * 24.;
     }
   
     //colour = smoothstep(.6, 1.8, colour);
@@ -244,10 +244,6 @@ float4 raymarch(in float3 rayOrigin, in float3 rayDir, Windpipe wp)
 float4 LightPixelShader(PixelInputType input) : SV_TARGET
 {
     float3 camPos = cameraPosition.xyz;
-
-    float2 uv = input.position.xy / float2(1600, 900);
-    uv *= 2.f;
-    uv -= 1.f;
 
     float3 viewDir = normalize(input.wPos.xyz - camPos);
     

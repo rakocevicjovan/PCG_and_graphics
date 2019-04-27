@@ -65,11 +65,6 @@ void EarthLevel::draw(const RenderContext& rc)
 
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
-	rc.d3d->TurnOnAlphaBlending();
-	rc.shMan->shVolumAir.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
-	will.Draw(context, rc.shMan->shVolumAir);
-	rc.d3d->TurnOffAlphaBlending();
-
 	rc.d3d->EndScene();
 
 	ProcessSpecialInput(rc.dTime);

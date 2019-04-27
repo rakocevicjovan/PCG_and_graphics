@@ -612,5 +612,8 @@
     <FxCompile Include="dragonVS.hlsl">
       <Filter>Shader Files\Volumetric</Filter>
     </FxCompile>
+    <FxCompile Include="volumTornadoPS.hlsl">
+      <Filter>Shader Files\Volumetric</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

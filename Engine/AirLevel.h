@@ -5,7 +5,6 @@
 
 class AirLevel : public Level
 {
-
 public:
 
 	PointLight pointLight;
@@ -15,7 +14,8 @@ public:
 
 	Player player;
 
-	Model skybox, barrens, glider, segmentModel;
+	Procedural::Terrain barrensTerrain;
+	Model skybox, barrens, glider, segmentModel, tornado, will;
 	CubeMapper skyboxCubeMapper;
 
 	OST windPipeTexture;
@@ -30,16 +30,10 @@ public:
 	std::vector<InstanceData> instanceData;
 
 	AirLevel(Systems& sys) : Level(sys), player(sys._controller) {};
+	~AirLevel() {};
 	void init(Systems& sys);
 	void procGen() {};
 	void update(const RenderContext& rc);
 	void draw(const RenderContext& rc);
 	void demolish() { this->~AirLevel(); };
 };
-
-/*
-	gales.r[0] = SVec4(0, 100, 100, 13);
-	gales.r[1] = SVec4(100, 100, 33, 15);
-	gales.r[2] = SVec4(0, 100, 120, 12);
-	gales.r[3] = SVec4(-170, 100, 15, 17);
-*/

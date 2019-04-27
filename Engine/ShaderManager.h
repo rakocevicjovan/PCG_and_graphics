@@ -53,7 +53,7 @@ public:
 	ShaderClipper clipper;
 
 	//wisps
-	ShaderVolumetric shVolumEarth, shVolumFire, shVolumWater, shVolumAir, shVolumLava, dragonCurve;
+	ShaderVolumetric shVolumEarth, shVolumFire, shVolumWater, shVolumAir, shVolumLava, shVolumTornado;
 	VolumetricScreen shVolumScreen;
 
 	ShaderManager();
