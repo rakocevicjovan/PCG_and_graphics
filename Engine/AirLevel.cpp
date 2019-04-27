@@ -74,6 +74,8 @@ void AirLevel::update(const RenderContext& rc)
 	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
 
+	shady.dragon.UpdateInstanceData(instanceData);
+
 	SVec3 pp(player.a.transform.Translation());
 	SVec2 tp(tornado.transform.Translation().x, tornado.transform.Translation().z);
 	float ph = pp.y;
@@ -107,18 +109,13 @@ void AirLevel::update(const RenderContext& rc)
 		goal.y = barrensTerrain.getHeightAtPosition(goal) + 33.f;
 		Math::SetTranslation(will.transform, goal);
 	}
-
-	if (winCount >= 3)
-		finished = true;
-
-	shady.dragon.UpdateInstanceData(instanceData);
 }
 
 
 
 void AirLevel::draw(const RenderContext& rc)
 {
-	if (winCount >= 1)
+	if (winCount >= 3)
 	{
 		rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
 		winScreen.draw(context, shady.HUD, winTex.srv);

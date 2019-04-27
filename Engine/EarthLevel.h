@@ -28,6 +28,7 @@ public:
 	Procedural::Maze maze;
 
 	ParticleSystem pSys;
+	std::vector<InstanceData> instanceData;
 	std::function<void(ParticleUpdateData*)> particleUpdFunc;
 
 	//load and draw all that jazz

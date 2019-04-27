@@ -40,7 +40,7 @@ public:
 	virtual void update(const RenderContext& rc) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
 	virtual void demolish() = 0;
-	void win(SVec3 playerPos) { if (SVec3::Distance(playerPos, goal) < 30.f) finished = true; };
+	void win(SVec3 playerPos, float dist = 30.f) { if (SVec3::Distance(playerPos, goal) < dist) finished = true; };
 	void procGen() {};
 
 

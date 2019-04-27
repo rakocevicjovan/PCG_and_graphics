@@ -249,6 +249,6 @@ namespace Procedural
 		c.setRange(_h / 2, _h);
 		UINT randDepth = c.rollTheDice();
 
-		return SVec3(randWidth * _cellSize, _height * 0.5, randDepth * _cellSize);
+		return SVec3((randWidth + 0.5) * _cellSize, _height * 0.5, (randDepth + 0.5) * _cellSize);
 	}
 }

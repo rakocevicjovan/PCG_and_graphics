@@ -6,7 +6,7 @@ void EarthLevel::init(Systems& sys)
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 
-	will.LoadModel(device, "../Models/ball.fbx");
+	will.LoadModel(device, "../Models/minerals/source/Ruda.obj");
 	Math::Scale(will.transform, SVec3(5.f));
 	Math::Translate(will.transform, SVec3(2, 35, 60));
 
@@ -20,7 +20,7 @@ void EarthLevel::init(Systems& sys)
 	mazeDiffuseMap = Texture(device, "../Textures/Rock/diffuse.jpg");
 	mazeNormalMap = Texture(device, "../Textures/Rock/normal.jpg");
 
-	maze.Init(10, 10, 32.f);
+	maze.Init(10, 10, 32);
 	maze.CreateModel(device);
 
 	sys._colEngine.registerModel(maze.model, BoundingVolumeType::BVT_AABB);
@@ -28,19 +28,26 @@ void EarthLevel::init(Systems& sys)
 	SMatrix goalMat = SMatrix::CreateTranslation(maze.GetRandCellPos());
 	pSys.init(&will, 10, goalMat);
 	goal = goalMat.Translation();
+	will.transform = goalMat;
 
 	particleUpdFunc = [this](ParticleUpdateData* _pud) -> void
 	{
 		for (int i = 0; i < pSys._particles.size(); ++i)
 		{
 			SVec3 translation(1, 1, 1);
+			pSys._particles[i]->age += _pud->dTime;
+			SMatrix rotMat = SMatrix::CreateRotationY(PI * pSys._particles[i]->age);
+
 			translation.x *= sin(pSys._particles[i]->age * 0.2f * (float)(i + 1));
 			translation.y *= cos(pSys._particles[i]->age  * ((float)pSys._particles.size() - (float)i));
 			translation.z *= cos(pSys._particles[i]->age * 0.2f * (float)(i + 1));
+			pSys._particles[i]->transform = rotMat;
 			Math::SetTranslation(pSys._particles[i]->transform, translation * (float)i * -0.33f);
 		}
 	};
-
+	pSys.setUpdateFunction(particleUpdFunc);
+	instanceData.resize(pSys._numParticles);
+	shady.instanced._instanceCount = 10;
 }
 
 
@@ -48,7 +55,19 @@ void EarthLevel::init(Systems& sys)
 void EarthLevel::update(const RenderContext & rc)
 {
 	updateCam(rc.dTime);
-	win(rc.cam->GetPosition());
+	win(rc.cam->GetPosition(), 10.f);
+
+	if (!_sys._controller.isFlying())
+	{
+		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
+		float newHeight = proceduralTerrain.getHeightAtPosition(rc.cam->GetPosition());
+		if (rc.cam->GetPosition().y < newHeight)
+			rc.cam->SetTranslation(SVec3(oldPos.x, newHeight, oldPos.z));
+	}
+	
+	pSys.update(rc.dTime * .33f);
+	for (int i = 0; i < pSys._particles.size(); ++i)
+		instanceData[i]._m = pSys._particles[i]->transform.Transpose();
 }
 
 
@@ -58,6 +77,11 @@ void EarthLevel::draw(const RenderContext& rc)
 	rc.d3d->SetBackBufferRenderTarget();
 
 	proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
+
+	shady.instanced.UpdateInstanceData(instanceData);
+	shady.instanced.SetShaderParameters(context, will, *rc.cam, pointLight, rc.elapsed);
+	will.DrawInstanced(context, shady.instanced);
+
 
 	rc.shMan->dynamicHeightMaze.SetShaderParameters(context, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
 	maze.model.Draw(context, rc.shMan->dynamicHeightMaze);

@@ -24,6 +24,8 @@ void ParticleSystem::init(Model* pModel, unsigned int particleCount, SMatrix tra
 
 	_numParticles = particleCount;
 
+	pud = new ParticleUpdateData;
+
 	for (int i = 0; i < _numParticles; ++i)
 	{
 		_particles.push_back(new ParticleBase());
@@ -55,6 +57,7 @@ void ParticleSystem::setUpdateFunction(std::function<void(ParticleUpdateData* pu
 
 void ParticleSystem::update(float deltaTime)
 {
+	pud->dTime = deltaTime;
 	updateStdFunc(pud);
 }
 

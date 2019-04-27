@@ -34,7 +34,7 @@ PixelInputType LightVertexShader(VertexInputType input)
 {
 	PixelInputType output;
 
-	float4x4 totalMatrix = mul (worldMatrix,input.worldMatrix);
+    float4x4 totalMatrix = mul(input.worldMatrix, worldMatrix);
 	output.worldPos = mul(input.position, totalMatrix);
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
