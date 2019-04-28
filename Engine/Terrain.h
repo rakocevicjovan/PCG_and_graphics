@@ -68,12 +68,8 @@ namespace Procedural
 		Terrain(unsigned int x = 1, unsigned int y = 1, SVec3 scales = SVec3(1, 1, 1));
 		~Terrain();
 
-		void setScales(float x, float y, float z);
-		void setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames);
-
 		///generation methods
-
-		//diamond square (midpoint displacement for 2D)
+		//diamond square
 		void GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax);
 
 		//load from heightmap
@@ -89,7 +85,6 @@ namespace Procedural
 		void Mesa(const SVec2& center, float radius, float bandWidth, float height);
 		void Smooth(unsigned int steps);	
 
-		
 		///wrapping up and directX integration
 		void CalculateNormals();
 		void CalculateTexCoords();
@@ -97,26 +92,26 @@ namespace Procedural
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, ShaderBase& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
 
-
-		///getters
-		unsigned int	getNumCols()	{ return _numColumns;	}
-		unsigned int	getNumRows()	{ return _numRows;		}
-		auto&			getVerts()		{ return vertices;		}
-
-
-		SVec3 getOffset() const	{ return _offset; }
-		void setOffset(float x, float y, float z) { _offset = SVec3(x, y, z); }
-
 		void populateMesh(std::vector<Vert3D>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
-		{ 
+		{
 			verts = vertices;
 			inds = indices;
 			tex = textures;
 		}
-		
-		///stuff
-		std::vector<SVec2> getHorizontalPositions();
+
+		//utility for movement
 		float getHeightAtPosition(const SVec3& playerPos);
+		
+		//getters and setters
+		unsigned int	getNumCols() const { return _numColumns; }
+		unsigned int	getNumRows() const { return _numRows;    }
+		auto&			getVerts()   const { return vertices;    }
+		SVec3			getOffset()  const { return _offset;     }
+		std::vector<SVec2> getHorizontalPositions();
+
+		void setOffset(float x, float y, float z) { _offset = SVec3(x, y, z); }
+		void setScales(float x, float y, float z);
+		void setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames);
 	};
 }
 

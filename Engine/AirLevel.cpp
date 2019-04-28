@@ -80,8 +80,8 @@ void AirLevel::update(const RenderContext& rc)
 	SVec2 tp(tornado.transform.Translation().x, tornado.transform.Translation().z);
 	float ph = pp.y;
 
-	if(SVec2::Distance(SVec2(pp.x, pp.z), tp) < 64. &&  ph < 512.f)
-		Math::Translate(player.a.transform, SVec3(0, min(45 * rc.dTime, 512. - ph * 1.02), 0));
+	if(SVec2::Distance(SVec2(pp.x, pp.z), tp) < 64. &&  ph < 768.f)
+		Math::Translate(player.a.transform, SVec3(0, min(45 * rc.dTime, 768.f - ph * 1.02), 0));
 	else
 		Math::Translate(player.a.transform, SVec3(0, -8.f * rc.dTime, 0));
 

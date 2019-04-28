@@ -14,7 +14,7 @@ void FireLevel::init(Systems& sys)
 	screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1));
 
 	//hexer initialization
-	float hexRadius = 30.f;
+	
 	Procedural::Geometry hex;
 	hex.GenHexaprism(hexRadius, 10.f);
 	hexModel.meshes.push_back(Mesh(hex, device));
@@ -115,6 +115,13 @@ void FireLevel::update(const RenderContext & rc)
 	}
 
 	win(rc.cam->GetPosition());
+
+	if (rc.cam->GetPosition().y <= lavaSheetModel.transform.Translation().y)
+	{
+		randy.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
+		hexer.init(hexRadius);
+	}
+		
 }
 
 
