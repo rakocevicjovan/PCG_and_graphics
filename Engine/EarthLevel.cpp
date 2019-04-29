@@ -6,8 +6,8 @@ void EarthLevel::init(Systems& sys)
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 
-	will.LoadModel(device, "../Models/minerals/source/Ruda.obj");
-	Math::Scale(will.transform, SVec3(5.f));
+	will.LoadModel(device, "../Models/crystal/source/model/model.dae");
+	Math::Scale(will.transform, SVec3(10.f));
 	Math::Translate(will.transform, SVec3(2, 35, 60));
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
@@ -34,7 +34,7 @@ void EarthLevel::init(Systems& sys)
 	{
 		for (int i = 0; i < pSys._particles.size(); ++i)
 		{
-			SVec3 translation(1, 1, 1);
+			SVec3 translation(2, 2, 2);
 			pSys._particles[i]->age += _pud->dTime;
 			SMatrix rotMat = SMatrix::CreateRotationY(PI * pSys._particles[i]->age);
 
