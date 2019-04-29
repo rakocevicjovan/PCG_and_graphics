@@ -48,6 +48,9 @@ void EarthLevel::init(Systems& sys)
 	pSys.setUpdateFunction(particleUpdFunc);
 	instanceData.resize(pSys._numParticles);
 	shady.instanced._instanceCount = 10;
+
+	randy._cam.SetTranslation(SVec3(16, 10, 16));
+	_sys._controller.toggleFly();
 }
 
 
