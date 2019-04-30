@@ -19,7 +19,9 @@ void FireLevel::init(Systems& sys)
 	hex.GenHexaprism(hexRadius, 10.f);
 	hexModel.meshes.push_back(Mesh(hex, device));
 	hexer.init(hexRadius);
-	randy.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
+	isFirst = true;
+	SVec3 initPlayerPos(hexer._points[0].x, hexer._points[0].y + 40.f, hexer._points[0].z);
+	randy.setCameraMatrix(SMatrix::CreateTranslation(initPlayerPos));
 
 	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
@@ -45,9 +47,9 @@ void FireLevel::init(Systems& sys)
 	terrain.setTextureData(device, 10, 10, { "../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png" });
 	terrain.SetUp(device);
 	
-	//other items
-	Procedural::Terrain island = Procedural::Terrain(64, 64, SVec3(16, 300, 16));
+	Procedural::Terrain island = Procedural::Terrain(128, 128, SVec3(8, 300, 8));
 	island.Mesa(SVec2(256), 32, 64, 64);
+	island.Mesa(SVec2(256), 16, 16, -128);
 	island.setTextureData(device, 10, 10, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
 	island.CalculateNormals();
 	island.CalculateTexCoords();
@@ -104,8 +106,16 @@ void FireLevel::update(const RenderContext & rc)
 
 	SVec3 potentialPlatformPos;
 	if (hexer.marchTowardsPoint(potentialPlatformPos))
+	{
 		hexer._platforms.push_back(Platform(potentialPlatformPos, &hexModel, &_sys._renderer._shMan.normalMapper));
-
+		if (isFirst)
+		{
+			isFirst = false;
+			randy._cam.SetCameraMatrix((hexer._platforms.back().actor.transform));
+			_sys._renderer._cam.Translate(SVec3(0, 20, 0));
+		}
+	}
+	
 	if (!_sys._controller.isFlying())
 	{
 		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
@@ -120,6 +130,7 @@ void FireLevel::update(const RenderContext & rc)
 	{
 		randy.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
 		hexer.init(hexRadius);
+		isFirst = true;
 	}
 		
 }
@@ -133,11 +144,8 @@ void FireLevel::draw(const RenderContext& rc)
 	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 		
-	for (auto& pos : hexer._points)
-	{
-		shady.terrainNormals.SetShaderParameters(context, SMatrix::CreateTranslation(pos.x - 256.f, 0, pos.z - 256.f), *rc.cam, pointLight, rc.dTime);
-		islandModel.Draw(context, shady.terrainNormals);
-	}
+	shady.terrainNormals.SetShaderParameters(context, SMatrix::CreateTranslation(hexer._points.back().x - 256.f, 0, hexer._points.back().z - 256.f), *rc.cam, pointLight, rc.dTime);
+	islandModel.Draw(context, shady.terrainNormals);
 	
 	for (Platform p : hexer._platforms)
 	{

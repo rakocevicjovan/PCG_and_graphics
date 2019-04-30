@@ -18,6 +18,7 @@ class FireLevel : public Level
 	Model will, hexCluster, hexModel;
 	Texture hexDiffuseMap, hexNormalMap;
 	bool isTerGenerated = false;
+	bool isFirst = true;
 
 public:
 	FireLevel(Systems& sys) : Level(sys), hexer(sys) {};

@@ -189,6 +189,13 @@ void Controller::toggleFly()
 
 
 
+void Controller::setFlying(bool b)
+{
+	_isFlying = b;
+}
+
+
+
 void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity)
 {
 	if (!_colEng) return;

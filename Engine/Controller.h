@@ -46,6 +46,7 @@ public:
 
 	void processCommonInputs(float dTime);
 	void toggleFly();
+	void setFlying(bool b);
 	bool isFlying() { return _isFlying; }
 };
 
