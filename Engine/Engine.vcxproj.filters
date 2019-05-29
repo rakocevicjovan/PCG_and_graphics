@@ -37,6 +37,15 @@
     <Filter Include="Shader Files\PostProcessing">
       <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Strife">
+      <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Clouds">
+      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{c448c636-6f18-4d93-926b-e9e3e59e23cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -230,6 +239,45 @@
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
       <Filter>Shading</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolGUI.cpp">
+      <Filter>Strife</Filter>
+    </ClCompile>
+    <ClCompile Include="CloudVolumeGenerator.cpp">
+      <Filter>Strife</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCloud.cpp">
+      <Filter>Strife</Filter>
+    </ClCompile>
+    <ClCompile Include="Illumination.cpp">
+      <Filter>Strife</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_demo.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_draw.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_dx11.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_opengl3.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_sdl.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_win32.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_widgets.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="StrifeLevel.cpp">
+      <Filter>Strife</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -437,6 +485,51 @@
     <ClInclude Include="VolumetricScreen.h">
       <Filter>Shading</Filter>
     </ClInclude>
+    <ClInclude Include="ToolGUI.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
+    <ClInclude Include="CloudVolumeGenerator.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCloud.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
+    <ClInclude Include="Illumination.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imconfig.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_dx11.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_opengl3.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_sdl.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_win32.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_internal.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_rectpack.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_textedit.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_truetype.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="StrifeLevel.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -490,14 +583,11 @@
     <Text Include="shader-error.txt">
       <Filter>Shader Files</Filter>
     </Text>
+    <Text Include="IMGUI\LICENSE.txt">
+      <Filter>GUI</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="waterPS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
-    <FxCompile Include="waterVS.hlsl">
-      <Filter>Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="volumAirPS.hlsl">
       <Filter>Shader Files\Volumetric</Filter>
     </FxCompile>
@@ -615,5 +705,13 @@
     <FxCompile Include="volumTornadoPS.hlsl">
       <Filter>Shader Files\Volumetric</Filter>
     </FxCompile>
+    <FxCompile Include="waterPS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="waterVS.hlsl">
+      <Filter>Shader Files\Common</Filter>
+    </FxCompile>
+    <FxCompile Include="cloudPS.hlsl" />
+    <FxCompile Include="cloudVS.hlsl" />
   </ItemGroup>
 </Project>

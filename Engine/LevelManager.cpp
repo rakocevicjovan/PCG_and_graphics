@@ -4,6 +4,7 @@
 #include "FireLevel.h"
 #include "WaterLevel.h"
 #include "AirLevel.h"
+#include "StrifeLevel.h"
 
 
 
@@ -12,9 +13,9 @@ LevelManager::LevelManager(Systems& systems)
 	current = new EarthLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
-	_levels.push_back(new FireLevel(systems));
-	_levels.push_back(new WaterLevel(systems));
-	_levels.push_back(new AirLevel(systems));
+	//_levels.push_back(new FireLevel(systems));
+	//_levels.push_back(new WaterLevel(systems));
+	//_levels.push_back(new AirLevel(systems));
 }
 
 

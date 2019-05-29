@@ -8,7 +8,6 @@ void EarthLevel::init(Systems& sys)
 
 	will.LoadModel(device, "../Models/crystal/source/model/model.dae");
 	Math::Scale(will.transform, SVec3(10.f));
-	Math::Translate(will.transform, SVec3(2, 35, 60));
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
@@ -78,18 +77,17 @@ void EarthLevel::update(const RenderContext & rc)
 void EarthLevel::draw(const RenderContext& rc)
 {
 	rc.d3d->SetBackBufferRenderTarget();
-
+	
 	proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 	shady.instanced.UpdateInstanceData(instanceData);
 	shady.instanced.SetShaderParameters(context, will, *rc.cam, pointLight, rc.elapsed);
 	will.DrawInstanced(context, shady.instanced);
 
-
 	rc.shMan->dynamicHeightMaze.SetShaderParameters(context, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
 	maze.model.Draw(context, rc.shMan->dynamicHeightMaze);
 	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(context);
-
+	
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	rc.d3d->EndScene();

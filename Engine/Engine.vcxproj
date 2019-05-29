@@ -99,6 +99,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Celestials.cpp" />
     <ClCompile Include="Chaos.cpp" />
+    <ClCompile Include="CloudVolumeGenerator.cpp" />
     <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
@@ -110,6 +111,15 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Hexer.cpp" />
+    <ClCompile Include="Illumination.cpp" />
+    <ClCompile Include="IMGUI\imgui.cpp" />
+    <ClCompile Include="IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="IMGUI\imgui_draw.cpp" />
+    <ClCompile Include="IMGUI\imgui_impl_dx11.cpp" />
+    <ClCompile Include="IMGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="IMGUI\imgui_impl_sdl.cpp" />
+    <ClCompile Include="IMGUI\imgui_impl_win32.cpp" />
+    <ClCompile Include="IMGUI\imgui_widgets.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="LevelManager.cpp" />
@@ -125,6 +135,7 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderClipper.cpp" />
+    <ClCompile Include="ShaderCloud.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -145,12 +156,14 @@
     <ClCompile Include="ShaderStrife.cpp" />
     <ClCompile Include="ShaderVolumetric.cpp" />
     <ClCompile Include="SkeletalModel.cpp" />
+    <ClCompile Include="StrifeLevel.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainShader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ShaderWireframe.cpp" />
     <ClCompile Include="ShaderWater.cpp" />
+    <ClCompile Include="ToolGUI.cpp" />
     <ClCompile Include="Volumetric.cpp" />
     <ClCompile Include="VolumetricScreen.cpp" />
     <ClCompile Include="Voronoi.cpp" />
@@ -167,6 +180,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Celestials.h" />
     <ClInclude Include="Chaos.h" />
+    <ClInclude Include="CloudVolumeGenerator.h" />
     <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
@@ -178,6 +192,16 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="Hexer.h" />
+    <ClInclude Include="IMGUI\imconfig.h" />
+    <ClInclude Include="IMGUI\imgui.h" />
+    <ClInclude Include="IMGUI\imgui_impl_dx11.h" />
+    <ClInclude Include="IMGUI\imgui_impl_opengl3.h" />
+    <ClInclude Include="IMGUI\imgui_impl_sdl.h" />
+    <ClInclude Include="IMGUI\imgui_impl_win32.h" />
+    <ClInclude Include="IMGUI\imgui_internal.h" />
+    <ClInclude Include="IMGUI\imstb_rectpack.h" />
+    <ClInclude Include="IMGUI\imstb_textedit.h" />
+    <ClInclude Include="IMGUI\imstb_truetype.h" />
     <ClInclude Include="InstancedShader.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelManager.h" />
@@ -189,9 +213,11 @@
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Perlin.h" />
     <ClInclude Include="PerlinShader.h" />
+    <ClInclude Include="Illumination.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderClipper.h" />
+    <ClInclude Include="ShaderCloud.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
@@ -215,12 +241,14 @@
     <ClInclude Include="ShaderStrife.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
+    <ClInclude Include="StrifeLevel.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainShader.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
+    <ClInclude Include="ToolGUI.h" />
     <ClInclude Include="Volumetric.h" />
     <ClInclude Include="VolumetricScreen.h" />
     <ClInclude Include="Voronoi.h" />
@@ -290,6 +318,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Text Include="IMGUI\LICENSE.txt" />
     <Text Include="shader-error.txt">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </Text>
@@ -343,6 +372,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="cloudPS.hlsl" />
+    <FxCompile Include="cloudVS.hlsl" />
     <FxCompile Include="dragonCurvePS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

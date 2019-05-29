@@ -34,11 +34,12 @@ public:
 	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
 	bool Frame(float dTime, InputManager* inMan);
 	
-	void RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
-
 	void SetOSTRenderTarget(OST& ost);
 	void RevertRenderTarget();
 
+	void RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
+
+	void RenderGui();
 
 	void setCameraMatrix(const SMatrix& camMatrix);
 

@@ -2,6 +2,10 @@
 #include "InputManager.h"
 #include "ResourceManager.h"
 
+#include "IMGUI/imgui.h"
+#include "IMGUI/imgui_impl_win32.h"
+#include "IMGUI/imgui_impl_dx11.h"
+
 
 
 Renderer::Renderer() {}
@@ -91,6 +95,19 @@ void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& 
 	rc.shMan->skyboxShader.ReleaseShaderParameters(_deviceContext);
 	_d3d->SwitchDepthToDefault();
 	_d3d->TurnOnCulling();
+}
+
+void Renderer::RenderGui()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGui::Begin("REEEEE");
+	ImGui::End();
+	
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 

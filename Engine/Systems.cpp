@@ -33,6 +33,13 @@ bool Systems::Initialize()
 
 	_levelMan = new LevelManager(*this);
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplWin32_Init(m_hwnd);
+	ImGui_ImplDX11_Init(_device, _deviceContext);
+	ImGui::StyleColorsDark();
+
 	return true;
 }
 
