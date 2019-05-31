@@ -10,7 +10,7 @@ namespace Strife
 		skybox.LoadModel(device, "../Models/Skysphere.fbx");
 		//cloudscape = skybox;
 
-		LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
+		LightData lightData(SVec3(0.1f, 0.7f, 0.9f), 32000.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 
 		float edge = 256;
 		terrain = Procedural::Terrain(2, 2, SVec3(edge, 1, edge));
@@ -27,6 +27,7 @@ namespace Strife
 
 		csDef.celestial = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 		csDef.coverage_broad = Texture(device, "../Textures/worley.png");
+		csDef.coverage_frequent = Texture(device, "../Textures/highDetail.jpg");
 		csDef.heightMask = SVec2(400, 600);
 		csDef.planeMat = cloudscape.transform;
 	}

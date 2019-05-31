@@ -26,7 +26,9 @@ namespace Strife
 
 		ImGui::Begin("REEEEE");
 
-		ImGui::SliderFloat4("Light RGBI", &csDef.celestial.alc.x, 0, 1);
+		ImGui::SliderFloat3("Light RGB", &csDef.celestial.alc.x, 0, 1);
+		
+		ImGui::SliderFloat("Light intensity", &csDef.celestial.ali, 0, 100000);	//32k - 100k lux for the sun
 
 		ImGui::SliderFloat3("Light position", &csDef.celestial.pos.x, -1000, 1000);
 

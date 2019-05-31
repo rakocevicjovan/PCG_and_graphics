@@ -20,29 +20,24 @@ namespace Strife
 		}
 
 
-		//in scattering at position x from direction v
+		//in scattering at position x from direction w
 		//n - number of lights
 		//p - phase function
 		//v - visibility function
 		//l_c_i - direction vector from point to i-th light
-		//c_light_i - radiance from i-th light as a function of distance to it
-
-		float inscattering(SVec3 x, SVec3 v)
+		//c_light_i - radiance from i-th light as a function of distance to it 
+		float inScattering(SVec3 x, SVec3 w, SVec3 lightPos)
 		{
-			return PI; // * SUM[1, n] p(v, l_c_i) * v(x, p_light_i) * c_light_i(distance(x, p_light_i))
+			float p = phaseMieHG(0, 0);			//rayleigh or mie depending on densiteh
+			float v = visibility(x, lightPos);	//v = x.isInLight (sample shadow map - [0-1] to approximate soft shadow, otherwise ugly)
+			float c_light_i;
+
+			// * SUM[1, n] p(w, l_c_i) * v(x, p_light_i) * c_light_i(distance(x, p_light_i))
+			return PI * (p * v * c_light_i);	//bracketed for each light in fact... but I use one only
 		}
 
 		//phase functions - dictate scattering probabilities, intuitively described as two lobes around the particle
-		
-		//naive, "perfect" phase function
-		float phaseIsotropic()
-		{
-			return 1.f / 4.f * PI;	//should be compiler-optimized to return a constant, implying fast execution
-		}
-		
-		//physically based phase functions depend on the size of the particle scattering the light
-
-
+		//physically based phase functions can depend on the size of the particle scattering the light
 
 		//lambda is the wave length of the light? or something alike to that
 		float phasePhysics(float r, float lambda)
@@ -50,25 +45,30 @@ namespace Strife
 			return 2. * PI * r / lambda;
 		}
 
+		//naive, "perfect" phase function
+		float phaseIsotropic()
+		{
+			return 1.f / 4.f * PI;	//should be compiler-optimized to return a constant for fast execution
+		}
+
 		//sp << 1, Rayleigh scattering
-		float phaseRayleigh(float theta)
+		float phaseRayleigh(float cosTheta)
 		{
 			//sigS = (0.490, 1.017, 2.339)
 			//calculated using sigS(lambda) proportionate to 1.f / (lambda^4);
 
-			float cosTheta = cos(theta);
 			return (3. / (16. * PI)) * (1. + cosTheta * cosTheta);
 		}
 
 		//sp ~= 1, Mie scattering (Henyey-Greenstein approximation, silver lining effect)
 		//The g parameter can be used to represent backward(g < 0), isotropic(g = 0), or forward(g > 0) scattering
-		float phaseMieHG(float theta, float g)	// g[-1, 1], also called eccentricity
+		float phaseMieHG(float cosTheta, float g)	// g[-1, 1], also called eccentricity
 		{
 			float g2 = g * g;
 
 			float numerator = 1.f - g2;
 
-			float toPow = 1.f + g2 - 2.f * g * cos(theta);
+			float toPow = 1.f + g2 - 2.f * g * cosTheta;
 
 			float denominator = 4.f * PI * toPow * sqrt(toPow);	//is pow(x, 3/2) but 
 			
@@ -77,9 +77,9 @@ namespace Strife
 
 
 		//faster because it has no pow, only a square... if g does not change, suitable optimization!
-		float phaseMieSchlick(float theta, float k)	//k ~= 1.55g - 0.55g^3
+		float phaseMieSchlick(float cosTheta, float k)	//k ~= 1.55g - 0.55g^3
 		{
-			float arcaneThings = 1.f + k * cos(theta);
+			float arcaneThings = 1.f + k * cosTheta;
 
 			float numerator = 1.f - k * k;
 			float denominator = 4.f * PI * arcaneThings * arcaneThings;
@@ -87,11 +87,9 @@ namespace Strife
 			return numerator / denominator;
 		}
 
-		//sp >> 1, geometric scattering
+		//sp >> 1, geometric scattering, not useful within scope
 		float phaseGeometric()	//sigmaS isn't wavelength dependent
-		{
-
-		}
+		{}
 
 		//visibility function - ratio of light reaching a position x from a light source at lightPos
 		//volShad = Tr(x, lightPos)... same thing, which refers to a volumetric shadow, and is in [0, 1] range
@@ -108,9 +106,9 @@ namespace Strife
 		}
 
 		//absorption (Beer Lambert law) - from production volume rendering, Fong et al.
-		SVec3 absorption(SVec3 x, SVec3 sigA)	//, SVec3 initialRadiance
+		SVec3 extinction(float dist, SVec3 sigA)	//, SVec3 initialRadiance
 		{
-			return -sigA * x;
+			return -sigA * dist;
 		}
 
 
@@ -148,15 +146,15 @@ namespace Strife
 
 
 		//homogenous spherical uniform phase
-		float inScattering(SVec3 rayStart, SVec3 rayDir, SVec3 lightPos, float rayDistance)
+		float inScattering(SVec3 ro, SVec3 rd, SVec3 lightPos, float rayDistance)
 		{
 			// Calculate coefficients .
-			SVec3 q = rayStart - lightPos;
-			float b = rayDir.Dot(q);
-			float c = q.Dot(q);
-			float s = 1.0f / sqrt(c - b * b);
+			SVec3 lightToRO = ro - lightPos;			//vector from light position to ray origin
+			float b = rd.Dot(lightToRO);				//dot product between light to RO and RD (NOT cos angle)
+			float sqd_L_RO = lightToRO.Dot(lightToRO);	//squared distance between light and RO
+			float s = 1.0f / sqrt(sqd_L_RO - b * b);
 			// Factorize some components .
-			float x = s * rayDistance;
+			float x = s * rayDistance;	
 			float y = s * b;
 			return s * atan((x) / (1.0 + (x + y) * y));
 		}

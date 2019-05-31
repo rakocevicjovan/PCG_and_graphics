@@ -699,5 +699,8 @@
     <FxCompile Include="Simplex.hlsl">
       <Filter>Shader Files\Clouds</Filter>
     </FxCompile>
+    <FxCompile Include="Simplex_derivative.hlsl">
+      <Filter>Shader Files\Clouds</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

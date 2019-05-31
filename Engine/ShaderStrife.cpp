@@ -215,7 +215,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
 	deviceContext->PSSetShaderResources(0, 1, &(csDef.coverage_broad.srv));
-
+	deviceContext->PSSetShaderResources(1, 1, &(csDef.coverage_frequent.srv));
 	return true;
 }
 
