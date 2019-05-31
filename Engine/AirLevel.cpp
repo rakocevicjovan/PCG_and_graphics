@@ -117,13 +117,13 @@ void AirLevel::draw(const RenderContext& rc)
 {
 	if (winCount >= 3)
 	{
-		rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
+		rc.d3d->ClearColourDepthBuffers();
 		winScreen.draw(context, shady.HUD, winTex.srv);
 		rc.d3d->EndScene();
 		return;
 	}
 
-	rc.d3d->ClearColourDepthBuffers(rc.d3d->clearColour);
+	rc.d3d->ClearColourDepthBuffers();
 	
 	_sys._D3D.TurnOffCulling();
 	shady.light.SetShaderParameters(context, player.a.transform, player.cam, pointLight, rc.elapsed);

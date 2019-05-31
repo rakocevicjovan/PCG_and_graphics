@@ -392,7 +392,7 @@ void D3D::Shutdown(){
 }
 
 
-void D3D::ClearColourDepthBuffers(float* clearColour)
+void D3D::ClearColourDepthBuffers()
 {
 	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
 	_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -431,7 +431,7 @@ void D3D::SetBackBufferRenderTarget()
 {
 	_deviceContext->RSSetViewports(1, &viewport);
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
-	ClearColourDepthBuffers(clearColour);
+	ClearColourDepthBuffers();
 }
 
 void D3D::D3D::TurnOnAlphaBlending()

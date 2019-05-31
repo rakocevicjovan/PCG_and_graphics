@@ -8,10 +8,9 @@ cbuffer MatrixBuffer
 
 struct VertexInputType
 {
-	float4 position : POSITION;
-	float2 tex : TEXCOORD0;
-	float3 normal : NORMAL;
-	float3 tangent : TANGENT;
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;
+    float3 normal : NORMAL;
 };
 
 
@@ -24,9 +23,13 @@ struct PixelInputType
 };
 
 
-PixelInputType strifeVertex(VertexInputType input) {
+PixelInputType main(VertexInputType input) {
 
 	PixelInputType output;
+
+    input.position.w = 1.;
+
+    output.msPos = input.position;
 
 	output.worldPos = mul(input.position, worldMatrix);
 	output.position = mul(output.worldPos, viewMatrix);

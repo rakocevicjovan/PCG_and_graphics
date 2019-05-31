@@ -10,7 +10,7 @@
 
 LevelManager::LevelManager(Systems& systems)
 {
-	current = new EarthLevel(systems);
+	current = new Strife::StrifeLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
 	//_levels.push_back(new FireLevel(systems));

@@ -1,5 +1,8 @@
 #pragma once
 #include "Level.h"
+#include "ToolGUI.h"
+#include "Terrain.h"
+#include "CloudscapeDefinition.h"
 
 namespace Strife
 {
@@ -10,17 +13,17 @@ namespace Strife
 		StrifeLevel(Systems& sys) : Level(sys) {};
 		~StrifeLevel() {};
 
-		PointLight pointLight;
-		DirectionalLight dirLight;
-
-		Model skybox;
+		Model skybox, cloudscape;
 		CubeMapper skyboxCubeMapper;
 
-		Texture mazeDiffuseMap, mazeNormalMap;
+		CloudscapeDefinition csDef;
+
+		Procedural::Terrain terrain, sky;
+
 
 		//load and draw all that jazz
 		void init(Systems& sys);
-		void procGen() {};
+		void procGen();
 		void update(const RenderContext& rc);
 		void draw(const RenderContext& rc);
 

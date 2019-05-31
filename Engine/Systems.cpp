@@ -1,5 +1,6 @@
 #include "Systems.h"
 #include <string>
+#include <Mouse.h>
 
 Systems::Systems() : screenWidth(0), screenHeight(0) {}
 
@@ -11,9 +12,6 @@ bool Systems::Initialize()
 {
 	screenWidth = screenHeight = 0;
 	InitializeWindows(screenWidth, screenHeight);
-
-	_inputManager.Initialize();
-	_controller = Controller(&_inputManager);
 	
 	if (!_D3D.Initialize(windowWidth, windowHeight, VSYNC_ENABLED, m_hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
 	{
@@ -23,6 +21,9 @@ bool Systems::Initialize()
 
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
+
+	_inputManager.Initialize(m_hwnd);
+	_controller = Controller(&_inputManager);
 
 	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _resMan, _D3D, _controller))
 		return false;
@@ -119,7 +120,7 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 	SetForegroundWindow(m_hwnd);
 	SetFocus(m_hwnd);
 
-	// Hide the mouse cursor.
+	// Show or hide the mouse cursor.
 	ShowCursor(false);
 
 	return;
@@ -209,9 +210,14 @@ void Systems::Shutdown()
 }
 
 
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+
+	if(ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+		return true;
+
 	switch(umessage){
 		case WM_DESTROY:
 		{
@@ -234,9 +240,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 
 
 
-LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-	switch (umsg)
+	switch (message)
 	{
 		case WM_KEYDOWN:
 		{
@@ -272,9 +278,23 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LP
 			}		
 			break;
 		}
+		case WM_ACTIVATEAPP:
+		case WM_MOUSEMOVE:
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONUP:
+		case WM_RBUTTONDOWN:
+		case WM_RBUTTONUP:
+		case WM_MBUTTONDOWN:
+		case WM_MBUTTONUP:
+		case WM_MOUSEWHEEL:
+		case WM_XBUTTONDOWN:
+		case WM_XBUTTONUP:
+		case WM_MOUSEHOVER:
+			DirectX::Mouse::ProcessMessage(message, wparam, lparam);
+			break;
 		default:
 		{
-			return DefWindowProc(hwnd, umsg, wparam, lparam);
+			return DefWindowProc(hwnd, message, wparam, lparam);
 		}
 	}
 

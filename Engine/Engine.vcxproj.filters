@@ -246,9 +246,6 @@
     <ClCompile Include="CloudVolumeGenerator.cpp">
       <Filter>Strife</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderCloud.cpp">
-      <Filter>Strife</Filter>
-    </ClCompile>
     <ClCompile Include="Illumination.cpp">
       <Filter>Strife</Filter>
     </ClCompile>
@@ -262,12 +259,6 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="IMGUI\imgui_impl_dx11.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_impl_opengl3.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_impl_sdl.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="IMGUI\imgui_impl_win32.cpp">
@@ -491,9 +482,6 @@
     <ClInclude Include="CloudVolumeGenerator.h">
       <Filter>Strife</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderCloud.h">
-      <Filter>Strife</Filter>
-    </ClInclude>
     <ClInclude Include="Illumination.h">
       <Filter>Strife</Filter>
     </ClInclude>
@@ -504,12 +492,6 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="IMGUI\imgui_impl_dx11.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_impl_opengl3.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_impl_sdl.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="IMGUI\imgui_impl_win32.h">
@@ -528,6 +510,9 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="StrifeLevel.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
+    <ClInclude Include="CloudscapeDefinition.h">
       <Filter>Strife</Filter>
     </ClInclude>
   </ItemGroup>
@@ -657,12 +642,6 @@
     <FxCompile Include="perlin3dPS.hlsl">
       <Filter>Shader Files\Specific</Filter>
     </FxCompile>
-    <FxCompile Include="strifeps.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="strifevs.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
-    </FxCompile>
     <FxCompile Include="normalsTerrainPS.hlsl">
       <Filter>Shader Files\Common</Filter>
     </FxCompile>
@@ -711,7 +690,14 @@
     <FxCompile Include="waterVS.hlsl">
       <Filter>Shader Files\Common</Filter>
     </FxCompile>
-    <FxCompile Include="cloudPS.hlsl" />
-    <FxCompile Include="cloudVS.hlsl" />
+    <FxCompile Include="strifevs.hlsl">
+      <Filter>Shader Files\Clouds</Filter>
+    </FxCompile>
+    <FxCompile Include="strifeps.hlsl">
+      <Filter>Shader Files\Clouds</Filter>
+    </FxCompile>
+    <FxCompile Include="Simplex.hlsl">
+      <Filter>Shader Files\Clouds</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

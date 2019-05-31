@@ -19,6 +19,7 @@ void Level::ProcessSpecialInput(float dTime)
 		procGen();
 		sinceLastInput = 0;
 	}
+
 }
 
 

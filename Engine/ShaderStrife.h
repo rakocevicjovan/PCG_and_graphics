@@ -11,6 +11,7 @@
 #include "Math.h"
 #include "Light.h"
 #include "ShaderDataStructs.h"
+#include "CloudscapeDefinition.h"
 
 class Model;
 class Camera;
@@ -18,19 +19,13 @@ class Camera;
 class ShaderStrife
 {
 
-	struct CloudBuffer {
+	struct CloudBuffer
+	{
+		SVec4 lightPos;
+		SVec4 lightColInt;
+		SVec4 eyePosElapsed;
+		SVec4 eccentricity;
 
-		SVec3 alc;
-		float ali;
-		SVec3  dlc;
-		float dli;
-		SVec3 slc;
-		float sli;
-		SVec4 dir;
-
-		SVec4 eyePos;
-		float elapsed;
-		SVec3 padding;
 		SMatrix lightView;
 	};
 
@@ -40,8 +35,7 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& modelMat, const Camera& cam, const DirectionalLight& dirLight,
-		float elapsed, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView);
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& cam, const Strife::CloudscapeDefinition& csDef, float elapsed);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
@@ -58,7 +52,7 @@ private:
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_variableBuffer;
-	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* cloudBuffer;
 
 	std::vector<std::wstring> filePaths;
 

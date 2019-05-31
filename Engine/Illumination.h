@@ -5,7 +5,7 @@ namespace Strife
 
 	class Illumination
 	{
-		//radiative transfer equation in the context of a single bounce
+		//radiative transfer equation in the context of a single bounce... makes use of all the other stuff...
 		float calcRadiativeTransfer(SVec3 x, SVec3 v)
 		{
 
@@ -67,12 +67,11 @@ namespace Strife
 			float g2 = g * g;
 
 			float numerator = 1.f - g2;
-			float denominator = 4.f * PI * pow(1.f + g2 - 2.f * g * cos(theta), 1.5);
-			
-			//why abs?
-			//return ((1.0 - eccentricity * eccentricity) / pow(abs(1.0f + eccentricity * eccentricity - 2.0f * eccentricity * cos_angle), 1.5f)) / 4.0f * PI;
-			
 
+			float toPow = 1.f + g2 - 2.f * g * cos(theta);
+
+			float denominator = 4.f * PI * toPow * sqrt(toPow);	//is pow(x, 3/2) but 
+			
 			return numerator / denominator;
 		}
 
@@ -109,9 +108,19 @@ namespace Strife
 		}
 
 		//absorption (Beer Lambert law) - from production volume rendering, Fong et al.
-		SVec3 absorption(SVec3 x, SVec3 sigA, SVec3 initialRadiance)
+		SVec3 absorption(SVec3 x, SVec3 sigA)	//, SVec3 initialRadiance
 		{
-			return -sigA * x * initialRadiance;
+			return -sigA * x;
+		}
+
+
+		SVec3 BeerLambert(SVec3 sigA, float dist)
+		{
+			float rx = exp(-sigA.x * dist);
+			float ry = exp(-sigA.y * dist);
+			float rz = exp(-sigA.z * dist);
+
+			return SVec3(rx, ry, rz);
 		}
 
 

@@ -113,11 +113,11 @@
     <ClCompile Include="Hexer.cpp" />
     <ClCompile Include="Illumination.cpp" />
     <ClCompile Include="IMGUI\imgui.cpp" />
-    <ClCompile Include="IMGUI\imgui_demo.cpp" />
+    <ClCompile Include="IMGUI\imgui_demo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="IMGUI\imgui_draw.cpp" />
     <ClCompile Include="IMGUI\imgui_impl_dx11.cpp" />
-    <ClCompile Include="IMGUI\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="IMGUI\imgui_impl_sdl.cpp" />
     <ClCompile Include="IMGUI\imgui_impl_win32.cpp" />
     <ClCompile Include="IMGUI\imgui_widgets.cpp" />
     <ClCompile Include="InstancedShader.cpp" />
@@ -135,7 +135,6 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderClipper.cpp" />
-    <ClCompile Include="ShaderCloud.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
@@ -180,6 +179,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Celestials.h" />
     <ClInclude Include="Chaos.h" />
+    <ClInclude Include="CloudscapeDefinition.h" />
     <ClInclude Include="CloudVolumeGenerator.h" />
     <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="Controller.h" />
@@ -195,8 +195,6 @@
     <ClInclude Include="IMGUI\imconfig.h" />
     <ClInclude Include="IMGUI\imgui.h" />
     <ClInclude Include="IMGUI\imgui_impl_dx11.h" />
-    <ClInclude Include="IMGUI\imgui_impl_opengl3.h" />
-    <ClInclude Include="IMGUI\imgui_impl_sdl.h" />
     <ClInclude Include="IMGUI\imgui_impl_win32.h" />
     <ClInclude Include="IMGUI\imgui_internal.h" />
     <ClInclude Include="IMGUI\imstb_rectpack.h" />
@@ -217,7 +215,6 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderClipper.h" />
-    <ClInclude Include="ShaderCloud.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
@@ -372,8 +369,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="cloudPS.hlsl" />
-    <FxCompile Include="cloudVS.hlsl" />
     <FxCompile Include="dragonCurvePS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -418,6 +413,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="Simplex.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="volumLavaPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -437,10 +435,14 @@
     <FxCompile Include="strifeps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="strifevs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="terrainPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

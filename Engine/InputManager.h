@@ -12,7 +12,7 @@ public:
 	InputManager();
 	~InputManager();
 
-	void Initialize();
+	void Initialize(HWND hwnd);
 
 	void KeyDown(unsigned int);
 	void KeyUp(unsigned int);
@@ -21,10 +21,14 @@ public:
 	void GetXY(short& x, short&y);
 	bool IsKeyDown(unsigned int);
 
+	void ToggleMouseMode();
+	bool GetMouseMode();
+
 	std::unique_ptr<DirectX::Mouse> mouse;
 
 private:
 	bool m_keys[256];
+	bool cursorVisible = false;
 	short curX = 0, curY = 0;
 };
 

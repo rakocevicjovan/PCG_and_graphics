@@ -1,4 +1,5 @@
 #pragma once
+#include "CloudscapeDefinition.h"
 
 namespace Strife
 {
@@ -8,6 +9,8 @@ namespace Strife
 	public:
 		ToolGUI();
 		~ToolGUI();
+
+		static void Render(CloudscapeDefinition& csDef);
 	};
 
 }

@@ -11,8 +11,9 @@ InputManager::~InputManager(){}
 
 
 
-void InputManager::Initialize()
+void InputManager::Initialize(HWND hwnd)
 {
+	mouse->SetWindow(hwnd);
 
 	RAWINPUTDEVICE RIDs[2];	//@TODO do i need this? probably do...
 
@@ -63,4 +64,16 @@ void InputManager::GetXY(short& x, short& y)
 bool InputManager::IsKeyDown(unsigned int key)
 {
 	return m_keys[key];
+}
+
+
+void InputManager::ToggleMouseMode()
+{
+	cursorVisible = !cursorVisible;
+	mouse->SetVisible(cursorVisible);
+}
+
+bool InputManager::GetMouseMode()
+{
+	return cursorVisible;
 }

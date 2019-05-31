@@ -10,7 +10,7 @@ ShaderStrife::ShaderStrife()
 	m_layout = 0;
 	m_sampleState = 0;
 	m_matrixBuffer = 0;
-	m_lightBuffer = 0;
+	cloudBuffer = 0;
 }
 
 
@@ -38,9 +38,10 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC cloudBufferDesc;
 
-	if (FAILED(D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "strifeVertex", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage))) {
+	
+	if (FAILED(D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage))) {
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
 		else
@@ -49,7 +50,7 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 		return false;
 	}
 
-	if (FAILED(D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "strifeFragment", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage))) {
+	if (FAILED(D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage))) {
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()));
 		else
@@ -57,6 +58,7 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 
 		return false;
 	}
+	
 
 	// Create the vertex shader from the buffer.
 	if (FAILED(device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader)))
@@ -65,13 +67,27 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	// Create the pixel shader from the buffer.
 	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
 		return false;
+	
+	/*
+	if (FAILED(D3DReadFileToBlob(L"strifevs.hlsl", &vertexShaderBuffer)))
+		OutputShaderErrorMessage(vertexShaderBuffer, hwnd, *(filePaths.at(0).c_str()));
+
+	if (FAILED(device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader)))
+		assert(false);
+
+	if(FAILED(D3DReadFileToBlob(L"strifeps.hlsl", &pixelShaderBuffer)))
+		OutputShaderErrorMessage(pixelShaderBuffer, hwnd, *(filePaths.at(1).c_str()));
+
+	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
+		assert(false);
+	*/
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		//{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	if (FAILED(device->CreateInputLayout(sbLayout.data(), sbLayout.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout)))
@@ -109,13 +125,13 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer)))
 		return false;
 
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(CloudBuffer);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
-	if (FAILED(device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer)))
+	cloudBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	cloudBufferDesc.ByteWidth = sizeof(CloudBuffer);
+	cloudBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cloudBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cloudBufferDesc.MiscFlags = 0;
+	cloudBufferDesc.StructureByteStride = 0;
+	if (FAILED(device->CreateBuffer(&cloudBufferDesc, NULL, &cloudBuffer)))
 		return false;
 
 	return true;
@@ -125,7 +141,7 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 
 void ShaderStrife::ShutdownShader()
 {
-	DECIMATE(m_lightBuffer)
+	DECIMATE(cloudBuffer)
 	DECIMATE(m_variableBuffer)
 	DECIMATE(m_matrixBuffer)
 	DECIMATE(m_sampleState)
@@ -158,14 +174,13 @@ void ShaderStrife::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 
 
 
-bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& modelMat, const Camera& cam, const DirectionalLight& dirLight,
-	float elapsed, ID3D11ShaderResourceView* worleySRV, const SMatrix& lightView)
+bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& cam, const Strife::CloudscapeDefinition& csDef, float elapsed)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
 	CloudBuffer* dataPtr2;
 
-	SMatrix mT = modelMat.Transpose();
+	SMatrix mT = csDef.planeMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
@@ -178,29 +193,28 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatr
 	deviceContext->Unmap(m_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);	
 
-	if (FAILED(deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(deviceContext->Map(cloudBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	dataPtr2 = (CloudBuffer*)mappedResource.pData;
-	dataPtr2->alc = dirLight.alc;
-	dataPtr2->ali = dirLight.ali;
-	dataPtr2->dlc = dirLight.dlc;
-	dataPtr2->dli = dirLight.dli;
-	dataPtr2->slc = dirLight.slc;
-	dataPtr2->sli = dirLight.sli;
-	dataPtr2->dir = dirLight.dir;
-	dataPtr2->eyePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
-	dataPtr2->elapsed = elapsed;
-	dataPtr2->padding = SVec3();
-	dataPtr2->lightView = lightView;
-	deviceContext->Unmap(m_lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
+
+	dataPtr2->lightPos = csDef.celestial.pos;
+	dataPtr2->lightColInt = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
+	
+	dataPtr2->eyePosElapsed = Math::fromVec3(cam.GetPosition(), elapsed);
+
+	dataPtr2->lightView = csDef.lightViewMat.Transpose();
+
+	dataPtr2->eccentricity = SVec4(csDef.eccentricity, csDef.heightMask.x, csDef.heightMask.y, 0);
+
+	deviceContext->Unmap(cloudBuffer, 0);
+	deviceContext->PSSetConstantBuffers(0, 1, &cloudBuffer);
 
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(worleySRV));
+	deviceContext->PSSetShaderResources(0, 1, &(csDef.coverage_broad.srv));
 
 	return true;
 }
