@@ -42,6 +42,13 @@ void Camera::SetCameraMatrix(const SMatrix& transform)
 
 
 
+void Camera::SetProjectionMatrix(const SMatrix& proj)
+{
+	_projectionMatrix = proj;
+}
+
+
+
 void Camera::Update(float dTime)
 {
 	_controller->processTransformationFPS(dTime, _cameraMatrix);
@@ -128,6 +135,8 @@ SMatrix Camera::GetProjectionMatrix() const
 {
 	return _projectionMatrix;
 }
+
+
 
 SVec3 Camera::GetPosition() const
 {

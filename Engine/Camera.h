@@ -12,7 +12,6 @@ public:
 	~Camera();
 
 	void Update(float dTime);
-	void SetCameraMatrix(const SMatrix& transform);
 
 	void Translate(const SVec3& t);
 	void SetTranslation(const SVec3& t);
@@ -30,8 +29,13 @@ public:
 
 	static Camera CreateFromViewProjection(const SMatrix& view, const SMatrix& projection);
 	SMatrix GetViewMatrix() const;
+
 	SMatrix GetCameraMatrix() const;
+	void SetCameraMatrix(const SMatrix& transform);
+
 	SMatrix GetProjectionMatrix() const;
+	void SetProjectionMatrix(const SMatrix& proj);
+
 	SVec3   GetPosition() const;
 	
 protected:

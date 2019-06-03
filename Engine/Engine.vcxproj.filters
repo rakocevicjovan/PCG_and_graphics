@@ -515,6 +515,9 @@
     <ClInclude Include="CloudscapeDefinition.h">
       <Filter>Strife</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderUtils.h">
+      <Filter>Strife</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

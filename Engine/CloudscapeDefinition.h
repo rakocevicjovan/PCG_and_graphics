@@ -24,10 +24,14 @@ namespace Strife
 		//probably to be used tiled, or will devour memory...
 		//used to disturb flat gradient made by height mask, two full precision float channels, top and bottom?
 
+		Texture blue_noise;
+
 		SVec3 rgb_sig_scattering;
 		SVec3 rgb_sig_absorption;
 
 		float eccentricity = 0.f;
+
+		float scrQuadOffset = 15.f;
 	};
 
 }

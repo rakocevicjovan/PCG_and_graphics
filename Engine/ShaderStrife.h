@@ -23,10 +23,13 @@ class ShaderStrife
 	{
 		SVec4 lightPos;
 		SVec4 lightColInt;
+		SVec4 extinction;
+
 		SVec4 eyePosElapsed;
 		SVec4 eccentricity;
 
 		SMatrix lightView;
+		SMatrix camMatrix;
 	};
 
 public:

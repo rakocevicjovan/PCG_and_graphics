@@ -232,6 +232,7 @@
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="ShaderMaze.h" />
     <ClInclude Include="ShaderPT.h" />
+    <ClInclude Include="ShaderUtils.h" />
     <ClInclude Include="ShaderVolumetric.h" />
     <ClInclude Include="ShaderShadow.h" />
     <ClInclude Include="ShaderSkybox.h" />

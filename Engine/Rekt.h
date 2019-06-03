@@ -56,7 +56,7 @@ public:
 	ScreenspaceDrawer();
 	~ScreenspaceDrawer();
 
-	UINODE* AddUINODE(ID3D11Device* device, UINODE* parent, SVec2 pos, SVec2 size);
+	UINODE* AddUINODE(ID3D11Device* device, UINODE* parent, SVec2 pos, SVec2 size, float z = 0.f);
 	void draw(ID3D11DeviceContext* deviceContext, ShaderHUD& s, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* bloomSRV = nullptr);
 	UINODE* getRoot() { return &_ROOT; }
 

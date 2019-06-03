@@ -11,7 +11,7 @@ ScreenspaceDrawer::~ScreenspaceDrawer() {}
 
 
 
-ScreenspaceDrawer::UINODE* ScreenspaceDrawer::AddUINODE(ID3D11Device* device, ScreenspaceDrawer::UINODE* parent, SVec2 pos, SVec2 size)
+ScreenspaceDrawer::UINODE* ScreenspaceDrawer::AddUINODE(ID3D11Device* device, ScreenspaceDrawer::UINODE* parent, SVec2 pos, SVec2 size, float z)
 {
 	if (parent == nullptr)
 	{
@@ -26,7 +26,7 @@ ScreenspaceDrawer::UINODE* ScreenspaceDrawer::AddUINODE(ID3D11Device* device, Sc
 
 	uinode->pos = SVec2(pPos.x + pos.x * pSize.x, pPos.y + pos.y * pSize.y);
 	uinode->size = SVec2(pSize.x * size.x, pSize.y * size.y);
-	uinode->m = Mesh(uinode->pos, uinode->size, device);
+	uinode->m = Mesh(uinode->pos, uinode->size, device, z);
 	
 	parent->children.push_back(uinode);
 	

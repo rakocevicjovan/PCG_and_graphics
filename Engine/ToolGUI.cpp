@@ -30,13 +30,17 @@ namespace Strife
 		
 		ImGui::SliderFloat("Light intensity", &csDef.celestial.ali, 0, 100000);	//32k - 100k lux for the sun
 
+		ImGui::InputFloat3("Extinction", &csDef.rgb_sig_absorption.x, 3);
+
 		ImGui::SliderFloat3("Light position", &csDef.celestial.pos.x, -1000, 1000);
 
 		ImGui::SliderFloat("HeightMask low", &csDef.heightMask.x, 100, 9000);
-		ImGui::SliderFloat("HeightMask high", &csDef.heightMask.y, csDef.heightMask.x, 9000);
+		ImGui::InputFloat("HeightMask high", &csDef.heightMask.y, 10, 50, 3);
 		//ImGui::InputFloat2("Height mask manual", &csDef.heightMask.x, 0, 0);
 
 		ImGui::SliderFloat("Eccentricity", &csDef.eccentricity, -1, 1);
+
+		ImGui::SliderFloat("ScrQuadOffset", &csDef.scrQuadOffset, 0, 3);
 
 		ImGui::End();
 

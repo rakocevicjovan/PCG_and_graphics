@@ -180,9 +180,17 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	MatrixBuffer* dataPtr;
 	CloudBuffer* dataPtr2;
 
+#define SCREENSPACE true
+
+#if SCREENSPACE
+	SMatrix mT = SMatrix::Identity;
+	SMatrix vT = SMatrix::Identity;
+	SMatrix pT = SMatrix::Identity;
+#else
 	SMatrix mT = csDef.planeMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
+#endif
 
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
@@ -193,18 +201,23 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->Unmap(m_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);	
 
+
+
 	if (FAILED(deviceContext->Map(cloudBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	dataPtr2 = (CloudBuffer*)mappedResource.pData;
 
 	dataPtr2->lightPos = csDef.celestial.pos;
 	dataPtr2->lightColInt = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
+
+	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 0);
 	
 	dataPtr2->eyePosElapsed = Math::fromVec3(cam.GetPosition(), elapsed);
 
-	dataPtr2->lightView = csDef.lightViewMat.Transpose();
+	dataPtr2->eccentricity = SVec4(csDef.eccentricity, csDef.heightMask.x, csDef.heightMask.y, csDef.scrQuadOffset);
 
-	dataPtr2->eccentricity = SVec4(csDef.eccentricity, csDef.heightMask.x, csDef.heightMask.y, 0);
+	dataPtr2->lightView = csDef.lightViewMat.Transpose();
+	dataPtr2->camMatrix = cam.GetCameraMatrix().Transpose();
 
 	deviceContext->Unmap(cloudBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &cloudBuffer);
@@ -216,6 +229,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 
 	deviceContext->PSSetShaderResources(0, 1, &(csDef.coverage_broad.srv));
 	deviceContext->PSSetShaderResources(1, 1, &(csDef.coverage_frequent.srv));
+	deviceContext->PSSetShaderResources(2, 1, &(csDef.blue_noise.srv));
 	return true;
 }
 

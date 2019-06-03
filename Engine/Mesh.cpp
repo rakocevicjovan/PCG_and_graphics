@@ -32,27 +32,27 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 
 
 
-Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device)
+Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
 {
-	float originX = (pos.x - 0.5f) * 2.f;	//[0, 1] -> [-1, 1]
-	float originY = (pos.y - 0.5f) * 2.f;
+	float originX = (pos.x - size.x * 0.5f) * 2.f;	//[0, 1] -> [-1, 1]
+	float originY = (pos.y - size.y * 0.5f) * 2.f;
 	float width = size.x * 2.f;
 	float height = size.y * 2.f;
 
 	Vert3D topLeft;
-	topLeft.pos = SVec3(originX, originY + height, 0.0f);
+	topLeft.pos = SVec3(originX, originY + height, z);
 	topLeft.texCoords = SVec2(0.f, 1.f);
 
 	Vert3D topRight;
-	topRight.pos = SVec3(originX + width, originY + height, 0.0f);
+	topRight.pos = SVec3(originX + width, originY + height, z);
 	topRight.texCoords = SVec2(1.f, 1.f);
 
 	Vert3D bottomLeft;
-	bottomLeft.pos = SVec3(originX, originY, 0.0f);
+	bottomLeft.pos = SVec3(originX, originY, z);
 	bottomLeft.texCoords = SVec2(0.f, 0.f);
 
 	Vert3D bottomRight;
-	bottomRight.pos = SVec3(originX + width, originY, 0.0f);
+	bottomRight.pos = SVec3(originX + width, originY, z);
 	bottomRight.texCoords = SVec2(1.f, 0.f);
 
 	vertices.push_back(topLeft);
@@ -60,7 +60,7 @@ Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device)
 	vertices.push_back(bottomLeft);
 	vertices.push_back(bottomRight);
 
-	indices = std::vector<unsigned int>{ 0u, 1u, 2u, 1u, 3u, 2u };
+	indices = std::vector<unsigned int>{ 0u, 1u, 2u, 2u, 1u, 3u };
 
 	setupMesh(device);
 }

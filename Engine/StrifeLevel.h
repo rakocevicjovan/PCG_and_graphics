@@ -13,13 +13,12 @@ namespace Strife
 		StrifeLevel(Systems& sys) : Level(sys) {};
 		~StrifeLevel() {};
 
-		Model skybox, cloudscape;
+		Model skybox, floor;
 		CubeMapper skyboxCubeMapper;
 
+		Model screenQuad;
+
 		CloudscapeDefinition csDef;
-
-		Procedural::Terrain terrain, sky;
-
 
 		//load and draw all that jazz
 		void init(Systems& sys);

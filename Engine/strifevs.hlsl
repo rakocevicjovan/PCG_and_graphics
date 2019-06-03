@@ -20,6 +20,7 @@ struct PixelInputType
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
 	float4 msPos : MSPOS;
+    float2 tex : TEXCOORD0;
 };
 
 
@@ -37,6 +38,10 @@ PixelInputType main(VertexInputType input) {
 
 	output.normal = mul(input.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
+
+    output.tex = float2(input.tex.x, input.tex.y);
+
+    //output.position.z = output.position.w * .999f;  //leave this to the cpu
 
 	return output;
 }
