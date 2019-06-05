@@ -12,8 +12,6 @@ cbuffer LightBuffer : register(b0)
     float4x4 camMatrix;
 };
 
-#define elapsed eyePos.w
-
 Texture2D<float3> coverage : register(t0);
 Texture2D<float1> carver : register(t1);
 Texture2D<float4> blueNoise : register(t2);
@@ -29,16 +27,20 @@ struct PixelInputType
 };
 
 
-///Constants
+///Constants and hax
 #define PI 3.14159f
+#define MAX_VIS 20000
+#define SHADOW_STEPS 6.f
+#define EPS 0.00001f
+
 #define CLOUD_BOTTOM eccentricity.y
 #define CLOUD_TOP eccentricity.z
 #define FOCAL_DEPTH eccentricity.w
-#define MAX_VIS 20000
-static const float sigExtinction = float3(0.5, 1, 2);
 
-static const float3 UP = float3(0, 1., 0);
-static const float PLANET_RADIUS = 1000000.0f;
+#define ELAPSED eyePos.w
+
+static const float3 UP = float3(0., 1., 0.);
+static const float PLANET_RADIUS = 1000000.f; //6000000.0f; 1000000
 static const float3 PLANET_CENTER = float3(0., -PLANET_RADIUS, 0.);
 
 static const float GAIN = 0.707f;
@@ -48,32 +50,17 @@ static const float NUM_STEPS = 64.0;
 //static const float CLOUD_THICKNESS = 64.f;
 //static const float STEP_SIZE = CLOUD_THICKNESS / NUM_STEPS;
 
-///Constants done //r(d) = e ^ ( -O`(t) * d);
 
 
-//Inigo Quilez version... I don't get one part of it...
-float IntersectRaySphere(float3 ro, float3 rd, float3 ce, float radius)
+//just a typical remap function, correct
+float remap(float value, float min1, float max1, float min2, float max2)
 {
-    float3 oc = ro - ce;    //use this to project it onto (normalized!!!) rd for closest point
-    float b = dot(oc, rd);  //closest point to sphere center is along the ray where t = b (projected Sc onto ray...)
-
-    //squared distance between edge of sphere closest to ray origin and ray origin
-    float c = dot(oc, oc) - radius * radius; //pythagoras... no sqrt yet! optimized!
-
-    float discriminant = b * b - c; //compare squared distance to closest point and radius
-    if (discriminant < 0)       //basically closest point not in sphere so no intersection, avoid sqrt
-    {
-        return -1.;
-    }
-    else
-    {
-        float discriminant = sqrt(discriminant);           //ok this bastard has to happen eventually
-        return min(-b - discriminant, -b + discriminant);   //
-    }
+    float perc = (value - min1) / (max1 - min1);
+    return min2 + perc * (max2 - min2);
 }
 
 
-//art of code, assumes normalized rd! slightly optimized by yours truly (avoids one sqrt and one mul)
+//art of code, assumes normalized rd! slightly optimized by yours truly (avoids one sqrt and one mul), correct
 float2 RaySphereInt(float3 ro, float3 rd, float3 sc, float r)
 {
     float t = dot(sc - ro, rd);     //project SCtoRO vector onto ray direction, get t of closest point
@@ -84,58 +71,105 @@ float2 RaySphereInt(float3 ro, float3 rd, float3 sc, float r)
 
     float x = r * r - y;            //Pythagorean theorem, get squared distance from middle point to shell
     if(x < 0.f)
-        return float2(0.f, 0.f);
+        return float2(-1.f, -1.f);
 
-    x = sqrt(x);  
+    x = sqrt(x);
     return float2(t - x, t + x);
 }
 
 
-float2 hollowSphereIntersectionDistances(float3 ro, float3 rd, float2 heightGradient)
-{}
 
-
-
-
+//correct
 float phaseMieHG(float cosTheta, float g)	// g[-1, 1], also called eccentricity
 {
     float g2 = g * g;
 
     float numerator = 1.f - g2;
 
-    float toPow = 1.f + g2 - 2.f * g * cosTheta;    //seen this use abs... not buying that it's required though
+    float toPow = 1.f + g2 - 2.f * g * cosTheta;        //seen this use abs... not buying that it's required though
     float denominator = 4.f * PI * toPow * sqrt(toPow); //toPow * sqrt(toPow) or pow(toPow, 1.5) but I think this is faster...
-			
+
     return numerator / denominator;
 }
 
 
 
-float visibility(float3 sampledPos, float3 lightPos)
+float phaseRayleigh(float cosTheta)
 {
-    //return smoothstep(-512.f, 512.f, sampledPos.x);
-    return 1.f;     //implement with 3d volume textures
+    //sigS = (0.490, 1.017, 2.339)
+	//calculated using sigS(lambda) proportionate to 1.f / (lambda^4);
+
+    return (3. * (1. + cosTheta * cosTheta)) / (16. * PI);
 }
 
 
 
-float inScattering(float3 ro, float3 rd, float3 lightPos)
+float4 atmosphere(float t)
+{
+
+    return float4(0.1f, 0.1f, t / 40000.f, .5f);
+}
+
+
+
+//correct but boring and sub optimal for sure... too many samples have to be taken for just shape - pack textures together!
+float SampleDensityAtPosition(float3 p)
+{
+    float2 samplingCoord = (p.xz - 512.f) / 1024.f;
+
+    float mask = coverage.Sample(CloudSampler, samplingCoord).r;
+    //float hi_freq_mask = carver.Sample(CloudSampler, samplingCoord).r;
+    //mask = remap(mask, hi_freq_mask * p1.z), .1, 0.0, 1.0);
+
+    //mask = min(smoothstep(CLOUD_BOTTOM, CLOUD_TOP, p.y), mask);
+    //mask = min(smoothstep(CLOUD_TOP, CLOUD_BOTTOM, p.y), mask);
+
+    return mask;
+}
+
+
+//eeeh?
+float visibility(float3 sampledPos, float3 lightPos, float tMax)
+{
+    //return smoothstep(-512.f, 512.f, sampledPos.x);
+    float density = 0.f;
+    float3 toLight = normalize(lightPos - sampledPos);
+
+    float t = 0;
+    float shadowstep = tMax / SHADOW_STEPS;
+
+    for (int i = 0; i < SHADOW_STEPS; ++i)
+    {
+        float3 curPos = sampledPos + i * toLight;
+        density += SampleDensityAtPosition(curPos);
+    }
+
+    return max(0., 1.f - exp(-density)); //implement with 3d volume textures or marching? idk
+}
+
+
+
+//check check check!!! lighting is NOT correct
+float inScattering(float3 x, float3 rd, float3 lightPos)
 {
     // PI * SUM[1, n] [ p(w, l_c_i) * v(x, p_light_i) * c_light_i(distance(x, p_light_i)) ]
 
-    // p(w, l_c_i) - Mie scattering, in the cloud
-    float3 lightToX = lightPos.xyz - ro;    //possibly swapped around... maters for dot product below
-    float distToLightSq = dot(lightToX, lightToX); //same as sqrt(dot(lightToX, lightToX)); 
+    // p(w, l_c_i) - Mie phase function, in the cloud
+    float3 lightToX = lightPos.xyz - x; //vector to light
+    float distToLightSq = dot(lightToX, lightToX); //squared distance to light...y tho?
     lightToX = lightToX / sqrt(distToLightSq);
     float cosTheta = dot(lightToX, rd);
     float phase = phaseMieHG(cosTheta, eccentricity.x);
-
+        
     // v(x, p_light_i)
-    float v = visibility(ro, lightPos); //sample shadow map - [0, 1] to approximate soft shadow, otherwise ugly
+    float v = 1.f;
+    //visibility(x, lightPos, CLOUD_TOP - x.y); this is shadowing on it's own and not very good...
+
+    //sample shadow map - [0, 1] to approximate soft shadow, otherwise ugly OR sample towards light for density (slow?)
     
     //lightRGBI.xyz / max(distToLightSq, 0.0001f); however this is a 
     // c_light_i(distance(x, p_light_i)) - known value range [32 000, 100 000] for the sun to earth lux
-    float c_light_i = lightRGBI.a; //lightRGBI.a; //make color dependant lightRGBI.xyz * 
+    float c_light_i = lightRGBI.a; //lightRGBI.a; 1 //make color dependant lightRGBI.xyz * 
 
     return PI * (phase * v * c_light_i); //bracketed for each light in fact... but I use one only
 }
@@ -150,82 +184,95 @@ float3 BeerLambert(float3 sigA, float depth)
 
 
 
-float4 integrate(in float4 sum, in float dif, in float den, in float t)
+void scattering(float3 x, float3 rd, ) //direction v is MINUS RD AND NOT RD!!! at least in formal notation in the book
 {
+    float result = PI;
+    
+    float3 xToLight = lightPos.xyz - x;
+    float distToLight = length(xToLight);
+    xToLight = xToLight / distToLight;
 
+    float cosTheta = dot(rd, xToLight);
+    float p = phaseMieHG(cosTheta, eccentricity.x);
+
+    float incidentLight = lightRGBI.a;
+    
+
+    return result;
 }
+
+
+
+float4 integrate(in float4 sum, in float dif, in float den, in float t)
+{}
 
 
 
 float4 raymarch(float3 ro, float3 rd, float tMax)
 {
-    float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f);
+        float4 sum = float4(0.0f, 0.0f, 0.0f, 0.0f); //or start with full light... idk
 
-    float t = 0.f;
+        float adjStepSize = tMax / NUM_STEPS;
 
-    float adjStepSize = tMax / NUM_STEPS;
+        float t = adjStepSize * 0.5f; //sample at middles of steps
 
-    for (int i = 0; i < NUM_STEPS; ++i)
-    {
-        if (sum.a > .99)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
+        for (int i = 0; i < NUM_STEPS; ++i)
+        {
+        //if (sum.a > 1.f - EPS)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
 
-        float3 curPos = ro + t * rd;
+            float3 curPos = ro + t * rd;
 
-        float mask = coverage.Sample(CloudSampler, (curPos.xz) / 2048.f).r;
-        //multiply by double smoothstep (or other remap) to this to make a gradient
-        //mask = min(smoothstep(eccentricity.y, eccentricity.z, curPos.y), mask);
-        //mask = min(smoothstep(CLOUD_TOP, CLOUD_BOTTOM, curPos.y), mask);
+            float density = SampleDensityAtPosition(curPos); //density += mask * phase;   //density += adjStepSize * mask * phase;
 
-        float density = mask * adjStepSize; //density += mask * phase;   //density += adjStepSize * mask * phase;
+            bool continueDoesntWorkMicrosoftPls = density > EPS;
 
-        float3 beerLambert = BeerLambert(extinction.xyz, adjStepSize).xyz;  //REEEEEEEEEEEEEEEEEEEEEE
+            if (continueDoesntWorkMicrosoftPls)
+            {
+                float3 transmittance = BeerLambert(extinction.xyz, adjStepSize).xyz; //t or adjStepSize??? or just density???
+                float inscat = inScattering(curPos, rd, lightPos.xyz);
+                sum.rgb += transmittance * inscat; //density *
+                sum.a += density;
+            }
 
-        sum.rgb += density * beerLambert;
-        sum.a += density;
+            t += adjStepSize;
+        }
 
-        t += adjStepSize;
-    }
-
-    //for thin cloud layers this is all right, as the angle to the light won't change significantly
-    //float3 xToLight = normalize(lightPos.xyz - ro);
-    //float cosTheta = dot(xToLight, rd);
-    //float phase = phaseMieHG(cosTheta, eccentricity.x);
-
-    float L_inscat = inScattering(ro, rd, lightPos.xyz);
-
-    sum *= L_inscat; // * BeerLambert(extinction.xyz, tMax)
-
-    return sum;
-}
-
-
-
-float3 calcRayDir(float2 ndc)
-{
-    return normalize(camMatrix._11_12_13 * ndc.x + camMatrix._21_22_23 * ndc.y + camMatrix._31_32_33 * FOCAL_DEPTH);
-}
-
-
-float4 main(PixelInputType input) : SV_TARGET
-{
-    float3 rayOrigin = eyePos.xyz;
-    float2 ndc = float2((input.tex.x * 2.f - 1.f) * 16.f / 9.f, input.tex.y * 2.f - 1.f);
-    float3 rayDir = calcRayDir(ndc);
-
-    float t1 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
-    float t2 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
-
-    if (t1 > 0.f && t1 < MAX_VIS && t2 > 0.f)
-    {
-        rayOrigin += rayDir * blueNoise.Sample(CloudSampler, ndc).x * 25.f;
-        return raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
-    }
-    else
-        return (float4) 0.f;
-
+        sum.rgb = pow(abs(sum.rgb), 1.0 / 2.2);
+        sum.rgb *= sum.a;
     
-   
-}
+        return sum;
+    }
+
+
+
+float4 main(PixelInputType input):SV_TARGET
+{
+    //trivial, correct
+        float3 rayOrigin = eyePos.xyz;
+
+    //correct
+        float2 ndc = float2((input.tex.x * 2.f - 1.f) * (16.f / 9.f), input.tex.y * 2.f - 1.f);
+
+    //correct however a bit wide for now...
+    //focal depth might have to increase as widely cast rays can cause stretching artifacts in corners - MUST SYNC WITH SCENE!
+        float3 rayDir = normalize(camMatrix._11_12_13 * ndc.x + camMatrix._21_22_23 * ndc.y + camMatrix._31_32_33 * FOCAL_DEPTH);
+
+    //bottom and top of a single cloud layer... might be faster to use onioning... but this works nicely!
+        float t1 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
+        float t2 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
+
+        if (t1 > MAX_VIS)
+            return atmosphere(t1);
+
+    //works only for from underneath the layer
+        if (t1 > 0. && t2 > 0.)
+        {
+            rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).x * 2.f - 1.f); //blue noise
+            return raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
+        }
+
+        return (float4) 0.;
+    }
 
 
 
@@ -233,9 +280,6 @@ float4 main(PixelInputType input) : SV_TARGET
  //float2 tEarth = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS);
  //if (max(tEarth.x, tEarth.y) > -0.0001f)
     //return float4(0., 0., 0., 0.);
-
-
-
 
 //interesting yet currently useless section
 /*
@@ -401,6 +445,29 @@ bool get_cloud_layer(in float3 eye_pos, in float3 ray_dir, out float3 cloud_laye
 
         cloud_layer_start = eye_pos;
         return true;
+    }
+}
+
+
+
+//Inigo Quilez version... I don't get one part of it...
+float IntersectRaySphere(float3 ro, float3 rd, float3 ce, float radius)
+{
+    float3 oc = ro - ce;    //use this to project it onto (normalized!!!) rd for closest point
+    float b = dot(oc, rd);  //closest point to sphere center is along the ray where t = b (projected Sc onto ray...)
+
+    //squared distance between edge of sphere closest to ray origin and ray origin
+    float c = dot(oc, oc) - radius * radius; //pythagoras... no sqrt yet! optimized!
+
+    float discriminant = b * b - c; //compare squared distance to closest point and radius
+    if (discriminant < 0)       //basically closest point not in sphere so no intersection, avoid sqrt
+    {
+        return -1.;
+    }
+    else
+    {
+        float discriminant = sqrt(discriminant);           //ok this bastard has to happen eventually
+        return min(-b - discriminant, -b + discriminant);   //
     }
 }
 */

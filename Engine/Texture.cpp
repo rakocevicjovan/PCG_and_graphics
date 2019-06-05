@@ -239,3 +239,29 @@ std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunari
 
 	return result;
 }
+
+
+
+void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
+{
+	std::wstring temp(path.begin(), path.end());
+	const wchar_t* widecstr = temp.c_str();
+
+	/*ID3D11Resource* resource;
+
+	HRESULT hr = resource->QueryInterface(IID_ID3D11Texture2D, (void **)&texId);
+
+	if (FAILED(hr))
+	{
+		OutputDebugStringA("Ma jebem mu ja sve zivo i mrtvo... \n");
+		exit(4202);
+	}*/
+
+	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &srv, 0);
+
+	if (FAILED(result))
+	{
+		OutputDebugStringA("Can't create texture2d with mip levels (WIC). \n");
+		exit(4201);
+	}
+}

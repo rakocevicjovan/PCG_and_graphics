@@ -207,7 +207,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 		return false;
 	dataPtr2 = (CloudBuffer*)mappedResource.pData;
 
-	dataPtr2->lightPos = csDef.celestial.pos;
+	dataPtr2->lightPos = csDef.celestial.pos * 100000.f;
 	dataPtr2->lightColInt = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
 
 	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 0);

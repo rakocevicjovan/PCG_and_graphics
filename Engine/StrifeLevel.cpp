@@ -14,7 +14,7 @@ namespace Strife
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), device, .999999f);	//1.777777f
 		screenQuad.meshes.push_back(scrQuadMesh);
 
-		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.25 * PI, randy._screenAspect, 1.f, 1000.f));
+		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy._screenAspect, 1.f, 1000.f));
 
 		LightData lightData(SVec3(1.f, 1.f, 1.f), 32000.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 
@@ -31,10 +31,14 @@ namespace Strife
 
 		csDef.celestial = PointLight(lightData, SVec4(0., 999., 999., 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.);
+		csDef.eccentricity = 0.76;
 		
 		csDef.coverage_broad = Texture(device, "../Textures/worley.png");
-		csDef.coverage_frequent = Texture(device, "../Textures/highDetail.jpg");
+		//csDef.coverage_broad.LoadWithMipLevels(device, context, "../Textures/worley.png");
+		csDef.coverage_frequent = Texture(device, "../Textures/highDetail2.png");
 		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
+
+		//context->GenerateMips(csDef.coverage_broad.srv); gdi directX...
 
 		csDef.scrQuadOffset = 1.f;
 		

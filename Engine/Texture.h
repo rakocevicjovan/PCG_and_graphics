@@ -3,7 +3,8 @@
 #include <string>
 #include <d3d11.h>
 #include <vector>
-#include "assimp\scene.h"   
+#include "assimp\scene.h"
+#include "WICTextureLoader.h"
 
 namespace Procedural {
 	class Perlin;
@@ -51,4 +52,6 @@ public:
 	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 
 	ID3D11ShaderResourceView* getTextureResourceView() { return srv; }
+
+	void LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 };
