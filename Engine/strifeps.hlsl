@@ -93,21 +93,20 @@ float phaseMieHG(float cosTheta, float g)	// g[-1, 1], also called eccentricity
 }
 
 
-
+//check if correct, use in atmosphere
 float phaseRayleigh(float cosTheta)
 {
     //sigS = (0.490, 1.017, 2.339)
 	//calculated using sigS(lambda) proportionate to 1.f / (lambda^4);
 
-    return (3. * (1. + cosTheta * cosTheta)) / (16. * PI);
+    return (3. / (16. * PI)) * (1. + cosTheta * cosTheta);
 }
 
 
-
+//placeholder, use rayleigh scattering / simple distance fog
 float4 atmosphere(float t)
 {
-
-    return float4(0.1f, 0.1f, t / 40000.f, .5f);
+    return float4(0.1f, 0.1f, MAX_VIS / t, .5f);
 }
 
 
@@ -128,15 +127,19 @@ float SampleDensityAtPosition(float3 p)
 }
 
 
-//eeeh?
-float visibility(float3 sampledPos, float3 lightPos, float tMax)
+//slow... volume shadow map could be used with a separate pass to determine density! would save a lot of work!
+float visibility(float3 sampledPos, float3 toLight)
 {
-    //return smoothstep(-512.f, 512.f, sampledPos.x);
+    //return shadowMap(x, plighti) * volShad(x, plighti); OFFICIAL WAY
+
+    //return smoothstep(-512.f, 512.f, sampledPos.x % 1024.f);   testing with simple
+    
     float density = 0.f;
-    float3 toLight = normalize(lightPos - sampledPos);
+
+    float distToCloudEdge = RaySphereInt(sampledPos, toLight, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
 
     float t = 0;
-    float shadowstep = tMax / SHADOW_STEPS;
+    float shadowstep = distToCloudEdge / SHADOW_STEPS;
 
     for (int i = 0; i < SHADOW_STEPS; ++i)
     {
@@ -144,13 +147,13 @@ float visibility(float3 sampledPos, float3 lightPos, float tMax)
         density += SampleDensityAtPosition(curPos);
     }
 
-    return max(0., 1.f - exp(-density)); //implement with 3d volume textures or marching? idk
+    return 1.f * exp(-density); //assume no shadows from map for now, just self shadowing
 }
 
 
 
 //check check check!!! lighting is NOT correct
-float inScattering(float3 x, float3 rd, float3 lightPos)
+float inScattering(float3 x, float3 rd)
 {
     // PI * SUM[1, n] [ p(w, l_c_i) * v(x, p_light_i) * c_light_i(distance(x, p_light_i)) ]
 
@@ -184,21 +187,21 @@ float3 BeerLambert(float3 sigA, float depth)
 
 
 
-void scattering(float3 x, float3 rd, ) //direction v is MINUS RD AND NOT RD!!! at least in formal notation in the book
-{
-    float result = PI;
-    
+float scattering(float3 x, float3 rd) //direction v is MINUS RD AND NOT RD!!! at least in formal notation in the book
+{   
+    //some needed parameters
     float3 xToLight = lightPos.xyz - x;
     float distToLight = length(xToLight);
     xToLight = xToLight / distToLight;
-
     float cosTheta = dot(rd, xToLight);
-    float p = phaseMieHG(cosTheta, eccentricity.x);
-
-    float incidentLight = lightRGBI.a;
     
+    //parts of the scattering formula per each light - we assume one light only
+    float p = phaseMieHG(cosTheta, eccentricity.x);
+    float v = visibility(x, xToLight);
+    float incidentLight = lightRGBI.a;
 
-    return result;
+    //inscattering formula
+    return PI * p * v * incidentLight;
 }
 
 
@@ -214,11 +217,11 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
         float adjStepSize = tMax / NUM_STEPS;
 
-        float t = adjStepSize * 0.5f; //sample at middles of steps
+        float t = 0.f; //adjStepSize * 0.5f; to sample at middles of steps
 
         for (int i = 0; i < NUM_STEPS; ++i)
         {
-        //if (sum.a > 1.f - EPS)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
+            if (sum.a > 1.f - EPS)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
 
             float3 curPos = ro + t * rd;
 
@@ -228,8 +231,8 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
             if (continueDoesntWorkMicrosoftPls)
             {
-                float3 transmittance = BeerLambert(extinction.xyz, adjStepSize).xyz; //t or adjStepSize??? or just density???
-                float inscat = inScattering(curPos, rd, lightPos.xyz);
+                float3 transmittance = BeerLambert(extinction.xyz, density).xyz; //t or adjStepSize??? or just density???
+                float inscat = scattering(curPos, rd); //inScattering(curPos, rd, lightPos.xyz);
                 sum.rgb += transmittance * inscat; //density *
                 sum.a += density;
             }
@@ -237,7 +240,7 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
             t += adjStepSize;
         }
 
-        sum.rgb = pow(abs(sum.rgb), 1.0 / 2.2);
+        //sum.rgb = pow(abs(sum.rgb), 1.0 / 2.2);
         sum.rgb *= sum.a;
     
         return sum;
@@ -247,32 +250,32 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
 float4 main(PixelInputType input):SV_TARGET
 {
-    //trivial, correct
-        float3 rayOrigin = eyePos.xyz;
+    //correct, trivial
+    float3 rayOrigin = eyePos.xyz;
 
     //correct
-        float2 ndc = float2((input.tex.x * 2.f - 1.f) * (16.f / 9.f), input.tex.y * 2.f - 1.f);
+    float2 ndc = float2((input.tex.x * 2.f - 1.f) * (16.f / 9.f), input.tex.y * 2.f - 1.f);
 
     //correct however a bit wide for now...
     //focal depth might have to increase as widely cast rays can cause stretching artifacts in corners - MUST SYNC WITH SCENE!
-        float3 rayDir = normalize(camMatrix._11_12_13 * ndc.x + camMatrix._21_22_23 * ndc.y + camMatrix._31_32_33 * FOCAL_DEPTH);
+    float3 rayDir = normalize(camMatrix._11_12_13 * ndc.x + camMatrix._21_22_23 * ndc.y + camMatrix._31_32_33 * FOCAL_DEPTH);
 
     //bottom and top of a single cloud layer... might be faster to use onioning... but this works nicely!
-        float t1 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
-        float t2 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
+    float t1 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
+    float t2 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
 
-        if (t1 > MAX_VIS)
-            return atmosphere(t1);
+    if (t1 > MAX_VIS)
+        return atmosphere(t1);
 
     //works only for from underneath the layer
-        if (t1 > 0. && t2 > 0.)
-        {
-            rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).x * 2.f - 1.f); //blue noise
-            return raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
-        }
-
-        return (float4) 0.;
+    if (t1 > 0. && t2 > 0.)
+    {
+        rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).x * 2.f - 1.f); //blue noise
+        return raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
     }
+
+    return (float4) 0.;
+}
 
 
 
