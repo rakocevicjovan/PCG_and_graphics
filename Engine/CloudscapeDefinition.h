@@ -32,6 +32,8 @@ namespace Strife
 		float eccentricity = 0.f;
 
 		float scrQuadOffset = 15.f;
+
+		float globalCoverage = 1.f;
 	};
 
 }

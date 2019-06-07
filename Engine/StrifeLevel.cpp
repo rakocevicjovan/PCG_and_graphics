@@ -16,7 +16,8 @@ namespace Strife
 
 		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy._screenAspect, 1.f, 1000.f));
 
-		LightData lightData(SVec3(1.f, 1.f, 1.f), 32000.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
+		//32000.f in lux but lol that doesn't work!
+		LightData lightData(SVec3(1.f, 1.f, 1.f), 1.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 
 		float edge = 256;
 		Procedural::Terrain terrain(2, 2, SVec3(edge, 1, edge));
@@ -26,12 +27,12 @@ namespace Strife
 		floor = Model(terrain, device);
 		floor.transform = SMatrix::CreateTranslation(terrain.getOffset());
 
-
 		sys._D3D.SetBackBufferRenderTarget();
 
 		csDef.celestial = PointLight(lightData, SVec4(0., 999., 999., 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
-		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.);
-		csDef.eccentricity = 0.76;
+		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.) * .1f;
+		csDef.eccentricity = 0.8;
+		csDef.globalCoverage = 1.f;
 		
 		csDef.coverage_broad = Texture(device, "../Textures/worley.png");
 		//csDef.coverage_broad.LoadWithMipLevels(device, context, "../Textures/worley.png");
@@ -77,10 +78,12 @@ namespace Strife
 	{
 		rc.d3d->ClearColourDepthBuffers();
 
-		//terrain and skybox
+		//terrain
 		shady.light.SetShaderParameters(context, floor.transform, *rc.cam, csDef.celestial, rc.dTime);
 		floor.Draw(context, shady.light);
-		randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+		
+		//skybox
+		//randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 		//cloudscape, blend into background which depends on the time of the day... or use anything idk...
 		rc.d3d->TurnOnAlphaBlending();

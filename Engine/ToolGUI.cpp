@@ -28,7 +28,7 @@ namespace Strife
 
 		ImGui::SliderFloat3("Light RGB", &csDef.celestial.alc.x, 0, 1);
 		
-		ImGui::SliderFloat("Light intensity", &csDef.celestial.ali, 0, 100000);	//32k - 100k lux for the sun
+		ImGui::SliderFloat("Light intensity", &csDef.celestial.ali, 0, 5);	//32k - 100k lux for the sun
 
 		ImGui::InputFloat3("Extinction", &csDef.rgb_sig_absorption.x, 3);
 
@@ -41,6 +41,8 @@ namespace Strife
 		ImGui::SliderFloat("Eccentricity", &csDef.eccentricity, -1, 1);
 
 		ImGui::SliderFloat("ScrQuadOffset", &csDef.scrQuadOffset, 0, 3);
+
+		ImGui::SliderFloat("Global coverage", &csDef.globalCoverage, 0, 1);
 
 		ImGui::End();
 

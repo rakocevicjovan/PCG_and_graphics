@@ -210,7 +210,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr2->lightPos = csDef.celestial.pos * 100000.f;
 	dataPtr2->lightColInt = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
 
-	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 0);
+	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 1.f - csDef.globalCoverage);
 	
 	dataPtr2->eyePosElapsed = Math::fromVec3(cam.GetPosition(), elapsed);
 
