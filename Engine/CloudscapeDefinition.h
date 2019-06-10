@@ -26,6 +26,9 @@ namespace Strife
 
 		Texture blue_noise;
 
+		//3d texture resorce views
+		ID3D11ShaderResourceView* SRV3D;
+
 		SVec3 rgb_sig_scattering;
 		SVec3 rgb_sig_absorption;
 

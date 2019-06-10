@@ -44,6 +44,9 @@ namespace Strife
 		csDef.scrQuadOffset = 1.f;
 		
 		csDef.heightMask = SVec2(400, 600);
+
+		Create3D(device, SVec3(64), std::vector<float>());
+		csDef.SRV3D = srv;
 	}
 
 

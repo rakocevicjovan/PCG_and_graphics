@@ -183,9 +183,8 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 #define SCREENSPACE true
 
 #if SCREENSPACE
-	SMatrix mT = SMatrix::Identity;
-	SMatrix vT = SMatrix::Identity;
-	SMatrix pT = SMatrix::Identity;
+	SMatrix mT, vT, pT;
+	mT = vT = pT = SMatrix::Identity;
 #else
 	SMatrix mT = csDef.planeMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
@@ -216,7 +215,6 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 
 	dataPtr2->eccentricity = SVec4(csDef.eccentricity, csDef.heightMask.x, csDef.heightMask.y, csDef.scrQuadOffset);
 
-	dataPtr2->lightView = csDef.lightViewMat.Transpose();
 	dataPtr2->camMatrix = cam.GetCameraMatrix().Transpose();
 
 	deviceContext->Unmap(cloudBuffer, 0);
@@ -230,6 +228,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->PSSetShaderResources(0, 1, &(csDef.coverage_broad.srv));
 	deviceContext->PSSetShaderResources(1, 1, &(csDef.coverage_frequent.srv));
 	deviceContext->PSSetShaderResources(2, 1, &(csDef.blue_noise.srv));
+	deviceContext->PSSetShaderResources(3, 1, &(csDef.SRV3D));
 	return true;
 }
 

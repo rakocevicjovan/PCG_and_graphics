@@ -8,13 +8,13 @@ cbuffer LightBuffer : register(b0)
 
     float4 eccentricity;        //eccentricity, cloud bottom layer, cloud top layer, focal depth
 
-    float4x4 lightView;
     float4x4 camMatrix;
 };
 
 Texture2D<float3> coverage : register(t0);
 Texture2D<float1> carver : register(t1);
 Texture2D<float4> blueNoise : register(t2);
+Texture3D<float4> tex3d : register(t3);
 SamplerState CloudSampler : register(s0);
 
 struct PixelInputType
@@ -31,7 +31,7 @@ struct PixelInputType
 #define PI 3.14159f
 #define MAX_VIS 20000
 #define NUM_STEPS 64.f
-#define SHADOW_STEPS 6.f
+#define SHADOW_STEPS 4.f
 #define EPS 0.00001f
 #define TEX_TILE_SIZE 2048.f
 #define SKY_COLOUR (float3(135., 206., 250.) / 255.)
@@ -158,7 +158,7 @@ float3 visibility(float3 sampledPos, float3 toLight)
     for (int i = 0; i < SHADOW_STEPS; ++i)
     {
         density = SampleDensityAtPosition(curPos);
-        transmittance *= BeerLambert(extinction.xyz, density * shadowstep);
+        transmittance *= BeerLambert(extinction.xyz, shadowstep * density);
         curPos += i * toLight * shadowstep;
         shadowstep *= 1.3f;
     }
@@ -210,14 +210,14 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
     for (int i = 0; i < NUM_STEPS; ++i)
     {
-        //if (sum.a > 1.f - EPS)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
+        if (sum.a < EPS)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
 
         float3 curPos = ro + t * rd;
         t += adjStepSize;
 
         float density = SampleDensityAtPosition(curPos); //density += mask * phase;   //density += adjStepSize * mask * phase;
 
-        if (density < .1f)  //might do rayleigh here... have to do SOMETHING, looks horrible now, black if no clouds :(
+        if (density < EPS)  //might do rayleigh here... have to do SOMETHING, looks horrible now, black if no clouds :(
             continue;
 
         float3 cur_transmittance = BeerLambert(extinction.xyz, adjStepSize * density); //t or adjStepSize??? or just density???
@@ -257,7 +257,7 @@ float4 main(PixelInputType input):SV_TARGET
     //works only for from underneath the layer, but faster than covering all options
     if (t1 > 0. && t2 > 0.)
     {
-        rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).x * 2.f - 1.f); //blue noise offset
+        rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f); //blue noise offset
         float4 cloudColour = raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
         col = col * cloudColour.w + cloudColour.xyz;
         //col.xyz = lerp(col.xyz, atmosphere().xyz, 1 - col.a);   col.a = 1.f;
