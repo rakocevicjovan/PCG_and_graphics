@@ -16,7 +16,7 @@ namespace Strife
 
 		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy._screenAspect, 1.f, 1000.f));
 
-		//32000.f in lux but lol that doesn't work!
+		//32000.f in lux but that doesn't work... not sure how to do any of this
 		LightData lightData(SVec3(1.f, 1.f, 1.f), 1.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 
 		float edge = 256;
@@ -31,22 +31,22 @@ namespace Strife
 
 		csDef.celestial = PointLight(lightData, SVec4(0., 999., 999., 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.) * .1f;
-		csDef.eccentricity = 0.8;
-		csDef.globalCoverage = 1.f;
+		csDef.eccentricity = 0.8f;
+		csDef.globalCoverage = .5f;
 		
 		csDef.coverage_broad = Texture(device, "../Textures/worley.png");
 		//csDef.coverage_broad.LoadWithMipLevels(device, context, "../Textures/worley.png");
 		csDef.coverage_frequent = Texture(device, "../Textures/highDetail2.png");
 		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
+		Create3D(device);
 
-		//context->GenerateMips(csDef.coverage_broad.srv); gdi directX...
+		//context->GenerateMips(csDef.coverage_broad.srv); gdi directX... can't you be convenient ONCE
 
 		csDef.scrQuadOffset = 1.f;
-		
 		csDef.heightMask = SVec2(400, 600);
+		csDef.repeat = SVec4(4096.f, 4069.f, 4069.f, 64.f);
 
-		Create3D(device, SVec3(64), std::vector<float>());
-		csDef.SRV3D = srv;
+		csDef.baseShape = srv;
 	}
 
 
@@ -102,8 +102,6 @@ namespace Strife
 			ToolGUI::Render(csDef);
 
 		rc.d3d->EndScene();
-
-		float PLANET_RADIUS = 6371000.f;
 	}
 
 }

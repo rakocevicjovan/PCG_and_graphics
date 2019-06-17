@@ -46,7 +46,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	strife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
 
 	//ui and post processing
-	/*HUD.Initialize(_device, hwnd, { L"rekt.vs", L"rekt.ps" });
+	/*HUD.Initialize(_device, hwnd, { L"fineShape.vs", L"fineShape.ps" });
 	brightnessMasker.Initialize(_device, hwnd, { L"brightMaskVS.hlsl", L"brightMaskPS.hlsl" });
 	blurHor.Initialize(_device, hwnd, { L"blurVS.hlsl", L"blurHorPS.hlsl" });
 	blurVer.Initialize(_device, hwnd, { L"blurVS.hlsl", L"blurVerPS.hlsl" });

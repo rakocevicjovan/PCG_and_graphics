@@ -3,21 +3,9 @@
 #include <d3d11.h>
 #include <vector>
 #include "Math.h"
+#include "MeshDataStructs.h"
 
 class Camera;
-
-struct Colour
-{
-	unsigned char col[4];
-
-	Colour(int r, int g, int b, int a)
-	{
-		col[0] = (unsigned char)r;
-		col[1] = (unsigned char)g;
-		col[2] = (unsigned char)b;
-		col[3] = (unsigned char)a;
-	}
-};
 
 class CubeMapper{
 

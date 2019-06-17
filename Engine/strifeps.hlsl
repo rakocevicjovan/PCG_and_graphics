@@ -3,10 +3,10 @@ cbuffer LightBuffer : register(b0)
     float4 lightPos;
     float4 lightRGBI;
     float4 extinction;
-
-    float4 eyePos;  //4th element is elapsed, pack them up a bit
-
-    float4 eccentricity;        //eccentricity, cloud bottom layer, cloud top layer, focal depth
+    float4 eyePos;
+    float4 eccentricity;
+    float4 repeat;
+    //float4 bufferUmpteenth;
 
     float4x4 camMatrix;
 };
@@ -41,19 +41,25 @@ struct PixelInputType
 #define CLOUD_TOP eccentricity.z
 #define FOCAL_DEPTH eccentricity.w
 #define GLOBAL_COVERAGE extinction.w
-
 #define ELAPSED eyePos.w
 
+#define BASE_REPEAT repeat.x
+#define FINE_REPEAT repeat.y
+#define CURL_REPEAT repeat.z
+#define DENSITY_FAC repeat.w
+
+
+
 static const float3 UP = float3(0., 1., 0.);
-static const float PLANET_RADIUS = 100000.f; //6000000.0f is roughly equal to earth's 1000000
-static const float3 PLANET_CENTER = float3(0., -PLANET_RADIUS, 0.);
+static const float PLANET_RADIUS = 1000000.f; //6000000.0f is roughly equal to earth's 1000000
+static const float3 PLANET_CENTER = float3(eyePos.x, -PLANET_RADIUS, eyePos.z);
 
 static const float GAIN = 0.707f;
 static const float LACUNARITY = 2.5789f;
 
 
 
-//just a typical remap function, correct
+//correct, just a typical range remap
 float remap(float value, float min1, float max1, float min2, float max2)
 {
     float perc = (value - min1) / (max1 - min1);
@@ -77,7 +83,6 @@ float2 RaySphereInt(float3 ro, float3 rd, float3 sc, float r)
     x = sqrt(x);
     return float2(t - x, t + x);
 }
-
 
 
 //correct, but might want to use schlick instead as it is slightly faster
@@ -115,6 +120,7 @@ float3 atmosphere()
 //correct but boring and sub optimal for sure... too many samples have to be taken for just shape - pack textures together!
 float SampleDensityAtPosition(float3 p)
 {
+    /*
     float2 samplingCoord = p.xz / TEX_TILE_SIZE;
 
     float mask = coverage.Sample(CloudSampler, samplingCoord - ELAPSED * .01f).r; // 
@@ -126,8 +132,28 @@ float SampleDensityAtPosition(float3 p)
 
     //mask *= smoothstep(CLOUD_BOTTOM, CLOUD_TOP, p.y);
     //mask *= smoothstep(CLOUD_TOP, CLOUD_BOTTOM, p.y);
+    */
 
-    return mask;
+    float3 baseSamplingCoord;
+    baseSamplingCoord.x = (p.x - BASE_REPEAT * 0.5f) / BASE_REPEAT;
+    baseSamplingCoord.y = remap(distance(p, PLANET_CENTER) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 0., 1.);
+    baseSamplingCoord.z = (p.z - BASE_REPEAT * 0.5f) / BASE_REPEAT;
+
+    //baseSamplingCoord -= ELAPSED * .1f;
+
+    float4 sampled = tex3d.Sample(CloudSampler, baseSamplingCoord.xzy);
+
+    //base shape
+    float mask = remap(sampled.x, sampled.y, 1., 0., 1.); // * .5 + sampled.z * .25 + sampled.w * .125
+
+    //erode with coverage - survival of the densest heh...
+    mask = remap(mask, GLOBAL_COVERAGE, 1., 0., 1.);
+
+    //mask that only allows 0.0-0.3 range with [0, .1] increasing, [.1, .2] densest and [.2, .3] decreasing
+    float stratus = remap(baseSamplingCoord.y, 0.f, .2f, 0.f, 1.f) * remap(baseSamplingCoord.y, .4f, .6f, 1.f, 0.f);
+
+    mask *= (DENSITY_FAC / NUM_STEPS); //* stratus;
+    return saturate(mask);
 }
 
 
@@ -158,7 +184,7 @@ float3 visibility(float3 sampledPos, float3 toLight)
     for (int i = 0; i < SHADOW_STEPS; ++i)
     {
         density = SampleDensityAtPosition(curPos);
-        transmittance *= BeerLambert(extinction.xyz, shadowstep * density);
+        transmittance *= BeerLambert(extinction.xyz, density);
         curPos += i * toLight * shadowstep;
         shadowstep *= 1.3f;
     }
@@ -182,8 +208,10 @@ float scattering(float3 x, float3 rd) //direction v is MINUS RD AND NOT RD!!! at
     
     // p(w, l_c_i) - Mie phase function, in the cloud
     //simple, one phase function    float p = phaseMieHG(cosTheta, eccentricity.x);   
-    //accounting for backward spikes ("the raddish") in real cloud phase functions 
-    float p = lerp(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.625f * eccentricity.x), .5f);
+    
+    //accounting for backward spikes ("the raddish") in real cloud phase functions can be done in two ways:
+    //float p = lerp(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.625f * eccentricity.x), .5f);
+    float p = max(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.625f * eccentricity.x));
 
     float v = visibility(x, xToLight); // v(x, p_light_i)
     float incidentLight = lightRGBI.a; //c_light_i(distance(x, p_light_i)) - known value range [32 000, 100 000] for the sun to earth lux
@@ -206,7 +234,6 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
     float adjStepSize = tMax / NUM_STEPS;
 
     float t = 0.f; //adjStepSize * 0.5f; to sample at middles of steps
-   
 
     for (int i = 0; i < NUM_STEPS; ++i)
     {
@@ -227,7 +254,6 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
         sum.rgb += sum.a * integratedScat; //supposedly better because energy conserving
         sum.a *= cur_transmittance;
     }
-
     return sum;
 }
 
@@ -249,7 +275,10 @@ float4 main(PixelInputType input):SV_TARGET
     float t1 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
     float t2 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
 
-    float3 col = atmosphere();
+    //combine rayleigh with atmosphere somehow? phaseRayleigh(cosTheta)
+    //float cosThetaRayleigh = dot(rayDir, normalize(lightPos.xyz - rayOrigin));
+    //float4 sunContribution = phaseRayleigh(cosThetaRayleigh) * lightRGBI;
+    float3 col = atmosphere();// * (1.f - sunContribution.w) + (sunContribution.xyz);
 
     if (t1 > MAX_VIS)
         return float4(col, 1.f);
@@ -259,10 +288,12 @@ float4 main(PixelInputType input):SV_TARGET
     {
         rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f); //blue noise offset
         float4 cloudColour = raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
+        //col = cloudColour.xyz;
         col = col * cloudColour.w + cloudColour.xyz;
-        //col.xyz = lerp(col.xyz, atmosphere().xyz, 1 - col.a);   col.a = 1.f;
         col.xyz = pow(abs(col.xyz), 1.0 / 2.2);
     }
 
     return float4(col, 1.f);
 }
+
+  //col.xyz = lerp(col.xyz, atmosphere().xyz, 1 - col.a);   col.a = 1.f;

@@ -15,28 +15,23 @@ namespace Strife
 
 		SMatrix planeMat;
 		SMatrix lightViewMat;
+		SVec4 repeat = SVec4(4096.f);
 
 		Texture coverage_broad;
-		//one for whole map pretty much
-		//half precision float data type, channel for presence (density), channel for rainyness
-
 		Texture coverage_frequent;
-		//probably to be used tiled, or will devour memory...
-		//used to disturb flat gradient made by height mask, two full precision float channels, top and bottom?
-
 		Texture blue_noise;
 
 		//3d texture resorce views
-		ID3D11ShaderResourceView* SRV3D;
+		ID3D11ShaderResourceView* baseShape;
+		ID3D11ShaderResourceView* fineShape;
+		Texture curlNoise;
 
 		SVec3 rgb_sig_scattering;
 		SVec3 rgb_sig_absorption;
 
 		float eccentricity = 0.f;
-
 		float scrQuadOffset = 15.f;
-
-		float globalCoverage = 1.f;
+		float globalCoverage = .5f;
 	};
 
 }

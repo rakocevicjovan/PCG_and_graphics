@@ -26,8 +26,10 @@ namespace Strife
 
 		ImGui::Begin("REEEEE");
 
-		ImGui::SliderFloat3("Light RGB", &csDef.celestial.alc.x, 0, 1);
-		
+		//ImGui::SliderFloat3("Light RGB", &csDef.celestial.alc.x, 0, 1);
+		ImGui::SliderFloat4("Repeats", &csDef.repeat.x, 1024.f, 1024.f * 16.f);
+		ImGui::InputFloat("Density coefficient", &csDef.repeat.w, 1., 5., 3);
+
 		ImGui::SliderFloat("Light intensity", &csDef.celestial.ali, 0, 5);	//32k - 100k lux for the sun
 
 		ImGui::InputFloat3("Extinction", &csDef.rgb_sig_absorption.x, 3);

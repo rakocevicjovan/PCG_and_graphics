@@ -4,6 +4,10 @@
 #include "Terrain.h"
 #include "CloudscapeDefinition.h"
 
+#include <sstream>
+#include <iomanip>
+
+
 namespace Strife
 {
 
@@ -37,19 +41,30 @@ namespace Strife
 		ID3D11ShaderResourceView* srv;
 		ID3D11Texture3D* texId;
 
-		bool Create3D(ID3D11Device* dvc, const SVec3& whd, std::vector<float> data)	//, DXGI_FORMAT format
+		bool Create3D(ID3D11Device* dvc)
 		{
-			std::vector<float> yeet;
-			yeet.reserve(64 * 64 * 64);
-			Chaos c;
-			c.setRange(0., 1.);
-			c.fillVector(yeet, yeet.size());
+			std::vector<unsigned char> yeet;
+			std::vector<float> yeetFloat;
+			size_t yeetSize = 128 * 128 * 128 * 4;
+			yeet.reserve(yeetSize);
+			
+			Texture tt;
+			for (int i = 0; i < 128; ++i)
+			{
+				std::stringstream ss;
+				ss << std::setw(3) << std::setfill('0') << (i + 1);
+				tt.LoadFromFile("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+				yeet.insert(yeet.end(), &tt.data[0], &tt.data[tt.w * tt.h * tt.n]);
+			}
+			
+			for (int i = 0; i < yeetSize; ++i)
+				yeetFloat.emplace_back( ((float)yeet[i]) / 255.f);
 
-			desc.Width = whd.x;
-			desc.Height = whd.y;
-			desc.Depth = whd.z;
+			desc.Width = 128;
+			desc.Height = 128;
+			desc.Depth = 128;
 			desc.MipLevels = 1;
-			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;//DXGI_FORMAT_R32G32B32A32_FLOAT;//DXGI_FORMAT_R8G8B8A8_UNORM
 			desc.Usage = D3D11_USAGE_IMMUTABLE;
 			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 			desc.CPUAccessFlags = 0;
@@ -57,8 +72,8 @@ namespace Strife
 
 			D3D11_SUBRESOURCE_DATA texData;
 
-			texData.pSysMem = (void *)yeet.data();
-			texData.SysMemPitch = desc.Width * 4;
+			texData.pSysMem = (void *)yeetFloat.data();
+			texData.SysMemPitch = desc.Width * 4 * 4;
 			texData.SysMemSlicePitch = texData.SysMemPitch * desc.Height;
 
 			if (FAILED(device->CreateTexture3D(&desc, &texData, &texId)))

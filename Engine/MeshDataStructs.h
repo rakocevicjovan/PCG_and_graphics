@@ -70,3 +70,33 @@ public:
 			timeline.push_back(std::make_pair(timestamps[i], transforms[i]));
 	}
 };
+
+
+
+struct Colour
+{
+	unsigned char col[4];
+
+	Colour(int r, int g, int b, int a)
+	{
+		col[0] = (unsigned char)r;
+		col[1] = (unsigned char)g;
+		col[2] = (unsigned char)b;
+		col[3] = (unsigned char)a;
+	}
+};
+
+
+
+struct ColourHDR
+{
+	float _r, _g, _b, _a;
+
+	ColourHDR(float r, float g, float b, float a)
+	{
+		_r = r;
+		_g = g;
+		_b = b;
+		_a = a;
+	}
+};

@@ -22,11 +22,11 @@ class ShaderStrife
 	struct CloudBuffer
 	{
 		SVec4 lightPos;
-		SVec4 lightColInt;
+		SVec4 lightRGBI;
 		SVec4 extinction;
-
 		SVec4 eyePosElapsed;
 		SVec4 eccentricity;
+		SVec4 repeat;
 
 		//SMatrix lightView;
 		SMatrix camMatrix;
