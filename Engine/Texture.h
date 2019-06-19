@@ -6,7 +6,8 @@
 #include "assimp\scene.h"
 #include "WICTextureLoader.h"
 
-namespace Procedural {
+namespace Procedural
+{
 	class Perlin;
 }
 
@@ -40,6 +41,8 @@ public:
 	bool LoadFromMemory(const aiTexture *texture, ID3D11Device* device);
 	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
 	bool Setup(ID3D11Device* device, bool grayscale = false);
+
+	static std::vector<float> Texture::GetFloatsFromFile(const std::string& path);	//, std::vector<float>& target
 	
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
 

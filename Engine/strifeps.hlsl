@@ -14,7 +14,7 @@ cbuffer LightBuffer : register(b0)
 Texture2D<float3> coverage : register(t0);
 Texture2D<float1> carver : register(t1);
 Texture2D<float4> blueNoise : register(t2);
-Texture3D<float4> tex3d : register(t3);
+Texture3D<float4> myVolTex : register(t3);
 SamplerState CloudSampler : register(s0);
 
 struct PixelInputType
@@ -32,6 +32,7 @@ struct PixelInputType
 #define MAX_VIS 20000
 #define NUM_STEPS 64.f
 #define SHADOW_STEPS 4.f
+#define SMALL_STEP_SIZE 2.f
 #define EPS 0.00001f
 #define TEX_TILE_SIZE 2048.f
 #define SKY_COLOUR (float3(135., 206., 250.) / 255.)
@@ -117,43 +118,57 @@ float3 atmosphere()
 
 
 
-//correct but boring and sub optimal for sure... too many samples have to be taken for just shape - pack textures together!
-float SampleDensityAtPosition(float3 p)
+float3 toSamplingCoordinates(float3 p)
 {
-    /*
-    float2 samplingCoord = p.xz / TEX_TILE_SIZE;
-
-    float mask = coverage.Sample(CloudSampler, samplingCoord - ELAPSED * .01f).r; // 
-    float hi_freq_mask = coverage.Sample(CloudSampler, samplingCoord - ELAPSED * .013f).r * .33f;
-    mask = remap(mask, hi_freq_mask, .5, 0.0, 1.0); //mask - hi_freq_mask;
-
-    //culls the weaker density samples by remapping them to 0 if under GLOBAL_COVERAGE
-    mask = remap(mask, GLOBAL_COVERAGE, 1., 0., 1.);
-
-    //mask *= smoothstep(CLOUD_BOTTOM, CLOUD_TOP, p.y);
-    //mask *= smoothstep(CLOUD_TOP, CLOUD_BOTTOM, p.y);
-    */
-
     float3 baseSamplingCoord;
     baseSamplingCoord.x = (p.x - BASE_REPEAT * 0.5f) / BASE_REPEAT;
-    baseSamplingCoord.y = remap(distance(p, PLANET_CENTER) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 0., 1.);
+    baseSamplingCoord.y = remap(distance(p, PLANET_CENTER) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 0.f, 1.f);
     baseSamplingCoord.z = (p.z - BASE_REPEAT * 0.5f) / BASE_REPEAT;
 
+    return baseSamplingCoord;
+}
+
+
+
+//correct but boring and sub optimal for sure... too many samples have to be taken for just shape - pack textures together!
+
+float SampleDensity(float3 p)
+{
     //baseSamplingCoord -= ELAPSED * .1f;
 
-    float4 sampled = tex3d.Sample(CloudSampler, baseSamplingCoord.xzy);
+    float3 baseSamplingCoord = toSamplingCoordinates(p);
+    float4 sampled = myVolTex.Sample(CloudSampler, baseSamplingCoord.xzy);
+    //float4 sampled = myVolTex.SampleLevel(CloudSampler, baseSamplingCoord.xzy, 1);
+
 
     //base shape
-    float mask = remap(sampled.x, sampled.y, 1., 0., 1.); // * .5 + sampled.z * .25 + sampled.w * .125
+    //float mask = sampled.x * 0.5f + sampled.y * .25f + sampled.z * .125f + sampled.w + .0625f;
+    float mask = remap(sampled.x, sampled.y * .5 + sampled.z * .25 + sampled.w * .125, 1., 0., 1.);
+   
 
     //erode with coverage - survival of the densest heh...
     mask = remap(mask, GLOBAL_COVERAGE, 1., 0., 1.);
 
     //mask that only allows 0.0-0.3 range with [0, .1] increasing, [.1, .2] densest and [.2, .3] decreasing
-    float stratus = remap(baseSamplingCoord.y, 0.f, .2f, 0.f, 1.f) * remap(baseSamplingCoord.y, .4f, .6f, 1.f, 0.f);
+    //float stratus = remap(baseSamplingCoord.y, 0.f, .2f, 0.f, 1.f) * remap(baseSamplingCoord.y, .4f, .6f, 1.f, 0.f);
 
-    mask *= (DENSITY_FAC / NUM_STEPS); //* stratus;
-    return saturate(mask);
+    mask *= DENSITY_FAC; //* stratus;
+    return mask;
+}
+
+
+
+float SampleDensityLowRes(float3 p)
+{
+    float3 bsc = toSamplingCoordinates(p);
+
+    float4 sampled = myVolTex.SampleLevel(CloudSampler, bsc.xzy, 2);
+
+    float mask = remap(sampled.x, sampled.y * .5 + sampled.z * .25 + sampled.w * .125, 1., 0., 1.);
+
+    mask = remap(mask, GLOBAL_COVERAGE, 1., 0., 1.);
+    mask *= DENSITY_FAC;
+    return max(EPS, mask);
 }
 
 
@@ -183,7 +198,7 @@ float3 visibility(float3 sampledPos, float3 toLight)
 
     for (int i = 0; i < SHADOW_STEPS; ++i)
     {
-        density = SampleDensityAtPosition(curPos);
+        density = SampleDensityLowRes(curPos); //SampleDensity(curPos);
         transmittance *= BeerLambert(extinction.xyz, density);
         curPos += i * toLight * shadowstep;
         shadowstep *= 1.3f;
@@ -213,7 +228,7 @@ float scattering(float3 x, float3 rd) //direction v is MINUS RD AND NOT RD!!! at
     //float p = lerp(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.625f * eccentricity.x), .5f);
     float p = max(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.625f * eccentricity.x));
 
-    float v = visibility(x, xToLight); // v(x, p_light_i)
+    float3 v = visibility(x, xToLight); // v(x, p_light_i)
     float incidentLight = lightRGBI.a; //c_light_i(distance(x, p_light_i)) - known value range [32 000, 100 000] for the sun to earth lux
 
     //inscattering formula
@@ -235,24 +250,53 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
     float t = 0.f; //adjStepSize * 0.5f; to sample at middles of steps
 
-    for (int i = 0; i < NUM_STEPS; ++i)
+    float3 curPos;
+    float density;
+    int counter = 0;
+
+    bool crude = false;
+
+    [fastopt]for (int i = 0; i < NUM_STEPS; ++i)
     {
-        if (sum.a < EPS)    break;  //this and maybe step(sampled r, .2) for cartoony, blocky mask with nice banding
+        if (sum.a < EPS)
+            break; //optimization, prevents huge loops that sample volumes we can't see anyways
 
-        float3 curPos = ro + t * rd;
-        t += adjStepSize;
+        curPos = ro + t * rd;
 
-        float density = SampleDensityAtPosition(curPos); //density += mask * phase;   //density += adjStepSize * mask * phase;
+        if (crude)
+        {
+            density = SampleDensityLowRes(curPos);
+            crude = (density < 2 * EPS);    //0 is false, not crude any more, go back this once
+            
+            if(crude)
+                t += adjStepSize; //advance big step, found nothing, saves performance
 
-        if (density < EPS)  //might do rayleigh here... have to do SOMETHING, looks horrible now, black if no clouds :(
-            continue;
+            counter = 0;    //fine step counter resets
+        }
+        else
+        {
+            i -= 1;
 
-        float3 cur_transmittance = BeerLambert(extinction.xyz, adjStepSize * density); //t or adjStepSize??? or just density???
-        float inscat = scattering(curPos, rd); //inScattering(curPos, rd, lightPos.xyz);
+            density = SampleDensity(curPos);
+            t += (adjStepSize / 10.f); //SMALL_STEP_SIZE;
 
-        float3 integratedScat = (inscat - sum.a * inscat) / extinction.xyz;
-        sum.rgb += sum.a * integratedScat; //supposedly better because energy conserving
-        sum.a *= cur_transmittance;
+            if(density > EPS)   //only integrate if there is enough density
+            {
+                //integrate
+                float3 cur_transmittance = BeerLambert(extinction.xyz, adjStepSize * density); //t or adjStepSize??? or just density???
+                float inscat = scattering(curPos, rd); //inScattering(curPos, rd, lightPos.xyz);
+                float3 integratedScat = (inscat - sum.a * inscat) / extinction.xyz;
+                sum.rgb += sum.a * integratedScat; //supposedly better because energy conserving
+                sum.a *= cur_transmittance.g;
+            }
+            else
+            {
+                ++counter; 
+            }
+            
+            if (counter >= 10)  //10 steps with insufficient density, back to the crude loop
+                crude = true;
+        }
     }
     return sum;
 }
@@ -286,7 +330,9 @@ float4 main(PixelInputType input):SV_TARGET
     //works only for from underneath the layer, but faster than covering all options
     if (t1 > 0. && t2 > 0.)
     {
-        rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f); //blue noise offset
+        //rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f);           //mode 1 - chaotic
+        rayOrigin += rayDir * blueNoise.Sample(CloudSampler, ndc * 2.f - 1.f).b;    //mode 2 - along ray
+
         float4 cloudColour = raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
         //col = cloudColour.xyz;
         col = col * cloudColour.w + cloudColour.xyz;

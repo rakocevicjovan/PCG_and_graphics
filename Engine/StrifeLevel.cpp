@@ -29,8 +29,8 @@ namespace Strife
 
 		sys._D3D.SetBackBufferRenderTarget();
 
-		csDef.celestial = PointLight(lightData, SVec4(0., 999., 999., 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
-		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.) * .1f;
+		csDef.celestial = PointLight(lightData, SVec4(0., 999., 999., 1.0f));
+		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.);
 		csDef.eccentricity = 0.8f;
 		csDef.globalCoverage = .5f;
 		
@@ -40,11 +40,9 @@ namespace Strife
 		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
 		Create3D(device);
 
-		//context->GenerateMips(csDef.coverage_broad.srv); gdi directX... can't you be convenient ONCE
-
 		csDef.scrQuadOffset = 1.f;
 		csDef.heightMask = SVec2(400, 600);
-		csDef.repeat = SVec4(4096.f, 4069.f, 4069.f, 64.f);
+		csDef.repeat = SVec4(4096.f, 4069.f, 4069.f, 1.f);
 
 		csDef.baseShape = srv;
 	}

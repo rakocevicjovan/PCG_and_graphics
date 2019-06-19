@@ -54,13 +54,37 @@ bool Texture::LoadFromFile(std::string path) {
 
 	fileName = path;
 
-	try {
+	try
+	{
 		data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
 		return (data != nullptr);
 	}
-	catch (...) {
+	catch (...)
+	{
 		OutputDebugStringA(("Error loading texture '" + fileName + "' \n").c_str());
 		return false;
+	}
+}
+
+
+
+std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
+{
+	try
+	{
+		int tw, th, tn;
+		float* temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
+
+		std::vector<float> result(temp, temp + tw * th * tn);
+
+		delete temp;
+
+		return result;
+	}
+	catch (...)
+	{
+		OutputDebugStringA(("Error loading texture '" + path + "' \n").c_str());
+		return std::vector<float>();
 	}
 }
 

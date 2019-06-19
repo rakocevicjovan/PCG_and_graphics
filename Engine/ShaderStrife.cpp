@@ -112,7 +112,7 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	samplerDesc.BorderColor[2] = 0;
 	samplerDesc.BorderColor[3] = 0;
 	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.MaxLOD = 8;
 	if (FAILED(device->CreateSamplerState(&samplerDesc, &m_sampleState)))
 		return false;
 
