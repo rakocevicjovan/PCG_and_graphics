@@ -91,19 +91,19 @@ audio.storeSequence(notes);
 
 	///RENDERING WATER
 	water.SetShaderParameters(deviceContext, modDepths, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
-		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.srv);
+		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.baseSrv);
 	modDepths.Draw(deviceContext, water);
 	water.ReleaseShaderParameters(deviceContext);
 
 
 	///RENDERING CLOUD
 	strife.SetShaderParameters(deviceContext, modStrife, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
-		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.srv, perlinTex.srv, worley.srv, offScreenTexture._view);
+		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.baseSrv, perlinTex.baseSrv, worley.baseSrv, offScreenTexture._view);
 	modStrife.Draw(deviceContext, strife);
 	strife.ReleaseShaderParameters(deviceContext);
 
 	///RENDERING UI
-	//postProcessor->draw(deviceContext, HUD, offScreenTexture.srv);
+	//postProcessor->draw(deviceContext, HUD, offScreenTexture.baseSrv);
 */
 #pragma endregion Audio
 

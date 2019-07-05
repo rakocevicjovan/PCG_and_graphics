@@ -1,4 +1,5 @@
 #include "StrifeLevel.h"
+#include "Math.h"
 #include "ShaderUtils.h"
 
 namespace Strife
@@ -8,9 +9,11 @@ namespace Strife
 	{
 		skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
 
+		sceneTex.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
+		screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
+
 		skybox.LoadModel(device, "../Models/Skysphere.fbx");
 
-		//calculate dimensions of screen quad so that it fits the screen - unless d
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), device, .999999f);	//1.777777f
 		screenQuad.meshes.push_back(scrQuadMesh);
 
@@ -27,24 +30,27 @@ namespace Strife
 		floor = Model(terrain, device);
 		floor.transform = SMatrix::CreateTranslation(terrain.getOffset());
 
-		sys._D3D.SetBackBufferRenderTarget();
 
+		//set up initial cloud definition - most of them can be changed through the gui later
 		csDef.celestial = PointLight(lightData, SVec4(0., 999., 999., 1.0f));
-		csDef.rgb_sig_absorption = SVec3(0.5, 1., 2.);
-		csDef.eccentricity = 0.8f;
+		csDef.celestial.alc = SVec3(1., 1., 1.);
+		csDef.rgb_sig_absorption = SVec3(.05f);	//SVec3(1.); quite a few can work tbh
+		csDef.eccentricity = 0.66f;
 		csDef.globalCoverage = .5f;
-		
-		csDef.coverage_broad = Texture(device, "../Textures/worley.png");
-		//csDef.coverage_broad.LoadWithMipLevels(device, context, "../Textures/worley.png");
-		csDef.coverage_frequent = Texture(device, "../Textures/highDetail2.png");
-		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
-		Create3D(device);
-
 		csDef.scrQuadOffset = 1.f;
-		csDef.heightMask = SVec2(400, 600);
-		csDef.repeat = SVec4(4096.f, 4069.f, 4069.f, 1.f);
+		csDef.heightMask = SVec2(600, 1000);
+		csDef.repeat = SVec4(4096.f, 32.f, 4069.f, 1.f);	//density factor in .w
+		
+		//load 2D textures
+		csDef.weather = Texture(device, "../Textures/DensityTypeTexture.png");
+		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
 
-		csDef.baseShape = srv;
+		//create/load 3D tectures
+		Create3D();
+		csDef.baseVolume = baseSrv;
+		
+		CreateFine3D();
+		csDef.fineVolume = fineSrv;
 	}
 
 
@@ -65,12 +71,6 @@ namespace Strife
 			updateCam(rc.dTime);
 
 		sinceLastInput += rc.dTime;
-
-		//csDef.planeMat.m[3][1] = csDef.heightMask.x;
-
-		//SMatrix scrQuadMat = rc.cam->GetCameraMatrix();
-		//Math::Translate(scrQuadMat, scrQuadMat.Backward() * csDef.scrQuadOffset);
-		//csDef.planeMat = scrQuadMat;
 	}
 
 
@@ -87,6 +87,9 @@ namespace Strife
 		//randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 		//cloudscape, blend into background which depends on the time of the day... or use anything idk...
+
+		sceneTex.SetRenderTarget(context);
+
 		rc.d3d->TurnOnAlphaBlending();
 
 		shady.strife.SetShaderParameters(context, *rc.cam, csDef, rc.elapsed);
@@ -95,11 +98,166 @@ namespace Strife
 
 		rc.d3d->TurnOffAlphaBlending();
 
+
+		context->RSSetViewports(1, &_sys._D3D.viewport);
+		context->OMSetRenderTargets(1, &_sys._D3D.m_renderTargetView, _sys._D3D.GetDepthStencilView());
+
+		postProcessor.draw(context, shady.HUD, sceneTex.srv);
+
 		//GUI
 		if(inman.GetMouseMode())
 			ToolGUI::Render(csDef);
 
 		rc.d3d->EndScene();
+	}
+
+
+
+
+
+
+
+
+
+
+
+	bool StrifeLevel::Create3D()
+	{
+		D3D11_TEXTURE3D_DESC desc;
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		int size = 128;
+
+		std::vector<float> yeetFloat;
+		size_t sheetSize = size * size * 4;
+		size_t yeetSize = size * sheetSize;
+		yeetFloat.reserve(yeetSize);
+
+		std::vector<float> flVec;
+		flVec.reserve(sheetSize);
+
+		//not really optimal but it's still quite fast
+		for (int i = 0; i < size; ++i)
+		{
+			std::stringstream ss;
+			ss << std::setw(3) << std::setfill('0') << (i + 1);
+			flVec = Texture::GetFloatsFromFile("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+			yeetFloat.insert(yeetFloat.end(), flVec.begin(), flVec.end());
+		}
+
+		desc.Width = size;
+		desc.Height = size;
+		desc.Depth = size;
+		desc.MipLevels = 8;
+		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+		//D3D11_SUBRESOURCE_DATA texData;
+		std::vector<D3D11_SUBRESOURCE_DATA> texData(desc.MipLevels);
+
+		float texelByteWidth = 4 * sizeof(float);	//RGBA format with each being a float32
+
+		for (int i = 0; i < desc.MipLevels; ++i)
+		{
+			texData[i].pSysMem = (void *)yeetFloat.data();
+			texData[i].SysMemPitch = desc.Width * texelByteWidth;
+			texData[i].SysMemSlicePitch = texData[i].SysMemPitch * desc.Height;
+		}
+
+		HRESULT hr = device->CreateTexture3D(&desc, &texData[0], &baseTexId);
+		if (FAILED(hr))
+		{
+			OutputDebugStringA("Can't create texture3d. \n");
+			exit(42);
+		}
+
+		shaderResourceViewDesc.Format = desc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
+
+		if (FAILED(device->CreateShaderResourceView(baseTexId, &shaderResourceViewDesc, &baseSrv)))
+		{
+			OutputDebugStringA("Can't create shader resource view. \n");
+			exit(43);
+		}
+
+		context->GenerateMips(baseSrv);
+
+		return true;
+	}
+
+
+
+	bool StrifeLevel::CreateFine3D()
+	{
+		D3D11_TEXTURE3D_DESC desc;
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+
+		int size = 32;
+		int numFloats = 4;
+		int texelByteWidth = numFloats * sizeof(float);
+
+		std::vector<float> floatVector;
+		size_t sheetSize = size * size * numFloats;
+		size_t volumeFloatSize = size * sheetSize;
+		floatVector.reserve(volumeFloatSize);
+
+		float z = 1.f / 32.f;
+
+		//fill out with good ole Perlin fbm
+		for (int i = 0; i < size; ++i)
+		{
+			for (int j = 0; j < size; ++j)
+			{
+				for (int k = 0; k < size; ++k)
+				{
+					//floatVector.emplace_back(fabs(Texture::Perlin3DFBM(i * z, j * z, k * z, 2.f, .5f, 3u)));
+					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k),  1));
+					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 2));
+					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 3));
+					floatVector.emplace_back(0.f);	//dx crying over no 24 bit format so we have this...
+				}
+			}
+		}
+
+		desc.Width = size;
+		desc.Height = size;
+		desc.Depth = size;
+		desc.MipLevels = 1;
+		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA texData;
+
+		texData.pSysMem = (void *)floatVector.data();
+		texData.SysMemPitch = desc.Width * texelByteWidth;
+		texData.SysMemSlicePitch = texData.SysMemPitch * desc.Height;
+
+		HRESULT hr = device->CreateTexture3D(&desc, &texData, &fineTexId);
+		if (FAILED(hr))
+		{
+			OutputDebugStringA("Can't create texture3d. \n");
+			exit(42);
+		}
+
+		shaderResourceViewDesc.Format = desc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
+
+		if (FAILED(device->CreateShaderResourceView(fineTexId, &shaderResourceViewDesc, &fineSrv)))
+		{
+			OutputDebugStringA("Can't create shader resource view. \n");
+			exit(43);
+		}
+
+		return true;
 	}
 
 }

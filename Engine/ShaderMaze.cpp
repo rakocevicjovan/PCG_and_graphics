@@ -73,7 +73,7 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	deviceContext->PSSetShaderResources(1, 1, &(n.srv));
 
 	//deviceContext->VSSetSamplers(0, 1, &_sampleState);
-	//deviceContext->VSSetShaderResources(0, 1, &(disp.srv));
+	//deviceContext->VSSetShaderResources(0, 1, &(disp.baseSrv));
 
 	return true;
 }

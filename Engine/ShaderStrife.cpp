@@ -111,8 +111,8 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	samplerDesc.BorderColor[1] = 0;
 	samplerDesc.BorderColor[2] = 0;
 	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = 8;
+	samplerDesc.MinLOD = 0.f;
+	samplerDesc.MaxLOD = 8.f;
 	if (FAILED(device->CreateSamplerState(&samplerDesc, &m_sampleState)))
 		return false;
 
@@ -206,7 +206,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 		return false;
 	dataPtr2 = (CloudBuffer*)mappedResource.pData;
 
-	dataPtr2->lightPos = csDef.celestial.pos * 100000.f;
+	dataPtr2->lightPos = csDef.celestial.pos * 10000000.f;
 	dataPtr2->lightRGBI = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
 	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 1.f - csDef.globalCoverage);
 	dataPtr2->eyePosElapsed = Math::fromVec3(cam.GetPosition(), elapsed);
@@ -223,10 +223,11 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(csDef.coverage_broad.srv));
-	deviceContext->PSSetShaderResources(1, 1, &(csDef.coverage_frequent.srv));
-	deviceContext->PSSetShaderResources(2, 1, &(csDef.blue_noise.srv));
-	deviceContext->PSSetShaderResources(3, 1, &(csDef.baseShape));
+	deviceContext->PSSetShaderResources(0, 1, &(csDef.weather.srv));
+	deviceContext->PSSetShaderResources(1, 1, &(csDef.blue_noise.srv));
+	deviceContext->PSSetShaderResources(2, 1, &(csDef.baseVolume));
+	deviceContext->PSSetShaderResources(3, 1, &(csDef.fineVolume));
+
 	return true;
 }
 

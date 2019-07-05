@@ -17,13 +17,12 @@ namespace Strife
 		SMatrix lightViewMat;
 		SVec4 repeat = SVec4(4096.f);
 
-		Texture coverage_broad;
-		Texture coverage_frequent;
+		Texture weather;
 		Texture blue_noise;
 
 		//3d texture resorce views
-		ID3D11ShaderResourceView* baseShape;
-		ID3D11ShaderResourceView* fineShape;
+		ID3D11ShaderResourceView* baseVolume;
+		ID3D11ShaderResourceView* fineVolume;
 		Texture curlNoise;
 
 		SVec3 rgb_sig_scattering;

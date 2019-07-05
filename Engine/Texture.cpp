@@ -273,7 +273,7 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 
 	/*ID3D11Resource* resource;
 
-	HRESULT hr = resource->QueryInterface(IID_ID3D11Texture2D, (void **)&texId);
+	HRESULT hr = resource->QueryInterface(IID_ID3D11Texture2D, (void **)&baseTexId);
 
 	if (FAILED(hr))
 	{

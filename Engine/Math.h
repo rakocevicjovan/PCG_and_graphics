@@ -63,5 +63,11 @@ public:
 
 	static void rotateTowardsNoRoll(SMatrix& transform, const SVec3& target, float dTime);
 
+	static SVec3 floor3(const SVec3& in);
+
+	static float fract(const float in);
+	static SVec3 fract3(const SVec3& in);
+
+	static float lerp(const float t, const float a, const float b);
 };
 

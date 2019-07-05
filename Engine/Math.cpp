@@ -134,3 +134,28 @@ void Math::rotateTowardsNoRoll(SMatrix& transform, const SVec3& target, float dT
 {
 
 }
+
+
+#define FASTFLOOR(x) ( (x >= 0.f) ? ((int)x) : ((int)x-1 ) )
+SVec3 Math::floor3(const SVec3& in)
+{
+	return SVec3(FASTFLOOR(in.x), FASTFLOOR(in.y), FASTFLOOR(in.z));
+}
+
+
+float Math::fract(const float in)
+{
+	return in - floor(in);
+}
+
+
+SVec3 Math::fract3(const SVec3& in)
+{
+	return in - floor3(in);
+}
+
+
+float Math::lerp(const float a, const float b, const float t)
+{
+	return (1 - t)*a + t * b;
+}

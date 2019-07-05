@@ -26,25 +26,41 @@ namespace Strife
 
 		ImGui::Begin("REEEEE");
 
+		/* volume */
+		ImGui::BeginGroup();
+
+		ImGui::SliderFloat("Layer_bot", &csDef.heightMask.x, 100, 9000);
+		ImGui::InputFloat("Layer_top", &csDef.heightMask.y, 10, 50, 3);
+
 		//ImGui::SliderFloat3("Light RGB", &csDef.celestial.alc.x, 0, 1);
-		ImGui::SliderFloat4("Repeats", &csDef.repeat.x, 1024.f, 1024.f * 16.f);
+		ImGui::SliderFloat("Base repeat", &csDef.repeat.x, 1024.f, 1024.f * 16.f);
+		ImGui::SliderFloat("Fine repeat", &csDef.repeat.y, 16.f, 256.f);
+		//ImGui::SliderFloat("???? repeat", &csDef.repeat.z, 16.f, 256.f);
 		ImGui::InputFloat("Density coefficient", &csDef.repeat.w, 1., 5., 3);
 
-		ImGui::SliderFloat("Light intensity", &csDef.celestial.ali, 0, 5);	//32k - 100k lux for the sun
+		ImGui::EndGroup();
+		/* volume */
+
+
+		/* illumination */
+		ImGui::BeginGroup();
+
+		//ImGui::ColorPicker3("Light colour", &csDef.celestial.alc.x);	//too big for the menu...
+		//ImGui::InputFloat3("Light colour", &csDef.celestial.alc.x, 3);
+		ImGui::InputFloat("Light intensity", &csDef.celestial.ali, 1, 10, 3);
 
 		ImGui::InputFloat3("Extinction", &csDef.rgb_sig_absorption.x, 3);
 
 		ImGui::SliderFloat3("Light position", &csDef.celestial.pos.x, -1000, 1000);
-
-		ImGui::SliderFloat("HeightMask low", &csDef.heightMask.x, 100, 9000);
-		ImGui::InputFloat("HeightMask high", &csDef.heightMask.y, 10, 50, 3);
-		//ImGui::InputFloat2("Height mask manual", &csDef.heightMask.x, 0, 0);
 
 		ImGui::SliderFloat("Eccentricity", &csDef.eccentricity, -1, 1);
 
 		ImGui::SliderFloat("ScrQuadOffset", &csDef.scrQuadOffset, 0, 3);
 
 		ImGui::SliderFloat("Global coverage", &csDef.globalCoverage, 0, 1);
+		
+		ImGui::EndGroup();
+		/* illumination */
 
 		ImGui::End();
 
