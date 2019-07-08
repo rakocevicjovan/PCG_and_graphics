@@ -37,8 +37,11 @@ struct PixelInputType
 #define TEX_TILE_SIZE 2048.f
 #define SKY_COLOUR (float3(135., 206., 250.) / 255.)
 //from Reinder's shader
-#define AMB_TOP (float3(149., 167., 200.) * (1.5 / 255.))    
+#define AMB_TOP (float3(149., 167., 200.) * (1.5 / 255.))
 #define AMB_BOT (float3(39., 67., 87.) * (1.5 / 255.))
+
+#define MIP_LO_RES 0
+#define MIP_HI_RES 2
 
 /* Packing hax */
 #define CLOUD_BOTTOM eccentricity.y
@@ -159,10 +162,6 @@ float getCloudHeight(float3 p)
 
 float SampleDensity(float3 p, float curDen)
 {
-    //return SampleCloudDensity(p, float3(1., 1., 1.0));
-    
-    //return SampleDensityNubis(p, curDen);
-    
     //this works... however it's slower as it adds a sample each time, still ok at half resolution
     //float3 wts = weather.Sample(CloudSampler, (float2(p.x, p.z) % BASE_REPEAT) / BASE_REPEAT);
     //if(wts.r < EPS || wts.g < EPS)  //optimize... we NEED every optimization we can get...
@@ -189,23 +188,19 @@ float SampleDensity(float3 p, float curDen)
     float modifiedCoverage = clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.);
 
     //@TODO CHOOSE ONE - they are very, very similar with smoothstep being a bit fuzzier and softer, I think?
-    //mask = remap(mask, modifiedCoverage, 1., 0., 1.);
-    mask = smoothstep(modifiedCoverage, 1., mask);
+    mask = remap(mask, modifiedCoverage, 1., 0., 1.);
+    //mask = smoothstep(modifiedCoverage, 1., mask);
 
     //this makes the "edges" fuzzy... meaning that eroding will hit them harder
     mask *= myLayer; //using these before global coverage kills the fuzz (less dense areas get carved away)
 
-    //float dstrength = smoothstep(1., 0.5, mask);
-    // erode with detail
-    //if (dstrength > 0.)
-    //mask -= cloudMapDetail(ps) * dstrength * CLOUDS_DETAIL_STRENGTH;
-
     //@TODO erode somehow...
     float cInt = smoothstep(.5, 0., iMask);
 
-    if(cInt > 0.f)
+    if(cInt > 0.f && mask > EPS)
     {
-        mask = max(0., mask - getCarver(p, cloudHeight));
+        //mask = max(0., mask - getCarver(p, cloudHeight));
+        mask = remap(mask, getCarver(p, cloudHeight), 1., 0., 1.);
     }
 
     mask *= DENSITY_FAC;    //allows the user to control "precipitation" so to speak... aka gives grayer clouds
