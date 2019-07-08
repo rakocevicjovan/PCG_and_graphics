@@ -35,13 +35,15 @@ struct PixelInputType
 #define SMALL_STEP_MAX 1.f
 #define EPS 0.00001f
 #define TEX_TILE_SIZE 2048.f
+#define HEIGHT_ZERO_INFLUENCE .333333f
 #define SKY_COLOUR (float3(135., 206., 250.) / 255.)
-//from Reinder's shader
+
+//ambient light from Reinder's shader "Himalayas"
 #define AMB_TOP (float3(149., 167., 200.) * (1.5 / 255.))
 #define AMB_BOT (float3(39., 67., 87.) * (1.5 / 255.))
 
-#define MIP_LO_RES 0
-#define MIP_HI_RES 2
+#define MIP_LO_RES 0.f
+#define MIP_HI_RES 3.f
 
 /* Packing hax */
 #define CLOUD_BOTTOM eccentricity.y
@@ -160,7 +162,7 @@ float getCloudHeight(float3 p)
     return clamp((length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM), 0.0, 1.0);
 }
 
-float SampleDensity(float3 p, float curDen)
+float SampleDensity(float3 p)
 {
     //this works... however it's slower as it adds a sample each time, still ok at half resolution
     //float3 wts = weather.Sample(CloudSampler, (float2(p.x, p.z) % BASE_REPEAT) / BASE_REPEAT);
@@ -170,32 +172,34 @@ float SampleDensity(float3 p, float curDen)
     //mask *= wts.r;
 
     float3 bsc = toSamplingCoordinates(p);
+    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES); //fast (GPU skips deciding sample level), looks good
+
     float cloudHeight = getCloudHeight(p);
 
     //height variability
-    float heightZeroLayer = .333333f;
-    float heightFactor = abs(heightZeroLayer - cloudHeight);
-    heightFactor = smoothstep(0., 1.f - heightZeroLayer, heightFactor);
+    float heightFactor = abs(HEIGHT_ZERO_INFLUENCE - cloudHeight);
+    heightFactor = smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, heightFactor);
 
     float myLayer = smoothstep(0., .3, cloudHeight); //reduce density at the bottom, not all the way to 0 though
     myLayer *=  smoothstep(1.0, 0.7, cloudHeight);       //and slightly at the top
-
-    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, 0);  //fast (GPU skips deciding sample level), looks good
     
     float iMask = STM4;
+    
+    if (min(iMask, myLayer) < EPS)  //improves speed at full coverage
+        return 0;
+
     float mask = iMask;
 
     float modifiedCoverage = clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.);
 
     //@TODO CHOOSE ONE - they are very, very similar with smoothstep being a bit fuzzier and softer, I think?
-    mask = remap(mask, modifiedCoverage, 1., 0., 1.);
-    //mask = smoothstep(modifiedCoverage, 1., mask);
+    mask = remap(mask, modifiedCoverage, 1., 0., 1.); //mask = smoothstep(modifiedCoverage, 1., mask);
 
     //this makes the "edges" fuzzy... meaning that eroding will hit them harder
     mask *= myLayer; //using these before global coverage kills the fuzz (less dense areas get carved away)
 
-    //@TODO erode somehow...
-    float cInt = smoothstep(.5, 0., iMask);
+
+    float cInt = smoothstep(.5, 0., iMask); //erosion, not present in low res
 
     if(cInt > 0.f && mask > EPS)
     {
@@ -213,15 +217,15 @@ float SampleDensity(float3 p, float curDen)
 float SampleDensityLowRes(float3 p)
 {
     float3 bsc = toSamplingCoordinates(p);
-    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, 2);
+    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES);
 
-    float atmoHeight = length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS;
-    float cloudHeight = clamp((atmoHeight - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM), 0.0, 1.0);
+    float cloudHeight = getCloudHeight(p);
 
     float myLayer = smoothstep(0., .3, cloudHeight);
+    myLayer *= smoothstep(1.0, 0.7, cloudHeight);
 
     float mask = STM4;
-    mask = remap(mask, GLOBAL_COVERAGE, 1., 0., 1.);
+    mask = remap(mask, smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight)), 1., 0., 1.);
     mask *= myLayer;
     mask *= DENSITY_FAC;
     return min(mask, 1.);
@@ -239,12 +243,6 @@ float3 BeerLambert(float3 sigA, float depth)
 float3 visibility(float3 sampledPos, float3 toLight, float shadowstep)
 {
     //return shadowMap(x, plighti) * volShad(x, plighti); standard way to do it, I assume no occlusion for now...
-    
-    //not a good approach... not at all! would need plenty of steps!
-    //float sheetRadius = lightPos.y < CLOUD_TOP ? CLOUD_BOTTOM : CLOUD_TOP;
-    //float distToCloudEdge = RaySphereInt(sampledPos, toLight, PLANET_CENTER, PLANET_RADIUS + sheetRadius).y;
-
-    //reasonable approximation, I'd hope...
 
     float t = 0.f;
     float density = 0.f;
@@ -264,13 +262,13 @@ float3 visibility(float3 sampledPos, float3 toLight, float shadowstep)
 
 
 
-float3 scattering(float3 x, float3 rd, float shadowstep) //direction v is MINUS RD AND NOT RD!!! at least in formal notation in the book
+float3 scattering(float3 x, float3 rd, float shadowstep, float cosTheta, float3 xToLight) //direction v is MINUS RD AND NOT RD!!! at least in formal notation in the book
 {   
     // PI * SUM[1, n] [ p(w, l_c_i) * v(x, p_light_i) * c_light_i(distance(x, p_light_i)) ]
     
     //set up @TODO might switch to a directional light it's a lot of operations for tiny gain in precision!
-    float3 xToLight = normalize(lightPos.xyz - x);
-    float cosTheta = dot(rd, xToLight);
+    //float3 xToLight = normalize(lightPos.xyz - x);
+    //float cosTheta = dot(rd, xToLight);
     
     //parts of the scattering formula per each light - we assume one light only
 
@@ -298,15 +296,18 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
     float t = adjStepSize * 0.5f; //to sample at middles of steps so backtracking doesn't go out of bounds
 
     float3 curPos;
-    //float acc_density = 0.f;  //gives ok results too
     float density = 0.f;
     float crudeStepSize = 0.f;
     int counter = 0;
 
+    //assume it's the same everywhere because the difference is negligible
+    float3 xToLight = normalize(lightPos.xyz - ro);
+    float cosTheta = dot(rd, xToLight);
+
     bool crude = true;  //start with big steps
 
     [loop]
-    for (int i = 0; i < NUM_STEPS * 3.f; ++i)
+    for (int i = 0; i < NUM_STEPS * 2.f; ++i)
     {
         if (sum.a <= 0. || t > tMax)    //stay within cloud layer and only march until saturated
             break;
@@ -315,7 +316,7 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
         if (crude)
         {
-            density = SampleDensity(curPos, sum.a);    //low res maybe
+            density = SampleDensityLowRes(curPos);    //low res maybe
             crudeStepSize = max(adjStepSize, 5.f);
             crude = (density < EPS);
 
@@ -329,7 +330,7 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
         }
         else
         {
-            density = SampleDensity(curPos, sum.a);
+            density = SampleDensity(curPos);
             //acc_density += density;
 
             float curStepSize = crudeStepSize * .2f; //best just set min layer width tbh...
@@ -346,7 +347,7 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
                     S += scattering(curPos, rd, adjStepSize) * density * (extinction.xyz * pow(.8f, n));
                 */
 
-                S = (scattering(curPos, rd, adjStepSize) + ambientLight) * density * extinction.xyz;
+                S = (scattering(curPos, rd, adjStepSize, cosTheta, xToLight) + ambientLight) * density * extinction.xyz;
                 float3 cur_extinction = density * extinction.xyz; //max((float3) (EPS), density * extinction.xyz);
                 float3 cur_transmittance = BeerLambert(cur_extinction, curStepSize);
                 
@@ -388,6 +389,7 @@ float4 main(PixelInputType input):SV_TARGET
     //combine rayleigh with atmosphere somehow? phaseRayleigh(cosTheta)
     //float cosThetaRayleigh = dot(rayDir, normalize(lightPos.xyz - rayOrigin));
     //float4 sunContribution = phaseRayleigh(cosThetaRayleigh) * lightRGBI;
+
     float3 col = atmosphere();// * (1.f - sunContribution.w) + (sunContribution.xyz);
 
     if (t1 > MAX_VIS)
@@ -487,3 +489,7 @@ float SampleDensityNubis(float3 p, float curDen)
 /* FOR FUTURE REFERENCE */
 //float4 sampled = myVolTex.Sample(CloudSampler, bsc);                  //bit slower but works well
 //float4 sampled = myVolTex.Load(float4(ree.x, ree.y / 128, ree.z, 0)); //fastest, but not good enough for this purpose :(
+
+//not a good approach... not at all! would need plenty of steps! (FOR SHADOWS)
+//float sheetRadius = lightPos.y < CLOUD_TOP ? CLOUD_BOTTOM : CLOUD_TOP;
+//float distToCloudEdge = RaySphereInt(sampledPos, toLight, PLANET_CENTER, PLANET_RADIUS + sheetRadius).y;
