@@ -32,20 +32,22 @@ struct PixelInputType
 #define MAX_VIS 20000
 #define NUM_STEPS 64.f
 #define SHADOW_STEPS 4.f
-#define SMALL_STEP_MAX 1.f
 #define EPS 0.00001f
 #define TEX_TILE_SIZE 2048.f
 #define HEIGHT_ZERO_INFLUENCE .333333f
-#define SKY_COLOUR (float3(135., 206., 250.) / 255.)
+#define SKY_COLOUR (float3(135., 206., 250.) * .8f/ 255.)
+#define MIN_CRUDE_STEPSIZE 5.f
 
 //ambient light from Reinder's shader "Himalayas"
-#define AMB_TOP (float3(149., 167., 200.) * (1.5 / 255.))
-#define AMB_BOT (float3(39., 67., 87.) * (1.5 / 255.))
+#define AMB_TOP (float3(149., 167., 200.) * (1.2 / 255.))
+#define AMB_BOT (float3(39., 67., 87.) * (1.2 / 255.))
 
-#define MIP_LO_RES 0.f
-#define MIP_HI_RES 3.f
+#define MIP_HI_RES 0.f
+#define MIP_LO_RES 2.f
+
 
 /* Packing hax */
+#define MIE_ECCENTRICITY eccentricity.x
 #define CLOUD_BOTTOM eccentricity.y
 #define CLOUD_TOP eccentricity.z
 #define FOCAL_DEPTH eccentricity.w
@@ -66,13 +68,24 @@ static const float3 PLANET_CENTER = float3(0.f, -PLANET_RADIUS, 0.f);
 float remap(float value, float min1, float max1, float min2, float max2)
 {
     float perc = (value - min1) / (max1 - min1);
-    return clamp(min2 + perc * (max2 - min2), min2, max2);  //clamp makes sense to me, but seems it wasn't used in Nubis
-    //return min2 + perc * (max2 - min2);
+    return clamp(min2 + perc * (max2 - min2), min2, max2);
+}
+
+float remapNoClamp(float value, float min1, float max1, float min2, float max2)
+{
+    float perc = (value - min1) / (max1 - min1);
+    return min2 + perc * (max2 - min2);
+}
+
+
+float remapFast01(float value, float min1, float max1)
+{
+    return clamp((value - min1) / (max1 - min1), 0., 1.);
 }
 
 
 //art of code, assumes normalized rd! slightly optimized by yours truly (avoids one sqrt and one mul), correct
-float2 RaySphereInt(float3 ro, float3 rd, float3 sc, float r)
+float2 raySphereInt(float3 ro, float3 rd, float3 sc, float r)
 {
     float t = dot(sc - ro, rd);     //project SCtoRO vector onto ray direction, get t of closest point
     float3 p = ro + rd * t;         //get that closest point, easy...
@@ -94,12 +107,11 @@ float phaseMieHG(float cosTheta, float g)	// g[-1, 1], also called eccentricity
 {
     float g2 = g * g;
 
-    float numerator = 1.f - g2;
+    //float numerator = 1.f - g2;
+    float toPow = 1.f + g2 - 2.f * g * cosTheta;
+    //float denominator = 4.f * PI * toPow * sqrt(toPow); //toPow * sqrt(toPow) or pow(toPow, 1.5) but I think this is faster...
 
-    float toPow = 1.f + g2 - 2.f * g * cosTheta;        //seen this use abs... not buying that it's required though
-    float denominator = 4.f * PI * toPow * sqrt(toPow); //toPow * sqrt(toPow) or pow(toPow, 1.5) but I think this is faster...
-
-    return numerator / denominator;
+    return (1.f - g2) / (4.f * PI * toPow * sqrt(toPow));
 }
 
 
@@ -119,15 +131,24 @@ float3 atmosphere()
 }
 
 
+
+float getCloudHeight(float3 p)
+{
+    return clamp((length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM), 0.0, 1.0);
+}
+
+
 //@todo great circle distance for x and z if required
 float3 toSamplingCoordinates(float3 p)
 {
+    float iRep = 1.f / BASE_REPEAT;
     float3 uvw = float3(0.f, 0.f, 0.f);
 
     //uvw of a 3d texture goes as follows - u and w are x and z of a slice, and y is downwards slice by slice
-    uvw.x = ((p.x - BASE_REPEAT * 0.5f) % BASE_REPEAT) / BASE_REPEAT;
-    uvw.y = remap(length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 1.f, 0.f);
-    uvw.z = ((p.z - BASE_REPEAT * 0.5f) % BASE_REPEAT) / BASE_REPEAT;
+    uvw.x = (p.x) * iRep;
+    //uvw.y = remap(length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 1.f, 0.f);
+    uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM) * .2f;
+    uvw.z = (p.z) * iRep;
 
     return uvw.xzy;
 }
@@ -139,73 +160,61 @@ float getCarver(float3 p, float cloudHeight)
     //float carvingFactor = remap(abs(.333f - cloudHeight), .0, .667, 0., 1.); //[.0, .667] to [0., 1.]
     //carvingFactor *= carvingFactor;
 
-    float ree = FINE_REPEAT;   //BASE_REPEAT * .0625f;
-    float3 csc = float3((p.x % ree) / ree, (p.y % ree) / ree, (p.z % ree) / ree); //cloudHeight
+    float iRep = 1.f / repeat.y;
+    float3 csc = float3(p.x* iRep, p.y * iRep, p.z * iRep); //cloudHeight
 
-    float4 s = fineVolTex.SampleLevel(CloudSampler, csc, 0);
+    float4 s = fineVolTex.SampleLevel(CloudSampler, csc, MIP_HI_RES);
 
-    return s.r * s.g * s.b;    //always 0 in fourth sample...
+    return s.r * s.g * s.b;
+    //return s.r * .5f + s.g * .25f + s.b * .125f;    //always 0 in fourth sample...
 }
 
 
-#define STM1 remap(sampled.r, sampled.g * .3 + sampled.b * .15 + sampled.a * .075, 1., 0., 1.)
-#define STM2 max(sampled.r, sampled.g)
-
-#define STM3 (sampled.g * 0.625 + sampled.b * 0.25 + sampled.a * 0.125)
-#define STM33 remap(sampled.r, (1.0 - STM3), 1.0, 0.0, 1.0);
-
-#define STM4 sampled.r * sampled.g
+#define DEN1 remap(sampled.r, sampled.g * .3 + sampled.b * .15 + sampled.a * .075, 1., 0., 1.)
+#define DEN2 max(sampled.r, sampled.g)
+#define DEN3 remap(sampled.r, (1.0 - (sampled.g * 0.625 + sampled.b * 0.25 + sampled.a * 0.125)), 1.0, 0.0, 1.0);
+#define DEN4 sampled.r * sampled.b * 1.5f
+#define DEN5 remap(sampled.g * sampled.r, sampled.b * .5f, 1., 0., 1.)
 
 
-float getCloudHeight(float3 p)
+float sampleDensity(float3 p)
 {
-    return clamp((length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM), 0.0, 1.0);
-}
+    float3 bsc = toSamplingCoordinates(p);
 
-float SampleDensity(float3 p)
-{
-    //this works... however it's slower as it adds a sample each time, still ok at half resolution
-    //float3 wts = weather.Sample(CloudSampler, (float2(p.x, p.z) % BASE_REPEAT) / BASE_REPEAT);
+    //float3 wts = weather.Sample(CloudSampler, float2(bsc.x, bsc.z));
     //if(wts.r < EPS || wts.g < EPS)  //optimize... we NEED every optimization we can get...
         //return 0.f;
-    //float myLayer = smoothstep(0.0, wts.g * .33, cloudHeight) * smoothstep(wts.g, wts.g * .66, cloudHeight);
     //mask *= wts.r;
+    //float texFilter = smoothstep(0.0, wts.g * .33, cloudHeight) * smoothstep(wts.g, wts.g * .66, cloudHeight);
+    //myLayer = texFilter;
 
-    float3 bsc = toSamplingCoordinates(p);
-    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES); //fast (GPU skips deciding sample level), looks good
-
+    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_HI_RES); //fast (GPU skips deciding sample level), looks good
     float cloudHeight = getCloudHeight(p);
 
-    //height variability
-    float heightFactor = abs(HEIGHT_ZERO_INFLUENCE - cloudHeight);
-    heightFactor = smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, heightFactor);
+    float iMask = DEN5;
 
-    float myLayer = smoothstep(0., .3, cloudHeight); //reduce density at the bottom, not all the way to 0 though
-    myLayer *=  smoothstep(1.0, 0.7, cloudHeight);       //and slightly at the top
-    
-    float iMask = STM4;
-    
-    if (min(iMask, myLayer) < EPS)  //improves speed at full coverage
-        return 0;
+    if(iMask < EPS)
+        return 0.f;
+
+    //for density and coverage modifications
+    float heightFactor = smoothstep(0.f, 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight));
 
     float mask = iMask;
 
-    float modifiedCoverage = clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.);
+    /* Modulating coverage over height */
 
-    //@TODO CHOOSE ONE - they are very, very similar with smoothstep being a bit fuzzier and softer, I think?
-    mask = remap(mask, modifiedCoverage, 1., 0., 1.); //mask = smoothstep(modifiedCoverage, 1., mask);
+    //mask = smoothstep(clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.), 1., mask);
+    //mask = remapFast01(mask, clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.), 1.);
 
-    //this makes the "edges" fuzzy... meaning that eroding will hit them harder
-    mask *= myLayer; //using these before global coverage kills the fuzz (less dense areas get carved away)
+    //mask = smoothstep(GLOBAL_COVERAGE, 1.f, mask * (1.f - heightFactor));
+    mask = remapFast01(mask * (1.f - heightFactor), GLOBAL_COVERAGE, 1.f);
 
+    /* Modulating coverage over height */
 
-    float cInt = smoothstep(.5, 0., iMask); //erosion, not present in low res
+    mask *= smoothstep(0.f, .333f, cloudHeight);
 
-    if(cInt > 0.f && mask > EPS)
-    {
-        //mask = max(0., mask - getCarver(p, cloudHeight));
-        mask = remap(mask, getCarver(p, cloudHeight), 1., 0., 1.);
-    }
+    if (iMask < 0.5f)
+        mask = max(0., mask - getCarver(p, cloudHeight)); //remap(mask, getCarver(p, cloudHeight), 1., 0., 1.); getCarver(p, cloudHeight);
 
     mask *= DENSITY_FAC;    //allows the user to control "precipitation" so to speak... aka gives grayer clouds
 
@@ -213,23 +222,21 @@ float SampleDensity(float3 p)
 }
 
 
-
-float SampleDensityLowRes(float3 p)
+float sampleDensityLowRes(float3 p)
 {
     float3 bsc = toSamplingCoordinates(p);
     float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES);
 
     float cloudHeight = getCloudHeight(p);
 
-    float myLayer = smoothstep(0., .3, cloudHeight);
-    myLayer *= smoothstep(1.0, 0.7, cloudHeight);
-
-    float mask = STM4;
-    mask = remap(mask, smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight)), 1., 0., 1.);
-    mask *= myLayer;
+    float mask = DEN5;
+    mask = remapFast01(mask, smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight)), 1.);
+    //mask = smoothstep(GLOBAL_COVERAGE, 1.f, mask * smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight)));
+    mask *= smoothstep(0., .3, cloudHeight);
     mask *= DENSITY_FAC;
     return min(mask, 1.);
 }
+
 
 
 //absorption (Beer Lambert law) - from production volume rendering, Fong et al.
@@ -251,7 +258,7 @@ float3 visibility(float3 sampledPos, float3 toLight, float shadowstep)
 
     for (int i = 0; i < SHADOW_STEPS; ++i)
     {
-        density = SampleDensityLowRes(curPos); //SampleDensity(curPos);
+        density = sampleDensityLowRes(curPos);
         transmittance *= BeerLambert(extinction.xyz, density * shadowstep);
         curPos += i * toLight * shadowstep;
         shadowstep *= 1.3f;
@@ -266,19 +273,16 @@ float3 scattering(float3 x, float3 rd, float shadowstep, float cosTheta, float3 
 {   
     // PI * SUM[1, n] [ p(w, l_c_i) * v(x, p_light_i) * c_light_i(distance(x, p_light_i)) ]
     
-    //set up @TODO might switch to a directional light it's a lot of operations for tiny gain in precision!
+    //switched this out to assuming same light angle from the bottom to the top of the cloud layer...
     //float3 xToLight = normalize(lightPos.xyz - x);
     //float cosTheta = dot(rd, xToLight);
     
     //parts of the scattering formula per each light - we assume one light only
 
-    // p(w, l_c_i) - Mie phase function, in the cloud
-    //accounting for backward spikes ("the raddish") in real cloud phase functions can be done in two ways:
-    //float p = lerp(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.625f * eccentricity.x), .5f);
-    float p = max(phaseMieHG(cosTheta, eccentricity.x), phaseMieHG(cosTheta, -0.33f * eccentricity.x));
-
+    // p(w, l_c_i) - Mie phase function, in the cloud accounting for complexity of real p.f. can be done using max or lerp
+    
+    float p = max(phaseMieHG(cosTheta, MIE_ECCENTRICITY), phaseMieHG(cosTheta, -0.33f * MIE_ECCENTRICITY));
     float3 v = visibility(x, xToLight, shadowstep);     //v(x, p_light_i)
-
     float3 incidentLight = lightRGBI.rgb * lightRGBI.a; //c_light_i(distance(x, p_light_i)) - known value range [32 000, 100 000] for the sun to earth lux
 
     //inscattering formula
@@ -295,29 +299,36 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
     float t = adjStepSize * 0.5f; //to sample at middles of steps so backtracking doesn't go out of bounds
 
-    float3 curPos;
-    float density = 0.f;
-    float crudeStepSize = 0.f;
     int counter = 0;
 
-    //assume it's the same everywhere because the difference is negligible
+    //only allocate once, assign as many times as needed...
+    float density = 0.f;
+    float crudeStepSize = 0.f;
+    float curStepSize = 0.f;
+    float3 curPos;
+    float3 S;
+    float3 cur_extinction;
+    float3 cur_transmittance;
+    float3 integratedScat;
+
+    //assume it's the same everywhere because the difference is negligible, reuse
     float3 xToLight = normalize(lightPos.xyz - ro);
     float cosTheta = dot(rd, xToLight);
 
     bool crude = true;  //start with big steps
 
     [loop]
-    for (int i = 0; i < NUM_STEPS * 2.f; ++i)
+    for (int i = 0; i < NUM_STEPS * 3.f; ++i)
     {
-        if (sum.a <= 0. || t > tMax)    //stay within cloud layer and only march until saturated
+        if (sum.a <= EPS || t > tMax)    //stay within cloud layer and only march until saturated
             break;
 
         curPos = ro + t * rd;   //position resulting from previous cycle
 
         if (crude)
         {
-            density = SampleDensityLowRes(curPos);    //low res maybe
-            crudeStepSize = max(adjStepSize, 5.f);
+            density = sampleDensity(curPos);
+            crudeStepSize = max(adjStepSize, MIN_CRUDE_STEPSIZE);
             crude = (density < EPS);
 
             if (crude)              //keep stepping broadly when no density is found
@@ -330,31 +341,29 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
         }
         else
         {
-            density = SampleDensity(curPos);
-            //acc_density += density;
+            density = sampleDensity(curPos);
 
-            float curStepSize = crudeStepSize * .2f; //best just set min layer width tbh...
+            curStepSize = crudeStepSize * .2f;
             t += curStepSize;
 
-            if(density > 0.)   //only integrate if there is enough density
+            if(density > .0001f)   //only integrate if there is enough density
             {
-                float3 ambientLight = lerp(AMB_BOT, AMB_TOP, getCloudHeight(curPos));
                 //inscatter
-                float3 S = float3(0., 0., 0.);
-
                 /*multiscattering  approximation... kinda sorta, probably won't do this
                 for (int n = 0; n < 3; ++n)
                     S += scattering(curPos, rd, adjStepSize) * density * (extinction.xyz * pow(.8f, n));
                 */
 
-                S = (scattering(curPos, rd, adjStepSize, cosTheta, xToLight) + ambientLight) * density * extinction.xyz;
-                float3 cur_extinction = density * extinction.xyz; //max((float3) (EPS), density * extinction.xyz);
-                float3 cur_transmittance = BeerLambert(cur_extinction, curStepSize);
-                
+                //float3 ambientLight = lerp(AMB_BOT, AMB_TOP, getCloudHeight(curPos)); avoid creating new buffers 
+                S = (scattering(curPos, rd, adjStepSize, cosTheta, xToLight) + lerp(AMB_BOT, AMB_TOP, getCloudHeight(curPos))) * density * extinction.xyz;
+                cur_extinction = density * extinction.xyz; //max((float3) (EPS), density * extinction.xyz);
+                cur_transmittance = BeerLambert(cur_extinction, curStepSize);
+
                 //integrate
-                float3 integratedScat = (S - S * cur_transmittance) / cur_extinction;
+                integratedScat = (S - S * cur_transmittance) / cur_extinction;
                 sum.rgb += sum.a * integratedScat; //energy conserving
                 sum.a *= cur_transmittance.g;
+
                 counter = 0;
             }
             else
@@ -373,8 +382,8 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
 float4 main(PixelInputType input):SV_TARGET
 {
-    //correct, trivial
-    float3 rayOrigin = eyePos.xyz;
+    //correct, trivial  float3 rayOrigin = eyePos.xyz;
+    
 
     //correct
     float2 ndc = float2((input.tex.x * 2.f - 1.f) * (16.f / 9.f), input.tex.y * 2.f - 1.f);
@@ -383,8 +392,8 @@ float4 main(PixelInputType input):SV_TARGET
     float3 rayDir = normalize(camMatrix._11_12_13 * ndc.x + camMatrix._21_22_23 * ndc.y + camMatrix._31_32_33 * FOCAL_DEPTH);
 
     //bottom and top of a single cloud layer... might be faster to use onioning... but this works nicely!
-    float t1 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
-    float t2 = RaySphereInt(rayOrigin, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
+    float t1 = raySphereInt(eyePos.xyz, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_BOTTOM).y;
+    float t2 = raySphereInt(eyePos.xyz, rayDir, PLANET_CENTER, PLANET_RADIUS + CLOUD_TOP).y;
 
     //combine rayleigh with atmosphere somehow? phaseRayleigh(cosTheta)
     //float cosThetaRayleigh = dot(rayDir, normalize(lightPos.xyz - rayOrigin));
@@ -402,9 +411,11 @@ float4 main(PixelInputType input):SV_TARGET
         //rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f);
 
         //mode 2 - along ray
-        rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).b); 
+        //rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).b); 
 
-        float4 cloudColour = raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
+        //float distanceFactor = t1 / MAX_VIS * 8.f;
+
+        float4 cloudColour = raymarch(eyePos.xyz + rayDir * t1, rayDir, t2 - t1);
         col = col * cloudColour.w + cloudColour.xyz;
         col.xyz = pow(abs(col.xyz), 1.0 / 2.2);
     }
@@ -455,33 +466,6 @@ float fbm(float3 p)
     p = mul(m, p) * 2.03;
     f += 0.1250 * noise(p);
     return f;
-}
-*/
-
-/*
-float SampleDensityNubis(float3 p, float curDen)
-{
-    float3 bsc = toSamplingCoordinates(p);
-    float atmoHeight = length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS;
-    float cloudHeight = clamp((atmoHeight - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM), 0.0, 1.0);
-
-    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, 0);  //rgba, r being perling-worley, rest worley at incr. freq.
-
-    float stratocumulus = remap(cloudHeight, 0., .2, 0., 1.) * remap(cloudHeight, .6, .4, 0., 1.);
-    
-    if(stratocumulus < EPS)
-        return 0.;
-
-    float mask = sampled.g * sampled.b;
-    mask = remap(mask * stratocumulus, GLOBAL_COVERAGE, 1., 0., 1.);
-
-    mask *= smoothstep(0., 1., cloudHeight);
-
-    //carve(p, cloudHeight, mask);
-
-    mask *= DENSITY_FAC;
-
-    return mask;
 }
 */
 

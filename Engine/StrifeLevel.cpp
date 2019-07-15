@@ -260,4 +260,86 @@ namespace Strife
 		return true;
 	}
 
+
+
+	bool StrifeLevel::Create3DOneChannel(const SVec4& m)
+	{
+		D3D11_TEXTURE3D_DESC desc;
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		int size = 128;
+		int numChannels = 1;
+
+		std::vector<float> finalArray;
+		size_t sheetSizeProcessed = size * size * numChannels;
+		size_t finalSize = size * sheetSizeProcessed;
+		finalArray.reserve(finalSize);
+
+		std::vector<float> flVec;
+		size_t sheetSizeInitial = size * size * 4;
+		flVec.reserve(sheetSizeInitial);
+
+		std::vector<float> processedVec;
+		processedVec.reserve(sheetSizeProcessed);
+
+		//not really optimal but it's still quite fast
+		for (int i = 0; i < size; ++i)
+		{
+			std::stringstream ss;
+			ss << std::setw(3) << std::setfill('0') << (i + 1);
+			flVec = Texture::GetFloatsFromFile("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+
+			for (int j = 0; j < flVec.size(); j += 4)
+			{
+				processedVec.emplace_back(m.x * flVec[j] + m.y * flVec[j + 1] + m.z * flVec[j + 2] + m.w * flVec[j + 3]);
+			}
+
+			finalArray.insert(finalArray.end(), processedVec.begin(), processedVec.end());
+			processedVec.clear();
+		}
+
+		desc.Width = size;
+		desc.Height = size;
+		desc.Depth = size;
+		desc.MipLevels = 8;
+		desc.Format = DXGI_FORMAT_R32_FLOAT;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+		//D3D11_SUBRESOURCE_DATA texData;
+		std::vector<D3D11_SUBRESOURCE_DATA> texData(desc.MipLevels);
+
+		float texelByteWidth = numChannels * sizeof(float);	//RGBA format with each being a float32
+
+		for (int i = 0; i < desc.MipLevels; ++i)
+		{
+			texData[i].pSysMem = (void *)finalArray.data();
+			texData[i].SysMemPitch = desc.Width * texelByteWidth;
+			texData[i].SysMemSlicePitch = texData[i].SysMemPitch * desc.Height;
+		}
+
+		HRESULT hr = device->CreateTexture3D(&desc, &texData[0], &baseTexId);
+		if (FAILED(hr))
+		{
+			OutputDebugStringA("Can't create texture3d. \n");
+			exit(42);
+		}
+
+		shaderResourceViewDesc.Format = desc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
+
+		if (FAILED(device->CreateShaderResourceView(baseTexId, &shaderResourceViewDesc, &baseSrv)))
+		{
+			OutputDebugStringA("Can't create shader resource view. \n");
+			exit(43);
+		}
+
+		context->GenerateMips(baseSrv);
+
+		return true;
+	}
+
 }

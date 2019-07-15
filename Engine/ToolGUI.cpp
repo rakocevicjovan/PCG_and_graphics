@@ -57,7 +57,7 @@ namespace Strife
 
 		ImGui::SliderFloat("ScrQuadOffset", &csDef.scrQuadOffset, 0, 3);
 
-		ImGui::SliderFloat("Global coverage", &csDef.globalCoverage, 0, 1);
+		ImGui::SliderFloat("Global coverage", &csDef.globalCoverage, 0.01f, .99f);
 		
 		ImGui::EndGroup();
 		/* illumination */

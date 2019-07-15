@@ -165,8 +165,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	// Set the feature level to DirectX 11.
 	featureLevel = D3D_FEATURE_LEVEL_11_0;
 
-	// Create the swap chain, Direct3D device, and Direct3D device context.	//@TODO DELETE THE DEBUG FLAG ONCE IT'S NO LONGER NEEDED
-	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1,
+	// Create the swap chain, Direct3D device, and Direct3D device context.	//@TODO DELETE THE D3D11_CREATE_DEVICE_DEBUG FLAG ONCE IT'S NO LONGER NEEDED
+	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1,
 										   D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &_device, NULL, &_deviceContext);
 	if(FAILED(result))
 		return false;
