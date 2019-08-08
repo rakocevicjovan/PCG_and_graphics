@@ -46,7 +46,8 @@ namespace Strife
 		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
 
 		//create/load 3D tectures
-		Create3D();
+		//Create3D();
+		Create3DOneChannel();
 		csDef.baseVolume = baseSrv;
 		
 		CreateFine3D();
@@ -262,7 +263,7 @@ namespace Strife
 
 
 
-	bool StrifeLevel::Create3DOneChannel(const SVec4& m)
+	bool StrifeLevel::Create3DOneChannel()
 	{
 		D3D11_TEXTURE3D_DESC desc;
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -290,7 +291,8 @@ namespace Strife
 
 			for (int j = 0; j < flVec.size(); j += 4)
 			{
-				processedVec.emplace_back(m.x * flVec[j] + m.y * flVec[j + 1] + m.z * flVec[j + 2] + m.w * flVec[j + 3]);
+				//processedVec.emplace_back(m.x * flVec[j] + m.y * flVec[j + 1] + m.z * flVec[j + 2] + m.w * flVec[j + 3]);
+				processedVec.emplace_back(/*Math::clamp(0., 1., */Math::remap(flVec[j + 1] * flVec[j], flVec[j+2] * .5f, 1., 0., 1.)/*)*/);
 			}
 
 			finalArray.insert(finalArray.end(), processedVec.begin(), processedVec.end());

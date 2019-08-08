@@ -6,13 +6,14 @@ cbuffer LightBuffer : register(b0)
     float4 eyePos;
     float4 eccentricity;
     float4 repeat;
+    float4 opt;
 
     float4x4 camMatrix;
 };
 
 Texture2D<float3> weather       : register(t0);
 Texture2D<float4> blueNoise     : register(t1);
-Texture3D<float4> baseVolTex    : register(t2);
+Texture3D<float> baseVolTex     : register(t2);     //Texture3D<float4> baseVolTex    : register(t2);
 Texture3D<float4> fineVolTex    : register(t3);
 
 SamplerState CloudSampler : register(s0);
@@ -31,6 +32,7 @@ struct PixelInputType
 #define PI 3.14159f
 #define MAX_VIS 20000
 #define NUM_STEPS 64.f
+#define INV_NUM_STEPS (1.f / 64.f)
 #define SHADOW_STEPS 4.f
 #define EPS 0.00001f
 #define TEX_TILE_SIZE 2048.f
@@ -59,8 +61,13 @@ struct PixelInputType
 #define CURL_REPEAT repeat.z
 #define DENSITY_FAC repeat.w
 
+//optimization
+#define INV_LAYER_THICKNESS opt.x
+#define INV_BASE_REPEAT opt.y
+#define INV_FINE_REPEAT opt.z
 
-static const float PLANET_RADIUS = 3000000.f; //6000000.0f is roughly equal to Earth's   1000000.f
+
+static const float PLANET_RADIUS = 6400000.f; //6000000.0f is roughly equal to Earth's   1000000.f
 static const float3 PLANET_CENTER = float3(0.f, -PLANET_RADIUS, 0.f);
 
 
@@ -134,21 +141,24 @@ float3 atmosphere()
 
 float getCloudHeight(float3 p)
 {
-    return clamp((length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM), 0.0, 1.0);
+    return clamp((length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) * INV_LAYER_THICKNESS /*/ (CLOUD_TOP - CLOUD_BOTTOM)*/, 0.0, 1.0);
 }
 
 
 //@todo great circle distance for x and z if required
 float3 toSamplingCoordinates(float3 p)
 {
-    float iRep = 1.f / BASE_REPEAT;
     float3 uvw = float3(0.f, 0.f, 0.f);
 
     //uvw of a 3d texture goes as follows - u and w are x and z of a slice, and y is downwards slice by slice
-    uvw.x = (p.x) * iRep;
-    //uvw.y = remap(length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 1.f, 0.f);
-    uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CLOUD_TOP - CLOUD_BOTTOM) * .2f;
-    uvw.z = (p.z) * iRep;
+    uvw.x = (p.x) * INV_BASE_REPEAT;
+    //uvw.y = remap(length(p - float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS, CLOUD_BOTTOM, CLOUD_TOP, 1.f, .5f);
+    
+    //uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CT - CB) * c;
+    //opt version
+    uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) * INV_LAYER_THICKNESS * .2f;
+    
+    uvw.z = (p.z) * INV_BASE_REPEAT;
 
     return uvw.xzy;
 }
@@ -160,8 +170,7 @@ float getCarver(float3 p, float cloudHeight)
     //float carvingFactor = remap(abs(.333f - cloudHeight), .0, .667, 0., 1.); //[.0, .667] to [0., 1.]
     //carvingFactor *= carvingFactor;
 
-    float iRep = 1.f / repeat.y;
-    float3 csc = float3(p.x* iRep, p.y * iRep, p.z * iRep); //cloudHeight
+    float3 csc = float3(p.x, p.y, p.z) * INV_FINE_REPEAT; //cloudHeight
 
     float4 s = fineVolTex.SampleLevel(CloudSampler, csc, MIP_HI_RES);
 
@@ -174,12 +183,12 @@ float getCarver(float3 p, float cloudHeight)
 #define DEN2 max(sampled.r, sampled.g)
 #define DEN3 remap(sampled.r, (1.0 - (sampled.g * 0.625 + sampled.b * 0.25 + sampled.a * 0.125)), 1.0, 0.0, 1.0);
 #define DEN4 sampled.r * sampled.b * 1.5f
-#define DEN5 remap(sampled.g * sampled.r, sampled.b * .5f, 1., 0., 1.)
-
+#define DEN5 remap(sampled.r * sampled.g, sampled.b * .5f, 1., 0., 1.)
 
 float sampleDensity(float3 p)
 {
     float3 bsc = toSamplingCoordinates(p);
+    float cloudHeight = getCloudHeight(p);
 
     //float3 wts = weather.Sample(CloudSampler, float2(bsc.x, bsc.z));
     //if(wts.r < EPS || wts.g < EPS)  //optimize... we NEED every optimization we can get...
@@ -188,10 +197,11 @@ float sampleDensity(float3 p)
     //float texFilter = smoothstep(0.0, wts.g * .33, cloudHeight) * smoothstep(wts.g, wts.g * .66, cloudHeight);
     //myLayer = texFilter;
 
-    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_HI_RES); //fast (GPU skips deciding sample level), looks good
-    float cloudHeight = getCloudHeight(p);
+    // precomputed the mask... saves a ton of time - worst case frame duration went from ~83 to ~40
 
-    float iMask = DEN5;
+    //float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_HI_RES); //fast (GPU skips deciding sample level), looks good
+    //float iMask = DEN5;
+    float iMask = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_HI_RES);
 
     if(iMask < EPS)
         return 0.f;
@@ -206,8 +216,8 @@ float sampleDensity(float3 p)
     //mask = smoothstep(clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.), 1., mask);
     //mask = remapFast01(mask, clamp(GLOBAL_COVERAGE * (1.f + heightFactor * heightFactor), 0., 1.), 1.);
 
-    //mask = smoothstep(GLOBAL_COVERAGE, 1.f, mask * (1.f - heightFactor));
-    mask = remapFast01(mask * (1.f - heightFactor), GLOBAL_COVERAGE, 1.f);
+    mask = smoothstep(GLOBAL_COVERAGE, 1.f, mask * (1.f - heightFactor * heightFactor));
+    //mask = remapFast01(mask * (1.f - heightFactor), GLOBAL_COVERAGE, 1.f);
 
     /* Modulating coverage over height */
 
@@ -225,11 +235,13 @@ float sampleDensity(float3 p)
 float sampleDensityLowRes(float3 p)
 {
     float3 bsc = toSamplingCoordinates(p);
-    float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES);
-
     float cloudHeight = getCloudHeight(p);
+    
+    //same optimization as above
+    //float4 sampled = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES);
+    //float mask = DEN5;
+    float mask = baseVolTex.SampleLevel(CloudSampler, bsc, MIP_LO_RES);
 
-    float mask = DEN5;
     mask = remapFast01(mask, smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight)), 1.);
     //mask = smoothstep(GLOBAL_COVERAGE, 1.f, mask * smoothstep(0., 1.f - HEIGHT_ZERO_INFLUENCE, abs(HEIGHT_ZERO_INFLUENCE - cloudHeight)));
     mask *= smoothstep(0., .3, cloudHeight);
@@ -295,7 +307,7 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 {
     float4 sum = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-    float adjStepSize = tMax / NUM_STEPS;
+    float adjStepSize = tMax * INV_NUM_STEPS;
 
     float t = adjStepSize * 0.5f; //to sample at middles of steps so backtracking doesn't go out of bounds
 
@@ -346,7 +358,7 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
             curStepSize = crudeStepSize * .2f;
             t += curStepSize;
 
-            if(density > .0001f)   //only integrate if there is enough density
+            if(density > EPS)   //only integrate if there is enough density
             {
                 //inscatter
                 /*multiscattering  approximation... kinda sorta, probably won't do this
@@ -382,7 +394,8 @@ float4 raymarch(float3 ro, float3 rd, float tMax)
 
 float4 main(PixelInputType input):SV_TARGET
 {
-    //correct, trivial  float3 rayOrigin = eyePos.xyz;
+    //correct, trivial
+    float3 rayOrigin = eyePos.xyz;
     
 
     //correct
@@ -399,7 +412,7 @@ float4 main(PixelInputType input):SV_TARGET
     //float cosThetaRayleigh = dot(rayDir, normalize(lightPos.xyz - rayOrigin));
     //float4 sunContribution = phaseRayleigh(cosThetaRayleigh) * lightRGBI;
 
-    float3 col = atmosphere();// * (1.f - sunContribution.w) + (sunContribution.xyz);
+    float3 col = atmosphere();  // * (1.f - sunContribution.w) + (sunContribution.xyz);
 
     if (t1 > MAX_VIS)
         return float4(col, 1.f);
@@ -408,14 +421,14 @@ float4 main(PixelInputType input):SV_TARGET
     if (t1 > EPS && t2 > EPS)
     {
         //mode 1 - chaotic?
-        //rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f);
+        rayOrigin += (blueNoise.Sample(CloudSampler, ndc) * 2.f - 1.f);
 
         //mode 2 - along ray
         //rayOrigin += rayDir * (blueNoise.Sample(CloudSampler, ndc).b); 
 
         //float distanceFactor = t1 / MAX_VIS * 8.f;
 
-        float4 cloudColour = raymarch(eyePos.xyz + rayDir * t1, rayDir, t2 - t1);
+        float4 cloudColour = raymarch(rayOrigin + rayDir * t1, rayDir, t2 - t1);
         col = col * cloudColour.w + cloudColour.xyz;
         col.xyz = pow(abs(col.xyz), 1.0 / 2.2);
     }

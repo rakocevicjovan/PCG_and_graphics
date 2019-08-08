@@ -48,6 +48,6 @@ namespace Strife
 
 		bool Create3D();
 		bool CreateFine3D();
-		bool Create3DOneChannel(const SVec4& m);
+		bool Create3DOneChannel();
 	};
 }

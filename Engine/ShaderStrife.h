@@ -27,6 +27,7 @@ class ShaderStrife
 		SVec4 eyePosElapsed;
 		SVec4 eccentricity;
 		SVec4 repeat;
+		SVec4 opt;
 
 		//SMatrix lightView;
 		SMatrix camMatrix;

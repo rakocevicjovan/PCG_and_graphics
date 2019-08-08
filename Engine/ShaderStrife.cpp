@@ -212,6 +212,10 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr2->eyePosElapsed = Math::fromVec3(cam.GetPosition(), elapsed);
 	dataPtr2->eccentricity = SVec4(csDef.eccentricity, csDef.heightMask.x, csDef.heightMask.y, csDef.scrQuadOffset);
 	dataPtr2->repeat = csDef.repeat;
+	dataPtr2->opt = SVec4(1.f / (csDef.heightMask.y - csDef.heightMask.x),
+		1.f / csDef.repeat.x,
+		1.f / csDef.repeat.y,
+		0.f);
 
 	dataPtr2->camMatrix = cam.GetCameraMatrix().Transpose();
 
