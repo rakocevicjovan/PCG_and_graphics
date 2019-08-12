@@ -16,6 +16,9 @@ namespace Strife
 		SMatrix planeMat;
 		SMatrix lightViewMat;
 		SVec4 repeat = SVec4(4096.f);
+		SVec3 skyRGB = SVec3(135., 206., 250.) * (.8f / 255.f);
+		SVec3 ALTop = SVec3(149., 167., 200.) * (1.2 / 255.);
+		SVec3 ALBot = SVec3(39., 67., 87.) * (1.2 / 255.);
 
 		Texture weather;
 		Texture blue_noise;
@@ -31,6 +34,7 @@ namespace Strife
 		float eccentricity = 0.f;
 		float scrQuadOffset = 15.f;
 		float globalCoverage = .5f;
+		float distanceLimit = 20000.f;
 	};
 
 }

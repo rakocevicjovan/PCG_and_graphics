@@ -28,6 +28,9 @@ class ShaderStrife
 		SVec4 eccentricity;
 		SVec4 repeat;
 		SVec4 opt;
+		SVec4 misc;
+		SVec4 ALTop;
+		SVec4 ALBot;
 
 		//SMatrix lightView;
 		SMatrix camMatrix;

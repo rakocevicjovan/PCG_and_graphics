@@ -7,6 +7,9 @@ cbuffer LightBuffer : register(b0)
     float4 eccentricity;
     float4 repeat;
     float4 opt;
+    float4 misc;
+    float4 ALTop;
+    float4 ALBot;
 
     float4x4 camMatrix;
 };
@@ -34,19 +37,12 @@ struct PixelInputType
 
 /* Constants */
 #define PI 3.14159f
-#define MAX_VIS 20000
 #define NUM_STEPS 64.f
-#define INV_NUM_STEPS (1.f / 64.f)
+#define INV_NUM_STEPS (1.f / NUM_STEPS)
 #define SHADOW_STEPS 4.f
 #define EPS 0.00001f
-#define TEX_TILE_SIZE 2048.f
 #define HEIGHT_ZERO_INFLUENCE .333333f
-#define SKY_COLOUR (float3(135., 206., 250.) * .8f/ 255.)
 #define MIN_CRUDE_STEPSIZE 5.f
-
-//ambient light from Reinder's shader "Himalayas"
-#define AMB_TOP (float3(149., 167., 200.) * (1.2 / 255.))
-#define AMB_BOT (float3(39., 67., 87.) * (1.2 / 255.))
 
 #define MIP_HI_RES 0.f
 #define MIP_LO_RES 2.f
@@ -57,6 +53,7 @@ struct PixelInputType
 #define CLOUD_BOTTOM eccentricity.y
 #define CLOUD_TOP eccentricity.z
 #define FOCAL_DEPTH eccentricity.w
+
 #define GLOBAL_COVERAGE extinction.w
 #define ELAPSED eyePos.w
 
@@ -64,6 +61,13 @@ struct PixelInputType
 #define FINE_REPEAT repeat.y
 #define CURL_REPEAT repeat.z
 #define DENSITY_FAC repeat.w
+
+#define SKY_COLOUR misc.xyz //(float3(135., 206., 250.) * .8f/ 255.)    // float3(misc.x, misc.y, misc.z)
+#define MAX_VIS misc.w
+
+//ambient light from Reinder's shader "Himalayas"   AMB_TOP (float3(149., 167., 200.) * (1.2 / 255.))   AMB_BOT (float3(39., 67., 87.) * (1.2 / 255.))
+#define AMB_TOP ALTop.xyz
+#define AMB_BOT ALBot.xyz
 
 //optimization
 #define INV_LAYER_THICKNESS opt.x
