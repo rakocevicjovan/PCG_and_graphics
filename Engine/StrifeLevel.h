@@ -49,5 +49,6 @@ namespace Strife
 		bool Create3D();
 		bool CreateFine3D();
 		bool Create3DOneChannel();
+		bool CreateFine3DOneChannel();
 	};
 }

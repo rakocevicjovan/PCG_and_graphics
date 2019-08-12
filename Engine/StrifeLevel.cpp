@@ -114,14 +114,6 @@ namespace Strife
 
 
 
-
-
-
-
-
-
-
-
 	bool StrifeLevel::Create3D()
 	{
 		D3D11_TEXTURE3D_DESC desc;
@@ -344,4 +336,84 @@ namespace Strife
 		return true;
 	}
 
+
+
+	bool StrifeLevel::CreateFine3DOneChannel()
+	{
+		D3D11_TEXTURE3D_DESC desc;
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+
+		int size = 32;
+		int numChannels = 1;
+		int texelByteWidth = numChannels * sizeof(float);
+
+		std::vector<float> floatVector;
+		size_t numFloatsSheet = size * size * numChannels * 4;
+		size_t numFloatsVolume = size * numFloatsSheet;
+		floatVector.reserve(numFloatsVolume);
+
+		float z = 1.f / 32.f;
+
+		//fill out with good ole Perlin fbm
+		for (int i = 0; i < size; ++i)
+		{
+			for (int j = 0; j < size; ++j)
+			{
+				for (int k = 0; k < size; ++k)
+				{
+					//floatVector.emplace_back(fabs(Texture::Perlin3DFBM(i * z, j * z, k * z, 2.f, .5f, 3u)));
+					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 1));
+					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 2));
+					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 3));
+					floatVector.emplace_back(0.f);	//dx crying over no 24 bit format so we have this...
+				}
+			}
+		}
+
+		std::vector<float> finalVector;
+		size_t sheetSizeProcessed = size * size * numChannels;
+		size_t finalSizeProcessed = size * sheetSizeProcessed;
+		finalVector.reserve(finalSizeProcessed);
+		
+		for (int i = 0; i < floatVector.size(); ++i)
+		{
+			finalVector.emplace_back(floatVector[i] * floatVector[i + 1] * floatVector[i + 2]);
+		}
+
+		desc.Width = size;
+		desc.Height = size;
+		desc.Depth = size;
+		desc.MipLevels = 1;
+		desc.Format = DXGI_FORMAT_R32_FLOAT;	//DXGI_FORMAT_R32G32B32A32_FLOAT;
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.CPUAccessFlags = 0;
+		desc.MiscFlags = 0;
+
+		D3D11_SUBRESOURCE_DATA texData;
+
+		texData.pSysMem = (void *)finalVector.data();
+		texData.SysMemPitch = desc.Width * texelByteWidth;
+		texData.SysMemSlicePitch = texData.SysMemPitch * desc.Height;
+
+		HRESULT hr = device->CreateTexture3D(&desc, &texData, &fineTexId);
+		if (FAILED(hr))
+		{
+			OutputDebugStringA("Can't create texture3d. \n");
+			exit(42);
+		}
+
+		shaderResourceViewDesc.Format = desc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
+
+		if (FAILED(device->CreateShaderResourceView(fineTexId, &shaderResourceViewDesc, &fineSrv)))
+		{
+			OutputDebugStringA("Can't create shader resource view. \n");
+			exit(43);
+		}
+
+		return true;
+	}
 }
