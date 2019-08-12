@@ -13,18 +13,22 @@ cbuffer LightBuffer : register(b0)
 
 Texture2D<float3> weather       : register(t0);
 Texture2D<float4> blueNoise     : register(t1);
-Texture3D<float> baseVolTex     : register(t2);     //Texture3D<float4> baseVolTex    : register(t2);
-Texture3D<float4> fineVolTex    : register(t3);
+Texture3D<float> baseVolTex     : register(t2);
+Texture3D<float> fineVolTex     : register(t3);
+
+//Texture3D<float4> baseVolTex    : register(t2);
+//Texture3D<float4> fineVolTex    : register(t3);
 
 SamplerState CloudSampler : register(s0);
 
 struct PixelInputType
 {
     float4 position : SV_POSITION;
-    float3 normal : NORMAL;
-    float4 worldPos : WPOS;
-    float4 msPos : MSPOS;
     float2 tex : TEXCOORD0;
+
+    //float3 normal : NORMAL;
+    //float4 worldPos : WPOS;
+    //float4 msPos : MSPOS;
 };
 
 
@@ -172,10 +176,9 @@ float getCarver(float3 p, float cloudHeight)
 
     float3 csc = float3(p.x, p.y, p.z) * INV_FINE_REPEAT; //cloudHeight
 
-    float4 s = fineVolTex.SampleLevel(CloudSampler, csc, MIP_HI_RES);
-
-    return s.r * s.g * s.b;
-    //return s.r * .5f + s.g * .25f + s.b * .125f;    //always 0 in fourth sample...
+    //float4 s = fineVolTex.SampleLevel(CloudSampler, csc, MIP_HI_RES);
+    //return s.r * s.g * s.b;       //return s.r * .5f + s.g * .25f + s.b * .125f;    //always 0 in fourth sample...
+    return fineVolTex.SampleLevel(CloudSampler, csc, MIP_HI_RES);
 }
 
 
@@ -396,7 +399,6 @@ float4 main(PixelInputType input):SV_TARGET
 {
     //correct, trivial
     float3 rayOrigin = eyePos.xyz;
-    
 
     //correct
     float2 ndc = float2((input.tex.x * 2.f - 1.f) * (16.f / 9.f), input.tex.y * 2.f - 1.f);

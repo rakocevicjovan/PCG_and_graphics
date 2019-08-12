@@ -45,12 +45,12 @@ namespace Strife
 		csDef.weather = Texture(device, "../Textures/DensityTypeTexture.png");
 		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
 
-		//create/load 3D tectures
-		//Create3D();
-		Create3DOneChannel();
+		///create/load 3D tectures
+		
+		Create3DOneChannel();		//Create3D();
 		csDef.baseVolume = baseSrv;
 		
-		CreateFine3D();
+		CreateFine3DOneChannel();	// CreateFine3D();
 		csDef.fineVolume = fineSrv;
 	}
 
@@ -375,7 +375,7 @@ namespace Strife
 		size_t finalSizeProcessed = size * sheetSizeProcessed;
 		finalVector.reserve(finalSizeProcessed);
 		
-		for (int i = 0; i < floatVector.size(); ++i)
+		for (int i = 0; i < floatVector.size(); i += 4)
 		{
 			finalVector.emplace_back(floatVector[i] * floatVector[i + 1] * floatVector[i + 2]);
 		}

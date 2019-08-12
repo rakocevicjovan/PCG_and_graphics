@@ -17,10 +17,11 @@ struct VertexInputType
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
-	float3 normal : NORMAL;
-	float4 worldPos : WPOS;
-	float4 msPos : MSPOS;
     float2 tex : TEXCOORD0;
+
+    //float3 normal : NORMAL;
+	//float4 worldPos : WPOS;
+	//float4 msPos : MSPOS;
 };
 
 
@@ -30,14 +31,15 @@ PixelInputType main(VertexInputType input) {
 
     input.position.w = 1.;
 
-    output.msPos = input.position;
+    //output.msPos = input.position;
+	//output.worldPos = mul(input.position, worldMatrix);
 
-	output.worldPos = mul(input.position, worldMatrix);
-	output.position = mul(output.worldPos, viewMatrix);
+    output.position = mul(input.position, worldMatrix);
+    output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
-	output.normal = mul(input.normal, (float3x3)worldMatrix);
-	output.normal = normalize(output.normal);
+	//output.normal = mul(input.normal, (float3x3)worldMatrix);
+	//output.normal = normalize(output.normal);
 
     output.tex = float2(input.tex.x, input.tex.y);
 
