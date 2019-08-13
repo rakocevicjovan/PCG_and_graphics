@@ -215,7 +215,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr2->opt = SVec4(1.f / (csDef.heightMask.y - csDef.heightMask.x),
 		1.f / csDef.repeat.x,
 		1.f / csDef.repeat.y,
-		0.f);
+		csDef.planetRadius);
 	dataPtr2->misc = Math::fromVec3(csDef.skyRGB, csDef.distanceLimit);
 	dataPtr2->ALTop = Math::fromVec3(csDef.ALTop, 0.f);
 	dataPtr2->ALBot = Math::fromVec3(csDef.ALBot, 0.f);

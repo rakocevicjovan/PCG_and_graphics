@@ -83,12 +83,8 @@ namespace Strife
 		//terrain
 		shady.light.SetShaderParameters(context, floor.transform, *rc.cam, csDef.celestial, rc.dTime);
 		floor.Draw(context, shady.light);
+
 		
-		//skybox
-		//randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
-
-		//cloudscape, blend into background which depends on the time of the day... or use anything idk...
-
 		sceneTex.SetRenderTarget(context);
 
 		rc.d3d->TurnOnAlphaBlending();
@@ -98,12 +94,13 @@ namespace Strife
 		shady.strife.ReleaseShaderParameters(context);
 
 		rc.d3d->TurnOffAlphaBlending();
-
+		
 
 		context->RSSetViewports(1, &_sys._D3D.viewport);
 		context->OMSetRenderTargets(1, &_sys._D3D.m_renderTargetView, _sys._D3D.GetDepthStencilView());
 
 		postProcessor.draw(context, shady.HUD, sceneTex.srv);
+		
 
 		//GUI
 		if(inman.GetMouseMode())
@@ -417,3 +414,9 @@ namespace Strife
 		return true;
 	}
 }
+
+
+//skybox
+//randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+
+//cloudscape, blend into background which depends on the time of the day... or use anything idk...

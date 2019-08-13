@@ -73,9 +73,9 @@ struct PixelInputType
 #define INV_LAYER_THICKNESS opt.x
 #define INV_BASE_REPEAT opt.y
 #define INV_FINE_REPEAT opt.z
+#define PLANET_RADIUS opt.w
 
-
-static const float PLANET_RADIUS = 6400000.f; //6000000.0f is roughly equal to Earth's   1000000.f
+//static const float PLANET_RADIUS = 6400000.f; //6000000.0f is roughly equal to Earth's   1000000.f
 static const float3 PLANET_CENTER = float3(0.f, -PLANET_RADIUS, 0.f);
 
 

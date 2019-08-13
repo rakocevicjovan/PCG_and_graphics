@@ -34,7 +34,8 @@ namespace Strife
 		float eccentricity = 0.f;
 		float scrQuadOffset = 15.f;
 		float globalCoverage = .5f;
-		float distanceLimit = 20000.f;
+		float distanceLimit = 30000.f;
+		float planetRadius = 6400000.f;
 	};
 
 }
