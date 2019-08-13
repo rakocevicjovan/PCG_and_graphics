@@ -46,11 +46,14 @@ namespace Strife
 		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
 
 		///create/load 3D tectures
+
+		//Create3D();
+		//CreateFine3D();
 		
-		Create3DOneChannel();		//Create3D();
+		CreateFine3DOneChannel();
+		Create3DOneChannel();		
+		
 		csDef.baseVolume = baseSrv;
-		
-		CreateFine3DOneChannel();	// CreateFine3D();
 		csDef.fineVolume = fineSrv;
 	}
 
