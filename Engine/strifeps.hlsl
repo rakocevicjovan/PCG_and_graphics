@@ -68,6 +68,8 @@ struct PixelInputType
 //ambient light from Reinder's shader "Himalayas"   AMB_TOP (float3(149., 167., 200.) * (1.2 / 255.))   AMB_BOT (float3(39., 67., 87.) * (1.2 / 255.))
 #define AMB_TOP ALTop.xyz
 #define AMB_BOT ALBot.xyz
+#define CARVING_THRESHOLD ALTop.w
+#define TEXTURE_SPAN ALBot.w
 
 //optimization
 #define INV_LAYER_THICKNESS opt.x
@@ -164,7 +166,7 @@ float3 toSamplingCoordinates(float3 p)
     
     //uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) / (CT - CB) * c;
     //opt version
-    uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) * INV_LAYER_THICKNESS * .2f;
+    uvw.y = (distance(p, float3(0.0, -PLANET_RADIUS, 0.0)) - PLANET_RADIUS - CLOUD_BOTTOM) * INV_LAYER_THICKNESS * TEXTURE_SPAN;
     
     uvw.z = (p.z) * INV_BASE_REPEAT;
 
@@ -230,7 +232,7 @@ float sampleDensity(float3 p)
 
     mask *= smoothstep(0.f, .333f, cloudHeight);
 
-    if (iMask < 0.5f)
+    if (iMask < CARVING_THRESHOLD)
         mask = max(0., mask - getCarver(p, cloudHeight)); //remap(mask, getCarver(p, cloudHeight), 1., 0., 1.); getCarver(p, cloudHeight);
 
     mask *= DENSITY_FAC;    //allows the user to control "precipitation" so to speak... aka gives grayer clouds

@@ -36,6 +36,8 @@ namespace Strife
 		float globalCoverage = .5f;
 		float distanceLimit = 30000.f;
 		float planetRadius = 6400000.f;
+		float carvingThreshold = .5f;
+		float textureSpan = .2f;
 	};
 
 }

@@ -38,7 +38,7 @@ namespace Strife
 		csDef.eccentricity = 0.66f;
 		csDef.globalCoverage = .5f;
 		csDef.scrQuadOffset = 1.f;
-		csDef.heightMask = SVec2(600, 1000);
+		csDef.heightMask = SVec2(1000, 1500);
 		csDef.repeat = SVec4(4096.f, 32.f, 4069.f, 1.f);	//density factor in .w
 		
 		//load 2D textures
@@ -87,7 +87,6 @@ namespace Strife
 		shady.light.SetShaderParameters(context, floor.transform, *rc.cam, csDef.celestial, rc.dTime);
 		floor.Draw(context, shady.light);
 
-		
 		sceneTex.SetRenderTarget(context);
 
 		rc.d3d->TurnOnAlphaBlending();
@@ -284,7 +283,8 @@ namespace Strife
 			for (int j = 0; j < flVec.size(); j += 4)
 			{
 				//processedVec.emplace_back(m.x * flVec[j] + m.y * flVec[j + 1] + m.z * flVec[j + 2] + m.w * flVec[j + 3]);
-				processedVec.emplace_back(/*Math::clamp(0., 1., */Math::remap(flVec[j + 1] * flVec[j], flVec[j+2] * .5f, 1., 0., 1.)/*)*/);
+				processedVec.emplace_back(/*Math::clamp(0., 1., */Math::remap(flVec[j + 1] * flVec[j], flVec[j + 2] * .5f, 1., 0., 1.)/*)*/);
+				//processedVec.emplace_back(Math::clamp(0., 1., Math::remap(flVec[j], 1.0 - (flVec[j+1] * 0.625 + flVec[j + 2] * 0.25 + flVec[j + 3] * 0.125), 1.0, 0.0, 1.0)));
 			}
 
 			finalArray.insert(finalArray.end(), processedVec.begin(), processedVec.end());
@@ -377,7 +377,8 @@ namespace Strife
 		
 		for (int i = 0; i < floatVector.size(); i += 4)
 		{
-			finalVector.emplace_back(floatVector[i] * floatVector[i + 1] * floatVector[i + 2]);
+			finalVector.emplace_back(2.f * floatVector[i] * floatVector[i + 1] * floatVector[i + 2]);
+			//finalVector.emplace_back(.33 * floatVector[i] + .33 * floatVector[i + 1] + .33 * floatVector[i + 2]);
 		}
 
 		desc.Width = size;

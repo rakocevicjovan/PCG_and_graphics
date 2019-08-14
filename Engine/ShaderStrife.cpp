@@ -217,8 +217,8 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 		1.f / csDef.repeat.y,
 		csDef.planetRadius);
 	dataPtr2->misc = Math::fromVec3(csDef.skyRGB, csDef.distanceLimit);
-	dataPtr2->ALTop = Math::fromVec3(csDef.ALTop, 0.f);
-	dataPtr2->ALBot = Math::fromVec3(csDef.ALBot, 0.f);
+	dataPtr2->ALTop = Math::fromVec3(csDef.ALTop, csDef.carvingThreshold);
+	dataPtr2->ALBot = Math::fromVec3(csDef.ALBot, csDef.textureSpan);
 
 	dataPtr2->camMatrix = cam.GetCameraMatrix().Transpose();
 

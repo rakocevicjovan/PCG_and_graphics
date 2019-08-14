@@ -37,7 +37,9 @@ namespace Strife
 
 		ImGui::SliderFloat("Base repeat",			&csDef.repeat.x, 1024.f, 1024.f * 16.f);
 		ImGui::SliderFloat("Fine repeat",			&csDef.repeat.y, 16.f, 256.f);
-		ImGui::InputFloat("Density coefficient",	&csDef.repeat.w, 1., 5., 3);
+		ImGui::SliderFloat("Texture span",			&csDef.textureSpan, 0.f, 1.f);
+		ImGui::InputFloat("Density multiplier",		&csDef.repeat.w, 1., 5., 3);
+		ImGui::SliderFloat("Carving threshold",		&csDef.carvingThreshold, -.01f, 1.01f);
 
 		ImGui::SliderFloat("Global coverage",		&csDef.globalCoverage, 0.01f, .99f);
 		ImGui::SliderFloat("View distance",			&csDef.distanceLimit, 5000.f, 50000.f);
