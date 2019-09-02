@@ -46,6 +46,9 @@
     <Filter Include="GUI">
       <UniqueIdentifier>{c448c636-6f18-4d93-926b-e9e3e59e23cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SkelAnim">
+      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -269,6 +272,9 @@
     </ClCompile>
     <ClCompile Include="StrifeLevel.cpp">
       <Filter>Strife</Filter>
+    </ClCompile>
+    <ClCompile Include="TestLevel.cpp">
+      <Filter>SkelAnim</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -517,6 +523,9 @@
     </ClInclude>
     <ClInclude Include="ShaderUtils.h">
       <Filter>Strife</Filter>
+    </ClInclude>
+    <ClInclude Include="TestLevel.h">
+      <Filter>SkelAnim</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -33,7 +33,6 @@ public:
 	AirLevel(Systems& sys) : Level(sys), player(sys._controller) {};
 	~AirLevel() {};
 	void init(Systems& sys);
-	void procGen() {};
 	void update(const RenderContext& rc);
 	void draw(const RenderContext& rc);
 	void demolish() { this->~AirLevel(); };

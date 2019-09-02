@@ -5,15 +5,16 @@
 #include "WaterLevel.h"
 #include "AirLevel.h"
 #include "StrifeLevel.h"
+#include "TestLevel.h"
 
 
 
 LevelManager::LevelManager(Systems& systems)
 {
-	//current = new Strife::StrifeLevel(systems);
-
+	current = new SkelAnim::SkelAnimTestLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
+
 	//_levels.push_back(new EarthLevel(systems));
 	//_levels.push_back(new FireLevel(systems));
 	//_levels.push_back(new WaterLevel(systems));
