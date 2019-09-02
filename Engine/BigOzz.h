@@ -1,3 +1,4 @@
+/*
 #include "ozz/animation/runtime/animation.h"
 #include "ozz/animation/runtime/skeleton_utils.h"
 
@@ -104,4 +105,4 @@ public:
 	}
 
 };
-
+*/

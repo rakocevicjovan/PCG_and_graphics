@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include "SimpleMath.h"
 
-using SMatrix = DirectX::SimpleMath::Matrix;
+using SMatrix	= DirectX::SimpleMath::Matrix;
 using SQuat		= DirectX::SimpleMath::Quaternion;
 using SVec2		= DirectX::SimpleMath::Vector2;
 using SVec3		= DirectX::SimpleMath::Vector3;

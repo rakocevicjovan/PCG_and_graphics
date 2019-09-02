@@ -2,7 +2,7 @@
 #include "Model.h"
 #include "Math.h"
 #include "GameObject.h"
-
+#include "SimpleMath.h"
 
 /*
 	SCREAM(bloodyMurder) std::ostringstream ss;	\

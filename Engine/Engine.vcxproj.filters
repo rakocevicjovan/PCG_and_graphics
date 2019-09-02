@@ -520,7 +520,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="depth.vs">
       <Filter>Shader Files\Common</Filter>
     </None>
@@ -566,6 +565,7 @@
     <None Include="shadowps.hlsl">
       <Filter>Shader Files\Common</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
