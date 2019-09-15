@@ -15,7 +15,12 @@ namespace SkelAnim
 		t.SetUp(device);
 		floorModel = Model(t, device);
 
-		
+		sm.LoadModel(device, "../Models/Animated/Kachujin_walking/Walking.fbx");
+
+		for (int i = 0; i < MAX_BONES; i++)
+		{
+			bts.emplace_back(SMatrix::Identity);
+		}
 	}
 
 
@@ -31,9 +36,17 @@ namespace SkelAnim
 	void SkelAnimTestLevel::draw(const RenderContext& rc)
 	{
 		rc.d3d->ClearColourDepthBuffers();
+		rc.d3d->TurnOffCulling();
 
 		shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 		floorModel.Draw(context, shady.light);
+
+		sm.update(rc.dTime, bts, 0u);
+
+		shady.animator.SetShaderParameters(context, sm, *rc.cam, pLight, rc.elapsed, bts);
+		sm.Draw(context, shady.animator);
+
+		shady.light.ReleaseShaderParameters(context);
 
 		rc.d3d->EndScene();
 	}

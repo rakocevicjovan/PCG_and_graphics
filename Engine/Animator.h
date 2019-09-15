@@ -1,3 +1,4 @@
+#pragma once
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -8,24 +9,32 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
+#include "MeshDataStructs.h"
 
-class Model;
+class SkeletalModel;
+class Camera;
 
-class Animator {
+class Animator
+{
+	
 
-	struct MatrixBufferType {
+	struct MatrixBufferType
+	{
 		SMatrix world;
 		SMatrix view;
 		SMatrix projection;
 	};
 
-	struct VariableBufferType {
+	struct VariableBufferType
+	{
 		float deltaTime;
 		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
 	};
 
-	struct LightBufferType {
+	BoneTransformBufferType boneTransformBuffer;
 
+	struct LightBufferType
+	{
 		SVec3 alc;
 		float ali;
 
@@ -50,8 +59,8 @@ public:
 
 	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths);
 	bool InitializeShader(ID3D11Device*, HWND);
-	bool SetShaderParameters(ID3D11DeviceContext*, Model& m, const SMatrix& v, const SMatrix& p,
-		const PointLight& dLight, const SVec3& eyePos, float deltaTime);
+	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, SkeletalModel& model, const Camera& c, const PointLight& pLight, float deltaTime, 
+		const std::vector<SMatrix>& boneTransformsIn);
 	bool ReleaseShaderParameters(ID3D11DeviceContext*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
@@ -66,6 +75,7 @@ private:
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11Buffer* m_variableBuffer;
 	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* m_bonesBuffer;
 
 	std::vector<std::wstring> filePaths;
 

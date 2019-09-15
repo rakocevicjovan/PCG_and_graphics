@@ -174,7 +174,6 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="Audio.h" />
-    <ClInclude Include="BigOzz.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />

@@ -1,7 +1,9 @@
 #include "Animator.h"
-#include "Model.h"
+#include "SkeletalModel.h"
+#include "Camera.h"
 
-Animator::Animator() {
+Animator::Animator()
+{
 	m_vertexShader = 0;
 	m_pixelShader = 0;
 	m_layout = 0;
@@ -11,18 +13,20 @@ Animator::Animator() {
 }
 
 
-Animator::~Animator() {
+Animator::~Animator()
+{
 }
 
 
-bool Animator::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths) {
-
+bool Animator::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths)
+{
 	this->filePaths = filePaths;
 	return InitializeShader(device, hwnd);
 }
 
 
-bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
+bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd)
+{
 
 	HRESULT result;
 	ID3D10Blob* errorMessage = nullptr;
@@ -31,19 +35,18 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	ID3D10Blob* vertexShaderBuffer = nullptr;
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 
-	D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
-	unsigned int numElements;
-
 	D3D11_SAMPLER_DESC samplerDesc;
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC variableBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC bonesBufferDesc;
 
 	// Compile the vertex shader code.
-	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "SkelAnimVert", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&vertexShaderBuffer, &errorMessage);
 
-	if (FAILED(result)) {
+	if (FAILED(result))
+	{
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
 		else
@@ -52,10 +55,11 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 		return false;
 	}
 
-	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "SkelAnimFrag", "ps_5_0",
+	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "main", "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 
-	if (FAILED(result)) {
+	if (FAILED(result))
+	{
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()));
 		else
@@ -74,51 +78,17 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 	if (FAILED(result))
 		return false;
 
-	polygonLayout[0].SemanticName = "POSITION";
-	polygonLayout[0].SemanticIndex = 0;
-	polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[0].InputSlot = 0;
-	polygonLayout[0].AlignedByteOffset = 0;
-	polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[0].InstanceDataStepRate = 0;
-
-	polygonLayout[1].SemanticName = "TEXCOORD";
-	polygonLayout[1].SemanticIndex = 0;
-	polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	polygonLayout[1].InputSlot = 0;
-	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[1].InstanceDataStepRate = 0;
-
-	polygonLayout[2].SemanticName = "NORMAL";
-	polygonLayout[2].SemanticIndex = 0;
-	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	polygonLayout[2].InputSlot = 0;
-	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[2].InstanceDataStepRate = 0;
-
-	polygonLayout[3].SemanticName = "BONE_ID";
-	polygonLayout[3].SemanticIndex = 0;
-	polygonLayout[3].Format = DXGI_FORMAT_R8G8B8A8_UINT;
-	polygonLayout[3].InputSlot = 0;
-	polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[3].InstanceDataStepRate = 0;
-
-	polygonLayout[4].SemanticName = "BONE_W";
-	polygonLayout[4].SemanticIndex = 0;
-	polygonLayout[4].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	polygonLayout[4].InputSlot = 0;
-	polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	polygonLayout[4].InstanceDataStepRate = 0;
-
-	// Get a count of the elements in the layout.
-	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BONE_ID" , 0, DXGI_FORMAT_R8G8B8A8_UINT,			0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BONE_W"  , 0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 
 	// Create the vertex input layout.
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
+	result = device->CreateInputLayout(sbLayout.data(), 5, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
 		&m_layout);
 	if (FAILED(result))
 		return false;
@@ -146,9 +116,8 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Create the texture sampler state.
 	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -160,9 +129,8 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
 
 	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
 	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -174,6 +142,17 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Create the variable constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&variableBufferDesc, NULL, &m_variableBuffer);
+	if (FAILED(result))
+		return false;
+
+	bonesBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	bonesBufferDesc.ByteWidth = sizeof(SMatrix) * MAX_BONES;
+	bonesBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bonesBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bonesBufferDesc.MiscFlags = 0;
+	bonesBufferDesc.StructureByteStride = 0;
+
+	result = device->CreateBuffer(&bonesBufferDesc, NULL, &m_bonesBuffer);
 	if (FAILED(result))
 		return false;
 
@@ -189,53 +168,65 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd) {
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&lightBufferDesc, NULL, &m_lightBuffer);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
+
+	for (int i = 0; i < MAX_BONES; ++i)
+	{
+		boneTransformBuffer.boneTransforms.emplace_back(SMatrix::Identity);
 	}
 
 	return true;
 }
 
 
+
 void Animator::ShutdownShader()
 {
 	// Release the light constant buffer.
-	if (m_lightBuffer) {
+	if (m_lightBuffer)
+	{
 		m_lightBuffer->Release();
 		m_lightBuffer = 0;
 	}
 
 	// Release the variable constant buffer.
-	if (m_variableBuffer) {
+	if (m_variableBuffer)
+	{
 		m_variableBuffer->Release();
 		m_variableBuffer = 0;
 	}
 	// Release the matrix constant buffer.
-	if (m_matrixBuffer) {
+	if (m_matrixBuffer)
+	{
 		m_matrixBuffer->Release();
 		m_matrixBuffer = 0;
 	}
 
 	// Release the sampler state.
-	if (m_sampleState) {
+	if (m_sampleState)
+	{
 		m_sampleState->Release();
 		m_sampleState = 0;
 	}
 
 	// Release the layout.
-	if (m_layout) {
+	if (m_layout)
+	{
 		m_layout->Release();
 		m_layout = 0;
 	}
 
 	// Release the pixel shader.
-	if (m_pixelShader) {
+	if (m_pixelShader)
+	{
 		m_pixelShader->Release();
 		m_pixelShader = 0;
 	}
 
 	// Release the vertex shader.
-	if (m_vertexShader) {
+	if (m_vertexShader)
+	{
 		m_vertexShader->Release();
 		m_vertexShader = 0;
 	}
@@ -243,147 +234,111 @@ void Animator::ShutdownShader()
 }
 
 
-void Animator::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename) {
 
+void Animator::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename)
+{
 	char* compileErrors;
 	unsigned long bufferSize, i;
 	std::ofstream fout;
 
-
-	// Get a pointer to the error message text buffer.
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
-
-	// Get the length of the message.
 	bufferSize = errorMessage->GetBufferSize();
-
-	// Open a file to write the error message to.
 	fout.open("shader-error.txt");
 
-	// Write out the error message.
-	for (i = 0; i < bufferSize; i++) {
+	for (i = 0; i < bufferSize; i++)
 		fout << compileErrors[i];
-	}
 
-	// Close the file.
 	fout.close();
 
-	// Release the error message.
 	errorMessage->Release();
 	errorMessage = 0;
 
-	// Pop a message up on the screen to notify the user to check the text file for compile errors.
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
 }
 
 
-bool Animator::SetShaderParameters(ID3D11DeviceContext* deviceContext,
-	Model& model, const SMatrix& v, const SMatrix& p,
-	const PointLight& dLight, const SVec3& eyePos, float deltaTime) {
 
-
+bool Animator::SetShaderParameters(ID3D11DeviceContext* deviceContext, SkeletalModel& model, const Camera& c, const PointLight& pLight, float deltaTime, 
+	const std::vector<SMatrix>& boneTransformsIn)
+{
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
 	MatrixBufferType* dataPtr;
 	LightBufferType* dataPtr2;
 	VariableBufferType* dataPtr3;
-
-	//model.transform *=  SMatrix::CreateFromAxisAngle(SVec3(0.0f, 1.0f, 0.0f), 0.02);
+	BoneTransformBufferType* dataPtr4;
 
 	SMatrix mT = model.transform.Transpose();
-	SMatrix vT = v.Transpose();
-	SMatrix pT = p.Transpose();
+	SMatrix vT = c.GetViewMatrix().Transpose();
+	SMatrix pT = c.GetProjectionMatrix().Transpose();
 
-	// Lock the constant matrix buffer so it can be written to.
+
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
-
-	dataPtr = (MatrixBufferType*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
-
-	// Copy the matrices into the constant buffer.
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	dataPtr->world = mT;
 	dataPtr->view = vT;
 	dataPtr->projection = pT;
-
-	// Unlock the constant buffer.
 	deviceContext->Unmap(m_matrixBuffer, 0);
-
-	bufferNumber = 0;	// Set the position of the constant buffer in the vertex shader.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);	// Now set the constant buffer in the vertex shader with the updated values.
-	//END MATRIX BUFFER
+	bufferNumber = 0;
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 
-
-	//VARIABLE BUFFER
 	result = deviceContext->Map(m_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
-
-	// Get a pointer to the data in the constant buffer.
 	dataPtr3 = (VariableBufferType*)mappedResource.pData;
-
-	// Copy the variablethe constant buffer.
 	dataPtr3->deltaTime = deltaTime;
-	dataPtr3->padding = SVec3(); //this is just padding so this data isn't used.
-
-	// Unlock the variable constant buffer.
+	dataPtr3->padding = SVec3();
 	deviceContext->Unmap(m_variableBuffer, 0);
-
-	// Set the position of the variable constant buffer in the vertex shader.
 	bufferNumber = 1;
-
-	// Now set the variable constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_variableBuffer);
-	//END VARIABLE BUFFER
 
-
-	// Lock the light constant buffer so it can be written to.
-	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result)) {
+	result = deviceContext->Map(m_bonesBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
 		return false;
-	}
+	dataPtr4 = (BoneTransformBufferType*)mappedResource.pData;
+	//dataPtr4->boneTransforms = boneTransformsIn;
+	memcpy(mappedResource.pData, boneTransformsIn.data(), boneTransformsIn.size() * sizeof(SMatrix));
+	deviceContext->Unmap(m_bonesBuffer, 0);
+	bufferNumber = 2;
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_bonesBuffer);
 
-	// Get a pointer to the data in the constant buffer.
+
+	result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+		return false;
 	dataPtr2 = (LightBufferType*)mappedResource.pData;
-
-	// Copy the lighting variables into the constant buffer.
-	dataPtr2->alc = dLight.alc;
-	dataPtr2->ali = dLight.ali;
-	dataPtr2->dlc = dLight.dlc;
-	dataPtr2->dli = dLight.dli;
-	dataPtr2->slc = dLight.slc;
-	dataPtr2->sli = dLight.sli;
-	dataPtr2->pos = dLight.pos;
-	dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
-
-	// Unlock the constant buffer.
+	dataPtr2->alc = pLight.alc;
+	dataPtr2->ali = pLight.ali;
+	dataPtr2->dlc = pLight.dlc;
+	dataPtr2->dli = pLight.dli;
+	dataPtr2->slc = pLight.slc;
+	dataPtr2->sli = pLight.sli;
+	dataPtr2->pos = pLight.pos;
+	dataPtr2->ePos = Math::fromVec3(c.GetPosition(), 1.0f);
 	deviceContext->Unmap(m_lightBuffer, 0);
-
-	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
-
-	deviceContext->IASetInputLayout(m_layout);
-
-	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
-
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
 
+
+	deviceContext->IASetInputLayout(m_layout);
+	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
-	//if(model.textures_loaded.size() != 0)
-	for (unsigned int i = 0; i < model.textures_loaded.size(); i++) {
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
-	}
-
+	for (unsigned int i = 0; i < model.textures_loaded.size(); i++)
+		deviceContext->PSSetShaderResources(i, 1, &(model.textures_loaded[i].srv));
 
 	return true;
 }
 
 
 
-bool Animator::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
+bool Animator::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
+{
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 	return true;
 }

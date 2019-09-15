@@ -68,6 +68,10 @@ public:
 	static float fract(const float in);
 	static SVec3 fract3(const SVec3& in);
 
-	static float lerp(const float t, const float a, const float b);
+	template <class T>
+	static T lerp(const T a, const T b, const float t)
+	{
+		return (1 - t) * a + t * b;
+	}
 };
 

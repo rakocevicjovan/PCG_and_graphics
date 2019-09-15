@@ -1,14 +1,17 @@
 #pragma once
 
-#include "Animator.h"
-#include "MeshDataStructs.h"
-#include "Texture.h"
-#include "Math.h"
 #include <d3d11.h>
 #include <vector>
 
-class SkeletalMesh {
+#include "MeshDataStructs.h"
+#include "Texture.h"
+#include "Math.h"
+#include "Geometry.h"
+#include "ShaderManager.h"
+#include "Animator.h"
 
+class SkeletalMesh
+{
 public:
 
 	std::vector<BonedVert3D> vertices;
@@ -20,33 +23,37 @@ public:
 
 	ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
-	SkeletalMesh() {}
+	SkeletalMesh()
+	{
+	}
+
+
 
 	SkeletalMesh(
 		std::vector<BonedVert3D> vertices, 
 		std::vector<unsigned int> indices, 
 		std::vector<Texture> textures, 
-		ID3D11Device* device, 
+		ID3D11Device* dvc, 
 		unsigned int ind, 
-		std::vector<Joint> joints)
-		: vertices(vertices), indices(indices), textures(textures), joints(joints)
+		std::vector<Joint> joints) : vertices(vertices), indices(indices), textures(textures), joints(joints)
 	{
 		_vertexBuffer = 0;
 		_indexBuffer = 0;
 		indexIntoModelMeshArray = ind;
-		setupSkeletalMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
+		setupSkeletalMesh(dvc);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 	}
 
 
 
-	bool setupSkeletalMesh(ID3D11Device* device) {
+	bool setupSkeletalMesh(ID3D11Device* dvc)
+	{
 
 		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 		D3D11_SUBRESOURCE_DATA vertexData, indexData;
 		HRESULT res;
 
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(BonedVert3D) * vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
@@ -56,7 +63,7 @@ public:
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;
 
-		res = device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
+		res = dvc->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer);
 		if (FAILED(res))
 			return false;
 
@@ -73,7 +80,7 @@ public:
 		indexData.SysMemSlicePitch = 0;
 
 		// Create the index buffer.
-		if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
+		if (FAILED(dvc->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
 			return false;
 
 		return true;
@@ -81,9 +88,9 @@ public:
 
 
 
-	void draw(ID3D11DeviceContext* dc, Animator& s) {
-
-		unsigned int stride = sizeof(Vert3D);
+	void draw(ID3D11DeviceContext* dc, Animator& s)
+	{
+		unsigned int stride = sizeof(BonedVert3D);
 		unsigned int offset = 0;
 
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);

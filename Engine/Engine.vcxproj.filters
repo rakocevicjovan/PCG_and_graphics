@@ -16,12 +16,6 @@
     <Filter Include="Procedural">
       <UniqueIdentifier>{da188881-b302-4db2-9786-b8e11ead4641}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shading">
-      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Ozz interface">
-      <UniqueIdentifier>{ee4567c5-4e2b-4bb3-a465-bf49029ab316}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Game">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
     </Filter>
@@ -48,6 +42,9 @@
     </Filter>
     <Filter Include="SkelAnim">
       <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -124,46 +121,46 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCM.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderDepth.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderHUD.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderPT.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderShadow.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWater.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderBase.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderLight.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="InstancedShader.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Volumetric.cpp">
       <Filter>Procedural</Filter>
@@ -172,10 +169,10 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TerrainShader.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="PerlinShader.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Procedural</Filter>
@@ -190,7 +187,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderVolumetric.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
@@ -199,7 +196,7 @@
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderMaze.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Source Files</Filter>
@@ -229,7 +226,7 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Hexer.cpp">
       <Filter>Game</Filter>
@@ -241,7 +238,7 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ToolGUI.cpp">
       <Filter>Strife</Filter>
@@ -357,31 +354,31 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderShadow.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderPT.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHUD.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDepth.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCM.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderStrife.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWater.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWireframe.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
@@ -393,16 +390,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderBase.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLight.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Volumetric.h">
       <Filter>Procedural</Filter>
@@ -411,10 +408,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="PerlinShader.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Procedural</Filter>
@@ -426,22 +423,19 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDataStructs.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Maze.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderMaze.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BigOzz.h">
-      <Filter>Ozz interface</Filter>
     </ClInclude>
     <ClInclude Include="D3D.h">
       <Filter>Header Files</Filter>
@@ -468,7 +462,7 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Hexer.h">
       <Filter>Game</Filter>
@@ -480,7 +474,7 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
-      <Filter>Shading</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ToolGUI.h">
       <Filter>Strife</Filter>

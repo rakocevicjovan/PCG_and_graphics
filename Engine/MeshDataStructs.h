@@ -19,8 +19,8 @@ struct Vert3D
 
 struct VertBoneData 
 {
-	unsigned int ids[4];
-	float weights[4];
+	unsigned int ids[4] = { 0, 0, 0, 0 };
+	float weights[4] = { 0, 0, 0, 0 };
 };
 
 
@@ -29,6 +29,22 @@ struct VertBoneData
 struct BonedVert3D : Vert3D 
 {
 	VertBoneData boneData;
+
+	void BonedVert3D::AddBoneData(unsigned int boneID, float weight)
+	{
+		for (unsigned int i = 0; i < 4; ++i)
+		{
+			if (boneData.weights[i] <= 0.0f)
+			{
+				boneData.ids[i] = boneID;
+				boneData.weights[i] = weight;
+				return;
+			}
+		}
+
+		// should never get here - more bones than we have space for
+		assert(0);
+	}
 };
 
 
@@ -39,7 +55,8 @@ public:
 
 	int index;
 	std::string name;
-	SMatrix offset;
+	SMatrix localTransform, globalTransform;
+	Joint* parent = nullptr;
 	std::vector<Joint*> offspring;
 
 	Joint() {}
@@ -48,26 +65,9 @@ public:
 	{
 		this->index = index;
 		this->name = name;
-		this->offset = offset;
-	}
-};
+		this->localTransform = offset;
 
-
-
-class Channel
-{
-public:
-	
-	std::vector<std::pair<double, Joint>> timeline;
-
-	Channel() {}
-
-	Channel(std::vector<double>& timestamps, std::vector<Joint>& transforms) 
-	{
-		assert(timestamps.size() == transforms.size());	//@TODO check yourself before you wreck yourself
-
-		for (unsigned int i = 0; i < timestamps.size(); ++i) 	
-			timeline.push_back(std::make_pair(timestamps[i], transforms[i]));
+		parent = nullptr;
 	}
 };
 
@@ -99,4 +99,12 @@ struct ColourHDR
 		_b = b;
 		_a = a;
 	}
+};
+
+
+
+static const UINT MAX_BONES = 96;
+struct BoneTransformBufferType
+{
+	std::vector<SMatrix> boneTransforms;
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 
+#include "Animator.h"
 #include "ShaderDataStructs.h"
 #include "ShaderBase.h"
 #include "ShaderLight.h"
@@ -35,6 +36,7 @@ protected:
 
 public:
 
+	Animator animator;
 	ShaderBase base;
 	ShaderLight light;
 	WireframeShader wireframe;

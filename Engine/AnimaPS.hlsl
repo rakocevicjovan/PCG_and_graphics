@@ -11,7 +11,8 @@ cbuffer LightBuffer
 };
 
 
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
@@ -67,7 +68,7 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 
 
 
-float4 LightPixelShader(PixelInputType input) : SV_TARGET{
+float4 main(PixelInputType input) : SV_TARGET{
 
 	input.normal = normalize(input.normal);
 

@@ -153,9 +153,3 @@ SVec3 Math::fract3(const SVec3& in)
 {
 	return in - floor3(in);
 }
-
-
-float Math::lerp(const float a, const float b, const float t)
-{
-	return (1 - t)*a + t * b;
-}

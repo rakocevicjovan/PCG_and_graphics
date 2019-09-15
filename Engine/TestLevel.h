@@ -2,6 +2,7 @@
 #include "Level.h"
 #include "Math.h"
 #include "Model.h"
+#include "SkeletalModel.h"
 #include "Light.h"
 
 namespace SkelAnim
@@ -20,8 +21,10 @@ public:
 private:
 
 	Model floorModel;
-	Model skellyModel;
+	SkeletalModel sm;
 	PointLight pLight;
+
+	std::vector<SMatrix> bts;
 };
 
 }

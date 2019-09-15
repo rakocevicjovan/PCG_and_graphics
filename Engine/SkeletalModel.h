@@ -15,20 +15,22 @@
 #include "SkeletalMesh.h"
 #include "Animation.h"
 
-class SkeletalModel {
+class SkeletalModel
+{
 
 public:
 
 	std::vector<SkeletalMesh> meshes;
-	std::vector<Animation> anims;
 	std::vector<Texture> textures_loaded;
 
 	std::string directory;
 	std::string name;
 
 	SMatrix transform;
-	Joint rootJoint;
-
+	
+	std::vector<Animation> anims;
+	std::map<std::string, Joint> _boneMap;
+	Joint _rootJoint;
 	SMatrix globalInverseTransform;
 
 	///functions
@@ -36,26 +38,28 @@ public:
 	~SkeletalModel();
 
 
-	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1) {
-
+	bool LoadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1, float rUVy = 1)
+	{
 		assert(fileExists(path) && "File does not exist! ...probably.");
 
 		unsigned int pFlags = aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
 			aiProcess_FlipUVs |
-			aiProcess_ConvertToLeftHanded;
+			aiProcess_ConvertToLeftHanded |
+			aiProcess_LimitBoneWeights;
 
 		// Read file via ASSIMP
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, pFlags);
 
 		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
-		globInvTrans.Inverse();
+		globInvTrans.Inverse();	//and maybe .Transpose();
 		globalInverseTransform = SMatrix(&globInvTrans.a1);	//this might not work... probably won't as intended... try with decompose and reassemble if not
 
 		// Check for errors
-		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr) {
+		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
+		{
 			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
 			OutputDebugStringA(errString.c_str());
 			return false;
@@ -64,47 +68,70 @@ public:
 		directory = path.substr(0, path.find_last_of('/'));
 		name = path.substr(path.find_last_of('/') + 1, path.size());
 
-		processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
+		processNode(dvc, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
 
+		//adds parent/child relationships
+		//relies on names to detect bones amongst other nodes (processNode already collected all bone names using loadBones)
+		//and then on map searches to find relationships between the bones
+		createSkeleton(scene->mRootNode);	
+		MakeLikeATree();
 		loadAnimations(scene);
+
 		return true;
 	}
 
 
 
-	// Processes a node in a recursive fashion. Processes each individual mesh located at the node  
-	//and repeats this process on its children nodes (if any).
-	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
+	void createSkeleton(const aiNode* node)
+	{
+		auto it = _boneMap.find(std::string(node->mName.data));
 
-		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
-		// Process each mesh located at the current node
-		for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			unsigned int ind = meshes.size();
+		if (it != _boneMap.end())
+		{
+			Joint& currentJoint = it->second;
 
-			meshes.push_back(processSkeletalMesh(device, mesh, scene, ind, concatenatedTransform, rUVx, rUVy));
+			if (node->mParent != nullptr)
+			{
+				auto it2 = _boneMap.find(std::string(node->mParent->mName.data));
+				
+				if(it2 != _boneMap.end())
+				{
+					currentJoint.parent = &(it2->second);
+					currentJoint.parent->offspring.push_back(&currentJoint);
+				}
+			}
 		}
+
+		for (unsigned int i = 0; i < node->mNumChildren; ++i)
+			this->createSkeleton(node->mChildren[i]);
+	}
+
+
+
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
+	{
+		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
+		
+		for (unsigned int i = 0; i < node->mNumMeshes; i++)
+			meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, meshes.size(), concatenatedTransform, rUVx, rUVy));
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
-		for (unsigned int i = 0; i < node->mNumChildren; i++) {
-			this->processNode(device, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
-		}
+		for (unsigned int i = 0; i < node->mNumChildren; i++)
+			this->processNode(dvc, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
+
 		return true;
 	}
 
 
 
-
-	//reads in vertices, indices and texture UVs of a mesh
-	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy) {
-
+	SkeletalMesh processSkeletalMesh(ID3D11Device* dvc, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
+	{
 		// Data to fill
 		std::vector<BonedVert3D> vertices;
 		std::vector<unsigned int> indices;
 		std::vector<Joint> joints;
 		std::vector<Texture> locTextures;
 		
-
 		bool hasTexCoords = false;
 		if (mesh->mTextureCoords[0])
 			hasTexCoords = true;
@@ -136,38 +163,29 @@ public:
 		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++)
 				indices.push_back(mesh->mFaces[i].mIndices[j]);
-
-
 		
-		if (mesh->HasBones()) {
-			std::vector<aiBone> bonesOfThisMesh;	//name, vertexWeight array (these are id + weight objects), offsetMatrix per bone
-
-
-		}
-
-
-
-
 		// Process materials
 		if (mesh->mMaterialIndex >= 0) 
 		{
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 			// 1. Diffuse maps
-			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
+			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(dvc, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 			locTextures.insert(locTextures.end(), diffuseMaps.begin(), diffuseMaps.end());
 			// 2. Specular maps
-			std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
+			std::vector<Texture> specularMaps = this->loadMaterialTextures(dvc, scene, material, aiTextureType_SPECULAR, "texture_specular");
 			locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
 
 		}
 
-		return SkeletalMesh(vertices, indices, locTextures, device, ind, joints);
+		loadBones(*mesh, vertices);
+
+		return SkeletalMesh(vertices, indices, locTextures, dvc, ind, joints);
 	}
 
 
 
-	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName) {
+	std::vector<Texture> loadMaterialTextures(ID3D11Device* dvc, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName) {
 
 		std::vector<Texture> textures;
 
@@ -190,14 +208,14 @@ public:
 			if (!skip) {   // If texture hasn't been loaded already, load it
 
 				std::string fPath = directory + "/" + std::string(str.data);
-				Texture texture(device, fPath);
+				Texture texture(dvc, fPath);
 				texture.typeName = typeName;
 
 				//texture.Bind(type);
 				bool loaded = texture.Load();
 
 				if (!loaded) {
-					loaded = this->LoadGLTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
+					loaded = this->LoadGLTextures(dvc, textures, scene, fPath, type, typeName);	//for embedded textures
 
 					if (!loaded)
 						std::cout << "Texture did not load!" << std::endl;
@@ -216,16 +234,16 @@ public:
 
 
 
-	bool LoadGLTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName) {
+	bool LoadGLTextures(ID3D11Device* dvc, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName) {
 
 		if (scene->HasTextures()) {
 
 			for (size_t ti = 0; ti < scene->mNumTextures; ti++) {
 
-				Texture texture(device, fPath);
+				Texture texture(dvc, fPath);
 				texture.typeName = typeName;
 
-				texture.LoadFromMemory(scene->mTextures[ti], device);
+				texture.LoadFromMemory(scene->mTextures[ti], dvc);
 
 				textures.push_back(texture);
 				textures_loaded.push_back(texture);
@@ -238,56 +256,71 @@ public:
 
 
 
-	//void SkeletalModel::loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts) 
-	//{
-	//	if (!aiMesh.HasBones())
-	//		return;
+	void loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts) 
+	{
+		if (!aiMesh.HasBones())
+			return;
 
-	//	int numBones = 0;
+		int numBones = 0;
 
-	//	for (unsigned int i = 0; i < aiMesh.mNumBones; i++) 
-	//	{
-	//		aiBone* bone = aiMesh.mBones[i];	//bone at index i in assimp data, NOT THE INDEX WE ARE USING!!!
-	//		int boneIndex = jointMap.size();		//index to be stored in my mesh data
-	//		
-	//		std::string boneName(bone->mName.data);
+		for (unsigned int i = 0; i < aiMesh.mNumBones; ++i) 
+		{
+			aiBone* bone = aiMesh.mBones[i];
+			int boneIndex = 0;
+			
+			std::string boneName(bone->mName.data);
 
-	//		if (jointMap.find(boneName) == jointMap.end()) {
-	//			boneIndex = numBones;
-	//			numBones++;
-	//			//Joint bi;
-	//			//m_BoneInfo.push_back(bi);
-	//		}
-	//		else {
-	//			//boneIndex = jointMap[boneName];
-	//		}
+			//connect bone data and bone ids
+			if (_boneMap.find(boneName) == _boneMap.end())
+			{
+				boneIndex = numBones;
+				Joint joint(boneIndex, boneName, SMatrix(bone->mOffsetMatrix[0]));
+				_boneMap.insert({ boneName, joint });
+				numBones++;
+			}
+			else
+			{
+				boneIndex = _boneMap[boneName].index;	
+			}
 
-	//		Joint joint(boneIndex, boneName, SMatrix(bone->mOffsetMatrix[0]));
-	//		jointMap.at(boneName) = joint;
-	//	}
-	//}
+
+			for (unsigned int j = 0; j < bone->mNumWeights; j++)
+			{
+				unsigned int vertID = bone->mWeights[j].mVertexId;
+				float weight = bone->mWeights[j].mWeight;
+				verts[vertID].AddBoneData(boneIndex, weight);
+			}
+		}
+	}
 
 
 
 	void loadAnimations(const aiScene* scene) 
 	{
-		if (scene->HasAnimations())
+		if (!scene->HasAnimations())
 			return;
 
-		for (int i = 0; i < scene->mNumAnimations; i++) 
+		for (int i = 0; i < scene->mNumAnimations; ++i) 
 		{
 			auto sceneAnimation = scene->mAnimations[i];
-			Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond);
+			int numChannels = sceneAnimation->mNumChannels;
 
-			for (int j = 0; j < sceneAnimation->mNumChannels; j++) 
+			Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
+
+			for (int j = 0; j < numChannels; ++j)
 			{
 				aiNodeAnim* channel = sceneAnimation->mChannels[j];
 
-				for (int a = 0; a < channel->mNumPositionKeys; a++) 
+				//create empty channel object, for our use not like assimp's
+				AnimChannel ac(channel->mNumPositionKeys, channel->mNumRotationKeys, channel->mNumScalingKeys);
+				ac.jointName = std::string(channel->mNodeName.C_Str());
+
+				for (int c = 0; c < channel->mNumScalingKeys; c++)
 				{
-					double time = channel->mPositionKeys[a].mTime;
-					aiVector3D chPos = channel->mPositionKeys[a].mValue;
-					SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
+					double time = channel->mScalingKeys[c].mTime;
+					aiVector3D chScale = channel->mScalingKeys[c].mValue;
+					SVec3 scale = SVec3(chScale.x, chScale.y, chScale.z);
+					ac.sclVec.emplace_back(time, scale);
 				}
 
 				for (int b = 0; b < channel->mNumRotationKeys; b++) 
@@ -295,30 +328,124 @@ public:
 					double time = channel->mRotationKeys[b].mTime;
 					aiQuaternion chRot = channel->mRotationKeys[b].mValue;
 					SQuat rot = SQuat(chRot.x, chRot.y, chRot.z, chRot.w);
+					ac.rotVec.emplace_back(time, rot);
 				}
 
-				for (int c = 0; c < channel->mNumScalingKeys; c++) 
+				for (int a = 0; a < channel->mNumPositionKeys; a++)
 				{
-					double time = channel->mScalingKeys[c].mTime;
-					aiVector3D chScale = channel->mScalingKeys[c].mValue;
-					SVec3 scale = SVec3(chScale.x, chScale.y, chScale.z);
+					double time = channel->mPositionKeys[a].mTime;
+					aiVector3D chPos = channel->mPositionKeys[a].mValue;
+					SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
+					ac.posVec.emplace_back(time, pos);
 				}
+
+				//add channel to animation
+				anim.addChannel(ac);
 			}
 
+			//store animation for later use
 			anims.push_back(anim);
 		}
 	}
 
 
 
-	void Draw(ID3D11DeviceContext* dc, Animator& shader) {
+	void MakeLikeATree()
+	{
+		for (auto njPair : _boneMap)
+		{
+			if (njPair.second.parent == nullptr)
+				_rootJoint = njPair.second;
+		}
+	}
+
+
+
+	void update(float dTime, std::vector<SMatrix>& vec, UINT animIndex = 0u)
+	{
+		for (int i = 0; i < anims.size(); ++i)
+			anims[i].update(dTime);
+
+		getTransformAtTime(anims[animIndex], _rootJoint, vec, SMatrix());
+	}
+
+
+
+	void getTransformAtTime(const Animation& anim, Joint& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix)
+	{
+		float currentTick = anim.getElapsed() / anim.getTickDuration();
+		float t = fmod(anim.getElapsed(), anim.getTickDuration());
+
+		SVec3 pos, scale;
+		SQuat quat;
+
+		AnimChannel channel;
+		bool found = anim.getAnimChannel(joint.name, channel);
+		
+		SMatrix result;
+
+		if (found)
+		{
+			for (UINT i = 0; i < channel.posVec.size() - 1; ++i)
+			{
+				if (currentTick < (float)channel.posVec[i + 1].first)
+				{
+					SVec3 posPre = channel.posVec[i].second;
+					SVec3 posPost = channel.posVec[i + 1 == channel.posVec.size() ? 0 : i + 1].second;
+					pos = Math::lerp(posPre, posPost, t);
+					break;
+				}
+			}
+
+			for (UINT i = 0; i < channel.sclVec.size() - 1; ++i)
+			{
+				if (currentTick < (float)channel.sclVec[i + 1].first)
+				{
+					SVec3 scalePre = channel.sclVec[i].second;
+					SVec3 scalePost = channel.sclVec[i + 1 == channel.sclVec.size() ? 0 : i + 1].second;
+					scale = Math::lerp(scalePre, scalePost, t);
+					break;
+				}
+			}
+
+			for (UINT i = 0; i < channel.rotVec.size() - 1; ++i)
+			{
+				if (currentTick < (float)channel.rotVec[i + 1].first)
+				{
+					SQuat rotPre = channel.rotVec[i].second;
+					SQuat rotPost = channel.rotVec[i + 1 == channel.rotVec.size() ? 0 : i + 1].second;
+					quat = SQuat::Slerp(rotPre, rotPost, t);
+					break;
+				}
+			}
+
+			SMatrix sMat = SMatrix::CreateScale(scale);
+			SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
+			SMatrix tMat = SMatrix::CreateTranslation(pos);
+			result = sMat * rMat * tMat;
+			result = result * parentMatrix;
+			vec[joint.index] = result.Transpose();	//result = result.Transpose();
+		}
+
+
+		for (Joint* child : joint.offspring)
+		{
+			getTransformAtTime(anim, *child, vec, result);
+		}
+	}
+
+
+
+	void Draw(ID3D11DeviceContext* dc, Animator& shader)
+	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
 
 private:
 
-	inline bool fileExists(const std::string& name) {
+	inline bool fileExists(const std::string& name)
+	{
 		std::ifstream f(name.c_str());
 		return f.good();
 	}
