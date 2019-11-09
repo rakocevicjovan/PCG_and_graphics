@@ -15,7 +15,8 @@ namespace SkelAnim
 		t.SetUp(device);
 		floorModel = Model(t, device);
 
-		sm.LoadModel(device, "../Models/Animated/Kachujin_walking/Walking.fbx");
+		sm.loadModel(device, "../Models/Animated/Kachujin_walking/Walking.fbx");
+		//sm.loadModel(device, "../Models/Animated/Bob/boblampclean.md5mesh");
 
 		for (int i = 0; i < MAX_BONES; i++)
 		{

@@ -19,15 +19,18 @@ struct Vert3D
 
 struct VertBoneData 
 {
-	unsigned int ids[4] = { 0, 0, 0, 0 };
+	UINT ids[4] = { 0, 0, 0, 0 };
 	float weights[4] = { 0, 0, 0, 0 };
 };
 
 
 
 //@TODO jointInfluences might need changing... should see how this works first...
-struct BonedVert3D : Vert3D 
+struct BonedVert3D
 {
+	SVec3 pos;
+	SVec2 texCoords;
+	SVec3 normal;
 	VertBoneData boneData;
 
 	void BonedVert3D::AddBoneData(unsigned int boneID, float weight)
@@ -55,7 +58,7 @@ public:
 
 	int index;
 	std::string name;
-	SMatrix localTransform, globalTransform;
+	SMatrix meshToLocalBoneSpaceTransform, aiNodeTransform, globalTransform;
 	Joint* parent = nullptr;
 	std::vector<Joint*> offspring;
 
@@ -65,7 +68,7 @@ public:
 	{
 		this->index = index;
 		this->name = name;
-		this->localTransform = offset;
+		this->meshToLocalBoneSpaceTransform = offset;
 
 		parent = nullptr;
 	}

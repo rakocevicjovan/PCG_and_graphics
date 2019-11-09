@@ -83,7 +83,7 @@ bool Animator::InitializeShader(ID3D11Device* device, HWND hwnd)
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BONE_ID" , 0, DXGI_FORMAT_R8G8B8A8_UINT,			0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BONE_ID" , 0, DXGI_FORMAT_R32G32B32A32_UINT,		0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BONE_W"  , 0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
@@ -300,8 +300,8 @@ bool Animator::SetShaderParameters(ID3D11DeviceContext* deviceContext, SkeletalM
 	if (FAILED(result))
 		return false;
 	dataPtr4 = (BoneTransformBufferType*)mappedResource.pData;
-	//dataPtr4->boneTransforms = boneTransformsIn;
-	memcpy(mappedResource.pData, boneTransformsIn.data(), boneTransformsIn.size() * sizeof(SMatrix));
+	size_t toCopyLength = boneTransformsIn.size() * sizeof(SMatrix);
+	memcpy(mappedResource.pData, boneTransformsIn.data(), toCopyLength);
 	deviceContext->Unmap(m_bonesBuffer, 0);
 	bufferNumber = 2;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_bonesBuffer);

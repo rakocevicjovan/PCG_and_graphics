@@ -34,8 +34,7 @@ public:
 		std::vector<unsigned int> indices, 
 		std::vector<Texture> textures, 
 		ID3D11Device* dvc, 
-		unsigned int ind, 
-		std::vector<Joint> joints) : vertices(vertices), indices(indices), textures(textures), joints(joints)
+		unsigned int ind) : vertices(vertices), indices(indices), textures(textures)
 	{
 		_vertexBuffer = 0;
 		_indexBuffer = 0;

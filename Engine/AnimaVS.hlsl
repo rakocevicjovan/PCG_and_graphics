@@ -45,17 +45,11 @@ PixelInputType main(VertexInputType input)
 
 	float4x4 boneTransform;
 	
-	boneTransform   = boneTransforms[input.boneIDs[0]] * input.boneWs[0];
-	boneTransform  += boneTransforms[input.boneIDs[1]] * input.boneWs[1];
-	boneTransform  += boneTransforms[input.boneIDs[2]] * input.boneWs[2];
-	boneTransform  += boneTransforms[input.boneIDs[3]] * input.boneWs[3];
+	boneTransform   = boneTransforms[input.boneIDs.x] * input.boneWs.x;
+	boneTransform  += boneTransforms[input.boneIDs.y] * input.boneWs.y;
+	boneTransform  += boneTransforms[input.boneIDs.z] * input.boneWs.z;
+	boneTransform  += boneTransforms[input.boneIDs.w] * input.boneWs.w;
 	
-	/*
-	boneTransform =  mul(boneTransforms[input.boneIDs[0]], input.boneWs[0]);
-	boneTransform += mul(boneTransforms[input.boneIDs[1]], input.boneWs[1]);
-	boneTransform += mul(boneTransforms[input.boneIDs[2]], input.boneWs[2]);
-	boneTransform += mul(boneTransforms[input.boneIDs[3]], input.boneWs[3]);
-	*/
 
 	float4 wat = mul(input.position, boneTransform);
 	output.worldPos = mul(wat, worldMatrix);

@@ -11,7 +11,7 @@
 
 LevelManager::LevelManager(Systems& systems)
 {
-	current = new SkelAnim::SkelAnimTestLevel(systems);
+	current = new Strife::StrifeLevel(systems);	//new SkelAnim::SkelAnimTestLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
 

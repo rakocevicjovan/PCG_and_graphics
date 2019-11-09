@@ -5,13 +5,14 @@
 #include "CollisionEngine.h"
 #include "Camera.h"
 
+
+//template <typename FlexibleShaderType>
 class GraphicComponent
 {
 public:
 	GraphicComponent() {};
 	
-	template <typename FlexibleShaderType>
-	GraphicComponent(Model* m, FlexibleShaderType* s) : model(m), shader(s) {}
+	GraphicComponent(Model* m, ShaderLight* s) : model(m), shader(s) {}
 
 	Model* model;
 	ShaderLight* shader;

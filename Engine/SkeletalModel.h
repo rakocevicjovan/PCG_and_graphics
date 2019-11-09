@@ -31,14 +31,14 @@ public:
 	std::vector<Animation> anims;
 	std::map<std::string, Joint> _boneMap;
 	Joint _rootJoint;
-	SMatrix globalInverseTransform;
+	SMatrix _globalInverseTransform;
 
 	///functions
 	SkeletalModel();
 	~SkeletalModel();
 
 
-	bool LoadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1, float rUVy = 1)
+	bool loadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1, float rUVy = 1)
 	{
 		assert(fileExists(path) && "File does not exist! ...probably.");
 
@@ -54,8 +54,8 @@ public:
 		const aiScene* scene = importer.ReadFile(path, pFlags);
 
 		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
-		globInvTrans.Inverse();	//and maybe .Transpose();
-		globalInverseTransform = SMatrix(&globInvTrans.a1);	//this might not work... probably won't as intended... try with decompose and reassemble if not
+		_globalInverseTransform = SMatrix(&globInvTrans.a1);
+		_globalInverseTransform = _globalInverseTransform.Transpose().Invert();
 
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
@@ -68,31 +68,38 @@ public:
 		directory = path.substr(0, path.find_last_of('/'));
 		name = path.substr(path.find_last_of('/') + 1, path.size());
 
-		processNode(dvc, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
+		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);	/*scene->mRootNode->mTransformation*/
 
 		//adds parent/child relationships
 		//relies on names to detect bones amongst other nodes (processNode already collected all bone names using loadBones)
 		//and then on map searches to find relationships between the bones
-		createSkeleton(scene->mRootNode);	
+		linkSkeletonTree(scene->mRootNode);	
 		MakeLikeATree();
 		loadAnimations(scene);
+
+		//auto it = std::find_if(_boneMap.begin(), _boneMap.end(), [](const std::pair<std::string, Joint>& njPair) { return njPair.second.index == 10; });
+		//Joint foundJoint = it->second;
 
 		return true;
 	}
 
 
 
-	void createSkeleton(const aiNode* node)
+	void linkSkeletonTree(const aiNode* node)
 	{
 		auto it = _boneMap.find(std::string(node->mName.data));
 
+		//if is a bone
 		if (it != _boneMap.end())
 		{
 			Joint& currentJoint = it->second;
+			currentJoint.aiNodeTransform = (SMatrix(&node->mTransformation.a1).Transpose());
 
 			if (node->mParent != nullptr)
 			{
 				auto it2 = _boneMap.find(std::string(node->mParent->mName.data));
+
+				//currentJoint.aiNodeTransform *= (SMatrix(&node->mParent->mTransformation.a1).Transpose());
 				
 				if(it2 != _boneMap.end())
 				{
@@ -103,33 +110,32 @@ public:
 		}
 
 		for (unsigned int i = 0; i < node->mNumChildren; ++i)
-			this->createSkeleton(node->mChildren[i]);
+			this->linkSkeletonTree(node->mChildren[i]);
 	}
 
 
 
-	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy)	//aiMatrix4x4 parentTransform, 
 	{
-		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
+		//aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-			meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, meshes.size(), concatenatedTransform, rUVx, rUVy));
+			meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, meshes.size(), rUVx, rUVy)); /*concatenatedTransform*/
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
-			this->processNode(dvc, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
+			this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy);
 
 		return true;
 	}
 
 
 
-	SkeletalMesh processSkeletalMesh(ID3D11Device* dvc, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
+	SkeletalMesh processSkeletalMesh(ID3D11Device* dvc, aiMesh *mesh, const aiScene *scene, unsigned int ind/*, aiMatrix4x4 parentTransform*/, float rUVx, float rUVy)
 	{
 		// Data to fill
 		std::vector<BonedVert3D> vertices;
 		std::vector<unsigned int> indices;
-		std::vector<Joint> joints;
 		std::vector<Texture> locTextures;
 		
 		bool hasTexCoords = false;
@@ -139,12 +145,6 @@ public:
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++) 
 		{
 			BonedVert3D vertex;
-
-			//might have to transform these like so later... not sure
-			//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-			//vertex.pos = SVec3(temp.x, temp.y, temp.z);
-			//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-			//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
 
 			//position, normal and texture coordinate data of each vertex
 			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
@@ -177,35 +177,37 @@ public:
 			locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
 
 		}
-
 		loadBones(*mesh, vertices);
 
-		return SkeletalMesh(vertices, indices, locTextures, dvc, ind, joints);
+		return SkeletalMesh(vertices, indices, locTextures, dvc, ind);
 	}
 
 
 
-	std::vector<Texture> loadMaterialTextures(ID3D11Device* dvc, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName) {
-
+	std::vector<Texture> loadMaterialTextures(ID3D11Device* dvc, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
+	{
 		std::vector<Texture> textures;
 
-		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
-
+		for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+		{
 			aiString str;
 			boolean skip = false;
 
 			mat->GetTexture(type, i, &str);
 
 			// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture			
-			for (unsigned int j = 0; j < textures_loaded.size(); j++) {
-				if (aiString(textures_loaded[j].fileName) == str) {
+			for (unsigned int j = 0; j < textures_loaded.size(); j++)
+			{
+				if (aiString(textures_loaded[j].fileName) == str)
+				{
 					textures.push_back(textures_loaded[j]);
 					skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
 					break;
 				}
 			}
 
-			if (!skip) {   // If texture hasn't been loaded already, load it
+			if (!skip)
+			{   // If texture hasn't been loaded already, load it
 
 				std::string fPath = directory + "/" + std::string(str.data);
 				Texture texture(dvc, fPath);
@@ -214,7 +216,8 @@ public:
 				//texture.Bind(type);
 				bool loaded = texture.Load();
 
-				if (!loaded) {
+				if (!loaded)
+				{
 					loaded = this->LoadGLTextures(dvc, textures, scene, fPath, type, typeName);	//for embedded textures
 
 					if (!loaded)
@@ -234,11 +237,12 @@ public:
 
 
 
-	bool LoadGLTextures(ID3D11Device* dvc, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName) {
-
-		if (scene->HasTextures()) {
-
-			for (size_t ti = 0; ti < scene->mNumTextures; ti++) {
+	bool LoadGLTextures(ID3D11Device* dvc, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
+	{
+		if (scene->HasTextures())
+		{
+			for (size_t ti = 0; ti < scene->mNumTextures; ti++)
+			{
 
 				Texture texture(dvc, fPath);
 				texture.typeName = typeName;
@@ -266,15 +270,19 @@ public:
 		for (unsigned int i = 0; i < aiMesh.mNumBones; ++i) 
 		{
 			aiBone* bone = aiMesh.mBones[i];
-			int boneIndex = 0;
+			int boneIndex;
 			
 			std::string boneName(bone->mName.data);
 
-			//connect bone data and bone ids
+			//connect bone data and bone ids, if not found then add a new one, if found adjust its index
 			if (_boneMap.find(boneName) == _boneMap.end())
 			{
 				boneIndex = numBones;
-				Joint joint(boneIndex, boneName, SMatrix(bone->mOffsetMatrix[0]));
+
+				SMatrix jointOffsetMat(&bone->mOffsetMatrix.a1);
+				jointOffsetMat = jointOffsetMat.Transpose();
+				
+				Joint joint(boneIndex, boneName, jointOffsetMat);
 				_boneMap.insert({ boneName, joint });
 				numBones++;
 			}
@@ -284,7 +292,8 @@ public:
 			}
 
 
-			for (unsigned int j = 0; j < bone->mNumWeights; j++)
+			//Load bone data (four bone indices, each weighted) into vertices, this works.
+			for (unsigned int j = 0; j < bone->mNumWeights; ++j)
 			{
 				unsigned int vertID = bone->mWeights[j].mVertexId;
 				float weight = bone->mWeights[j].mWeight;
@@ -357,6 +366,20 @@ public:
 			if (njPair.second.parent == nullptr)
 				_rootJoint = njPair.second;
 		}
+
+		CalcGlobalTransforms(_rootJoint, SMatrix::Identity);
+	}
+
+
+
+	void CalcGlobalTransforms(Joint& j, const SMatrix& parentMat)
+	{
+		j.globalTransform = j.aiNodeTransform * parentMat;
+
+		for (Joint* cj : j.offspring)
+		{
+			CalcGlobalTransforms(*cj, j.globalTransform);
+		}
 	}
 
 
@@ -366,7 +389,7 @@ public:
 		for (int i = 0; i < anims.size(); ++i)
 			anims[i].update(dTime);
 
-		getTransformAtTime(anims[animIndex], _rootJoint, vec, SMatrix());
+		getTransformAtTime(anims[animIndex], _rootJoint, vec, SMatrix::Identity);
 	}
 
 
@@ -382,7 +405,10 @@ public:
 		AnimChannel channel;
 		bool found = anim.getAnimChannel(joint.name, channel);
 		
-		SMatrix result;
+		//matrix that is created according to animation data and current time using interpolation, if no data use default
+		SMatrix animationMatrix = joint.globalTransform;		
+
+		//MATRIX j.aiNodeTransform IS NOT ABSOLUTE TO MESH ROOT, UNLIKE BONE OFFSETS!!! THESE MUST BE CHAINED INTO globalTransform
 
 		if (found)
 		{
@@ -422,15 +448,29 @@ public:
 			SMatrix sMat = SMatrix::CreateScale(scale);
 			SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
 			SMatrix tMat = SMatrix::CreateTranslation(pos);
-			result = sMat * rMat * tMat;
-			result = result * parentMatrix;
-			vec[joint.index] = result.Transpose();	//result = result.Transpose();
+
+			animationMatrix = sMat * rMat * tMat;
 		}
 
+		SMatrix nodeTransform;
+		
+		if(found)
+			nodeTransform = animationMatrix * joint.aiNodeTransform * parentMatrix;
+		else
+			nodeTransform = animationMatrix * parentMatrix;
+
+		SMatrix finalMatrix = 
+			joint.meshToLocalBoneSpaceTransform //go from mesh space to bone space
+			* nodeTransform						//animate (or default bind if none), then go to parent space (as in, attach the bone to the parent
+			* _globalInverseTransform			//move the entire mesh to origin
+			;
+
+		vec[joint.index] = finalMatrix.Transpose();	//transpose because the shader is column major, nothing to do with the animation process
+		
 
 		for (Joint* child : joint.offspring)
 		{
-			getTransformAtTime(anim, *child, vec, result);
+			getTransformAtTime(anim, *child, vec, nodeTransform);
 		}
 	}
 
