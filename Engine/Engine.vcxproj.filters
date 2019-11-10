@@ -64,6 +64,27 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{30545b6b-263a-437f-a810-47a6a9253992}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Levels\Mechanisms">
+      <UniqueIdentifier>{bd1dae54-c01d-40cc-8734-1fc21163dc44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented">
+      <UniqueIdentifier>{ed470756-f1fa-46fd-bbd1-4263d24057bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented\Air">
+      <UniqueIdentifier>{f4e8c8f2-39b6-472c-ad78-802d67ec4c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented\Earth">
+      <UniqueIdentifier>{06b06c8e-a6f3-40c0-99a9-59da9586da86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented\Fire">
+      <UniqueIdentifier>{12476446-bd60-4e81-aa57-428a9d103ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented\SKTest">
+      <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented\Water">
+      <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -162,38 +183,8 @@
     <ClCompile Include="ShaderMaze.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Level.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="FireLevel.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="WaterLevel.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="AirLevel.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="EarthLevel.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="LevelManager.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
       <Filter>Shader Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Hexer.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="Lillies.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
-    <ClCompile Include="Dragon.cpp">
-      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
       <Filter>Shader Classes</Filter>
@@ -255,9 +246,6 @@
     <ClCompile Include="Animator.cpp">
       <Filter>SkelAnim</Filter>
     </ClCompile>
-    <ClCompile Include="TestLevel.cpp">
-      <Filter>Levels</Filter>
-    </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>AssetLoaders</Filter>
     </ClCompile>
@@ -308,6 +296,39 @@
     </ClCompile>
     <ClCompile Include="MeshDataStructs.h">
       <Filter>AssetLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="AirLevel.cpp">
+      <Filter>Levels\Implemented\Air</Filter>
+    </ClCompile>
+    <ClCompile Include="Dragon.cpp">
+      <Filter>Levels\Implemented\Air</Filter>
+    </ClCompile>
+    <ClCompile Include="EarthLevel.cpp">
+      <Filter>Levels\Implemented\Earth</Filter>
+    </ClCompile>
+    <ClCompile Include="Hexer.cpp">
+      <Filter>Levels\Implemented\Fire</Filter>
+    </ClCompile>
+    <ClCompile Include="FireLevel.cpp">
+      <Filter>Levels\Implemented\Fire</Filter>
+    </ClCompile>
+    <ClCompile Include="Lillies.cpp">
+      <Filter>Levels\Implemented\Water</Filter>
+    </ClCompile>
+    <ClCompile Include="WaterLevel.cpp">
+      <Filter>Levels\Implemented\Water</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Levels\Mechanisms</Filter>
+    </ClCompile>
+    <ClCompile Include="Level.cpp">
+      <Filter>Levels\Mechanisms</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelManager.cpp">
+      <Filter>Levels\Mechanisms</Filter>
+    </ClCompile>
+    <ClCompile Include="TestLevel.cpp">
+      <Filter>Levels\Implemented\SKTest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -410,38 +431,8 @@
     <ClInclude Include="ShaderMaze.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Level.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="FireLevel.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="WaterLevel.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="AirLevel.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="EarthLevel.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="LevelManager.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderClipper.h">
       <Filter>Shader Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Hexer.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="Lillies.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
-    <ClInclude Include="Dragon.h">
-      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
       <Filter>Shader Classes</Filter>
@@ -512,9 +503,6 @@
     <ClInclude Include="ProjectLoader.h">
       <Filter>AssetLoaders</Filter>
     </ClInclude>
-    <ClInclude Include="TestLevel.h">
-      <Filter>Levels</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>SkelAnim</Filter>
     </ClInclude>
@@ -574,6 +562,39 @@
     </ClInclude>
     <ClInclude Include="BitMapper.h">
       <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="AirLevel.h">
+      <Filter>Levels\Implemented\Air</Filter>
+    </ClInclude>
+    <ClInclude Include="Dragon.h">
+      <Filter>Levels\Implemented\Air</Filter>
+    </ClInclude>
+    <ClInclude Include="EarthLevel.h">
+      <Filter>Levels\Implemented\Earth</Filter>
+    </ClInclude>
+    <ClInclude Include="Hexer.h">
+      <Filter>Levels\Implemented\Fire</Filter>
+    </ClInclude>
+    <ClInclude Include="FireLevel.h">
+      <Filter>Levels\Implemented\Fire</Filter>
+    </ClInclude>
+    <ClInclude Include="Lillies.h">
+      <Filter>Levels\Implemented\Water</Filter>
+    </ClInclude>
+    <ClInclude Include="WaterLevel.h">
+      <Filter>Levels\Implemented\Water</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Levels\Mechanisms</Filter>
+    </ClInclude>
+    <ClInclude Include="Level.h">
+      <Filter>Levels\Mechanisms</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelManager.h">
+      <Filter>Levels\Mechanisms</Filter>
+    </ClInclude>
+    <ClInclude Include="TestLevel.h">
+      <Filter>Levels\Implemented\SKTest</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
