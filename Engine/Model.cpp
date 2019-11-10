@@ -94,7 +94,6 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 	faceTangents.reserve(mesh->mNumFaces);
 	indices.reserve(mesh->mNumFaces * 3);
 
-
 	bool hasTexCoords = false;
 
 	///THIS COULD BE AN ERROR! WATCH OUT!

@@ -16,9 +16,6 @@
     <Filter Include="Procedural">
       <UniqueIdentifier>{da188881-b302-4db2-9786-b8e11ead4641}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game">
-      <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shader Files\Volumetric">
       <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
     </Filter>
@@ -58,8 +55,14 @@
     <Filter Include="Shader Classes">
       <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Loaders">
+    <Filter Include="AssetLoaders">
       <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels">
+      <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{30545b6b-263a-437f-a810-47a6a9253992}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,20 +72,8 @@
     <ClCompile Include="Math.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Systems.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshDataStructs.h">
-      <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Source Files</Filter>
@@ -90,31 +81,7 @@
     <ClCompile Include="InputManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OST.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Rekt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CubeMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BitMapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameClock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Celestials.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Animator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SkeletalModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Perlin.cpp">
@@ -131,9 +98,6 @@
     </ClCompile>
     <ClCompile Include="Voronoi.cpp">
       <Filter>Procedural</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCM.cpp">
       <Filter>Shader Classes</Filter>
@@ -162,9 +126,6 @@
     <ClCompile Include="ShaderWireframe.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderBase.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
@@ -192,17 +153,8 @@
     <ClCompile Include="Geometry.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderVolumetric.cpp">
       <Filter>Shader Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Maze.cpp">
       <Filter>Procedural</Filter>
@@ -210,44 +162,38 @@
     <ClCompile Include="ShaderMaze.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Level.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="FireLevel.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="WaterLevel.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="AirLevel.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="EarthLevel.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="LevelManager.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
       <Filter>Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="Hexer.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="Lillies.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="Dragon.cpp">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
       <Filter>Shader Classes</Filter>
@@ -282,9 +228,6 @@
     <ClCompile Include="StrifeLevel.cpp">
       <Filter>Strife</Filter>
     </ClCompile>
-    <ClCompile Include="TestLevel.cpp">
-      <Filter>SkelAnim</Filter>
-    </ClCompile>
     <ClCompile Include="CollisionEngine.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
@@ -301,35 +244,77 @@
       <Filter>SceneGraph</Filter>
     </ClCompile>
     <ClCompile Include="AssetLoader.cpp">
-      <Filter>Loaders</Filter>
+      <Filter>AssetLoaders</Filter>
     </ClCompile>
     <ClCompile Include="ProjectLoader.cpp">
-      <Filter>Loaders</Filter>
+      <Filter>AssetLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>SkelAnim</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>SkelAnim</Filter>
+    </ClCompile>
+    <ClCompile Include="TestLevel.cpp">
+      <Filter>Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>AssetLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>AssetLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="BitMapper.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="OST.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Rekt.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>AssetLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalModel.cpp">
+      <Filter>SkelAnim</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>AssetLoaders</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeMapper.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Celestials.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshDataStructs.h">
+      <Filter>AssetLoaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Systems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="modelclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Controller.h">
@@ -338,34 +323,7 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OST.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rekt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CubeMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BitMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameClock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Celestials.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Animator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SkeletalModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SkeletalMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Perlin.h">
@@ -382,9 +340,6 @@
     </ClInclude>
     <ClInclude Include="Voronoi.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderShadow.h">
       <Filter>Shader Classes</Filter>
@@ -416,12 +371,6 @@
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderBase.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
@@ -449,9 +398,6 @@
     <ClInclude Include="Geometry.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
@@ -464,44 +410,38 @@
     <ClInclude Include="ShaderMaze.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Level.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="FireLevel.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="WaterLevel.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="AirLevel.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="EarthLevel.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="LevelManager.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
       <Filter>Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="Hexer.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="Lillies.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="Dragon.h">
-      <Filter>Game</Filter>
+      <Filter>Levels</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
       <Filter>Shader Classes</Filter>
@@ -548,9 +488,6 @@
     <ClInclude Include="ShaderUtils.h">
       <Filter>Strife</Filter>
     </ClInclude>
-    <ClInclude Include="TestLevel.h">
-      <Filter>SkelAnim</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionEngine.h">
       <Filter>Collision</Filter>
     </ClInclude>
@@ -570,10 +507,73 @@
       <Filter>SceneGraph</Filter>
     </ClInclude>
     <ClInclude Include="AssetLoader.h">
-      <Filter>Loaders</Filter>
+      <Filter>AssetLoaders</Filter>
     </ClInclude>
     <ClInclude Include="ProjectLoader.h">
-      <Filter>Loaders</Filter>
+      <Filter>AssetLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="TestLevel.h">
+      <Filter>Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalMesh.h">
+      <Filter>SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalModel.h">
+      <Filter>SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>AssetLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>AssetLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>AssetLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>AssetLoaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMapper.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Celestials.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Rekt.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleBase.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="OST.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="D3D.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="BitMapper.h">
+      <Filter>Procedural</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

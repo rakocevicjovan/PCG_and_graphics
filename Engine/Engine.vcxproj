@@ -231,7 +231,6 @@
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
-    <ClInclude Include="modelclass.h" />
     <ClInclude Include="OST.h" />
     <ClInclude Include="Rekt.h" />
     <ClInclude Include="Renderer.h" />
