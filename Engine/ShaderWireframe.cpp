@@ -251,7 +251,7 @@ bool WireframeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 
 bool WireframeShader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext) {
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
-	deviceContext->GSSetShader(NULL, NULL, 1);
+	deviceContext->GSSetShader(NULL, 0, 0);
 	return true;
 }
 

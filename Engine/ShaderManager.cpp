@@ -32,17 +32,21 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 		//,{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	animator.Initialize(_device, hwnd, { L"AnimaVS.hlsl", L"AnimaPS.hlsl" });
-	//base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
-	light.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
-	/*clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
+	
+	/*base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+	clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
 	water.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
-	wireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
 	depth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
 	texProjector.Initialize(_device, hwnd, { L"projectTex.vs", L"projectTex.ps" });
 	shadow.Initialize(_device, hwnd, { L"shadowvs.hlsl", L"shadowps.hlsl" });
-	cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
-	skyboxShader.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });*/
+	*/
+
+	wireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
+
+	animator.Initialize(_device, hwnd, { L"AnimaVS.hlsl", L"AnimaPS.hlsl" });
+	light.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+	//cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
+	skyboxShader.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
 	strife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
 
 	//ui and post processing

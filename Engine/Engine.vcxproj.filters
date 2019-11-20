@@ -85,6 +85,9 @@
     <Filter Include="Levels\Implemented\Water">
       <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Levels\Implemented\TowerDefense">
+      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -329,6 +332,9 @@
     </ClCompile>
     <ClCompile Include="TestLevel.cpp">
       <Filter>Levels\Implemented\SKTest</Filter>
+    </ClCompile>
+    <ClCompile Include="TDLevel.cpp">
+      <Filter>Levels\Implemented\TowerDefense</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -595,6 +601,12 @@
     </ClInclude>
     <ClInclude Include="TestLevel.h">
       <Filter>Levels\Implemented\SKTest</Filter>
+    </ClInclude>
+    <ClInclude Include="TDLevel.h">
+      <Filter>Levels\Implemented\TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

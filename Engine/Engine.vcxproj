@@ -163,6 +163,7 @@
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="StrifeLevel.cpp" />
     <ClCompile Include="Systems.cpp" />
+    <ClCompile Include="TDLevel.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainShader.cpp" />
     <ClCompile Include="TestLevel.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="ParticleBase.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Perlin.h" />
@@ -253,6 +255,7 @@
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="StrifeLevel.h" />
     <ClInclude Include="Systems.h" />
+    <ClInclude Include="TDLevel.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainShader.h" />
     <ClInclude Include="TestLevel.h" />

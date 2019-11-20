@@ -1,9 +1,13 @@
 #pragma once
 #include "Texture.h"
+#include "ShaderManager.h"
+
 
 class Material
 {
 public:
+
+	int id = 0;
 
 	Texture* diffuse;
 	Texture* normalMap;

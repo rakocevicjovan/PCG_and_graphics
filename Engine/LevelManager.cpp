@@ -6,12 +6,13 @@
 #include "AirLevel.h"
 #include "StrifeLevel.h"
 #include "TestLevel.h"
+#include "TDLevel.h"
 
 
 
 LevelManager::LevelManager(Systems& systems)
 {
-	current = new Strife::StrifeLevel(systems);	//new SkelAnim::SkelAnimTestLevel(systems);
+	current = new TDLevel(systems);	
 	current->init(systems);
 	_levels.push_back(current);
 

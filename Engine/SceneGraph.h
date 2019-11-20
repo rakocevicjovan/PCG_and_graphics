@@ -1,17 +1,23 @@
 #pragma once
 #include "GameObject.h"
+#include <vector>
+
+class NodeBase
+{
+public:
+	NodeBase* parent;
+	std::vector<NodeBase*> children;
+};
 
 
 
-template <typename Content>
-class Node
+template<class Content>
+class Node : public NodeBase
 {
 public:
 	Content content;
-	Node* parent;
-	Node* children[];
 
-	Node(Content c)
+	Node(Content c)//: content (c)
 	{
 		content = c;
 	}
@@ -22,17 +28,43 @@ public:
 class SceneGraph
 {
 private:
-	Node<GameObject> _rootNode;
+	NodeBase _rootNode;
 
 public:
 
-	template <typename GraphItem>
-	void insert(GraphItem graphItem)
+	SceneGraph()
 	{
-		Node newNode(graphItem);
-		newNode.parent = _rootNode;
 	}
 
-	void sortByViewDepth();
+	
+
+	template <typename GraphItem>
+	NodeBase* insert(GraphItem graphItem)
+	{
+		//create the node on the heap
+		Node<GraphItem>* newNode = new Node<GraphItem>(graphItem);	//don't do this, make node OR object own this...
+
+		//attach node to the parent, and parent to the node
+		newNode->parent = &_rootNode;
+		_rootNode.children.push_back(newNode);
+
+		//return the created node pointer so that the creating item can be aware of it's node
+		return newNode;
+	}
+
+
+
+	void erase(NodeBase* pNodeBase)
+	{
+		pNodeBase->parent->children.erase(remove(pNodeBase->parent->children.begin(), pNodeBase->parent->children.end(), pNodeBase), pNodeBase->parent->children.end());
+		
+		for (auto c : pNodeBase->children)
+			erase(c);
+
+		delete pNodeBase;
+	}
+
+
+
 	void clear();
 };

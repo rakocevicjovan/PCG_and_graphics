@@ -1,7 +1,7 @@
 #include "Collider.h"
 
 
-
+//lmao just use templates fuck this, what was I thinking
 HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector)
 {
 	HitResult hitRes;
@@ -46,13 +46,13 @@ HitResult Collider::AABBSphereIntersection(const AABB& b, const SphereHull& s)
 	HitResult hr;
 	SVec3 closestPointOnAABB;
 
-	float sqdToClosestPoint = ClosestPointOnAABB(s.c, b, closestPointOnAABB);
-	float sqpenetrationDepth = sq(s.r) - sqdToClosestPoint;
+	float sqdToClosestPoint = ClosestPointOnAABB(s.ctr, b, closestPointOnAABB);
+	float sqPenetrationDepth = sq(s.r) - sqdToClosestPoint;
 
-	hr.hit = sqpenetrationDepth > 0;
-	hr.sqPenetrationDepth = hr.hit ? sqpenetrationDepth : 0.f;
+	hr.hit = sqPenetrationDepth > 0;
+	hr.sqPenetrationDepth = hr.hit ? sqPenetrationDepth : 0.f;
 
-	SVec3 resVec = s.c - closestPointOnAABB;	//if sphere is in the object this will be 0...
+	SVec3 resVec = s.ctr - closestPointOnAABB;	//if sphere is in the object this will be 0...
 
 	if (resVec.LengthSquared() < 0.0001f)
 		hr.resolutionVector = Math::getNormalizedVec3(closestPointOnAABB - b.getPosition());
@@ -66,8 +66,8 @@ HitResult Collider::AABBSphereIntersection(const AABB& b, const SphereHull& s)
 
 HitResult Collider::SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
 {
-	float distSquared = SVec3::DistanceSquared(s1.c, s2.c);
-	return HitResult(distSquared < sq(s1.r + s2.r), s1.c - s2.c, distSquared);
+	float distSquared = SVec3::DistanceSquared(s1.ctr, s2.ctr);
+	return HitResult(distSquared < sq(s1.r + s2.r), s1.ctr - s2.ctr, distSquared);
 }
 
 

@@ -178,7 +178,7 @@ void CollisionEngine::registerController(Controller& controller)
 HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform, SVec3& velocity)
 {
 	SphereHull playerHull;
-	playerHull.c = playerTransform.Translation();
+	playerHull.ctr = playerTransform.Translation();
 	playerHull.r = 5.f;
 
 	CellKey ck(playerTransform.Translation(), grid.invCellSize), adjCK;
@@ -285,7 +285,7 @@ Hull* CollisionEngine::genSphereHull(Mesh* mesh, const SMatrix& transform, Colli
 	radius = sqrt(radius);
 
 	SphereHull* sh = new SphereHull;
-	sh->c = center;
+	sh->ctr = center;
 	sh->r = radius;
 
 	return sh;

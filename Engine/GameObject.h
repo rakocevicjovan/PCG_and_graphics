@@ -6,7 +6,8 @@
 #include "Camera.h"
 
 
-//template <typename FlexibleShaderType>
+//template <typename FlexibleShaderType>	not sure how to do this really... as then actor has to be templated as well
+//which seems ugly... or store a base pointer in there? seems there needs to be inheritance somewhere regardless with this approach
 class GraphicComponent
 {
 public:

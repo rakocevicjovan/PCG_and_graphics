@@ -14,9 +14,11 @@
 
 class Model;
 
-class WireframeShader{
+class WireframeShader
+{
 
-	struct MatrixBufferType {
+	struct MatrixBufferType
+	{
 		SMatrix world;
 		SMatrix view;
 		SMatrix projection;
@@ -40,9 +42,10 @@ public:
 	ID3D11InputLayout* m_layout;
 	ID3D11Buffer* m_matrixBuffer;
 
-private:
+public:
 	ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 	std::vector<std::wstring> filePaths;
 
 	RenderFormat renderFormat;
+	unsigned int texturesAdded = 0;
 };
