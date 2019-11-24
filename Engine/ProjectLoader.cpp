@@ -1,16 +1,40 @@
 #include "ProjectLoader.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include <fstream>
+#include <sstream>
 
 
-
-ProjectLoader::ProjectLoader(const std::string& projConfPath)
+ProjectLoader::ProjectLoader()
 {
-	_projConfPath = projConfPath;
-	//load a bunch of variables relevant to the project, from the json
+	
 }
 
 
 
-std::string ProjectLoader::getProjConfpath()
+bool ProjectLoader::loadConfig(const std::string&& projConfPath)
 {
-	return _projConfPath;
+	_projConfPath = projConfPath;
+	rapidjson::Document projConfDoc;
+
+	std::ifstream t(_projConfPath);
+	std::stringstream buffer;
+	buffer << t.rdbuf();
+
+	projConfDoc.Parse(buffer.str().c_str());
+
+	//load a bunch of variables relevant to the current project from the json file
+	if (projConfDoc.IsObject())
+	{
+		_pc.id			 = projConfDoc.FindMember("id")->value.GetInt();
+		_pc._projectName = projConfDoc.FindMember("name")->value.GetString();
+		_pc._description = projConfDoc.FindMember("description")->value.GetString();
+		_pc._projectPath = projConfDoc.FindMember("folderPath")->value.GetString();
+		_pc._createdAt	 = projConfDoc.FindMember("createdAt")->value.GetString();
+		_pc._updatedAt	 = projConfDoc.FindMember("updatedAt")->value.GetString();
+		return true;
+	}
+	
+	return false; //streams release on exit regardless
 }

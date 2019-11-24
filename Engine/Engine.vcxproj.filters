@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Shader Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -88,34 +80,17 @@
     <Filter Include="Levels\Implemented\TowerDefense">
       <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Other">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Math.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Systems.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameClock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Perlin.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
       <Filter>Procedural</Filter>
-    </ClCompile>
-    <ClCompile Include="Chaos.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LSystem.cpp">
       <Filter>Procedural</Filter>
@@ -164,9 +139,6 @@
     </ClCompile>
     <ClCompile Include="Volumetric.cpp">
       <Filter>Procedural</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TerrainShader.cpp">
       <Filter>Shader Classes</Filter>
@@ -336,28 +308,52 @@
     <ClCompile Include="TDLevel.cpp">
       <Filter>Levels\Implemented\TowerDefense</Filter>
     </ClCompile>
+    <ClCompile Include="Audio.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Chaos.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="GameClock.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
+    <ClCompile Include="Systems.cpp">
+      <Filter>Other</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="Systems.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="Controller.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="GameClock.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="Perlin.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="Chaos.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Procedural</Filter>
@@ -414,7 +410,7 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="Audio.h">
-      <Filter>Header Files</Filter>
+      <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
       <Filter>Shader Classes</Filter>

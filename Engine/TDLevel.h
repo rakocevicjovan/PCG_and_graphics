@@ -5,6 +5,8 @@
 #include "Light.h"
 #include "SceneGraph.h"
 #include "Octree.h"
+#include "AssetLoader.h"
+#include "ProjectLoader.h"
 
 class TDLevel : public Level
 {
@@ -30,4 +32,7 @@ private:
 	std::vector<Actor> dubois;
 	Model boiModel;
 	Model debugModel;
+
+	AssetLoader assLoader;
+	ProjectLoader pjLoader;
 };

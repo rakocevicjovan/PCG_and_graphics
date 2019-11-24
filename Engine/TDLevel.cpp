@@ -20,7 +20,7 @@ void TDLevel::init(Systems& sys)
 
 	_oct.init(AABB(SVec3(), SVec3(100)), 5);
 	_oct.prellocateRootOnly();
-	//_oct.preallocateTree();
+	//_oct.preallocateTree();	//with 5 it
 
 	boiModel.LoadModel(device, "../Models/Skysphere.fbx");
 
@@ -28,7 +28,7 @@ void TDLevel::init(Systems& sys)
 
 	for (int i = 0; i < 125; ++i)
 	{
-		SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f;
+		SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f + SVec3(5.f);
 		dubois.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(&boiModel, &randy._shMan.light));
 		dubois[i].collider = new Collider();
 		dubois[i].collider->BVT = BVT_SPHERE;
@@ -38,15 +38,22 @@ void TDLevel::init(Systems& sys)
 		_oct.insertObject(_oct._rootNode, static_cast<SphereHull*>(dubois[i].collider->hulls.back()));
 	}
 
-	std::vector<AABB> tempBoxes;
+	/*std::vector<AABB> tempBoxes;
 	tempBoxes.reserve(100);
 	_oct.getTreeAsAABBVector(tempBoxes);
 
 	for (int i = 0; i < tempBoxes.size(); ++i)
 	{
 		debugModel.meshes.push_back(Mesh(static_cast<Hull*>(&tempBoxes[i]), device));
-	}
+	}*/
 
+
+	//move this code elsewhere, obviously not in the level... 
+	//loadLevel(), called on a file from the level list, should return a level (with all assets loaded) to the level manager
+	//lazy level loading should be supported later but now... no need, keep it simple
+	pjLoader.loadConfig("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Tower Defense\\Tower defense.json");
+	assLoader.bindToProjectFolder(pjLoader.getProjbasepath());
+	assLoader.loadLevelList();
 }
 
 
