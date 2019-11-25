@@ -7,6 +7,7 @@
 #include <sstream>
 
 
+
 const std::string AssetLoader::ASSET_SUFFIX = "\\Assets";
 const std::string AssetLoader::LEVEL_SUFFIX = "\\Levels";
 
@@ -54,7 +55,7 @@ bool AssetLoader::loadLevelList()
 
 
 
-void AssetLoader::loadScene(const std::string& scenePath)
+bool AssetLoader::loadScene(const std::string& scenePath)
 {
 	rapidjson::Document sceneDef;
 
@@ -64,10 +65,37 @@ void AssetLoader::loadScene(const std::string& scenePath)
 
 	sceneDef.Parse(buffer.str().c_str());
 
-	if (sceneDef.IsObject())
-	{
+	if (!sceneDef.IsObject())
+		return false;
+	
+	//THANK YOU WINDOWS
+	#pragma push_macro("GetObject")
+	#undef GetObject
 
+	auto levelDef	= sceneDef.FindMember("level")->value.GetObject();
+
+	_ld.id			= levelDef.FindMember("id")->value.GetInt();
+	_ld.name		= levelDef.FindMember("name")->value.GetString();
+	_ld.description = levelDef.FindMember("description")->value.GetString();
+	_ld.projName	= levelDef.FindMember("project")->value.GetString();
+	_ld.jsonPath	= levelDef.FindMember("jsonDefPath")->value.GetString();
+	_ld.createdAt	= levelDef.FindMember("createdAt")->value.GetString();
+	_ld.updatedAt	= levelDef.FindMember("updatedAt")->value.GetString();
+
+	#pragma pop_macro("MACRONAME")
+
+	auto assDefArr = sceneDef.FindMember("asset_list")->value.GetArray();
+
+	AssetDef ad;
+	for (rapidjson::Value::ConstValueIterator itr = assDefArr.Begin(); itr != assDefArr.End(); ++itr)
+	{
+		ad.id	= itr->FindMember("id")->value.GetInt();
+		ad.path = itr->FindMember("path")->value.GetString();
+		ad.name = itr->FindMember("name")->value.GetString();
+		_assetDefs.push_back(ad);
 	}
+	
+	return true;
 }
 
 
