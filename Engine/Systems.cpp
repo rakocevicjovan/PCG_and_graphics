@@ -13,19 +13,19 @@ bool Systems::Initialize()
 	screenWidth = screenHeight = 0;
 	InitializeWindows(screenWidth, screenHeight);
 	
-	if (!_D3D.Initialize(windowWidth, windowHeight, VSYNC_ENABLED, m_hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
+	if (!_D3D.Initialize(windowWidth, windowHeight, VSYNC_ENABLED, _hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
 	{
-		MessageBox(m_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+		MessageBox(_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
 	}
 
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-	_inputManager.Initialize(m_hwnd);
+	_inputManager.Initialize(_hwnd);
 	_controller = Controller(&_inputManager);
 
-	if(!_renderer.Initialize(windowWidth, windowHeight, m_hwnd, _resMan, _D3D, _controller))
+	if(!_renderer.Initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
 		return false;
 	
 	_colEngine.init();
@@ -37,7 +37,7 @@ bool Systems::Initialize()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(m_hwnd);
+	ImGui_ImplWin32_Init(_hwnd);
 	ImGui_ImplDX11_Init(_device, _deviceContext);
 	ImGui::StyleColorsDark();
 
@@ -111,14 +111,14 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	// Create the window with the screen settings and get the handle to it.
-	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
+	_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
 		posX, posY, windowWidth, windowHeight, NULL, NULL, m_hinstance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.
-	ShowWindow(m_hwnd, SW_SHOW);
-	SetForegroundWindow(m_hwnd);
-	SetFocus(m_hwnd);
+	ShowWindow(_hwnd, SW_SHOW);
+	SetForegroundWindow(_hwnd);
+	SetFocus(_hwnd);
 
 	// Show or hide the mouse cursor.
 	ShowCursor(false);
@@ -200,8 +200,8 @@ void Systems::Shutdown()
 
 	if (FULL_SCREEN) ChangeDisplaySettings(NULL, 0);
 
-	DestroyWindow(m_hwnd);
-	m_hwnd = NULL;
+	DestroyWindow(_hwnd);
+	_hwnd = NULL;
 
 	UnregisterClass(m_applicationName, m_hinstance);
 	m_hinstance = NULL;

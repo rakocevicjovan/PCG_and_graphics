@@ -1,8 +1,11 @@
 #include "AssetLoader.h"
+
 #include "rapidjson/document.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
+
 #include <dirent.h>
+#include <fstream>
+#include <sstream>
+
 
 const std::string AssetLoader::ASSET_SUFFIX = "\\Assets";
 const std::string AssetLoader::LEVEL_SUFFIX = "\\Levels";
@@ -53,9 +56,18 @@ bool AssetLoader::loadLevelList()
 
 void AssetLoader::loadScene(const std::string& scenePath)
 {
-	//load base asset folders from the project config file
-	//std::string _assetDirPath = 
-	//std::string _levelsDirPath = 
+	rapidjson::Document sceneDef;
+
+	std::ifstream t(scenePath);
+	std::stringstream buffer;
+	buffer << t.rdbuf();
+
+	sceneDef.Parse(buffer.str().c_str());
+
+	if (sceneDef.IsObject())
+	{
+
+	}
 }
 
 

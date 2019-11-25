@@ -51,7 +51,7 @@ private:
 
 	LPCWSTR m_applicationName;
 	HINSTANCE m_hinstance;
-	HWND m_hwnd;
+	HWND _hwnd;
 	POINT midWindow;
 	
 	int screenWidth, screenHeight, windowWidth, windowHeight;

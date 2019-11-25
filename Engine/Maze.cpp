@@ -3,16 +3,9 @@
 
 namespace Procedural
 {
+	Maze::Maze(){}
 
-	Maze::Maze()
-	{
-	}
-
-
-
-	Maze::~Maze()
-	{
-	}
+	Maze::~Maze(){}
 
 
 
@@ -116,7 +109,6 @@ namespace Procedural
 
 	void Maze::PopulateRow(int z, std::map<int, EllerSet>& row)
 	{
-
 		row.clear();
 
 		for (int x = 0; x < _w; ++x)
@@ -146,52 +138,41 @@ namespace Procedural
 		float halfLength = _cellSize * .5f;
 		float halfHeight = _height   * .45f;
 		
-		g.GenBox(SVec3(_cellSize, _height, _width));	//+_width * 0.95f
+		g.GenBox(SVec3(_cellSize, _height, _thickness));	//generate the wall box
+
+		//move it along x and y to align it to maze cell's "bottom" boundary...
+		//this can be solved better with instancing and matrices to reduce memory usage but the meshes are really small, plain cuboids
 		for (auto& pos : g.positions)
 		{
 			pos.x += halfLength;
 			pos.y += halfHeight;
 		}	
-		Mesh bottom = Mesh(g, device, false);
 
-		for (auto& pos : g.positions)	pos.z += _cellSize;
-		Mesh top = Mesh(g, device, false);
+		Mesh bottom = Mesh(g, device, false);	//bottom of the cell is now generated from modified verts
 
-		g.Clear();
+		for (auto& pos : g.positions)
+			pos.z += _cellSize;
 
-		g.GenBox(SVec3(_width, _height, _cellSize));	// + _width * 0.95f
+		Mesh top = Mesh(g, device, false);		//top of the cell is modified by translating them forward
+
+		//reset geometry object to create left and right, could be rotated as well but its trivially fast for preprocessing anyways
+		g.Clear();								
+
+		g.GenBox(SVec3(_thickness, _height, _cellSize));	//generate, align to left wall
 		for (auto& pos : g.positions)
 		{
 			pos.z += halfLength;
 			pos.y += halfHeight;
 		}
-		Mesh left = Mesh(g, device, false);
+		Mesh left = Mesh(g, device, false);					//load vertices into mesh
 
-		for (auto& pos : g.positions)	pos.x += _cellSize;
-		Mesh right = Mesh(g, device, false);
+		for (auto& pos : g.positions)						//move right
+			pos.x += _cellSize;
 
-		for (auto& mc : cells)
+		Mesh right = Mesh(g, device, false);				//load vertices into mesh
+
+		for (auto& mc : cells)								//use meshes
 			BuildCellMeshes(mc, device, left, right, top, bottom);
-		
-		/*
-		g.Clear();
-
-		float floorWidth = _cellSize * _w, floorHalfWidth = floorWidth * 0.5f;;
-		float floorZDepth = _cellSize * _h, floorHalfZDepth = floorZDepth * 0.5f;
-		float floorThiccness = 2.f;
-		
-		g.GenBox(SVec3(floorWidth, floorThiccness, floorZDepth));
-		Mesh floor(g, device, false);
-
-		for (auto& v : floor.vertices)
-		{
-			v.pos.x += floorHalfWidth;
-			v.pos.z += floorHalfZDepth;
-		}
-		floor.setupMesh(device);
-		
-		model.meshes.push_back(floor);
-		*/	
 	}
 
 

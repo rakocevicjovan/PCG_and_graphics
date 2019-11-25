@@ -40,7 +40,7 @@ class Maze
 	unsigned int _w, _h;
 	float _cellSize;
 	float _height = 30.f;
-	float _width = 10.f;
+	float _thickness = 10.f;
 
 public:
 
@@ -58,7 +58,6 @@ public:
 	void AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* device);
 
 	SVec3 GetRandCellPos();
-	
 };
 
 }

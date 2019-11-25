@@ -84,6 +84,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{527b4072-18fc-437c-968c-41405c35f43c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -603,6 +606,15 @@
     </ClInclude>
     <ClInclude Include="Octree.h">
       <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="AStar.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="MapGraph.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="NavMesh.h">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
