@@ -616,6 +616,9 @@
     <ClInclude Include="NavMesh.h">
       <Filter>AI</Filter>
     </ClInclude>
+    <ClInclude Include="FileUtilities.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

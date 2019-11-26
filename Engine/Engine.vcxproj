@@ -197,6 +197,7 @@
     <ClInclude Include="D3D.h" />
     <ClInclude Include="Dragon.h" />
     <ClInclude Include="EarthLevel.h" />
+    <ClInclude Include="FileUtilities.h" />
     <ClInclude Include="FireLevel.h" />
     <ClInclude Include="GameClock.h" />
     <ClInclude Include="GameObject.h" />

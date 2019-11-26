@@ -1,0 +1,24 @@
+{
+    "id": 2,
+    "name": "Level 1",
+    "project": "Tower defense",
+    "jsonDefPath": "Levels\\TD_level_1.json",
+    "createdAt": "25. Nov 2019 22:07",
+    "updatedAt": "26. Nov 2019 14:18",
+    "description": "Easy intro level.",
+    "assets": [
+        {
+            "id": 1,
+            "path": "Assets\\Models\\FlyingMage\\source\\flying mage.obj",
+            "name": "FlyingMage",
+            "level": "Level 1"
+        },
+        {
+            "id": 2,
+            "path": "Assets\\Models\\Cauldron\\source\\cauldron.obj",
+            "name": "Cauldron",
+            "level": "Level 1"
+        }
+    ],
+    "fileName": "TD_level_1.json"
+}

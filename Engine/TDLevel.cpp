@@ -48,12 +48,13 @@ void TDLevel::init(Systems& sys)
 	}*/
 
 
-	//move this code elsewhere, obviously not in the level... 
+	//move this code elsewhere, obviously doesn't in a specific level... make a gui and load on startup (as a level in itself)
 	//loadLevel(), called on a file from the level list, should return a level (with all assets loaded) to the level manager
 	//lazy level loading should be supported later but now... no need, keep it simple
-	pjLoader.loadConfig("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Tower Defense\\Tower defense.json");
-	assLoader.bindToProjectFolder(pjLoader.getProjbasepath());
-	assLoader.loadLevelList();
+	pjLoader.loadProjFromConfig("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Tower Defense\\Tower defense.json");
+	auto levelList = pjLoader.getLevelList();
+	assLoader.setProjectData(pjLoader.getProjDir());
+	assLoader.loadLevel(levelList[0]);
 }
 
 
