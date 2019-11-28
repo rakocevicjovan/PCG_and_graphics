@@ -13,7 +13,7 @@ namespace Procedural
 
 
 
-class Texture {
+class Texture : public Resource {
 
 public:
 

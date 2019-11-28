@@ -16,6 +16,7 @@ LevelManager::LevelManager(Systems& systems)
 	current = new ProjectPickerLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
+	_levels.push_back(new TDLevel(systems));
 
 	//_levels.push_back(new EarthLevel(systems));
 	//_levels.push_back(new FireLevel(systems));

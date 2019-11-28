@@ -1,5 +1,5 @@
 // dear imgui: Renderer for DirectX11
-// This needs to be used along with a Platform Binding (e.g. Win32)
+// This needs to be used along with actor Platform Binding (e.g. Win32)
 
 // Implemented features:
 //  [X] Renderer: User texture binding. Use 'ID3D11ShaderResourceView*' as ImTextureID. Read the FAQ about ImTextureID in imgui.cpp.
@@ -126,7 +126,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
             return;
     }
 
-    // Upload vertex/index data into a single contiguous GPU buffer
+    // Upload vertex/index data into actor single contiguous GPU buffer
     D3D11_MAPPED_SUBRESOURCE vtx_resource, idx_resource;
     if (ctx->Map(g_pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &vtx_resource) != S_OK)
         return;
@@ -225,7 +225,7 @@ void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data)
             if (pcmd->UserCallback != NULL)
             {
                 // User callback, registered via ImDrawList::AddCallback()
-                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+                // (ImDrawCallback_ResetRenderState is actor special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
                     ImGui_ImplDX11_SetupRenderState(draw_data, ctx);
                 else
@@ -332,10 +332,10 @@ bool    ImGui_ImplDX11_CreateDeviceObjects()
     if (g_pFontSampler)
         ImGui_ImplDX11_InvalidateDeviceObjects();
 
-    // By using D3DCompile() from <d3dcompiler.h> / d3dcompiler.lib, we introduce a dependency to a given version of d3dcompiler_XX.dll (see D3DCOMPILER_DLL_A)
+    // By using D3DCompile() from <d3dcompiler.h> / d3dcompiler.lib, we introduce actor dependency to actor given version of d3dcompiler_XX.dll (see D3DCOMPILER_DLL_A)
     // If you would like to use this DX11 sample code but remove this dependency you can:
-    //  1) compile once, save the compiled shader blobs into a file or source code and pass them to CreateVertexShader()/CreatePixelShader() [preferred solution]
-    //  2) use code to detect any version of the DLL and grab a pointer to D3DCompile from the DLL.
+    //  1) compile once, save the compiled shader blobs into actor file or source code and pass them to CreateVertexShader()/CreatePixelShader() [preferred solution]
+    //  2) use code to detect any version of the DLL and grab actor pointer to D3DCompile from the DLL.
     // See https://github.com/ocornut/imgui/pull/638 for sources and details.
 
     // Create the vertex shader

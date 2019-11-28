@@ -28,7 +28,7 @@ class Animator
 	struct VariableBufferType
 	{
 		float deltaTime;
-		SVec3 padding;	//what a fucking waste of bandwidth gg microsoft
+		SVec3 padding;
 	};
 
 	BoneTransformBufferType boneTransformBuffer;

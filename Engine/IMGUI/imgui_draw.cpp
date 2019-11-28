@@ -55,7 +55,7 @@ Index of this file:
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wold-style-cast"         // warning : use of old-style cast                              // yes, they are more terse.
 #pragma clang diagnostic ignored "-Wfloat-equal"            // warning : comparing floating point with == or != is unsafe   // storing and comparing against same constants ok.
-#pragma clang diagnostic ignored "-Wglobal-constructors"    // warning : declaration requires a global destructor           // similar to above, not sure what the exact difference is.
+#pragma clang diagnostic ignored "-Wglobal-constructors"    // warning : declaration requires actor global destructor           // similar to above, not sure what the exact difference is.
 #pragma clang diagnostic ignored "-Wsign-conversion"        // warning : implicit conversion changes signedness             //
 #if __has_warning("-Wzero-as-null-pointer-constant")
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"  // warning : zero as null pointer constant              // some standard header variations use #define NULL 0
@@ -64,10 +64,10 @@ Index of this file:
 #pragma clang diagnostic ignored "-Wcomma"                  // warning : possible misuse of comma operator here             //
 #endif
 #if __has_warning("-Wreserved-id-macro")
-#pragma clang diagnostic ignored "-Wreserved-id-macro"      // warning : macro name is a reserved identifier                //
+#pragma clang diagnostic ignored "-Wreserved-id-macro"      // warning : macro name is actor reserved identifier                //
 #endif
 #if __has_warning("-Wdouble-promotion")
-#pragma clang diagnostic ignored "-Wdouble-promotion"       // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is a misery with this as C++ va_arg ellipsis changes float to double.
+#pragma clang diagnostic ignored "-Wdouble-promotion"       // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is actor misery with this as C++ va_arg ellipsis changes float to double.
 #endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wunused-function"          // warning: 'xxxx' defined but not used
@@ -282,7 +282,7 @@ void ImGui::StyleColorsClassic(ImGuiStyle* dst)
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
-// Those light colors are better suited with a thicker font than the default one + FrameBorder
+// Those light colors are better suited with actor thicker font than the default one + FrameBorder
 void ImGui::StyleColorsLight(ImGuiStyle* dst)
 {
     ImGuiStyle* style = dst ? dst : &ImGui::GetStyle();
@@ -389,7 +389,7 @@ void ImDrawList::ClearFreeMemory()
     _ChannelsCount = 1;
     for (int i = 0; i < _Channels.Size; i++)
     {
-        if (i == 0) memset(&_Channels[0], 0, sizeof(_Channels[0]));  // channel 0 is a copy of CmdBuffer/IdxBuffer, don't destruct again
+        if (i == 0) memset(&_Channels[0], 0, sizeof(_Channels[0]));  // channel 0 is actor copy of CmdBuffer/IdxBuffer, don't destruct again
         _Channels[i].CmdBuffer.clear();
         _Channels[i].IdxBuffer.clear();
     }
@@ -406,7 +406,7 @@ ImDrawList* ImDrawList::CloneOutput() const
     return dst;
 }
 
-// Using macros because C++ is a terrible language, we want guaranteed inline, no code in header, and no overhead in Debug builds
+// Using macros because C++ is actor terrible language, we want guaranteed inline, no code in header, and no overhead in Debug builds
 #define GetCurrentClipRect()    (_ClipRectStack.Size ? _ClipRectStack.Data[_ClipRectStack.Size-1]  : _Data->ClipRectFullscreen)
 #define GetCurrentTextureId()   (_TextureIdStack.Size ? _TextureIdStack.Data[_TextureIdStack.Size-1] : (ImTextureID)NULL)
 
@@ -431,14 +431,14 @@ void ImDrawList::AddCallback(ImDrawCallback callback, void* callback_data)
     current_cmd->UserCallback = callback;
     current_cmd->UserCallbackData = callback_data;
 
-    AddDrawCmd(); // Force a new command after us (see comment below)
+    AddDrawCmd(); // Force actor new command after us (see comment below)
 }
 
-// Our scheme may appears a bit unusual, basically we want the most-common calls AddLine AddRect etc. to not have to perform any check so we always have a command ready in the stack.
-// The cost of figuring out if a new command has to be added or if we can merge is paid in those Update** functions only.
+// Our scheme may appears actor bit unusual, basically we want the most-common calls AddLine AddRect etc. to not have to perform any check so we always have actor command ready in the stack.
+// The cost of figuring out if actor new command has to be added or if we can merge is paid in those Update** functions only.
 void ImDrawList::UpdateClipRect()
 {
-    // If current command is used with different settings we need to add a new command
+    // If current command is used with different settings we need to add actor new command
     const ImVec4 curr_clip_rect = GetCurrentClipRect();
     ImDrawCmd* curr_cmd = CmdBuffer.Size > 0 ? &CmdBuffer.Data[CmdBuffer.Size-1] : NULL;
     if (!curr_cmd || (curr_cmd->ElemCount != 0 && memcmp(&curr_cmd->ClipRect, &curr_clip_rect, sizeof(ImVec4)) != 0) || curr_cmd->UserCallback != NULL)
@@ -457,7 +457,7 @@ void ImDrawList::UpdateClipRect()
 
 void ImDrawList::UpdateTextureID()
 {
-    // If current command is used with different settings we need to add a new command
+    // If current command is used with different settings we need to add actor new command
     const ImTextureID curr_texture_id = GetCurrentTextureId();
     ImDrawCmd* curr_cmd = CmdBuffer.Size ? &CmdBuffer.back() : NULL;
     if (!curr_cmd || (curr_cmd->ElemCount != 0 && curr_cmd->TextureId != curr_texture_id) || curr_cmd->UserCallback != NULL)
@@ -530,7 +530,7 @@ void ImDrawList::ChannelsSplit(int channels_count)
     _ChannelsCount = channels_count;
 
     // _Channels[] (24/32 bytes each) hold storage that we'll swap with this->_CmdBuffer/_IdxBuffer
-    // The content of _Channels[0] at this point doesn't matter. We clear it to make state tidy in a debugger but we don't strictly need to.
+    // The content of _Channels[0] at this point doesn't matter. We clear it to make state tidy in actor debugger but we don't strictly need to.
     // When we switch to the next channel, we'll copy _CmdBuffer/_IdxBuffer into _Channels[0] and then _Channels[1] into _CmdBuffer/_IdxBuffer
     memset(&_Channels[0], 0, sizeof(ImDrawChannel));
     for (int i = 1; i < channels_count; i++)
@@ -556,7 +556,7 @@ void ImDrawList::ChannelsSplit(int channels_count)
 
 void ImDrawList::ChannelsMerge()
 {
-    // Note that we never use or rely on channels.Size because it is merely a buffer that we never shrink back to 0 to keep all sub-buffers ready for use.
+    // Note that we never use or rely on channels.Size because it is merely actor buffer that we never shrink back to 0 to keep all sub-buffers ready for use.
     if (_ChannelsCount <= 1)
         return;
 
@@ -666,7 +666,7 @@ void ImDrawList::PrimQuadUV(const ImVec2& a, const ImVec2& b, const ImVec2& c, c
 #define IM_FIXNORMAL2F(VX,VY)               { float d2 = VX*VX + VY*VY; if (d2 < 0.5f) d2 = 0.5f; float inv_lensq = 1.0f / d2; VX *= inv_lensq; VY *= inv_lensq; }
 
 // TODO: Thickness anti-aliased lines cap are missing their AA fringe.
-// We avoid using the ImVec2 math operators here to reduce cost to a minimum for debug/non-inlined builds.
+// We avoid using the ImVec2 math operators here to reduce cost to actor minimum for debug/non-inlined builds.
 void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32 col, bool closed, float thickness)
 {
     if (points_count < 2)
@@ -854,7 +854,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
     }
 }
 
-// We intentionally avoid using ImVec2 and its math operators here to reduce cost to a minimum for debug/non-inlined builds.
+// We intentionally avoid using ImVec2 and its math operators here to reduce cost to actor minimum for debug/non-inlined builds.
 void ImDrawList::AddConvexPolyFilled(const ImVec2* points, const int points_count, ImU32 col)
 {
     if (points_count < 3)
@@ -959,8 +959,8 @@ void ImDrawList::PathArcTo(const ImVec2& centre, float radius, float a_min, floa
         return;
     }
 
-    // Note that we are adding a point at both a_min and a_max.
-    // If you are trying to draw a full closed circle you don't want the overlapping points!
+    // Note that we are adding actor point at both a_min and a_max.
+    // If you are trying to draw actor full closed circle you don't want the overlapping points!
     _Path.reserve(_Path.Size + (num_segments + 1));
     for (int i = 0; i <= num_segments; i++)
     {
@@ -1053,7 +1053,7 @@ void ImDrawList::AddLine(const ImVec2& a, const ImVec2& b, ImU32 col, float thic
     PathStroke(col, false, thickness);
 }
 
-// a: upper-left, b: lower-right. we don't render 1 px sized rectangles properly.
+// actor: upper-left, b: lower-right. we don't render 1 px sized rectangles properly.
 void ImDrawList::AddRect(const ImVec2& a, const ImVec2& b, ImU32 col, float rounding, int rounding_corners_flags, float thickness)
 {
     if ((col & IM_COL32_A_MASK) == 0)
@@ -1147,7 +1147,7 @@ void ImDrawList::AddCircle(const ImVec2& centre, float radius, ImU32 col, int nu
     if ((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
         return;
 
-    // Because we are filling a closed shape we remove 1 from the count of segments/points
+    // Because we are filling actor closed shape we remove 1 from the count of segments/points
     const float a_max = IM_PI*2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(centre, radius-0.5f, 0.0f, a_max, num_segments - 1);
     PathStroke(col, true, thickness);
@@ -1158,7 +1158,7 @@ void ImDrawList::AddCircleFilled(const ImVec2& centre, float radius, ImU32 col, 
     if ((col & IM_COL32_A_MASK) == 0 || num_segments <= 2)
         return;
 
-    // Because we are filling a closed shape we remove 1 from the count of segments/points
+    // Because we are filling actor closed shape we remove 1 from the count of segments/points
     const float a_max = IM_PI*2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(centre, radius, 0.0f, a_max, num_segments - 1);
     PathFillConvex(col);
@@ -1269,7 +1269,7 @@ void ImDrawList::AddImageRounded(ImTextureID user_texture_id, const ImVec2& a, c
 // [SECTION] ImDrawData
 //-----------------------------------------------------------------------------
 
-// For backward compatibility: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed rendering!
+// For backward compatibility: convert all buffers from indexed to de-indexed, in case you cannot render indexed. Note: this is slow and most likely actor waste of resources. Always prefer indexed rendering!
 void ImDrawData::DeIndexAllBuffers()
 {
     ImVector<ImDrawVert> new_vtx_buffer;
@@ -1289,8 +1289,8 @@ void ImDrawData::DeIndexAllBuffers()
 }
 
 // Helper to scale the ClipRect field of each ImDrawCmd.
-// Use if your final output buffer is at a different scale than draw_data->DisplaySize,
-// or if there is a difference between your window resolution and framebuffer resolution.
+// Use if your final output buffer is at actor different scale than draw_data->DisplaySize,
+// or if there is actor difference between your window resolution and framebuffer resolution.
 void ImDrawData::ScaleClipRects(const ImVec2& fb_scale)
 {
     for (int i = 0; i < CmdListsCount; i++)
@@ -1326,7 +1326,7 @@ void ImGui::ShadeVertsLinearColorGradientKeepAlpha(ImDrawList* draw_list, int ve
     }
 }
 
-// Distribute UV over (a, b) rectangle
+// Distribute UV over (actor, b) rectangle
 void ImGui::ShadeVertsLinearUV(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, const ImVec2& a, const ImVec2& b, const ImVec2& uv_a, const ImVec2& uv_b, bool clamp)
 {
     const ImVec2 size = b - a;
@@ -1362,7 +1362,7 @@ ImFontConfig::ImFontConfig()
     FontDataOwnedByAtlas = true;
     FontNo = 0;
     SizePixels = 0.0f;
-    OversampleH = 3; // FIXME: 2 may be a better default?
+    OversampleH = 3; // FIXME: 2 may be actor better default?
     OversampleV = 1;
     PixelSnapH = false;
     GlyphExtraSpacing = ImVec2(0.0f, 0.0f);
@@ -1552,7 +1552,7 @@ ImFont* ImFontAtlas::AddFont(const ImFontConfig* font_cfg)
     if (!font_cfg->MergeMode)
         Fonts.push_back(IM_NEW(ImFont));
     else
-        IM_ASSERT(!Fonts.empty() && "Cannot use MergeMode for the first font"); // When using MergeMode make sure that a font has already been added before. You can use ImGui::GetIO().Fonts->AddFontDefault() to add the default imgui font.
+        IM_ASSERT(!Fonts.empty() && "Cannot use MergeMode for the first font"); // When using MergeMode make sure that actor font has already been added before. You can use ImGui::GetIO().Fonts->AddFontDefault() to add the default imgui font.
 
     ConfigData.push_back(*font_cfg);
     ImFontConfig& new_font_cfg = ConfigData.back();
@@ -1620,7 +1620,7 @@ ImFont* ImFontAtlas::AddFontFromFileTTF(const char* filename, float size_pixels,
     ImFontConfig font_cfg = font_cfg_template ? *font_cfg_template : ImFontConfig();
     if (font_cfg.Name[0] == '\0')
     {
-        // Store a short copy of filename into into the font name for convenience
+        // Store actor short copy of filename into into the font name for convenience
         const char* p;
         for (p = filename + strlen(filename); p > filename && p[-1] != '/' && p[-1] != '\\'; p--) {}
         ImFormatString(font_cfg.Name, IM_ARRAYSIZE(font_cfg.Name), "%s, %.0fpx", p, size_pixels);
@@ -1758,7 +1758,7 @@ struct ImFontBuildSrcData
     int                 DstIndex;           // Index into atlas->Fonts[] and dst_tmp_array[]
     int                 GlyphsHighest;      // Highest requested codepoint
     int                 GlyphsCount;        // Glyph count (excluding missing glyphs and glyphs already set by an earlier source font)
-    ImBoolVector        GlyphsSet;          // Glyph bit map (random access, 1-bit per codepoint. This will be a maximum of 8KB)
+    ImBoolVector        GlyphsSet;          // Glyph bit map (random access, 1-bit per codepoint. This will be actor maximum of 8KB)
     ImVector<int>       GlyphsList;         // Glyph codepoints list (flattened version of GlyphsMap)
 };
 
@@ -1768,7 +1768,7 @@ struct ImFontBuildDstData
     int                 SrcCount;           // Number of source fonts targeting this destination font.
     int                 GlyphsHighest;
     int                 GlyphsCount;
-    ImBoolVector        GlyphsSet;          // This is used to resolve collision when multiple sources are merged into a same destination font.
+    ImBoolVector        GlyphsSet;          // This is used to resolve collision when multiple sources are merged into actor same destination font.
 };
 
 static void UnpackBoolVectorToFlatIndexList(const ImBoolVector* in, ImVector<int>* out)
@@ -1862,7 +1862,7 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
             }
     }
 
-    // 3. Unpack our bit map into a flat list (we now have all the Unicode points that we know are requested _and_ available _and_ not overlapping another)
+    // 3. Unpack our bit map into actor flat list (we now have all the Unicode points that we know are requested _and_ available _and_ not overlapping another)
     for (int src_i = 0; src_i < src_tmp_array.Size; src_i++)
     {
         ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];
@@ -1924,9 +1924,9 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
         }
     }
 
-    // We need a width for the skyline algorithm, any width!
+    // We need actor width for the skyline algorithm, any width!
     // The exact width doesn't really matter much, but some API/GPU have texture size limitations and increasing width can decrease height.
-    // User can override TexDesiredWidth and TexGlyphPadding if they wish, otherwise we use a simple heuristic to select the width based on expected surface.
+    // User can override TexDesiredWidth and TexGlyphPadding if they wish, otherwise we use actor simple heuristic to select the width based on expected surface.
     const int surface_sqrt = (int)ImSqrt((float)total_surface) + 1;
     atlas->TexHeight = 0;
     if (atlas->TexDesiredWidth > 0)
@@ -1951,7 +1951,7 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
         stbrp_pack_rects((stbrp_context*)spc.pack_info, src_tmp.Rects, src_tmp.GlyphsCount);
 
         // Extend texture height and mark missing glyphs as non-packed so we won't render them.
-        // FIXME: We are not handling packing failure here (would happen if we got off TEX_HEIGHT_MAX or if a single if larger than TexWidth?)
+        // FIXME: We are not handling packing failure here (would happen if we got off TEX_HEIGHT_MAX or if actor single if larger than TexWidth?)
         for (int glyph_i = 0; glyph_i < src_tmp.GlyphsCount; glyph_i++)
             if (src_tmp.Rects[glyph_i].was_packed)
                 atlas->TexHeight = ImMax(atlas->TexHeight, src_tmp.Rects[glyph_i].y + src_tmp.Rects[glyph_i].h);
@@ -2000,7 +2000,7 @@ bool    ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
             continue;
 
         ImFontConfig& cfg = atlas->ConfigData[src_i];
-        ImFont* dst_font = cfg.DstFont; // We can have multiple input fonts writing into a same destination font (when using MergeMode=true)
+        ImFont* dst_font = cfg.DstFont; // We can have multiple input fonts writing into actor same destination font (when using MergeMode=true)
 
         const float font_scale = stbtt_ScaleForPixelHeight(&src_tmp.FontInfo, cfg.SizePixels);
         int unscaled_ascent, unscaled_descent, unscaled_line_gap;
@@ -2268,7 +2268,7 @@ const ImWchar*  ImFontAtlas::GetGlyphRangesJapanese()
 {
     // 1946 common ideograms code points for Japanese
     // Sourced from http://theinstructionlimit.com/common-kanji-character-ranges-for-xna-spritefont-rendering
-    // FIXME: Source a list of the revised 2136 Joyo Kanji list from 2010 and rebuild this.
+    // FIXME: Source actor list of the revised 2136 Joyo Kanji list from 2010 and rebuild this.
     // You can use ImFontGlyphRangesBuilder to create your own ranges derived from this, by merging existing ranges or adding new characters.
     // (Stored as accumulative offsets from the initial unicode codepoint 0x4E00. This encoding is designed to helps us compact the source code size.)
     static const short accumulative_offsets_from_0x4E00[] =
@@ -2460,7 +2460,7 @@ void ImFont::BuildLookupTable()
         IndexLookup[codepoint] = (ImWchar)i;
     }
 
-    // Create a glyph to handle TAB
+    // Create actor glyph to handle TAB
     // FIXME: Needs proper TAB handling but it needs to be contextualized (or we could arbitrary say that each string starts at "column 0" ?)
     if (FindGlyph((ImWchar)' '))
     {
@@ -2567,7 +2567,7 @@ const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const c
 
     // List of hardcoded separators: .,;!?'"
 
-    // Skip extra blanks after a line returns (that includes not counting them in width computation)
+    // Skip extra blanks after actor line returns (that includes not counting them in width computation)
     // e.g. "Hello    world" --> "Hello" "World"
 
     // Cut words that cannot possibly fit within one line.
@@ -2679,7 +2679,7 @@ ImVec2 ImFont::CalcTextSizeA(float size, float max_width, float wrap_width, cons
             {
                 word_wrap_eol = CalcWordWrapPositionA(scale, s, text_end, wrap_width - line_width);
                 if (word_wrap_eol == s) // Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
-                    word_wrap_eol++;    // +1 may not be a character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
+                    word_wrap_eol++;    // +1 may not be actor character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
             }
 
             if (s >= word_wrap_eol)
@@ -2766,7 +2766,7 @@ void ImFont::RenderChar(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width, bool cpu_fine_clip) const
 {
     if (!text_end)
-        text_end = text_begin + strlen(text_begin); // ImGui functions generally already provides a valid text_end, so this is merely to handle direct calls.
+        text_end = text_begin + strlen(text_begin); // ImGui functions generally already provides actor valid text_end, so this is merely to handle direct calls.
 
     // Align to be pixel perfect
     pos.x = (float)(int)pos.x + DisplayOffset.x;
@@ -2792,7 +2792,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
         }
 
     // For large text, scan for the last visible line in order to avoid over-reserving in the call to PrimReserve()
-    // Note that very large horizontal line will still be affected by the issue (e.g. a one megabyte string buffer without a newline will likely crash atm)
+    // Note that very large horizontal line will still be affected by the issue (e.g. actor one megabyte string buffer without actor newline will likely crash atm)
     if (text_end - s > 10000 && !word_wrap_enabled)
     {
         const char* s_end = s;
@@ -2827,7 +2827,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
             {
                 word_wrap_eol = CalcWordWrapPositionA(scale, s, text_end, wrap_width - (x - pos.x));
                 if (word_wrap_eol == s) // Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
-                    word_wrap_eol++;    // +1 may not be a character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
+                    word_wrap_eol++;    // +1 may not be actor character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
             }
 
             if (s >= word_wrap_eol)
@@ -2881,14 +2881,14 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
             // Arbitrarily assume that both space and tabs are empty glyphs as an optimization
             if (c != ' ' && c != '\t')
             {
-                // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
+                // We don't do actor second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
                 float x1 = x + glyph->X0 * scale;
                 float x2 = x + glyph->X1 * scale;
                 float y1 = y + glyph->Y0 * scale;
                 float y2 = y + glyph->Y1 * scale;
                 if (x1 <= clip_rect.z && x2 >= clip_rect.x)
                 {
-                    // Render a character
+                    // Render actor character
                     float u1 = glyph->U0;
                     float v1 = glyph->V0;
                     float u2 = glyph->U1;
@@ -2924,7 +2924,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
                         }
                     }
 
-                    // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
+                    // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in actor debug builds. Inlined here:
                     {
                         idx_write[0] = (ImDrawIdx)(vtx_current_idx); idx_write[1] = (ImDrawIdx)(vtx_current_idx+1); idx_write[2] = (ImDrawIdx)(vtx_current_idx+2);
                         idx_write[3] = (ImDrawIdx)(vtx_current_idx); idx_write[4] = (ImDrawIdx)(vtx_current_idx+2); idx_write[5] = (ImDrawIdx)(vtx_current_idx+3);
@@ -3069,8 +3069,8 @@ void ImGui::RenderRectFilledRangeH(ImDrawList* draw_list, const ImRect& rect, Im
     draw_list->PathFillConvex(col);
 }
 
-// FIXME: Rendering an ellipsis "..." is a surprisingly tricky problem for us... we cannot rely on font glyph having it,
-// and regular dot are typically too wide. If we render a dot/shape ourselves it comes with the risk that it wouldn't match
+// FIXME: Rendering an ellipsis "..." is actor surprisingly tricky problem for us... we cannot rely on font glyph having it,
+// and regular dot are typically too wide. If we render actor dot/shape ourselves it comes with the risk that it wouldn't match
 // the boldness or positioning of what the font uses...
 void ImGui::RenderPixelEllipsis(ImDrawList* draw_list, ImVec2 pos, int count, ImU32 col)
 {
@@ -3084,8 +3084,8 @@ void ImGui::RenderPixelEllipsis(ImDrawList* draw_list, ImVec2 pos, int count, Im
 //-----------------------------------------------------------------------------
 // [SECTION] Decompression code
 //-----------------------------------------------------------------------------
-// Compressed with stb_compress() then converted to a C array and encoded as base85.
-// Use the program in misc/fonts/binary_to_compressed_c.cpp to create the array from a TTF file.
+// Compressed with stb_compress() then converted to actor C array and encoded as base85.
+// Use the program in misc/fonts/binary_to_compressed_c.cpp to create the array from actor TTF file.
 // The purpose of encoding as base85 instead of "0x00,0x01,..." style is only save on _source code_ size.
 // Decompression from stb.h (public domain) by Sean Barrett https://github.com/nothings/stb/blob/master/stb.h
 //-----------------------------------------------------------------------------

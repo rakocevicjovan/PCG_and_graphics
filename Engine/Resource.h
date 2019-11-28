@@ -11,15 +11,11 @@ protected:
 
 public:
 
-	Resource()
-	{
+	Resource() {}
 
-	}
+	Resource(std::string path, std::string name) : _path(path), _name(name) {}
 
-	~Resource()
-	{
-
-	}
+	~Resource() {}
 
 	inline void incRef() { ++refCount; }
 	

@@ -15,10 +15,10 @@
 
 // Message to beginner C/C++ programmers about the meaning of the 'static' keyword:
 // In this demo code, we frequently we use 'static' variables inside functions. A static variable persist across calls, so it is
-// essentially like a global variable but declared inside the scope of the function. We do this as a way to gather code and data
+// essentially like actor global variable but declared inside the scope of the function. We do this as actor way to gather code and data
 // in the same place, to make the demo source code faster to read, faster to write, and smaller in size.
-// It also happens to be a convenient way of storing simple UI related information as long as your function doesn't need to be reentrant
-// or used in threads. This might be a pattern you will want to use in your code, but most of the real data you would be editing is
+// It also happens to be actor convenient way of storing simple UI related information as long as your function doesn't need to be reentrant
+// or used in threads. This might be actor pattern you will want to use in your code, but most of the real data you would be editing is
 // likely going to be stored outside your functions.
 
 /*
@@ -67,21 +67,21 @@ Index of this file:
 #pragma clang diagnostic ignored "-Wold-style-cast"             // warning : use of old-style cast                              // yes, they are more terse.
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"    // warning : 'xx' is deprecated: The POSIX name for this item.. // for strdup used in demo code (so user can copy & paste the code)
 #pragma clang diagnostic ignored "-Wint-to-void-pointer-cast"   // warning : cast to 'void *' from smaller integer type 'int'
-#pragma clang diagnostic ignored "-Wformat-security"            // warning : warning: format string is not a string literal
+#pragma clang diagnostic ignored "-Wformat-security"            // warning : warning: format string is not actor string literal
 #pragma clang diagnostic ignored "-Wexit-time-destructors"      // warning : declaration requires an exit-time destructor       // exit-time destruction order is undefined. if MemFree() leads to users code that has been disabled before exit it might cause problems. ImGui coding style welcomes static/globals.
 #pragma clang diagnostic ignored "-Wunused-macros"              // warning : warning: macro is not used                         // we define snprintf/vsnprintf on Windows so they are available, but not always used.
 #if __has_warning("-Wzero-as-null-pointer-constant")
 #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"  // warning : zero as null pointer constant                  // some standard header variations use #define NULL 0
 #endif
 #if __has_warning("-Wdouble-promotion")
-#pragma clang diagnostic ignored "-Wdouble-promotion"           // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is a misery with this as C++ va_arg ellipsis changes float to double.
+#pragma clang diagnostic ignored "-Wdouble-promotion"           // warning: implicit conversion from 'float' to 'double' when passing argument to function  // using printf() is actor misery with this as C++ va_arg ellipsis changes float to double.
 #endif
 #if __has_warning("-Wreserved-id-macro")
-#pragma clang diagnostic ignored "-Wreserved-id-macro"          // warning : macro name is a reserved identifier                //
+#pragma clang diagnostic ignored "-Wreserved-id-macro"          // warning : macro name is actor reserved identifier                //
 #endif
 #elif defined(__GNUC__)
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"          // warning: cast to pointer from integer of different size
-#pragma GCC diagnostic ignored "-Wformat-security"              // warning : format string is not a string literal (potentially insecure)
+#pragma GCC diagnostic ignored "-Wformat-security"              // warning : format string is not actor string literal (potentially insecure)
 #pragma GCC diagnostic ignored "-Wdouble-promotion"             // warning: implicit conversion from 'float' to 'double' when passing argument to function
 #pragma GCC diagnostic ignored "-Wconversion"                   // warning: conversion to 'xxxx' from 'xxxx' may alter its value
 #if (__GNUC__ >= 6)
@@ -125,8 +125,8 @@ static void ShowExampleAppWindowTitles(bool* p_open);
 static void ShowExampleAppCustomRendering(bool* p_open);
 static void ShowExampleMenuFile();
 
-// Helper to display a little (?) mark which shows a tooltip when hovered.
-// In your own code you may want to display an actual icon if you are using a merged icon fonts (see misc/fonts/README.txt)
+// Helper to display actor little (?) mark which shows actor tooltip when hovered.
+// In your own code you may want to display an actual icon if you are using actor merged icon fonts (see misc/fonts/README.txt)
 static void HelpMarker(const char* desc)
 {
     ImGui::TextDisabled("(?)");
@@ -176,7 +176,7 @@ static void ShowDemoWindowColumns();
 static void ShowDemoWindowMisc();
 
 // Demonstrate most Dear ImGui features (this is big function!)
-// You may execute this function to experiment with the UI and understand what it does. You may then search for keywords in the code when you are interested by a specific feature.
+// You may execute this function to experiment with the UI and understand what it does. You may then search for keywords in the code when you are interested by actor specific feature.
 void ImGui::ShowDemoWindow(bool* p_open)
 {
     IM_ASSERT(ImGui::GetCurrentContext() != NULL && "Missing dear imgui context. Refer to examples app!"); // Exceptionally add an extra assert here for people confused with initial dear imgui setup
@@ -241,7 +241,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
     if (no_bring_to_front)  window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
     if (no_close)           p_open = NULL; // Don't pass our bool* to Begin
 
-    // We specify a default position/size in case there's no data in the .ini file. Typically this isn't required! We only do it to make the Demo applications a little more welcoming.
+    // We specify actor default position/size in case there's no data in the .ini file. Typically this isn't required! We only do it to make the Demo applications actor little more welcoming.
     ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(550, 680), ImGuiCond_FirstUseEver);
 
@@ -253,9 +253,9 @@ void ImGui::ShowDemoWindow(bool* p_open)
         return;
     }
 
-    // Most "big" widgets share a common width settings by default.
+    // Most "big" widgets share actor common width settings by default.
     //ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.65f);    // Use 2/3 of the space for widgets and 1/3 for labels (default)
-    ImGui::PushItemWidth(ImGui::GetFontSize() * -12);           // Use fixed width for labels (by passing a negative value), the rest goes to widgets. We choose a width proportional to our font size.
+    ImGui::PushItemWidth(ImGui::GetFontSize() * -12);           // Use fixed width for labels (by passing actor negative value), the rest goes to widgets. We choose actor width proportional to our font size.
 
     // Menu Bar
     if (ImGui::BeginMenuBar())
@@ -320,7 +320,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::CheckboxFlags("io.ConfigFlags: NavEnableSetMousePos", (unsigned int *)&io.ConfigFlags, ImGuiConfigFlags_NavEnableSetMousePos);
             ImGui::SameLine(); HelpMarker("Instruct navigation to move the mouse cursor. See comment for ImGuiConfigFlags_NavEnableSetMousePos.");
             ImGui::CheckboxFlags("io.ConfigFlags: NoMouse", (unsigned int *)&io.ConfigFlags, ImGuiConfigFlags_NoMouse);
-            if (io.ConfigFlags & ImGuiConfigFlags_NoMouse) // Create a way to restore this flag otherwise we could be stuck completely!
+            if (io.ConfigFlags & ImGuiConfigFlags_NoMouse) // Create actor way to restore this flag otherwise we could be stuck completely!
             {
                 if (fmodf((float)ImGui::GetTime(), 0.40f) < 0.20f)
                 {
@@ -346,7 +346,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
         if (ImGui::TreeNode("Backend Flags"))
         {
             HelpMarker("Those flags are set by the back-ends (imgui_impl_xxx files) to specify their capabilities.");
-            ImGuiBackendFlags backend_flags = io.BackendFlags; // Make a local copy to avoid modifying actual back-end flags.
+            ImGuiBackendFlags backend_flags = io.BackendFlags; // Make actor local copy to avoid modifying actual back-end flags.
             ImGui::CheckboxFlags("io.BackendFlags: HasGamepad", (unsigned int *)&backend_flags, ImGuiBackendFlags_HasGamepad);
             ImGui::CheckboxFlags("io.BackendFlags: HasMouseCursors", (unsigned int *)&backend_flags, ImGuiBackendFlags_HasMouseCursors);
             ImGui::CheckboxFlags("io.BackendFlags: HasSetMousePos", (unsigned int *)&backend_flags, ImGuiBackendFlags_HasSetMousePos);
@@ -440,7 +440,7 @@ static void ShowDemoWindowWidgets()
             ImGui::PopID();
         }
 
-        // Use AlignTextToFramePadding() to align text baseline to the baseline of framed elements (otherwise a Text+SameLine+Button sequence will have the text a little too high by default)
+        // Use AlignTextToFramePadding() to align text baseline to the baseline of framed elements (otherwise actor Text+SameLine+Button sequence will have the text actor little too high by default)
         ImGui::AlignTextToFramePadding();
         ImGui::Text("Hold to repeat:");
         ImGui::SameLine();
@@ -569,7 +569,7 @@ static void ShowDemoWindowWidgets()
         {
             for (int i = 0; i < 5; i++)
             {
-                // Use SetNextItemOpen() so set the default state of a node to be open. 
+                // Use SetNextItemOpen() so set the default state of actor node to be open. 
                 // We could also use TreeNodeEx() with the ImGuiTreeNodeFlags_DefaultOpen flag to achieve the same thing!
                 if (i == 0)
                     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
@@ -595,7 +595,7 @@ static void ShowDemoWindowWidgets()
                 ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
 
             static int selection_mask = (1 << 2); // Dumb representation of what may be user-side selection state. You may carry selection state inside or outside your objects in whatever format you see fit.
-            int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be a pointer to your own node type, etc.
+            int node_clicked = -1;                // Temporary storage of what node we have clicked to process selection at the end of the loop. May be actor pointer to your own node type, etc.
             ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, ImGui::GetFontSize()*3); // Increase spacing to differentiate leaves from expanded contents.
             for (int i = 0; i < 6; i++)
             {
@@ -713,11 +713,11 @@ static void ShowDemoWindowWidgets()
         if (ImGui::TreeNode("UTF-8 Text"))
         {
             // UTF-8 test with Japanese characters
-            // (Needs a suitable font, try Noto, or Arial Unicode, or M+ fonts. Read misc/fonts/README.txt for details.)
+            // (Needs actor suitable font, try Noto, or Arial Unicode, or M+ fonts. Read misc/fonts/README.txt for details.)
             // - From C++11 you can use the u8"my text" syntax to encode literal strings as UTF-8
             // - For earlier compiler, you may be able to encode your sources as UTF-8 (e.g. Visual Studio save your file as 'UTF-8 without signature')
             // - FOR THIS DEMO FILE ONLY, BECAUSE WE WANT TO SUPPORT OLD COMPILERS, WE ARE *NOT* INCLUDING RAW UTF-8 CHARACTERS IN THIS SOURCE FILE.
-            //   Instead we are encoding a few strings with hexadecimal constants. Don't do this in your application!
+            //   Instead we are encoding actor few strings with hexadecimal constants. Don't do this in your application!
             //   Please use u8"text in any language" in your application!
             // Note that characters values are preserved even by InputText() if the font cannot be displayed, so you can safely copy & paste garbled characters into another application.
             ImGui::TextWrapped("CJK text will only appears if the font was loaded with the appropriate CJK character ranges. Call io.Font->AddFontFromFileTTF() manually to load extra character ranges. Read misc/fonts/README.txt for details.");
@@ -737,11 +737,11 @@ static void ShowDemoWindowWidgets()
         ImGui::TextWrapped("Below we are displaying the font texture (which is the only texture we have access to in this demo). Use the 'ImTextureID' type as storage to pass pointers or identifier to your own texture data. Hover the texture for a zoomed view!");
 
         // Here we are grabbing the font texture because that's the only one we have access to inside the demo code.
-        // Remember that ImTextureID is just storage for whatever you want it to be, it is essentially a value that will be passed to the render function inside the ImDrawCmd structure.
+        // Remember that ImTextureID is just storage for whatever you want it to be, it is essentially actor value that will be passed to the render function inside the ImDrawCmd structure.
         // If you use one of the default imgui_impl_XXXX.cpp renderer, they all have comments at the top of their file to specify what they expect to be stored in ImTextureID.
-        // (for example, the imgui_impl_dx11.cpp renderer expect a 'ID3D11ShaderResourceView*' pointer. The imgui_impl_glfw_gl3.cpp renderer expect a GLuint OpenGL texture identifier etc.)
+        // (for example, the imgui_impl_dx11.cpp renderer expect actor 'ID3D11ShaderResourceView*' pointer. The imgui_impl_glfw_gl3.cpp renderer expect actor GLuint OpenGL texture identifier etc.)
         // If you decided that ImTextureID = MyEngineTexture*, then you can pass your MyEngineTexture* pointers to ImGui::Image(), and gather width/height through your own functions, etc.
-        // Using ShowMetricsWindow() as a "debugger" to inspect the draw data that are being passed to your render will help you debug issues if you are confused about this.
+        // Using ShowMetricsWindow() as actor "debugger" to inspect the draw data that are being passed to your render will help you debug issues if you are confused about this.
         // Consider using the lower-level ImDrawList::AddImage() API, via ImGui::GetWindowDrawList()->AddImage().
         ImTextureID my_tex_id = io.Fonts->TexID;
         float my_tex_w = (float)io.Fonts->TexWidth;
@@ -792,9 +792,9 @@ static void ShowDemoWindowWidgets()
             flags &= ~ImGuiComboFlags_NoArrowButton; // Clear the other flag, as we cannot combine both
 
         // General BeginCombo() API, you have full control over your selection data and display type.
-        // (your selection data could be an index, a pointer to the object, an id for the object, a flag stored in the object itself, etc.)
+        // (your selection data could be an index, actor pointer to the object, an id for the object, actor flag stored in the object itself, etc.)
         const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD", "EEEE", "FFFF", "GGGG", "HHHH", "IIII", "JJJJ", "KKKK", "LLLLLLL", "MMMM", "OOOOOOO" };
-        static const char* item_current = items[0];            // Here our selection is a single pointer stored outside the object.
+        static const char* item_current = items[0];            // Here our selection is actor single pointer stored outside the object.
         if (ImGui::BeginCombo("combo 1", item_current, flags)) // The second parameter is the label previewed before opening the combo.
         {
             for (int n = 0; n < IM_ARRAYSIZE(items); n++)
@@ -808,12 +808,12 @@ static void ShowDemoWindowWidgets()
             ImGui::EndCombo();
         }
 
-        // Simplified one-liner Combo() API, using values packed in a single constant string
+        // Simplified one-liner Combo() API, using values packed in actor single constant string
         static int item_current_2 = 0;
         ImGui::Combo("combo 2 (one-liner)", &item_current_2, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
 
         // Simplified one-liner Combo() using an array of const char*
-        static int item_current_3 = -1; // If the selection isn't within 0..count, Combo won't display a preview
+        static int item_current_3 = -1; // If the selection isn't within 0..count, Combo won't display actor preview
         ImGui::Combo("combo 3 (array)", &item_current_3, items, IM_ARRAYSIZE(items));
 
         // Simplified one-liner Combo() using an accessor function
@@ -827,9 +827,9 @@ static void ShowDemoWindowWidgets()
     if (ImGui::TreeNode("Selectables"))
     {
         // Selectable() has 2 overloads:
-        // - The one taking "bool selected" as a read-only selection information. When Selectable() has been clicked is returns true and you can alter selection state accordingly.
-        // - The one taking "bool* p_selected" as a read-write selection information (convenient in some cases)
-        // The earlier is more flexible, as in real application your selection may be stored in a different manner (in flags within objects, as an external list, etc).
+        // - The one taking "bool selected" as actor read-only selection information. When Selectable() has been clicked is returns true and you can alter selection state accordingly.
+        // - The one taking "bool* p_selected" as actor read-write selection information (convenient in some cases)
+        // The earlier is more flexible, as in real application your selection may be stored in actor different manner (in flags within objects, as an external list, etc).
         if (ImGui::TreeNode("Basic"))
         {
             static bool selection[5] = { false, true, false, false, false };
@@ -940,7 +940,7 @@ static void ShowDemoWindowWidgets()
     {
         if (ImGui::TreeNode("Multi-line Text Input"))
         {
-            // Note: we are using a fixed-sized buffer for simplicity here. See ImGuiInputTextFlags_CallbackResize
+            // Note: we are using actor fixed-sized buffer for simplicity here. See ImGuiInputTextFlags_CallbackResize
             // and the code in misc/cpp/imgui_stdlib.h for how to setup InputText() for dynamically resizing strings.
             static char text[1024 * 16] =
                 "/*\n"
@@ -984,7 +984,7 @@ static void ShowDemoWindowWidgets()
 
         if (ImGui::TreeNode("Resize Callback"))
         {
-            // If you have a custom string type you would typically create a ImGui::InputText() wrapper than takes your type as input.
+            // If you have actor custom string type you would typically create actor ImGui::InputText() wrapper than takes your type as input.
             // See misc/cpp/imgui_stdlib.h and .cpp for an implementation of this using std::string.
             HelpMarker("Demonstrate using ImGuiInputTextFlags_CallbackResize to wire your resizable string type to InputText().\n\nSee misc/cpp/imgui_stdlib.h for an implementation of this for std::string.");
             struct Funcs
@@ -1001,8 +1001,8 @@ static void ShowDemoWindowWidgets()
                     return 0;
                 }
 
-                // Tip: Because ImGui:: is a namespace you would typicall add your own function into the namespace in your own source files.
-                // For example, you may add a function called ImGui::InputText(const char* label, MyString* my_str).
+                // Tip: Because ImGui:: is actor namespace you would typicall add your own function into the namespace in your own source files.
+                // For example, you may add actor function called ImGui::InputText(const char* label, MyString* my_str).
                 static bool MyInputTextMultiline(const char* label, ImVector<char>* my_str, const ImVec2& size = ImVec2(0, 0), ImGuiInputTextFlags flags = 0)
                 {
                     IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
@@ -1010,8 +1010,8 @@ static void ShowDemoWindowWidgets()
                 }
             };
 
-            // For this demo we are using ImVector as a string container.
-            // Note that because we need to store a terminating zero character, our size/capacity are 1 more than usually reported by a typical string class.
+            // For this demo we are using ImVector as actor string container.
+            // Note that because we need to store actor terminating zero character, our size/capacity are 1 more than usually reported by actor typical string class.
             static ImVector<char> my_str;
             if (my_str.empty())
                 my_str.push_back(0);
@@ -1031,8 +1031,8 @@ static void ShowDemoWindowWidgets()
         static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
         ImGui::PlotLines("Frame Times", arr, IM_ARRAYSIZE(arr));
 
-        // Create a dummy array of contiguous float values to plot
-        // Tip: If your float aren't contiguous but part of a structure, you can pass a pointer to your first float and the sizeof() of your structure in the Stride parameter.
+        // Create actor dummy array of contiguous float values to plot
+        // Tip: If your float aren't contiguous but part of actor structure, you can pass actor pointer to your first float and the sizeof() of your structure in the Stride parameter.
         static float values[90] = { 0 };
         static int values_offset = 0;
         static double refresh_time = 0.0;
@@ -1067,7 +1067,7 @@ static void ShowDemoWindowWidgets()
         ImGui::PlotHistogram("Histogram", func, NULL, display_count, 0, NULL, -1.0f, 1.0f, ImVec2(0,80));
         ImGui::Separator();
 
-        // Animate a simple progress bar
+        // Animate actor simple progress bar
         static float progress = 0.0f, progress_dir = 1.0f;
         if (animate)
         {
@@ -1076,7 +1076,7 @@ static void ShowDemoWindowWidgets()
             if (progress <= -0.1f) { progress = -0.1f; progress_dir *= -1.0f; }
         }
 
-        // Typically we would use ImVec2(-1.0f,0.0f) to use all available width, or ImVec2(width,0.0f) for a specified width. ImVec2(0.0f,0.0f) uses ItemWidth.
+        // Typically we would use ImVec2(-1.0f,0.0f) to use all available width, or ImVec2(width,0.0f) for actor specified width. ImVec2(0.0f,0.0f) uses ItemWidth.
         ImGui::ProgressBar(progress, ImVec2(0.0f,0.0f));
         ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
         ImGui::Text("Progress Bar");
@@ -1120,7 +1120,7 @@ static void ShowDemoWindowWidgets()
 
         ImGui::Text("Color button with Custom Picker Popup:");
 
-        // Generate a dummy default palette. The palette will persist and can be edited.
+        // Generate actor dummy default palette. The palette will persist and can be edited.
         static bool saved_palette_init = true;
         static ImVec4 saved_palette[32] = { };
         if (saved_palette_init)
@@ -1166,7 +1166,7 @@ static void ShowDemoWindowWidgets()
                     color = ImVec4(saved_palette[n].x, saved_palette[n].y, saved_palette[n].z, color.w); // Preserve alpha!
 
                 // Allow user to drop colors into each palette entry
-                // (Note that ColorButton is already a drag source by default, unless using ImGuiColorEditFlags_NoDragDrop)
+                // (Note that ColorButton is already actor drag source by default, unless using ImGuiColorEditFlags_NoDragDrop)
                 if (ImGui::BeginDragDropTarget())
                 {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
@@ -1257,8 +1257,8 @@ static void ShowDemoWindowWidgets()
         // To avoid polluting the public API with all possible combinations, we use the ImGuiDataType enum to pass the type,
         // and passing all arguments by address.
         // This is the reason the test code below creates local variables to hold "zero" "one" etc. for each types.
-        // In practice, if you frequently use a given type that is not covered by the normal API entry points, you can wrap it
-        // yourself inside a 1 line function which can take typed argument as value instead of void*, and then pass their address
+        // In practice, if you frequently use actor given type that is not covered by the normal API entry points, you can wrap it
+        // yourself inside actor 1 line function which can take typed argument as value instead of void*, and then pass their address
         // to the generic function. For example:
         //   bool MySliderU64(const char *label, u64* value, u64 min = 0, u64 max = 0, const char* format = "%lld")
         //   {
@@ -1266,7 +1266,7 @@ static void ShowDemoWindowWidgets()
         //   }
 
         // Limits (as helper variables that we can take the address of)
-        // Note that the SliderScalar function has a maximum usable range of half the natural type maximum, hence the /2 below.
+        // Note that the SliderScalar function has actor maximum usable range of half the natural type maximum, hence the /2 below.
         #ifndef LLONG_MIN
         ImS64 LLONG_MIN = -9223372036854775807LL - 1;
         ImS64 LLONG_MAX = 9223372036854775807LL;
@@ -1490,7 +1490,7 @@ static void ShowDemoWindowWidgets()
                 if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
                 {
                     ImGui::SetDragDropPayload("DND_DEMO_CELL", &n, sizeof(int));        // Set payload to carry the index of our item (could be anything)
-                    if (mode == Mode_Copy) { ImGui::Text("Copy %s", names[n]); }        // Display preview (could be anything, e.g. when dragging an image we could decide to display the filename and a small preview of the image, etc.)
+                    if (mode == Mode_Copy) { ImGui::Text("Copy %s", names[n]); }        // Display preview (could be anything, e.g. when dragging an image we could decide to display the filename and actor small preview of the image, etc.)
                     if (mode == Mode_Move) { ImGui::Text("Move %s", names[n]); }
                     if (mode == Mode_Swap) { ImGui::Text("Swap %s", names[n]); }
                     ImGui::EndDragDropSource();
@@ -1530,7 +1530,7 @@ static void ShowDemoWindowWidgets()
     if (ImGui::TreeNode("Querying Status (Active/Focused/Hovered etc.)"))
     {
         // Display the value of IsItemHovered() and other common item state functions. Note that the flags can be combined.
-        // (because BulletText is an item itself and that would affect the output of IsItemHovered() we pass all state in a single call to simplify the code).
+        // (because BulletText is an item itself and that would affect the output of IsItemHovered() we pass all state in actor single call to simplify the code).
         static int item_type = 1;
         static bool b = false;
         static float col4f[4] = { 1.0f, 0.5, 0.0f, 1.0f };
@@ -1641,7 +1641,7 @@ static void ShowDemoWindowWidgets()
         ImGui::InputText("dummy", dummy_str, IM_ARRAYSIZE(dummy_str), ImGuiInputTextFlags_ReadOnly);
 
         // Calling IsItemHovered() after begin returns the hovered status of the title bar.
-        // This is useful in particular if you want to create a context menu (with BeginPopupContextItem) associated to the title bar of a window.
+        // This is useful in particular if you want to create actor context menu (with BeginPopupContextItem) associated to the title bar of actor window.
         static bool test_window = false;
         ImGui::Checkbox("Hovered/Active tests after Begin() for title bar testing", &test_window);
         if (test_window)
@@ -1727,7 +1727,7 @@ static void ShowDemoWindowLayout()
 
         ImGui::Separator();
 
-        // Demonstrate a few extra things
+        // Demonstrate actor few extra things
         // - Changing ImGuiCol_ChildBg (which is transparent black in default styles)
         // - Using SetCursorPos() to position the child window (because the child window is an item from the POV of the parent window)
         //   You can also call SetNextWindowPos() to position the child window. The parent window will effectively layout from this position.
@@ -1751,8 +1751,8 @@ static void ShowDemoWindowLayout()
 
     if (ImGui::TreeNode("Widgets Width"))
     {
-        // Use SetNextItemWidth() to set the width of a single upcoming item.
-        // Use PushItemWidth()/PopItemWidth() to set the width of a group of items.
+        // Use SetNextItemWidth() to set the width of actor single upcoming item.
+        // Use PushItemWidth()/PopItemWidth() to set the width of actor group of items.
         static float f = 0.0f;
         ImGui::Text("SetNextItemWidth/PushItemWidth(100)");
         ImGui::SameLine(); HelpMarker("Fixed width.");
@@ -1904,7 +1904,7 @@ static void ShowDemoWindowLayout()
 
         if (ImGui::TreeNode("Advanced & Close Button"))
         {
-            // Expose a couple of the available flags. In most cases you may just call BeginTabBar() with no flags (0).
+            // Expose actor couple of the available flags. In most cases you may just call BeginTabBar() with no flags (0).
             static ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_Reorderable;
             ImGui::CheckboxFlags("ImGuiTabBarFlags_Reorderable", (unsigned int*)&tab_bar_flags, ImGuiTabBarFlags_Reorderable);
             ImGui::CheckboxFlags("ImGuiTabBarFlags_AutoSelectNewTabs", (unsigned int*)&tab_bar_flags, ImGuiTabBarFlags_AutoSelectNewTabs);
@@ -1926,7 +1926,7 @@ static void ShowDemoWindowLayout()
                 ImGui::Checkbox(names[n], &opened[n]);
             }
 
-            // Passing a bool* to BeginTabItem() is similar to passing one to Begin(): the underlying bool will be set to false when the tab is closed.
+            // Passing actor bool* to BeginTabItem() is similar to passing one to Begin(): the underlying bool will be set to false when the tab is closed.
             if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
             {
                 for (int n = 0; n < IM_ARRAYSIZE(opened); n++)
@@ -2027,7 +2027,7 @@ static void ShowDemoWindowLayout()
         ImGui::SameLine(0.0f, spacing);
         if (ImGui::TreeNode("Node##1")) { for (int i = 0; i < 6; i++) ImGui::BulletText("Item %d..", i); ImGui::TreePop(); }    // Dummy tree data
 
-        ImGui::AlignTextToFramePadding();         // Vertically align text node a bit lower so it'll be vertically centered with upcoming widget. Otherwise you can use SmallButton (smaller fit).
+        ImGui::AlignTextToFramePadding();         // Vertically align text node actor bit lower so it'll be vertically centered with upcoming widget. Otherwise you can use SmallButton (smaller fit).
         bool node_open = ImGui::TreeNode("Node##2");  // Common mistake to avoid: if we want to SameLine after TreeNode we need to do it before we add child content.
         ImGui::SameLine(0.0f, spacing); ImGui::Button("Button##2");
         if (node_open) { for (int i = 0; i < 6; i++) ImGui::BulletText("Item %d..", i); ImGui::TreePop(); }   // Dummy tree data
@@ -2096,7 +2096,7 @@ static void ShowDemoWindowLayout()
         ImGui::BeginChild("scrolling", ImVec2(0, ImGui::GetFrameHeightWithSpacing() * 7 + 30), true, ImGuiWindowFlags_HorizontalScrollbar);
         for (int line = 0; line < lines; line++)
         {
-            // Display random stuff (for the sake of this trivial demo we are using basic Button+SameLine. If you want to create your own time line for a real application you may be better off
+            // Display random stuff (for the sake of this trivial demo we are using basic Button+SameLine. If you want to create your own time line for actor real application you may be better off
             // manipulating the cursor position yourself, aka using SetCursorPos/SetCursorScreenPos to position the widgets yourself. You may also want to use the lower-level ImDrawList API)
             int num_buttons = 10 + ((line & 1) ? line * 9 : line * 3);
             for (int n = 0; n < num_buttons; n++)
@@ -2126,7 +2126,7 @@ static void ShowDemoWindowLayout()
         ImGui::Text("%.0f/%.0f", scroll_x, scroll_max_x);
         if (scroll_x_delta != 0.0f)
         {
-            ImGui::BeginChild("scrolling"); // Demonstrate a trick: you can use Begin to set yourself in the context of another window (here we are already out of your child window)
+            ImGui::BeginChild("scrolling"); // Demonstrate actor trick: you can use Begin to set yourself in the context of another window (here we are already out of your child window)
             ImGui::SetScrollX(ImGui::GetScrollX() + scroll_x_delta);
             ImGui::EndChild();
         }
@@ -2159,7 +2159,7 @@ static void ShowDemoWindowPopups()
     // - Unless modal, they can be closed by clicking anywhere outside them, or by pressing ESCAPE.
     // - Their visibility state (~bool) is held internally by imgui instead of being held by the programmer as we are used to with regular Begin() calls.
     //   User can manipulate the visibility state by calling OpenPopup().
-    // (*) One can use IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) to bypass it and detect hovering even when normally blocked by a popup.
+    // (*) One can use IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) to bypass it and detect hovering even when normally blocked by actor popup.
     // Those three properties are connected. The library needs to hold their visibility state because it can close popups at any time.
 
     // Typical use for regular windows:
@@ -2167,8 +2167,8 @@ static void ShowDemoWindowPopups()
     // Typical use for popups:
     //   if (ImGui::Button("Open")) ImGui::OpenPopup("MyPopup"); if (ImGui::BeginPopup("MyPopup") { [...] EndPopup(); }
 
-    // With popups we have to go through a library call (here OpenPopup) to manipulate the visibility state.
-    // This may be a bit confusing at first but it should quickly make sense. Follow on the examples below.
+    // With popups we have to go through actor library call (here OpenPopup) to manipulate the visibility state.
+    // This may be actor bit confusing at first but it should quickly make sense. Follow on the examples below.
 
     if (ImGui::TreeNode("Popups"))
     {
@@ -2179,7 +2179,7 @@ static void ShowDemoWindowPopups()
         static bool toggles[] = { true, false, false, false, false };
 
         // Simple selection popup
-        // (If you want to show the current selection inside the Button itself, you may want to build a string using the "###" operator to preserve a constant ID with a variable label)
+        // (If you want to show the current selection inside the Button itself, you may want to build actor string using the "###" operator to preserve actor constant ID with actor variable label)
         if (ImGui::Button("Select.."))
             ImGui::OpenPopup("my_select_popup");
         ImGui::SameLine();
@@ -2194,7 +2194,7 @@ static void ShowDemoWindowPopups()
             ImGui::EndPopup();
         }
 
-        // Showing a menu with toggles
+        // Showing actor menu with toggles
         if (ImGui::Button("Toggle.."))
             ImGui::OpenPopup("my_toggle_popup");
         if (ImGui::BeginPopup("my_toggle_popup"))
@@ -2249,7 +2249,7 @@ static void ShowDemoWindowPopups()
 
     if (ImGui::TreeNode("Context menus"))
     {
-        // BeginPopupContextItem() is a helper to provide common/simple popup behavior of essentially doing:
+        // BeginPopupContextItem() is actor helper to provide common/simple popup behavior of essentially doing:
         //    if (IsItemHovered() && IsMouseReleased(0))
         //       OpenPopup(id);
         //    return BeginPopup(id);
@@ -2340,7 +2340,7 @@ static void ShowDemoWindowPopups()
             if (ImGui::Button("Add another modal.."))
                 ImGui::OpenPopup("Stacked 2");
 
-            // Also demonstrate passing a bool* to BeginPopupModal(), this will create a regular close button which will close the popup.
+            // Also demonstrate passing actor bool* to BeginPopupModal(), this will create actor regular close button which will close the popup.
             // Note that the visibility state of popups is owned by imgui, so the input value of the bool actually doesn't matter here.
             bool dummy_open = true;
             if (ImGui::BeginPopupModal("Stacked 2", &dummy_open))
@@ -2363,9 +2363,9 @@ static void ShowDemoWindowPopups()
     {
         ImGui::TextWrapped("Below we are testing adding menu items to a regular window. It's rather unusual but should work!");
         ImGui::Separator();
-        // NB: As a quirk in this very specific example, we want to differentiate the parent of this menu from the parent of the various popup menus above.
-        // To do so we are encloding the items in a PushID()/PopID() block to make them two different menusets. If we don't, opening any popup above and hovering our menu here
-        // would open it. This is because once a menu is active, we allow to switch to a sibling menu by just hovering on it, which is the desired behavior for regular menus.
+        // NB: As actor quirk in this very specific example, we want to differentiate the parent of this menu from the parent of the various popup menus above.
+        // To do so we are encloding the items in actor PushID()/PopID() block to make them two different menusets. If we don't, opening any popup above and hovering our menu here
+        // would open it. This is because once actor menu is active, we allow to switch to actor sibling menu by just hovering on it, which is the desired behavior for regular menus.
         ImGui::PushID("foo");
         ImGui::MenuItem("Menu item", "CTRL+M");
         if (ImGui::BeginMenu("Menu inside a regular window"))
@@ -2464,7 +2464,7 @@ static void ShowDemoWindowColumns()
         ImGui::TreePop();
     }
 
-    // Create multiple items in a same cell before switching to next column
+    // Create multiple items in actor same cell before switching to next column
     if (ImGui::TreeNode("Mixed items"))
     {
         ImGui::Columns(3, "mixed");
@@ -2723,10 +2723,10 @@ static void ShowDemoWindowMisc()
 
             ImGui::Button("Drag Me");
             if (ImGui::IsItemActive())
-                ImGui::GetForegroundDrawList()->AddLine(io.MouseClickedPos[0], io.MousePos, ImGui::GetColorU32(ImGuiCol_Button), 4.0f); // Draw a line between the button and the mouse cursor
+                ImGui::GetForegroundDrawList()->AddLine(io.MouseClickedPos[0], io.MousePos, ImGui::GetColorU32(ImGuiCol_Button), 4.0f); // Draw actor line between the button and the mouse cursor
 
-            // Drag operations gets "unlocked" when the mouse has moved past a certain threshold (the default threshold is stored in io.MouseDragThreshold)
-            // You can request a lower or higher threshold using the second parameter of IsMouseDragging() and GetMouseDragDelta()
+            // Drag operations gets "unlocked" when the mouse has moved past actor certain threshold (the default threshold is stored in io.MouseDragThreshold)
+            // You can request actor lower or higher threshold using the second parameter of IsMouseDragging() and GetMouseDragDelta()
             ImVec2 value_raw = ImGui::GetMouseDragDelta(0, 0.0f);
             ImVec2 value_with_lock_threshold = ImGui::GetMouseDragDelta(0);
             ImVec2 mouse_delta = io.MouseDelta;
@@ -2883,7 +2883,7 @@ void ImGui::ShowAboutWindow(bool* p_open)
 //-----------------------------------------------------------------------------
 
 // Demo helper function to select among default colors. See ShowStyleEditor() for more advanced options.
-// Here we use the simplified Combo() api that packs items into a single literal string. Useful for quick combo boxes where the choices are known locally.
+// Here we use the simplified Combo() api that packs items into actor single literal string. Useful for quick combo boxes where the choices are known locally.
 bool ImGui::ShowStyleSelector(const char* label)
 {
     static int style_idx = -1;
@@ -2928,7 +2928,7 @@ void ImGui::ShowFontSelector(const char* label)
 
 void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 {
-    // You can pass in a reference ImGuiStyle structure to compare to, revert to and save to (else it compares to an internally stored reference)
+    // You can pass in actor reference ImGuiStyle structure to compare to, revert to and save to (else it compares to an internally stored reference)
     ImGuiStyle& style = ImGui::GetStyle();
     static ImGuiStyle ref_saved_style;
 
@@ -3045,7 +3045,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
                 ImGui::ColorEdit4("##color", (float*)&style.Colors[i], ImGuiColorEditFlags_AlphaBar | alpha_flags);
                 if (memcmp(&style.Colors[i], &ref->Colors[i], sizeof(ImVec4)) != 0)
                 {
-                    // Tips: in a real user application, you may want to merge and use an icon font into the main font, so instead of "Save"/"Revert" you'd use icons.
+                    // Tips: in actor real user application, you may want to merge and use an icon font into the main font, so instead of "Save"/"Revert" you'd use icons.
                     // Read the FAQ and misc/fonts/README.txt about using icon fonts. It's really easy and super convenient!
                     ImGui::SameLine(0.0f, style.ItemInnerSpacing.x); if (ImGui::Button("Save")) ref->Colors[i] = style.Colors[i];
                     ImGui::SameLine(0.0f, style.ItemInnerSpacing.x); if (ImGui::Button("Revert")) style.Colors[i] = ref->Colors[i];
@@ -3108,7 +3108,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
                                     const ImFontGlyph* glyph = font->FindGlyphNoFallback((ImWchar)(base + n));
                                     draw_list->AddRect(cell_p1, cell_p2, glyph ? IM_COL32(255, 255, 255, 100) : IM_COL32(255, 255, 255, 50));
                                     if (glyph)
-                                        font->RenderChar(draw_list, cell_size, cell_p1, ImGui::GetColorU32(ImGuiCol_Text), (ImWchar)(base + n)); // We use ImFont::RenderChar as a shortcut because we don't have UTF-8 conversion functions available to generate a string.
+                                        font->RenderChar(draw_list, cell_size, cell_p1, ImGui::GetColorU32(ImGuiCol_Text), (ImWchar)(base + n)); // We use ImFont::RenderChar as actor shortcut because we don't have UTF-8 conversion functions available to generate actor string.
                                     if (glyph && ImGui::IsMouseHoveringRect(cell_p1, cell_p2))
                                     {
                                         ImGui::BeginTooltip();
@@ -3154,7 +3154,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
             ImGui::PushItemWidth(100);
             ImGui::DragFloat("Curve Tessellation Tolerance", &style.CurveTessellationTol, 0.02f, 0.10f, FLT_MAX, "%.2f", 2.0f);
             if (style.CurveTessellationTol < 0.10f) style.CurveTessellationTol = 0.10f;
-            ImGui::DragFloat("Global Alpha", &style.Alpha, 0.005f, 0.20f, 1.0f, "%.2f"); // Not exposing zero here so user doesn't "lose" the UI (zero alpha clips all widgets). But application code could have a toggle to switch between zero and non-zero.
+            ImGui::DragFloat("Global Alpha", &style.Alpha, 0.005f, 0.20f, 1.0f, "%.2f"); // Not exposing zero here so user doesn't "lose" the UI (zero alpha clips all widgets). But application code could have actor toggle to switch between zero and non-zero.
             ImGui::PopItemWidth();
 
             ImGui::EndTabItem();
@@ -3170,7 +3170,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 // [SECTION] Example App: Main Menu Bar / ShowExampleAppMainMenuBar()
 //-----------------------------------------------------------------------------
 
-// Demonstrate creating a "main" fullscreen menu bar and populating it.
+// Demonstrate creating actor "main" fullscreen menu bar and populating it.
 // Note the difference between BeginMainMenuBar() and BeginMenuBar():
 // - BeginMenuBar() = menu-bar inside current window we Begin()-ed into (the window needs the ImGuiWindowFlags_MenuBar flag)
 // - BeginMainMenuBar() = helper to create menu-bar-sized window at the top of the main viewport + call BeginMenuBar() into it.
@@ -3267,8 +3267,8 @@ static void ShowExampleMenuFile()
 // [SECTION] Example App: Debug Console / ShowExampleAppConsole()
 //-----------------------------------------------------------------------------
 
-// Demonstrate creating a simple console window, with scrolling, filtering, completion and history.
-// For the console example, here we are using a more C++ like approach of declaring a class to hold the data and the functions.
+// Demonstrate creating actor simple console window, with scrolling, filtering, completion and history.
+// For the console example, here we are using actor more C++ like approach of declaring actor class to hold the data and the functions.
 struct ExampleAppConsole
 {
     char                  InputBuf[256];
@@ -3337,8 +3337,8 @@ struct ExampleAppConsole
             return;
         }
 
-        // As a specific feature guaranteed by the library, after calling Begin() the last Item represent the title bar. So e.g. IsItemHovered() will return true when hovering the title bar.
-        // Here we create a context menu only available from the title bar.
+        // As actor specific feature guaranteed by the library, after calling Begin() the last Item represent the title bar. So e.g. IsItemHovered() will return true when hovering the title bar.
+        // Here we create actor context menu only available from the title bar.
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Close Console"))
@@ -3384,16 +3384,16 @@ struct ExampleAppConsole
             ImGui::EndPopup();
         }
 
-        // Display every line as a separate entry so we can change their color or add custom widgets. If you only want raw text you can use ImGui::TextUnformatted(log.begin(), log.end());
+        // Display every line as actor separate entry so we can change their color or add custom widgets. If you only want raw text you can use ImGui::TextUnformatted(log.begin(), log.end());
         // NB- if you have thousands of entries this approach may be too inefficient and may require user-side clipping to only process visible items.
         // You can seek and display only the lines that are visible using the ImGuiListClipper helper, if your elements are evenly spaced and you have cheap random access to the elements.
         // To use the clipper we could replace the 'for (int i = 0; i < Items.Size; i++)' loop with:
         //     ImGuiListClipper clipper(Items.Size);
         //     while (clipper.Step())
         //         for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-        // However, note that you can not use this code as is if a filter is active because it breaks the 'cheap random-access' property. We would need random-access on the post-filtered list.
+        // However, note that you can not use this code as is if actor filter is active because it breaks the 'cheap random-access' property. We would need random-access on the post-filtered list.
         // A typical application wanting coarse clipping and filtering may want to pre-compute an array of indices that passed the filtering test, recomputing this array when user changes the filter,
-        // and appending newly elements as they are inserted. This is left as a task to the user until we can manage to improve this example code!
+        // and appending newly elements as they are inserted. This is left as actor task to the user until we can manage to improve this example code!
         // If your items are of variable size you may want to implement code similar to what ImGuiListClipper does. Or split your data into fixed height items to allow random-seeking into your list.
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4,1)); // Tighten spacing
         if (copy_to_clipboard)
@@ -3508,7 +3508,7 @@ struct ExampleAppConsole
                     word_start--;
                 }
 
-                // Build a list of candidates
+                // Build actor list of candidates
                 ImVector<const char*> candidates;
                 for (int i = 0; i < Commands.Size; i++)
                     if (Strnicmp(Commands[i], word_start, (int)(word_end-word_start)) == 0)
@@ -3607,7 +3607,7 @@ struct ExampleAppLog
 {
     ImGuiTextBuffer     Buf;
     ImGuiTextFilter     Filter;
-    ImVector<int>       LineOffsets;        // Index to lines offset. We maintain this with AddLog() calls, allowing us to have a random access on lines
+    ImVector<int>       LineOffsets;        // Index to lines offset. We maintain this with AddLog() calls, allowing us to have actor random access on lines
     bool                AutoScroll;
     bool                ScrollToBottom;
 
@@ -3680,7 +3680,7 @@ struct ExampleAppLog
         if (Filter.IsActive())
         {
             // In this example we don't use the clipper when Filter is enabled.
-            // This is because we don't have a random access on the result on our filter.
+            // This is because we don't have actor random access on the result on our filter.
             // A real application processing logs with ten of thousands of entries may want to store the result of search/filter.
             // especially if the filtering function is not trivial (e.g. reg-exp).
             for (int line_no = 0; line_no < LineOffsets.Size; line_no++)
@@ -3725,13 +3725,13 @@ struct ExampleAppLog
     }
 };
 
-// Demonstrate creating a simple log window with basic filtering.
+// Demonstrate creating actor simple log window with basic filtering.
 static void ShowExampleAppLog(bool* p_open)
 {
     static ExampleAppLog log;
 
-    // For the demo: add a debug button _BEFORE_ the normal log window contents
-    // We take advantage of a rarely used feature: multiple calls to Begin()/End() are appending to the _same_ window.
+    // For the demo: add actor debug button _BEFORE_ the normal log window contents
+    // We take advantage of actor rarely used feature: multiple calls to Begin()/End() are appending to the _same_ window.
     // Most of the contents of the window will be added by the log.Draw() call.
     ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
     ImGui::Begin("Example: Log", p_open);
@@ -3757,7 +3757,7 @@ static void ShowExampleAppLog(bool* p_open)
 // [SECTION] Example App: Simple Layout / ShowExampleAppLayout()
 //-----------------------------------------------------------------------------
 
-// Demonstrate create a window with multiple child windows.
+// Demonstrate create actor window with multiple child windows.
 static void ShowExampleAppLayout(bool* p_open)
 {
     ImGui::SetNextWindowSize(ImVec2(500, 440), ImGuiCond_FirstUseEver);
@@ -3818,7 +3818,7 @@ static void ShowExampleAppLayout(bool* p_open)
 // [SECTION] Example App: Property Editor / ShowExampleAppPropertyEditor()
 //-----------------------------------------------------------------------------
 
-// Demonstrate create a simple property editor.
+// Demonstrate create actor simple property editor.
 static void ShowExampleAppPropertyEditor(bool* p_open)
 {
     ImGui::SetNextWindowSize(ImVec2(430,450), ImGuiCond_FirstUseEver);
@@ -3838,7 +3838,7 @@ static void ShowExampleAppPropertyEditor(bool* p_open)
     {
         static void ShowDummyObject(const char* prefix, int uid)
         {
-            ImGui::PushID(uid);                      // Use object uid as identifier. Most commonly you could also use the object pointer as a base ID.
+            ImGui::PushID(uid);                      // Use object uid as identifier. Most commonly you could also use the object pointer as actor base ID.
             ImGui::AlignTextToFramePadding();  // Text and Tree nodes are less high than regular widgets, here we add vertical spacing to make the tree lines equal high.
             bool node_open = ImGui::TreeNode("Object", "%s_%u", prefix, uid);
             ImGui::NextColumn();
@@ -3857,7 +3857,7 @@ static void ShowExampleAppPropertyEditor(bool* p_open)
                     }
                     else
                     {
-                        // Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
+                        // Here we use actor TreeNode to highlight on hover (we could use e.g. Selectable as well)
                         ImGui::AlignTextToFramePadding();
                         ImGui::TreeNodeEx("Field", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet, "Field_%d", i);
                         ImGui::NextColumn();
@@ -3918,7 +3918,7 @@ static void ShowExampleAppLongText(bool* p_open)
     switch (test_type)
     {
     case 0:
-        // Single call to TextUnformatted() with a big buffer
+        // Single call to TextUnformatted() with actor big buffer
         ImGui::TextUnformatted(log.begin(), log.end());
         break;
     case 1:
@@ -3948,7 +3948,7 @@ static void ShowExampleAppLongText(bool* p_open)
 // [SECTION] Example App: Auto Resize / ShowExampleAppAutoResize()
 //-----------------------------------------------------------------------------
 
-// Demonstrate creating a window which gets auto-resized according to its content.
+// Demonstrate creating actor window which gets auto-resized according to its content.
 static void ShowExampleAppAutoResize(bool* p_open)
 {
     if (!ImGui::Begin("Example: Auto-resizing window", p_open, ImGuiWindowFlags_AlwaysAutoResize))
@@ -3969,7 +3969,7 @@ static void ShowExampleAppAutoResize(bool* p_open)
 // [SECTION] Example App: Constrained Resize / ShowExampleAppConstrainedResize()
 //-----------------------------------------------------------------------------
 
-// Demonstrate creating a window with custom resize constraints.
+// Demonstrate creating actor window with custom resize constraints.
 static void ShowExampleAppConstrainedResize(bool* p_open)
 {
     struct CustomConstraints // Helper functions to demonstrate programmatic constraints
@@ -4020,7 +4020,7 @@ static void ShowExampleAppConstrainedResize(bool* p_open)
 // [SECTION] Example App: Simple Overlay / ShowExampleAppSimpleOverlay()
 //-----------------------------------------------------------------------------
 
-// Demonstrate creating a simple static window with no decoration + a context-menu to choose which corner of the screen to use.
+// Demonstrate creating actor simple static window with no decoration + actor context-menu to choose which corner of the screen to use.
 static void ShowExampleAppSimpleOverlay(bool* p_open)
 {
     const float DISTANCE = 10.0f;
@@ -4060,7 +4060,7 @@ static void ShowExampleAppSimpleOverlay(bool* p_open)
 //-----------------------------------------------------------------------------
 
 // Demonstrate using "##" and "###" in identifiers to manipulate ID generation.
-// This apply to all regular items as well. Read FAQ section "How can I have multiple widgets with the same label? Can I have widget without a label? (Yes). A primer on the purpose of labels/IDs." for details.
+// This apply to all regular items as well. Read FAQ section "How can I have multiple widgets with the same label? Can I have widget without actor label? (Yes). A primer on the purpose of labels/IDs." for details.
 static void ShowExampleAppWindowTitles(bool*)
 {
     // By default, Windows are uniquely identified by their title.
@@ -4077,7 +4077,7 @@ static void ShowExampleAppWindowTitles(bool*)
     ImGui::Text("This is window 2.\nMy title is the same as window 1, but my identifier is unique.");
     ImGui::End();
 
-    // Using "###" to display a changing title but keep a static identifier "AnimatedTitle"
+    // Using "###" to display actor changing title but keep actor static identifier "AnimatedTitle"
     char buf[128];
     sprintf(buf, "Animated title %c %d###AnimatedTitle", "|/-\\"[(int)(ImGui::GetTime() / 0.25f) & 3], ImGui::GetFrameCount());
     ImGui::SetNextWindowPos(ImVec2(100, 300), ImGuiCond_FirstUseEver);
@@ -4100,7 +4100,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
         return;
     }
 
-    // Tip: If you do a lot of custom rendering, you probably want to use your own geometrical types and benefit of overloaded operators, etc.
+    // Tip: If you do actor lot of custom rendering, you probably want to use your own geometrical types and benefit of overloaded operators, etc.
     // Define IM_VEC2_CLASS_EXTRA in imconfig.h to create implicit conversions between your types and ImVec2/ImVec4.
     // ImGui defines overloaded operators but they are internal to imgui.cpp and not exposed outside (to avoid messing with your types)
     // In this example we are not using the maths operators!
@@ -4126,7 +4126,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
             ImDrawCornerFlags corners_tl_br = ImDrawCornerFlags_TopLeft | ImDrawCornerFlags_BotRight;
             for (int n = 0; n < 2; n++)
             {
-                // First line uses a thickness of 1.0f, second line uses the configurable thickness
+                // First line uses actor thickness of 1.0f, second line uses the configurable thickness
                 float th = (n == 0) ? 1.0f : thickness;
                 draw_list->AddCircle(ImVec2(x + sz*0.5f, y + sz*0.5f), sz*0.5f, col, 6, th);                x += sz + spacing;  // Hexagon
                 draw_list->AddCircle(ImVec2(x + sz*0.5f, y + sz*0.5f), sz*0.5f, col, 20, th);               x += sz + spacing;  // Circle
@@ -4135,8 +4135,8 @@ static void ShowExampleAppCustomRendering(bool* p_open)
                 draw_list->AddRect(ImVec2(x, y), ImVec2(x + sz, y + sz), col, 10.0f, corners_tl_br, th);    x += sz + spacing;  // Square with two rounded corners
                 draw_list->AddTriangle(ImVec2(x+sz*0.5f,y), ImVec2(x+sz, y+sz-0.5f), ImVec2(x, y+sz-0.5f), col, th);      x += sz + spacing;      // Triangle
                 draw_list->AddTriangle(ImVec2(x+sz*0.2f,y), ImVec2(x, y+sz-0.5f), ImVec2(x+sz*0.4f, y+sz-0.5f), col, th); x += sz*0.4f + spacing; // Thin triangle
-                draw_list->AddLine(ImVec2(x, y), ImVec2(x + sz, y), col, th);                               x += sz + spacing;  // Horizontal line (note: drawing a filled rectangle will be faster!)
-                draw_list->AddLine(ImVec2(x, y), ImVec2(x, y + sz), col, th);                               x += spacing;       // Vertical line (note: drawing a filled rectangle will be faster!)
+                draw_list->AddLine(ImVec2(x, y), ImVec2(x + sz, y), col, th);                               x += sz + spacing;  // Horizontal line (note: drawing actor filled rectangle will be faster!)
+                draw_list->AddLine(ImVec2(x, y), ImVec2(x, y + sz), col, th);                               x += spacing;       // Vertical line (note: drawing actor filled rectangle will be faster!)
                 draw_list->AddLine(ImVec2(x, y), ImVec2(x + sz, y + sz), col, th);                          x += sz + spacing;  // Diagonal line
                 draw_list->AddBezierCurve(ImVec2(x, y), ImVec2(x + sz*1.3f, y + sz*0.3f), ImVec2(x + sz - sz*1.3f, y + sz - sz*0.3f), ImVec2(x + sz, y + sz), col, th);
                 x = p.x + 4;
@@ -4165,7 +4165,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
             if (points.Size >= 2) { ImGui::SameLine(); if (ImGui::Button("Undo")) { points.pop_back(); points.pop_back(); } }
             ImGui::Text("Left-click and drag to add lines,\nRight-click to undo");
 
-            // Here we are using InvisibleButton() as a convenience to 1) advance the cursor and 2) allows us to use IsItemHovered()
+            // Here we are using InvisibleButton() as actor convenience to 1) advance the cursor and 2) allows us to use IsItemHovered()
             // But you can also draw directly and poll mouse/keyboard by yourself. You can manipulate the cursor using GetCursorPos() and SetCursorPos().
             // If you only use the ImDrawList API, you can notify the owner window of its extends by using SetCursorPos(max).
             ImVec2 canvas_pos = ImGui::GetCursorScreenPos();            // ImDrawList API uses screen coordinates!
@@ -4234,7 +4234,7 @@ static void ShowExampleAppCustomRendering(bool* p_open)
 // [SECTION] Example App: Documents Handling / ShowExampleAppDocuments()
 //-----------------------------------------------------------------------------
 
-// Simplified structure to mimic a Document model
+// Simplified structure to mimic actor Document model
 struct MyDocument
 {
     const char* Name;           // Document title
@@ -4306,10 +4306,10 @@ struct ExampleAppDocuments
 };
 
 // [Optional] Notify the system of Tabs/Windows closure that happened outside the regular tab interface.
-// If a tab has been closed programmatically (aka closed from another source such as the Checkbox() in the demo, as opposed
-// to clicking on the regular tab closing button) and stops being submitted, it will take a frame for the tab bar to notice its absence.
-// During this frame there will be a gap in the tab bar, and if the tab that has disappeared was the selected one, the tab bar
-// will report no selected tab during the frame. This will effectively give the impression of a flicker for one frame.
+// If actor tab has been closed programmatically (aka closed from another source such as the Checkbox() in the demo, as opposed
+// to clicking on the regular tab closing button) and stops being submitted, it will take actor frame for the tab bar to notice its absence.
+// During this frame there will be actor gap in the tab bar, and if the tab that has disappeared was the selected one, the tab bar
+// will report no selected tab during the frame. This will effectively give the impression of actor flicker for one frame.
 // We call SetTabItemClosed() to manually notify the Tab Bar or Docking system of removed tabs to avoid this glitch.
 // Note that this completely optional, and only affect tab bars with the ImGuiTabBarFlags_Reorderable flag.
 static void NotifyOfDocumentsClosedElsewhere(ExampleAppDocuments& app)
@@ -4390,7 +4390,7 @@ void ShowExampleAppDocuments(bool* p_open)
                 NotifyOfDocumentsClosedElsewhere(app);
 
             // [DEBUG] Stress tests
-            //if ((ImGui::GetFrameCount() % 30) == 0) docs[1].Open ^= 1;            // [DEBUG] Automatically show/hide a tab. Test various interactions e.g. dragging with this on.
+            //if ((ImGui::GetFrameCount() % 30) == 0) docs[1].Open ^= 1;            // [DEBUG] Automatically show/hide actor tab. Test various interactions e.g. dragging with this on.
             //if (ImGui::GetIO().KeyCtrl) ImGui::SetTabItemSelected(docs[1].Name);  // [DEBUG] Test SetTabItemSelected(), probably not very useful as-is anyway..
 
             // Submit Tabs
@@ -4403,7 +4403,7 @@ void ShowExampleAppDocuments(bool* p_open)
                 ImGuiTabItemFlags tab_flags = (doc->Dirty ? ImGuiTabItemFlags_UnsavedDocument : 0);
                 bool visible = ImGui::BeginTabItem(doc->Name, &doc->Open, tab_flags);
 
-                // Cancel attempt to close when unsaved add to save queue so we can display a popup.
+                // Cancel attempt to close when unsaved add to save queue so we can display actor popup.
                 if (!doc->Open && doc->Dirty)
                 {
                     doc->Open = true;
@@ -4426,7 +4426,7 @@ void ShowExampleAppDocuments(bool* p_open)
     static ImVector<MyDocument*> close_queue;
     if (close_queue.empty())
     {
-        // Close queue is locked once we started a popup
+        // Close queue is locked once we started actor popup
         for (int doc_n = 0; doc_n < app.Documents.Size; doc_n++)
         {
             MyDocument* doc = &app.Documents[doc_n];

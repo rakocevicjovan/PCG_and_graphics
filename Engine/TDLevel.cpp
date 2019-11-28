@@ -24,7 +24,7 @@ void TDLevel::init(Systems& sys)
 
 	boiModel.LoadModel(device, "../Models/Skysphere.fbx");
 
-	Actor a();
+	Actor actor;
 
 	for (int i = 0; i < 125; ++i)
 	{
@@ -46,18 +46,6 @@ void TDLevel::init(Systems& sys)
 	{
 		debugModel.meshes.push_back(Mesh(static_cast<Hull*>(&tempBoxes[i]), device));
 	}*/
-
-
-	//move this code elsewhere, obviously doesn't in a specific level... make a gui and load on startup (as a level in itself)
-	//loadLevel(), called on a file from the level list, should return a level (with all assets loaded) to the level manager
-	//lazy level loading should be supported later but now... no need, keep it simple
-	
-	/*
-	pjLoader.loadProjFromConfig("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Tower Defense\\Tower defense.json");
-	auto levelList = pjLoader.getLevelList();
-	assLoader.setProjectData(pjLoader.getProjDir());
-	assLoader.loadLevel(levelList[0]);
-	*/
 }
 
 

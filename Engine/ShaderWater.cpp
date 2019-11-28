@@ -183,7 +183,6 @@ bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
-	//SVec4 viewDir = -vT.Forward();	//@TODO CHECK IF THIS WORKS RIGHT!!! Inverse and transpose work similarly for view matrix... a bit of a hack tbh
 	SVec4 viewDir = cam.GetCameraMatrix().Forward();
 
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))

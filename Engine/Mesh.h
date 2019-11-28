@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Resource.h"
 #include "MeshDataStructs.h"
 #include "Texture.h"
 #include "Math.h"
@@ -17,7 +18,7 @@ namespace Procedural { class Terrain; }
 
 class Hull;
 
-class Mesh
+class Mesh : public Resource
 {
 public:
 	std::vector<Vert3D>			vertices;

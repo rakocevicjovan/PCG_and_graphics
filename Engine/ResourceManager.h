@@ -8,7 +8,7 @@
 #include "Audio.h"
 #include "LevelReader.h"
 #include "ProjectLoader.h"
-
+#include "StackAllocator.h"
 
 //intended for a level-based game... not going to do open world yet until I understand how to implement streaming well
 
@@ -16,6 +16,7 @@ class ResourceManager
 {
 	ProjectLoader _projLoader;
 	LevelReader _levelReader;
+	StackAllocator _stackAllocator;
 
 public:
 	ResourceManager();

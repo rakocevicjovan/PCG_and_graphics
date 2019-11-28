@@ -1,6 +1,6 @@
 #include "ResourceManager.h"
 
-ResourceManager::ResourceManager()
+ResourceManager::ResourceManager()// : _stackAllocator(1024 * 1024 * 100)
 {
 }
 
@@ -16,6 +16,8 @@ void ResourceManager::init()
 	//loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_projLoader.loadProjFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
 	_levelReader.setProjectData(_projLoader.getProjDir());
+
+	_stackAllocator.init(1024 * 1024 * 100);
 }
 
 
@@ -24,24 +26,26 @@ void ResourceManager::pushLevel(int i)
 {
 	_levelReader.loadLevel(_projLoader.getLevelList()[i]);
 
-	//add to stack... which I have yet to implement
+	//add to memory... which I have yet to implement... but that's down to memory management classes to handle
 
-	auto resDefs = _levelReader.getLevelResourceDefs();
+	const std::vector<ResourceDef>& resDefs = _levelReader.getLevelResourceDefs();
+	std::vector<Resource*> resources;
+	resources.reserve(resDefs.size());
 
 	for (int i = 0; i < resDefs.size(); ++i)
 	{
-		switch (resDefs[i].type)
+		//resources.emplace_back(resDefs[i].path, resDefs[i].name);
+		if (resDefs[i].type == ResType::MESH)
 		{
-		case ResType::MESH:
-			break;
+			resources.emplace_back(new (_stackAllocator.alloc(sizeof(Mesh))) Mesh());
+		}
+		else if (resDefs[i].type == ResType::TEXTURE)
+		{
 
-		case ResType::TEXTURE:
-			break;
-
-		case ResType::MATERIAL:
-			break;
-		};
+		}
+		
 	}
+
 }
 
 
