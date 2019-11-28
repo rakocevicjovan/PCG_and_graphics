@@ -13,10 +13,13 @@
 
 LevelManager::LevelManager(Systems& systems)
 {
-	current = new ProjectPickerLevel(systems);
+	systems._resMan.pushLevel(0);
+
+	current = new TDLevel(systems);		//new ProjectPickerLevel(systems); boring to click through...
 	current->init(systems);
 	_levels.push_back(current);
-	_levels.push_back(new TDLevel(systems));
+
+	//needs to be able to load to gpu so needs device... also, resource manager doesn't belong in levels, keep it in systems
 
 	//_levels.push_back(new EarthLevel(systems));
 	//_levels.push_back(new FireLevel(systems));

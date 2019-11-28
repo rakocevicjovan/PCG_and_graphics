@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
 #include "rapidjson/document.h"
 
 
@@ -11,7 +12,8 @@ enum class ResType
 	MATERIAL,
 	ANIMATION,
 	SKELETON,
-	SOUND
+	SOUND,
+	UNSUPPORTED
 };
 
 
@@ -42,12 +44,14 @@ struct LevelDef
 class LevelReader
 {
 private:
+	
 	std::string _projectPath;
 	std::vector<ResourceDef> _resourceDefs;
 	LevelDef _ld;
 
 	bool loadLevelDef(const rapidjson::Document& sceneDef);
 	bool loadResourceDefs(const rapidjson::Document& sceneDef);
+	ResType getResTypeFromString(const std::string& str);
 
 public:
 	LevelReader();
@@ -58,4 +62,5 @@ public:
 	
 	const std::vector<ResourceDef>& getLevelResourceDefs();
 	void clearLevelResourceDefs();
+	static const std::map<std::string, ResType> resTypeMap;
 };

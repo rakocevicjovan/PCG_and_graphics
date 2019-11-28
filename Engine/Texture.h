@@ -5,6 +5,9 @@
 #include <vector>
 #include "assimp\scene.h"
 #include "WICTextureLoader.h"
+#include "Resource.h"
+
+
 
 namespace Procedural
 {
@@ -13,7 +16,8 @@ namespace Procedural
 
 
 
-class Texture : public Resource {
+class Texture : public Resource
+{
 
 public:
 

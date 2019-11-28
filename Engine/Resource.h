@@ -24,4 +24,6 @@ public:
 	inline const std::string& getPath() { return _path; }
 
 	inline const std::string& getName() { return _name; }
+
+	inline void setPathName(const std::string& path, const std::string& name) { _path = path; _name = name; }
 };

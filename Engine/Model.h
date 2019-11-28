@@ -14,7 +14,7 @@ class Collider;
 
 namespace Procedural { class Terrain; }
 
-class Model
+class Model : public Resource
 {
 private:
 	std::string directory;

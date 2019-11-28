@@ -17,12 +17,13 @@ class ResourceManager
 	ProjectLoader _projLoader;
 	LevelReader _levelReader;
 	StackAllocator _stackAllocator;
+	ID3D11Device* _device;
 
 public:
 	ResourceManager();
 	~ResourceManager();
 
-	void init();
+	void init(ID3D11Device*);
 	void pushLevel(int i);
 	void popLevel(int i);
 	bool loadResource();

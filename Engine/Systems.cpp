@@ -37,7 +37,8 @@ bool Systems::Initialize()
 	_colEngine.registerController(_controller);	//works both ways
 	_renderer._cam._controller = &_controller;
 
-	_resMan.init();
+	//loads in the td game and first level for now... cba going through the selection each time
+	_resMan.init(_device);
 
 	_levelMan = new LevelManager(*this);
 

@@ -11,13 +11,15 @@
             "id": 1,
             "path": "Assets\\Models\\FlyingMage\\source\\flying mage.obj",
             "name": "FlyingMage",
-            "level": "Level 1"
+            "level": "Level 1",
+            "resType": "mesh"
         },
         {
             "id": 2,
             "path": "Assets\\Models\\Cauldron\\source\\cauldron.obj",
             "name": "Cauldron",
-            "level": "Level 1"
+            "level": "Level 1",
+            "resType": "mesh"
         }
     ],
     "fileName": "TD_level_1.json"

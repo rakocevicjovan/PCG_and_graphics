@@ -33,6 +33,7 @@ public:
 
 	void init(size_t size)
 	{
+		_stackSize = size;
 		_stackPtr = new byte[_stackSize];
 		_head = 0;
 	}
@@ -41,9 +42,9 @@ public:
 
 	byte* alloc(size_t size)
 	{
-		byte* toReturn = _stackPtr + _head;	//will return the pointer to the current head offset
-		_head += size;						//will increment the head offset for future allocations to not overwrite this
-		return toReturn;					//this pointer is used to rewind the stack and "free" memory
+		byte* toReturn = _stackPtr + _head;		//will return the pointer to the current head offset
+		_head += size;							//will increment the head offset for future allocations to not overwrite this
+		return toReturn;						//this pointer is used to rewind the stack and "free" memory
 	}
 
 

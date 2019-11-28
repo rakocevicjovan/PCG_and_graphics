@@ -57,12 +57,25 @@ bool LevelReader::loadResourceDefs(const rapidjson::Document& levelDef)
 	ResourceDef ad;
 	for (rapidjson::Value::ConstValueIterator itr = assDefArr.Begin(); itr != assDefArr.End(); ++itr)
 	{
-		ad.id = itr->FindMember("id")->value.GetInt();
+		ad.id	= itr->FindMember("id")->value.GetInt();
 		ad.path = itr->FindMember("path")->value.GetString();
 		ad.name = itr->FindMember("name")->value.GetString();
+		ad.type = getResTypeFromString(itr->FindMember("resType")->value.GetString());
 		_resourceDefs.push_back(ad);
 	}
 	return true;
+}
+
+
+
+ResType LevelReader::getResTypeFromString(const std::string& str)
+{
+	auto it = resTypeMap.find(str);
+	
+	if(it == resTypeMap.end())
+		return ResType::UNSUPPORTED;
+	
+	return it->second;
 }
 
 
@@ -85,3 +98,14 @@ void LevelReader::clearLevelResourceDefs()
 {
 	_resourceDefs.clear();
 }
+
+
+const std::map<std::string, ResType> LevelReader::resTypeMap =
+{
+	{"mesh", ResType::MESH},
+	{"texture", ResType::TEXTURE},
+	{"material", ResType::MATERIAL},
+	{"skeleton", ResType::SKELETON},
+	{"animation", ResType::ANIMATION},
+	{"sound", ResType::SOUND}
+};
