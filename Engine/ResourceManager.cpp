@@ -13,7 +13,6 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::init()
 {
-	_storage = new byte[B33GSIZE];
 	//loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_projLoader.loadProjFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
 	_levelReader.setProjectData(_projLoader.getProjDir());
