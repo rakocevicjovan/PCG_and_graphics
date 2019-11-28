@@ -1,32 +1,32 @@
 #pragma once
-#include <d3d11.h>
 #include <vector>
-#include <map>
-#include <string>
+#include <unordered_map>
 
+#include "Resource.h"
 #include "Texture.h"
-#include "CubeMapper.h"
 #include "Model.h"
-#include "Light.h"
-#include "OST.h"
 #include "Audio.h"
-#include "ParticleSystem.h"
+#include "LevelReader.h"
+#include "ProjectLoader.h"
 
-//procedural
-#include "Terrain.h"
-#include "Perlin.h"
-#include "LSystem.h"
-#include "Voronoi.h"
-#include "Volumetric.h"
-#include "BitMapper.h"
-#include "Geometry.h"
-#include "Maze.h"
-#include "Hexer.h"
+
+//intended for a level-based game... not going to do open world yet until I understand how to implement streaming well
 
 class ResourceManager
 {
+	ProjectLoader _projLoader;
+	LevelReader _levelReader;
 
 public:
 	ResourceManager();
 	~ResourceManager();
+
+	void init();
+	void pushLevel(int i);
+	void popLevel(int i);
+	bool loadResource();
+	bool removeResource();
+
+	std::unordered_map<std::string, Resource*> _resourceMap;
+	ProjectLoader& getProjectLoader() { return _projLoader; }
 };

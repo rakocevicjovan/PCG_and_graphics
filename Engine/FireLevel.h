@@ -1,6 +1,7 @@
 #pragma once
 #include "Level.h"
 #include "OST.h"
+#include "Hexer.h"
 
 class FireLevel : public Level
 {

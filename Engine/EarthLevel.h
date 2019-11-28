@@ -1,6 +1,7 @@
 #pragma once
 #include "Level.h"
-
+#include "Maze.h"
+#include "ParticleSystem.h"
 
 
 class EarthLevel : public Level

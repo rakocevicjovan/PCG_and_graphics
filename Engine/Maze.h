@@ -53,9 +53,9 @@ public:
 	
 	void Eller();
 	void PopulateRow(int z, std::map<int, EllerSet>& currentRow);
-	void CreateModel(ID3D11Device* device);
-	void BuildCellMeshes(MazeCell& mc, ID3D11Device* device, Mesh& left, Mesh& right, Mesh& top, Mesh& bottom);
-	void AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* device);
+	void CreateModel(ID3D11Device* pDevice);
+	void BuildCellMeshes(MazeCell& mc, ID3D11Device* pDevice, Mesh& left, Mesh& right, Mesh& top, Mesh& bottom);
+	void AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* pDevice);
 
 	SVec3 GetRandCellPos();
 };

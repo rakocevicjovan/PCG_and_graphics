@@ -4,7 +4,7 @@
 #include "rapidjson/document.h"
 
 //not really required but meh, not a big overhead to store this
-struct ProjectConfiguration
+struct ProjectDefinition
 {
 	unsigned int id;
 	int numLevels;
@@ -21,7 +21,7 @@ struct ProjectConfiguration
 class ProjectLoader
 {
 private:
-	ProjectConfiguration _pc;
+	ProjectDefinition _projDef;
 	std::string _projConfPath;
 
 	bool loadProjectConfiguration(const rapidjson::Document& projConfDoc);
@@ -31,11 +31,11 @@ public:
 
 	ProjectLoader();
 
-	bool loadProjFromConfig(const std::string&& projConfPath);
+	bool loadProjFromConfig(const std::string& projConfPath);
 
-	const std::string& getProjDir();
-
-	const std::vector<std::string>& getLevelList();
+	const std::string& getProjDir() const;
+	const ProjectDefinition& getProjDef() const;
+	const std::vector<std::string>& getLevelList() const;
 };
 
 //std::string _assetDirPath;

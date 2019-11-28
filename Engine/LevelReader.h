@@ -1,15 +1,30 @@
 #pragma once
 #include <string>
 #include <vector>
-#include "rapidjson/document.h"	//reeee... could try to forward spec it but not sure how, lots of templates
+#include "rapidjson/document.h"
 
 
-struct AssetDef
+enum class ResType
+{
+	MESH,
+	TEXTURE,
+	MATERIAL,
+	ANIMATION,
+	SKELETON,
+	SOUND
+};
+
+
+
+struct ResourceDef
 {
 	int id;
 	std::string path;
 	std::string name;
+	ResType type;
 };
+
+
 
 struct LevelDef
 {
@@ -24,20 +39,23 @@ struct LevelDef
 
 
 
-class AssetLoader
+class LevelReader
 {
 private:
 	std::string _projectPath;
-	std::vector<AssetDef> _assetDefs;
+	std::vector<ResourceDef> _resourceDefs;
 	LevelDef _ld;
 
 	bool loadLevelDef(const rapidjson::Document& sceneDef);
-	bool loadAssetDefs(const rapidjson::Document& sceneDef);
-	bool AssetLoader::loadAsset(const AssetDef& ad);
+	bool loadResourceDefs(const rapidjson::Document& sceneDef);
 
 public:
-	AssetLoader();
+	LevelReader();
+
+	void setProjectData(const std::string& projectPath);
 
 	bool loadLevel(const std::string& levelPath);
-	void setProjectData(const std::string& projectPath);	//, const std::vector<std::string>& levelPaths
+	
+	const std::vector<ResourceDef>& getLevelResourceDefs();
+	void clearLevelResourceDefs();
 };

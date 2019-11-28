@@ -7,12 +7,13 @@
 #include "StrifeLevel.h"
 #include "TestLevel.h"
 #include "TDLevel.h"
+#include "ProjectPickerLevel.h"
 
 
 
 LevelManager::LevelManager(Systems& systems)
 {
-	current = new TDLevel(systems);	
+	current = new ProjectPickerLevel(systems);
 	current->init(systems);
 	_levels.push_back(current);
 

@@ -20,12 +20,13 @@ class Hull;
 class Mesh
 {
 public:
-	std::vector<Vert3D> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
+	std::vector<Vert3D>			vertices;
+	std::vector<unsigned int>	indices;
+	std::vector<Texture>		textures;
 	unsigned int indexIntoModelMeshArray;
 
-	ID3D11Buffer *_vertexBuffer = nullptr, *_indexBuffer = nullptr;
+	ID3D11Buffer* _vertexBuffer = nullptr;
+	ID3D11Buffer* _indexBuffer  = nullptr;
 
 	Mesh();
 	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind);

@@ -1,6 +1,8 @@
 #pragma once
 #include "Systems.h"
 #include "GameObject.h"
+#include "Terrain.h"
+#include "Perlin.h"
 
 #define device		_sys._device
 #define context		_sys._deviceContext

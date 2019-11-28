@@ -1,5 +1,5 @@
 #include "FireLevel.h"
-
+#include "LSystem.h"
 
 
 void FireLevel::init(Systems& sys)

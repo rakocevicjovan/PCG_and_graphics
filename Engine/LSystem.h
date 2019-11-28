@@ -48,9 +48,9 @@ namespace Procedural
 		void removeRule(char left, std::string right);
 		void rewrite(unsigned int steps);
 		void genVerts(float length, float decay, float pitch, float yaw);
-		Model genModel(ID3D11Device* device, float length, float radius, const float lengthConstriction, const float radiusConstriction, float pitch, float yaw);
-		Model genFlower(ID3D11Device* device, Model* petalModel, float stalkSegmentLength, float stalkRadius, float deescalator, float angle, float tilt);
-		void setUp(ID3D11Device* device);
+		Model genModel(ID3D11Device* pDevice, float length, float radius, const float lengthConstriction, const float radiusConstriction, float pitch, float yaw);
+		Model genFlower(ID3D11Device* pDevice, Model* petalModel, float stalkSegmentLength, float stalkRadius, float deescalator, float angle, float tilt);
+		void setUp(ID3D11Device* pDevice);
 		void drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s,
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);

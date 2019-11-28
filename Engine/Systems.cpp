@@ -2,6 +2,8 @@
 #include <string>
 #include <Mouse.h>
 
+
+
 Systems::Systems() : screenWidth(0), screenHeight(0) {}
 
 Systems::~Systems(){}
@@ -25,12 +27,17 @@ bool Systems::Initialize()
 	_inputManager.Initialize(_hwnd);
 	_controller = Controller(&_inputManager);
 
-	if(!_renderer.Initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
+	if (!_renderer.Initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
+	{
+		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
+	}
 	
 	_colEngine.init();
 	_colEngine.registerController(_controller);	//works both ways
 	_renderer._cam._controller = &_controller;
+
+	_resMan.init();
 
 	_levelMan = new LevelManager(*this);
 
@@ -198,7 +205,8 @@ void Systems::Shutdown()
 {
 	ShowCursor(true);
 
-	if (FULL_SCREEN) ChangeDisplaySettings(NULL, 0);
+	if (FULL_SCREEN)
+		ChangeDisplaySettings(NULL, 0);
 
 	DestroyWindow(_hwnd);
 	_hwnd = NULL;

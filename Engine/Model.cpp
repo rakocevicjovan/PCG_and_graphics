@@ -1,7 +1,8 @@
 #include "Model.h"
 #include "CollisionEngine.h"
 #include "Terrain.h"
-
+#include "FileUtilities.h"
+#include "CollisionEngine.h"
 
 Model::Model(const std::string& path)
 {
@@ -34,7 +35,7 @@ Model::~Model()
 
 bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx, float rUVy)
 {
-	assert(fileExists(path) && "File does not exist! ...probably.");
+	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
 	unsigned int pFlags =
 		aiProcessPreset_TargetRealtime_MaxQuality |
@@ -243,14 +244,6 @@ bool Model::LoadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& tex
 		return true;
 	}
 	return false;
-}
-
-
-
-inline bool Model::fileExists(const std::string& name)
-{
-	std::ifstream f(name.c_str());
-	return f.good();
 }
 
 

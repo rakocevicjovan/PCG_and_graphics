@@ -1,36 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Shader Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Procedural">
       <UniqueIdentifier>{da188881-b302-4db2-9786-b8e11ead4641}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader Files\Volumetric">
-      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader Files\Common">
-      <UniqueIdentifier>{dc171221-b077-4f1b-afb0-932d39c23157}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader Files\Specific">
-      <UniqueIdentifier>{e1bad4ba-8d4f-45de-93e9-ad1efd03f633}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader Files\PostProcessing">
-      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Strife">
       <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader Files\Clouds">
-      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{c448c636-6f18-4d93-926b-e9e3e59e23cb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SkelAnim">
-      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
     </Filter>
     <Filter Include="Editor">
       <UniqueIdentifier>{bf623ccc-dcad-4998-8852-aa8c0dc95289}</UniqueIdentifier>
@@ -43,12 +21,6 @@
     </Filter>
     <Filter Include="SceneGraph">
       <UniqueIdentifier>{988cbca4-84cf-428d-bb5d-422582b21fd8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shader Classes">
-      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="AssetLoaders">
-      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
     </Filter>
     <Filter Include="Levels">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
@@ -87,6 +59,40 @@
     <Filter Include="AI">
       <UniqueIdentifier>{527b4072-18fc-437c-968c-41405c35f43c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\SkelAnim">
+      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Volumetric">
+      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Common">
+      <UniqueIdentifier>{dc171221-b077-4f1b-afb0-932d39c23157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Specific">
+      <UniqueIdentifier>{e1bad4ba-8d4f-45de-93e9-ad1efd03f633}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\PostProcessing">
+      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Clouds">
+      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Classes">
+      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset handling">
+      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Levels\Implemented\__Picker">
+      <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryAllocators">
+      <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -102,70 +108,70 @@
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCM.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderDepth.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderHUD.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderPT.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderShadow.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWater.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderBase.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderLight.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="InstancedShader.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="Volumetric.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="TerrainShader.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="PerlinShader.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderVolumetric.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="Maze.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderMaze.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClCompile>
     <ClCompile Include="ToolGUI.cpp">
       <Filter>Strife</Filter>
@@ -212,23 +218,20 @@
     <ClCompile Include="SceneGraph.cpp">
       <Filter>SceneGraph</Filter>
     </ClCompile>
-    <ClCompile Include="AssetLoader.cpp">
-      <Filter>AssetLoaders</Filter>
-    </ClCompile>
     <ClCompile Include="ProjectLoader.cpp">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="Animator.cpp">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
@@ -252,13 +255,13 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
@@ -273,7 +276,7 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="MeshDataStructs.h">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="AirLevel.cpp">
       <Filter>Levels\Implemented\Air</Filter>
@@ -335,6 +338,12 @@
     <ClCompile Include="Systems.cpp">
       <Filter>Other</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectPicker.cpp">
+      <Filter>Asset handling</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelReader.cpp">
+      <Filter>Asset handling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -368,46 +377,46 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderShadow.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderPT.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHUD.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDepth.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCM.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderStrife.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWater.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWireframe.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderBase.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLight.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="Volumetric.h">
       <Filter>Procedural</Filter>
@@ -416,31 +425,31 @@
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="PerlinShader.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDataStructs.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="Maze.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderMaze.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
-      <Filter>Shader Classes</Filter>
+      <Filter>Rendering\Shader Classes</Filter>
     </ClInclude>
     <ClInclude Include="ToolGUI.h">
       <Filter>Strife</Filter>
@@ -502,35 +511,32 @@
     <ClInclude Include="SceneGraph.h">
       <Filter>SceneGraph</Filter>
     </ClInclude>
-    <ClInclude Include="AssetLoader.h">
-      <Filter>AssetLoaders</Filter>
-    </ClInclude>
     <ClInclude Include="ProjectLoader.h">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalMesh.h">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModel.h">
-      <Filter>SkelAnim</Filter>
+      <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
-      <Filter>AssetLoaders</Filter>
+      <Filter>Asset handling</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Rendering</Filter>
@@ -619,58 +625,73 @@
     <ClInclude Include="FileUtilities.h">
       <Filter>Other</Filter>
     </ClInclude>
+    <ClInclude Include="ProjectPicker.h">
+      <Filter>Asset handling</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectPickerLevel.h">
+      <Filter>Levels\Implemented\__Picker</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Asset handling</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelReader.h">
+      <Filter>Asset handling</Filter>
+    </ClInclude>
+    <ClInclude Include="StackAllocator.h">
+      <Filter>MemoryAllocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="depth.ps">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="shadowvs.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="wireframe.gs">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="wireframe.ps">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="wireframe.vs">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="lightvs.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="lightps.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="cubemap.ps">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="cubemap.vs">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="projectTex.ps">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </None>
     <None Include="projectTex.vs">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </None>
     <None Include="rekt.ps">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </None>
     <None Include="rekt.vs">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </None>
     <None Include="shadowps.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
-      <Filter>Shader Files</Filter>
+      <Filter>Rendering\Shader Files</Filter>
     </Text>
     <Text Include="IMGUI\LICENSE.txt">
       <Filter>GUI</Filter>
@@ -678,133 +699,133 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="volumAirPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumEarthPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumFirePS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="VolumJuliaPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumTreePS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumLavaPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumVS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumWaterPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="clipperPS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="clipperVS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="skyboxps.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="InstancedVS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="InstancedPS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="AnimaPS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="dragonCurvePS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="dragonCurveVS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="mazefloorVS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="mazePS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="mazeVS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="skyboxvs.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="perlin3dVS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="perlin3dPS.hlsl">
-      <Filter>Shader Files\Specific</Filter>
+      <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
     <FxCompile Include="normalsTerrainPS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="terrainPS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="brightMaskVS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="brightmaskPS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurVS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="bloomVS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="bloomPS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurHorPS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurVerPS.hlsl">
-      <Filter>Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="dragonPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="windpipePS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="windpipeVS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="dragonVS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumTornadoPS.hlsl">
-      <Filter>Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="waterPS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="waterVS.hlsl">
-      <Filter>Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
     <FxCompile Include="strifevs.hlsl">
-      <Filter>Shader Files\Clouds</Filter>
+      <Filter>Rendering\Shader Files\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="strifeps.hlsl">
-      <Filter>Shader Files\Clouds</Filter>
+      <Filter>Rendering\Shader Files\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="Simplex.hlsl">
-      <Filter>Shader Files\Clouds</Filter>
+      <Filter>Rendering\Shader Files\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="Simplex_derivative.hlsl">
-      <Filter>Shader Files\Clouds</Filter>
+      <Filter>Rendering\Shader Files\Clouds</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

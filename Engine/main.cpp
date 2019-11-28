@@ -4,7 +4,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 {
 	Systems* Sys;
 	
-	// Create the system object.
 	Sys = new Systems;
 	if(!Sys)
 	{
@@ -12,7 +11,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		return 1;
 	}
 
-	// Initialize and run the system object.
 	if(!Sys->Initialize())
 	{
 		std::cout << "System could not be initialized." << std::endl;
@@ -21,10 +19,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	Sys->Run();
 
-	// Shutdown and release the system object.
 	Sys->Shutdown();
 	delete Sys;
-	Sys = 0;
+	Sys = nullptr;
 
 	return 0;
 }

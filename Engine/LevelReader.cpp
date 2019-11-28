@@ -1,13 +1,14 @@
-#include "AssetLoader.h"
+#include "LevelReader.h"
 #include "FileUtilities.h"
+#include "Mesh.h"
+#include "Model.h"
+
+
+LevelReader::LevelReader() {}
 
 
 
-AssetLoader::AssetLoader() {}
-
-
-
-bool AssetLoader::loadLevel(const std::string& levelPath)
+bool LevelReader::loadLevel(const std::string& levelPath)
 {
 	rapidjson::Document sceneDef;
 	sceneDef.Parse(FileUtils::loadFileContents(_projectPath + levelPath).c_str());
@@ -18,22 +19,17 @@ bool AssetLoader::loadLevel(const std::string& levelPath)
 	if(!loadLevelDef(sceneDef))
 		return false;
 	
-	if (!loadAssetDefs(sceneDef))
+	if (!loadResourceDefs(sceneDef))
 		return false;
-
-	for (auto ad : _assetDefs)
-		if (!loadAsset(ad))
-			return false;
 
 	return true;
 }
 
 
 
-bool AssetLoader::loadLevelDef(const rapidjson::Document& levelDef)
+bool LevelReader::loadLevelDef(const rapidjson::Document& levelDef)
 {
-	//THANK YOU WINDOWS, THANKS SO MUCH WOWWWWW
-#pragma push_macro("GetObject")
+#pragma push_macro("GetObject")	//THANK YOU WINDOWS, THANKS SO MUCH WOWWWWW
 #undef GetObject
 
 	_ld.id = levelDef.FindMember("id")->value.GetInt();
@@ -46,39 +42,46 @@ bool AssetLoader::loadLevelDef(const rapidjson::Document& levelDef)
 
 	return true;
 
-#pragma pop_macro("MACRONAME")
+#pragma pop_macro("GetObject")
 }
 
 
 
-bool AssetLoader::loadAssetDefs(const rapidjson::Document& levelDef)
+bool LevelReader::loadResourceDefs(const rapidjson::Document& levelDef)
 {
 	if (!levelDef.FindMember("assets")->value.IsArray())
 		return false;
 
 	auto assDefArr = levelDef.FindMember("assets")->value.GetArray();
 
-	AssetDef ad;
+	ResourceDef ad;
 	for (rapidjson::Value::ConstValueIterator itr = assDefArr.Begin(); itr != assDefArr.End(); ++itr)
 	{
 		ad.id = itr->FindMember("id")->value.GetInt();
 		ad.path = itr->FindMember("path")->value.GetString();
 		ad.name = itr->FindMember("name")->value.GetString();
-		_assetDefs.push_back(ad);
+		_resourceDefs.push_back(ad);
 	}
 	return true;
 }
 
 
 
-bool AssetLoader::loadAsset(const AssetDef& ad)
+void LevelReader::setProjectData(const std::string & projectPath)	//, const std::vector<std::string>& levelPaths
 {
-	return true;
+	_projectPath = projectPath;
 }
 
 
 
-void AssetLoader::setProjectData(const std::string & projectPath)	//, const std::vector<std::string>& levelPaths
+const std::vector<ResourceDef>& LevelReader::getLevelResourceDefs()
 {
-	_projectPath = projectPath;
+	return _resourceDefs;
+}
+
+
+
+void LevelReader::clearLevelResourceDefs()
+{
+	_resourceDefs.clear();
 }
