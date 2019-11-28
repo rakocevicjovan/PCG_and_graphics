@@ -18,6 +18,8 @@ class ResourceManager
 	LevelReader _levelReader;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
+	//std::vector<Resource*> resources;
+	std::unordered_map<std::string, Resource*> _resourceMap;
 
 public:
 	ResourceManager();
@@ -29,6 +31,6 @@ public:
 	bool loadResource();
 	bool removeResource();
 
-	std::unordered_map<std::string, Resource*> _resourceMap;
 	ProjectLoader& getProjectLoader() { return _projLoader; }
+	Resource* getResourceByName(const std::string& name) { return _resourceMap[name]; }
 };

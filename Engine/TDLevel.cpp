@@ -15,8 +15,9 @@ void TDLevel::init(Systems& sys)
 	t.SetUp(device);
 	floorModel = Model(t, device);
 
-	NodeBase* wat = _sg.insert(pLight);		//decide how to handle node ownership here... 
-	_sg.insert(floorModel);
+	
+	//NodeBase* wat = _sg.insert(pLight);		//decide how to handle node ownership here... 
+	//_sg.insert(floorModel);
 
 	_oct.init(AABB(SVec3(), SVec3(100)), 5);
 	_oct.prellocateRootOnly();
@@ -65,6 +66,13 @@ void TDLevel::draw(const RenderContext& rc)
 
 	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 	floorModel.Draw(context, shady.light);
+	shady.light.ReleaseShaderParameters(context);
+
+	auto www = _sys._resMan.getResourceByName("Cauldron");
+	Model* m = static_cast<Model*> (www);
+
+	shady.light.SetShaderParameters(context, m->transform, *rc.cam, pLight, rc.dTime);
+	m->Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
 	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);

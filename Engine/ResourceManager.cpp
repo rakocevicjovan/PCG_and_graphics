@@ -29,8 +29,7 @@ void ResourceManager::pushLevel(int i)
 	_levelReader.loadLevel(_projLoader.getLevelList()[i]);
 
 	const std::vector<ResourceDef>& resDefs = _levelReader.getLevelResourceDefs();
-	std::vector<Resource*> resources;
-	resources.reserve(resDefs.size());
+	_resourceMap.reserve(resDefs.size());
 
 	//@TODO check if already loaded by path... all of this is very confusing for now but basically 
 	//there is a need to separate ref counting and actual allocation...
@@ -39,10 +38,12 @@ void ResourceManager::pushLevel(int i)
 	{
 		if (resDefs[i].type == ResType::MESH)
 		{
-			resources.emplace_back(new (_stackAllocator.getHead()) Model());
-			resources.back()->setPathName(resDefs[i].path, resDefs[i].name);
-			resources.back()->incRef();
-			static_cast<Model*>(resources.back())->LoadModel(_device, resDefs[i].path);
+			Resource* temp = new (_stackAllocator.getHead()) Model();
+			temp->setPathName(resDefs[i].path, resDefs[i].name);
+			temp->incRef();
+			static_cast<Model*>(temp)->LoadModel(_device, _projLoader.getProjDir() + resDefs[i].path);
+
+			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
 			_stackAllocator.alloc(sizeof(Model));
 		}
 		else if (resDefs[i].type == ResType::TEXTURE)
