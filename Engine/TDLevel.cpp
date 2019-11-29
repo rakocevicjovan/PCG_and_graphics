@@ -68,7 +68,7 @@ void TDLevel::draw(const RenderContext& rc)
 	floorModel.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
-	auto www = _sys._resMan.getResourceByName("Cauldron");
+	auto www = _sys._resMan.getResourceByName("FlyingMage");
 	Model* m = static_cast<Model*> (www);
 
 	shady.light.SetShaderParameters(context, m->transform, *rc.cam, pLight, rc.dTime);

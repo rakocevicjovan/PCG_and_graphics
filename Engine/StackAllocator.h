@@ -31,7 +31,7 @@ public:
 
 
 
-	void init(size_t size)
+	inline void init(size_t size)
 	{
 		_stackSize = size;
 		_stackPtr = new byte[_stackSize];
@@ -40,7 +40,7 @@ public:
 
 
 
-	byte* alloc(size_t size)
+	inline byte* alloc(size_t size)
 	{
 		byte* toReturn = _stackPtr + _head;		//will return the pointer to the current head offset
 		_head += size;							//will increment the head offset for future allocations to not overwrite this
@@ -49,21 +49,21 @@ public:
 
 
 
-	void rewind(byte* target)
+	inline void rewind(byte* target)
 	{
 		_stackPtr = target;
 	}
 
 
 
-	byte* getHead()
+	inline byte* getHeadPtr()
 	{
 		return _stackPtr + _head;
 	}
 
 
-	//DOES NOT FREE MEMORY!!! THAT'S UP TO THE DESTRUCTOR
-	void clear()
+	//DOES NOT FREE ANY EXTERNALLY ALLOCATED MEMORY!!! THAT'S UP TO THE DESTRUCTOR - EX: MESH HAS VECTORS
+	inline void clear()
 	{
 		_head = 0;
 	}

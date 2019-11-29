@@ -18,7 +18,6 @@ class ResourceManager
 	LevelReader _levelReader;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
-	//std::vector<Resource*> resources;
 	std::unordered_map<std::string, Resource*> _resourceMap;
 
 public:

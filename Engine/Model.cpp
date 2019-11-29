@@ -208,11 +208,13 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 			Texture texture(device, fPath);
 			texture.typeName = typeName;
 
-			bool loaded = texture.Load();	//try to load from file
+			//try to load from file
+			bool loaded = texture.Load();	
 
-			if (!loaded)	//didn't work, try to load from memory instead...
+			//load from file failed, try to load from memory instead...
+			if (!loaded)
 			{
-				loaded = this->loadEmbeddedTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
+				loaded = this->loadEmbeddedTextures(device, textures, scene, fPath, type, typeName);
 
 				if (!loaded)
 					std::cout << "TEX_LOAD::Texture did not load!" << std::endl;
@@ -268,7 +270,7 @@ bool Model::loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& tex
 }
 
 
-//this allocates a lot... even if it's on the stack, i could probably speed up by reusing the declared SVec3s and SVec2s
+//this allocates unnecessarily? Even if it's on the stack, I could probably speed up by reusing the declared SVec3s and SVec2s
 SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
 {
 	if (face.mNumIndices < 3) return SVec3(0, 0, 0);

@@ -38,7 +38,7 @@ void ResourceManager::pushLevel(int i)
 	{
 		if (resDefs[i].type == ResType::MESH)
 		{
-			Resource* temp = new (_stackAllocator.getHead()) Model();
+			Resource* temp = new (_stackAllocator.getHeadPtr()) Model();
 			temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Model*>(temp)->LoadModel(_device, _projLoader.getProjDir() + resDefs[i].path);
@@ -48,7 +48,7 @@ void ResourceManager::pushLevel(int i)
 		}
 		else if (resDefs[i].type == ResType::TEXTURE)
 		{
-
+			//etc...
 		}
 		
 	}
@@ -59,5 +59,14 @@ void ResourceManager::pushLevel(int i)
 
 void ResourceManager::popLevel(int i)
 {
-
+	//but if I clear the stack they will get overwritten... how to get around keeping some of them while using my own allocator
+	for (auto resPtr : _resourceMap)
+	{
+		if (!resPtr.second->isInUse())
+		{
+			delete resPtr.second;
+			resPtr.second = nullptr;
+		}
+			
+	}
 }
