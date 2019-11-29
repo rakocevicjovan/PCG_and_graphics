@@ -44,23 +44,23 @@ struct LevelDef
 class LevelReader
 {
 private:
-	
+	static const std::map<std::string, ResType> resTypeMap;
+	ResType getResTypeFromString(const std::string& str);
+
 	std::string _projectPath;
-	std::vector<ResourceDef> _resourceDefs;
 	LevelDef _ld;
+	std::vector<ResourceDef> _resourceDefs;
 
 	bool loadLevelDef(const rapidjson::Document& sceneDef);
 	bool loadResourceDefs(const rapidjson::Document& sceneDef);
-	ResType getResTypeFromString(const std::string& str);
 
 public:
 	LevelReader();
 
-	void setProjectData(const std::string& projectPath);
+	void setProjectPath(const std::string& projectPath);
 
 	bool loadLevel(const std::string& levelPath);
 	
 	const std::vector<ResourceDef>& getLevelResourceDefs();
 	void clearLevelResourceDefs();
-	static const std::map<std::string, ResType> resTypeMap;
 };

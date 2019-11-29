@@ -84,14 +84,17 @@
     <Filter Include="Rendering\Shader Classes">
       <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset handling">
-      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Levels\Implemented\__Picker">
       <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
     </Filter>
     <Filter Include="MemoryAllocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource handling">
+      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource handling\Resources">
+      <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -219,19 +222,13 @@
       <Filter>SceneGraph</Filter>
     </ClCompile>
     <ClCompile Include="ProjectLoader.cpp">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="Animator.cpp">
       <Filter>Rendering\SkelAnim</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Asset handling</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
@@ -254,14 +251,11 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Asset handling</Filter>
-    </ClCompile>
     <ClCompile Include="SkeletalModel.cpp">
       <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClCompile>
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
@@ -274,9 +268,6 @@
     </ClCompile>
     <ClCompile Include="Celestials.cpp">
       <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshDataStructs.h">
-      <Filter>Asset handling</Filter>
     </ClCompile>
     <ClCompile Include="AirLevel.cpp">
       <Filter>Levels\Implemented\Air</Filter>
@@ -339,10 +330,22 @@
       <Filter>Other</Filter>
     </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClCompile>
     <ClCompile Include="LevelReader.cpp">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Resource handling\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Resource handling\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshDataStructs.h">
+      <Filter>Resource handling\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Resource handling\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -512,7 +515,7 @@
       <Filter>SceneGraph</Filter>
     </ClInclude>
     <ClInclude Include="ProjectLoader.h">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Rendering\SkelAnim</Filter>
@@ -526,17 +529,8 @@
     <ClInclude Include="SkeletalModel.h">
       <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Asset handling</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Asset handling</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Asset handling</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceManager.h">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Rendering</Filter>
@@ -626,19 +620,28 @@
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPicker.h">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPickerLevel.h">
       <Filter>Levels\Implemented\__Picker</Filter>
     </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Asset handling</Filter>
-    </ClInclude>
     <ClInclude Include="LevelReader.h">
-      <Filter>Asset handling</Filter>
+      <Filter>Resource handling</Filter>
     </ClInclude>
     <ClInclude Include="StackAllocator.h">
       <Filter>MemoryAllocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Resource handling\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Resource handling\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Resource handling\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Resource handling\Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

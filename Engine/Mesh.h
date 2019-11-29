@@ -21,13 +21,16 @@ class Hull;
 class Mesh : public Resource
 {
 public:
-	std::vector<Vert3D>			vertices;
-	std::vector<unsigned int>	indices;
-	std::vector<Texture>		textures;
-	unsigned int indexIntoModelMeshArray;
+	//vertices and indices are cleared after pushing to the gpu, leaving only the vector memory cost which is ok for me...
+	std::vector<Vert3D>	vertices;
+	std::vector<unsigned int> indices;
+	int indexCount;
 
 	ID3D11Buffer* _vertexBuffer = nullptr;
-	ID3D11Buffer* _indexBuffer  = nullptr;
+	ID3D11Buffer* _indexBuffer = nullptr;
+
+	std::vector<Texture> textures;
+	unsigned int indexIntoModelMeshArray;
 
 	Mesh();
 	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind);
@@ -53,7 +56,7 @@ public:
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(s.renderFormat.primitiveTopology);	
-		dc->DrawIndexed(indices.size(), 0, 0);
+		dc->DrawIndexed(indexCount, 0, 0);
 	}
 
 
@@ -80,6 +83,6 @@ public:
 		for (int i = 0; i < textures.size(); ++i)
 			dc->PSSetShaderResources(i, 1, &(textures[i].srv));
 
-		dc->DrawIndexedInstanced(indices.size(), s._instanceCount, 0, 0, 0);
+		dc->DrawIndexedInstanced(indexCount, s._instanceCount, 0, 0, 0);
 	}
 };

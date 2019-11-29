@@ -80,7 +80,7 @@ ResType LevelReader::getResTypeFromString(const std::string& str)
 
 
 
-void LevelReader::setProjectData(const std::string & projectPath)	//, const std::vector<std::string>& levelPaths
+void LevelReader::setProjectPath(const std::string & projectPath)	//, const std::vector<std::string>& levelPaths
 {
 	_projectPath = projectPath;
 }

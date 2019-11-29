@@ -17,7 +17,7 @@ void ResourceManager::init(ID3D11Device* device)
 
 	//loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_projLoader.loadProjFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
-	_levelReader.setProjectData(_projLoader.getProjDir());
+	_levelReader.setProjectPath(_projLoader.getProjDir());
 
 	_stackAllocator.init(1024 * 1024 * 100);
 }

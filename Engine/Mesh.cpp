@@ -12,9 +12,13 @@ Mesh::Mesh()
 
 
 
-Mesh::Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind)
-	: vertices(vertices), indices(indices), textures(textures)
+Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texs, ID3D11Device* device, unsigned int ind)
+	//: vertices(vertices), indices(indices), textures(textures)
 {
+	vertices = std::move(verts);
+	indices = std::move(inds);
+	textures = std::move(texs);
+
 	_vertexBuffer = 0;
 	_indexBuffer = 0;
 
@@ -120,7 +124,9 @@ Mesh::Mesh(Hull* hull, ID3D11Device* device)
 bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
 {
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
+	
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
@@ -150,6 +156,11 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	// Create the index buffer.
 	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
 		return false;
+	
+	indexCount = indices.size();
+
+	//vertices.clear();
+	//indices.clear();
 
 	return true;
 }

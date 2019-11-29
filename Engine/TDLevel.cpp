@@ -11,7 +11,7 @@ void TDLevel::init(Systems& sys)
 
 	float tSize = 200;
 	Procedural::Terrain t(2, 2, SVec3(tSize));
-	t.setOffset(-tSize * .5f, -10.f, -tSize * .5f);
+	t.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
 	t.SetUp(device);
 	floorModel = Model(t, device);
 

@@ -17,13 +17,13 @@ namespace Procedural { class Terrain; }
 class Model : public Resource
 {
 private:
-	std::string directory;
-	std::string name;
 
 	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
 	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
+	
+	bool ifTexIsLoaded(const aiString& texPath, int& index);
 	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
-	bool LoadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName);
+	bool loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName);
 	SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
 
 public:
@@ -32,7 +32,7 @@ public:
 
 	SMatrix transform;
 
-	Collider* collider;
+	Collider* collider;		//remove this eventually when game object becomes better defined... used model for it so far...
 
 	Model() {}
 	Model(const std::string& path);

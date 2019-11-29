@@ -6,7 +6,7 @@
 
 Model::Model(const std::string& path)
 {
-	name = path;
+	_path = path;
 }
 
 
@@ -35,6 +35,8 @@ Model::~Model()
 
 bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx, float rUVy)
 {
+	_path = path;
+
 	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
 	unsigned int pFlags =
@@ -55,8 +57,8 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 		return false;
 	}
 
-	directory = path.substr(0, path.find_last_of('/'));
-	name = path.substr(path.find_last_of('/') + 1, path.size());
+	//directory = path.substr(0, path.find_last_of('/'));
+	//name = path.substr(path.find_last_of('/') + 1, path.size());
 
 	processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
 	return true;
@@ -92,14 +94,11 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 	std::vector<Texture> locTextures;
 
 	vertices.reserve(mesh->mNumVertices);
-	faceTangents.reserve(mesh->mNumFaces);
 	indices.reserve(mesh->mNumFaces * 3);
-
-	bool hasTexCoords = false;
+	faceTangents.reserve(mesh->mNumFaces);
 
 	///THIS COULD BE AN ERROR! WATCH OUT!
-	if (mesh->mTextureCoords[0])
-		hasTexCoords = true;
+	bool hasTexCoords = mesh->mTextureCoords[0];
 
 	Vert3D vertex;
 
@@ -112,7 +111,7 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 
 		vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 		vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-		vertex.normal.Normalize();
+		//vertex.normal.Normalize();	not sure if required
 
 		if (hasTexCoords)
 			vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);
@@ -135,26 +134,39 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 	}
 
 
-
-	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	//this is ~ O(n^2) where n = mesh->mNumVertices!!! Horrible way to do it!
+	/*for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
-		SVec3 tangent(0.f);
+		SVec3 vertTangent(0.f);
 		float found = 0.f;
 
 		for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
 		{
+			//if face contains the vertex, add the tangent of the face to the vertex
 			if (mesh->mFaces[j].mIndices[0] == i || mesh->mFaces[j].mIndices[1] == i || mesh->mFaces[j].mIndices[2] == i)
 			{
-				tangent += faceTangents[j];
+				vertTangent += faceTangents[j];
 				found += 1.0f;
 			}
 		}
 
 		if (found > 0.0001f)
-			vertices[i].tangent = found > 0.0f ? tangent /= found : tangent;
+			vertices[i].tangent = found > 0.0f ? vertTangent /= found : vertTangent;
+	}*/
+
+	///better solution, since I'm not using weights anyways I can just normalize it... even if it's not too fast, still better
+	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+	{
+		aiFace& face = mesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
+		for (unsigned int j = 0; j < face.mNumIndices; ++j)
+		{
+			vertices[face.mIndices[j]].tangent += faceTangents[i];
+		}
 	}
 
-
+	for (Vert3D& vert : vertices)
+		vert.tangent.Normalize();
+	///end of better solution
 
 	if (mesh->mMaterialIndex >= 0)
 	{
@@ -179,37 +191,31 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
 	{
-		aiString str;
-		boolean skip = false;
+		aiString obtainedTexturePath;
+		mat->GetTexture(type, i, &obtainedTexturePath);
 
-		mat->GetTexture(type, i, &str);
+		// Check if texture was loaded before and if so
+		int loadedIndex = -1;
+		boolean alreadyLoaded = ifTexIsLoaded(obtainedTexturePath, loadedIndex);
 
-		// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture			
-		for (unsigned int j = 0; j < textures_loaded.size(); j++)
+		if (alreadyLoaded)
 		{
-			if (aiString(textures_loaded[j].fileName) == str)
-			{
-				textures.push_back(textures_loaded[j]);
-				skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
-				break;
-			}
+			textures.push_back(textures_loaded[loadedIndex]);
 		}
-
-		if (!skip)
-		{   // If texture hasn't been loaded already, load it
-			std::string fPath = directory + "/" + std::string(str.data);
+		else
+		{
+			std::string fPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
 			Texture texture(device, fPath);
 			texture.typeName = typeName;
 
-			//texture.Bind(type);
-			bool loaded = texture.Load();
+			bool loaded = texture.Load();	//try to load from file
 
-			if (!loaded)
+			if (!loaded)	//didn't work, try to load from memory instead...
 			{
-				loaded = this->LoadEmbeddedTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
+				loaded = this->loadEmbeddedTextures(device, textures, scene, fPath, type, typeName);	//for embedded textures
 
 				if (!loaded)
-					std::cout << "Texture did not load!" << std::endl;
+					std::cout << "TEX_LOAD::Texture did not load!" << std::endl;
 
 				return textures;
 			}
@@ -225,17 +231,32 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 
 
 
-bool Model::LoadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
+bool Model::ifTexIsLoaded(const aiString& texPath, int& index)
+{
+	for (unsigned int j = 0; j < textures_loaded.size(); ++j)
+	{
+		if (aiString(textures_loaded[j].fileName) == texPath)
+		{
+			index = j;
+			return true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
+		}	
+	}
+	return false;
+}
+
+
+
+bool Model::loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
 {
 	if (scene->HasTextures())
 	{
-		for (size_t ti = 0; ti < scene->mNumTextures; ti++)
+		for (size_t texIndex = 0; texIndex < scene->mNumTextures; texIndex++)
 		{
 
 			Texture texture(device, fPath);
 			texture.typeName = typeName;
 
-			texture.LoadFromMemory(scene->mTextures[ti], device);
+			texture.LoadFromMemory(scene->mTextures[texIndex], device);
 
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);
@@ -247,7 +268,7 @@ bool Model::LoadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& tex
 }
 
 
-
+//this allocates a lot... even if it's on the stack, i could probably speed up by reusing the declared SVec3s and SVec2s
 SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
 {
 	if (face.mNumIndices < 3) return SVec3(0, 0, 0);

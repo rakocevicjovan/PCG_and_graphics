@@ -21,11 +21,10 @@ Texture::Texture() {}
 
 
 
-Texture::Texture(ID3D11Device* device, const std::string& fileName) {
-
-	this->fileName = fileName;
-		
-	if (!Load()) {
+Texture::Texture(ID3D11Device* device, const std::string& fileName) : fileName(fileName)
+{
+	if (!Load())
+	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 		return;
 	}
@@ -35,14 +34,15 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) {
 
 
 
-bool Texture::Load() {
-
-	try {
+bool Texture::Load()
+{
+	try
+	{
 		data = stbi_load(fileName.c_str(), &w, &h, &n, 4);	//4?
-
 		return (data != nullptr);
 	}
-	catch (...) {
+	catch (...)
+	{
 		OutputDebugStringA( ("Error loading texture '" + fileName + "' \n").c_str() );
 		return false;
 	}
@@ -50,8 +50,8 @@ bool Texture::Load() {
 
 
 
-bool Texture::LoadFromFile(std::string path) {
-
+bool Texture::LoadFromFile(std::string path)
+{
 	fileName = path;
 
 	try
@@ -73,8 +73,9 @@ std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
 	try
 	{
 		int tw, th, tn;
-		float* temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
 
+		//alas...//can't think of a way to avoid a copy if I want a vector, but this is rarely used so it's ok I guess
+		float* temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
 		std::vector<float> result(temp, temp + tw * th * tn);
 
 		delete temp;
@@ -91,7 +92,8 @@ std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
 //has to be set up if used like this!!
 bool Texture::LoadFromMemory(const aiTexture *texture, ID3D11Device* device) {
 
-	try {
+	try
+	{
 		if (texture->mHeight == 0)
 			data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth, &w, &h, &n, 4);
 		else
@@ -101,7 +103,8 @@ bool Texture::LoadFromMemory(const aiTexture *texture, ID3D11Device* device) {
 
 		return (data != nullptr);
 	}
-	catch (...) {
+	catch (...)
+	{
 		OutputDebugStringA("Error loading texture from memory. \n");
 		return false;
 	}
@@ -122,6 +125,7 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 
 bool Texture::Setup(ID3D11Device* device, bool grayscale) 
 {
+	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = w;
 	desc.Height = h;
 	desc.MipLevels = 1;
@@ -134,6 +138,7 @@ bool Texture::Setup(ID3D11Device* device, bool grayscale)
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
+	D3D11_SUBRESOURCE_DATA texData;
 	texData.pSysMem = (void *)data;
 	texData.SysMemPitch = grayscale ? desc.Width : desc.Width * 4;
 	texData.SysMemSlicePitch = 0;
@@ -145,6 +150,7 @@ bool Texture::Setup(ID3D11Device* device, bool grayscale)
 	}
 
 
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	shaderResourceViewDesc.Format = desc.Format;
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
@@ -156,22 +162,25 @@ bool Texture::Setup(ID3D11Device* device, bool grayscale)
 		exit(43);
 	}
 
+	//delete data;
+
 	return true;
 }
 
 
 
 //for comp: 1=Y, 2=YA, 3=RGB, 4=RGBA 
-void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes) {
-
-	try {
+void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes)
+{
+	try
+	{
 		int result = stbi_write_png(targetFile.c_str(), w, h, comp, data, stride_in_bytes);
 	}
-	catch (...) {
+	catch (...)
+	{
 		OutputDebugStringA( ("Error writing texture to '" + targetFile + "'; ").c_str() );
 		return;
 	}
-
 }
 
 
@@ -196,18 +205,20 @@ float Texture::Turbulence3D(float x, float  y, float z, float lacunarity, float 
 }
 
 
+
 float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
 	return stb_perlin_ridge_noise3(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
 }
 
 
+
 std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	std::vector<unsigned char> curData;
+	//std::vector<unsigned char> curData;
 	std::vector<float> result;
 	
-	curData.reserve(w * h);
+	//curData.reserve(w * h);
 	result.reserve(w * h);
 
 	float wInverse = 1.f / (float)w;
@@ -224,8 +235,8 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 			int r = (int)((rgb + 1.f) * 0.5f * 255.f);
 			unsigned char uc = (unsigned char)r;
 
+			//curData.push_back(uc);
 			result.push_back(rgb);
-			curData.push_back(uc);
 		}
 	}
 
@@ -236,10 +247,10 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 
 std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	std::vector<unsigned char> curData;
+	//std::vector<unsigned char> curData;
 	std::vector<float> result;
 	
-	curData.reserve(w * h);
+	//curData.reserve(w * h);
 	result.reserve(w * h);
 
 	float wInverse = 1.f / (float)w;
@@ -256,8 +267,8 @@ std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunari
 			int r = (int)((rgb + 1.f) * 0.5f);
 			unsigned char uc = (unsigned char)r;
 
+			//curData.push_back(uc);
 			result.push_back(rgb);
-			curData.push_back(uc);
 		}
 	}
 
