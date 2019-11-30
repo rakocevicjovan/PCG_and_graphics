@@ -28,11 +28,11 @@ private:
 	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent);
 	
 	void updateNode(OctNode* node);
-	bool removeObject(OctNode* pNode, SphereHull* pSpHull);
+	void insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth = 0);
+	bool removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull);
 	void trimNode(OctNode*& pNode);
 	void deleteNode(OctNode*& pNode);
 	bool isEmpty(OctNode* pNode);
-
 	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector);
 
 	int getIndexByPosition(const AABB& parentBox, const SVec3& pos);
@@ -44,7 +44,7 @@ public:
 	void init(const AABB& worldBounds, int maxDepth);
 	void prellocateRootOnly();
 	void preallocateTree();
-	void insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0);
+	bool insertObject(SphereHull* pSpHull);
 	bool removeObject(SphereHull* pSpHull);
 	void lazyTrim();	//once per frame deallocate what's not required... would be faster with a pool allocator...
 	void updateAll();

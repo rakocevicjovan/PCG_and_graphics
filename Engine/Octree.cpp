@@ -133,7 +133,14 @@ OctNode* Octree::preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, Oc
 
 
 
-void Octree::insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0)
+bool Octree::insertObject(SphereHull* pSpHull)
+{
+	insertObjectIntoNode(_rootNode, pSpHull);
+}
+
+
+
+void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth = 0)
 {
 	int index = 0;
 	bool straddle = 0;
@@ -164,7 +171,7 @@ void Octree::insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0)
 			_nodeCount++;
 			//pNode->hulls = std::list<SphereHull*>();
 		}
-		insertObject(pNode->children[index], pSpHull, ++depth);
+		insertObjectIntoNode(pNode->children[index], pSpHull, ++depth);
 	}
 	else
 	{
@@ -182,12 +189,12 @@ void Octree::insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0)
 
 bool Octree::removeObject(SphereHull* pSpHull)
 {
-	removeObject(_rootNode, pSpHull);
+	removeObjectFromNode(_rootNode, pSpHull);
 }
 
 
 
-bool Octree::removeObject(OctNode* pNode, SphereHull* pSpHull)
+bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 {
 	int index = getIndexByPosition(pNode->bBox, pSpHull->getPosition());
 
@@ -208,7 +215,7 @@ bool Octree::removeObject(OctNode* pNode, SphereHull* pSpHull)
 		pNode->hulls.remove(pSpHull);//(std::remove(pNode->hulls.begin(), pNode->hulls.end(), pSpHull));
 
 	if (pNode->children[index])
-		removeObject(pNode->children[index], pSpHull);
+		removeObjectFromNode(pNode->children[index], pSpHull);
 	else
 		return false;
 }
@@ -229,7 +236,7 @@ void Octree::updateNode(OctNode* node)
 	std::list<SphereHull*>::iterator iter;
 	for (iter = wat.begin(); iter != wat.end(); ++iter)
 	{
-		insertObject(_rootNode, (*iter), 0);
+		insertObjectIntoNode(_rootNode, (*iter), 0);
 	}
 
 	for (auto& child : node->children)

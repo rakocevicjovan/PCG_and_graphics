@@ -44,7 +44,7 @@ void TDLevel::init(Systems& sys)
 		dubois[i].collider->dynamic = true;
 		dubois[i].collider->hulls.push_back(new SphereHull(pos, 1));	//eliminate duplicate pos, redundant and pain to update
 
-		_oct.insertObject(_oct._rootNode, static_cast<SphereHull*>(dubois[i].collider->hulls.back()));
+		_oct.insertObject(static_cast<SphereHull*>(dubois[i].collider->hulls.back()));
 	}
 
 	
