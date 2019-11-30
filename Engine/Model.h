@@ -19,12 +19,17 @@ class Model : public Resource
 private:
 
 	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
+	
 	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
 	
 	bool ifTexIsLoaded(const aiString& texPath, int& index);
+	
 	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
+	
 	bool loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName);
+	
 	SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
+
 
 public:
 	std::vector<Texture> textures_loaded;
@@ -54,4 +59,14 @@ public:
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
+
+	/* 
+	//it seems that this is not compatible with the placement new... or at least not the way I tried it
+	//because placement new expects this same signature... so it's either or
+	void* operator new(size_t size)
+	{
+		std::cout << "MODEL NEW OVERRIDE!" << std::endl;
+		void* p = ::new Model();
+		return p;
+	}*/
 };

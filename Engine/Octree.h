@@ -2,190 +2,62 @@
 #include "Hull.h"
 #include <list>
 #include <array>
-#include <algorithm>
 
+
+//std::list here is a weakness tbh... need another way of storing and allocation of hulls, as well as nodes...
 class OctNode
 {
 public:
-
-	//either aabb or otherwise defined... not strictly needed if tree always splits in half, needed if irregular
-	AABB bBox;
-	
-	//directly contained bounding volumes
-	std::list<SphereHull*> hulls;
-	
-	//children nodes
-	//std::array<OctNode*, 8> children;
-	OctNode* children[8];
-
-	//required? mabbeh...
-	OctNode* parent;
+	AABB bBox;						//not necessary if tree is split into even cubes, needed if irregular/loose...
+	std::list<SphereHull*> hulls;	//directly contained bounding volumes
+	OctNode* children[8];			//children nodes
 };
 
 
 
 class Octree
 {
-	int _maxDepth = 5;	//for preallocation
-	int _threshold = 4;	//
+private:
+	int _nodeCount = 1;	//root node is there by default
+	int _maxDepth = 3;	//for preallocation and insertion/search max depths
 	AABB _worldBounds;
-
-public:
 	OctNode* _rootNode;
 
-	void init(const AABB& worldBounds, int maxDepth)
-	{
-		_worldBounds = worldBounds;
-		_maxDepth = maxDepth;
-	}
+	//int _minHullsToSplit = 4;	//an alternative solution, currently using max subdivision depth to control splitsanity
+
+	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent);
+	
+	void updateNode(OctNode* node);
+
+	void trimNode(OctNode*& pNode);
+	void deleteNode(OctNode*& pNode);
+	bool isEmpty(OctNode* pNode);
+
+	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector);
+
+	int getIndexByPosition(const AABB& parentBox, const SVec3& pos);
+	AABB createBoxByIndex(int i, const AABB& parentBox);
+
+public:
+	~Octree();
+
+	void init(const AABB& worldBounds, int maxDepth);
+	void prellocateRootOnly();
+	void preallocateTree();
+	void insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0);
+	bool removeObject(OctNode* pNode, SphereHull* pSpHull);
+	void lazyTrim();	//once per frame deallocate what's not required... would be faster with a pool allocator...
+	void updateAll();
+
+	void getTreeAsAABBVector(std::vector<AABB>& AABBVector);
+
+	inline int getNodeCount() { return _nodeCount; }
+};
 
 
 
-	void preallocateTree()
-	{
-		_rootNode = preallocateNode(_worldBounds.getPosition(), _worldBounds.getHalfSize(), _maxDepth, nullptr);
-	}
 
-
-
-	void prellocateRootOnly()
-	{
-		_rootNode = new OctNode();
-
-		_rootNode->parent = nullptr;
-
-		_rootNode->bBox = _worldBounds;	//kinda wasteful with copy construction...
-	}
-
-
-
-	AABB createBoxByIndex(int i, const AABB& parentBox)
-	{
-		SVec3 offset;
-		SVec3 step = parentBox.getHalfSize() * 0.5f;
-		offset.x = ((i & 1) ? step.x : -step.x);		//if odd, go right, if even, go left
-		offset.y = ((i & 2) ? step.y : -step.y);		//pair down, pair up, pair down, pair up
-		offset.z = ((i & 4) ? step.z : -step.z);		//four forward, four back
-
-		return AABB(parentBox.getPosition() + offset, step);
-	}
-
-
-
-	int getIndexByPosition(const AABB& parentBox, const SVec3& pos)
-	{
-		SVec3 offset = parentBox.getPosition() - pos;
-		return ( (offset.x > 0 ? 1 : 0) + (offset.y > 0 ? 2 : 0) + (offset.z > 0 ? 4 : 0) );	//kinda reverse of createBoxByIndex
-	}
-
-
-
-	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent)
-	{
-		if (stopDepth < 0)
-			return nullptr;
-
-		OctNode* pNode = new OctNode();
-
-		pNode->parent = parent;
-
-		pNode->bBox = AABB(center, halfSize);	//kinda wasteful with copy construction...
-		
-		SVec3 offset;
-		SVec3 step = halfSize * 0.5f;	//dimensions of aabb of parent, halved each step
-
-		for (int i = 0; i < 8; ++i)
-		{
-			offset.x = ((i & 1) ? step.x : -step.x);
-			offset.y = ((i & 2) ? step.y : -step.y);
-			offset.z = ((i & 4) ? step.z : -step.z);
-			pNode->children[i] = preallocateNode(center + offset, step, stopDepth - 1, parent);
-		}
-		return pNode;
-	}
-
-
-
-	void insertObject(OctNode* pNode, SphereHull* pSpHull)
-	{
-		int index = 0;
-		bool straddle = 0;
-
-		// Compute the octant number [0..7] the object sphere center is in
-		// If straddling any of the dividing x, y, or z planes, exit directly
-		for (int i = 0; i < 3; i++)
-		{
-			float delta = pSpHull->getPosition().at(i) - pNode->bBox.getPosition().at(i);	//distance - node middle to sphere middle
-			if (abs(delta) <= pSpHull->r)	//pNode->bBox.getHalfSize().at(i)
-			{
-				straddle = 1;
-				break;
-			}
-			if (delta > 0.0f)
-				index |= (1 << i); // ZYX
-		}
-
-
-		if (!straddle)	// Fully contained in existing child node; insert in that subtree
-		{
-			//however, it could be empty! so... this, but it's not very good to do this without max depth checking
-			if (pNode->children[index] == nullptr)
-			{
-				pNode->children[index] = new OctNode();
-				pNode->children[index]->parent = pNode;
-				pNode->children[index]->bBox = createBoxByIndex(index, pNode->bBox);
-			}
-			insertObject(pNode->children[index], pSpHull);
-		}
-		else
-		{
-			//from the book
-			// Straddling, or no child node to descend into, so link object into linked list at this node
-			//pObject->pNextObject = pNode->pObjList;
-			//pNode->pObjList = pObject;
-			
-			//I did this another way because im using std::list<SphereHull*> instead of my object wrapper for hull
-			pNode->hulls.push_back(pSpHull);
-		}
-	}
-
-
-
-	bool removeObject(OctNode* pNode, SphereHull* pSpHull)
-	{
-		int index = getIndexByPosition(pNode->bBox, pSpHull->getPosition());
-
-		bool straddle = 0;
-		for (int i = 0; i < 3; i++)
-		{
-			float delta = pSpHull->getPosition().at(i) - pNode->bBox.getPosition().at(i);	//distance - node middle to sphere middle
-			if (abs(delta) < pNode->bBox.getHalfSize().at(i) + pSpHull->r)
-			{
-				straddle = 1;
-				break;
-			}
-			//if (delta > 0.0f) index |= (1 << i); // ZYX
-		}
-
-		//it's straddling, which means it's here and not in children (so far...)
-		if (straddle)
-		{
-			pNode->hulls.erase(std::remove(pNode->hulls.begin(), pNode->hulls.end(), pSpHull));
-		}
-
-		if (pNode->children[index])
-		{
-			removeObject(pNode->children[index], pSpHull);
-		}	
-		else
-		{
-			return false;
-		}
-	}
-
-
-
-	// Tests all objects that could possibly overlap due to cell ancestry and coexistence
+// Tests all objects that could possibly overlap due to cell ancestry and coexistence
 	// in the same cell. Assumes objects exist in a single cell only, and fully inside it
 	/*void TestAllCollisions(OctNode *pNode)
 	{
@@ -215,25 +87,3 @@ public:
 		// Remove current node from ancestor stack before returning
 		depth--;
 	}*/
-
-
-	//for debugging purposes
-	void getTreeAsAABBVector(std::vector<AABB>& AABBVector)
-	{
-		getNodeAABB(_rootNode, AABBVector);
-	}
-
-
-
-	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector)
-	{
-		AABBVector.push_back(pNode->bBox);
-
-		for (int i = 0; i < 8; ++i)
-		{
-			if (pNode->children[i])
-				getNodeAABB(pNode->children[i], AABBVector);
-		}
-			
-	}
-};

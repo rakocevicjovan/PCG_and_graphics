@@ -61,12 +61,12 @@ public:
 	static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	static float Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	
-	void* operator new(size_t size, StackAllocator& stackAllocator)
-	{
-		std::cout << "NEW CALLED ON TEXTURE REEEE" << std::endl;
 
+	/*void* operator new(size_t size, StackAllocator& stackAllocator)
+	{
+		assert(false);
 		Texture* tex = ::new (stackAllocator.getHeadPtr()) Texture();
-	}
+		return stackAllocator.alloc(sizeof(Texture));
+	}*/
 
 };

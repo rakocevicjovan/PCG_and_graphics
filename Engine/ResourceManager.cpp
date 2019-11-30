@@ -34,8 +34,18 @@ void ResourceManager::pushLevel(int i)
 	//@TODO check if already loaded by path... all of this is very confusing for now but basically 
 	//there is a need to separate ref counting and actual allocation...
 
+
 	for (int i = 0; i < resDefs.size(); ++i)
 	{
+		auto uMapItr = _resourceMap.find(resDefs[i].name);
+
+		//handle duplicates
+		if (uMapItr != _resourceMap.end())
+		{
+			uMapItr->second->incRef();
+			continue;
+		}
+
 		if (resDefs[i].type == ResType::MESH)
 		{
 			Resource* temp = new (_stackAllocator.getHeadPtr()) Model();
@@ -67,6 +77,5 @@ void ResourceManager::popLevel(int i)
 			delete resPtr.second;
 			resPtr.second = nullptr;
 		}
-			
 	}
 }

@@ -30,4 +30,7 @@ private:
 	std::vector<Actor> dubois;
 	Model boiModel;
 	Model debugModel;
+
+	std::vector<AABB> tempBoxes;
+	std::vector<InstanceData> octNodeMatrices;
 };

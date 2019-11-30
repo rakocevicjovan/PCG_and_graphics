@@ -38,6 +38,7 @@ public:
 	Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true, bool hasTangents = true);
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(Hull* hull, ID3D11Device* device);
+	~Mesh();
 	
 
 

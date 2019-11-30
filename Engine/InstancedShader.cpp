@@ -106,7 +106,7 @@ void InstancedShader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext
 
 bool InstancedShader::UpdateInstanceData(const std::vector<InstanceData>& instanceData)
 {
-	_instanceData = instanceData;
+	_instanceData = instanceData;	//std::move(instanceData);
 	_instanceCount = _instanceData.size();
 	return false;
 }

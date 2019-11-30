@@ -1,5 +1,8 @@
 #include "TDLevel.h"
 #include "Terrain.h"
+#include "Geometry.h"
+
+#define DEBUG_OCTREE
 
 void TDLevel::init(Systems& sys)
 {
@@ -15,15 +18,20 @@ void TDLevel::init(Systems& sys)
 	t.SetUp(device);
 	floorModel = Model(t, device);
 
-	
 	//NodeBase* wat = _sg.insert(pLight);		//decide how to handle node ownership here... 
 	//_sg.insert(floorModel);
 
-	_oct.init(AABB(SVec3(), SVec3(100)), 5);
+	_oct.init(AABB(SVec3(), SVec3(100)), 3);
 	_oct.prellocateRootOnly();
-	//_oct.preallocateTree();	//with 5 it
+	//_oct.preallocateTree();	//with 5 it is reaaallly big
 
 	boiModel.LoadModel(device, "../Models/Skysphere.fbx");
+
+	Procedural::Geometry g;
+	
+	g.GenBox(SVec3(1));
+
+	debugModel.meshes.push_back(Mesh(g, device));
 
 	Actor actor;
 
@@ -39,22 +47,47 @@ void TDLevel::init(Systems& sys)
 		_oct.insertObject(_oct._rootNode, static_cast<SphereHull*>(dubois[i].collider->hulls.back()));
 	}
 
-	/*std::vector<AABB> tempBoxes;
-	tempBoxes.reserve(100);
-	_oct.getTreeAsAABBVector(tempBoxes);
-
-	for (int i = 0; i < tempBoxes.size(); ++i)
-	{
-		debugModel.meshes.push_back(Mesh(static_cast<Hull*>(&tempBoxes[i]), device));
-	}*/
+	
+	tempBoxes.reserve(1000);
+	octNodeMatrices.reserve(1000);
 }
 
 
 
 void TDLevel::update(const RenderContext& rc)
 {
+#ifdef DEBUG_OCTREE
+	_oct.getTreeAsAABBVector(tempBoxes);
+
+	for (int i = 0; i < tempBoxes.size(); ++i)
+	{
+		octNodeMatrices.push_back(
+			(
+				SMatrix::CreateScale(tempBoxes[i].getHalfSize() * 2.f) *
+				SMatrix::CreateTranslation(tempBoxes[i].getPosition())
+				).Transpose()
+		);
+	}
+
+	shady.instanced.UpdateInstanceData(octNodeMatrices);
+	octNodeMatrices.clear();
+
+	tempBoxes.clear();
+#endif
+
 	ProcessSpecialInput(rc.dTime);
 	updateCam(rc.dTime);
+
+	for (auto& boi : dubois)
+	{
+		for (auto& hull : boi.collider->hulls)
+			hull->setPosition(boi.getPosition());
+	}
+
+	_oct.updateAll();
+	_oct.lazyTrim();
+	//this works well to reduce the number of checked branches with simple if(null) but only profiling
+	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, less allocations)
 }
 
 
@@ -71,6 +104,8 @@ void TDLevel::draw(const RenderContext& rc)
 	auto www = _sys._resMan.getResourceByName("FlyingMage");
 	Model* m = static_cast<Model*> (www);
 
+	SMatrix rotMatrix = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), .1 * rc.dTime);
+
 	shady.light.SetShaderParameters(context, m->transform, *rc.cam, pLight, rc.dTime);
 	m->Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
@@ -79,12 +114,18 @@ void TDLevel::draw(const RenderContext& rc)
 
 	for (int i = 0; i < dubois.size(); ++i)
 	{
+		dubois[i].transform = dubois[i].transform * rotMatrix;
 		dubois[i].Draw(context, *rc.cam, pLight, rc.dTime);
 	}
+	
+#ifdef DEBUG_OCTREE
+	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
+	debugModel.DrawInstanced(context, shady.instanced);
+	shady.instanced.ReleaseShaderParameters(context);
+#endif
 
-	shady.wireframe.SetShaderParameters(context, debugModel, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix());
-	debugModel.Draw(context, shady.wireframe);
-	shady.wireframe.ReleaseShaderParameters(context);
+	//renderString("FPS", std::string("FPS: " + std::to_string(1 / rc.dTime)));
+	renderString("Octree", std::string("OCT node count " + std::to_string(_oct.getNodeCount())));
 
 	rc.d3d->EndScene();
 }

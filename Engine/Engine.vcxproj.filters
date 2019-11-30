@@ -96,6 +96,9 @@
     <Filter Include="Resource handling\Resources">
       <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Collision\Spatial partitioning">
+      <UniqueIdentifier>{8f9f92cc-7b19-41f2-9964-cdf2ff740ee8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -213,9 +216,6 @@
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="Hull.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Grid.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="SceneGraph.cpp">
@@ -346,6 +346,12 @@
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Resource handling\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Collision\Spatial partitioning</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
+      <Filter>Collision\Spatial partitioning</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -508,9 +514,6 @@
     <ClInclude Include="HitResult.h">
       <Filter>Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Grid.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
     <ClInclude Include="SceneGraph.h">
       <Filter>SceneGraph</Filter>
     </ClInclude>
@@ -604,9 +607,6 @@
     <ClInclude Include="TDLevel.h">
       <Filter>Levels\Implemented\TowerDefense</Filter>
     </ClInclude>
-    <ClInclude Include="Octree.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
     <ClInclude Include="AStar.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -642,6 +642,15 @@
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Resource handling\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>Collision\Spatial partitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Collision\Spatial partitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="HashOctree.h">
+      <Filter>Collision\Spatial partitioning</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

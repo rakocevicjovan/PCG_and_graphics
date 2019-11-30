@@ -4,16 +4,16 @@
 class Resource
 {
 protected:
-	unsigned int handle;
-	unsigned int _refCount;
+	unsigned int _handle = 0u;
+	unsigned int _refCount = 0u;
 	std::string _path;
 	std::string _name;
 
 public:
 
-	Resource() {}
+	Resource() : _handle(0u), _refCount(0u) { }
 
-	Resource(std::string path, std::string name) : _path(path), _name(name) {}
+	Resource(std::string path, std::string name) : _path(path), _name(name), _handle(0u), _refCount(0u) {}
 
 	~Resource() {}
 

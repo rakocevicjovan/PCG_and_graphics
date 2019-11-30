@@ -121,6 +121,15 @@ Mesh::Mesh(Hull* hull, ID3D11Device* device)
 
 
 
+Mesh::~Mesh()
+{
+	std::cout << "MESH DESTRUCT CALLED" << std::endl;
+
+	//_vertexBuffer->Release();
+	//_indexBuffer->Release();
+}
+
+
 bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
 {
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;

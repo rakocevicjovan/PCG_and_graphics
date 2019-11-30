@@ -13,7 +13,7 @@ class GraphicComponent
 public:
 	GraphicComponent() {};
 	
-	GraphicComponent(Model* m, ShaderLight* s) : model(m), shader(s) {}
+	GraphicComponent(Model* m, ShaderLight* s) : model(std::move(m)), shader(s) {}
 
 	Model* model;
 	ShaderLight* shader;
