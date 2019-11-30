@@ -180,6 +180,13 @@ void Octree::insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0)
 
 
 
+bool Octree::removeObject(SphereHull* pSpHull)
+{
+	removeObject(_rootNode, pSpHull);
+}
+
+
+
 bool Octree::removeObject(OctNode* pNode, SphereHull* pSpHull)
 {
 	int index = getIndexByPosition(pNode->bBox, pSpHull->getPosition());
@@ -198,18 +205,12 @@ bool Octree::removeObject(OctNode* pNode, SphereHull* pSpHull)
 
 	//it's straddling, which means it's here and not in children (so far...)
 	if (straddle)
-	{
 		pNode->hulls.remove(pSpHull);//(std::remove(pNode->hulls.begin(), pNode->hulls.end(), pSpHull));
-	}
 
 	if (pNode->children[index])
-	{
 		removeObject(pNode->children[index], pSpHull);
-	}
 	else
-	{
 		return false;
-	}
 }
 
 

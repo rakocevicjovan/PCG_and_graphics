@@ -28,7 +28,7 @@ private:
 	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent);
 	
 	void updateNode(OctNode* node);
-
+	bool removeObject(OctNode* pNode, SphereHull* pSpHull);
 	void trimNode(OctNode*& pNode);
 	void deleteNode(OctNode*& pNode);
 	bool isEmpty(OctNode* pNode);
@@ -45,7 +45,7 @@ public:
 	void prellocateRootOnly();
 	void preallocateTree();
 	void insertObject(OctNode* pNode, SphereHull* pSpHull, int depth = 0);
-	bool removeObject(OctNode* pNode, SphereHull* pSpHull);
+	bool removeObject(SphereHull* pSpHull);
 	void lazyTrim();	//once per frame deallocate what's not required... would be faster with a pool allocator...
 	void updateAll();
 
