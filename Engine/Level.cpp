@@ -3,6 +3,8 @@
 #include "InputManager.h"
 #include <d3d11.h>
 
+
+
 Level::Level(Systems& sys) : _sys(sys) {}
 
 
@@ -126,8 +128,6 @@ offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ost
 */
 
 #pragma endregion shadowMatrix
-
-
 
 /*
 ///Diamond square testing

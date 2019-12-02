@@ -1,5 +1,7 @@
 #include "AirLevel.h"
+#include "Systems.h"
 #include "Chaos.h"
+
 
 
 void AirLevel::init(Systems& sys)
@@ -69,7 +71,7 @@ void AirLevel::update(const RenderContext& rc)
 {
 	ProcessSpecialInput(rc.dTime);
 	player.UpdateCamTP(rc.dTime);
-	dragon.update(rc, windDir * windInt, player.getPosition());
+	dragon.update(rc.dTime, windDir * windInt, player.getPosition());
 
 	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();

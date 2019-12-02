@@ -1,10 +1,11 @@
 #include "Hull.h"
-#include "Collider.h"
+#include "ColFuncs.h"
+
 
 HitResult AABB::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
-	if (otherType == BVT_SPHERE)		return Collider::AABBSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
-	else if (otherType == BVT_AABB)		return Collider::AABBAABBIntersection(*this, *(reinterpret_cast<const AABB*>(other)));
+	if (otherType == BVT_SPHERE)		return AABBSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
+	else if (otherType == BVT_AABB)		return AABBAABBIntersection(*this, *(reinterpret_cast<const AABB*>(other)));
 	return HitResult();
 }
 
@@ -12,8 +13,8 @@ HitResult AABB::intersect(const Hull* other, BoundingVolumeType otherType) const
 
 HitResult SphereHull::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
-	if (otherType == BVT_SPHERE)		return Collider::SphereSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
-	else if (otherType == BVT_AABB)		return Collider::AABBSphereIntersection(*(reinterpret_cast<const AABB*>(other)), *this);
+	if (otherType == BVT_SPHERE)		return SphereSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
+	else if (otherType == BVT_AABB)		return AABBSphereIntersection(*(reinterpret_cast<const AABB*>(other)), *this);
 	return HitResult();
 }
 

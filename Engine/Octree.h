@@ -32,6 +32,7 @@ private:
 	bool removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull);
 	void trimNode(OctNode*& pNode);
 	void deleteNode(OctNode*& pNode);
+	void testAllCollisions(OctNode *pNode);
 	bool isEmpty(OctNode* pNode);
 	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector);
 
@@ -44,8 +45,9 @@ public:
 	void init(const AABB& worldBounds, int maxDepth);
 	void prellocateRootOnly();
 	void preallocateTree();
-	bool insertObject(SphereHull* pSpHull);
+	void insertObject(SphereHull* pSpHull);
 	bool removeObject(SphereHull* pSpHull);
+	void collideAll();
 	void lazyTrim();	//once per frame deallocate what's not required... would be faster with a pool allocator...
 	void updateAll();
 
@@ -56,34 +58,5 @@ public:
 
 
 
-
-// Tests all objects that could possibly overlap due to cell ancestry and coexistence
-	// in the same cell. Assumes objects exist in a single cell only, and fully inside it
-	/*void TestAllCollisions(OctNode *pNode)
-	{
-		// Keep track of all ancestor object lists in a stack
-		const int MAX_DEPTH = 40;
-		static OctNode *ancestorStack[MAX_DEPTH];
-		static int depth = 0; // ’Depth == 0’ is invariant over calls
-		// Check collision between all objects on this level and all
-		// ancestor objects. The current level is included as its own
-		// ancestor so all necessary pairwise tests are done
-		ancestorStack[depth++] = pNode;
-		for (int n = 0; n < depth; n++) {
-			Object *pA, *pB;
-			for (pA = ancestorStack[n]->pObjList; pA; pA = pA->pNextObject) {
-				for (pB = pNode->pObjList; pB; pB = pB->pNextObject) {
-					// Avoid testing both A->B and B->A
-					if (pA == pB) break;
-					// Now perform the collision test between pA and pB in some manner
-					TestCollision(pA, pB);
-				}
-			}
-		}
-		// Recursively visit all existing children
-		for (int i = 0; i < 8; i++)
-			if (pNode->pChild[i])
-				TestAllCollisions(pNode->pChild[i]);
-		// Remove current node from ancestor stack before returning
-		depth--;
-	}*/
+// Tests all objects that could possibly overlap due to cell ancestry and coexistence in the same cell. 
+//Assumes objects exist in a single cell only, and fully inside it, as this tree class is built

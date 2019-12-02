@@ -3,7 +3,6 @@
 #include "Math.h"
 #include "GameObject.h"
 #include "SimpleMath.h"	//nani?
-#include "HitResult.h"
 
 /*
 	SCREAM(bloodyMurder) std::ostringstream ss;	\
@@ -264,7 +263,7 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh, const SMatrix& transform, Collider
 	aabb->minPoint = SVec3(minX, minY, minZ);
 	aabb->maxPoint = SVec3(maxX, maxY, maxZ);
 
-	aabb->c = c;
+	aabb->_collider = c;
 
 	return aabb;
 }

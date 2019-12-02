@@ -1,11 +1,9 @@
 #pragma once
 #include <vector>
-
 #include <list>
 #include <d3d11.h>
 #include "Controller.h"
 #include "Grid.h"
-#include "Hull.h"
 #include "Collider.h"
 
 class Actor;

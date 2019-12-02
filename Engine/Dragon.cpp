@@ -12,9 +12,9 @@ void Dragon::init(UINT segments, SVec3 initPos)
 
 
 
-void Dragon::update(const RenderContext& rc, const SVec3& wind, SVec3 target)
+void Dragon::update(float dTime, const SVec3& wind, SVec3 target)
 {	
-	float time = min(rc.dTime, .02);
+	float time = min(dTime, .02);
 	dragonUpdData.dTime = time;
 	dragonUpdData.playerPos = target;
 	dragonUpdData.wind = wind;

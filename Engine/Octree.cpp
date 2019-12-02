@@ -1,5 +1,5 @@
 #include "Octree.h"
-
+#include "ColFuncs.h"
 
 
 Octree::~Octree()
@@ -133,14 +133,14 @@ OctNode* Octree::preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, Oc
 
 
 
-bool Octree::insertObject(SphereHull* pSpHull)
+void Octree::insertObject(SphereHull* pSpHull)
 {
 	insertObjectIntoNode(_rootNode, pSpHull);
 }
 
 
 
-void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth = 0)
+void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth)
 {
 	int index = 0;
 	bool straddle = 0;
@@ -189,7 +189,14 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 
 bool Octree::removeObject(SphereHull* pSpHull)
 {
-	removeObjectFromNode(_rootNode, pSpHull);
+	return removeObjectFromNode(_rootNode, pSpHull);
+}
+
+
+
+void Octree::collideAll()
+{
+	testAllCollisions(_rootNode);
 }
 
 
@@ -243,36 +250,44 @@ void Octree::updateNode(OctNode* node)
 		if (child) updateNode(child);
 }
 
-// Tests all objects that could possibly overlap due to cell ancestry and coexistence
-// in the same cell. Assumes objects exist in a single cell only, and fully inside it
-/*void TestAllCollisions(OctNode *pNode)
+
+
+void Octree::testAllCollisions(OctNode *pNode)
 {
 	// Keep track of all ancestor object lists in a stack
 	const int MAX_DEPTH = 40;
 	static OctNode *ancestorStack[MAX_DEPTH];
-	static int depth = 0; // ’Depth == 0’ is invariant over calls
-	// Check collision between all objects on this level and all
-	// ancestor objects. The current level is included as its own
+	static int depth = 0;
+
+	// Check collision between all objects on this level and all ancestor objects. The current level is included as its own
 	// ancestor so all necessary pairwise tests are done
 	ancestorStack[depth++] = pNode;
-	for (int n = 0; n < depth; n++) {
-		Object *pA, *pB;
-		for (pA = ancestorStack[n]->pObjList; pA; pA = pA->pNextObject) {
-			for (pB = pNode->pObjList; pB; pB = pB->pNextObject) {
-				// Avoid testing both A->B and B->A
-				if (pA == pB) break;
-				// Now perform the collision test between pA and pB in some manner
-				TestCollision(pA, pB);
+	for (int n = 0; n < depth; n++)
+	{
+		SphereHull pA, pB;
+
+		for (SphereHull* spA : ancestorStack[n]->hulls)	//std::list<SphereHull*>::iterator LI;
+		{
+			for (SphereHull* spL : pNode->hulls)
+			{
+				if (spA == spL)
+					break;
+
+				SphereSphereIntersection(*spA, *spL);		//what to do with the hit result now...
 			}
 		}
 	}
 	// Recursively visit all existing children
 	for (int i = 0; i < 8; i++)
-		if (pNode->pChild[i])
-			TestAllCollisions(pNode->pChild[i]);
+	{
+		if (pNode->children[i])
+			testAllCollisions(pNode->children[i]);
+	}
+
 	// Remove current node from ancestor stack before returning
 	depth--;
-}*/
+}
+
 
 
 //for debugging purposes

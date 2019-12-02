@@ -353,6 +353,9 @@
     <ClCompile Include="Octree.cpp">
       <Filter>Collision\Spatial partitioning</Filter>
     </ClCompile>
+    <ClCompile Include="ColFuncs.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -651,6 +654,9 @@
     </ClInclude>
     <ClInclude Include="HashOctree.h">
       <Filter>Collision\Spatial partitioning</Filter>
+    </ClInclude>
+    <ClInclude Include="ColFuncs.h">
+      <Filter>Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

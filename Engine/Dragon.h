@@ -1,6 +1,6 @@
 #pragma once
-#include "Systems.h"
-
+#include "Math.h"
+#include <vector>
 
 
 struct SpringMass
@@ -42,7 +42,7 @@ public:
 	~Dragon() {}
 
 	void init(UINT segments, SVec3 initPos);
-	void update(const RenderContext& rc, const SVec3& wind, SVec3 target);
+	void update(float dTime, const SVec3& wind, SVec3 target);
 	
 	DragonUpdateData dragonUpdData;
 	std::vector<SpringMass> springs;
