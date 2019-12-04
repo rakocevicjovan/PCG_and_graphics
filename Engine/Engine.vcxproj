@@ -263,10 +263,9 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="ColFuncs.h" />
-    <ClInclude Include="Dijkstra.h" />
+    <ClInclude Include="AStar.h" />
     <ClInclude Include="HashOctree.h" />
     <ClInclude Include="LevelReader.h" />
-    <ClInclude Include="AStar.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BitMapper.h" />

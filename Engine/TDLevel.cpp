@@ -1,7 +1,12 @@
 #include "TDLevel.h"
 #include "Terrain.h"
 #include "Geometry.h"
-#include "Dijkstra.h"
+#include "AStar.h"
+
+inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
+{
+	return 0.f;
+}
 
 //#define DEBUG_OCTREE
 
@@ -46,6 +51,62 @@ void TDLevel::init(Systems& sys)
 	tempBoxes.reserve(1000);
 	octNodeMatrices.reserve(1000);
 #endif
+
+	std::vector<NavNode> nodes;
+
+	nodes.push_back(NavNode("A"));      //0
+	nodes.back().edges = { 0, 1 };
+
+	nodes.push_back(NavNode("B1"));     //1
+	nodes.back().edges = { 0, 4, 5 };
+
+	nodes.push_back(NavNode("B2"));     //2
+	nodes.back().edges = { 1, 2, 3 };
+
+	nodes.push_back(NavNode("C"));      //3
+	nodes.back().edges = { 2 };
+
+	nodes.push_back(NavNode("D1"));     //4
+	nodes.back().edges = { 5, 7 };
+
+	nodes.push_back(NavNode("D2"));     //5
+	nodes.back().edges = { 3, 4, 6 };
+
+	nodes.push_back(NavNode("END"));    //6
+	nodes.back().edges = { 6, 7 };
+
+	std::vector<NavEdge> edges;
+
+	edges.push_back(NavEdge(0, 1)); //A B1
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(0, 2)); //A B2
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(2, 3)); //B2 C
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(2, 5)); //B2 D2
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(1, 5)); //B1 D2
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(1, 4)); //B1 D1
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(5, 6)); //D2 END
+	edges.back().weight = 1;
+
+	edges.push_back(NavEdge(4, 6, 20)); //D1 END
+
+	AStar<pureDijkstra>::fillGraph(nodes, edges, 6);
+
+	for (int i = 0; i < nodes.size(); ++i)
+	{
+		std::string output = "Distance from " + nodes[i].name + " to END node:" + std::to_string(nodes[i].pathWeight) + "\n";
+		OutputDebugStringA(output.c_str());
+	}
 }
 
 

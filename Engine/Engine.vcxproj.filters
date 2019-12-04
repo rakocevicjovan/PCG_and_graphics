@@ -610,9 +610,6 @@
     <ClInclude Include="TDLevel.h">
       <Filter>Levels\Implemented\TowerDefense</Filter>
     </ClInclude>
-    <ClInclude Include="AStar.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="MapGraph.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -661,10 +658,10 @@
     <ClInclude Include="AiController.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="Dijkstra.h">
+    <ClInclude Include="NavGrid.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="NavGrid.h">
+    <ClInclude Include="AStar.h">
       <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
