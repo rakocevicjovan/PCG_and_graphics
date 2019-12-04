@@ -658,6 +658,15 @@
     <ClInclude Include="ColFuncs.h">
       <Filter>Collision</Filter>
     </ClInclude>
+    <ClInclude Include="AiController.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Dijkstra.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="NavGrid.h">
+      <Filter>AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

@@ -4,6 +4,7 @@
 #include "ShaderManager.h"
 #include "CollisionEngine.h"
 #include "Camera.h"
+#include "AiController.h"
 
 
 //template <typename FlexibleShaderType>	not sure how to do this really... as then actor has to be templated as well
@@ -63,7 +64,7 @@ public:
 	Controller& con;
 	Camera cam;
 
-	Player(Controller& c) : con(c) 
+	Player(Controller& c) : con(c)
 	{
 		cam._controller = &con;
 	};
@@ -85,4 +86,12 @@ public:
 	SVec3 getPosition() { return a.transform.Translation(); }
 
 	void setCamera(Camera& camera) { cam = camera; }
+};
+
+
+
+class ActorAI
+{
+	Actor a;
+	AiController* brain;
 };

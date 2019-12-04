@@ -1,8 +1,9 @@
 #include "TDLevel.h"
 #include "Terrain.h"
 #include "Geometry.h"
+#include "Dijkstra.h"
 
-#define DEBUG_OCTREE
+//#define DEBUG_OCTREE
 
 void TDLevel::init(Systems& sys)
 {
@@ -21,19 +22,10 @@ void TDLevel::init(Systems& sys)
 	//NodeBase* wat = _sg.insert(pLight);		//decide how to handle node ownership here... 
 	//_sg.insert(floorModel);
 
-	_oct.init(AABB(SVec3(), SVec3(100)), 3);
-	_oct.prellocateRootOnly();
-	//_oct.preallocateTree();	//with 5 it is reaaallly big
-
-	boiModel.LoadModel(device, "../Models/Skysphere.fbx");
-
-	Procedural::Geometry g;
+	_oct.init(AABB(SVec3(), SVec3(100)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
+	_oct.prellocateRootOnly();	//_oct.preallocateTree();	
 	
-	g.GenBox(SVec3(1));
-
-	debugModel.meshes.push_back(Mesh(g, device));
-
-	Actor actor;
+	boiModel.LoadModel(device, "../Models/Skysphere.fbx");
 
 	for (int i = 0; i < 125; ++i)
 	{
@@ -47,9 +39,13 @@ void TDLevel::init(Systems& sys)
 		_oct.insertObject(static_cast<SphereHull*>(dubois[i].collider->hulls.back()));
 	}
 
-	
+#ifdef DEBUG_OCTREE
+	Procedural::Geometry g;
+	g.GenBox(SVec3(1));
+	debugModel.meshes.push_back(Mesh(g, device));
 	tempBoxes.reserve(1000);
 	octNodeMatrices.reserve(1000);
+#endif
 }
 
 
@@ -87,7 +83,8 @@ void TDLevel::update(const RenderContext& rc)
 	_oct.updateAll();
 	_oct.lazyTrim();
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
-	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, less allocations)
+	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
+	//Another alternative is having a bool empty; in the octnode...
 }
 
 
