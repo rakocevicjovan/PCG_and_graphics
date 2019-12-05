@@ -67,26 +67,12 @@ bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
 	// Create the pixel shader from the buffer.
 	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
 		return false;
-	
-	/*
-	if (FAILED(D3DReadFileToBlob(L"strifevs.hlsl", &vertexShaderBuffer)))
-		OutputShaderErrorMessage(vertexShaderBuffer, hwnd, *(filePaths.at(0).c_str()));
-
-	if (FAILED(device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader)))
-		assert(false);
-
-	if(FAILED(D3DReadFileToBlob(L"strifeps.hlsl", &pixelShaderBuffer)))
-		OutputShaderErrorMessage(pixelShaderBuffer, hwnd, *(filePaths.at(1).c_str()));
-
-	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
-		assert(false);
-	*/
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		//{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 

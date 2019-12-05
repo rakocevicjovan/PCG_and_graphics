@@ -27,7 +27,21 @@ struct RenderContext
 
 class Renderer
 {
+private:
+
+	bool UpdateRenderContext(float dTime);
+
+	ID3D11Device* _device;
+	ID3D11DeviceContext* _deviceContext;
+	ResourceManager* _resMan;
+	D3D* _d3d;
+
 public:
+	ShaderManager _shMan;
+	RenderContext rc;
+	Camera _cam;
+
+
 	Renderer();
 	~Renderer();
 
@@ -44,17 +58,4 @@ public:
 	void setCameraMatrix(const SMatrix& camMatrix);
 
 	float _fieldOfView, _screenAspect, elapsed = 0.f;
-
-	ShaderManager _shMan;
-	RenderContext rc;
-	Camera _cam;
-
-private:
-	
-	bool UpdateRenderContext(float dTime);
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
-	ResourceManager* _resMan;
-	D3D* _d3d;
-
 };

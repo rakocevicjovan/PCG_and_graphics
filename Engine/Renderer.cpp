@@ -12,9 +12,6 @@ Renderer::~Renderer() {}
 
 
 
-#define EYE_POS _cam.GetCameraMatrix().Translation()
-
-
 bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d, Controller& ctrl)
 {
 	_d3d = &d3d;
@@ -92,6 +89,8 @@ void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& 
 	_d3d->SwitchDepthToDefault();
 	_d3d->TurnOnCulling();
 }
+
+
 
 void Renderer::RenderGui()
 {

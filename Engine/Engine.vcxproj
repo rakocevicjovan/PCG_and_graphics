@@ -323,6 +323,7 @@
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderClipper.h" />
     <ClInclude Include="ShaderCM.h" />
+    <ClInclude Include="ShaderCompiler.h" />
     <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="OST.h" />

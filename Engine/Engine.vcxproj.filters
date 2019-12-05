@@ -99,7 +99,7 @@
     <Filter Include="Resources\Resource classes">
       <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\ModShaders">
+    <Filter Include="Rendering\0NewSystem">
       <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -666,6 +666,9 @@
     </ClInclude>
     <ClInclude Include="ScreenSpaceDrawer.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCompiler.h">
+      <Filter>Rendering\0NewSystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
