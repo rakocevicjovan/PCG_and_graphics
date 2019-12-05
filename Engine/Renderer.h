@@ -4,7 +4,7 @@
 #include "CubeMapper.h"
 #include "ShaderManager.h"
 #include "GameClock.h"
-#include "Rekt.h"
+#include "ScreenSpaceDrawer.h"
 
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;

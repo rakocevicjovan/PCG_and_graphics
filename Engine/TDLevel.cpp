@@ -12,7 +12,6 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 
 void TDLevel::init(Systems& sys)
 {
-	skybox.LoadModel(device, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
@@ -30,18 +29,18 @@ void TDLevel::init(Systems& sys)
 	_oct.init(AABB(SVec3(), SVec3(100)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
 	_oct.prellocateRootOnly();	//_oct.preallocateTree();	
 	
-	boiModel.LoadModel(device, "../Models/Skysphere.fbx");
 
 	for (int i = 0; i < 125; ++i)
 	{
 		SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f + SVec3(5.f);
-		dubois.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(&boiModel, &randy._shMan.light));
-		dubois[i].collider = new Collider();
-		dubois[i].collider->BVT = BVT_SPHERE;
-		dubois[i].collider->dynamic = true;
-		dubois[i].collider->hulls.push_back(new SphereHull(pos, 1));	//eliminate duplicate pos, redundant and pain to update
+		creeps.emplace_back(SMatrix::CreateTranslation(pos),
+			GraphicComponent(static_cast<Model*>(resources.getResourceByName("Skysphere")), &randy._shMan.light));
+		creeps[i].collider = new Collider();
+		creeps[i].collider->BVT = BVT_SPHERE;
+		creeps[i].collider->dynamic = true;
+		creeps[i].collider->hulls.push_back(new SphereHull(pos, 1));	//eliminate duplicate pos, redundant and pain to update
 
-		_oct.insertObject(static_cast<SphereHull*>(dubois[i].collider->hulls.back()));
+		_oct.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
 	}
 
 #ifdef DEBUG_OCTREE
@@ -52,61 +51,7 @@ void TDLevel::init(Systems& sys)
 	octNodeMatrices.reserve(1000);
 #endif
 
-	std::vector<NavNode> nodes;
 
-	nodes.push_back(NavNode("A"));      //0
-	nodes.back().edges = { 0, 1 };
-
-	nodes.push_back(NavNode("B1"));     //1
-	nodes.back().edges = { 0, 4, 5 };
-
-	nodes.push_back(NavNode("B2"));     //2
-	nodes.back().edges = { 1, 2, 3 };
-
-	nodes.push_back(NavNode("C"));      //3
-	nodes.back().edges = { 2 };
-
-	nodes.push_back(NavNode("D1"));     //4
-	nodes.back().edges = { 5, 7 };
-
-	nodes.push_back(NavNode("D2"));     //5
-	nodes.back().edges = { 3, 4, 6 };
-
-	nodes.push_back(NavNode("END"));    //6
-	nodes.back().edges = { 6, 7 };
-
-	std::vector<NavEdge> edges;
-
-	edges.push_back(NavEdge(0, 1)); //A B1
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(0, 2)); //A B2
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(2, 3)); //B2 C
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(2, 5)); //B2 D2
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(1, 5)); //B1 D2
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(1, 4)); //B1 D1
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(5, 6)); //D2 END
-	edges.back().weight = 1;
-
-	edges.push_back(NavEdge(4, 6, 20)); //D1 END
-
-	AStar<pureDijkstra>::fillGraph(nodes, edges, 6);
-
-	for (int i = 0; i < nodes.size(); ++i)
-	{
-		std::string output = "Distance from " + nodes[i].name + " to END node:" + std::to_string(nodes[i].pathWeight) + "\n";
-		OutputDebugStringA(output.c_str());
-	}
 }
 
 
@@ -135,7 +80,7 @@ void TDLevel::update(const RenderContext& rc)
 	ProcessSpecialInput(rc.dTime);
 	updateCam(rc.dTime);
 
-	for (auto& boi : dubois)
+	for (auto& boi : creeps)
 	{
 		for (auto& hull : boi.collider->hulls)
 			hull->setPosition(boi.getPosition());
@@ -168,12 +113,12 @@ void TDLevel::draw(const RenderContext& rc)
 	m->Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
-	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.RenderSkybox(*rc.cam, *static_cast<Model*>(resources.getResourceByName("Skysphere")), skyboxCubeMapper);
 
-	for (int i = 0; i < dubois.size(); ++i)
+	for (int i = 0; i < creeps.size(); ++i)
 	{
-		dubois[i].transform = dubois[i].transform * rotMatrix;
-		dubois[i].Draw(context, *rc.cam, pLight, rc.dTime);
+		creeps[i].transform = creeps[i].transform * rotMatrix;
+		creeps[i].Draw(context, *rc.cam, pLight, rc.dTime);
 	}
 	
 #ifdef DEBUG_OCTREE

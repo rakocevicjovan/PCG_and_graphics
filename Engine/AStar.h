@@ -85,8 +85,8 @@ public:
 			float minPathWeight = (std::numeric_limits<float>::max)();
 			curNodeIndex = -1;
 
-			//I suspect it's faster this way then copying between two sets and possibly allocating all the time...
-			//iteration is fast and cache friendly
+			//alternative is using std::make_heap for unvisited nodes, and popping all the time
+			//I suspect it might faster this way as iteration is fast and cache friendly especially with modern optimized loops
 			for (int i = 0; i < nodes.size(); ++i)
 			{
 				if (nodes[i].visited)

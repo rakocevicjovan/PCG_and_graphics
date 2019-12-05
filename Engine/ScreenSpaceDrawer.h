@@ -63,4 +63,3 @@ public:
 private:
 	UINODE _ROOT;
 };
-

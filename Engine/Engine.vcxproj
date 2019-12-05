@@ -226,7 +226,7 @@
     <ClCompile Include="ShaderDepth.cpp" />
     <ClCompile Include="MeshDataStructs.h" />
     <ClCompile Include="OST.cpp" />
-    <ClCompile Include="Rekt.cpp" />
+    <ClCompile Include="ScreenSpaceDrawer.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Light.cpp" />
@@ -326,7 +326,7 @@
     <ClInclude Include="ShaderDataStructs.h" />
     <ClInclude Include="ShaderDepth.h" />
     <ClInclude Include="OST.h" />
-    <ClInclude Include="Rekt.h" />
+    <ClInclude Include="ScreenSpaceDrawer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Light.h" />

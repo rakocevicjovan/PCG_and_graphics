@@ -21,15 +21,15 @@ private:
 	SceneGraph _sg;
 	Octree _oct;
 
+	//unlike loaded models in the manager, these will be generated
 	Model floorModel;
+	Model debugModel;
+
 	PointLight pLight;
 	
-	Model skybox;
 	CubeMapper skyboxCubeMapper;
 
-	std::vector<Actor> dubois;
-	Model boiModel;
-	Model debugModel;
+	std::vector<Actor> creeps;
 
 	std::vector<AABB> tempBoxes;
 	std::vector<InstanceData> octNodeMatrices;

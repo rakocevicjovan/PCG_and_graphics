@@ -90,14 +90,17 @@
     <Filter Include="MemoryAllocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource handling">
-      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource handling\Resources">
-      <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision\Spatial partitioning">
       <UniqueIdentifier>{8f9f92cc-7b19-41f2-9964-cdf2ff740ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources\Resource classes">
+      <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\ModShaders">
+      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -222,7 +225,7 @@
       <Filter>SceneGraph</Filter>
     </ClCompile>
     <ClCompile Include="ProjectLoader.cpp">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>Rendering\SkelAnim</Filter>
@@ -245,9 +248,6 @@
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Rekt.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -255,7 +255,7 @@
       <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
@@ -330,22 +330,22 @@
       <Filter>Other</Filter>
     </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="LevelReader.cpp">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClCompile>
     <ClCompile Include="MeshDataStructs.h">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClCompile>
     <ClCompile Include="Grid.cpp">
       <Filter>Collision\Spatial partitioning</Filter>
@@ -355,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="ColFuncs.cpp">
       <Filter>Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenSpaceDrawer.cpp">
+      <Filter>Rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -521,7 +524,7 @@
       <Filter>SceneGraph</Filter>
     </ClInclude>
     <ClInclude Include="ProjectLoader.h">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Rendering\SkelAnim</Filter>
@@ -536,7 +539,7 @@
       <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Rendering</Filter>
@@ -554,9 +557,6 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Rekt.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
@@ -620,28 +620,28 @@
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPicker.h">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPickerLevel.h">
       <Filter>Levels\Implemented\__Picker</Filter>
     </ClInclude>
     <ClInclude Include="LevelReader.h">
-      <Filter>Resource handling</Filter>
+      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="StackAllocator.h">
       <Filter>MemoryAllocators</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>Resource handling\Resources</Filter>
+      <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="Octree.h">
       <Filter>Collision\Spatial partitioning</Filter>
@@ -663,6 +663,9 @@
     </ClInclude>
     <ClInclude Include="AStar.h">
       <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSpaceDrawer.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

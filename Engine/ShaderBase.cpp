@@ -65,9 +65,7 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	if (FAILED(result))
 		return false;
 
-	result = device->CreateInputLayout(layoutDesc.data(), layoutDesc.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(),
-		&_layout);
-
+	result = device->CreateInputLayout(layoutDesc.data(), layoutDesc.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &_layout);
 	if (FAILED(result))
 		return false;
 
@@ -75,7 +73,6 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 	vertexShaderBuffer = nullptr;
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = nullptr;
-
 
 	if (FAILED(device->CreateSamplerState(&samplerDesc, &_sampleState)))
 		return false;
@@ -126,16 +123,14 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 
 void ShaderBase::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename)
 {
-	char* compileErrors;
-	unsigned long bufferSize, i;
+	char* compileErrors = (char*)(errorMessage->GetBufferPointer());
+	unsigned long bufferSize = errorMessage->GetBufferSize();
+
 	std::ofstream fout;
 
-
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
-	bufferSize = errorMessage->GetBufferSize();
-
 	fout.open("shader-error.txt");
-	for (i = 0; i < bufferSize; i++)
+	
+	for (unsigned long i = 0; i < bufferSize; i++)
 		fout << compileErrors[i];
 
 	fout.close();

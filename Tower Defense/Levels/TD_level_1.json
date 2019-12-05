@@ -4,7 +4,7 @@
     "project": "Tower defense",
     "jsonDefPath": "Levels\\TD_level_1.json",
     "createdAt": "25. Nov 2019 22:07",
-    "updatedAt": "26. Nov 2019 14:18",
+    "updatedAt": "02. Dec 2019 14:35",
     "description": "Easy intro level.",
     "assets": [
         {
@@ -22,12 +22,20 @@
             "resType": "mesh"
         },
         {
-            "id": 7,
-            "path": "Assets\\Models\\FlyingMage\\source\\flying mage.obj",
-            "name": "FlyingMage",
+            "id": 8,
+            "path": "Assets\\Models\\SimpleTower.dae",
+            "name": "BasicTower",
+            "level": "Level 1",
+            "resType": "mesh"
+        },
+        {
+            "id": 9,
+            "path": "Assets\\Models\\Skysphere.fbx",
+            "name": "Skysphere",
             "level": "Level 1",
             "resType": "mesh"
         }
     ],
+    "resourceCount": 4,
     "fileName": "TD_level_1.json"
 }
