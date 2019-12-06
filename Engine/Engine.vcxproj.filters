@@ -670,6 +670,9 @@
     <ClInclude Include="NavGrid.h">
       <Filter>AI\Pathfinding</Filter>
     </ClInclude>
+    <ClInclude Include="Picker.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

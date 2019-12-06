@@ -13,9 +13,10 @@ enum CTRL_MODE
 };
 
 
-class Controller{
-
+class Controller
+{
 private:
+	InputManager* _inMan;
 
 	SVec3 processTranslationFPS(const float dTime, const SMatrix& transformation) const;
 	void processRotationFPS(float dTime, SMatrix& transformation) const;
@@ -26,27 +27,32 @@ private:
 	void applyGravity(const float dTime, SMatrix& transformation) const;
 	void resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity);
 
-	float rotCf = 15.f, movCf = 50.f, camDist = 66.f, sinceInput = 0;
+	float rotCf = 15.f, movCf = 50.f, camDist = 66.f;
 	short dx = 0, dy = 0;
 
 	bool _isFlying = true;
 	bool _collided = false;
 	bool _grounded = false;
+	bool _showCursor = false;
 	
 public:
 	Controller();
 	Controller(InputManager* inputManager);
 	~Controller();
 
-	InputManager* _inMan;
-	CollisionEngine* _colEng;
+	CollisionEngine* _colEng;	//this should not be here by any means!!!
 	
 	void processTransformationFPS(float dTime, SMatrix& transformation);
 	void processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform);
 
 	void processCommonInputs(float dTime);
-	void toggleFly();
+	void notify(char key, bool pressed);
+	void toggleFlying();
 	void setFlying(bool b);
 	bool isFlying() { return _isFlying; }
-};
 
+	void mouseLPressed();
+	void mouseLReleased();
+	void mouseRPressed();
+	void mouseRReleased();
+};

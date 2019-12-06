@@ -16,7 +16,7 @@ void Level::ProcessSpecialInput(float dTime)
 	if (sinceLastInput < .33f)
 		return;
 
-	if (_sys._inputManager.IsKeyDown(VK_SPACE))
+	if (_sys._inputManager.isKeyDown(VK_SPACE))
 	{
 		procGen();
 		sinceLastInput = 0;

@@ -49,7 +49,7 @@ void EarthLevel::init(Systems& sys)
 	shady.instanced._instanceCount = 10;
 
 	randy._cam.SetTranslation(SVec3(16, 10, 16));
-	_sys._controller.toggleFly();
+	_sys._controller.toggleFlying();
 }
 
 

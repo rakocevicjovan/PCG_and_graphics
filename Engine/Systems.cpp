@@ -26,6 +26,7 @@ bool Systems::Initialize()
 
 	_inputManager.Initialize(_hwnd);
 	_controller = Controller(&_inputManager);
+	_inputManager.registerController(&_controller);
 
 	if (!_renderer.Initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
 	{
@@ -179,11 +180,13 @@ bool Systems::Frame(float dTime)
 
 	_colEngine.update();
 
-	if (_inputManager.IsKeyDown(VK_ESCAPE))
+	_inputManager.queryMouse();
+
+	if (_inputManager.isKeyDown(VK_ESCAPE))
 		return false;
 
 	_controller.processCommonInputs(dTime);
-	_inputManager.SetXY(0, 0);
+	_inputManager.setRelativeXY(0, 0);
 
 	//OutputFPS(dTime);
 
@@ -227,7 +230,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 	if(ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
 		return true;
 
-	switch(umessage){
+	switch(umessage)
+	{
 		case WM_DESTROY:
 		{
 			PostQuitMessage(0);
@@ -255,12 +259,12 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT message, WPARAM wparam,
 	{
 		case WM_KEYDOWN:
 		{
-			_inputManager.KeyDown((unsigned int)wparam);
+			_inputManager.setKeyPressed((unsigned int)wparam);
 			break;
 		}
 		case WM_KEYUP:
 		{
-			_inputManager.KeyUp((unsigned int)wparam);
+			_inputManager.setKeyReleased((unsigned int)wparam);
 			break;
 		}
 		case WM_INPUT:
@@ -280,13 +284,16 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT message, WPARAM wparam,
 
 				if (raw->header.dwType == RIM_TYPEMOUSE)
 				{
-					_inputManager.SetXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
+					_inputManager.setRelativeXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
 				}
 
 				delete[] lpb;
 			}		
 			break;
 		}
+		
+		//mouse
+		{
 		case WM_ACTIVATEAPP:
 		case WM_MOUSEMOVE:
 		case WM_LBUTTONDOWN:
@@ -301,6 +308,7 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT message, WPARAM wparam,
 		case WM_MOUSEHOVER:
 			DirectX::Mouse::ProcessMessage(message, wparam, lparam);
 			break;
+		}
 		default:
 		{
 			return DefWindowProc(hwnd, message, wparam, lparam);
@@ -309,3 +317,57 @@ LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT message, WPARAM wparam,
 
 	return 0;
 }
+
+
+/* manual mouse querying code... using directxtk now
+
+case WM_ACTIVATEAPP:
+		{
+			break;
+		}
+		case WM_MOUSEMOVE:
+		{
+			break;
+		}
+		case WM_LBUTTONDOWN:
+		{
+			_inputManager.mouseLPressed();
+			break;
+		}
+		case WM_LBUTTONUP:
+		{
+			_inputManager.mouseLReleased();
+			break;
+		}
+		case WM_RBUTTONDOWN:
+		{
+			_inputManager.mouseRPressed();
+			break;
+		}
+		case WM_RBUTTONUP:
+		{
+			_inputManager.mouseRReleased();
+			break;
+		}
+		case WM_MBUTTONDOWN:
+		{
+			break;
+		}
+		case WM_MBUTTONUP:
+		{
+			break;
+		}
+		case WM_MOUSEWHEEL:
+		{
+			break;
+		}
+		case WM_XBUTTONDOWN:
+		{
+			break;
+		}
+		case WM_XBUTTONUP:
+		{
+			break;
+		}
+
+*/

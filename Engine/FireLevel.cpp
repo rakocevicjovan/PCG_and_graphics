@@ -252,7 +252,7 @@ bool FireLevel::processInput(float dTime)
 {
 	ProcessSpecialInput(dTime);
 
-	if (_sys._inputManager.IsKeyDown((short)'M') && sinceLastInput > .33f)
+	if (_sys._inputManager.isKeyDown((short)'M') && sinceLastInput > .33f)
 	{
 		return true;
 		sinceLastInput = 0;

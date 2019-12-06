@@ -1,12 +1,20 @@
-#ifndef _INPUTCLASS_H_
-#define _INPUTCLASS_H_
-
+#pragma once
 #include <memory>
 #include <Windows.h>
+#include <vector>
 #include "Mouse.h"
+#include "Controller.h"
 
-class InputManager{
+class InputManager
+{
+private:
+	std::vector<Controller*> _observers;
+	std::unique_ptr<DirectX::Mouse> mouse;
+	DirectX::Mouse::ButtonStateTracker tracker;
 
+	bool m_keys[256];
+	bool cursorVisible = false;
+	short curX = 0, curY = 0;
 public:
 
 	InputManager();
@@ -14,22 +22,23 @@ public:
 
 	void Initialize(HWND hwnd);
 
-	void KeyDown(unsigned int);
-	void KeyUp(unsigned int);
-	void SetXY(short, short);
+	void registerController(Controller* controller);
+	void unregisterController(Controller* controller);
 
-	void GetXY(short& x, short&y);
-	bool IsKeyDown(unsigned int);
+	void setKeyPressed(unsigned int);
+	void setKeyReleased(unsigned int);
+	
+	void setRelativeXY(short, short);
+	void getRelativeXY(short& x, short&y);
 
-	void ToggleMouseMode();
-	bool GetMouseMode();
+	bool isKeyDown(unsigned int);
 
-	std::unique_ptr<DirectX::Mouse> mouse;
+	void toggleMouseMode();
+	bool getMouseMode();
 
-private:
-	bool m_keys[256];
-	bool cursorVisible = false;
-	short curX = 0, curY = 0;
+	void queryMouse();
+	void mouseLPressed();
+	void mouseLReleased();
+	void mouseRPressed();
+	void mouseRReleased();
 };
-
-#endif

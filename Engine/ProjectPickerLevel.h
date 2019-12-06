@@ -9,7 +9,7 @@ class ProjectPickerLevel : public Level
 public:
 	ProjectPickerLevel(Systems& sys) : Level(sys), pp(sys._resMan.getProjectLoader()) {}
 	
-	void init(Systems& sys) override { _sys._inputManager.ToggleMouseMode(); }
+	void init(Systems& sys) override { _sys._inputManager.toggleMouseMode(); }
 
 	void update(const RenderContext& rc) override {}
 
@@ -22,5 +22,5 @@ public:
 		rc.d3d->EndScene();
 	}
 
-	void demolish() override { _sys._inputManager.ToggleMouseMode(); }
+	void demolish() override { _sys._inputManager.toggleMouseMode(); }
 };

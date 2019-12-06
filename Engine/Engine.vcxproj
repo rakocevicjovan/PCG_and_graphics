@@ -313,6 +313,7 @@
     <ClInclude Include="Perlin.h" />
     <ClInclude Include="PerlinShader.h" />
     <ClInclude Include="Illumination.h" />
+    <ClInclude Include="Picker.h" />
     <ClInclude Include="ProjectLoader.h" />
     <ClInclude Include="ProjectPicker.h" />
     <ClInclude Include="ProjectPickerLevel.h" />

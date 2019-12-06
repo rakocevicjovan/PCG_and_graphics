@@ -1,11 +1,15 @@
 #include "InputManager.h"
 #include <assert.h>
+#include <algorithm>
+
 
 
 InputManager::InputManager()
 {
 	mouse = std::make_unique<DirectX::Mouse>();
 }
+
+
 
 InputManager::~InputManager(){}
 
@@ -15,7 +19,7 @@ void InputManager::Initialize(HWND hwnd)
 {
 	mouse->SetWindow(hwnd);
 
-	RAWINPUTDEVICE RIDs[2];	//@TODO do i need this? probably do...
+	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
 
 	RIDs[0].usUsagePage = 0x01;		//keyboard and mouse
 	RIDs[0].usUsage = 0x02;			//code of our device, 0x06 is keyboard, 0x02 is mouse... could use 2 and 6 too but this makes me look smarter
@@ -35,45 +39,115 @@ void InputManager::Initialize(HWND hwnd)
 }
 
 
-void InputManager::KeyDown(unsigned int input)
+void InputManager::registerController(Controller* controller)
+{
+	_observers.push_back(controller);
+}
+
+
+void InputManager::unregisterController(Controller* controller)
+{
+	_observers.erase(std::remove(_observers.begin(), _observers.end(), controller), _observers.end());
+}
+
+
+void InputManager::setKeyPressed(unsigned int input)
 {
 	m_keys[input] = true;
+
+	for (auto obs : _observers)
+		obs->notify((char)input, true);
 }
 
 
-void InputManager::KeyUp(unsigned int input)
+void InputManager::setKeyReleased(unsigned int input)
 {
 	m_keys[input] = false;
+
+	for (auto obs : _observers)
+		obs->notify((char)input, false);
 }
 
 
-void InputManager::SetXY(short x, short y)
+void InputManager::setRelativeXY(short x, short y)
 {
 	curX = x;
 	curY = y;
 }
 
 
-void InputManager::GetXY(short& x, short& y) 
+void InputManager::getRelativeXY(short& x, short& y) 
 {
 	x = curX;
 	y = curY;
 }
 
 
-bool InputManager::IsKeyDown(unsigned int key)
+bool InputManager::isKeyDown(unsigned int key)
 {
 	return m_keys[key];
 }
 
 
-void InputManager::ToggleMouseMode()
+
+void InputManager::queryMouse()
+{
+	DirectX::Mouse::State state = mouse->GetState();
+	tracker.Update(state);
+
+	if (tracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
+	{
+		mouseLPressed();
+	}
+	if (tracker.leftButton == DirectX::Mouse::ButtonStateTracker::RELEASED)
+	{
+		mouseLReleased();
+	}
+	if (tracker.rightButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
+	{
+		mouseRPressed();
+	}
+	if (tracker.rightButton == DirectX::Mouse::ButtonStateTracker::RELEASED)
+	{
+		mouseRReleased();
+	}
+}
+
+
+void InputManager::mouseLPressed()
+{
+	for (auto obs : _observers)
+		obs->mouseLPressed();
+}
+
+
+void InputManager::mouseLReleased()
+{
+	for (auto obs : _observers)
+		obs->mouseLReleased();
+}
+
+
+void InputManager::mouseRPressed()
+{
+	return;
+}
+
+
+void InputManager::mouseRReleased()
+{
+	return;
+}
+
+
+void InputManager::toggleMouseMode()
 {
 	cursorVisible = !cursorVisible;
 	mouse->SetVisible(cursorVisible);
 }
 
-bool InputManager::GetMouseMode()
+
+bool InputManager::getMouseMode()
 {
 	return cursorVisible;
 }

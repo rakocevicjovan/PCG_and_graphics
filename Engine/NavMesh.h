@@ -3,19 +3,16 @@
 #include <vector>
 
 
-#include <string>	//delet later
 
-// should be a convex shape... how to do this though, is a big ??? for now... got to read up on it
+
+// should be a convex shape... how to enforce this though, is a big ??? for now... got to read up on it
 struct NavNode
 {
-	std::string name;
 	std::vector<SVec3> points;
 	std::vector<int> edges;
 	float pathWeight;
 	bool visited;
 	int pathPredecessor;
-
-	NavNode(std::string n) : name(n) {}
 };
 
 
@@ -41,3 +38,9 @@ class NavMesh
 
 };
 
+
+
+
+//#include <string>
+	//std::string name;
+	//NavNode(std::string n) : name(n) {}

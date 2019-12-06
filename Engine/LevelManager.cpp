@@ -55,7 +55,7 @@ void LevelManager::update(Systems& systems, float dTime)
 	if (sinceLastInput < .33f)
 		return;
 
-	if (systems._inputManager.IsKeyDown((short)'L') || current->finished)
+	if (systems._inputManager.isKeyDown((short)'L') || current->finished)
 	{
 		advanceLevel(systems);
 		sinceLastInput = 0;

@@ -65,13 +65,13 @@ namespace Strife
 
 	void StrifeLevel::update(const RenderContext& rc)
 	{
-		if (_sys._inputManager.IsKeyDown((short)'M') && sinceLastInput > .33f)
+		if (_sys._inputManager.isKeyDown((short)'M') && sinceLastInput > .33f)
 		{
-			inman.ToggleMouseMode();
+			inman.toggleMouseMode();
 			sinceLastInput = 0;
 		}
 
-		if(!inman.GetMouseMode())
+		if(!inman.getMouseMode())
 			updateCam(rc.dTime);
 
 		sinceLastInput += rc.dTime;
@@ -105,7 +105,7 @@ namespace Strife
 		
 
 		//GUI
-		if(inman.GetMouseMode())
+		if(inman.getMouseMode())
 			ToolGUI::Render(csDef);
 
 		rc.d3d->EndScene();

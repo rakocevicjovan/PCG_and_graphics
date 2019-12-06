@@ -1,6 +1,7 @@
 #include "Controller.h"
 #include "InputManager.h"
 #include "CollisionEngine.h"
+#include "Picker.h"
 
 
 Controller::Controller() : _inMan(nullptr), dx(0), dy(0) {}
@@ -13,7 +14,7 @@ Controller::~Controller() {}
 
 void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 {
-	_inMan->GetXY(dx, dy);
+	_inMan->getRelativeXY(dx, dy);	//bit lame that I solved it like this, coupled unnecessarily...
 
 	SVec3 translation = transform.Translation();
 	Math::SetTranslation(transform, SVec3());
@@ -61,27 +62,27 @@ SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transf
 
 	SVec3 deltaTranslation(0, 0, 0);
 
-	if (_inMan->IsKeyDown((short)'W')) {
+	if (_inMan->isKeyDown((short)'W')) {
 		deltaTranslation = deltaTranslation + dir;
 	}
 
-	if (_inMan->IsKeyDown((short)'S')) {
+	if (_inMan->isKeyDown((short)'S')) {
 		deltaTranslation = deltaTranslation - dir;
 	}
 
-	if (_inMan->IsKeyDown((short)'A')) {
+	if (_inMan->isKeyDown((short)'A')) {
 		deltaTranslation = deltaTranslation - right;
 	}
 
-	if (_inMan->IsKeyDown((short)'D')) {
+	if (_inMan->isKeyDown((short)'D')) {
 		deltaTranslation = deltaTranslation + right;
 	}
 
-	if (_inMan->IsKeyDown(VK_NUMPAD8)) {
+	if (_inMan->isKeyDown(VK_NUMPAD8)) {
 		deltaTranslation = deltaTranslation + SVec3::Up;
 	}
 
-	if (_inMan->IsKeyDown(VK_NUMPAD2)) {
+	if (_inMan->isKeyDown(VK_NUMPAD2)) {
 		deltaTranslation = deltaTranslation - SVec3::Up;
 	}
 
@@ -94,7 +95,7 @@ SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transf
 
 void Controller::processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform)
 {
-	_inMan->GetXY(dx, dy);
+	_inMan->getRelativeXY(dx, dy);
 
 	processRotationTP(dTime, transform, camTransform);
 
@@ -114,22 +115,22 @@ SVec3 Controller::processTranslationTP(float dTime, const SMatrix & transformati
 
 	SVec3 deltaTranslation(0, 0, 0);
 
-	if (_inMan->IsKeyDown((short)'W'))
+	if (_inMan->isKeyDown((short)'W'))
 	{
 		deltaTranslation = deltaTranslation + dir;
 	}
 
-	if (_inMan->IsKeyDown((short)'S'))
+	if (_inMan->isKeyDown((short)'S'))
 	{
 		deltaTranslation = deltaTranslation - dir;
 	}
 
-	if (_inMan->IsKeyDown((short)'Q'))
+	if (_inMan->isKeyDown((short)'Q'))
 	{
 		deltaTranslation = deltaTranslation - right;
 	}
 
-	if (_inMan->IsKeyDown((short)'E'))
+	if (_inMan->isKeyDown((short)'E'))
 	{
 		deltaTranslation = deltaTranslation + right;
 	}
@@ -149,10 +150,10 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 
 	float rotator = 0;
 
-	if (_inMan->IsKeyDown((short)'A'))
+	if (_inMan->isKeyDown((short)'A'))
 		rotator += rotCf * .1f * dTime;
 
-	if (_inMan->IsKeyDown((short)'D'))
+	if (_inMan->isKeyDown((short)'D'))
 		rotator -= rotCf * .1f * dTime;
 
 	transform *= SMatrix::CreateRotationY(-rotator);
@@ -174,7 +175,7 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 
 
 
-void Controller::applyGravity(const float dTime, SMatrix& transformation) const
+void Controller::applyGravity(const float dTime, SMatrix& transformation) const	//get this thing out of here ffs
 {
 	if(!_grounded)
 		Math::Translate(transformation, SVec3(0.f, -9.81f, 0.f) * dTime);
@@ -182,7 +183,7 @@ void Controller::applyGravity(const float dTime, SMatrix& transformation) const
 
 
 
-void Controller::toggleFly()
+void Controller::toggleFlying()
 {
 	_isFlying = _isFlying ? false : true;
 }
@@ -198,7 +199,8 @@ void Controller::setFlying(bool b)
 
 void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity)
 {
-	if (!_colEng) return;
+	if (!_colEng)
+		return;
 
 	HitResult hr = _colEng->resolvePlayerCollision(transformation, velocity);
 
@@ -209,16 +211,53 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 }
 
 
+
 void Controller::processCommonInputs(float dTime)
+{}
+
+
+
+void Controller::notify(char key, bool pressed)
 {
-	sinceInput += dTime;
-
-	if (sinceInput < .33f)
-		return;
-
-	if (_inMan->IsKeyDown((short)'F'))
+	switch (key)
 	{
-		toggleFly();
-		sinceInput = 0;
+	case 'F':
+		if (pressed) toggleFlying();	//every press down toggle, so I don't have to hold it
+		break;
+
+	case 'M':
+		if (pressed)
+		{
+			_showCursor = !_showCursor;
+			ShowCursor(_showCursor);
+		}
+			
+		break;
+
+	default:
+		break;
 	}
+}
+
+void Controller::mouseLPressed()
+{
+	return;
+}
+
+
+void Controller::mouseLReleased()
+{
+	//pick from map
+}
+
+
+void Controller::mouseRPressed()
+{
+	return;
+}
+
+
+void Controller::mouseRReleased()
+{
+	return;
 }
