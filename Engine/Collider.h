@@ -12,7 +12,6 @@ public:
 	BoundingVolumeType BVT;
 	Model* modParent;		//delete this eventually... it should all be actors, static or dynamic however, determined by collider type
 	Actor* actParent;
-	SMatrix transform;		//replicated data... should simply use the actor's transform instead
 	std::vector<Hull*> hulls;	//this could be templated... unless i want to support multiple, yet different type, hulls
 	bool dynamic;
 

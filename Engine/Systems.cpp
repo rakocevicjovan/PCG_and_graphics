@@ -15,7 +15,7 @@ bool Systems::Initialize()
 	screenWidth = screenHeight = 0;
 	InitializeWindows(screenWidth, screenHeight);
 	
-	if (!_D3D.Initialize(windowWidth, windowHeight, VSYNC_ENABLED, _hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))
+	if (!_D3D.Initialize(windowWidth, windowHeight, false, _hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR))	//VSYNC_ENABLED
 	{
 		MessageBox(_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;

@@ -102,6 +102,9 @@
     <Filter Include="Rendering\0NewSystem">
       <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AI\Pathfinding">
+      <UniqueIdentifier>{188558f1-d5c9-4299-9204-18c36ead3c33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -610,12 +613,6 @@
     <ClInclude Include="TDLevel.h">
       <Filter>Levels\Implemented\TowerDefense</Filter>
     </ClInclude>
-    <ClInclude Include="MapGraph.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="NavMesh.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="FileUtilities.h">
       <Filter>Other</Filter>
     </ClInclude>
@@ -658,17 +655,20 @@
     <ClInclude Include="AiController.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="NavGrid.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="AStar.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="ScreenSpaceDrawer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCompiler.h">
       <Filter>Rendering\0NewSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="AStar.h">
+      <Filter>AI\Pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="NavMesh.h">
+      <Filter>AI\Pathfinding</Filter>
+    </ClInclude>
+    <ClInclude Include="NavGrid.h">
+      <Filter>AI\Pathfinding</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

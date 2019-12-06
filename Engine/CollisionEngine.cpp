@@ -145,10 +145,8 @@ void CollisionEngine::update()
 	{
 		if (collider->dynamic)
 		{
-		
-			collider->transform = collider->actParent->transform; 
-
-			for (Hull* h : collider->hulls) h->setPosition(collider->transform.Translation());
+			for (Hull* h : collider->hulls)	//@TODO allow offsets for multiple hulls!
+				h->setPosition(collider->actParent->transform.Translation());
 
 			addToGrid(collider);
 		}

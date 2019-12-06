@@ -41,7 +41,7 @@ public:
 	GraphicComponent gc;
 	Collider* collider;
 
-	SVec3 getPosition()
+	SVec3 getPosition() const
 	{
 		return transform.Translation();
 	}

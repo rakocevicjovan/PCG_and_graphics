@@ -52,6 +52,12 @@ static HitResult AABBSphereIntersection(const AABB& b, const SphereHull& s)
 static HitResult SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
 {
 	float distSquared = SVec3::DistanceSquared(s1.ctr, s2.ctr);
+
+	if (distSquared < 0.001f)
+	{
+		return HitResult(true, SVec3(1), s1.r*s2.r);
+	}
+
 	return HitResult(distSquared < sq(s1.r + s2.r), s1.ctr - s2.ctr, distSquared);
 }
 

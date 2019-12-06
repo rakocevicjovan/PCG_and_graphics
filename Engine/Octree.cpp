@@ -1,6 +1,10 @@
 #include "Octree.h"
 #include "ColFuncs.h"
 
+//big include lists everywhere brought to you by wonky design inc.
+#include "Collider.h"
+#include "GameObject.h"
+
 
 Octree::~Octree()
 {
@@ -270,10 +274,20 @@ void Octree::testAllCollisions(OctNode *pNode)
 		{
 			for (SphereHull* spL : pNode->hulls)
 			{
-				if (spA == spL)
-					break;
+				if (spA == spL)	//not sure if continue or break, book says break but that seems incorrect!
+					continue;
 
-				SphereSphereIntersection(*spA, *spL);		//what to do with the hit result now...
+				HitResult hr = SphereSphereIntersection(*spA, *spL);		//what to do with the hit result now...
+				if (hr.hit == true)
+				{
+					//breaks apart if actors relocate... consider between indices and allocators...
+					spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
+					Math::SetTranslation(spA->_collider->actParent->transform, spA->getPosition());
+					
+					spL->setPosition(spL->getPosition() - hr.resolutionVector * .5);
+					Math::SetTranslation(spL->_collider->actParent->transform, spL->getPosition());
+				}
+				
 			}
 		}
 	}

@@ -15,6 +15,12 @@
 
 class LevelManager;
 
+struct GuiElement
+{
+	std::string title;
+	std::string content;
+};
+
 class Level
 {
 protected:
@@ -47,15 +53,19 @@ public:
 
 	bool finished = false;
 
-	void renderString(const std::string& title, const std::string& content)
+	void renderGuiElems(const std::vector<GuiElement>& elements)
 	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::Begin(title.c_str());
-		ImGui::Text(content.c_str());
-		ImGui::End();
+		for (const GuiElement& e : elements)
+		{
+			ImGui::Begin(e.title.c_str());
+			ImGui::Text(e.content.c_str());
+			ImGui::End();
+		}
+
 
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

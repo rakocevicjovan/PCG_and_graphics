@@ -303,7 +303,6 @@
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="Lillies.h" />
     <ClInclude Include="LSystem.h" />
-    <ClInclude Include="MapGraph.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />
     <ClInclude Include="NavGrid.h" />
