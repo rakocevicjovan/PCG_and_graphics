@@ -7,6 +7,7 @@ class RenderContext;
 
 class LevelManager
 {
+	float sinceLastInput = 0.f;
 	std::vector<Level*> _levels;
 	Level* current;
 
@@ -15,8 +16,7 @@ public:
 	~LevelManager();
 
 	void advanceLevel(Systems& systems);
-	void UpdateDrawCurrent(RenderContext& renderContext);
+	void updateAndDrawCurrent(RenderContext& renderContext);
 	void update(Systems& systems, float dTime);
-
-	float sinceLastInput = 0.f;
+	Level* getCurrentLevel() { return current; }
 };

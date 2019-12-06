@@ -5,6 +5,12 @@
 #include "Mouse.h"
 #include "Controller.h"
 
+struct MCoords
+{
+	short x;
+	short y;
+};
+
 class InputManager
 {
 private:
@@ -14,7 +20,8 @@ private:
 
 	bool m_keys[256];
 	bool cursorVisible = false;
-	short curX = 0, curY = 0;
+	MCoords _rel;
+	MCoords _abs;
 public:
 
 	InputManager();

@@ -14,8 +14,24 @@
 #include "IMGUI/imgui_impl_win32.h"
 #include "IMGUI/imgui_impl_dx11.h"
 
+static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+static Systems* ApplicationHandle = 0;
+
+//centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
 class Systems
 {
+private:
+	bool Frame(float dTime);
+	void InitializeWindows(int& w, int& h);
+	void OutputFPS(float dTime);
+
+	LPCWSTR _applicationName;
+	HINSTANCE _hinstance;
+	HWND _hwnd;
+	POINT _midWindow;
+
+	int screenWidth, screenHeight, windowWidth, windowHeight;
+
 public:
 	Systems();
 	~Systems();
@@ -24,40 +40,26 @@ public:
 	void Run();
 	void Shutdown();
 	
-	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
-	
-	GameClock gc;
-	Renderer _renderer;
-	ResourceManager _resMan;
+	//core systems
 	InputManager _inputManager;
-	Audio _audio;
-	CollisionEngine _colEngine;
-	Controller _controller;
+	ResourceManager _resMan;
+	Renderer _renderer;
 	LevelManager* _levelMan;
+	CollisionEngine _colEngine;
+	Audio _audio;
+	GameClock _clock;
+	
+	Controller _controller;
 
+	//extra rendering data - this should end up in the renderer and loaders ONLY @TODO
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	D3D _D3D;
+
+	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 	UINT getScrW() { return screenWidth;  }
 	UINT getScrH() { return screenHeight; }
 	UINT getWinW() { return windowWidth;  }
 	UINT getWinH() { return windowHeight; }
-
-private:
-	bool Frame(float dTime);
-	void InitializeWindows(int& w, int& h);
-	void OutputFPS(float dTime);
-
-	LPCWSTR m_applicationName;
-	HINSTANCE m_hinstance;
-	HWND _hwnd;
-	POINT midWindow;
-	
-	int screenWidth, screenHeight, windowWidth, windowHeight;
-	float sinceLastInput = 0.f;
 };
-
-
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-static Systems* ApplicationHandle = 0;

@@ -3,6 +3,7 @@
 
 class InputManager;
 class CollisionEngine;
+class MCoords;
 
 
 enum CTRL_MODE
@@ -45,14 +46,13 @@ public:
 	void processTransformationFPS(float dTime, SMatrix& transformation);
 	void processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform);
 
-	void processCommonInputs(float dTime);
 	void notify(char key, bool pressed);
 	void toggleFlying();
 	void setFlying(bool b);
 	bool isFlying() { return _isFlying; }
 
-	void mouseLPressed();
-	void mouseLReleased();
-	void mouseRPressed();
-	void mouseRReleased();
+	void mouseLPressed(const MCoords& absmc);
+	void mouseLReleased(const MCoords& absmc);
+	void mouseRPressed(const MCoords& absmc);
+	void mouseRReleased(const MCoords& absmc);
 };

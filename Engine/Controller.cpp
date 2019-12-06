@@ -15,14 +15,17 @@ Controller::~Controller() {}
 void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 {
 	_inMan->getRelativeXY(dx, dy);	//bit lame that I solved it like this, coupled unnecessarily...
-
-	SVec3 translation = transform.Translation();
-	Math::SetTranslation(transform, SVec3());
-
+	
 	if (!(dx == 0 && dy == 0))	//check if rotation happened, can skip a lot of work
+	{
+		SVec3 translation = transform.Translation();
+		Math::SetTranslation(transform, SVec3());
+
 		processRotationFPS(dTime, transform);
 
-	Math::SetTranslation(transform, translation);
+		Math::SetTranslation(transform, translation);
+	}
+	
 	SVec3 velocityVector = processTranslationFPS(dTime, transform) * movCf * dTime;
 	
 	//flying mode is used for testing and shouldn't collide or fall for convenience
@@ -212,11 +215,6 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 
 
 
-void Controller::processCommonInputs(float dTime)
-{}
-
-
-
 void Controller::notify(char key, bool pressed)
 {
 	switch (key)
@@ -239,25 +237,25 @@ void Controller::notify(char key, bool pressed)
 	}
 }
 
-void Controller::mouseLPressed()
+void Controller::mouseLPressed(const MCoords& absmc)
 {
 	return;
 }
 
 
-void Controller::mouseLReleased()
+void Controller::mouseLReleased(const MCoords& absmc)
 {
 	//pick from map
 }
 
 
-void Controller::mouseRPressed()
+void Controller::mouseRPressed(const MCoords& absmc)
 {
 	return;
 }
 
 
-void Controller::mouseRReleased()
+void Controller::mouseRReleased(const MCoords& absmc)
 {
 	return;
 }

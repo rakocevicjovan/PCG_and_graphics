@@ -64,23 +64,23 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 	ApplicationHandle = this;	// Get an external pointer to this object.	
 
 	// Get the instance of this application.
-	m_hinstance = GetModuleHandle(NULL);
+	_hinstance = GetModuleHandle(NULL);
 
 	// Give the application a name.
-	m_applicationName = L"Aeolipile";
+	_applicationName = L"Aeolipile";
 
 	// Setup the windows class with default settings.
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = WndProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hInstance = m_hinstance;
+	wc.hInstance = _hinstance;
 	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 	wc.hIconSm = wc.hIcon;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = m_applicationName;
+	wc.lpszClassName = _applicationName;
 	wc.cbSize = sizeof(WNDCLASSEX);
 
 	// Register the window class.
@@ -120,9 +120,9 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 
 	// Create the window with the screen settings and get the handle to it.
-	_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
+	_hwnd = CreateWindowEx(WS_EX_APPWINDOW, _applicationName, _applicationName,
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-		posX, posY, windowWidth, windowHeight, NULL, NULL, m_hinstance, NULL);
+		posX, posY, windowWidth, windowHeight, NULL, NULL, _hinstance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(_hwnd, SW_SHOW);
@@ -142,7 +142,7 @@ void Systems::Run()
 	MSG msg;
 	bool done = false;
 
-	gc.Reset();
+	_clock.Reset();
 	// Initialize the message structure.
 	ZeroMemory(&msg, sizeof(MSG));
 	
@@ -161,8 +161,8 @@ void Systems::Run()
 		}
 		else
 		{
-			gc.Tick();
-			done = !Frame(gc.DeltaTime());	// Otherwise do the frame processing.
+			_clock.Tick();
+			done = !Frame(_clock.DeltaTime());	// Otherwise do the frame processing.
 		}
 	}
 }
@@ -176,7 +176,7 @@ bool Systems::Frame(float dTime)
 
 	_levelMan->update(*this, dTime);
 
-	_levelMan->UpdateDrawCurrent(_renderer.rc);
+	_levelMan->updateAndDrawCurrent(_renderer.rc);
 
 	_colEngine.update();
 
@@ -185,7 +185,6 @@ bool Systems::Frame(float dTime)
 	if (_inputManager.isKeyDown(VK_ESCAPE))
 		return false;
 
-	_controller.processCommonInputs(dTime);
 	_inputManager.setRelativeXY(0, 0);
 
 	//OutputFPS(dTime);
@@ -215,8 +214,8 @@ void Systems::Shutdown()
 	DestroyWindow(_hwnd);
 	_hwnd = NULL;
 
-	UnregisterClass(m_applicationName, m_hinstance);
-	m_hinstance = NULL;
+	UnregisterClass(_applicationName, _hinstance);
+	_hinstance = NULL;
 
 	ApplicationHandle = NULL;
 }
@@ -226,7 +225,6 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
-
 	if(ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
 		return true;
 

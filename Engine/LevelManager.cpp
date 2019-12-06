@@ -64,7 +64,7 @@ void LevelManager::update(Systems& systems, float dTime)
 
 
 
-void LevelManager::UpdateDrawCurrent(RenderContext& renderContext)
+void LevelManager::updateAndDrawCurrent(RenderContext& renderContext)
 {
 	current->update(renderContext);
 	current->draw(renderContext);

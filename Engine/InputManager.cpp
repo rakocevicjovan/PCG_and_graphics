@@ -71,15 +71,15 @@ void InputManager::setKeyReleased(unsigned int input)
 
 void InputManager::setRelativeXY(short x, short y)
 {
-	curX = x;
-	curY = y;
+	_rel.x = x;
+	_rel.y = y;
 }
 
 
 void InputManager::getRelativeXY(short& x, short& y) 
 {
-	x = curX;
-	y = curY;
+	x = _rel.x;
+	y = _rel.y;
 }
 
 
@@ -89,11 +89,12 @@ bool InputManager::isKeyDown(unsigned int key)
 }
 
 
-
 void InputManager::queryMouse()
 {
 	DirectX::Mouse::State state = mouse->GetState();
 	tracker.Update(state);
+	_abs.x = state.x;
+	_abs.y = state.y;
 
 	if (tracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
 	{
@@ -117,14 +118,14 @@ void InputManager::queryMouse()
 void InputManager::mouseLPressed()
 {
 	for (auto obs : _observers)
-		obs->mouseLPressed();
+		obs->mouseLPressed(_abs);
 }
 
 
 void InputManager::mouseLReleased()
 {
 	for (auto obs : _observers)
-		obs->mouseLReleased();
+		obs->mouseLReleased(_abs);
 }
 
 
