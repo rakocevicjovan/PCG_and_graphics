@@ -2,6 +2,8 @@
 #include "Terrain.h"
 #include "Geometry.h"
 #include "AStar.h"
+#include "Picker.h"
+#include "ColFuncs.h"
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 {
@@ -23,12 +25,8 @@ void TDLevel::init(Systems& sys)
 	t.SetUp(device);
 	floorModel = Model(t, device);
 
-
-
 	_oct.init(AABB(SVec3(), SVec3(200)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
 	_oct.prellocateRootOnly();	//_oct.preallocateTree();	
-	
-
 
 	creeps.reserve(125);
 	for (int i = 0; i < 125; ++i)
@@ -96,6 +94,25 @@ void TDLevel::update(const RenderContext& rc)
 
 	//does it's damn job after all that
 	_oct.collideAll();
+
+	if (_sys._inputManager.isKeyDown('R'))
+	{
+		MCoords mc = _sys._inputManager.getAbsXY();
+
+		Picker p;
+		ray = p.generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *rc.cam);
+
+		for (int i = 0; i < creeps.size(); ++i)
+		{
+			float t;
+			SVec3 ip;
+			/*if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))*/
+			if(Col::IntersectRaySphere(ray.position, ray.direction, *static_cast<SphereHull*>(creeps[i].collider->hulls[0]), t, ip ))
+			{
+				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
+			}
+		}
+	}
 }
 
 

@@ -14,10 +14,10 @@ public:
 	~CubeMapper();
 
 	unsigned int edgeLength;
-	void Init(ID3D11Device* device);
+	void Init(ID3D11Device* dev);
 	void UpdateCams(const SVec3& pos);
 	void Advance(ID3D11DeviceContext* dc, UINT i);
-	void LoadFromFiles(ID3D11Device* device, const std::string& filename);	//std::vector<std::string>& filenames
+	void LoadFromFiles(ID3D11Device* dev, const std::string& filename);	//std::vector<std::string>& filenames
 	Camera getCameraAtIndex(unsigned int i);
 
 	SMatrix cameras[6];

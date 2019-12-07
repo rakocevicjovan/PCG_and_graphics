@@ -1,6 +1,10 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 
+#include "IMGUI/imgui.h"
+#include "IMGUI/imgui_impl_win32.h"
+#include "IMGUI/imgui_impl_dx11.h"
+
 #include <windows.h>
 #include "InputManager.h"
 #include "Renderer.h"
@@ -10,12 +14,7 @@
 #include "LevelManager.h"
 #include "ResourceManager.h"
 
-#include "IMGUI/imgui.h"
-#include "IMGUI/imgui_impl_win32.h"
-#include "IMGUI/imgui_impl_dx11.h"
 
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-static Systems* ApplicationHandle = 0;
 
 //centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
 class Systems
@@ -63,3 +62,6 @@ public:
 	UINT getWinW() { return windowWidth;  }
 	UINT getWinH() { return windowHeight; }
 };
+
+static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+static Systems* ApplicationHandle = 0;

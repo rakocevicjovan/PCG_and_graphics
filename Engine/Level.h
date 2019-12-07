@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "Terrain.h"
 #include "Perlin.h"
+#include "Observer.h"
 
 #define device		_sys._device
 #define context		_sys._deviceContext
@@ -21,12 +22,12 @@ struct GuiElement
 	std::string content;
 };
 
-class Level
+
+
+class Level : public Observer
 {
 protected:
 	Systems& _sys;
-
-	float sinceLastInput = 0.f;	//consequence of slightly changing rastertek input instead of completely redoing it... fucking hell
 
 	std::vector<GameObject*> objects;
 	std::vector<GraphicComponent*> lesRenderables;
@@ -69,5 +70,10 @@ public:
 
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	void Observe(const MouseClickMessage& c) //override
+	{
+
 	}
 };

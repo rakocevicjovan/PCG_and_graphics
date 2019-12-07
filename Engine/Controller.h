@@ -1,5 +1,6 @@
 #pragma once
 #include "Math.h"
+#include "Observer.h"
 
 class InputManager;
 class CollisionEngine;
@@ -14,7 +15,8 @@ enum CTRL_MODE
 };
 
 
-class Controller
+
+class Controller : public Observer
 {
 private:
 	InputManager* _inMan;
@@ -46,7 +48,7 @@ public:
 	void processTransformationFPS(float dTime, SMatrix& transformation);
 	void processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform);
 
-	void notify(char key, bool pressed);
+	void Observe(const KeyPressMessage& msg);
 	void toggleFlying();
 	void setFlying(bool b);
 	bool isFlying() { return _isFlying; }

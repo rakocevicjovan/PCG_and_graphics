@@ -24,10 +24,10 @@ public:
 	ID3D11RenderTargetView* rtv;
 	ID3D11DepthStencilView* ostDepthStencilView;
 
-	void Init(ID3D11Device* device, unsigned int w, unsigned int h);
+	void Init(ID3D11Device* dev, unsigned int w, unsigned int h);
 	void SetRenderTarget(ID3D11DeviceContext*);	//, ID3D11DepthStencilView*
 	void ClearRenderTarget(ID3D11DeviceContext*);
-	bool LoadToCpu(ID3D11Device* device, ID3D11DeviceContext*, std::vector<unsigned char>& result);
+	bool LoadToCpu(ID3D11Device* dev, ID3D11DeviceContext*, std::vector<unsigned char>& result);
 	void DrawDepthToTexture(D3D& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c);
 	void SaveToFile(D3D& d3d, const std::string& filepath);
 	float* getClearColourPointer() { return ccb; }

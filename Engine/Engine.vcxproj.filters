@@ -673,6 +673,9 @@
     <ClInclude Include="Picker.h">
       <Filter>Collision</Filter>
     </ClInclude>
+    <ClInclude Include="Observer.h">
+      <Filter>Other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

@@ -10,9 +10,8 @@ InputManager::InputManager()
 }
 
 
-
-InputManager::~InputManager(){}
-
+InputManager::~InputManager()
+{}
 
 
 void InputManager::Initialize(HWND hwnd)
@@ -39,13 +38,13 @@ void InputManager::Initialize(HWND hwnd)
 }
 
 
-void InputManager::registerController(Controller* controller)
+void InputManager::registerController(Observer* controller)
 {
 	_observers.push_back(controller);
 }
 
 
-void InputManager::unregisterController(Controller* controller)
+void InputManager::unregisterController(Observer* controller)
 {
 	_observers.erase(std::remove(_observers.begin(), _observers.end(), controller), _observers.end());
 }
@@ -56,7 +55,7 @@ void InputManager::setKeyPressed(unsigned int input)
 	m_keys[input] = true;
 
 	for (auto obs : _observers)
-		obs->notify((char)input, true);
+		obs->Observe(KeyPressMessage((char)input, true ));
 }
 
 
@@ -65,7 +64,7 @@ void InputManager::setKeyReleased(unsigned int input)
 	m_keys[input] = false;
 
 	for (auto obs : _observers)
-		obs->notify((char)input, false);
+		obs->Observe(KeyPressMessage((char)input, false));
 }
 
 
@@ -118,14 +117,14 @@ void InputManager::queryMouse()
 void InputManager::mouseLPressed()
 {
 	for (auto obs : _observers)
-		obs->mouseLPressed(_abs);
+		obs->Observe({_abs.x, _abs.y, 1, 1});
 }
 
 
 void InputManager::mouseLReleased()
 {
 	for (auto obs : _observers)
-		obs->mouseLReleased(_abs);
+		obs->Observe(MouseClickMessage(_abs.x, _abs.y, 1, 0));
 }
 
 

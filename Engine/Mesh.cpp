@@ -168,6 +168,7 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	
 	indexCount = indices.size();
 
+	//this ABSOLUTELY needs to happen!
 	//vertices.clear();
 	//indices.clear();
 

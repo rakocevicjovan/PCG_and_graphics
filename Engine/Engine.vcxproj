@@ -307,6 +307,7 @@
     <ClInclude Include="Maze.h" />
     <ClInclude Include="NavGrid.h" />
     <ClInclude Include="NavMesh.h" />
+    <ClInclude Include="Observer.h" />
     <ClInclude Include="Octree.h" />
     <ClInclude Include="ParticleBase.h" />
     <ClInclude Include="ParticleSystem.h" />

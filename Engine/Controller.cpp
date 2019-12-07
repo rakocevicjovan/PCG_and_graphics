@@ -215,21 +215,20 @@ void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& v
 
 
 
-void Controller::notify(char key, bool pressed)
+void Controller::Observe(const KeyPressMessage& msg)
 {
-	switch (key)
+	switch (msg.key)
 	{
 	case 'F':
-		if (pressed) toggleFlying();	//every press down toggle, so I don't have to hold it
+		if (msg.pressed) toggleFlying();	//every press down toggle, so I don't have to hold it
 		break;
 
 	case 'M':
-		if (pressed)
+		if (msg.pressed)
 		{
 			_showCursor = !_showCursor;
 			ShowCursor(_showCursor);
 		}
-			
 		break;
 
 	default:
@@ -246,6 +245,7 @@ void Controller::mouseLPressed(const MCoords& absmc)
 void Controller::mouseLReleased(const MCoords& absmc)
 {
 	//pick from map
+
 }
 
 

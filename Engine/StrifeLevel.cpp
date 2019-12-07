@@ -65,16 +65,13 @@ namespace Strife
 
 	void StrifeLevel::update(const RenderContext& rc)
 	{
-		if (_sys._inputManager.isKeyDown((short)'M') && sinceLastInput > .33f)
+		if (_sys._inputManager.isKeyDown((short)'M'))
 		{
 			inman.toggleMouseMode();
-			sinceLastInput = 0;
 		}
 
 		if(!inman.getMouseMode())
 			updateCam(rc.dTime);
-
-		sinceLastInput += rc.dTime;
 	}
 
 

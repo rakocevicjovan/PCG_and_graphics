@@ -277,7 +277,8 @@ void Octree::testAllCollisions(OctNode *pNode)
 				if (spA == spL)	//not sure if continue or break, book says break but that seems incorrect!
 					continue;
 
-				HitResult hr = SphereSphereIntersection(*spA, *spL);		//what to do with the hit result now...
+				//what to do with the hit result now... should separate response from detection
+				HitResult hr = Col::SphereSphereIntersection(*spA, *spL);		
 				if (hr.hit == true)
 				{
 					//breaks apart if actors relocate... consider between indices and allocators...
@@ -287,7 +288,6 @@ void Octree::testAllCollisions(OctNode *pNode)
 					spL->setPosition(spL->getPosition() - hr.resolutionVector * .5);
 					Math::SetTranslation(spL->_collider->actParent->transform, spL->getPosition());
 				}
-				
 			}
 		}
 	}

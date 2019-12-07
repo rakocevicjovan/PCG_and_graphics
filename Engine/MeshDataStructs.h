@@ -1,8 +1,9 @@
 #pragma once
 #include <d3d11.h>
+#include <vector>
 #include "Math.h"
 #include "Texture.h"
-#include <vector>
+
 
 struct Vert3D 
 {

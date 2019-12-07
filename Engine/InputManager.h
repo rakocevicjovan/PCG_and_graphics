@@ -4,17 +4,22 @@
 #include <vector>
 #include "Mouse.h"
 #include "Controller.h"
+#include "Observer.h"
 
 struct MCoords
 {
 	short x;
 	short y;
+
+	MCoords(short x, short y) : x(x), y(y) {}
+	MCoords() : x(0), y(0) {}
 };
+
 
 class InputManager
 {
 private:
-	std::vector<Controller*> _observers;
+	std::vector<Observer*> _observers;
 	std::unique_ptr<DirectX::Mouse> mouse;
 	DirectX::Mouse::ButtonStateTracker tracker;
 
@@ -22,6 +27,7 @@ private:
 	bool cursorVisible = false;
 	MCoords _rel;
 	MCoords _abs;
+
 public:
 
 	InputManager();
@@ -29,14 +35,17 @@ public:
 
 	void Initialize(HWND hwnd);
 
-	void registerController(Controller* controller);
-	void unregisterController(Controller* controller);
+	void registerController(Observer* controller);
+	void unregisterController(Observer* controller);
 
 	void setKeyPressed(unsigned int);
 	void setKeyReleased(unsigned int);
 	
-	void setRelativeXY(short, short);
 	void getRelativeXY(short& x, short&y);
+	void setRelativeXY(short, short);
+	
+	MCoords getAbsXY() { return _abs; }
+	void setAbsXY(const MCoords& abs) { _abs = abs; }
 
 	bool isKeyDown(unsigned int);
 

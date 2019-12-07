@@ -11,17 +11,10 @@ Level::Level(Systems& sys) : _sys(sys) {}
 
 void Level::ProcessSpecialInput(float dTime)
 {
-	sinceLastInput += dTime;
-
-	if (sinceLastInput < .33f)
-		return;
-
 	if (_sys._inputManager.isKeyDown(VK_SPACE))
 	{
 		procGen();
-		sinceLastInput = 0;
 	}
-
 }
 
 
@@ -129,8 +122,8 @@ offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ost
 
 #pragma endregion shadowMatrix
 
+#pragma region Diamond square testing
 /*
-///Diamond square testing
 //proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 4u, 0.6f, 10.f);
 
 ///Cellular automata testing
@@ -185,12 +178,4 @@ flowerModel = linden.genModel(device, 6.99f, 1.f, .7f, .7f, liangle, liangle);
 //Math::RotateMatByMat(flowerModel.transform, SMatrix::CreateRotationX(-PI * .5f));
 //linden.genVerts(20.f, 0.8f, PI * 0.16666f, PI * 0.16666f);	linden.setUp(_device);
 */
-
-/*
-modStrife.LoadModel(device, "../Models/WaterQuad.fbx");
-Math::Scale(modStrife.transform, SVec3(15.0f));
-Math::RotateMatByMat(modStrife.transform, SMatrix::CreateFromAxisAngle(SVec3::Right, PI));
-Math::Translate(modStrife.transform, SVec3(-200.f, 200.0f, -200.0f));
-
-modWaterQuad.LoadModel(device, "../Models/WaterQuad.fbx");
-*/
+#pragma endregion
