@@ -8,7 +8,7 @@
 
 #include "Resource.h"
 #include "MeshDataStructs.h"
-#include "Texture.h"
+#include "Material.h"
 #include "Math.h"
 #include "Geometry.h"
 #include "ShaderManager.h"
@@ -17,6 +17,7 @@
 namespace Procedural { class Terrain; }
 
 class Hull;
+class Material;
 
 class Mesh : public Resource
 {
@@ -28,6 +29,8 @@ public:
 
 	ID3D11Buffer* _vertexBuffer = nullptr;
 	ID3D11Buffer* _indexBuffer = nullptr;
+
+	Material* material;
 
 	std::vector<Texture> textures;
 	unsigned int indexIntoModelMeshArray;

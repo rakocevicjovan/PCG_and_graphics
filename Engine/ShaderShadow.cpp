@@ -15,8 +15,8 @@ ShaderShadow::~ShaderShadow()
 
 
 
-bool ShaderShadow::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths) {
-
+bool ShaderShadow::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths)
+{
 	this->filePaths = filePaths;
 
 	HRESULT result;

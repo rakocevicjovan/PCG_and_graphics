@@ -20,7 +20,9 @@ public:
 
 	ShaderCompiler(HWND& hwnd, ID3D11Device*& device) : _hwnd(hwnd), _device(device) {}
 
-	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& sbLayout, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout)
+
+
+	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout)
 	{
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
@@ -39,7 +41,7 @@ public:
 		}
 		
 		// Create the layout related to the vertex shader.
-		if (FAILED(_device->CreateInputLayout(sbLayout.data(), sbLayout.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
+		if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
 		{
 			MessageBox(_hwnd, filePath.c_str(), L"Failed to create vertex input layout.", MB_OK);
 			return false;
@@ -104,13 +106,31 @@ public:
 
 	bool createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState)
 	{
-		static std::string fileline(__FILE__);
 		if (FAILED(_device->CreateSamplerState(&samplerDesc, &sampleState)))
 		{
-			MessageBoxA(_hwnd, fileline.c_str(), "Failed to create geometry shader.", MB_OK);
+			MessageBoxA(_hwnd, std::string(__FILE__).c_str(), "Failed to create sampler state shader.", MB_OK);
 			return false;
 		}
-			
+		return true;
+	}
+
+
+
+	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
+	{
+		if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))
+		{
+			MessageBoxA(_hwnd, std::string(__FILE__).c_str(), "Failed to create constant buffer shader.", MB_OK);
+			return false;
+		}
+		return true;
+	}
+
+
+
+	void createMaterial()
+	{
+
 	}
 
 private:

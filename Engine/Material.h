@@ -3,22 +3,22 @@
 #include "ShaderManager.h"
 
 
+class Shader;
+
+
 class Material
 {
 public:
 
 	int id = 0;
-
-	Texture* diffuse;
-	Texture* normalMap;
-	Texture* displaceMap;
-	Texture* roughnessMap;
+	unsigned char texturesAdded;	//won't ever have over 256 textures so that's even too big but can't help it
 	
-	//std::vector<Texture*>	make a vector of enum/texture pairs? a map? seems like a waste to have 4 pointers everywhere when mostly it will only use 1...
+	Shader* vertexShader;
+	Shader* pixelShader;
 
-	float diffusion = .5f;
-	float shininess = 8.f;
+	RenderFormat rFormat;
 
+	std::vector<Texture*> textures;
 
 	Material();
 	~Material();

@@ -14,6 +14,7 @@ const float SCREEN_NEAR = 0.1f;
 
 class ResourceManager;
 class InputManager;
+class Renderable;
 
 struct RenderContext
 {
@@ -54,7 +55,7 @@ public:
 
 	void RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
 
-	void RenderGui();
+	void Render(Renderable& renderable);
 
 	void setCameraMatrix(const SMatrix& camMatrix);
 

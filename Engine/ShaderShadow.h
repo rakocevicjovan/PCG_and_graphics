@@ -33,4 +33,3 @@ public:
 	ID3D11SamplerState *_sampleStateClamp;
 	RenderFormat renderFormat;
 };
-

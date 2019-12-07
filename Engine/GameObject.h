@@ -22,6 +22,15 @@ public:
 
 
 
+class Renderable
+{
+public:
+	Mesh* mesh;
+	Material* mat;
+};
+
+
+
 class GameObject
 {
 public:
@@ -39,6 +48,7 @@ public:
 
 	SMatrix transform;
 	GraphicComponent gc;
+	Renderable renderable;
 	Collider* collider;
 
 	SVec3 getPosition() const

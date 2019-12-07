@@ -22,35 +22,8 @@
     <Filter Include="SceneGraph">
       <UniqueIdentifier>{988cbca4-84cf-428d-bb5d-422582b21fd8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Levels">
-      <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering">
       <UniqueIdentifier>{30545b6b-263a-437f-a810-47a6a9253992}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Mechanisms">
-      <UniqueIdentifier>{bd1dae54-c01d-40cc-8734-1fc21163dc44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented">
-      <UniqueIdentifier>{ed470756-f1fa-46fd-bbd1-4263d24057bb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented\Air">
-      <UniqueIdentifier>{f4e8c8f2-39b6-472c-ad78-802d67ec4c86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented\Earth">
-      <UniqueIdentifier>{06b06c8e-a6f3-40c0-99a9-59da9586da86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented\Fire">
-      <UniqueIdentifier>{12476446-bd60-4e81-aa57-428a9d103ac8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented\SKTest">
-      <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented\Water">
-      <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Levels\Implemented\TowerDefense">
-      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Other">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
@@ -84,9 +57,6 @@
     <Filter Include="Rendering\Shader Classes">
       <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Levels\Implemented\__Picker">
-      <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
-    </Filter>
     <Filter Include="MemoryAllocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
     </Filter>
@@ -104,6 +74,36 @@
     </Filter>
     <Filter Include="AI\Pathfinding">
       <UniqueIdentifier>{188558f1-d5c9-4299-9204-18c36ead3c33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay">
+      <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Mechanisms">
+      <UniqueIdentifier>{bd1dae54-c01d-40cc-8734-1fc21163dc44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented">
+      <UniqueIdentifier>{ed470756-f1fa-46fd-bbd1-4263d24057bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\Air">
+      <UniqueIdentifier>{f4e8c8f2-39b6-472c-ad78-802d67ec4c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\Earth">
+      <UniqueIdentifier>{06b06c8e-a6f3-40c0-99a9-59da9586da86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\Fire">
+      <UniqueIdentifier>{12476446-bd60-4e81-aa57-428a9d103ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\SKTest">
+      <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\Water">
+      <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\TowerDefense">
+      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gameplay\Implemented\__Picker">
+      <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -273,40 +273,40 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="AirLevel.cpp">
-      <Filter>Levels\Implemented\Air</Filter>
+      <Filter>Gameplay\Implemented\Air</Filter>
     </ClCompile>
     <ClCompile Include="Dragon.cpp">
-      <Filter>Levels\Implemented\Air</Filter>
+      <Filter>Gameplay\Implemented\Air</Filter>
     </ClCompile>
     <ClCompile Include="EarthLevel.cpp">
-      <Filter>Levels\Implemented\Earth</Filter>
+      <Filter>Gameplay\Implemented\Earth</Filter>
     </ClCompile>
     <ClCompile Include="Hexer.cpp">
-      <Filter>Levels\Implemented\Fire</Filter>
+      <Filter>Gameplay\Implemented\Fire</Filter>
     </ClCompile>
     <ClCompile Include="FireLevel.cpp">
-      <Filter>Levels\Implemented\Fire</Filter>
+      <Filter>Gameplay\Implemented\Fire</Filter>
     </ClCompile>
     <ClCompile Include="Lillies.cpp">
-      <Filter>Levels\Implemented\Water</Filter>
+      <Filter>Gameplay\Implemented\Water</Filter>
     </ClCompile>
     <ClCompile Include="WaterLevel.cpp">
-      <Filter>Levels\Implemented\Water</Filter>
+      <Filter>Gameplay\Implemented\Water</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
-      <Filter>Levels\Mechanisms</Filter>
+      <Filter>Gameplay\Mechanisms</Filter>
     </ClCompile>
     <ClCompile Include="Level.cpp">
-      <Filter>Levels\Mechanisms</Filter>
+      <Filter>Gameplay\Mechanisms</Filter>
     </ClCompile>
     <ClCompile Include="LevelManager.cpp">
-      <Filter>Levels\Mechanisms</Filter>
+      <Filter>Gameplay\Mechanisms</Filter>
     </ClCompile>
     <ClCompile Include="TestLevel.cpp">
-      <Filter>Levels\Implemented\SKTest</Filter>
+      <Filter>Gameplay\Implemented\SKTest</Filter>
     </ClCompile>
     <ClCompile Include="TDLevel.cpp">
-      <Filter>Levels\Implemented\TowerDefense</Filter>
+      <Filter>Gameplay\Implemented\TowerDefense</Filter>
     </ClCompile>
     <ClCompile Include="Audio.cpp">
       <Filter>Other</Filter>
@@ -578,40 +578,40 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="AirLevel.h">
-      <Filter>Levels\Implemented\Air</Filter>
+      <Filter>Gameplay\Implemented\Air</Filter>
     </ClInclude>
     <ClInclude Include="Dragon.h">
-      <Filter>Levels\Implemented\Air</Filter>
+      <Filter>Gameplay\Implemented\Air</Filter>
     </ClInclude>
     <ClInclude Include="EarthLevel.h">
-      <Filter>Levels\Implemented\Earth</Filter>
+      <Filter>Gameplay\Implemented\Earth</Filter>
     </ClInclude>
     <ClInclude Include="Hexer.h">
-      <Filter>Levels\Implemented\Fire</Filter>
+      <Filter>Gameplay\Implemented\Fire</Filter>
     </ClInclude>
     <ClInclude Include="FireLevel.h">
-      <Filter>Levels\Implemented\Fire</Filter>
+      <Filter>Gameplay\Implemented\Fire</Filter>
     </ClInclude>
     <ClInclude Include="Lillies.h">
-      <Filter>Levels\Implemented\Water</Filter>
+      <Filter>Gameplay\Implemented\Water</Filter>
     </ClInclude>
     <ClInclude Include="WaterLevel.h">
-      <Filter>Levels\Implemented\Water</Filter>
+      <Filter>Gameplay\Implemented\Water</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>Levels\Mechanisms</Filter>
+      <Filter>Gameplay\Mechanisms</Filter>
     </ClInclude>
     <ClInclude Include="Level.h">
-      <Filter>Levels\Mechanisms</Filter>
+      <Filter>Gameplay\Mechanisms</Filter>
     </ClInclude>
     <ClInclude Include="LevelManager.h">
-      <Filter>Levels\Mechanisms</Filter>
+      <Filter>Gameplay\Mechanisms</Filter>
     </ClInclude>
     <ClInclude Include="TestLevel.h">
-      <Filter>Levels\Implemented\SKTest</Filter>
+      <Filter>Gameplay\Implemented\SKTest</Filter>
     </ClInclude>
     <ClInclude Include="TDLevel.h">
-      <Filter>Levels\Implemented\TowerDefense</Filter>
+      <Filter>Gameplay\Implemented\TowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="FileUtilities.h">
       <Filter>Other</Filter>
@@ -620,7 +620,7 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPickerLevel.h">
-      <Filter>Levels\Implemented\__Picker</Filter>
+      <Filter>Gameplay\Implemented\__Picker</Filter>
     </ClInclude>
     <ClInclude Include="LevelReader.h">
       <Filter>Resources</Filter>
