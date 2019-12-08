@@ -9,10 +9,13 @@ class Shader;
 class Material
 {
 public:
-
 	int id = 0;
-	unsigned char texturesAdded;	//won't ever have over 256 textures so that's even too big but can't help it
-	
+	bool opaque;
+
+	//determines how many textures are added by the shader itself
+	//won't ever have 256 textures so that's even too big but can't help it for now without bitsets meh...
+	unsigned char texturesAdded;	
+
 	Shader* vertexShader;
 	Shader* pixelShader;
 

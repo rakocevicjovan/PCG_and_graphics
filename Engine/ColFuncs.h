@@ -1,6 +1,7 @@
 #pragma once
 #include "Hull.h"
 #include "Math.h"
+#include "Frustum.h"
 
 /* The "header"
 static HitResult AABBSphereIntersection(const AABB& b, const SphereHull& s);
@@ -205,6 +206,36 @@ namespace Col
 		q = p + t * d;
 
 		return 1;
+	}
+
+
+
+	static bool PlaneSphereIntersection(const SPlane& plane, const SphereHull& sphere)
+	{
+		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());
+		float spherePlaneDist = spCenterToNormalProjection + plane.D();
+		return (spherePlaneDist < sphere.r);
+	}
+
+
+	//Returns true if the sphere's situated, even partially, in the positive direction of plane's normal from the plane
+	static bool SphereInsidePlane(const SPlane& plane, const SphereHull& sphere)
+	{
+		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());
+		float spherePlaneDist = spCenterToNormalProjection + plane.D();
+		return (spherePlaneDist + sphere.r > 0);
+	}
+
+
+
+	static bool FrustumSphereIntersection(const Frustum& frustum, const SphereHull& sphere)
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			if (!SphereInsidePlane(frustum.planes[i], sphere))
+				return false;
+		}
+		return true;
 	}
 
 }

@@ -13,6 +13,8 @@ Camera::Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix)
 	_cameraMatrix = cameraMatrix;
 	_viewMatrix = _cameraMatrix.Invert();
 	_projectionMatrix = projectionMatrix;
+
+	frustum = Frustum(projectionMatrix);
 }
 
 
@@ -45,6 +47,7 @@ void Camera::SetCameraMatrix(const SMatrix& transform)
 void Camera::SetProjectionMatrix(const SMatrix& proj)
 {
 	_projectionMatrix = proj;
+	frustum = Frustum(_projectionMatrix);
 }
 
 
@@ -53,6 +56,7 @@ void Camera::Update(float dTime)
 {
 	_controller->processTransformationFPS(dTime, _cameraMatrix);
 	_viewMatrix = _cameraMatrix.Invert();
+	frustum.update(_viewMatrix * _projectionMatrix);
 }
 
 

@@ -32,8 +32,8 @@ void TDLevel::init(Systems& sys)
 	for (int i = 0; i < 125; ++i)
 	{
 		SVec3 pos = SVec3(200, 0, 200);
-		creeps.emplace_back(SMatrix::CreateTranslation(pos),
-			GraphicComponent(static_cast<Model*>(resources.getResourceByName("FlyingMage")), &randy._shMan.light));
+		creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
+		//creeps.emplace_back(SMatrix::CreateTranslation(pos), *(resources.getByName<Model*>("FlyingMage")));
 		creeps[i].collider = new Collider();
 		creeps[i].collider->actParent = &creeps.back();
 		creeps[i].collider->BVT = BVT_SPHERE;
@@ -106,13 +106,37 @@ void TDLevel::update(const RenderContext& rc)
 		{
 			float t;
 			SVec3 ip;
-			/*if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))*/
-			if(Col::IntersectRaySphere(ray.position, ray.direction, *static_cast<SphereHull*>(creeps[i].collider->hulls[0]), t, ip ))
+			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
+			//if(Col::IntersectRaySphere(ray.position, ray.direction, *static_cast<SphereHull*>(creeps[i].collider->hulls[0]), t, ip ))
 			{
 				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
 			}
 		}
 	}
+
+	numCulled = 0;
+	const SMatrix v = rc.cam->GetViewMatrix();
+	const SVec3 v3c(v._13, v._23, v._33);
+	const SVec3 camPos = rc.cam->GetPosition();
+
+	for (int i = 0; i < creeps.size(); ++i)
+	{
+		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
+		{
+			//add to draw queue and all that jazz
+			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
+			for (auto& r : creeps[i].renderables)
+			{
+				r.zDepth = zDepth;
+				randy.addToRenderQueue(r);
+			}
+		}
+		else
+		{
+			numCulled++;
+		}
+	}
+
 }
 
 
@@ -126,14 +150,7 @@ void TDLevel::draw(const RenderContext& rc)
 	floorModel.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
-	auto www = _sys._resMan.getResourceByName("FlyingMage");
-	Model* m = static_cast<Model*> (www);
-
-	shady.light.SetShaderParameters(context, m->transform, *rc.cam, pLight, rc.dTime);
-	m->Draw(context, shady.light);
-	shady.light.ReleaseShaderParameters(context);
-
-	randy.RenderSkybox(*rc.cam, *static_cast<Model*>(resources.getResourceByName("Skysphere")), skyboxCubeMapper);
+	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	//SMatrix rotMatrix = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), .1 * rc.dTime);	//creeps[i].transform = creeps[i].transform * rotMatrix;
 	for (int i = 0; i < creeps.size(); ++i)
@@ -150,9 +167,9 @@ void TDLevel::draw(const RenderContext& rc)
 	std::vector<GuiElement> guiElems = 
 	{ 
 		{"Octree", std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
-		{"FPS", std::string("FPS: " + std::to_string(1 / rc.dTime))}
+		{"FPS", std::string("FPS: " + std::to_string(1 / rc.dTime))},
+		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
-	
 	renderGuiElems(guiElems);
 
 	rc.d3d->EndScene();

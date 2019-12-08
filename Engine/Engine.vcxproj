@@ -172,6 +172,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Animator.cpp" />
     <ClCompile Include="ColFuncs.cpp" />
+    <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="LevelReader.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BitMapper.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="Animator.h" />
     <ClInclude Include="ColFuncs.h" />
     <ClInclude Include="AStar.h" />
+    <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />
@@ -321,6 +323,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderBase.h" />
     <ClInclude Include="ShaderClipper.h" />
     <ClInclude Include="ShaderCM.h" />

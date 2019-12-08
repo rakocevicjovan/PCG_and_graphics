@@ -3,10 +3,15 @@
 
 #include "Math.h"
 #include "Controller.h"
+#include "Frustum.h"
 
-class Camera{
-
+class Camera
+{
 public:
+	Controller* _controller;
+	Frustum frustum;
+
+
 	Camera();
 	Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix);
 	~Camera();
@@ -24,8 +29,6 @@ public:
 	void Transform(const SMatrix& inTransform);
 	
 	//CTRL_MODE ctrlMode = CTRL_MODE::CTRL_FPS;	void SetMode(CTRL_MODE cm) { ctrlMode = cm; }
-	
-	Controller* _controller;
 
 	static Camera CreateFromViewProjection(const SMatrix& view, const SMatrix& projection);
 	SMatrix GetViewMatrix() const;

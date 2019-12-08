@@ -31,5 +31,7 @@ public:
 	bool removeResource();
 
 	ProjectLoader& getProjectLoader() { return _projLoader; }
-	Resource* getResourceByName(const std::string& name) { return _resourceMap[name]; }
+
+	template <typename ResType>
+	ResType getByName(const std::string& name) { return static_cast<ResType>(_resourceMap[name]); }
 };

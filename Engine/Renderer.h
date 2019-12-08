@@ -6,6 +6,7 @@
 #include "ShaderManager.h"
 #include "GameClock.h"
 #include "ScreenSpaceDrawer.h"
+#include "StackAllocator.h"
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -38,6 +39,10 @@ private:
 	ResourceManager* _resMan;
 	D3D* _d3d;
 
+	const size_t MAX_RENDERABLES = 500;
+	//StackAllocator sAlloc;
+	std::vector<Renderable> renderables;
+
 public:
 	ShaderManager _shMan;
 	RenderContext rc;
@@ -55,9 +60,15 @@ public:
 
 	void RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
 
-	void Render(Renderable& renderable);
+	void addToRenderQueue(const Renderable& renderable);
+	void sortRenderQueue();
+	void flushRenderQueue();
+	void render(Renderable& renderable);
+	void clearRenderQueue();
 
 	void setCameraMatrix(const SMatrix& camMatrix);
+
+
 
 	float _fieldOfView, _screenAspect, elapsed = 0.f;
 };

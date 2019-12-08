@@ -4,7 +4,11 @@
 #include "GameObject.h"
 
 
-Renderer::Renderer() {}
+Renderer::Renderer()
+{
+	//sAlloc.init(sizeof(Renderable) * MAX_RENDERABLES);
+	renderables.reserve(MAX_RENDERABLES);
+}
 
 
 
@@ -92,9 +96,37 @@ void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& 
 
 
 
+void Renderer::addToRenderQueue(const Renderable& renderable)
+{
+	renderables.push_back(renderable);	//stack allocator could work, or just reserving... not sure really
+}
+
+
+
+void Renderer::clearRenderQueue()
+{
+	renderables.clear();
+}
+
+
+
+void Renderer::sortRenderQueue()
+{
+	std::sort(renderables.begin(), renderables.end());	//determine how to sort by overloading < for renderable
+}
+
+
+
+void Renderer::flushRenderQueue()
+{
+
+}
+
+
+
 //mind all the pointers this can fail spectacularly if anything relocates...
 //not for instancing... this is just a low level draw
-void Renderer::Render(Renderable& r)
+void Renderer::render(Renderable& r)
 {
 	unsigned int stride = r.mat->rFormat.stride;
 	unsigned int offset = r.mat->rFormat.offset;

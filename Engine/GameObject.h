@@ -21,12 +21,42 @@ public:
 };
 
 
+//can be a bunch of packed bits but do I really need it to be? this class can produce an int64_t eventually
+class RenderableQueueKey
+{
+public:
+	unsigned char renderTarget;		//max 256 render targets...
+	int16_t materialId;				//max 2^16 (65536) materials
+	int16_t textureId;				//max 2^16 (65536) texture combinations within material...sort this out
+	unsigned char vertexFormat;		//max 256 vertex formats
+
+	int64_t create64bitKey()
+	{
+		//leaves 16 (64 - 48) bits free for whatever other stuff I might sort by, can be further compressed too
+		int64_t result = renderTarget << (63-8) | materialId << (63-24) | textureId << (63-40) | vertexFormat << (63 - 48);
+	}
+};
+
+
 
 class Renderable
 {
 public:
 	Mesh* mesh;
 	Material* mat;
+
+	//dynamic? not sure
+	int64_t sortKey;
+	float zDepth;
+
+	Renderable(Mesh* m, Material* mat) : mesh(m), mat(mat) {}
+
+	//overload after deciding how to sort them
+	bool Renderable::operator < (const Renderable& b) const
+	{
+		return sortKey < b.sortKey;
+	}
+	
 };
 
 
@@ -46,9 +76,18 @@ public:
 	Actor() {};
 	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc) {}
 
+	Actor(SMatrix& transform, Model& m) : transform(transform)
+	{
+		renderables.reserve(m.meshes.size());
+		for (Mesh m : m.meshes)
+		{
+			Renderable(&m, m.material);
+		}
+	}
+
 	SMatrix transform;
 	GraphicComponent gc;
-	Renderable renderable;
+	std::vector<Renderable> renderables;
 	Collider* collider;
 
 	SVec3 getPosition() const

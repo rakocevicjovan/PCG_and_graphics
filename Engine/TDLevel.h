@@ -32,6 +32,7 @@ private:
 	std::vector<Actor> creeps;
 
 	SRay ray;
+	int numCulled;
 
 	std::vector<AABB> tempBoxes;
 	std::vector<InstanceData> octNodeMatrices;
