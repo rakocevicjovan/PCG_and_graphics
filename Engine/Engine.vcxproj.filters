@@ -69,9 +69,6 @@
     <Filter Include="Resources\Resource classes">
       <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\0NewSystem">
-      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI\Pathfinding">
       <UniqueIdentifier>{188558f1-d5c9-4299-9204-18c36ead3c33}</UniqueIdentifier>
     </Filter>
@@ -104,6 +101,9 @@
     </Filter>
     <Filter Include="Gameplay\Implemented\__Picker">
       <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Now do it properly">
+      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -242,16 +242,10 @@
     <ClCompile Include="Light.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="OST.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp">
@@ -364,6 +358,12 @@
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Rendering\Now do it properly</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Rendering\Now do it properly</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -547,13 +547,7 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="CubeMapper.h">
@@ -662,7 +656,7 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCompiler.h">
-      <Filter>Rendering\0NewSystem</Filter>
+      <Filter>Rendering\Now do it properly</Filter>
     </ClInclude>
     <ClInclude Include="AStar.h">
       <Filter>AI\Pathfinding</Filter>
@@ -679,11 +673,17 @@
     <ClInclude Include="Observer.h">
       <Filter>Other</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Other</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Rendering\Now do it properly</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Rendering\Now do it properly</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Rendering\Now do it properly</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

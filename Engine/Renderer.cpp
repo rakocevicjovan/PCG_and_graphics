@@ -106,6 +106,7 @@ void Renderer::addToRenderQueue(const Renderable& renderable)
 void Renderer::clearRenderQueue()
 {
 	renderables.clear();
+	//qKeys.clear();
 }
 
 

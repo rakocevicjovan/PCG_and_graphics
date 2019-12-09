@@ -42,6 +42,7 @@ private:
 	const size_t MAX_RENDERABLES = 500;
 	//StackAllocator sAlloc;
 	std::vector<Renderable> renderables;
+	//std::vector<int64_t> qKeys;
 
 public:
 	ShaderManager _shMan;

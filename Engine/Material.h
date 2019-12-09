@@ -25,5 +25,8 @@ public:
 
 	Material();
 	~Material();
+
+	void setVS();
+	void setPS();
 };
 

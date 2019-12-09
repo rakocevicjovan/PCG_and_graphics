@@ -76,10 +76,10 @@ public:
 	Actor() {};
 	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc) {}
 
-	Actor(SMatrix& transform, Model& m) : transform(transform)
+	Actor(SMatrix& transform, Model* model) : transform(transform)
 	{
-		renderables.reserve(m.meshes.size());
-		for (Mesh m : m.meshes)
+		renderables.reserve(model->meshes.size());
+		for (Mesh& m : model->meshes)
 		{
 			Renderable(&m, m.material);
 		}

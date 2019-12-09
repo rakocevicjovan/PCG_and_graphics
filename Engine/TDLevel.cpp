@@ -32,8 +32,8 @@ void TDLevel::init(Systems& sys)
 	for (int i = 0; i < 125; ++i)
 	{
 		SVec3 pos = SVec3(200, 0, 200);
-		creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
-		//creeps.emplace_back(SMatrix::CreateTranslation(pos), *(resources.getByName<Model*>("FlyingMage")));
+		//creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
+		creeps.emplace_back(SMatrix::CreateTranslation(pos), resources.getByName<Model*>("FlyingMage"));
 		creeps[i].collider = new Collider();
 		creeps[i].collider->actParent = &creeps.back();
 		creeps[i].collider->BVT = BVT_SPHERE;
@@ -153,10 +153,11 @@ void TDLevel::draw(const RenderContext& rc)
 	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	//SMatrix rotMatrix = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), .1 * rc.dTime);	//creeps[i].transform = creeps[i].transform * rotMatrix;
+	/*
 	for (int i = 0; i < creeps.size(); ++i)
 	{
 		creeps[i].Draw(context, *rc.cam, pLight, rc.dTime);
-	}
+	}*/
 	
 #ifdef DEBUG_OCTREE
 	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
