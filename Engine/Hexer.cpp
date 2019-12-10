@@ -7,7 +7,7 @@
 Platform::Platform(SVec3 position, Model* m, ShaderMaze* s)
 {
 	actor.transform = SMatrix::CreateTranslation(position);
-	actor.gc.model = m;
+	actor.gc.model = m;	//@WARNING will not work
 }
 
 

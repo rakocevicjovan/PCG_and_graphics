@@ -221,6 +221,7 @@
     <ClCompile Include="ProjectPicker.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
     <ClCompile Include="ShaderClipper.cpp" />
     <ClCompile Include="ShaderCM.cpp" />

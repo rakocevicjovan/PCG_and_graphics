@@ -45,6 +45,7 @@ void AirLevel::init(Systems& sys)
 	lightView.Invert();		//get the view matrix of the light
 	lightView.Transpose();	//transpose so it doesn't have to be transposed by the shader class each frame
 
+	//@WARNING when I update the rendering completely, this won't go...
 	glider.LoadModel(S_DEVICE, "../Models/glider/rrrr.fbx");
 	player.a.gc.model = &glider;
 	player.a.transform = SMatrix::CreateScale(0.05) * SMatrix::Identity;
@@ -54,6 +55,7 @@ void AirLevel::init(Systems& sys)
 	player.con = _sys._controller;
 	player.cam = randy._cam;
 	player.cam.SetTranslation(player.a.transform.Translation() + player.a.transform.Forward() * SVec3(0, 1, 2));
+	
 
 	segmentModel.LoadModel(S_DEVICE, "../Models/Ball.fbx");
 	segmentModel.transform = SMatrix::CreateScale(15);

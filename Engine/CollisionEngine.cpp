@@ -56,14 +56,17 @@ void CollisionEngine::registerActor(Actor& actor, BoundingVolumeType bvt)
 
 	actor.collider = _colliders.back();
 
+	//@WARNING SHOULD NOT WORK THIS WAY! THIS IS OLD CODE MIXED WITH NEW, NO RENDERING/COLLISION MIXING! FIX ASAP!
 	switch (bvt)
 	{
 	case BVT_AABB:
-		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genBoxHull(&m, actor.transform));
+		for (const Renderable& r : actor.renderables)
+			_colliders.back()->hulls.push_back(genBoxHull(r.mesh, actor.transform));
 		break;
 
 	case BVT_SPHERE:
-		for (Mesh m : actor.gc.model->meshes) _colliders.back()->hulls.push_back(genSphereHull(&m, actor.transform));
+		for (const Renderable&  r : actor.renderables)
+			_colliders.back()->hulls.push_back(genSphereHull(r.mesh, actor.transform));
 		break;
 	}
 

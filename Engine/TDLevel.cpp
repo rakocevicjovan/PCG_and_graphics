@@ -32,8 +32,12 @@ void TDLevel::init(Systems& sys)
 
 
 
+
+
+
+
 	//initialize material... ofc should not be here, just for testing
-	D3D11_BUFFER_DESC matrixBufferDesc, variableBufferDesc, lightBufferDesc;
+	D3D11_BUFFER_DESC matrixBufferDesc, lightBufferDesc;
 
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
@@ -41,13 +45,6 @@ void TDLevel::init(Systems& sys)
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
-
-	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
-	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	variableBufferDesc.MiscFlags = 0;
-	variableBufferDesc.StructureByteStride = 0;
 
 	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
@@ -66,16 +63,23 @@ void TDLevel::init(Systems& sys)
 	std::vector<D3D11_BUFFER_DESC> vsbufferDescs = { matrixBufferDesc };
 	std::vector<D3D11_BUFFER_DESC> psbufferDescs = { lightBufferDesc  };
 
-	VertexShader* vs = new VertexShader();	// = new Shader(S_DEVICE, L"", vsbufferDescs);
-	PixelShader* ps = new PixelShader();	// = new Shader(S_DEVICE, L"", psbufferDescs);
+	D3D11_SAMPLER_DESC sbSamplerDesc;
+	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
+	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
+		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
+
+	VertexShader* vs = new VertexShader();
+	PixelShader* ps = new PixelShader();
 
 	_sys._shaderCompiler.compileVS(L"lightvs.hlsl", inLayout, vs->_vShader, vs->_layout);
-	vs->buffers.resize(1);
-	_sys._shaderCompiler.createConstantBuffer(matrixBufferDesc, vs->buffers[0]);
+	vs->_cbuffers.resize(1);
+	_sys._shaderCompiler.createConstantBuffer(matrixBufferDesc, vs->_cbuffers[0]);
 
 	_sys._shaderCompiler.compilePS(L"lightps.hlsl", ps->_pShader);
-	ps->buffers.resize(1);
-	_sys._shaderCompiler.createConstantBuffer(lightBufferDesc, ps->buffers[0]);
+	ps->_cbuffers.resize(1);
+	_sys._shaderCompiler.createConstantBuffer(lightBufferDesc, ps->_cbuffers[0]);
+
+	_sys._shaderCompiler.createSamplerState(sbSamplerDesc, ps->_sState);
 
 	creepMat.opaque = true;
 	creepMat.vertexShader = vs;
@@ -92,6 +96,7 @@ void TDLevel::init(Systems& sys)
 		for (Renderable& r : creeps[i].renderables)
 		{
 			r.mat = &creepMat;
+			r.pLight = &pLight;
 		}
 		
 		creeps[i].collider = new Collider();
@@ -155,7 +160,16 @@ void TDLevel::update(const RenderContext& rc)
 	//does it's damn job after all that
 	_oct.collideAll();
 
-	//picking, put this away...
+
+	for (Actor& act : creeps)
+	{
+		for (Renderable& r : act.renderables)
+		{
+			r.worldTransform = act.transform * r.transform;
+		}
+	}
+
+	//picking, put this away somewhere else...
 	if (_sys._inputManager.isKeyDown('R'))
 	{
 		MCoords mc = _sys._inputManager.getAbsXY();
@@ -177,6 +191,7 @@ void TDLevel::update(const RenderContext& rc)
 
 
 
+	/// FRUSTUM CULLING
 	numCulled = 0;
 	const SMatrix v = rc.cam->GetViewMatrix();
 	const SVec3 v3c(v._13, v._23, v._33);
@@ -199,10 +214,6 @@ void TDLevel::update(const RenderContext& rc)
 			numCulled++;
 		}
 	}
-
-	randy.sortRenderQueue();
-	randy.flushRenderQueue();
-	randy.clearRenderQueue();
 }
 
 
@@ -212,25 +223,21 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->TurnOffCulling();
 
+	
 	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 	floorModel.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
 	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
-
-	//SMatrix rotMatrix = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), .1 * rc.dTime);	//creeps[i].transform = creeps[i].transform * rotMatrix;
-	/*
-	for (int i = 0; i < creeps.size(); ++i)
-	{
-		creeps[i].Draw(context, *rc.cam, pLight, rc.dTime);
-	}*/
 	
+
 #ifdef DEBUG_OCTREE
 	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
 	debugModel.DrawInstanced(context, shady.instanced);
 	shady.instanced.ReleaseShaderParameters(context);
 #endif
 
+	
 	std::vector<GuiElement> guiElems = 
 	{ 
 		{"Octree", std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
@@ -238,6 +245,11 @@ void TDLevel::draw(const RenderContext& rc)
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
 	renderGuiElems(guiElems);
+	
+
+	randy.sortRenderQueue();
+	randy.flushRenderQueue();
+	randy.clearRenderQueue();
 
 	rc.d3d->EndScene();
 }
@@ -248,18 +260,4 @@ void TDLevel::draw(const RenderContext& rc)
 for (int i = 0; i < 125; ++i)
 {
 	SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f + SVec3(5.f);
-	creeps.emplace_back(SMatrix::CreateTranslation(pos),
-		GraphicComponent(static_cast<Model*>(resources.getResourceByName("Skysphere")), &randy._shMan.light));
-	creeps[i].collider = new Collider();
-	creeps[i].collider->BVT = BVT_SPHERE;
-	creeps[i].collider->dynamic = true;
-	creeps[i].collider->hulls.push_back(new SphereHull(pos, 1));	//eliminate duplicate pos, redundant and pain to update
-
-	_oct.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
-}*/
-
-/*for (auto& boi : creeps)
-{
-	for (auto& hull : boi.collider->hulls)
-		hull->setPosition(boi.getPosition());
 }*/

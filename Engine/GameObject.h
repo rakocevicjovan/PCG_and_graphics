@@ -36,11 +36,20 @@ class Renderable
 public:
 	int64_t sortKey;
 
+	//a bit memory heavy but... useful for now I guess?
+	SMatrix transform;
+	SMatrix worldTransform;
+
 	Mesh* mesh;
 	Material* mat;
+	PointLight* pLight;
 	float zDepth;
 
-	Renderable(Mesh* m, Material* mat) : mesh(m), mat(mat) {}
+	Renderable(Mesh& mesh) : mesh(&mesh), mat(mesh.baseMaterial)
+	{
+	}
+
+
 
 	//overload after deciding how to sort them
 	bool Renderable::operator < (const Renderable& b) const
@@ -63,9 +72,11 @@ public:
 	Actor(SMatrix& transform, Model* model) : transform(transform)
 	{
 		renderables.reserve(model->meshes.size());
-		for (Mesh& m : model->meshes)
+		for (Mesh& mesh : model->meshes)
 		{
-			renderables.emplace_back(&m, m.material);
+			renderables.emplace_back(mesh);
+			renderables.back().transform = mesh.transform;
+			renderables.back().worldTransform = transform * mesh.transform;
 		}
 	}
 

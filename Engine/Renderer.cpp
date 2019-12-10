@@ -2,6 +2,7 @@
 #include "InputManager.h"
 #include "ResourceManager.h"
 #include "GameObject.h"
+#include "Shader.h"
 
 
 Renderer::Renderer()
@@ -132,15 +133,25 @@ void Renderer::flushRenderQueue()
 //not for instancing... this is just a low level draw
 void Renderer::render(const Renderable& r)
 {
-	unsigned int stride = r.mat->rFormat.stride;
-	unsigned int offset = r.mat->rFormat.offset;
+	unsigned int stride = r.mat->stride;
+	unsigned int offset = r.mat->offset;
+
+	//update cbuffers
+	r.mat->vertexShader->populateBuffers(_deviceContext, r.worldTransform, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix());
+	r.mat->pixelShader->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
+
+	//set shaders and similar geebees
+	_deviceContext->IASetInputLayout(r.mat->vertexShader->_layout);
+	_deviceContext->VSSetShader(r.mat->vertexShader->_vShader, NULL, 0);
+	_deviceContext->PSSetShader(r.mat->pixelShader->_pShader, NULL, 0);
+	_deviceContext->PSSetSamplers(0, 1, &r.mat->pixelShader->_sState);
 
 	//extract to sort by, won't be very uniform... tex arrays can help though...
 	for (int i = 0; i < r.mat->textures.size(); ++i)
 		_deviceContext->PSSetShaderResources(r.mat->texturesAdded + i, 1, &(r.mat->textures[i]->srv));
 
 	//extract to sort by... should be fairly uniform though
-	_deviceContext->IASetPrimitiveTopology(r.mat->rFormat.primitiveTopology);
+	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);
 
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
 	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), &stride,  &offset);

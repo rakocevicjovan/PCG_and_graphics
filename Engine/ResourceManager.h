@@ -33,5 +33,8 @@ public:
 	ProjectLoader& getProjectLoader() { return _projLoader; }
 
 	template <typename ResType>
-	ResType getByName(const std::string& name) { return static_cast<ResType>(_resourceMap[name]); }
+	ResType getByName(const std::string& name)
+	{
+		return static_cast<ResType>(_resourceMap[name]);
+	}
 };

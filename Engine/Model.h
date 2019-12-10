@@ -70,3 +70,13 @@ public:
 		return p;
 	}*/
 };
+
+
+/*
+class ModelInstance
+{
+public:
+	Model* model;
+	SMatrix transform;
+};
+*/

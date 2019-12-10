@@ -17,12 +17,11 @@
 namespace Procedural { class Terrain; }
 
 class Hull;
-class Material;
 
 class Mesh : public Resource
 {
 public:
-	//vertices and indices are cleared after pushing to the gpu, leaving only the vector memory cost which is ok for me...
+	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	vertices;
 	std::vector<unsigned int> indices;
 	int indexCount;
@@ -30,7 +29,8 @@ public:
 	ID3D11Buffer* _vertexBuffer = nullptr;
 	ID3D11Buffer* _indexBuffer = nullptr;
 
-	Material* material;
+	Material* baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
+	SMatrix transform;
 
 	std::vector<Texture> textures;
 	unsigned int indexIntoModelMeshArray;
@@ -42,8 +42,6 @@ public:
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(Hull* hull, ID3D11Device* device);
 	~Mesh();
-	
-
 
 	//@todo - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
@@ -90,3 +88,13 @@ public:
 		dc->DrawIndexedInstanced(indexCount, s._instanceCount, 0, 0, 0);
 	}
 };
+
+/*
+class MeshInstance
+{
+public:
+	Mesh* mesh;
+	Material* mat;
+	SMatrix transform;
+};
+*/

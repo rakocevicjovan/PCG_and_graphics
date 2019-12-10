@@ -368,6 +368,9 @@
     <ClCompile Include="Material.cpp">
       <Filter>Rendering\Now do it properly</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Rendering\Now do it properly</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">

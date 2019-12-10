@@ -217,14 +217,14 @@ void FireLevel::setUpCollision()
 		c.actParent = &platform.actor;
 		c.dynamic = true;
 		
-		for (Mesh m : platform.actor.gc.model->meshes)
-			c.hulls.push_back(collision.genBoxHull(&m, SMatrix::Identity));
+		for (Renderable r : platform.actor.renderables)
+			c.hulls.push_back(collision.genBoxHull(r.mesh, SMatrix::Identity));
 
 		for (Hull* h : c.hulls)
 		{
-			SVec4 daddyPos = c.actParent->transform.Translation();
-			SVec3 kiddyPos = SVec3(daddyPos.x, daddyPos.y, daddyPos.z);
-			h->setPosition(kiddyPos);
+			SVec4 parentPos = c.actParent->transform.Translation();
+			SVec3 childPos = SVec3(parentPos.x, parentPos.y, parentPos.z);
+			h->setPosition(childPos);
 		}
 
 		collision.addToGrid(&c);

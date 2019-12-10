@@ -36,7 +36,9 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatri
 
 	SVec4 ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 
-	if(FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
+	if(FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
 	dataPtr2->alc = pLight.alc;
 	dataPtr2->ali = pLight.ali;
