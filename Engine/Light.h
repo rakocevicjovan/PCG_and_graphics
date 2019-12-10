@@ -1,10 +1,8 @@
 #pragma once
 #include "Math.h"
 
-struct LightData {
-
-public:
-
+struct LightData
+{
 	SVec3 alc;
 	float ali;
 	SVec3 dlc;
@@ -12,25 +10,33 @@ public:
 	SVec3 slc;
 	float sli;
 
-	LightData(){}
+	LightData()
+	{
+	
+	}
+
 
 	LightData(SVec3 ambCol, float ambInt, SVec3 difCol, float difInt, SVec3 spcCol, float spcInt) 
-		: alc(ambCol), ali(ambInt), dlc(difCol), dli(difInt), slc(spcCol), sli(spcInt) {}
+		: alc(ambCol), ali(ambInt), dlc(difCol), dli(difInt), slc(spcCol), sli(spcInt)
+	{
+
+	}
+
 
 	void Mix(const LightData other, float k, LightData& result) const
 	{	
-		result.alc = alc * (1 - k) + other.alc * k;
-		result.ali = ali * (1 - k) + other.ali * k;
-		result.dlc = dlc * (1 - k) + other.dlc * k;
-		result.dli = dli * (1 - k) + other.dli * k;
-		result.slc = slc * (1 - k) + other.slc * k;
-		result.sli = sli * (1 - k) + other.sli * k;
+		result.alc = Math::lerp(alc, other.alc, k);
+		result.ali = Math::lerp(ali, other.ali, k);
+		result.dlc = Math::lerp(dlc, other.dlc, k);
+		result.dli = Math::lerp(dli, other.dli, k);
+		result.slc = Math::lerp(slc, other.slc, k);
+		result.sli = Math::lerp(sli, other.sli, k);
 	}
 };
 
 
 
-struct DirectionalLight : public LightData
+struct DirectionalLight : LightData
 {
 	SVec4 dir;
 	

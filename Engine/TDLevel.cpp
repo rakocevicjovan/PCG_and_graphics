@@ -223,13 +223,11 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->TurnOffCulling();
 
-	
 	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 	floorModel.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
 
 	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
-	
 
 #ifdef DEBUG_OCTREE
 	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
@@ -237,7 +235,6 @@ void TDLevel::draw(const RenderContext& rc)
 	shady.instanced.ReleaseShaderParameters(context);
 #endif
 
-	
 	std::vector<GuiElement> guiElems = 
 	{ 
 		{"Octree", std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
@@ -246,7 +243,6 @@ void TDLevel::draw(const RenderContext& rc)
 	};
 	renderGuiElems(guiElems);
 	
-
 	randy.sortRenderQueue();
 	randy.flushRenderQueue();
 	randy.clearRenderQueue();

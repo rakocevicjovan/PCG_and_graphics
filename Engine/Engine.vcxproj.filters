@@ -108,6 +108,9 @@
     <Filter Include="Rendering\Now do it properly\Materials">
       <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\Lights">
+      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -242,9 +245,6 @@
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="OST.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -370,6 +370,9 @@
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Rendering\Now do it properly</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Rendering\Lights</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -553,9 +556,6 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="CubeMapper.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -696,6 +696,9 @@
     </ClInclude>
     <ClInclude Include="Lambert.h">
       <Filter>Rendering\Now do it properly\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Rendering\Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
