@@ -150,15 +150,15 @@ void TDLevel::update(const RenderContext& rc)
 		for (auto& hull : creep.collider->hulls)
 			hull->setPosition(creep.getPosition());
 	}
-	_oct.updateAll();
+	
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
 	//Another alternative is having a bool empty; in the octnode...
+	_oct.updateAll();	//@TODO probably should optimize this
 	_oct.lazyTrim();
-
-	//does it's damn job after all that
-	_oct.collideAll();
+	_oct.collideAll();	//@TODO this as well?
+	
 
 
 	for (Actor& act : creeps)
@@ -182,7 +182,6 @@ void TDLevel::update(const RenderContext& rc)
 			float t;
 			SVec3 ip;
 			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
-			//if(Col::IntersectRaySphere(ray.position, ray.direction, *static_cast<SphereHull*>(creeps[i].collider->hulls[0]), t, ip ))
 			{
 				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
 			}

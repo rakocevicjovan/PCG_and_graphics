@@ -120,7 +120,7 @@ void Renderer::sortRenderQueue()
 
 
 void Renderer::flushRenderQueue()
-{
+{	
 	for (const auto& r : renderables)
 	{
 		render(r);
@@ -130,9 +130,10 @@ void Renderer::flushRenderQueue()
 
 
 //mind all the pointers this can fail spectacularly if anything relocates...
-//not for instancing... this is just a low level draw
 void Renderer::render(const Renderable& r)
 {
+	//all these updates still have a cost! 
+	//2500 draws drop fps to ~30 fps when only setting the state once, to ~20 when every time even if same
 	unsigned int stride = r.mat->stride;
 	unsigned int offset = r.mat->offset;
 
@@ -154,7 +155,7 @@ void Renderer::render(const Renderable& r)
 	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);
 
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
-	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), &stride,  &offset);
+	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), &stride, &offset);
 	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	_deviceContext->DrawIndexed(r.mesh->indexCount, 0, 0);
