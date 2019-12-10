@@ -3,24 +3,24 @@
 
 void EarthLevel::init(Systems& sys)
 {
-	skybox.LoadModel(device, "../Models/Skysphere.fbx");
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+	skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/night.dds");
 
-	will.LoadModel(device, "../Models/crystal/source/model/model.dae");
+	will.LoadModel(S_DEVICE, "../Models/crystal/source/model/model.dae");
 	Math::Scale(will.transform, SVec3(10.f));
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(333.f, 666.f, 999.f, 1.0f));	//old moon position SVec4(50.0f, 250.f, 250.0f, 1.0f)
 
 	proceduralTerrain = Procedural::Terrain(320, 320);
-	proceduralTerrain.setTextureData(device, 16, 16, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
-	proceduralTerrain.SetUp(device);
+	proceduralTerrain.setTextureData(S_DEVICE, 16, 16, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
+	proceduralTerrain.SetUp(S_DEVICE);
 
-	mazeDiffuseMap = Texture(device, "../Textures/Rock/diffuse.jpg");
-	mazeNormalMap = Texture(device, "../Textures/Rock/normal.jpg");
+	mazeDiffuseMap = Texture(S_DEVICE, "../Textures/Rock/diffuse.jpg");
+	mazeNormalMap = Texture(S_DEVICE, "../Textures/Rock/normal.jpg");
 
 	maze.Init(10, 10, 32);
-	maze.CreateModel(device);
+	maze.CreateModel(S_DEVICE);
 
 	sys._colEngine.registerModel(maze.model, BoundingVolumeType::BVT_AABB);
 

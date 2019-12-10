@@ -36,4 +36,6 @@ private:
 
 	std::vector<AABB> tempBoxes;
 	std::vector<InstanceData> octNodeMatrices;
+
+	Material creepMat;
 };

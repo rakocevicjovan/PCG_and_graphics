@@ -33,6 +33,8 @@ bool Systems::Initialize()
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
 	}
+
+	_shaderCompiler.init(&_hwnd, _device);
 	
 	_colEngine.init();
 	_colEngine.registerController(_controller);	//works both ways

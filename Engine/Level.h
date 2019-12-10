@@ -5,7 +5,7 @@
 #include "Perlin.h"
 #include "Observer.h"
 
-#define device		_sys._device
+#define S_DEVICE		_sys._device
 #define context		_sys._deviceContext
 #define randy		_sys._renderer
 #define shady		_sys._renderer._shMan

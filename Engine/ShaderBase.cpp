@@ -37,7 +37,7 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 
 	D3D11_BUFFER_DESC matrixBufferDesc, variableBufferDesc, lightBufferDesc;
 
-	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "LightVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 		&vertexShaderBuffer, &errorMessage);
 
 	if (FAILED(result)) 
@@ -47,7 +47,7 @@ bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<s
 		return false;
 	}
 
-	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "LightPixelShader", "ps_5_0",
+	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "main", "ps_5_0",
 		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
 
 	if (FAILED(result)) 

@@ -13,12 +13,20 @@ class ShaderCompiler
 {
 private:
 
-	HWND& _hwnd;
-	ID3D11Device*& _device;
+	HWND* _hwnd;
+	ID3D11Device* _device;
 
 public:
 
-	ShaderCompiler(HWND& hwnd, ID3D11Device*& device) : _hwnd(hwnd), _device(device) {}
+	ShaderCompiler() {}
+
+
+
+	void ShaderCompiler::init(HWND* hwnd, ID3D11Device* device)
+	{
+		_hwnd = hwnd;
+		_device = device;
+	}
 
 
 
@@ -29,21 +37,21 @@ public:
 
 		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 		{
-			outputError(errorMessage, _hwnd, *(filePath.c_str()), filePath);
+			outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
 			return false;
 		}
 
 		// Create the vertex shader from the buffer.
 		if (FAILED(_device->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &vertexShader)))
 		{
-			MessageBox(_hwnd, filePath.c_str(), L"Failed to create vertex shader.", MB_OK);
+			MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex shader.", MB_OK);
 			return false;
 		}
 		
 		// Create the layout related to the vertex shader.
 		if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
 		{
-			MessageBox(_hwnd, filePath.c_str(), L"Failed to create vertex input layout.", MB_OK);
+			MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex input layout.", MB_OK);
 			return false;
 		}
 
@@ -62,13 +70,13 @@ public:
 
 		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 		{	
-			outputError(errorMessage, _hwnd, *(filePath.c_str()), filePath);
+			outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
 			return false;
 		}
 
 		if (FAILED(_device->CreatePixelShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &pixelShader)))
 		{
-			MessageBox(_hwnd, filePath.c_str(), L"Failed to create pixel shader.", MB_OK);
+			MessageBox(*_hwnd, filePath.c_str(), L"Failed to create pixel shader.", MB_OK);
 			return false;
 		}
 
@@ -86,13 +94,13 @@ public:
 
 		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, NULL, "main", "gs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 		{
-			outputError(errorMessage, _hwnd, *(filePath.c_str()), filePath);
+			outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
 			return false;
 		}
 
 		if (FAILED(_device->CreateGeometryShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &geometryShader)))
 		{
-			MessageBox(_hwnd, filePath.c_str(), L"Failed to create geometry shader.", MB_OK);
+			MessageBox(*_hwnd, filePath.c_str(), L"Failed to create geometry shader.", MB_OK);
 			return false;
 		}
 			
@@ -108,7 +116,7 @@ public:
 	{
 		if (FAILED(_device->CreateSamplerState(&samplerDesc, &sampleState)))
 		{
-			MessageBoxA(_hwnd, std::string(__FILE__).c_str(), "Failed to create sampler state shader.", MB_OK);
+			MessageBoxA(*_hwnd, std::string(__FILE__).c_str(), "Failed to create sampler state shader.", MB_OK);
 			return false;
 		}
 		return true;
@@ -120,7 +128,7 @@ public:
 	{
 		if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))
 		{
-			MessageBoxA(_hwnd, std::string(__FILE__).c_str(), "Failed to create constant buffer shader.", MB_OK);
+			MessageBoxA(*_hwnd, std::string(__FILE__).c_str(), "Failed to create constant buffer shader.", MB_OK);
 			return false;
 		}
 		return true;
@@ -139,7 +147,7 @@ private:
 	{
 		if (!errorMessage)
 		{
-			MessageBox(_hwnd, filePath.c_str(), L"Shader file not found.", MB_OK);
+			MessageBox(*_hwnd, filePath.c_str(), L"Shader file not found.", MB_OK);
 			return;
 		}
 

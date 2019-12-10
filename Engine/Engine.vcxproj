@@ -267,6 +267,7 @@
     <ClInclude Include="AStar.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
+    <ClInclude Include="Lambert.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Biome.h" />
@@ -348,6 +349,7 @@
     <ClInclude Include="ShaderShadow.h" />
     <ClInclude Include="ShaderSkybox.h" />
     <ClInclude Include="ShaderStrife.h" />
+    <ClInclude Include="ShMan.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="StackAllocator.h" />

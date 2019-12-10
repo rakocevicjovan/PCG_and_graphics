@@ -13,6 +13,7 @@
 #include "Audio.h"
 #include "LevelManager.h"
 #include "ResourceManager.h"
+#include "ShaderCompiler.h"
 
 
 
@@ -42,6 +43,7 @@ public:
 	//core systems
 	InputManager _inputManager;
 	ResourceManager _resMan;
+	ShaderCompiler _shaderCompiler;
 	Renderer _renderer;
 	LevelManager* _levelMan;
 	CollisionEngine _colEngine;

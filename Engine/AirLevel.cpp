@@ -6,8 +6,8 @@
 
 void AirLevel::init(Systems& sys)
 {
-	skybox.LoadModel(device, "../Models/Skysphere.fbx");
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
+	skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 	
 	auto fltVec = Texture::generateRidgey(256, 256, 1.f, 1.61803f, 0.5793f, 1.f, 6u);
 	barrensTerrain.setScales(4, 256, 4);
@@ -22,17 +22,17 @@ void AirLevel::init(Systems& sys)
 	"../Textures/Grass/diffuse.jpg", "../Textures/Snow/diffuse.jpg", "../Textures/Rock/diffuse.jpg",
 	"../Textures/Grass/normal.jpg", "../Textures/Snow/normal.jpg", "../Textures/Rock/normal.jpg"
 	};
-	barrensTerrain.setTextureData(device, 20, 20, terTexes);
-	barrensTerrain.SetUp(device);
-	barrens = Model(barrensTerrain, device);
+	barrensTerrain.setTextureData(S_DEVICE, 20, 20, terTexes);
+	barrensTerrain.SetUp(S_DEVICE);
+	barrens = Model(barrensTerrain, S_DEVICE);
 
-	tornado.LoadModel(device, "../Models/boxnado.obj");
+	tornado.LoadModel(S_DEVICE, "../Models/boxnado.obj");
 	tornado.transform = SMatrix::CreateScale(128, 512, 128);
 	tornado.transform *= SMatrix::CreateTranslation(0, 0, 0);
 	
 	goal = SVec3(-384, 0, -384);
 	goal.y = barrensTerrain.getHeightAtPosition(goal) + 33.f;
-	will.LoadModel(device, "../Models/ball.fbx");
+	will.LoadModel(S_DEVICE, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(10.f));
 	will.transform *= SMatrix::CreateTranslation(goal);
 
@@ -45,7 +45,7 @@ void AirLevel::init(Systems& sys)
 	lightView.Invert();		//get the view matrix of the light
 	lightView.Transpose();	//transpose so it doesn't have to be transposed by the shader class each frame
 
-	glider.LoadModel(device, "../Models/glider/rrrr.fbx");
+	glider.LoadModel(S_DEVICE, "../Models/glider/rrrr.fbx");
 	player.a.gc.model = &glider;
 	player.a.transform = SMatrix::CreateScale(0.05) * SMatrix::Identity;
 	player.a.transform *= SMatrix::CreateRotationY(PI * 1.25);
@@ -55,14 +55,14 @@ void AirLevel::init(Systems& sys)
 	player.cam = randy._cam;
 	player.cam.SetTranslation(player.a.transform.Translation() + player.a.transform.Forward() * SVec3(0, 1, 2));
 
-	segmentModel.LoadModel(device, "../Models/Ball.fbx");
+	segmentModel.LoadModel(S_DEVICE, "../Models/Ball.fbx");
 	segmentModel.transform = SMatrix::CreateScale(15);
 
 	dragon.init(17, SVec3(0, 0, 200));
 	instanceData.resize(17);
 
-	winTex = Texture(device, "../Textures/Victory.png");
-	winScreenNode = winScreen.AddUINODE(device, winScreen.getRoot(), SVec2(0, 0), SVec2(1, 1));
+	winTex = Texture(S_DEVICE, "../Textures/Victory.png");
+	winScreenNode = winScreen.AddUINODE(S_DEVICE, winScreen.getRoot(), SVec2(0, 0), SVec2(1, 1));
 }
 
 

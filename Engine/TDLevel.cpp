@@ -4,6 +4,7 @@
 #include "AStar.h"
 #include "Picker.h"
 #include "ColFuncs.h"
+#include "Shader.h"
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 {
@@ -14,7 +15,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 
 void TDLevel::init(Systems& sys)
 {
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
+	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
@@ -22,11 +23,64 @@ void TDLevel::init(Systems& sys)
 	float tSize = 400;
 	Procedural::Terrain t(2, 2, SVec3(tSize));
 	t.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
-	t.SetUp(device);
-	floorModel = Model(t, device);
+	t.SetUp(S_DEVICE);
+	floorModel = Model(t, S_DEVICE);
 
 	_oct.init(AABB(SVec3(), SVec3(200)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
 	_oct.prellocateRootOnly();	//_oct.preallocateTree();	
+
+
+
+
+	//initialize material... ofc should not be here, just for testing
+	D3D11_BUFFER_DESC matrixBufferDesc, variableBufferDesc, lightBufferDesc;
+
+	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
+	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	matrixBufferDesc.MiscFlags = 0;
+	matrixBufferDesc.StructureByteStride = 0;
+
+	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
+	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	variableBufferDesc.MiscFlags = 0;
+	variableBufferDesc.StructureByteStride = 0;
+
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	std::vector<D3D11_BUFFER_DESC> vsbufferDescs = { matrixBufferDesc };
+	std::vector<D3D11_BUFFER_DESC> psbufferDescs = { lightBufferDesc  };
+
+	VertexShader* vs = new VertexShader();	// = new Shader(S_DEVICE, L"", vsbufferDescs);
+	PixelShader* ps = new PixelShader();	// = new Shader(S_DEVICE, L"", psbufferDescs);
+
+	_sys._shaderCompiler.compileVS(L"lightvs.hlsl", inLayout, vs->_vShader, vs->_layout);
+	vs->buffers.resize(1);
+	_sys._shaderCompiler.createConstantBuffer(matrixBufferDesc, vs->buffers[0]);
+
+	_sys._shaderCompiler.compilePS(L"lightps.hlsl", ps->_pShader);
+	ps->buffers.resize(1);
+	_sys._shaderCompiler.createConstantBuffer(lightBufferDesc, ps->buffers[0]);
+
+	creepMat.opaque = true;
+	creepMat.vertexShader = vs;
+	creepMat.pixelShader  = ps;
+	creepMat.textures.push_back(&(resources.getByName<Model*>("FlyingMage")->meshes[0].textures[0]));
 
 	creeps.reserve(125);
 	for (int i = 0; i < 125; ++i)
@@ -34,6 +88,12 @@ void TDLevel::init(Systems& sys)
 		SVec3 pos = SVec3(200, 0, 200);
 		//creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
 		creeps.emplace_back(SMatrix::CreateTranslation(pos), resources.getByName<Model*>("FlyingMage"));
+		
+		for (Renderable& r : creeps[i].renderables)
+		{
+			r.mat = &creepMat;
+		}
+		
 		creeps[i].collider = new Collider();
 		creeps[i].collider->actParent = &creeps.back();
 		creeps[i].collider->BVT = BVT_SPHERE;
@@ -95,6 +155,7 @@ void TDLevel::update(const RenderContext& rc)
 	//does it's damn job after all that
 	_oct.collideAll();
 
+	//picking, put this away...
 	if (_sys._inputManager.isKeyDown('R'))
 	{
 		MCoords mc = _sys._inputManager.getAbsXY();
@@ -113,6 +174,8 @@ void TDLevel::update(const RenderContext& rc)
 			}
 		}
 	}
+
+
 
 	numCulled = 0;
 	const SMatrix v = rc.cam->GetViewMatrix();
@@ -137,6 +200,9 @@ void TDLevel::update(const RenderContext& rc)
 		}
 	}
 
+	randy.sortRenderQueue();
+	randy.flushRenderQueue();
+	randy.clearRenderQueue();
 }
 
 

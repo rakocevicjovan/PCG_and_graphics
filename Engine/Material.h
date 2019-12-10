@@ -9,12 +9,12 @@ class Shader;
 class Material
 {
 public:
-	int id = 0;
+	//int id = 0;
 	bool opaque;
 
 	//determines how many textures are added by the shader itself
 	//won't ever have 256 textures so that's even too big but can't help it for now without bitsets meh...
-	unsigned char texturesAdded;	
+	unsigned char texturesAdded = 0u;	
 
 	Shader* vertexShader;
 	Shader* pixelShader;
@@ -26,7 +26,6 @@ public:
 	Material();
 	~Material();
 
-	void setVS();
-	void setPS();
+	void setVS(Shader* vs) { vertexShader = vs; }
+	void setPS(Shader* ps) { pixelShader  = ps; }
 };
-

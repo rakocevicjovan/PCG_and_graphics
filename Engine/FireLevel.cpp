@@ -6,27 +6,27 @@ void FireLevel::init(Systems& sys)
 {
 	collision.registerController(_sys._controller);
 
-	sceneTex.Init(device, _sys.getWinW(), _sys.getWinH());
-	brightnessMask.Init(device, _sys.getWinW(), _sys.getWinH());
-	blurredTex1.Init(device, _sys.getWinW(), _sys.getWinH());
-	blurredTex2.Init(device, _sys.getWinW(), _sys.getWinH());
+	sceneTex.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
+	brightnessMask.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
+	blurredTex1.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
+	blurredTex2.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
 
-	screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1));
+	screenRectangleNode = postProcessor.AddUINODE(S_DEVICE, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1));
 
 	//hexer initialization
 	
 	Procedural::Geometry hex;
 	hex.GenHexaprism(hexRadius, 10.f);
-	hexModel.meshes.push_back(Mesh(hex, device));
+	hexModel.meshes.push_back(Mesh(hex, S_DEVICE));
 	hexer.init(hexRadius);
 	isFirst = true;
 	SVec3 initPlayerPos(hexer._points[0].x, hexer._points[0].y + 40.f, hexer._points[0].z);
 	randy.setCameraMatrix(SMatrix::CreateTranslation(initPlayerPos));
 
-	skybox.LoadModel(device, "../Models/Skysphere.fbx");
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/day.dds");
+	skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
-	will.LoadModel(device, "../Models/ball.fbx");
+	will.LoadModel(S_DEVICE, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(10.f));
 	Math::Translate(will.transform, SVec3(768, 138, 768));
 	goal = will.transform.Translation();
@@ -44,16 +44,16 @@ void FireLevel::init(Systems& sys)
 	terrain.CircleOfScorn(SVec2(768, 768), 40.f, PI * 0.01337f, 2 * PI, 64, 1.2 * PI);
 	terrain.setOffset(0, 128, 0);
 
-	terrain.setTextureData(device, 10, 10, { "../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png" });
-	terrain.SetUp(device);
+	terrain.setTextureData(S_DEVICE, 10, 10, { "../Textures/LavaCracks/diffuse.png", "../Textures/LavaCracks/normal.png" });
+	terrain.SetUp(S_DEVICE);
 	
 	Procedural::Terrain island = Procedural::Terrain(128, 128, SVec3(8, 300, 8));
 	island.Mesa(SVec2(256), 32, 64, 64);
 	island.Mesa(SVec2(256), 16, 16, -128);
-	island.setTextureData(device, 10, 10, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
+	island.setTextureData(S_DEVICE, 10, 10, { "../Textures/Lava/diffuse.jpg", "../Textures/Lava/normal.jpg" });
 	island.CalculateNormals();
 	island.CalculateTexCoords();
-	islandModel = Model(island, device);
+	islandModel = Model(island, S_DEVICE);
 
 
 	lavaSheet = Procedural::Terrain(2, 2, SVec3(1024, 1, 1024));
@@ -61,20 +61,20 @@ void FireLevel::init(Systems& sys)
 	lavaSheet.CalculateTexCoords();
 	lavaSheet.CalculateNormals();
 
-	lavaSheetModel = Model(lavaSheet, device);
+	lavaSheetModel = Model(lavaSheet, S_DEVICE);
 
 	//textures
 	hexDiffuseMap.LoadFromFile("../Textures/Crymetal/diffuse.jpg");
-	hexDiffuseMap.Setup(device);
+	hexDiffuseMap.Setup(S_DEVICE);
 	hexNormalMap.LoadFromFile("../Textures/Crymetal/normal.jpg");
-	hexNormalMap.Setup(device);
+	hexNormalMap.Setup(S_DEVICE);
 
 	Procedural::LSystem linden;
 	linden.reseed("F");
 	linden.addRule('F', "FF+[+*F-F-/F]*-[-F/+F+*F]/");
 	linden.rewrite(4);
 	float liangle = PI * 0.138888f;		//liangle = PI * .5f;
-	tree = linden.genModel(device, 12.f, 3.f, .77f, .77f, liangle, liangle);
+	tree = linden.genModel(S_DEVICE, 12.f, 3.f, .77f, .77f, liangle, liangle);
 	tree.transform = SMatrix::CreateFromAxisAngle(SVec3(0, 0, 1), PI * 0.5);
 	tree.transform *= SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), -PI * 0.4);
 	tree.transform *= SMatrix::CreateTranslation(860, 60, 800);
@@ -90,7 +90,7 @@ void FireLevel::procGen()
 	Procedural::Geometry hex;
 	std::vector<Procedural::Geometry> hexes = hex.GenHexGrid(30.f, 10.f, 2);
 	for (auto& h : hexes)
-		hexCluster.meshes.emplace_back(h, device);
+		hexCluster.meshes.emplace_back(h, S_DEVICE);
 
 	isTerGenerated = true;
 }

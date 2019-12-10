@@ -7,14 +7,14 @@ namespace Strife
 
 	void StrifeLevel::init(Systems& sys)
 	{
-		skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+		skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/night.dds");
 
-		sceneTex.Init(device, _sys.getWinW() / 2, _sys.getWinH() / 2);
-		screenRectangleNode = postProcessor.AddUINODE(device, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
+		sceneTex.Init(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);
+		screenRectangleNode = postProcessor.AddUINODE(S_DEVICE, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
 
-		skybox.LoadModel(device, "../Models/Skysphere.fbx");
+		skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
 
-		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), device, .999999f);	//1.777777f
+		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f
 		screenQuad.meshes.push_back(scrQuadMesh);
 
 		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy._screenAspect, 1.f, 1000.f));
@@ -27,7 +27,7 @@ namespace Strife
 		terrain.setOffset(-edge * .5, 0.f, -edge * .5);
 		terrain.CalculateNormals();
 
-		floor = Model(terrain, device);
+		floor = Model(terrain, S_DEVICE);
 		floor.transform = SMatrix::CreateTranslation(terrain.getOffset());
 
 
@@ -42,8 +42,8 @@ namespace Strife
 		csDef.repeat = SVec4(4096.f, 32.f, 4069.f, 1.f);	//density factor in .w
 		
 		//load 2D textures
-		csDef.weather = Texture(device, "../Textures/DensityTypeTexture.png");
-		csDef.blue_noise = Texture(device, "../Textures/blue_noise_64_tiled.png");
+		csDef.weather = Texture(S_DEVICE, "../Textures/DensityTypeTexture.png");
+		csDef.blue_noise = Texture(S_DEVICE, "../Textures/blue_noise_64_tiled.png");
 
 		///create/load 3D tectures
 
@@ -155,7 +155,7 @@ namespace Strife
 			texData[i].SysMemSlicePitch = texData[i].SysMemPitch * desc.Height;
 		}
 
-		HRESULT hr = device->CreateTexture3D(&desc, &texData[0], &baseTexId);
+		HRESULT hr = S_DEVICE->CreateTexture3D(&desc, &texData[0], &baseTexId);
 		if (FAILED(hr))
 		{
 			OutputDebugStringA("Can't create texture3d. \n");
@@ -167,7 +167,7 @@ namespace Strife
 		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
 
-		if (FAILED(device->CreateShaderResourceView(baseTexId, &shaderResourceViewDesc, &baseSrv)))
+		if (FAILED(S_DEVICE->CreateShaderResourceView(baseTexId, &shaderResourceViewDesc, &baseSrv)))
 		{
 			OutputDebugStringA("Can't create shader resource view. \n");
 			exit(43);
@@ -228,7 +228,7 @@ namespace Strife
 		texData.SysMemPitch = desc.Width * texelByteWidth;
 		texData.SysMemSlicePitch = texData.SysMemPitch * desc.Height;
 
-		HRESULT hr = device->CreateTexture3D(&desc, &texData, &fineTexId);
+		HRESULT hr = S_DEVICE->CreateTexture3D(&desc, &texData, &fineTexId);
 		if (FAILED(hr))
 		{
 			OutputDebugStringA("Can't create texture3d. \n");
@@ -240,7 +240,7 @@ namespace Strife
 		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
 
-		if (FAILED(device->CreateShaderResourceView(fineTexId, &shaderResourceViewDesc, &fineSrv)))
+		if (FAILED(S_DEVICE->CreateShaderResourceView(fineTexId, &shaderResourceViewDesc, &fineSrv)))
 		{
 			OutputDebugStringA("Can't create shader resource view. \n");
 			exit(43);
@@ -310,7 +310,7 @@ namespace Strife
 			texData[i].SysMemSlicePitch = texData[i].SysMemPitch * desc.Height;
 		}
 
-		HRESULT hr = device->CreateTexture3D(&desc, &texData[0], &baseTexId);
+		HRESULT hr = S_DEVICE->CreateTexture3D(&desc, &texData[0], &baseTexId);
 		if (FAILED(hr))
 		{
 			OutputDebugStringA("Can't create texture3d. \n");
@@ -322,7 +322,7 @@ namespace Strife
 		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
 
-		if (FAILED(device->CreateShaderResourceView(baseTexId, &shaderResourceViewDesc, &baseSrv)))
+		if (FAILED(S_DEVICE->CreateShaderResourceView(baseTexId, &shaderResourceViewDesc, &baseSrv)))
 		{
 			OutputDebugStringA("Can't create shader resource view. \n");
 			exit(43);
@@ -394,7 +394,7 @@ namespace Strife
 		texData.SysMemPitch = desc.Width * texelByteWidth;
 		texData.SysMemSlicePitch = texData.SysMemPitch * desc.Height;
 
-		HRESULT hr = device->CreateTexture3D(&desc, &texData, &fineTexId);
+		HRESULT hr = S_DEVICE->CreateTexture3D(&desc, &texData, &fineTexId);
 		if (FAILED(hr))
 		{
 			OutputDebugStringA("Can't create texture3d. \n");
@@ -406,7 +406,7 @@ namespace Strife
 		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture3D.MipLevels = desc.MipLevels;
 
-		if (FAILED(device->CreateShaderResourceView(fineTexId, &shaderResourceViewDesc, &fineSrv)))
+		if (FAILED(S_DEVICE->CreateShaderResourceView(fineTexId, &shaderResourceViewDesc, &fineSrv)))
 		{
 			OutputDebugStringA("Can't create shader resource view. \n");
 			exit(43);

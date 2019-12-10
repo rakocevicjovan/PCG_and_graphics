@@ -5,20 +5,20 @@ void WaterLevel::init(Systems& sys)
 {
 	_sys._colEngine.registerController(_sys._controller);
 
-	skybox.LoadModel(device, "../Models/Skysphere.fbx");
-	skyboxCubeMapper.LoadFromFiles(device, "../Textures/night.dds");
+	skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
+	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/night.dds");
 
-	cubeMapper.Init(device);
+	cubeMapper.Init(S_DEVICE);
 
-	modBall.LoadModel(device, "../Models/ball.fbx");
+	modBall.LoadModel(S_DEVICE, "../Models/ball.fbx");
 	Math::Scale(modBall.transform, SVec3(20));
 	Math::Translate(modBall.transform, SVec3(0, 164, 0));
 
-	lotus.LoadModel(device, "../Models/crownless_wider.obj");
+	lotus.LoadModel(S_DEVICE, "../Models/crownless_wider.obj");
 	Math::Scale(lotus.transform, SVec3(150));
 
 	lotusTex.LoadFromFile("../Textures/Lotus/diffuse.jpg");
-	lotusTex.Setup(device);
+	lotusTex.Setup(S_DEVICE);
 	for (auto& m : lotus.meshes)
 		m.textures.push_back(lotusTex);
 
@@ -31,34 +31,34 @@ void WaterLevel::init(Systems& sys)
 	waterSheet = Model(waterTerrain, _sys._device);
 
 	waterNormalMap.LoadFromFile("../Textures/Water/normal.jpg");
-	waterNormalMap.Setup(device);
+	waterNormalMap.Setup(S_DEVICE);
 	
-	reflectionMap.Init(device, 1600, 900);	//@make false after testing for both of them!
-	refractionMap.Init(device, 1600, 900);
+	reflectionMap.Init(S_DEVICE, 1600, 900);	//@make false after testing for both of them!
+	refractionMap.Init(S_DEVICE, 1600, 900);
 	waterReflectionMatrix = SMatrix::CreateReflection(SPlane(SVec3(0, 1, 0), -waterSheet.transform.Translation().y));
 
 	LightData lightData(SVec3(0.1f, 0.7f, 0.9f), .03f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 	pointLight = PointLight(lightData, SVec4(0, 500.f, 0, 1.0f));
 
 	_lillies.init(33.333f, .1667f, SVec2(33.333, 200.f), SVec3(0, waterTerrain.getOffset().y - .2f, 0));
-	lillyModel.LoadModel(device, "../Models/Lilly/Lilly.obj");
+	lillyModel.LoadModel(S_DEVICE, "../Models/Lilly/Lilly.obj");
 
 	
-	throne.LoadModel(device, "../Models/FlowerThrone/flowerThrone.fbx");
+	throne.LoadModel(S_DEVICE, "../Models/FlowerThrone/flowerThrone.fbx");
 	Math::Scale(throne.transform, SVec3(.33));
 	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(1, 0, 0), PI * 0.5f));
 	Math::RotateMatByMat(throne.transform, SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), -PI * 0.5f));
 	throne.transform *= SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y - 20.f, 200));
 	goal = throne.transform.Translation();
 
-	will.LoadModel(device, "../Models/ball.fbx");
+	will.LoadModel(S_DEVICE, "../Models/ball.fbx");
 	Math::Scale(will.transform, SVec3(10.f));
 	will.transform *= SMatrix::CreateTranslation(SVec3(goal.x, goal.y + 50, goal.z));
 
 	_startingTransform = SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y + 10.f, -200));
 	randy.setCameraMatrix(_startingTransform);
 	
-	plat.LoadModel(device, "../Models/leaf.fbx");
+	plat.LoadModel(S_DEVICE, "../Models/leaf.fbx");
 	plat.transform = SMatrix::CreateScale(10);
 	plat.transform *= SMatrix::CreateRotationY(-PI * 0.5f);
 	plat.transform *= _startingTransform;
@@ -67,14 +67,14 @@ void WaterLevel::init(Systems& sys)
 
 	SMatrix petalScale = SMatrix::CreateScale(SVec3(5));
 
-	lillyPetalModel.LoadModel(device, "../Models/lotus_petal_upright.obj");
+	lillyPetalModel.LoadModel(S_DEVICE, "../Models/lotus_petal_upright.obj");
 	for (Vert3D& v : lillyPetalModel.meshes[0].vertices)
 		v.pos = SVec3::Transform(v.pos, petalScale);
 
-	Texture lillyPetalTex(device, "../Textures/Lotus/diffuse.jpg");
+	Texture lillyPetalTex(S_DEVICE, "../Textures/Lotus/diffuse.jpg");
 	lillyPetalModel.meshes[0].textures.push_back(lillyPetalTex);
 
-	fence.LoadModel(device, "../Models/barrier.obj");
+	fence.LoadModel(S_DEVICE, "../Models/barrier.obj");
 	Math::Scale(fence.transform, SVec3(2));
 	fence.transform *= SMatrix::CreateTranslation(SVec3(132, waterTerrain.getOffset().y, 22));
 	fence.meshes[0].textures.push_back(lillyPetalTex);
@@ -89,7 +89,7 @@ void WaterLevel::init(Systems& sys)
 	float petalToPetalAngle = 60.f * PI / 180.f;
 	float stalkToPetalAngle = 90.f * PI / 180.f;
 
-	flowerModel = linden.genFlower(device, &lillyPetalModel, 1, .33, .7f, petalToPetalAngle, stalkToPetalAngle);
+	flowerModel = linden.genFlower(S_DEVICE, &lillyPetalModel, 1, .33, .7f, petalToPetalAngle, stalkToPetalAngle);
 	Math::Scale(flowerModel.transform, SVec3(2));
 	Math::RotateMatByMat(flowerModel.transform, SMatrix::CreateRotationY(PI));
 	Math::SetTranslation(flowerModel.transform, SVec3(0, 90, 0));	// SVec3(-10, 126, 20)

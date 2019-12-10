@@ -30,7 +30,7 @@ struct PixelInputType
 };
 
 
-PixelInputType LightVertexShader(VertexInputType input) 
+PixelInputType main(VertexInputType input) 
 {
 	PixelInputType output;
 

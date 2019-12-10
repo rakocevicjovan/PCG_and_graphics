@@ -120,14 +120,17 @@ void Renderer::sortRenderQueue()
 
 void Renderer::flushRenderQueue()
 {
-
+	for (const auto& r : renderables)
+	{
+		render(r);
+	}
 }
 
 
 
 //mind all the pointers this can fail spectacularly if anything relocates...
 //not for instancing... this is just a low level draw
-void Renderer::render(Renderable& r)
+void Renderer::render(const Renderable& r)
 {
 	unsigned int stride = r.mat->rFormat.stride;
 	unsigned int offset = r.mat->rFormat.offset;
@@ -140,11 +143,19 @@ void Renderer::render(Renderable& r)
 	_deviceContext->IASetPrimitiveTopology(r.mat->rFormat.primitiveTopology);
 
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
-	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), 0, 0);
+	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), &stride,  &offset);
 	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	_deviceContext->DrawIndexed(r.mesh->indexCount, 0, 0);
 }
+
+
+
+
+
+
+
+
 
 
 

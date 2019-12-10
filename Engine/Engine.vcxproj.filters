@@ -105,6 +105,9 @@
     <Filter Include="Rendering\Now do it properly">
       <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\Now do it properly\Materials">
+      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -684,6 +687,12 @@
     </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Rendering\Now do it properly</Filter>
+    </ClInclude>
+    <ClInclude Include="ShMan.h">
+      <Filter>Rendering\Now do it properly</Filter>
+    </ClInclude>
+    <ClInclude Include="Lambert.h">
+      <Filter>Rendering\Now do it properly\Materials</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,15 @@
 #include "AiController.h"
 
 
+class GameObject
+{
+public:
+	GameObject() {};
+	~GameObject() {};
+};
+
+
+
 //template <typename FlexibleShaderType>	not sure how to do this really... as then actor has to be templated as well
 //which seems ugly... or store a base pointer in there? seems there needs to be inheritance somewhere regardless with this approach
 class GraphicComponent
@@ -21,32 +30,14 @@ public:
 };
 
 
-//can be a bunch of packed bits but do I really need it to be? this class can produce an int64_t eventually
-class RenderableQueueKey
-{
-public:
-	unsigned char renderTarget;		//max 256 render targets...
-	int16_t materialId;				//max 2^16 (65536) materials
-	int16_t textureId;				//max 2^16 (65536) texture combinations within material...sort this out
-	unsigned char vertexFormat;		//max 256 vertex formats
-
-	int64_t create64bitKey()
-	{
-		//leaves 16 (64 - 48) bits free for whatever other stuff I might sort by, can be further compressed too
-		int64_t result = renderTarget << (63-8) | materialId << (63-24) | textureId << (63-40) | vertexFormat << (63 - 48);
-	}
-};
-
-
 
 class Renderable
 {
 public:
+	int64_t sortKey;
+
 	Mesh* mesh;
 	Material* mat;
-
-	//dynamic? not sure
-	int64_t sortKey;
 	float zDepth;
 
 	Renderable(Mesh* m, Material* mat) : mesh(m), mat(mat) {}
@@ -56,16 +47,9 @@ public:
 	{
 		return sortKey < b.sortKey;
 	}
-	
-};
 
-
-
-class GameObject
-{
-public:
-	GameObject() {};
-	~GameObject() {};
+	// this could to be a template methinks...
+	//void Renderable::updateDrawData() {}
 };
 
 
@@ -81,7 +65,7 @@ public:
 		renderables.reserve(model->meshes.size());
 		for (Mesh& m : model->meshes)
 		{
-			Renderable(&m, m.material);
+			renderables.emplace_back(&m, m.material);
 		}
 	}
 

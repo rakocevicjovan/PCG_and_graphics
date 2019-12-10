@@ -12,10 +12,10 @@ namespace SkelAnim
 		float tSize = 200;
 		Procedural::Terrain t(2, 2, SVec3(tSize));
 		t.setOffset(-tSize * .5f, -10, -tSize * .5f);
-		t.SetUp(device);
-		floorModel = Model(t, device);
+		t.SetUp(S_DEVICE);
+		floorModel = Model(t, S_DEVICE);
 
-		sm.loadModel(device, "../Models/Animated/Kachujin_walking/Walking.fbx");
+		sm.loadModel(S_DEVICE, "../Models/Animated/Kachujin_walking/Walking.fbx");
 		//sm.loadModel(device, "../Models/Animated/Bob/boblampclean.md5mesh");
 
 		for (int i = 0; i < MAX_BONES; i++)
