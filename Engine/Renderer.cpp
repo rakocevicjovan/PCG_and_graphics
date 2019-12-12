@@ -8,7 +8,8 @@
 Renderer::Renderer()
 {
 	//sAlloc.init(sizeof(Renderable) * MAX_RENDERABLES);
-	renderables.reserve(MAX_RENDERABLES);
+	opaques.reserve(MAX_OPAQUES);
+	transparents.reserve(MAX_TRANSPARENTS);
 }
 
 
@@ -99,29 +100,38 @@ void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& 
 
 void Renderer::addToRenderQueue(const Renderable& renderable)
 {
-	renderables.push_back(renderable);	//stack allocator could work, or just reserving... not sure really
+	if (renderable.mat->opaque)
+		opaques.push_back(renderable);	//stack allocator could work, or just reserving... not sure really
+	else
+		transparents.push_back(renderable);
 }
 
 
 
 void Renderer::clearRenderQueue()
 {
-	renderables.clear();
-	//qKeys.clear();
+	opaques.clear();	//qKeys.clear();
+	transparents.clear();
 }
 
 
 
 void Renderer::sortRenderQueue()
 {
-	std::sort(renderables.begin(), renderables.end());	//determine how to sort by overloading < for renderable
+	std::sort(opaques.begin(), opaques.end());	//determine how to sort by overloading < for renderable
+	std::sort(transparents.begin(), transparents.end());
 }
 
 
 
 void Renderer::flushRenderQueue()
 {	
-	for (const auto& r : renderables)
+	for (const auto& r : opaques)
+	{
+		render(r);
+	}
+
+	for (const auto& r : transparents)
 	{
 		render(r);
 	}
@@ -132,7 +142,7 @@ void Renderer::flushRenderQueue()
 //mind all the pointers this can fail spectacularly if anything relocates...
 void Renderer::render(const Renderable& r)
 {
-	//all these updates still have a cost! 
+	//all these updates still have a cost, even if they were the same, so we must avoid that, assisted by sorting
 	//2500 draws drop fps to ~30 fps when only setting the state once, to ~20 when every time even if same
 	unsigned int stride = r.mat->stride;
 	unsigned int offset = r.mat->offset;

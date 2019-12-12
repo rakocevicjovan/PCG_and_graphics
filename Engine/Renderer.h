@@ -47,6 +47,8 @@ public:
 			textureId << (63 - 40) |
 			depth << (63 - 56) |
 			vertexFormat << (63 - 56);
+
+		return result;
 	}
 };
 
@@ -63,9 +65,11 @@ private:
 	ResourceManager* _resMan;
 	D3D* _d3d;
 
-	const size_t MAX_RENDERABLES = 500;
+	const size_t MAX_OPAQUES	  = 500;
+	const size_t MAX_TRANSPARENTS = 100;
 	//StackAllocator sAlloc;
-	std::vector<Renderable> renderables;
+	std::vector<Renderable> transparents;
+	std::vector<Renderable> opaques;
 	//std::vector<int64_t> qKeys;
 
 public:
