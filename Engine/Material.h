@@ -12,13 +12,15 @@ class PixelShader;
 
 class Material
 {
+protected:
+	VertexShader* _vertexShader;
+	PixelShader* _pixelShader;
+
 public:
 	//determines whether it goes to the transparent or opaque queue... different sorting
 	bool opaque;
 
 	//most important sorting criteria
-	VertexShader* vertexShader;
-	PixelShader* pixelShader;
 
 	//second most important sorting criteria
 	std::vector<Texture*> textures;
@@ -32,10 +34,12 @@ public:
 	unsigned int offset = 0u;
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	
 	Material();
 	~Material();
 
-	void setVS(VertexShader* vs) { vertexShader = vs; }
-	void setPS(PixelShader* ps) { pixelShader  = ps; }
+	void setVS(VertexShader* vs);
+	void setPS(PixelShader* ps);
+
+	inline VertexShader* getVS() { return _vertexShader; }
+	inline PixelShader* getPS() { return _pixelShader; }
 };

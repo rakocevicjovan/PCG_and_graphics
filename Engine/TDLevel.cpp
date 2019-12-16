@@ -32,26 +32,10 @@ void TDLevel::init(Systems& sys)
 
 
 
-
-
-
-
 	//@TODO MOVE OUTTA HERE REEEE
 	D3D11_BUFFER_DESC matrixBufferDesc, lightBufferDesc;
-
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
-
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
+	matrixBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(SMatrix));
+	lightBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayout =
 	{
@@ -59,9 +43,6 @@ void TDLevel::init(Systems& sys)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
-
-	std::vector<D3D11_BUFFER_DESC> vsbufferDescs = { matrixBufferDesc };
-	std::vector<D3D11_BUFFER_DESC> psbufferDescs = { lightBufferDesc  };
 
 	D3D11_SAMPLER_DESC sbSamplerDesc;
 	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
@@ -82,8 +63,8 @@ void TDLevel::init(Systems& sys)
 	_sys._shaderCompiler.createSamplerState(sbSamplerDesc, ps->_sState);
 
 	creepMat.opaque = true;
-	creepMat.vertexShader = vs;
-	creepMat.pixelShader  = ps;
+	creepMat.setVS(vs);
+	creepMat.setPS(ps);
 	creepMat.textures.push_back(&(resources.getByName<Model*>("FlyingMage")->meshes[0].textures[0]));
 
 	creeps.reserve(125);

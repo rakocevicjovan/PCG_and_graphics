@@ -124,6 +124,26 @@ public:
 
 
 
+	inline static D3D11_BUFFER_DESC createCBufferDesc(
+		UINT byteWidth,
+		D3D11_USAGE usage = D3D11_USAGE_DYNAMIC,
+		D3D11_BIND_FLAG binding = D3D11_BIND_CONSTANT_BUFFER,
+		D3D11_CPU_ACCESS_FLAG cpuAccessFlag = D3D11_CPU_ACCESS_WRITE,
+		UINT miscFlag = 0u,
+		UINT stride = 0u)
+	{
+		D3D11_BUFFER_DESC cbDesc;
+		cbDesc.ByteWidth = byteWidth;
+		cbDesc.Usage = usage;
+		cbDesc.BindFlags = binding;
+		cbDesc.CPUAccessFlags = cpuAccessFlag;
+		cbDesc.MiscFlags = miscFlag;
+		cbDesc.StructureByteStride = stride;
+		return cbDesc;
+	}
+
+
+
 	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
 	{
 		if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))

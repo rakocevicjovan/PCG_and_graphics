@@ -219,6 +219,7 @@
     <ClCompile Include="PerlinShader.cpp" />
     <ClCompile Include="ProjectLoader.cpp" />
     <ClCompile Include="ProjectPicker.cpp" />
+    <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -268,7 +269,6 @@
     <ClInclude Include="AStar.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
-    <ClInclude Include="Lambert.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Biome.h" />
@@ -322,6 +322,7 @@
     <ClInclude Include="ProjectLoader.h" />
     <ClInclude Include="ProjectPicker.h" />
     <ClInclude Include="ProjectPickerLevel.h" />
+    <ClInclude Include="Renderable.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SceneGraph.h" />

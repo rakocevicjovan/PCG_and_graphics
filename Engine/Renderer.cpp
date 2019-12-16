@@ -35,6 +35,39 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
 	_cam._controller = &ctrl;
 
+	createGlobalBuffers();
+
+	return true;
+}
+
+
+
+bool Renderer::createGlobalBuffers()
+{
+	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(OneMatBuffer));
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_perCamBuffer)))
+		return false;
+
+	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_perFrameBuffer)))
+		return false;
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	OneMatBuffer* dataPtr;
+
+	SMatrix proj = _cam.GetProjectionMatrix();
+	SMatrix pT = proj.Transpose();
+
+	if (FAILED(_deviceContext->Map(_perCamBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+	dataPtr = (OneMatBuffer*)mappedResource.pData;
+	dataPtr->mat = pT;
+	_deviceContext->Unmap(_perCamBuffer, 0);
+
+	_deviceContext->VSSetConstantBuffers(10, 1, &_perCamBuffer);
+	_deviceContext->VSSetConstantBuffers(11, 1, &_perFrameBuffer);
+
 	return true;
 }
 
@@ -46,7 +79,28 @@ bool Renderer::Frame(float dTime, InputManager* inMan)
 	
 	bool res = UpdateRenderContext(dTime);
 
+	updatePerFrameBuffer();
+
 	return res;
+}
+
+
+
+bool Renderer::updatePerFrameBuffer()
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	OneMatBuffer* dataPtr;
+
+	SMatrix view = _cam.GetViewMatrix();
+	SMatrix vT = view.Transpose();
+
+	if (FAILED(_deviceContext->Map(_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+	dataPtr = (OneMatBuffer*)mappedResource.pData;
+	dataPtr->mat = vT;
+	_deviceContext->Unmap(_perFrameBuffer, 0);
+
+	return true;
 }
 
 
@@ -148,14 +202,14 @@ void Renderer::render(const Renderable& r)
 	unsigned int offset = r.mat->offset;
 
 	//update cbuffers
-	r.mat->vertexShader->populateBuffers(_deviceContext, r.worldTransform, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix());
-	r.mat->pixelShader->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
+	r.mat->getVS()->populateBuffers(_deviceContext, r.worldTransform);
+	r.mat->getPS()->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
 
 	//set shaders and similar geebees
-	_deviceContext->IASetInputLayout(r.mat->vertexShader->_layout);
-	_deviceContext->VSSetShader(r.mat->vertexShader->_vShader, NULL, 0);
-	_deviceContext->PSSetShader(r.mat->pixelShader->_pShader, NULL, 0);
-	_deviceContext->PSSetSamplers(0, 1, &r.mat->pixelShader->_sState);
+	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
+	_deviceContext->VSSetShader(r.mat->getVS()->_vShader, NULL, 0);
+	_deviceContext->PSSetShader(r.mat->getPS()->_pShader, NULL, 0);
+	_deviceContext->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
 
 	//extract to sort by, won't be very uniform... tex arrays can help though...
 	for (int i = 0; i < r.mat->textures.size(); ++i)

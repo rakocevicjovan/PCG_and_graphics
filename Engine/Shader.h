@@ -52,29 +52,23 @@ class VertexShader : public Shader
 	struct MatrixBuffer
 	{
 		SMatrix world;
-		SMatrix view;
-		SMatrix projection;
 	};
 
 public:
 	ID3D11VertexShader* _vShader;
 	ID3D11InputLayout* _layout;
 
-	bool populateBuffers(ID3D11DeviceContext* cont, const SMatrix& m, const SMatrix& v, const SMatrix& p)
+	bool populateBuffers(ID3D11DeviceContext* cont, const SMatrix& m)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		MatrixBuffer* dataPtr;
 
 		SMatrix mT = m.Transpose();
-		SMatrix vT = v.Transpose();
-		SMatrix pT = p.Transpose();
 
 		if (FAILED(cont->Map(_cbuffers[0], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 			return false;
 		dataPtr = (MatrixBuffer*)mappedResource.pData;
 		dataPtr->world = mT;
-		dataPtr->view = vT;
-		dataPtr->projection = pT;
 		cont->Unmap(_cbuffers[0], 0);
 		cont->VSSetConstantBuffers(0, 1, &_cbuffers[0]);
 

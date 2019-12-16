@@ -28,6 +28,12 @@ struct RenderContext
 };
 
 
+struct OneMatBuffer
+{
+	SMatrix mat;
+};
+
+
 
 //can be a bunch of packed bits but do I really need it to be? this class can produce an int64_t eventually
 class RenderableQueueKey
@@ -82,7 +88,9 @@ public:
 	~Renderer();
 
 	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
+	bool createGlobalBuffers();
 	bool Frame(float dTime, InputManager* inMan);
+	bool updatePerFrameBuffer();
 	
 	void SetOSTRenderTarget(OST& ost);
 	void RevertRenderTarget();
@@ -97,7 +105,7 @@ public:
 
 	void setCameraMatrix(const SMatrix& camMatrix);
 
-
-
 	float _fieldOfView, _screenAspect, elapsed = 0.f;
+	ID3D11Buffer* _perCamBuffer;
+	ID3D11Buffer* _perFrameBuffer;
 };

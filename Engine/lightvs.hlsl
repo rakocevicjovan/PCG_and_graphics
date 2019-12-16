@@ -1,9 +1,18 @@
+cbuffer PerCameraBuffer : register(b10)
+{
+	matrix projectionMatrix;
+};
+
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+};
+
 cbuffer MatrixBuffer : register(b0)
 {
 	matrix worldMatrix;
-	matrix viewMatrix;
-	matrix projectionMatrix;
 };
+
 
 
 struct VertexInputType
