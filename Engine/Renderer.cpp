@@ -44,25 +44,24 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 
 bool Renderer::createGlobalBuffers()
 {
-	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(OneMatBuffer));
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(PerCameraBuffer));
 	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_perCamBuffer)))
 		return false;
 
-	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_perFrameBuffer)))
+	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(PerFrameBuffer));
+	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &_perFrameBuffer)))
 		return false;
 
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	OneMatBuffer* dataPtr;
+	PerCameraBuffer* dataPtr;
 
 	SMatrix proj = _cam.GetProjectionMatrix();
 	SMatrix pT = proj.Transpose();
 
 	if (FAILED(_deviceContext->Map(_perCamBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	dataPtr = (OneMatBuffer*)mappedResource.pData;
-	dataPtr->mat = pT;
+	dataPtr = (PerCameraBuffer*)mappedResource.pData;
+	dataPtr->proj = pT;
 	_deviceContext->Unmap(_perCamBuffer, 0);
 
 	_deviceContext->VSSetConstantBuffers(10, 1, &_perCamBuffer);
@@ -79,25 +78,28 @@ bool Renderer::Frame(float dTime, InputManager* inMan)
 	
 	bool res = UpdateRenderContext(dTime);
 
-	updatePerFrameBuffer();
+	updatePerFrameBuffer(dTime);
 
 	return res;
 }
 
 
 
-bool Renderer::updatePerFrameBuffer()
+bool Renderer::updatePerFrameBuffer(float dTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	OneMatBuffer* dataPtr;
+	PerFrameBuffer* dataPtr;
 
 	SMatrix view = _cam.GetViewMatrix();
 	SMatrix vT = view.Transpose();
 
 	if (FAILED(_deviceContext->Map(_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	dataPtr = (OneMatBuffer*)mappedResource.pData;
+	dataPtr = (PerFrameBuffer*)mappedResource.pData;
 	dataPtr->mat = vT;
+	dataPtr->delta = dTime;
+	dataPtr->elapsed = elapsed;
+	dataPtr->padding = SVec2(0.f);
 	_deviceContext->Unmap(_perFrameBuffer, 0);
 
 	return true;
@@ -201,9 +203,9 @@ void Renderer::render(const Renderable& r)
 	unsigned int stride = r.mat->stride;
 	unsigned int offset = r.mat->offset;
 
-	//update cbuffers
-	r.mat->getVS()->populateBuffers(_deviceContext, r.worldTransform);
-	r.mat->getPS()->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
+	//update cbuffers - making this data driven currently, rendering will not work until then...
+	//r.mat->getVS()->populateBuffers(_deviceContext, r.worldTransform);
+	//r.mat->getPS()->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
 
 	//set shaders and similar geebees
 	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);

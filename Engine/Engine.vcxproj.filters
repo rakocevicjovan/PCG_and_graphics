@@ -102,14 +102,14 @@
     <Filter Include="Rendering\Lights">
       <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Materials">
-      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\AAANow do it properly">
       <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\AAANow do it properly\Materials">
       <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\MaterialsOLD">
+      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -126,70 +126,70 @@
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCM.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderDepth.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderHUD.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderPT.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderShadow.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWater.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderBase.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderLight.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="InstancedShader.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="Volumetric.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="TerrainShader.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="PerlinShader.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderVolumetric.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="Maze.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderMaze.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ToolGUI.cpp">
       <Filter>Strife</Filter>
@@ -410,46 +410,46 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderShadow.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderPT.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHUD.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDepth.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCM.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderStrife.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWater.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWireframe.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderBase.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderLight.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="Volumetric.h">
       <Filter>Procedural</Filter>
@@ -458,31 +458,31 @@
       <Filter>Other</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="PerlinShader.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDataStructs.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="Maze.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderMaze.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
-      <Filter>Rendering\Materials</Filter>
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ToolGUI.h">
       <Filter>Strife</Filter>
@@ -703,6 +703,9 @@
     <ClInclude Include="Material.h">
       <Filter>Rendering\AAANow do it properly\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="CBuffer.h">
+      <Filter>Rendering\AAANow do it properly</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">
@@ -806,12 +809,6 @@
     <FxCompile Include="AnimaVS.hlsl">
       <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
-    <FxCompile Include="dragonCurvePS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
-    <FxCompile Include="dragonCurveVS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
     <FxCompile Include="mazefloorVS.hlsl">
       <Filter>Rendering\Shader Files\Specific</Filter>
     </FxCompile>
@@ -836,16 +833,7 @@
     <FxCompile Include="terrainPS.hlsl">
       <Filter>Rendering\Shader Files\Common</Filter>
     </FxCompile>
-    <FxCompile Include="brightMaskVS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
-    </FxCompile>
     <FxCompile Include="brightmaskPS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
-    </FxCompile>
-    <FxCompile Include="blurVS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
-    </FxCompile>
-    <FxCompile Include="bloomVS.hlsl">
       <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="bloomPS.hlsl">
@@ -889,6 +877,9 @@
     </FxCompile>
     <FxCompile Include="Simplex_derivative.hlsl">
       <Filter>Rendering\Shader Files\Clouds</Filter>
+    </FxCompile>
+    <FxCompile Include="screenspaceVS.hlsl">
+      <Filter>Rendering\Shader Files\PostProcessing</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

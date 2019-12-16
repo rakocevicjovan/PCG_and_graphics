@@ -70,7 +70,7 @@ float3 getCartiesan(float3 inSph)
 
 
 
-float4 CMFS(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
     /*
     float3 spPos = getSpherical(-input.normal);

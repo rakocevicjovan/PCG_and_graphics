@@ -28,9 +28,18 @@ struct RenderContext
 };
 
 
-struct OneMatBuffer
+struct PerCameraBuffer
+{
+	SMatrix proj;
+};
+
+
+struct PerFrameBuffer
 {
 	SMatrix mat;
+	float delta;
+	float elapsed;
+	SVec2 padding;
 };
 
 
@@ -90,7 +99,7 @@ public:
 	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
 	bool createGlobalBuffers();
 	bool Frame(float dTime, InputManager* inMan);
-	bool updatePerFrameBuffer();
+	bool updatePerFrameBuffer(float dTime);
 	
 	void SetOSTRenderTarget(OST& ost);
 	void RevertRenderTarget();

@@ -6,26 +6,10 @@
 #include "ShaderCompiler.h"
 #include "Math.h"
 #include "Light.h"
+#include "CBuffer.h"
 
 
 enum class SHADER_TYPE { VS, GS, PS };
-
-enum class CBUFFER_FIELD_TYPE { BOOL, FLOAT, FLOAT4, MATRIX4 };
-
-struct CBufferFieldDesc
-{
-	CBUFFER_FIELD_TYPE type;
-	uint16_t size;
-	uint16_t offset;
-};
-
-struct CBufferDesc
-{
-	uint8_t slot;
-	size_t size;
-	std::vector<CBufferFieldDesc> fields;
-};
-
 
 
 class Shader
@@ -37,7 +21,10 @@ public:
 	SHADER_TYPE type;
 	std::string path;
 
+	std::vector<CBufferMeta> descs;
 	std::vector<ID3D11Buffer*> _cbuffers;
+
+
 
 	Shader()
 	{
@@ -59,55 +46,47 @@ public:
 		}
 		_id = ID_COUNTER++;
 	}
+
+
+	//copout for when the automatic system doesn't work
+	bool updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+		if (FAILED(cont->Map(_cbuffers[index], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+			return false;
+
+		void* dataPtr = mappedResource.pData;
+		memcpy(dataPtr, data, descs[index]._size);
+		cont->Unmap(_cbuffers[index], 0);
+
+		return true;
+	}
+
 };
 
 
 
 class VertexShader : public Shader
 {
-
-	std::vector<CBufferDesc> descs;
-
 public:
 	ID3D11VertexShader* _vShader;
 	ID3D11InputLayout* _layout;
 
-	/*
-	bool populateBuffers(ID3D11DeviceContext* cont, const SMatrix& m)
+	void setBuffers(ID3D11DeviceContext* cont)
 	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		MatrixBuffer* dataPtr;
-
-		SMatrix mT = m.Transpose();
-
-		if (FAILED(cont->Map(_cbuffers[0], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-			return false;
-		dataPtr = (MatrixBuffer*)mappedResource.pData;
-		dataPtr->world = mT;
-		cont->Unmap(_cbuffers[0], 0);
-		cont->VSSetConstantBuffers(0, 1, &_cbuffers[0]);
-
-		return true;
+		for (auto& buffer : _cbuffers)
+		{
+			cont->VSSetConstantBuffers(0, 1, &buffer);
+		}
+		
 	}
-	*/
 };
 
 
 
 class PixelShader : public Shader
 {
-	struct LightBuffer
-	{
-		SVec3 alc;
-		float ali;
-		SVec3  dlc;
-		float dli;
-		SVec3 slc;
-		float sli;
-		SVec4 pos;
-		SVec4 ePos;
-	};
-
 public:
 	ID3D11PixelShader* _pShader;
 	ID3D11SamplerState* _sState;

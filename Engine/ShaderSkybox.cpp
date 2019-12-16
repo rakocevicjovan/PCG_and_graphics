@@ -39,7 +39,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd)
 
 	// Compile the vertex shader code.
 
-	if (FAILED(D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "CMVS", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage))) {
+	if (FAILED(D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage))) {
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
 		else
@@ -48,7 +48,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd)
 		return false;
 	}
 
-	if (FAILED(D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "CMFS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage))) {
+	if (FAILED(D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage))) {
 		if (errorMessage)
 			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()));
 		else
@@ -119,7 +119,7 @@ bool ShaderSkybox::InitializeShader(ID3D11Device* device, HWND hwnd)
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
+	matrixBufferDesc.ByteWidth = sizeof(SMatrix);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
@@ -180,20 +180,16 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber = 0;
-	MatrixBuffer* dataPtr;
+	SMatrix* dataPtr;
 
 	SMatrix fake = SMatrix::CreateTranslation(c.GetCameraMatrix().Translation());
 
 	SMatrix mT = fake.Transpose();
-	SMatrix vT = c.GetViewMatrix().Transpose();
-	SMatrix pT = c.GetProjectionMatrix().Transpose();
 
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;
-	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
+	dataPtr = (SMatrix*)mappedResource.pData;
+	memcpy(dataPtr, &mT, sizeof(SMatrix));
 	deviceContext->Unmap(m_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 

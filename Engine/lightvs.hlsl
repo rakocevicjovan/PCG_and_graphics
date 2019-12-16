@@ -6,6 +6,9 @@ cbuffer PerCameraBuffer : register(b10)
 cbuffer PerFrameBuffer : register(b11)
 {
 	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
 };
 
 cbuffer MatrixBuffer : register(b0)

@@ -112,6 +112,59 @@ public:
 
 
 
+	bool reflect(ID3D10Blob* shaderBuffer)
+	{
+		ID3D11ShaderReflection* reflection = NULL;
+		if (FAILED(D3DReflect(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflection)))
+		{
+			return false;
+		}
+
+		D3D11_SHADER_DESC desc;
+		reflection->GetDesc(&desc);
+
+		//Find all constant buffers
+		for (unsigned int i = 0; i < desc.ConstantBuffers; ++i)
+		{
+			unsigned int register_index = 0;
+			ID3D11ShaderReflectionConstantBuffer* buffer = NULL;
+			buffer = reflection->GetConstantBufferByIndex(i);
+
+			D3D11_SHADER_BUFFER_DESC bdesc;
+			buffer->GetDesc(&bdesc);
+
+			//get variables out of cbuffer
+			for (unsigned int j = 0; j < bdesc.Variables; ++j)
+			{
+				ID3D11ShaderReflectionVariable* variable = NULL;
+				variable = buffer->GetVariableByIndex(j);
+
+				D3D11_SHADER_VARIABLE_DESC vdesc;
+				variable->GetDesc(&vdesc);
+
+				/*ShaderVariable* shadervariable = new ShaderVariable();
+				shadervariable->name = Engine::String.ConvertToWideStr(vdesc.Name);
+				shadervariable->length = vdesc.Size;
+				shadervariable->offset = vdesc.StartOffset;
+				mSize += vdesc.Size;
+				mVariables.push_back(shadervariable);*/
+			}
+
+			for (unsigned int k = 0; k < desc.BoundResources; ++k)
+			{
+				D3D11_SHADER_INPUT_BIND_DESC ibdesc;
+				reflection->GetResourceBindingDesc(k, &ibdesc);
+
+				if (!strcmp(ibdesc.Name, bdesc.Name))
+					register_index = ibdesc.BindPoint;
+			}
+
+			//Add constant buffers straight outta here... should be easier than having to code it all the time!
+		}
+	}
+
+
+
 	bool createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState)
 	{
 		if (FAILED(_device->CreateSamplerState(&samplerDesc, &sampleState)))
