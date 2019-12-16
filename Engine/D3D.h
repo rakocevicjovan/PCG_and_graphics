@@ -32,8 +32,9 @@ public:
 	void TurnOnAlphaBlending();
 	void TurnOffAlphaBlending();
 
-	void TurnOnCulling();
-	void TurnOffCulling();
+	void setRSSolidCull();
+	void setRSSolidNoCull();
+	void setRSWireframe();
 
 	void SwitchDepthToLessEquals();
 	void SwitchDepthToDefault();
@@ -52,7 +53,7 @@ private:
 	ID3D11Texture2D* m_depthStencilBuffer;
 	ID3D11DepthStencilState* m_depthStencilState, *DSLessEqual;
 	ID3D11DepthStencilView* m_depthStencilView;
-	ID3D11RasterizerState* m_rasterState, *m_rasterStateNoCull;
+	ID3D11RasterizerState* _r_s_solid_cull, *_r_s_solid_no_cull, *_r_s_wireframe;
 	ID3D11BlendState* m_blendState, *m_noBlendState;
 };
 

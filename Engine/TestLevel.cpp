@@ -37,7 +37,7 @@ namespace SkelAnim
 	void SkelAnimTestLevel::draw(const RenderContext& rc)
 	{
 		rc.d3d->ClearColourDepthBuffers();
-		rc.d3d->TurnOffCulling();
+		rc.d3d->setRSSolidNoCull();
 
 		shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 		floorModel.Draw(context, shady.light);

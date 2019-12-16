@@ -87,13 +87,13 @@ void Renderer::RevertRenderTarget()
 
 void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper) 
 {
-	_d3d->TurnOffCulling();
+	_d3d->setRSSolidNoCull();
 	_d3d->SwitchDepthToLessEquals();
 	_shMan.skyboxShader.SetShaderParameters(_deviceContext, cam, rc.dTime, skyboxCubeMapper.cm_srv);
 	skybox.Draw(_deviceContext, _shMan.skyboxShader);
 	rc.shMan->skyboxShader.ReleaseShaderParameters(_deviceContext);
 	_d3d->SwitchDepthToDefault();
-	_d3d->TurnOnCulling();
+	_d3d->setRSSolidCull();
 }
 
 

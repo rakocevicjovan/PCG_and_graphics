@@ -10,7 +10,7 @@ D3D::D3D()
 	m_depthStencilState = 0;
 	DSLessEqual = 0;
 	m_depthStencilView = 0;
-	m_rasterState = 0;
+	_r_s_solid_cull = 0;
 }
 
 
@@ -203,9 +203,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Create the texture for the depth buffer using the filled out description.
 	result = _device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer);
-	if(FAILED(result)){
+	if(FAILED(result))
 		return false;
-	}
 
 	// Initialize the description of the stencil state.
 	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
@@ -254,9 +253,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Create the depth stencil view.
 	result = _device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
-	if(FAILED(result)){
+	if(FAILED(result))
 		return false;
-	}
 
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
@@ -274,20 +272,20 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
 
 	// Create the rasterizer state from the description we just filled out.
-	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterState);
-	if (FAILED(result)) {
+	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_solid_cull)))
 		return false;
-	}
 
 	rasterDesc.CullMode = D3D11_CULL_NONE;
-
-	result = _device->CreateRasterizerState(&rasterDesc, &m_rasterStateNoCull);
-	if (FAILED(result)) {
+	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_solid_no_cull)))
 		return false;
-	}
+
+	rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
+	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_wireframe)))
+		return false;
+
 
 	// Now set the rasterizer state.
-	_deviceContext->RSSetState(m_rasterState);
+	_deviceContext->RSSetState(_r_s_solid_cull);
 
 
 	//blending code @TODO see why it messes with texture.... turn off until then
@@ -303,18 +301,15 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f; //D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	result = _device->CreateBlendState(&blendDesc, &m_blendState);
-	if (FAILED(result)) {
+	if (FAILED(result))
 		return false;
-	}
-	
 
 	// Modify the description to create an alpha disabled blend state description.
 	blendDesc.RenderTarget[0].BlendEnable = FALSE;
 	// Create the blend state using the description.
 	result = _device->CreateBlendState(&blendDesc, &m_noBlendState);
-	if (FAILED(result)){
+	if (FAILED(result))
 		return false;
-	}
 	
 	// Setup the viewport for rendering.
     viewport.Width = (float)windowWidth;
@@ -342,44 +337,44 @@ void D3D::Shutdown(){
 	if(m_swapChain)
 		m_swapChain->SetFullscreenState(false, NULL);
 
-	if(m_rasterState){
-		m_rasterState->Release();
-		m_rasterState = 0;
+	if(_r_s_solid_cull){
+		_r_s_solid_cull->Release();
+		_r_s_solid_cull = nullptr;
 	}
 
 	if(m_depthStencilView){
 		m_depthStencilView->Release();
-		m_depthStencilView = 0;
+		m_depthStencilView = nullptr;
 	}
 
 	if(m_depthStencilState){
 		m_depthStencilState->Release();
-		m_depthStencilState = 0;
+		m_depthStencilState = nullptr;
 	}
 
 	if(m_depthStencilBuffer){
 		m_depthStencilBuffer->Release();
-		m_depthStencilBuffer = 0;
+		m_depthStencilBuffer = nullptr;
 	}
 
 	if(m_renderTargetView){
 		m_renderTargetView->Release();
-		m_renderTargetView = 0;
+		m_renderTargetView = nullptr;
 	}
 
 	if(_deviceContext){
 		_deviceContext->Release();
-		_deviceContext = 0;
+		_deviceContext = nullptr;
 	}
 
 	if(_device){
 		_device->Release();
-		_device = 0;
+		_device = nullptr;
 	}
 
 	if(m_swapChain){
 		m_swapChain->Release();
-		m_swapChain = 0;
+		m_swapChain = nullptr;
 	}
 
 	return;
@@ -443,12 +438,19 @@ void D3D::D3D::TurnOffAlphaBlending()
 	_deviceContext->OMSetBlendState(m_noBlendState, blendFactor, 0xffffffff);
 }
 
-void D3D::TurnOnCulling() {
-	_deviceContext->RSSetState(m_rasterState);
+void D3D::setRSSolidCull()
+{
+	_deviceContext->RSSetState(_r_s_solid_cull);
 }
 
-void D3D::TurnOffCulling() {
-	_deviceContext->RSSetState(m_rasterStateNoCull);
+void D3D::setRSSolidNoCull()
+{
+	_deviceContext->RSSetState(_r_s_solid_no_cull);
+}
+
+void D3D::setRSWireframe()
+{
+	_deviceContext->RSSetState(_r_s_wireframe);
 }
 
 void D3D::SwitchDepthToLessEquals()

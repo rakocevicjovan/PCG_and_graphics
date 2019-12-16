@@ -27,7 +27,7 @@ void TDLevel::init(Systems& sys)
 	floorModel = Model(t, S_DEVICE);
 
 	_oct.init(AABB(SVec3(), SVec3(200)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
-	_oct.prellocateRootOnly();	//_oct.preallocateTree();	
+	_oct.prellocateRootOnly();					//_oct.preallocateTree();	
 
 
 
@@ -36,7 +36,7 @@ void TDLevel::init(Systems& sys)
 
 
 
-	//initialize material... ofc should not be here, just for testing
+	//@TODO MOVE OUTTA HERE REEEE
 	D3D11_BUFFER_DESC matrixBufferDesc, lightBufferDesc;
 
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -220,7 +220,7 @@ void TDLevel::update(const RenderContext& rc)
 void TDLevel::draw(const RenderContext& rc)
 {
 	rc.d3d->ClearColourDepthBuffers();
-	rc.d3d->TurnOffCulling();
+	rc.d3d->setRSSolidNoCull();
 
 	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 	floorModel.Draw(context, shady.light);

@@ -129,11 +129,11 @@ void AirLevel::draw(const RenderContext& rc)
 
 	rc.d3d->ClearColourDepthBuffers();
 	
-	_sys._D3D.TurnOffCulling();
+	_sys._D3D.setRSSolidNoCull();
 	shady.light.SetShaderParameters(context, player.a.transform, player.cam, pointLight, rc.elapsed);
 	glider.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
-	_sys._D3D.TurnOnCulling();
+	_sys._D3D.setRSSolidCull();
 
 	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, player.cam, pointLight, rc.dTime);
 	barrens.Draw(context, shady.terrainMultiTex);
