@@ -8,7 +8,23 @@
 #include "Light.h"
 
 
-enum class SHADER_TYPE { VS, GS, PS};
+enum class SHADER_TYPE { VS, GS, PS };
+
+enum class CBUFFER_FIELD_TYPE { BOOL, FLOAT, FLOAT4, MATRIX4 };
+
+struct CBufferFieldDesc
+{
+	CBUFFER_FIELD_TYPE type;
+	uint16_t size;
+	uint16_t offset;
+};
+
+struct CBufferDesc
+{
+	uint8_t slot;
+	size_t size;
+	std::vector<CBufferFieldDesc> fields;
+};
 
 
 
@@ -49,15 +65,14 @@ public:
 
 class VertexShader : public Shader
 {
-	struct MatrixBuffer
-	{
-		SMatrix world;
-	};
+
+	std::vector<CBufferDesc> descs;
 
 public:
 	ID3D11VertexShader* _vShader;
 	ID3D11InputLayout* _layout;
 
+	/*
 	bool populateBuffers(ID3D11DeviceContext* cont, const SMatrix& m)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -74,8 +89,7 @@ public:
 
 		return true;
 	}
-	
-	//std::string strLayout; could be a bitmask really... and not required yet
+	*/
 };
 
 
@@ -98,6 +112,7 @@ public:
 	ID3D11PixelShader* _pShader;
 	ID3D11SamplerState* _sState;
 
+	/*
 	bool populateBuffers(ID3D11DeviceContext* cont, PointLight pLight, SVec3 ePos)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -120,4 +135,5 @@ public:
 
 		return true;
 	}
+	*/
 };
