@@ -20,14 +20,14 @@ void TDLevel::init(Systems& sys)
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
 
-	float tSize = 400;
-	Procedural::Terrain t(2, 2, SVec3(tSize));
-	t.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
-	t.SetUp(S_DEVICE);
-	floorModel = Model(t, S_DEVICE);
+	float tSize = 500;
+	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
+	terrain.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
+	terrain.SetUp(S_DEVICE);
+	floorModel = Model(terrain, S_DEVICE);
 
-	_oct.init(AABB(SVec3(), SVec3(200)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
-	_oct.prellocateRootOnly();					//_oct.preallocateTree();	
+	_oct.init(AABB(SVec3(), SVec3(tSize * .5)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
+	_oct.prellocateRootOnly();						//_oct.preallocateTree();	
 
 
 
@@ -66,10 +66,11 @@ void TDLevel::init(Systems& sys)
 	creepMat.setPS(ps);
 	creepMat.textures.push_back(&(resources.getByName<Model*>("FlyingMage")->meshes[0].textures[0]));
 
-	creeps.reserve(125);
-	for (int i = 0; i < 125; ++i)
+	creeps.reserve(NUM_ENEMIES);
+	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
-		SVec3 pos = SVec3(200, 0, 200);
+		float offset = (i % 10) * ((i % 2) * 2 - 1);
+		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 		//creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
 		creeps.emplace_back(SMatrix::CreateTranslation(pos), resources.getByName<Model*>("FlyingMage"));
 		
@@ -140,13 +141,16 @@ void TDLevel::update(const RenderContext& rc)
 	
 
 
-	for (Actor& act : creeps)
+	for (int i = 0; i < creeps.size(); ++i)
 	{
-		for (Renderable& r : act.renderables)
-		{
-			r.worldTransform = act.transform * r.transform;
-		}
+		creeps[i].propagate();
+		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
+		float intervalPassed = fmod(rc.elapsed + i, 10.f);
+		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
+		Math::setHeight(creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
 	}
+
+
 
 	//picking, put this away somewhere else...
 	if (_sys._inputManager.isKeyDown('R'))
@@ -176,11 +180,11 @@ void TDLevel::update(const RenderContext& rc)
 	const SVec3 camPos = rc.cam->GetPosition();
 	
 	
+	//cull and add to render queue
 	for (int i = 0; i < creeps.size(); ++i)
 	{
 		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
 		{
-			//add to draw queue and all that jazz
 			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : creeps[i].renderables)
 			{

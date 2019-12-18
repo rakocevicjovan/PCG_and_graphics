@@ -666,7 +666,7 @@ namespace Procedural
 		int gridZ = (int)floorf(terZ / zScale);
 
 		if (gridX >= _numColumns - 1 || gridZ >= _numRows - 1 || gridX < 0 || gridZ < 0)
-			return 5.0f;
+			return _offset.y;
 
 		//to barycentric
 		float xCoord = fmodf(terX, xScale) / xScale;
@@ -694,7 +694,7 @@ namespace Procedural
 			finalHeight = getHeightByBarrycentric(SVec3(0, blh, 0), SVec3(1, trh, 1), SVec3(1, brh, 0), SVec2(xCoord, zCoord));
 		}
 
-		return finalHeight + _offset.y + 10.f;
+		return finalHeight + _offset.y;
 	}
 
 

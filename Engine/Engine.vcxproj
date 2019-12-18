@@ -220,6 +220,7 @@
     <ClCompile Include="ProjectLoader.cpp" />
     <ClCompile Include="ProjectPicker.cpp" />
     <ClCompile Include="Renderable.cpp" />
+    <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="ProjectPicker.h" />
     <ClInclude Include="ProjectPickerLevel.h" />
     <ClInclude Include="Renderable.h" />
+    <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SceneGraph.h" />

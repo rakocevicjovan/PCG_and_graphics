@@ -21,7 +21,12 @@ private:
 	SceneGraph _sg;
 	Octree _oct;
 
+	//some enemy specific stuff...
+	UINT NUM_ENEMIES = 100u;
+	float FLYING_HEIGHT = 10.f;
+
 	//unlike loaded models in the manager, these will be generated
+	Procedural::Terrain terrain;
 	Model floorModel;
 
 	PointLight pLight;

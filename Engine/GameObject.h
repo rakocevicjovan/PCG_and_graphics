@@ -47,6 +47,8 @@ public:
 			renderables.back().worldTransform = transform * mesh.transform;
 		}
 	}
+	Actor* parent;
+
 
 	SMatrix transform;
 	GraphicComponent gc;
@@ -56,6 +58,14 @@ public:
 	SVec3 getPosition() const
 	{
 		return transform.Translation();
+	}
+
+	void propagate()
+	{
+		for (Renderable& r : renderables)
+		{
+			r.worldTransform = transform * r.transform;
+		}
 	}
 
 	void Draw(ID3D11DeviceContext* context, Camera& cam, PointLight& pl, float dTime)

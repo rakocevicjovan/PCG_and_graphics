@@ -68,6 +68,18 @@ public:
 	static float fract(const float in);
 	static SVec3 fract3(const SVec3& in);
 
+	inline static void setHeight(SMatrix& mat, float h)
+	{
+		mat._42 = h;
+	}
+
+
+	//@WARNING just use taylor not sure if I got this right...
+	inline static float sinBhaskara(float x)
+	{
+		return (16.f * x * (PI - x)) / (5.f * PI * PI - 4.f * x * (PI - x));
+	}
+
 	template <class T>
 	static T lerp(const T a, const T b, const float t)
 	{
