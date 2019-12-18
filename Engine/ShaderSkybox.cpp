@@ -2,7 +2,8 @@
 #include "Model.h"
 #include "Camera.h"
 
-ShaderSkybox::ShaderSkybox() {
+ShaderSkybox::ShaderSkybox()
+{
 	m_vertexShader = 0;
 	m_pixelShader = 0;
 	m_layout = 0;
@@ -176,19 +177,21 @@ void ShaderSkybox::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 }
 
 
+struct OneMatBuffer
+{
+	SMatrix mat;
+};
+
 bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	SMatrix* dataPtr;
-
-	SMatrix fake = SMatrix::CreateTranslation(c.GetCameraMatrix().Translation());
-
-	SMatrix mT = fake.Transpose();
+	OneMatBuffer* dataPtr;
 
 	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	dataPtr = (SMatrix*)mappedResource.pData;
-	memcpy(dataPtr, &mT, sizeof(SMatrix));
+	dataPtr = (OneMatBuffer*)mappedResource.pData;
+	//memcpy(dataPtr, &mT, sizeof(SMatrix));
+	dataPtr->mat = SMatrix::CreateTranslation(c.GetCameraMatrix().Translation()).Transpose();
 	deviceContext->Unmap(m_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);
 

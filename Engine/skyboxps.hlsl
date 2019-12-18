@@ -1,15 +1,12 @@
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float3 texCoord : TEXCOORD;
     float3 normal : NORMAL;
 };
 
-TextureCube cubeMapTexture;
-SamplerState Sampler;
-
-
-
-
+TextureCube cubeMapTexture : register(t0);
+SamplerState Sampler : register(s0);
 
 
 

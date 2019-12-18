@@ -75,8 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x86;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(SolutionDir)Deps\libs;$(DXSDK_DIR)Lib\x86;$(SolutionDir)Deps\Ozz\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs;$(DXSDK_DIR)Lib\x64;$(SolutionDir)Deps\Ozz\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -125,7 +125,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(WindowsSDK_LibraryPath_x86);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(WindowsSDK_LibraryPath_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp.lib;d3dcompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

@@ -52,11 +52,14 @@ void TDLevel::init(Systems& sys)
 	VertexShader* vs = new VertexShader(_sys._shaderCompiler, L"lightvs.hlsl", inLayout, { matrixBufferDesc });
 	PixelShader* ps = new PixelShader(_sys._shaderCompiler, L"lightps.hlsl", sbSamplerDesc, { lightBufferDesc });
 
-	//make this happen during construction, if possible
+	//make this happen during construction, if possible...need to load from files tbh
 	CBufferMeta meta(0, sizeof(SMatrix));
 	meta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix)));
-
 	vs->describeBuffers({ meta });
+
+	CBufferMeta psmeta(0, sizeof(LightBuffer));
+	psmeta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer)));
+	ps->describeBuffers({ psmeta });
 
 	creepMat.opaque = true;
 	creepMat.setVS(vs);
@@ -119,7 +122,6 @@ void TDLevel::update(const RenderContext& rc)
 #endif
 
 	ProcessSpecialInput(rc.dTime);
-	updateCam(rc.dTime);
 
 	//this seems...unnecessarily slow, but i can't rely on pointing back
 	for (const Actor& creep : creeps)
@@ -172,7 +174,8 @@ void TDLevel::update(const RenderContext& rc)
 	const SMatrix v = rc.cam->GetViewMatrix();
 	const SVec3 v3c(v._13, v._23, v._33);
 	const SVec3 camPos = rc.cam->GetPosition();
-
+	
+	
 	for (int i = 0; i < creeps.size(); ++i)
 	{
 		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
@@ -190,6 +193,7 @@ void TDLevel::update(const RenderContext& rc)
 			numCulled++;
 		}
 	}
+	
 }
 
 
@@ -199,11 +203,9 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 
-	/*
 	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 	floorModel.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
-	*/
 
 #ifdef DEBUG_OCTREE
 	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
@@ -211,26 +213,27 @@ void TDLevel::draw(const RenderContext& rc)
 	shady.instanced.ReleaseShaderParameters(context);
 #endif
 
-	std::vector<GuiElement> guiElems = 
-	{ 
+	
+	randy.sortRenderQueue();
+	randy.flushRenderQueue();
+	randy.clearRenderQueue();
+	
+	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
+
+	std::vector<GuiElement> guiElems =
+	{
 		{"Octree", std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
 		{"FPS", std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
 	renderGuiElems(guiElems);
-	
-	randy.sortRenderQueue();
-	randy.flushRenderQueue();
-	randy.clearRenderQueue();
-
-	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	rc.d3d->EndScene();
 }
 
 
 
-/* old sphere placement, I quite like it
+/* old sphere placement, it's here because it's rad
 for (int i = 0; i < 125; ++i)
 {
 	SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f + SVec3(5.f);

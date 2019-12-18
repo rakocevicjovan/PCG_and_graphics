@@ -23,7 +23,6 @@ private:
 
 	//unlike loaded models in the manager, these will be generated
 	Model floorModel;
-	Model debugModel;
 
 	PointLight pLight;
 	
@@ -34,8 +33,10 @@ private:
 	SRay ray;
 	int numCulled;
 
+	Material creepMat;
+
+	//octree meshes
+	Model debugModel;
 	std::vector<AABB> tempBoxes;
 	std::vector<InstanceData> octNodeMatrices;
-
-	Material creepMat;
 };

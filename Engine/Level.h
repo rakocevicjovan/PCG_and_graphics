@@ -41,6 +41,7 @@ public:
 	Level(Systems& sys);
 	virtual ~Level() {};
 	
+	//@WARNING THIS HAPPENS AUTOMATICALLY IN RENDERER ANYWAYS!!!
 	void updateCam(float dTime) { randy._cam.Update(randy.rc.dTime); }
 
 	void ProcessSpecialInput(float dTime);

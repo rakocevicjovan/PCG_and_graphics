@@ -173,6 +173,9 @@ void Systems::Run()
 
 bool Systems::Frame(float dTime)
 {
+	if (_inputManager.isKeyDown(VK_ESCAPE))
+		return false;
+
 	if (!_renderer.Frame(dTime, &_inputManager))
 		return false;
 
@@ -184,12 +187,7 @@ bool Systems::Frame(float dTime)
 
 	_inputManager.queryMouse();
 
-	if (_inputManager.isKeyDown(VK_ESCAPE))
-		return false;
-
 	_inputManager.setRelativeXY(0, 0);
-
-	//OutputFPS(dTime);
 
 	return true;
 }

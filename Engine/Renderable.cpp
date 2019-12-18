@@ -15,4 +15,16 @@ void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
 			}
 		}
 	}
+
+	for (int i = 0; i < mat->getPS()->_bufferMetaData.size(); i++)
+	{
+
+		for (const CBufferFieldDesc& cbfd : mat->getPS()->_bufferMetaData[i]._fields)
+		{
+			if (cbfd._content == CBUFFER_FIELD_CONTENT::P_LIGHT)
+			{
+				CBuffer::updateBuffer(cont, mat->getPS()->_cbuffers[i], (UCHAR*)this->pLight, cbfd._size, cbfd._offset);
+			}
+		}
+	}
 }

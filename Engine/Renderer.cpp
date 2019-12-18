@@ -77,6 +77,7 @@ bool Renderer::Frame(float dTime, InputManager* inMan)
 	elapsed += dTime;
 	
 	bool res = UpdateRenderContext(dTime);
+	_cam.Update(dTime);
 
 	updatePerFrameBuffer(dTime);
 

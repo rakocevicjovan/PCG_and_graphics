@@ -34,7 +34,6 @@ struct PixelInputType
 
 PixelInputType main(VertexInputType input)
 {
-
 	PixelInputType output;
 
 	output.position = mul(input.position, worldMatrix);
