@@ -30,7 +30,7 @@ public:
 
 
 
-	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout)
+	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 	{
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
@@ -63,7 +63,7 @@ public:
 
 
 
-	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader)
+	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader) const
 	{
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
@@ -87,7 +87,7 @@ public:
 
 
 
-	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader)
+	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const
 	{
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
@@ -165,7 +165,7 @@ public:
 
 
 
-	bool createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState)
+	bool createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState) const
 	{
 		if (FAILED(_device->CreateSamplerState(&samplerDesc, &sampleState)))
 		{
@@ -197,7 +197,7 @@ public:
 
 
 
-	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
+	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer) const
 	{
 		if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))
 		{
@@ -209,14 +209,11 @@ public:
 
 
 
-	void createMaterial()
-	{
-
-	}
+	ID3D11Device* getDevice() const { return _device; }
 
 private:
 
-	void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename, const std::wstring& filePath)
+	void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename, const std::wstring& filePath) const
 	{
 		if (!errorMessage)
 		{

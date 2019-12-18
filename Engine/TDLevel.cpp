@@ -49,18 +49,14 @@ void TDLevel::init(Systems& sys)
 	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
 		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
 
-	VertexShader* vs = new VertexShader();
-	PixelShader* ps = new PixelShader();
+	VertexShader* vs = new VertexShader(_sys._shaderCompiler, L"lightvs.hlsl", inLayout, { matrixBufferDesc });
+	PixelShader* ps = new PixelShader(_sys._shaderCompiler, L"lightps.hlsl", sbSamplerDesc, { lightBufferDesc });
 
-	_sys._shaderCompiler.compileVS(L"lightvs.hlsl", inLayout, vs->_vShader, vs->_layout);
-	vs->_cbuffers.resize(1);
-	_sys._shaderCompiler.createConstantBuffer(matrixBufferDesc, vs->_cbuffers[0]);
+	//make this happen during construction, if possible
+	CBufferMeta meta(0, sizeof(SMatrix));
+	meta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix)));
 
-	_sys._shaderCompiler.compilePS(L"lightps.hlsl", ps->_pShader);
-	ps->_cbuffers.resize(1);
-	_sys._shaderCompiler.createConstantBuffer(lightBufferDesc, ps->_cbuffers[0]);
-
-	_sys._shaderCompiler.createSamplerState(sbSamplerDesc, ps->_sState);
+	vs->describeBuffers({ meta });
 
 	creepMat.opaque = true;
 	creepMat.setVS(vs);
@@ -203,11 +199,11 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 
+	/*
 	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
 	floorModel.Draw(context, shady.light);
 	shady.light.ReleaseShaderParameters(context);
-
-	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
+	*/
 
 #ifdef DEBUG_OCTREE
 	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
@@ -226,6 +222,8 @@ void TDLevel::draw(const RenderContext& rc)
 	randy.sortRenderQueue();
 	randy.flushRenderQueue();
 	randy.clearRenderQueue();
+
+	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	rc.d3d->EndScene();
 }

@@ -1,26 +1,20 @@
 #pragma once
 #include "Texture.h"
 #include "ShaderManager.h"
-
-
-
-class Shader;
-class VertexShader;
-class PixelShader;
+#include "Shader.h"
 
 
 
 class Material
 {
 protected:
+	//most important sorting criteria
 	VertexShader* _vertexShader;
 	PixelShader* _pixelShader;
 
 public:
 	//determines whether it goes to the transparent or opaque queue... different sorting
 	bool opaque;
-
-	//most important sorting criteria
 
 	//second most important sorting criteria
 	std::vector<Texture*> textures;

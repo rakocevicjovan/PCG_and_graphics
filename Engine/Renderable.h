@@ -1,5 +1,7 @@
 #pragma once
 #include "Model.h"
+#include "Material.h"
+#include "Shader.h"
 
 class Renderable
 {
@@ -15,8 +17,22 @@ public:
 	PointLight* pLight;
 	float zDepth;
 
+	unsigned char* cbufferdata;
+
 	Renderable(Mesh& mesh) : mesh(&mesh), mat(mesh.baseMaterial)
 	{
+	}
+
+
+
+	void updateBuffersAuto(ID3D11DeviceContext* cont) const;
+
+
+
+	inline void setBuffers(ID3D11DeviceContext* dc) const
+	{
+		mat->getVS()->setBuffers(dc);
+		mat->getPS()->setBuffers(dc);
 	}
 
 

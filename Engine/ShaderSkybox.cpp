@@ -179,7 +179,6 @@ void ShaderSkybox::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd,
 bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& c, float deltaTime, ID3D11ShaderResourceView* tex)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	unsigned int bufferNumber = 0;
 	SMatrix* dataPtr;
 
 	SMatrix fake = SMatrix::CreateTranslation(c.GetCameraMatrix().Translation());
@@ -191,7 +190,7 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr = (SMatrix*)mappedResource.pData;
 	memcpy(dataPtr, &mT, sizeof(SMatrix));
 	deviceContext->Unmap(m_matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);
 
 	deviceContext->IASetInputLayout(m_layout);
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);

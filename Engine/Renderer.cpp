@@ -207,6 +207,10 @@ void Renderer::render(const Renderable& r)
 	//r.mat->getVS()->populateBuffers(_deviceContext, r.worldTransform);
 	//r.mat->getPS()->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
 
+	//set cbuffers
+	r.updateBuffersAuto(_deviceContext);
+	r.setBuffers(_deviceContext);
+
 	//set shaders and similar geebees
 	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
 	_deviceContext->VSSetShader(r.mat->getVS()->_vShader, NULL, 0);

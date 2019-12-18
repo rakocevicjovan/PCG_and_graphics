@@ -11,7 +11,6 @@ cbuffer PerFrameBuffer : register(b11)
 	float2 padding;
 };
 
-
 cbuffer MatrixBuffer : register(b0)
 {
 	matrix worldMatrix;
