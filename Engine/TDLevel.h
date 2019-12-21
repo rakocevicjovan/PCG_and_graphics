@@ -30,8 +30,10 @@ private:
 	//unlike loaded models in the manager, these will be generated
 	Procedural::Terrain terrain;
 	Model floorModel;
-
 	NavGrid _navGrid;
+	//Model boxModel;
+	//Actor box;
+	float mspeed = 10.f;
 
 	PointLight pLight;
 	

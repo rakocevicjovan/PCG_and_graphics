@@ -709,6 +709,9 @@
     <ClInclude Include="NavGraphTypes.h">
       <Filter>AI\Pathfinding</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialCache.h">
+      <Filter>Rendering\AAANow do it properly\Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

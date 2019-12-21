@@ -310,6 +310,7 @@
     <ClInclude Include="Lillies.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MaterialCache.h" />
     <ClInclude Include="Maze.h" />
     <ClInclude Include="NavGraphTypes.h" />
     <ClInclude Include="NavGrid.h" />

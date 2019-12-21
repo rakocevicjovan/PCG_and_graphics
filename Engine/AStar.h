@@ -80,7 +80,7 @@ public:
 
 		int curNodeIndex = goalIndex;
 
-		while (curNodeIndex > 0)
+		while (curNodeIndex > -1)
 		{
 			visitNode(nodes, edges, curNodeIndex, goalIndex);
 

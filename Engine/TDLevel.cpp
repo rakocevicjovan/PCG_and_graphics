@@ -29,9 +29,10 @@ void TDLevel::init(Systems& sys)
 	_oct.init(AABB(SVec3(), SVec3(tSize * .5)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
 	_oct.prellocateRootOnly();						//_oct.preallocateTree();	
 
-	_navGrid = NavGrid(10, 10, SVec2(25.f), terrain.getOffset());
+	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.populate();
-	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, 5);
+	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, 0);
+	_navGrid.fillFlowField();
 
 
 	//@TODO MOVE OUTTA HERE REEEE
@@ -92,6 +93,15 @@ void TDLevel::init(Systems& sys)
 		_oct.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
 	}
 
+	/*
+	Procedural::Geometry g;
+	g.GenBox(SVec3(_navGrid.getCellSize().x, 1, _navGrid.getCellSize().y));
+	boxModel.meshes.push_back(Mesh(g, S_DEVICE, true, false));
+	box = Actor(SMatrix(), &boxModel);
+	box.renderables[0].mat = &creepMat;
+	box.renderables[0].pLight = &pLight;
+	*/
+
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g;
 	g.GenBox(SVec3(1));
@@ -145,6 +155,8 @@ void TDLevel::update(const RenderContext& rc)
 
 	for (int i = 0; i < creeps.size(); ++i)
 	{
+		SVec3 flowOffset = _navGrid._cells[_navGrid.posToCell(creeps[i].getPosition())]._direction;
+		Math::Translate(creeps[i].transform, flowOffset * mspeed * rc.dTime);
 		creeps[i].propagate();
 		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
 		float intervalPassed = fmod(rc.elapsed * 5.f + i * 2.f, 10.f);
@@ -164,13 +176,17 @@ void TDLevel::update(const RenderContext& rc)
 
 		for (int i = 0; i < creeps.size(); ++i)
 		{
-			float t;
-			SVec3 ip;
 			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
 			{
 				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
 			}
 		}
+
+		SVec3 floorIntersect;
+		ray.direction *= 500.f;
+		Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), floorIntersect);
+
+		//box.transform = SMatrix::CreateTranslation(floorIntersect);
 	}
 
 
@@ -199,7 +215,6 @@ void TDLevel::update(const RenderContext& rc)
 			numCulled++;
 		}
 	}
-	
 }
 
 
@@ -226,10 +241,18 @@ void TDLevel::draw(const RenderContext& rc)
 	
 	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
+	/*
+	for (int i = 0; i < _navGrid._cells.size(); i++)
+	{
+		box.renderables[0].worldTransform = SMatrix::CreateTranslation(_navGrid.cellIndexToPos(i));
+		randy.render(box.renderables[0]);
+	}
+	*/
+
 	std::vector<GuiElement> guiElems =
 	{
-		{"Octree", std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
-		{"FPS", std::string("FPS: " + std::to_string(1 / rc.dTime))},
+		{"Octree",	std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
+		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
 	renderGuiElems(guiElems);

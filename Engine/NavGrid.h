@@ -17,7 +17,7 @@ class NavGrid
 private:
 	int _w, _h;
 	float _fw, _fh;
-	SVec2 _cellSize;
+	SVec2 _cellSize, _invCellSize;
 	SVec3 _offset;
 
 public:
@@ -36,7 +36,9 @@ public:
 		_fw = _w * _cellSize.x;
 		_fh = _h * _cellSize.y;
 
-		_cells.reserve(_w * _h);
+		_invCellSize = SVec2(1.f / _cellSize.x, 1.f / _cellSize.y);
+
+		_cells.resize(_w * _h);
 		_edges.reserve(2 * _w * _h - _w - _h);
 
 		//_cells.resize(_w * _h);
@@ -50,10 +52,13 @@ public:
 	}
 
 
-	void NavGrid::createEdges()
+	//this is a naive implementation that simply adds all edges, does not check for obstacles
+	void NavGrid::populate()
 	{
 		//create and connect edges...
 		int thisCell = 0, neighbour = 0, edgeCount = 0;
+
+		float diagonalWeight = sqrt(2);
 
 		//wastes some but likely faster... this could fragment a lot though as _cells is a vector...
 		//should use a std::array<int, 4> instead, should be much much better performance wise
@@ -64,10 +69,11 @@ public:
 		{
 			for (int j = 0; j < _w; j++)
 			{
+				thisCell = i * _w + j;
+
 				//right edge
 				if (j != _w - 1)
 				{
-					thisCell = i * _w + _h;
 					neighbour = thisCell + 1;
 
 					_edges.emplace_back(thisCell, neighbour);
@@ -80,7 +86,6 @@ public:
 				//top edge
 				if (i != _h - 1)
 				{
-					thisCell = i * _w + _h;
 					neighbour = thisCell + _w;
 
 					_edges.emplace_back(thisCell, neighbour);
@@ -89,10 +94,72 @@ public:
 					_cells[thisCell].edges.push_back(edgeCount - 1);
 					_cells[neighbour].edges.push_back(edgeCount - 1);
 				}
+
+				//top right diagonal edge
+				if (i != _h - 1 && j != _w - 1)
+				{
+					neighbour = thisCell + _w + 1;
+
+					_edges.emplace_back(thisCell, neighbour, diagonalWeight);
+					edgeCount++;
+
+					_cells[thisCell].edges.push_back(edgeCount - 1);
+					_cells[neighbour].edges.push_back(edgeCount - 1);
+
+				}
 			}
 		}
-
-
-
 	}
+
+
+	void NavGrid::fillFlowField()
+	{
+		for (int i = 0; i < _cells.size(); ++i)
+		{
+			SVec3 myPos = cellIndexToPos(i);
+			float minPathCost = (std::numeric_limits<float>::max)();
+
+			for (int j = 0; j < _cells[i].edges.size(); ++j)
+			{
+				const NavEdge& edge = _edges[_cells[i].edges[j]];
+				int nIndex = edge.first == i ? edge.last : edge.first;
+				const NavCell& neighbour = _cells[nIndex];
+				float curPathCost = neighbour.pathWeight;
+
+				if (neighbour.pathWeight < minPathCost)
+				{
+					minPathCost = neighbour.pathWeight;
+					_cells[i]._direction = cellIndexToPos(nIndex) - myPos;
+					_cells[i]._direction.Normalize();
+				}
+
+			}
+		}
+	}
+
+
+
+	int posToCell(SVec3 pos)
+	{
+		SVec3 offsetFromGrid = pos - _offset;
+		int row = floor(offsetFromGrid.z * _invCellSize.y);
+		int column = floor(offsetFromGrid.x * _invCellSize.x);
+		return row * _w + column;
+	}
+
+
+	SVec3 cellIndexToPos(int i)
+	{
+		int row = i % _w;
+		int column = floor(i / _w);
+
+		SVec3 posInGrid(row * _cellSize.x, 0, column * _cellSize.y);
+		SVec3 cellCenterOffset(_cellSize.x * .5f, 0, _cellSize.y * .5f);
+
+		return _offset + posInGrid + cellCenterOffset;
+	}
+
+
+	SVec2 getCellSize() { return _cellSize; }
+
 };
