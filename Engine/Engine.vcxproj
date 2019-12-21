@@ -311,6 +311,7 @@
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Maze.h" />
+    <ClInclude Include="NavGraphTypes.h" />
     <ClInclude Include="NavGrid.h" />
     <ClInclude Include="NavMesh.h" />
     <ClInclude Include="Observer.h" />

@@ -706,6 +706,9 @@
     <ClInclude Include="RenderQueue.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="NavGraphTypes.h">
+      <Filter>AI\Pathfinding</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

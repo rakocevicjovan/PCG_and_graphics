@@ -5,6 +5,8 @@
 #include "Light.h"
 #include "SceneGraph.h"
 #include "Octree.h"
+#include "NavGrid.h"
+#include "AStar.h"
 
 class TDLevel : public Level
 {
@@ -28,6 +30,8 @@ private:
 	//unlike loaded models in the manager, these will be generated
 	Procedural::Terrain terrain;
 	Model floorModel;
+
+	NavGrid _navGrid;
 
 	PointLight pLight;
 	

@@ -8,7 +8,8 @@ template <float (*calcHeuristic)(const NavNode& a, const NavNode& b)>
 class AStar
 {
 private:
-	static void prepareGraph(std::vector<NavNode>& nodes, int goalIndex)
+	template <typename NavNodeType>
+	static void prepareGraph(std::vector<NavNodeType>& nodes, int goalIndex)
 	{
 		for (auto& node : nodes)
 		{
@@ -16,27 +17,26 @@ private:
 			node.visited = false;
 			node.pathPredecessor = -1;
 		}
-
 		nodes[goalIndex].pathWeight = 0;
 	}
 
 
-
-	static int getNeighbourIndex(const NavEdge& edge, int myIndex)
+	template <typename NavEdgeType>
+	static int getNeighbourIndex(const NavEdgeType& edge, int myIndex)
 	{
 		return edge.first == myIndex ? edge.last : edge.first;
 	}
 
 
-
-	static void visitNeighbours(std::vector<NavNode>& nodes, const std::vector<NavEdge>& edges, int curNodeIndex, int goalIndex)
+	template <typename NavNodeType, typename NavEdgeType>
+	static void visitNeighbours(std::vector<NavNodeType>& nodes, const std::vector<NavEdgeType>& edges, int curNodeIndex, int goalIndex)
 	{
-		NavNode& curNode = nodes[curNodeIndex];
+		NavNodeType& curNode = nodes[curNodeIndex];
 
 		for (int edgeIndex : curNode.edges)	//check all neighbours
 		{
-			const NavEdge& curEdge = edges[edgeIndex];							//by iterating through edges
-			NavNode& curNbr = nodes[getNeighbourIndex(curEdge, curNodeIndex)];	//and getting the node that isn't curNode
+			const NavEdgeType& curEdge = edges[edgeIndex];							//by iterating through edges
+			NavNodeType& curNbr = nodes[getNeighbourIndex(curEdge, curNodeIndex)];	//and getting the node that isn't curNode
 
 			if (curNbr.visited)	//ignore the previously visited nodes!
 				continue;
@@ -57,8 +57,8 @@ private:
 	}
 
 
-
-	inline static void visitNode(std::vector<NavNode>& nodes, std::vector<NavEdge>& edges, int navNodeIndex, int goalIndex)
+	template <typename NavNodeType, typename NavEdgeType>
+	inline static void visitNode(std::vector<NavNodeType>& nodes, std::vector<NavEdgeType>& edges, int navNodeIndex, int goalIndex)
 	{
 		visitNeighbours(nodes, edges, navNodeIndex, goalIndex);
 		nodes[navNodeIndex].visited = true;
@@ -72,7 +72,9 @@ private:
 	}
 
 public:
-	static void fillGraph(std::vector<NavNode>& nodes, std::vector<NavEdge>& edges, int goalIndex)
+
+	template <typename NavNodeType, typename NavEdgeType>
+	static void fillGraph(std::vector<NavNodeType>& nodes, std::vector<NavEdgeType>& edges, int goalIndex)
 	{
 		prepareGraph(nodes, goalIndex);
 

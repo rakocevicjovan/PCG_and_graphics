@@ -29,7 +29,9 @@ void TDLevel::init(Systems& sys)
 	_oct.init(AABB(SVec3(), SVec3(tSize * .5)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
 	_oct.prellocateRootOnly();						//_oct.preallocateTree();	
 
-
+	_navGrid = NavGrid(10, 10, SVec2(25.f), terrain.getOffset());
+	_navGrid.populate();
+	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, 5);
 
 
 	//@TODO MOVE OUTTA HERE REEEE
@@ -93,7 +95,7 @@ void TDLevel::init(Systems& sys)
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g;
 	g.GenBox(SVec3(1));
-	debugModel.meshes.push_back(Mesh(g, device));
+	debugModel.meshes.push_back(Mesh(g, S_DEVICE));
 	tempBoxes.reserve(1000);
 	octNodeMatrices.reserve(1000);
 #endif
@@ -145,7 +147,7 @@ void TDLevel::update(const RenderContext& rc)
 	{
 		creeps[i].propagate();
 		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
-		float intervalPassed = fmod(rc.elapsed + i, 10.f);
+		float intervalPassed = fmod(rc.elapsed * 5.f + i * 2.f, 10.f);
 		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
 		Math::setHeight(creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
 	}
