@@ -88,7 +88,7 @@ void EarthLevel::draw(const RenderContext& rc)
 	maze.model.Draw(context, rc.shMan->dynamicHeightMaze);
 	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(context);
 	
-	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	rc.d3d->EndScene();
 

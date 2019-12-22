@@ -19,8 +19,8 @@ public:
 	Collider* _collider;	//points to the collider, but does not own it
 
 	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const = 0;
-	virtual SVec3 getPosition() const = 0;
-	virtual void setPosition(const SVec3& newPos) = 0;
+	inline virtual SVec3 getPosition() const = 0;
+	inline virtual void setPosition(const SVec3& newPos) = 0;
 };
 
 
@@ -43,7 +43,7 @@ public:
 	HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
 
 
-	SVec3 getPosition() const override
+	inline SVec3 getPosition() const override
 	{
 		return SVec3(minPoint + maxPoint) * 0.5f;
 	}
@@ -66,8 +66,8 @@ public:
 
 	std::vector<SPlane> getPlanes() const;
 
-	SVec3 getHalfSize() const { return ((maxPoint - minPoint) * 0.5f); }
-	SVec3 getSize() const { return maxPoint - minPoint; }
+	inline SVec3 getHalfSize() const { return ((maxPoint - minPoint) * 0.5f); }
+	inline SVec3 getSize() const { return maxPoint - minPoint; }
 };
 
 
@@ -82,6 +82,6 @@ public:
 	SphereHull(const SVec3& pos, float rad) : ctr(pos), r(rad) {};
 
 	HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
-	SVec3 getPosition() const override { return ctr; }
-	void setPosition(const SVec3& newPos) override { ctr = newPos; }
+	inline SVec3 getPosition() const override { return ctr; }
+	inline void setPosition(const SVec3& newPos) override { ctr = newPos; }
 };

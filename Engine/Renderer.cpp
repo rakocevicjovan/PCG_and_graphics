@@ -7,9 +7,6 @@
 
 Renderer::Renderer()
 {
-	//sAlloc.init(sizeof(Renderable) * MAX_RENDERABLES);
-	opaques.reserve(MAX_OPAQUES);
-	transparents.reserve(MAX_TRANSPARENTS);
 }
 
 
@@ -18,7 +15,7 @@ Renderer::~Renderer() {}
 
 
 
-bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d, Controller& ctrl)
+bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d, Controller& ctrl)
 {
 	_d3d = &d3d;
 	_resMan = &resMan;
@@ -30,9 +27,9 @@ bool Renderer::Initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 
 	// Setup the projection matrix.
 	_fieldOfView = PI / 3.0f;
-	_screenAspect = (float)windowWidth / (float)windowHeight;
+	_aspectRatio = (float)windowWidth / (float)windowHeight;
 
-	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _screenAspect, SCREEN_NEAR, SCREEN_DEPTH));
+	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _aspectRatio, SCREEN_NEAR, SCREEN_DEPTH));
 	_cam._controller = &ctrl;
 
 	createGlobalBuffers();
@@ -72,11 +69,11 @@ bool Renderer::createGlobalBuffers()
 
 
 
-bool Renderer::Frame(float dTime, InputManager* inMan)
+bool Renderer::frame(float dTime, InputManager* inMan)
 {
 	elapsed += dTime;
 	
-	bool res = UpdateRenderContext(dTime);
+	bool res = updateRenderContext(dTime);
 	_cam.Update(dTime);
 
 	updatePerFrameBuffer(dTime);
@@ -115,7 +112,7 @@ void Renderer::setCameraMatrix(const SMatrix& camMatrix)
 
 
 
-bool Renderer::UpdateRenderContext(float dTime)
+bool Renderer::updateRenderContext(float dTime)
 {
 	rc.cam = &_cam;
 	rc.d3d = _d3d;
@@ -128,21 +125,21 @@ bool Renderer::UpdateRenderContext(float dTime)
 
 
 
-void Renderer::SetOSTRenderTarget(OST& ost)
+void Renderer::setOSTRenderTarget(OST& ost)
 {
 	ost.SetRenderTarget(_deviceContext);
 }
 
 
 
-void Renderer::RevertRenderTarget()
+void Renderer::setDefaultRenderTarget()
 {
 	_d3d->SetBackBufferRenderTarget();
 }
 
 
 
-void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper) 
+void Renderer::renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper) 
 {
 	_d3d->setRSSolidNoCull();
 	_d3d->SwitchDepthToLessEquals();
@@ -155,58 +152,22 @@ void Renderer::RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& 
 
 
 
-void Renderer::addToRenderQueue(const Renderable& renderable)
-{
-	if (renderable.mat->opaque)
-		opaques.push_back(renderable);	//stack allocator could work, or just reserving... not sure really
-	else
-		transparents.push_back(renderable);
-}
-
-
-
-void Renderer::clearRenderQueue()
-{
-	opaques.clear();	//qKeys.clear();
-	transparents.clear();
-}
-
-
-
-void Renderer::sortRenderQueue()
-{
-	std::sort(opaques.begin(), opaques.end());	//determine how to sort by overloading < for renderable
-	std::sort(transparents.begin(), transparents.end());
-}
-
-
-
 void Renderer::flushRenderQueue()
 {	
-	for (const auto& r : opaques)
-	{
+	for (const auto& r : _rQue.opaques)
 		render(r);
-	}
 
-	for (const auto& r : transparents)
-	{
+	for (const auto& r : _rQue.transparents)
 		render(r);
-	}
 }
 
 
 
-//mind all the pointers this can fail spectacularly if anything relocates...
+//mind all the pointers, this can fail spectacularly if anything relocates...
 void Renderer::render(const Renderable& r)
 {
-	//all these updates still have a cost, even if they were the same, so we must avoid that, assisted by sorting
-	//2500 draws drop fps to ~30 fps when only setting the state once, to ~20 when every time even if same
 	unsigned int stride = r.mat->stride;
 	unsigned int offset = r.mat->offset;
-
-	//update cbuffers - making this data driven currently, rendering will not work until then...
-	//r.mat->getVS()->populateBuffers(_deviceContext, r.worldTransform);
-	//r.mat->getPS()->populateBuffers(_deviceContext, *r.pLight, rc.cam->GetPosition());
 
 	//set cbuffers
 	r.updateBuffersAuto(_deviceContext);
@@ -231,36 +192,3 @@ void Renderer::render(const Renderable& r)
 
 	_deviceContext->DrawIndexed(r.mesh->indexCount, 0, 0);
 }
-
-
-
-
-
-
-
-
-
-
-
-#pragma region yeOldeThings
-/*
-///PROJECT TEXTURE
-SMatrix texView = DirectX::XMMatrixLookAtLH(SVec3(0.0f, 0.0f, -1.0f), SVec3(0.0f, 0.0f, 0.0f), SVec3::Up);
-texProjector.SetShaderParameters(_deviceContext, modTerrain, cam.GetViewMatrix(), cam.GetViewMatrix(), cam.GetProjectionMatrix(),
-							cam.GetProjectionMatrix(), _lights[0], cam.GetCameraMatrix().Translation(), dTime, offScreenTexture.baseSrv);
-modTerrain.Draw(_deviceContext, texProjector);
-texProjector.ReleaseShaderParameters(_deviceContext);
-
-///RENDERING DEPTH TEXTURE
-_deviceContext->RSSetViewports(1, &altViewport);	//to the shadow texture viewport
-_deviceContext->OMSetRenderTargets(1, &(offScreenTexture.rtv), _D3D->GetDepthStencilView());	//switch to drawing on ost for the prepass	
-_deviceContext->ClearRenderTargetView(offScreenTexture.rtv, ccb);	//then clear it, both the colours and the depth-stencil buffer
-_deviceContext->ClearDepthStencilView(_D3D->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-for (auto tm : _terrainModels) {
-	depth.SetShaderParameters(_deviceContext, *tm, offScreenTexture._view, offScreenTexture._lens);
-	tm->Draw(_deviceContext, depth);
-}
-*/
-
-#pragma endregion yeOldeThings

@@ -328,6 +328,8 @@
     <ClInclude Include="ProjectPickerLevel.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="RenderQueue.h" />
+    <ClInclude Include="RenderState.h" />
+    <ClInclude Include="RenderStateManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SceneGraph.h" />
@@ -356,10 +358,11 @@
     <ClInclude Include="ShaderShadow.h" />
     <ClInclude Include="ShaderSkybox.h" />
     <ClInclude Include="ShaderStrife.h" />
-    <ClInclude Include="ShMan.h" />
+    <ClInclude Include="ShaderCache.h" />
     <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="StackAllocator.h" />
+    <ClInclude Include="Steering.h" />
     <ClInclude Include="StrifeLevel.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="TDLevel.h" />

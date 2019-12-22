@@ -17,7 +17,7 @@ namespace Strife
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f
 		screenQuad.meshes.push_back(scrQuadMesh);
 
-		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy._screenAspect, 1.f, 1000.f));
+		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy.getAR(), 1.f, 1000.f));
 
 		//32000.f in lux but that doesn't work... not sure how to do any of this
 		LightData lightData(SVec3(1.f, 1.f, 1.f), 1.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);

@@ -138,7 +138,7 @@ void AirLevel::draw(const RenderContext& rc)
 	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, player.cam, pointLight, rc.dTime);
 	barrens.Draw(context, shady.terrainMultiTex);
 
-	randy.RenderSkybox(player.cam, skybox, skyboxCubeMapper);
+	randy.renderSkybox(player.cam, skybox, skyboxCubeMapper);
 
 	_sys._D3D.TurnOnAlphaBlending();
 

@@ -149,14 +149,14 @@ void WaterLevel::draw(const RenderContext& rc)
 		rc.shMan->light.ReleaseShaderParameters(context);
 
 
-		randy.RenderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
+		randy.renderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
 	}
 	updateReflectionRefraction(rc, *rc.cam);
 #pragma endregion reflectionRendering
 
 
 	///scene
-	randy.RevertRenderTarget();
+	randy.setDefaultRenderTarget();
 
 	//lsystems
 	rc.shMan->light.SetShaderParameters(context, flowerModel.transform, *rc.cam, pointLight, rc.elapsed);
@@ -195,7 +195,7 @@ void WaterLevel::draw(const RenderContext& rc)
 
 
 	//SKYBOX
-	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	//water fairy
 	rc.d3d->TurnOnAlphaBlending();

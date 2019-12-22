@@ -22,10 +22,6 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{30545b6b-263a-437f-a810-47a6a9253992}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Other">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{527b4072-18fc-437c-968c-41405c35f43c}</UniqueIdentifier>
     </Filter>
@@ -104,6 +100,19 @@
     </Filter>
     <Filter Include="Game levels\Water">
       <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI\Steering">
+      <UniqueIdentifier>{fb52adb5-581e-43f4-837f-315408e6648f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\AAANow do it properly\Shaders">
+      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main systems">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{8cf5dbd4-d5b0-4454-a8b8-1549fab81550}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -288,28 +297,28 @@
       <Filter>Game levels\TowerDefense</Filter>
     </ClCompile>
     <ClCompile Include="Audio.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="Chaos.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="GameClock.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="Math.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="Systems.cpp">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
       <Filter>Resources</Filter>
@@ -347,9 +356,6 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>Rendering\AAANow do it properly</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Rendering\AAANow do it properly</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Rendering\Lights</Filter>
     </ClCompile>
@@ -374,28 +380,31 @@
     <ClCompile Include="RenderQueue.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Systems.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Controller.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="GameClock.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Perlin.h">
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="Chaos.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Procedural</Filter>
@@ -452,7 +461,7 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="Audio.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
       <Filter>Rendering\MaterialsOLD</Filter>
@@ -605,7 +614,7 @@
       <Filter>Game levels\TowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="FileUtilities.h">
-      <Filter>Other</Filter>
+      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPicker.h">
       <Filter>Resources</Filter>
@@ -649,9 +658,6 @@
     <ClInclude Include="ScreenSpaceDrawer.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderCompiler.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
-    </ClInclude>
     <ClInclude Include="AStar.h">
       <Filter>AI\Pathfinding</Filter>
     </ClInclude>
@@ -664,19 +670,10 @@
     <ClInclude Include="Picker.h">
       <Filter>Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Observer.h">
-      <Filter>Other</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
-    </ClInclude>
-    <ClInclude Include="ShMan.h">
       <Filter>Rendering\AAANow do it properly</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
@@ -687,9 +684,6 @@
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Rendering\AAANow do it properly\Materials</Filter>
-    </ClInclude>
-    <ClInclude Include="CBuffer.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Scene management</Filter>
@@ -711,6 +705,30 @@
     </ClInclude>
     <ClInclude Include="MaterialCache.h">
       <Filter>Rendering\AAANow do it properly\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="Steering.h">
+      <Filter>AI\Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="CBuffer.h">
+      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCompiler.h">
+      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCache.h">
+      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Observer.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderStateManager.h">
+      <Filter>Rendering\AAANow do it properly</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderState.h">
+      <Filter>Rendering\AAANow do it properly</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

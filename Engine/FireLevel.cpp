@@ -159,7 +159,7 @@ void FireLevel::draw(const RenderContext& rc)
 	shady.normalMapper.SetShaderParameters(context, tree, *rc.cam, pointLight, rc.dTime, tree.textures_loaded[0], tree.textures_loaded[1]);
 	tree.Draw(context, shady.normalMapper);
 
-	randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	randy.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	//transparent items
 	rc.d3d->TurnOnAlphaBlending();

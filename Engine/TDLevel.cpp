@@ -26,7 +26,7 @@ void TDLevel::init(Systems& sys)
 	terrain.SetUp(S_DEVICE);
 	floorModel = Model(terrain, S_DEVICE);
 
-	_oct.init(AABB(SVec3(), SVec3(tSize * .5)), 3);	//with depth 5 it is reaaallly big... probably not worth it for my game
+	_oct.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it is reaaallly big... probably not worth it for my game
 	_oct.prellocateRootOnly();						//_oct.preallocateTree();	
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
@@ -155,7 +155,7 @@ void TDLevel::update(const RenderContext& rc)
 
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		SVec3 flowOffset = _navGrid._cells[_navGrid.posToCell(creeps[i].getPosition())]._direction;
+		SVec3 flowOffset = _navGrid.flowAtPosition(creeps[i].getPosition());
 		Math::Translate(creeps[i].transform, flowOffset * mspeed * rc.dTime);
 		creeps[i].propagate();
 		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
@@ -239,7 +239,7 @@ void TDLevel::draw(const RenderContext& rc)
 	randy.flushRenderQueue();
 	randy.clearRenderQueue();
 	
-	randy.RenderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
+	randy.renderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	/*
 	for (int i = 0; i < _navGrid._cells.size(); i++)

@@ -28,7 +28,7 @@ bool Systems::Initialize()
 	_controller = Controller(&_inputManager);
 	_inputManager.registerController(&_controller);
 
-	if (!_renderer.Initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
+	if (!_renderer.initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
 	{
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
@@ -176,7 +176,7 @@ bool Systems::Frame(float dTime)
 	if (_inputManager.isKeyDown(VK_ESCAPE))
 		return false;
 
-	if (!_renderer.Frame(dTime, &_inputManager))
+	if (!_renderer.frame(dTime, &_inputManager))
 		return false;
 
 	_levelMan->update(*this, dTime);
@@ -219,6 +219,7 @@ void Systems::Shutdown()
 
 	ApplicationHandle = NULL;
 }
+
 
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

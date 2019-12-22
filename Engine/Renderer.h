@@ -1,12 +1,15 @@
 #pragma once
 #include "D3D.h"
 #include "Camera.h"
+#include "RenderQueue.h"
+#include "RenderStateManager.h"
+
 #include "OST.h"
 #include "CubeMapper.h"
 #include "ShaderManager.h"
-#include "GameClock.h"
 #include "ScreenSpaceDrawer.h"
 #include "StackAllocator.h"
+
 
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
@@ -44,77 +47,49 @@ struct PerFrameBuffer
 
 
 
-//can be a bunch of packed bits but do I really need it to be? this class can produce an int64_t eventually
-class RenderableQueueKey
-{
-public:
-	unsigned char renderTarget;		//max 256 render targets...
-	uint16_t shaderSetId;			//max 65536 shader combinations
-	uint16_t textureId;				//max 65536 texture combinations
-	uint16_t depth;					//see how to shring float into uint16_t easily...
-	unsigned char vertexFormat;		//max 256 vertex formats
-
-	int64_t create64bitKey()
-	{
-		int64_t result = 
-			renderTarget << (63 - 8) |
-			shaderSetId << (63 - 24) |
-			textureId << (63 - 40) |
-			depth << (63 - 56) |
-			vertexFormat << (63 - 56);
-
-		return result;
-	}
-};
-
-
-
 class Renderer
 {
 private:
-
-	bool UpdateRenderContext(float dTime);
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	ResourceManager* _resMan;
 	D3D* _d3d;
-
-	const size_t MAX_OPAQUES	  = 500;
-	const size_t MAX_TRANSPARENTS = 100;
 	//StackAllocator sAlloc;
-	std::vector<Renderable> transparents;
-	std::vector<Renderable> opaques;
-	//std::vector<int64_t> qKeys;
+
+	float _fieldOfView, _aspectRatio, elapsed = 0.f;
+	ID3D11Buffer* _perCamBuffer;
+	ID3D11Buffer* _perFrameBuffer;
+
+	bool updateRenderContext(float dTime);
+	bool createGlobalBuffers();
 
 public:
 	ShaderManager _shMan;
 	RenderContext rc;
 	Camera _cam;
-
+	RenderQueue _rQue;
 
 	Renderer();
 	~Renderer();
 
-	bool Initialize(int, int, HWND, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
-	bool createGlobalBuffers();
-	bool Frame(float dTime, InputManager* inMan);
+	bool initialize(int wWidth, int wHeight, HWND wHandle, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
+	bool frame(float dTime, InputManager* inMan);
 	bool updatePerFrameBuffer(float dTime);
 	
-	void SetOSTRenderTarget(OST& ost);
-	void RevertRenderTarget();
+	void setOSTRenderTarget(OST& ost);
+	void setDefaultRenderTarget();
 
-	void RenderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
+	void renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
 
-	void addToRenderQueue(const Renderable& renderable);
-	void sortRenderQueue();
+	inline void addToRenderQueue(Renderable& renderable) { _rQue.add(renderable); }
+	inline void sortRenderQueue() { _rQue.sort(); }
 	void flushRenderQueue();
-	void render(const Renderable& renderable);
-	void clearRenderQueue();
+	inline void clearRenderQueue() { _rQue.clear(); };
 
+	void render(const Renderable& renderable);
+	
 	void setCameraMatrix(const SMatrix& camMatrix);
 
-	float _fieldOfView, _screenAspect, elapsed = 0.f;
-	ID3D11Buffer* _perCamBuffer;
-	ID3D11Buffer* _perFrameBuffer;
+	inline float getAR() { return _aspectRatio; }
 };

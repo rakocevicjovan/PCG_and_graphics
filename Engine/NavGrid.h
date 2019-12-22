@@ -31,6 +31,7 @@ public:
 	}
 
 
+
 	NavGrid(int w, int h, SVec2 cellSize, SVec3 offset = SVec3()) : _w(w), _h(h), _cellSize(cellSize), _offset(offset)
 	{
 		_fw = _w * _cellSize.x;
@@ -46,10 +47,12 @@ public:
 	}
 
 
+
 	void setOffset(SVec3 offset)
 	{
 		_offset = offset;
 	}
+
 
 
 	//this is a naive implementation that simply adds all edges, does not check for obstacles
@@ -105,11 +108,11 @@ public:
 
 					_cells[thisCell].edges.push_back(edgeCount - 1);
 					_cells[neighbour].edges.push_back(edgeCount - 1);
-
 				}
 			}
 		}
 	}
+
 
 
 	void NavGrid::fillFlowField()
@@ -132,7 +135,6 @@ public:
 					_cells[i]._direction = cellIndexToPos(nIndex) - myPos;
 					_cells[i]._direction.Normalize();
 				}
-
 			}
 		}
 	}
@@ -142,10 +144,15 @@ public:
 	int posToCell(SVec3 pos)
 	{
 		SVec3 offsetFromGrid = pos - _offset;
+
+		offsetFromGrid.x = Math::clamp(0, _fw, offsetFromGrid.x);
+		offsetFromGrid.z = Math::clamp(0, _fh, offsetFromGrid.z);
+
 		int row = floor(offsetFromGrid.z * _invCellSize.y);
 		int column = floor(offsetFromGrid.x * _invCellSize.x);
 		return row * _w + column;
 	}
+
 
 
 	SVec3 cellIndexToPos(int i)
@@ -160,6 +167,16 @@ public:
 	}
 
 
-	SVec2 getCellSize() { return _cellSize; }
 
+	inline SVec3 flowAtPosition(SVec3 pos)
+	{
+		return _cells[posToCell(pos)]._direction;
+	}
+
+
+
+	inline SVec2 getCellSize()
+	{
+		return _cellSize;
+	}
 };

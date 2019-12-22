@@ -33,7 +33,7 @@ private:
 	NavGrid _navGrid;
 	//Model boxModel;
 	//Actor box;
-	float mspeed = 10.f;
+	float mspeed = 100.f;
 
 	PointLight pLight;
 	
