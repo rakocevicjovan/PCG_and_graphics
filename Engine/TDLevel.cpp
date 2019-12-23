@@ -36,33 +36,6 @@ void TDLevel::init(Systems& sys)
 
 
 	//@TODO MOVE OUTTA HERE REEEE
-	D3D11_BUFFER_DESC matrixBufferDesc, lightBufferDesc;
-	matrixBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(SMatrix));
-	lightBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
-
-	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayout =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,		0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	D3D11_SAMPLER_DESC sbSamplerDesc;
-	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
-	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
-		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
-
-	VertexShader* vs = new VertexShader(_sys._shaderCompiler, L"lightvs.hlsl", inLayout, { matrixBufferDesc });
-	PixelShader* ps = new PixelShader(_sys._shaderCompiler, L"lightps.hlsl", sbSamplerDesc, { lightBufferDesc });
-
-	//make this happen during construction, if possible...need to load from files tbh
-	CBufferMeta meta(0, sizeof(SMatrix));
-	meta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix)));
-	vs->describeBuffers({ meta });
-
-	CBufferMeta psmeta(0, sizeof(LightBuffer));
-	psmeta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer)));
-	ps->describeBuffers({ psmeta });
 
 	creepMat.opaque = true;
 	creepMat.setVS(vs);

@@ -177,6 +177,20 @@ public:
 
 
 
+	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer) const
+	{
+		if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))
+		{
+			MessageBoxA(*_hwnd, std::string(__FILE__).c_str(), "Failed to create constant buffer shader.", MB_OK);
+			return false;
+		}
+		return true;
+	}
+
+
+
+	ID3D11Device* getDevice() const { return _device; }
+
 	inline static D3D11_BUFFER_DESC createCBufferDesc(
 		UINT byteWidth,
 		D3D11_USAGE usage = D3D11_USAGE_DYNAMIC,
@@ -196,20 +210,33 @@ public:
 	}
 
 
-
-	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer) const
+	//ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
+	//sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, 0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
+	inline static D3D11_SAMPLER_DESC createSamplerDesc(
+		D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D11_COMPARISON_FUNC comparisonFunc = D3D11_COMPARISON_ALWAYS,
+		FLOAT minLOD = 0.f,
+		FLOAT maxLOD = D3D11_FLOAT32_MAX,
+		D3D11_TEXTURE_ADDRESS_MODE addressU = D3D11_TEXTURE_ADDRESS_WRAP,
+		D3D11_TEXTURE_ADDRESS_MODE addressV = D3D11_TEXTURE_ADDRESS_WRAP,
+		D3D11_TEXTURE_ADDRESS_MODE addressW = D3D11_TEXTURE_ADDRESS_WRAP,
+		FLOAT mipLODBias = 0.0f,
+		UINT maxAnisotropy = 1.0f,
+		std::vector<FLOAT> borderColor = { 0.f, 0.f, 0.f, 0.f })
 	{
-		if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))
-		{
-			MessageBoxA(*_hwnd, std::string(__FILE__).c_str(), "Failed to create constant buffer shader.", MB_OK);
-			return false;
-		}
-		return true;
+		D3D11_SAMPLER_DESC sDesc;
+		sDesc.Filter = filter;
+		sDesc.AddressU = addressU;
+		sDesc.AddressV = addressV;
+		sDesc.AddressW = addressW;
+		sDesc.MipLODBias = mipLODBias;
+		sDesc.MaxAnisotropy = maxAnisotropy;
+		sDesc.ComparisonFunc = comparisonFunc;
+		memcpy(sDesc.BorderColor, borderColor.data(), sizeof(sDesc.BorderColor));
+		sDesc.MinLOD = minLOD;
+		sDesc.MaxLOD = maxLOD;
+		return sDesc;
 	}
-
-
-
-	ID3D11Device* getDevice() const { return _device; }
 
 private:
 
