@@ -17,7 +17,7 @@ namespace Strife
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f
 		screenQuad.meshes.push_back(scrQuadMesh);
 
-		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, randy.getAR(), 1.f, 1000.f));
+		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, S_RANDY.getAR(), 1.f, 1000.f));
 
 		//32000.f in lux but that doesn't work... not sure how to do any of this
 		LightData lightData(SVec3(1.f, 1.f, 1.f), 1.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
@@ -67,10 +67,10 @@ namespace Strife
 	{
 		if (_sys._inputManager.isKeyDown((short)'M'))
 		{
-			inman.toggleMouseMode();
+			S_INMAN.toggleMouseMode();
 		}
 
-		if(!inman.getMouseMode())
+		if(!S_INMAN.getMouseMode())
 			updateCam(rc.dTime);
 	}
 
@@ -81,28 +81,28 @@ namespace Strife
 		rc.d3d->ClearColourDepthBuffers();
 
 		//terrain
-		shady.light.SetShaderParameters(context, floor.transform, *rc.cam, csDef.celestial, rc.dTime);
-		floor.Draw(context, shady.light);
+		S_SHADY.light.SetShaderParameters(S_CONTEXT, floor.transform, *rc.cam, csDef.celestial, rc.dTime);
+		floor.Draw(S_CONTEXT, S_SHADY.light);
 
-		sceneTex.SetRenderTarget(context);
+		sceneTex.SetRenderTarget(S_CONTEXT);
 
 		rc.d3d->TurnOnAlphaBlending();
 
-		shady.strife.SetShaderParameters(context, *rc.cam, csDef, rc.elapsed);
-		screenQuad.Draw(context, shady.strife);
-		shady.strife.ReleaseShaderParameters(context);
+		S_SHADY.strife.SetShaderParameters(S_CONTEXT, *rc.cam, csDef, rc.elapsed);
+		screenQuad.Draw(S_CONTEXT, S_SHADY.strife);
+		S_SHADY.strife.ReleaseShaderParameters(S_CONTEXT);
 
 		rc.d3d->TurnOffAlphaBlending();
 		
 
-		context->RSSetViewports(1, &_sys._D3D.viewport);
-		context->OMSetRenderTargets(1, &_sys._D3D.m_renderTargetView, _sys._D3D.GetDepthStencilView());
+		S_CONTEXT->RSSetViewports(1, &_sys._D3D.viewport);
+		S_CONTEXT->OMSetRenderTargets(1, &_sys._D3D.m_renderTargetView, _sys._D3D.GetDepthStencilView());
 
-		postProcessor.draw(context, shady.HUD, sceneTex.srv);
+		postProcessor.draw(S_CONTEXT, S_SHADY.HUD, sceneTex.srv);
 		
 
 		//GUI
-		if(inman.getMouseMode())
+		if(S_INMAN.getMouseMode())
 			ToolGUI::Render(csDef);
 
 		rc.d3d->EndScene();
@@ -173,7 +173,7 @@ namespace Strife
 			exit(43);
 		}
 
-		context->GenerateMips(baseSrv);
+		S_CONTEXT->GenerateMips(baseSrv);
 
 		return true;
 	}
@@ -328,7 +328,7 @@ namespace Strife
 			exit(43);
 		}
 
-		context->GenerateMips(baseSrv);
+		S_CONTEXT->GenerateMips(baseSrv);
 
 		return true;
 	}

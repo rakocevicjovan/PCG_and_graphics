@@ -5,14 +5,16 @@
 #include "Perlin.h"
 #include "Observer.h"
 
-#define S_DEVICE		_sys._device
-#define context		_sys._deviceContext
-#define randy		_sys._renderer
-#define shady		_sys._renderer._shMan
-#define collision	_sys._colEngine
-#define resources	_sys._resMan
-#define doot		_sys._audio
-#define inman		_sys._inputManager
+#define S_DEVICE	_sys._device
+#define S_CONTEXT	_sys._deviceContext
+#define S_RANDY		_sys._renderer
+#define S_SHADY		_sys._renderer._shMan
+#define S_COLLISION	_sys._colEngine
+#define S_RESMAN	_sys._resMan
+#define S_DOOT		_sys._audio
+#define S_INMAN		_sys._inputManager
+#define S_SHCACHE	_sys._shaderCache
+#define S_MATCACHE	_sys._matCache
 
 class LevelManager;
 
@@ -42,7 +44,7 @@ public:
 	virtual ~Level() {};
 	
 	//@WARNING THIS HAPPENS AUTOMATICALLY IN RENDERER ANYWAYS!!!
-	void updateCam(float dTime) { randy._cam.Update(randy.rc.dTime); }
+	void updateCam(float dTime) { S_RANDY._cam.Update(S_RANDY.rc.dTime); }
 
 	void ProcessSpecialInput(float dTime);
 

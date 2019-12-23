@@ -46,9 +46,9 @@ void EarthLevel::init(Systems& sys)
 	};
 	pSys.setUpdateFunction(particleUpdFunc);
 	instanceData.resize(pSys._numParticles);
-	shady.instanced._instanceCount = 10;
+	S_SHADY.instanced._instanceCount = 10;
 
-	randy._cam.SetTranslation(SVec3(16, 10, 16));
+	S_RANDY._cam.SetTranslation(SVec3(16, 10, 16));
 	_sys._controller.toggleFlying();
 }
 
@@ -78,17 +78,17 @@ void EarthLevel::draw(const RenderContext& rc)
 {
 	rc.d3d->SetBackBufferRenderTarget();
 	
-	proceduralTerrain.Draw(context, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
+	proceduralTerrain.Draw(S_CONTEXT, rc.shMan->terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
-	shady.instanced.UpdateInstanceData(instanceData);
-	shady.instanced.SetShaderParameters(context, will, *rc.cam, pointLight, rc.elapsed);
-	will.DrawInstanced(context, shady.instanced);
+	S_SHADY.instanced.UpdateInstanceData(instanceData);
+	S_SHADY.instanced.SetShaderParameters(S_CONTEXT, will, *rc.cam, pointLight, rc.elapsed);
+	will.DrawInstanced(S_CONTEXT, S_SHADY.instanced);
 
-	rc.shMan->dynamicHeightMaze.SetShaderParameters(context, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
-	maze.model.Draw(context, rc.shMan->dynamicHeightMaze);
-	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(context);
+	rc.shMan->dynamicHeightMaze.SetShaderParameters(S_CONTEXT, maze.model, *rc.cam, pointLight, rc.elapsed, mazeDiffuseMap, mazeNormalMap);
+	maze.model.Draw(S_CONTEXT, rc.shMan->dynamicHeightMaze);
+	rc.shMan->dynamicHeightMaze.ReleaseShaderParameters(S_CONTEXT);
 	
-	randy.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	S_RANDY.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	rc.d3d->EndScene();
 

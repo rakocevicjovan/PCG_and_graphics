@@ -14,7 +14,8 @@
 #include "LevelManager.h"
 #include "ResourceManager.h"
 #include "ShaderCompiler.h"
-
+#include "ShaderCache.h"
+#include "MaterialCache.h"
 
 
 //centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
@@ -40,17 +41,19 @@ public:
 	void Run();
 	void Shutdown();
 	
-	//core systems
 	InputManager _inputManager;
 	ResourceManager _resMan;
-	ShaderCompiler _shaderCompiler;
-	Renderer _renderer;
 	LevelManager* _levelMan;
 	CollisionEngine _colEngine;
 	Audio _audio;
 	GameClock _clock;
-	
 	Controller _controller;
+
+	//rendering
+	Renderer _renderer;
+	ShaderCompiler _shaderCompiler;
+	ShaderCache _shaderCache;
+	MaterialCache _matCache;
 
 	//extra rendering data - this should end up in the renderer and loaders ONLY @TODO
 	ID3D11Device* _device;

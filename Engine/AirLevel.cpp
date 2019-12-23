@@ -51,9 +51,9 @@ void AirLevel::init(Systems& sys)
 	player.a.transform = SMatrix::CreateScale(0.05) * SMatrix::Identity;
 	player.a.transform *= SMatrix::CreateRotationY(PI * 1.25);
 	player.a.transform *= SMatrix::CreateTranslation(SVec3(256, 400, 256));
-	player.a.gc.shader = &shady.light;
+	player.a.gc.shader = &S_SHADY.light;
 	player.con = _sys._controller;
-	player.cam = randy._cam;
+	player.cam = S_RANDY._cam;
 	player.cam.SetTranslation(player.a.transform.Translation() + player.a.transform.Forward() * SVec3(0, 1, 2));
 	
 
@@ -78,7 +78,7 @@ void AirLevel::update(const RenderContext& rc)
 	for (int i = 0; i < dragon.springs.size(); ++i)
 		instanceData[i]._m = dragon.springs[i].transform.Transpose();
 
-	shady.dragon.UpdateInstanceData(instanceData);
+	S_SHADY.dragon.UpdateInstanceData(instanceData);
 
 	SVec3 pp(player.a.transform.Translation());
 	SVec2 tp(tornado.transform.Translation().x, tornado.transform.Translation().z);
@@ -122,7 +122,7 @@ void AirLevel::draw(const RenderContext& rc)
 	if (winCount >= 3)
 	{
 		rc.d3d->ClearColourDepthBuffers();
-		winScreen.draw(context, shady.HUD, winTex.srv);
+		winScreen.draw(S_CONTEXT, S_SHADY.HUD, winTex.srv);
 		rc.d3d->EndScene();
 		return;
 	}
@@ -130,27 +130,27 @@ void AirLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	
 	_sys._D3D.setRSSolidNoCull();
-	shady.light.SetShaderParameters(context, player.a.transform, player.cam, pointLight, rc.elapsed);
-	glider.Draw(context, shady.light);
-	shady.light.ReleaseShaderParameters(context);
+	S_SHADY.light.SetShaderParameters(S_CONTEXT, player.a.transform, player.cam, pointLight, rc.elapsed);
+	glider.Draw(S_CONTEXT, S_SHADY.light);
+	S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
 	_sys._D3D.setRSSolidCull();
 
-	shady.terrainMultiTex.SetShaderParameters(context, barrens.transform, player.cam, pointLight, rc.dTime);
-	barrens.Draw(context, shady.terrainMultiTex);
+	S_SHADY.terrainMultiTex.SetShaderParameters(S_CONTEXT, barrens.transform, player.cam, pointLight, rc.dTime);
+	barrens.Draw(S_CONTEXT, S_SHADY.terrainMultiTex);
 
-	randy.renderSkybox(player.cam, skybox, skyboxCubeMapper);
+	S_RANDY.renderSkybox(player.cam, skybox, skyboxCubeMapper);
 
 	_sys._D3D.TurnOnAlphaBlending();
 
-	shady.dragon.SetShaderParameters(context, segmentModel, player.cam, pointLight, rc.dTime);
-	segmentModel.Draw(context, shady.dragon);
-	shady.dragon.ReleaseShaderParameters(context);
+	S_SHADY.dragon.SetShaderParameters(S_CONTEXT, segmentModel, player.cam, pointLight, rc.dTime);
+	segmentModel.Draw(S_CONTEXT, S_SHADY.dragon);
+	S_SHADY.dragon.ReleaseShaderParameters(S_CONTEXT);
 
-	shady.shVolumTornado.SetShaderParameters(context, tornado, player.cam, rc.elapsed);
-	tornado.Draw(context, shady.shVolumTornado);
+	S_SHADY.shVolumTornado.SetShaderParameters(S_CONTEXT, tornado, player.cam, rc.elapsed);
+	tornado.Draw(S_CONTEXT, S_SHADY.shVolumTornado);
 
-	rc.shMan->shVolumAir.SetShaderParameters(context, will, player.cam, rc.elapsed);
-	will.Draw(context, rc.shMan->shVolumAir);
+	rc.shMan->shVolumAir.SetShaderParameters(S_CONTEXT, will, player.cam, rc.elapsed);
+	will.Draw(S_CONTEXT, rc.shMan->shVolumAir);
 
 	_sys._D3D.TurnOffAlphaBlending();
 

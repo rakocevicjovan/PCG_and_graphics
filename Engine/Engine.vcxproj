@@ -210,6 +210,7 @@
     <ClCompile Include="Lillies.cpp" />
     <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MaterialCache.cpp" />
     <ClCompile Include="Maze.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />

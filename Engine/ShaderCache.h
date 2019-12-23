@@ -12,8 +12,7 @@ class ShaderCache
 	void createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 
 public:
-	
-	void init(ShaderCompiler* shc);
+	void init(ShaderCompiler* shCompiler);
 	
 	VertexShader* getVertShader(const std::string& name);
 	PixelShader* getPixShader(const std::string& name);

@@ -383,6 +383,10 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Rendering\AAANow do it properly\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderCache.cpp" />
+    <ClCompile Include="MaterialCache.cpp">
+      <Filter>Rendering\AAANow do it properly\Materials</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">

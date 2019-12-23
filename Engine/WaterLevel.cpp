@@ -56,14 +56,14 @@ void WaterLevel::init(Systems& sys)
 	will.transform *= SMatrix::CreateTranslation(SVec3(goal.x, goal.y + 50, goal.z));
 
 	_startingTransform = SMatrix::CreateTranslation(SVec3(0, waterTerrain.getOffset().y + 10.f, -200));
-	randy.setCameraMatrix(_startingTransform);
+	S_RANDY.setCameraMatrix(_startingTransform);
 	
 	plat.LoadModel(S_DEVICE, "../Models/leaf.fbx");
 	plat.transform = SMatrix::CreateScale(10);
 	plat.transform *= SMatrix::CreateRotationY(-PI * 0.5f);
 	plat.transform *= _startingTransform;
-	collision.registerModel(plat, BVT_AABB);
-	collision.registerController(_sys._controller);
+	S_COLLISION.registerModel(plat, BVT_AABB);
+	S_COLLISION.registerController(_sys._controller);
 
 	SMatrix petalScale = SMatrix::CreateScale(SVec3(5));
 
@@ -135,72 +135,72 @@ void WaterLevel::draw(const RenderContext& rc)
 		cubeMapper.Advance(_sys._deviceContext, i);
 
 		//water
-		rc.shMan->water.SetShaderParameters(context, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
-		waterSheet.Draw(context, rc.shMan->water);
-		rc.shMan->water.ReleaseShaderParameters(context);
+		rc.shMan->water.SetShaderParameters(S_CONTEXT, waterSheet, cubeMapper.getCameraAtIndex(i), pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+		waterSheet.Draw(S_CONTEXT, rc.shMan->water);
+		rc.shMan->water.ReleaseShaderParameters(S_CONTEXT);
 
 		RenderContext rcTemp = rc;
 		rcTemp.cam = &cubeMapper.getCameraAtIndex(i);
 		_lillies.draw(rcTemp, lillyModel, pointLight, true);
 
 		//lotus
-		rc.shMan->light.SetShaderParameters(context, lotus.transform, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
-		lotus.Draw(context, rc.shMan->light);
-		rc.shMan->light.ReleaseShaderParameters(context);
+		rc.shMan->light.SetShaderParameters(S_CONTEXT, lotus.transform, cubeMapper.getCameraAtIndex(i), pointLight, rc.dTime);
+		lotus.Draw(S_CONTEXT, rc.shMan->light);
+		rc.shMan->light.ReleaseShaderParameters(S_CONTEXT);
 
 
-		randy.renderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
+		S_RANDY.renderSkybox(cubeMapper.getCameraAtIndex(i), skybox, skyboxCubeMapper);
 	}
 	updateReflectionRefraction(rc, *rc.cam);
 #pragma endregion reflectionRendering
 
 
 	///scene
-	randy.setDefaultRenderTarget();
+	S_RANDY.setDefaultRenderTarget();
 
 	//lsystems
-	rc.shMan->light.SetShaderParameters(context, flowerModel.transform, *rc.cam, pointLight, rc.elapsed);
-	flowerModel.Draw(context, rc.shMan->light);
-	rc.shMan->light.ReleaseShaderParameters(context);
+	rc.shMan->light.SetShaderParameters(S_CONTEXT, flowerModel.transform, *rc.cam, pointLight, rc.elapsed);
+	flowerModel.Draw(S_CONTEXT, rc.shMan->light);
+	rc.shMan->light.ReleaseShaderParameters(S_CONTEXT);
 
 	//lotus
-	rc.shMan->light.SetShaderParameters(context, lotus.transform, *rc.cam, pointLight, rc.dTime);
-	lotus.Draw(context, rc.shMan->light);
-	rc.shMan->light.ReleaseShaderParameters(context);
+	rc.shMan->light.SetShaderParameters(S_CONTEXT, lotus.transform, *rc.cam, pointLight, rc.dTime);
+	lotus.Draw(S_CONTEXT, rc.shMan->light);
+	rc.shMan->light.ReleaseShaderParameters(S_CONTEXT);
 
 	//platform
-	rc.shMan->light.SetShaderParameters(context, plat.transform, *rc.cam, pointLight, rc.dTime);
-	plat.Draw(context, rc.shMan->light);
-	rc.shMan->light.ReleaseShaderParameters(context);
+	rc.shMan->light.SetShaderParameters(S_CONTEXT, plat.transform, *rc.cam, pointLight, rc.dTime);
+	plat.Draw(S_CONTEXT, rc.shMan->light);
+	rc.shMan->light.ReleaseShaderParameters(S_CONTEXT);
 
 	//water
 	rc.d3d->TurnOnAlphaBlending();
-	shady.water.SetShaderParameters(context, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
-	waterSheet.Draw(context, rc.shMan->water);
-	shady.water.ReleaseShaderParameters(context);
+	S_SHADY.water.SetShaderParameters(S_CONTEXT, waterSheet, *rc.cam, pointLight, rc.elapsed, waterNormalMap.srv, reflectionMap.srv, refractionMap.srv);
+	waterSheet.Draw(S_CONTEXT, rc.shMan->water);
+	S_SHADY.water.ReleaseShaderParameters(S_CONTEXT);
 
 	_lillies.draw(rc, lillyModel, pointLight, false);
 	rc.d3d->TurnOffAlphaBlending();
 
-	shady.terrainNormals.SetShaderParameters(context, throne.transform, *rc.cam, pointLight, rc.dTime);
-	throne.Draw(context, shady.terrainNormals);
+	S_SHADY.terrainNormals.SetShaderParameters(S_CONTEXT, throne.transform, *rc.cam, pointLight, rc.dTime);
+	throne.Draw(S_CONTEXT, S_SHADY.terrainNormals);
 
-	shady.light.SetShaderParameters(context, fence.transform, *rc.cam, pointLight, rc.dTime);
-	fence.Draw(context, shady.terrainNormals);
+	S_SHADY.light.SetShaderParameters(S_CONTEXT, fence.transform, *rc.cam, pointLight, rc.dTime);
+	fence.Draw(S_CONTEXT, S_SHADY.terrainNormals);
 	
 	//reflection sphere
-	rc.shMan->cubeMapShader.SetShaderParameters(context, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
-	modBall.Draw(context, rc.shMan->cubeMapShader);
-	rc.shMan->cubeMapShader.ReleaseShaderParameters(context);
+	rc.shMan->cubeMapShader.SetShaderParameters(S_CONTEXT, modBall, *rc.cam, pointLight, rc.dTime, cubeMapper.cm_srv);
+	modBall.Draw(S_CONTEXT, rc.shMan->cubeMapShader);
+	rc.shMan->cubeMapShader.ReleaseShaderParameters(S_CONTEXT);
 
 
 	//SKYBOX
-	randy.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	S_RANDY.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	//water fairy
 	rc.d3d->TurnOnAlphaBlending();
-	rc.shMan->shVolumWater.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
-	will.Draw(context, rc.shMan->shVolumWater);
+	rc.shMan->shVolumWater.SetShaderParameters(S_CONTEXT, will, *rc.cam, rc.elapsed);
+	will.Draw(S_CONTEXT, rc.shMan->shVolumWater);
 	rc.d3d->TurnOffAlphaBlending();
 
 
@@ -213,20 +213,20 @@ void WaterLevel::updateReflectionRefraction(const RenderContext& rc, const Camer
 {
 	///reflection
 	reflectionMap.SetRenderTarget(_sys._deviceContext);
-	randy._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, 1, 0, -waterSheet.transform.Translation().y));
+	S_RANDY._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, 1, 0, -waterSheet.transform.Translation().y));
 	Camera reflectionCam = Camera(cam.GetCameraMatrix() * waterReflectionMatrix, cam.GetProjectionMatrix());
 
-	rc.shMan->clipper.SetShaderParameters(context, lotus, reflectionCam, pointLight, rc.dTime);
-	lotus.Draw(context, rc.shMan->clipper);
-	rc.shMan->clipper.ReleaseShaderParameters(context);
+	rc.shMan->clipper.SetShaderParameters(S_CONTEXT, lotus, reflectionCam, pointLight, rc.dTime);
+	lotus.Draw(S_CONTEXT, rc.shMan->clipper);
+	rc.shMan->clipper.ReleaseShaderParameters(S_CONTEXT);
 
 	///refraction
 	refractionMap.SetRenderTarget(_sys._deviceContext);
-	randy._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, -1, 0, waterSheet.transform.Translation().y));
+	S_RANDY._shMan.clipper.SetClipper(_sys._deviceContext, SVec4(0, -1, 0, waterSheet.transform.Translation().y));
 
-	rc.shMan->clipper.SetShaderParameters(context, lotus, cam, pointLight, rc.dTime);
-	lotus.Draw(context, rc.shMan->clipper);
-	rc.shMan->clipper.ReleaseShaderParameters(context);
+	rc.shMan->clipper.SetShaderParameters(S_CONTEXT, lotus, cam, pointLight, rc.dTime);
+	lotus.Draw(S_CONTEXT, rc.shMan->clipper);
+	rc.shMan->clipper.ReleaseShaderParameters(S_CONTEXT);
 }
 
 
@@ -283,7 +283,7 @@ void WaterLevel::fakeCollision()
 
 	for (Ring& ring : _lillies._lillyRings)
 		for (Lilly& l : ring._lillies)
-			if (SVec3::DistanceSquared(randy._cam.GetCameraMatrix().Translation(), l.act.transform.Translation()) < 33.333 * 33.333
+			if (SVec3::DistanceSquared(S_RANDY._cam.GetCameraMatrix().Translation(), l.act.transform.Translation()) < 33.333 * 33.333
 				&& !_sys._controller.isFlying()
 				&& l.real)
 			{
@@ -296,11 +296,11 @@ void WaterLevel::fakeCollision()
 
 	if (onLilly)
 	{
-		SMatrix old = randy._cam.GetCameraMatrix();
+		SMatrix old = S_RANDY._cam.GetCameraMatrix();
 		SVec3 oldTranslation = old.Translation();
 		oldTranslation.y = waterSheet.transform.Translation().y + 5.f;
 		Math::SetTranslation(old, oldTranslation);
-		randy._cam.SetCameraMatrix(old);
+		S_RANDY._cam.SetCameraMatrix(old);
 	}
 	else
 	{
@@ -309,10 +309,10 @@ void WaterLevel::fakeCollision()
 	
 	if (parentLilly != nullptr)
 	{
-		SMatrix old = randy._cam.GetCameraMatrix();
+		SMatrix old = S_RANDY._cam.GetCameraMatrix();
 		SVec3 delta = parentLilly->act.transform.Translation() - oldTranslation;
 		Math::Translate(old, delta);
-		randy._cam.SetCameraMatrix(old);
+		S_RANDY._cam.SetCameraMatrix(old);
 		oldTranslation = parentLilly->act.transform.Translation();
 	}
 }

@@ -35,6 +35,8 @@ bool Systems::Initialize()
 	}
 
 	_shaderCompiler.init(&_hwnd, _device);
+	_shaderCache.init(&_shaderCompiler);
+	_matCache.init(&_shaderCache);
 	
 	_colEngine.init();
 	_colEngine.registerController(_controller);	//works both ways

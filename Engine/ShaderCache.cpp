@@ -4,9 +4,9 @@
 
 
 
-void ShaderCache::init(ShaderCompiler* shc)
+void ShaderCache::init(ShaderCompiler* shCompiler)
 {
-	_shCompiler = shc;
+	_shCompiler = shCompiler;
 
 	createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 }

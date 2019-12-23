@@ -4,7 +4,7 @@
 
 void FireLevel::init(Systems& sys)
 {
-	collision.registerController(_sys._controller);
+	S_COLLISION.registerController(_sys._controller);
 
 	sceneTex.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
 	brightnessMask.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
@@ -21,7 +21,7 @@ void FireLevel::init(Systems& sys)
 	hexer.init(hexRadius);
 	isFirst = true;
 	SVec3 initPlayerPos(hexer._points[0].x, hexer._points[0].y + 40.f, hexer._points[0].z);
-	randy.setCameraMatrix(SMatrix::CreateTranslation(initPlayerPos));
+	S_RANDY.setCameraMatrix(SMatrix::CreateTranslation(initPlayerPos));
 
 	skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
@@ -111,7 +111,7 @@ void FireLevel::update(const RenderContext & rc)
 		if (isFirst)
 		{
 			isFirst = false;
-			randy._cam.SetCameraMatrix((hexer._platforms.back().actor.transform));
+			S_RANDY._cam.SetCameraMatrix((hexer._platforms.back().actor.transform));
 			_sys._renderer._cam.Translate(SVec3(0, 20, 0));
 		}
 	}
@@ -128,7 +128,7 @@ void FireLevel::update(const RenderContext & rc)
 
 	if (rc.cam->GetPosition().y <= lavaSheetModel.transform.Translation().y)
 	{
-		randy.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
+		S_RANDY.setCameraMatrix(SMatrix::CreateTranslation(hexer._points[0]));
 		hexer.init(hexRadius);
 		isFirst = true;
 	}
@@ -139,66 +139,66 @@ void FireLevel::update(const RenderContext & rc)
 
 void FireLevel::draw(const RenderContext& rc)
 {
-	sceneTex.SetRenderTarget(context);
+	sceneTex.SetRenderTarget(S_CONTEXT);
 
-	terrain.Draw(context, shady.terrainNormals, *rc.cam, pointLight, rc.elapsed);
+	terrain.Draw(S_CONTEXT, S_SHADY.terrainNormals, *rc.cam, pointLight, rc.elapsed);
 
 		
-	shady.terrainNormals.SetShaderParameters(context, SMatrix::CreateTranslation(hexer._points.back().x - 256.f, 0, hexer._points.back().z - 256.f), *rc.cam, pointLight, rc.dTime);
-	islandModel.Draw(context, shady.terrainNormals);
+	S_SHADY.terrainNormals.SetShaderParameters(S_CONTEXT, SMatrix::CreateTranslation(hexer._points.back().x - 256.f, 0, hexer._points.back().z - 256.f), *rc.cam, pointLight, rc.dTime);
+	islandModel.Draw(S_CONTEXT, S_SHADY.terrainNormals);
 	
 	for (Platform p : hexer._platforms)
 	{
 		if (!p.active) continue;
 
 		hexModel.transform = p.actor.transform;
-		shady.normalMapper.SetShaderParameters(context, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
-		hexModel.Draw(context, shady.normalMapper);
+		S_SHADY.normalMapper.SetShaderParameters(S_CONTEXT, hexModel, *rc.cam, pointLight, rc.dTime, hexDiffuseMap, hexNormalMap);
+		hexModel.Draw(S_CONTEXT, S_SHADY.normalMapper);
 	}
 
-	shady.normalMapper.SetShaderParameters(context, tree, *rc.cam, pointLight, rc.dTime, tree.textures_loaded[0], tree.textures_loaded[1]);
-	tree.Draw(context, shady.normalMapper);
+	S_SHADY.normalMapper.SetShaderParameters(S_CONTEXT, tree, *rc.cam, pointLight, rc.dTime, tree.textures_loaded[0], tree.textures_loaded[1]);
+	tree.Draw(S_CONTEXT, S_SHADY.normalMapper);
 
-	randy.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
+	S_RANDY.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 	//transparent items
 	rc.d3d->TurnOnAlphaBlending();
-	shady.shVolumLava.SetShaderParameters(context, lavaSheetModel, *rc.cam, rc.elapsed);
-	lavaSheetModel.Draw(context, shady.shVolumLava);
+	S_SHADY.shVolumLava.SetShaderParameters(S_CONTEXT, lavaSheetModel, *rc.cam, rc.elapsed);
+	lavaSheetModel.Draw(S_CONTEXT, S_SHADY.shVolumLava);
 
-	shady.shVolumFire.SetShaderParameters(context, will, *rc.cam, rc.elapsed);
-	will.Draw(context, shady.shVolumFire);
+	S_SHADY.shVolumFire.SetShaderParameters(S_CONTEXT, will, *rc.cam, rc.elapsed);
+	will.Draw(S_CONTEXT, S_SHADY.shVolumFire);
 	rc.d3d->TurnOffAlphaBlending();
 
 
 
 	//brightnessMask
-	brightnessMask.SetRenderTarget(context);
-	postProcessor.draw(context, shady.brightnessMasker, sceneTex.srv);
+	brightnessMask.SetRenderTarget(S_CONTEXT);
+	postProcessor.draw(S_CONTEXT, S_SHADY.brightnessMasker, sceneTex.srv);
 
 	//blurring horizontally
-	blurredTex1.SetRenderTarget(context);
-	postProcessor.draw(context, shady.blurHor, brightnessMask.srv);
+	blurredTex1.SetRenderTarget(S_CONTEXT);
+	postProcessor.draw(S_CONTEXT, S_SHADY.blurHor, brightnessMask.srv);
 
 	//blurring vertically
-	blurredTex2.SetRenderTarget(context);
-	postProcessor.draw(context, shady.blurVer, blurredTex1.srv);
+	blurredTex2.SetRenderTarget(S_CONTEXT);
+	postProcessor.draw(S_CONTEXT, S_SHADY.blurVer, blurredTex1.srv);
 
 	for (int i = 0; i < 3; ++i)
 	{
 		//blurring horizontally
-		blurredTex1.SetRenderTarget(context);
-		postProcessor.draw(context, shady.blurHor, blurredTex2.srv);
+		blurredTex1.SetRenderTarget(S_CONTEXT);
+		postProcessor.draw(S_CONTEXT, S_SHADY.blurHor, blurredTex2.srv);
 
 		//blurring vertically
-		blurredTex2.SetRenderTarget(context);
-		postProcessor.draw(context, shady.blurVer, blurredTex1.srv);
+		blurredTex2.SetRenderTarget(S_CONTEXT);
+		postProcessor.draw(S_CONTEXT, S_SHADY.blurVer, blurredTex1.srv);
 	}
 	
 	//final scene rendering - the screen quad
 	rc.d3d->SetBackBufferRenderTarget();						//set default screen buffer as output target
 
-	postProcessor.draw(context, shady.bloom, sceneTex.srv, blurredTex2.srv);
+	postProcessor.draw(S_CONTEXT, S_SHADY.bloom, sceneTex.srv, blurredTex2.srv);
 	
 	//finish up
 	rc.d3d->EndScene();
@@ -218,7 +218,7 @@ void FireLevel::setUpCollision()
 		c.dynamic = true;
 		
 		for (Renderable r : platform.actor.renderables)
-			c.hulls.push_back(collision.genBoxHull(r.mesh, SMatrix::Identity));
+			c.hulls.push_back(S_COLLISION.genBoxHull(r.mesh, SMatrix::Identity));
 
 		for (Hull* h : c.hulls)
 		{
@@ -227,7 +227,7 @@ void FireLevel::setUpCollision()
 			h->setPosition(childPos);
 		}
 
-		collision.addToGrid(&c);
+		S_COLLISION.addToGrid(&c);
 
 		_levelColliders.push_back(c);
 	}
@@ -239,7 +239,7 @@ void FireLevel::resetCollision()
 {
 	for (Collider& collider : _levelColliders)
 	{
-		collision.removeFromGrid(collider);
+		S_COLLISION.removeFromGrid(collider);
 		collider.ReleaseMemory();
 	}
 

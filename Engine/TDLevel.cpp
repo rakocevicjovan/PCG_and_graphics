@@ -34,21 +34,13 @@ void TDLevel::init(Systems& sys)
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, 0);
 	_navGrid.fillFlowField();
 
-
-	//@TODO MOVE OUTTA HERE REEEE
-
-	creepMat.opaque = true;
-	creepMat.setVS(vs);
-	creepMat.setPS(ps);
-	creepMat.textures.push_back(&(resources.getByName<Model*>("FlyingMage")->meshes[0].textures[0]));
-
 	creeps.reserve(NUM_ENEMIES);
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
 		float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 		//creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
-		creeps.emplace_back(SMatrix::CreateTranslation(pos), resources.getByName<Model*>("FlyingMage"));
+		creeps.emplace_back(SMatrix::CreateTranslation(pos), S_RESMAN.getByName<Model*>("FlyingMage"));
 		
 		for (Renderable& r : creeps[i].renderables)
 		{
@@ -180,7 +172,7 @@ void TDLevel::update(const RenderContext& rc)
 			for (auto& r : creeps[i].renderables)
 			{
 				r.zDepth = zDepth;
-				randy.addToRenderQueue(r);
+				S_RANDY.addToRenderQueue(r);
 			}
 		}
 		else
@@ -197,9 +189,9 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 
-	shady.light.SetShaderParameters(context, floorModel.transform, *rc.cam, pLight, rc.dTime);
-	floorModel.Draw(context, shady.light);
-	shady.light.ReleaseShaderParameters(context);
+	S_SHADY.light.SetShaderParameters(S_CONTEXT, floorModel.transform, *rc.cam, pLight, rc.dTime);
+	floorModel.Draw(S_CONTEXT, S_SHADY.light);
+	S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
 
 #ifdef DEBUG_OCTREE
 	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
@@ -208,11 +200,11 @@ void TDLevel::draw(const RenderContext& rc)
 #endif
 
 	
-	randy.sortRenderQueue();
-	randy.flushRenderQueue();
-	randy.clearRenderQueue();
+	S_RANDY.sortRenderQueue();
+	S_RANDY.flushRenderQueue();
+	S_RANDY.clearRenderQueue();
 	
-	randy.renderSkybox(*rc.cam, *(resources.getByName<Model*>("Skysphere")), skyboxCubeMapper);
+	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	/*
 	for (int i = 0; i < _navGrid._cells.size(); i++)

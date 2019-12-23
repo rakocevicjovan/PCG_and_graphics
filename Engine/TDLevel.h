@@ -44,8 +44,6 @@ private:
 	SRay ray;
 	int numCulled;
 
-	Material creepMat;
-
 	//octree meshes
 	Model debugModel;
 	std::vector<AABB> tempBoxes;
