@@ -55,10 +55,15 @@ public:
 	std::vector<Renderable> renderables;
 	Collider* collider;
 
-	SVec3 getPosition() const
+	inline SVec3 getPosition() const
 	{
 		return transform.Translation();
 	}
+
+
+	//lets just pretend im not a monkey and have a way to get some approximate radius for steering separation...
+	float getPersonalDistance() { return 2.f; }	
+
 
 	void propagate()
 	{
@@ -105,14 +110,14 @@ public:
 		cam.SetCameraMatrix(camMat);
 	}
 
-	SVec3 getPosition() { return a.transform.Translation(); }
+	inline SVec3 getPosition() { return a.transform.Translation(); }
 
 	void setCamera(Camera& camera) { cam = camera; }
 };
 
 
 
-class ActorAI
+class ActorAI : public Actor
 {
 	Actor a;
 	AiController* brain;

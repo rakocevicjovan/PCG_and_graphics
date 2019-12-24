@@ -282,11 +282,11 @@ void Octree::testAllCollisions(OctNode *pNode)
 				if (hr.hit == true)
 				{
 					//breaks apart if actors relocate... consider between indices and allocators...
-					spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
-					Math::SetTranslation(spA->_collider->actParent->transform, spA->getPosition());
+					//spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
+					//Math::SetTranslation(spA->_collider->actParent->transform, spA->getPosition());
 					
-					spL->setPosition(spL->getPosition() - hr.resolutionVector * .5);
-					Math::SetTranslation(spL->_collider->actParent->transform, spL->getPosition());
+					//spL->setPosition(spL->getPosition() - hr.resolutionVector * .5);
+					//Math::SetTranslation(spL->_collider->actParent->transform, spL->getPosition());
 				}
 			}
 		}

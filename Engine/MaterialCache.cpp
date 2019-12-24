@@ -18,6 +18,8 @@ void MaterialCache::createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven()
 	creepMat->setVS(_shCache->getVertShader("basicVS"));
 	creepMat->setPS(_shCache->getPixShader("lightPS"));
 	creepMat->textures.push_back(&(_resMan->getByName<Model*>("FlyingMage")->meshes[0].textures[0]));
+
+	addMaterial("creepMat", creepMat);
 }
 
 

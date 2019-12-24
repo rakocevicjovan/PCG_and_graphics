@@ -7,8 +7,6 @@
 void ShaderCache::init(ShaderCompiler* shCompiler)
 {
 	_shCompiler = shCompiler;
-
-	createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 }
 
 

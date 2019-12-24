@@ -14,22 +14,29 @@ public:
 	}
 
 
-	template <typename NavAgent>
-	static SVec3 separate(NavAgent* me, std::vector<NavAgent*>& theBois)
-	{
-		if (theBois.empty())
-			return SVec3::Zero;
 
+	template <typename NavAgent>
+	static SVec3 separate(NavAgent& me, std::vector<NavAgent>& theBois)
+	{
 		SVec3 result = SVec3::Zero;
 
-		for (SphereHull* boi : theBois)
+		if (theBois.empty())
+			return result;
+
+		for (NavAgent& boi : theBois)
 		{
-			result += SVec3(1) - static_cast<SVec3>((me->getPosition() - boi->getPosition()) / me->r);
+			SVec3 separator = -static_cast<SVec3>(boi.getPosition() - me.getPosition());
+			float distance = max(0.0001f, separator.Length());
+			separator /= distance;
+			float intensityAdjustment = Math::smoothstep(10.f, 0.f, distance);	//me.getPersonalDistance() * 5.f
+			separator *= intensityAdjustment;
+			result += separator;	//me->r
 		}
 
 		result /= theBois.size();
 		return result;		// * agent.maxForce... not sure wth that is though, and I need another class not
 	}
+
 
 
 	template <typename NavAgent>
@@ -40,7 +47,7 @@ public:
 
 		SVec3 centerOfMass = me->getPosition();
 
-		for (SphereHull* boi : theBois)
+		for (NavAgent* boi : theBois)
 		{
 			centerOfMass += boi->getPosition();
 		}
@@ -57,11 +64,13 @@ public:
 	}
 
 
+
 	template <typename NavAgent>
 	static SVec3 alignFacing()
 	{
 
 	}
+
 
 
 	template <typename NavAgent>

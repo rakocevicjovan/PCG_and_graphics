@@ -5,13 +5,18 @@
 #include "Picker.h"
 #include "ColFuncs.h"
 #include "Shader.h"
+#include "Steering.h"
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 {
 	return 0.f;
 }
 
+
+
 //#define DEBUG_OCTREE
+
+
 
 void TDLevel::init(Systems& sys)
 {
@@ -31,7 +36,8 @@ void TDLevel::init(Systems& sys)
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.populate();
-	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, 0);
+	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
+	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
 
 	creeps.reserve(NUM_ENEMIES);
@@ -44,7 +50,7 @@ void TDLevel::init(Systems& sys)
 		
 		for (Renderable& r : creeps[i].renderables)
 		{
-			r.mat = &creepMat;
+			r.mat = S_MATCACHE.getMaterial("creepMat");
 			r.pLight = &pLight;
 		}
 		
@@ -120,13 +126,33 @@ void TDLevel::update(const RenderContext& rc)
 
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		SVec3 flowOffset = _navGrid.flowAtPosition(creeps[i].getPosition());
-		Math::Translate(creeps[i].transform, flowOffset * mspeed * rc.dTime);
-		creeps[i].propagate();
+		//pathfinding
+		SVec3 cumulativeMovement = SVec3::Zero;
+		SVec3 flowVector = _navGrid.flowAtPosition(creeps[i].getPosition());
+		
+		int creepsCell = _navGrid.posToCell(creeps[i].getPosition());
+		SVec3 vecToGoal = creeps[i].getPosition() - _navGrid.cellIndexToPos(_navGrid.getGoalIndex());
+		float distToGoal = vecToGoal.Length();
+		float adjustment = Math::smoothstep(0, _navGrid.getLeeway() * 5.f, distToGoal);
+		flowVector *= adjustment;
+		
+		//not holding R
+		if( !S_INMAN.isKeyDown('R') )
+			if(creepsCell != _navGrid.getGoalIndex())
+				cumulativeMovement += flowVector;
+
+		cumulativeMovement += Steering::separate(creeps[i], creeps);
+		
+		Math::Translate(creeps[i].transform, cumulativeMovement * mspeed * rc.dTime);
+
+		//height
 		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
 		float intervalPassed = fmod(rc.elapsed * 5.f + i * 2.f, 10.f);
 		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
 		Math::setHeight(creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
+
+		//propagate transforms to children
+		creeps[i].propagate();
 	}
 
 

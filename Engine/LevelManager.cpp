@@ -14,6 +14,8 @@
 LevelManager::LevelManager(Systems& systems)
 {
 	systems._resMan.pushLevel(0);
+	systems._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
+	systems._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
 	current = new TDLevel(systems);		//new ProjectPickerLevel(systems); boring to click through...
 	current->init(systems);

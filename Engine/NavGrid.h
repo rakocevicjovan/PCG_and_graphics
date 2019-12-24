@@ -19,6 +19,8 @@ private:
 	float _fw, _fh;
 	SVec2 _cellSize, _invCellSize;
 	SVec3 _offset;
+	int _goalIndex;
+	float _leeway;
 
 public:
 	std::vector<NavCell> _cells;
@@ -38,6 +40,8 @@ public:
 		_fh = _h * _cellSize.y;
 
 		_invCellSize = SVec2(1.f / _cellSize.x, 1.f / _cellSize.y);
+
+		_leeway = _cellSize.Length() * 0.5f;
 
 		_cells.resize(_w * _h);
 		_edges.reserve(2 * _w * _h - _w - _h);
@@ -145,8 +149,8 @@ public:
 	{
 		SVec3 offsetFromGrid = pos - _offset;
 
-		offsetFromGrid.x = Math::clamp(0, _fw, offsetFromGrid.x);
-		offsetFromGrid.z = Math::clamp(0, _fh, offsetFromGrid.z);
+		offsetFromGrid.x = Math::clamp(0, _fw - .01f, offsetFromGrid.x);
+		offsetFromGrid.z = Math::clamp(0, _fh - .01f, offsetFromGrid.z);
 
 		int row = floor(offsetFromGrid.z * _invCellSize.y);
 		int column = floor(offsetFromGrid.x * _invCellSize.x);
@@ -168,15 +172,44 @@ public:
 
 
 
+	inline SVec3 flowAtIndex(int i)
+	{
+		return _cells[i]._direction;
+	}
+
+
 	inline SVec3 flowAtPosition(SVec3 pos)
 	{
 		return _cells[posToCell(pos)]._direction;
 	}
 
 
-
 	inline SVec2 getCellSize()
 	{
 		return _cellSize;
+	}
+
+
+	inline int getGoalIndex()
+	{
+		return _goalIndex;
+	}
+
+
+	inline void setGoalIndex(int gi)
+	{
+		_goalIndex = gi;
+	}
+
+
+	inline float getLeeway()
+	{
+		return _leeway;
+	}
+
+
+	inline void setLeeway(float leeway)
+	{
+		_leeway = leeway;
 	}
 };

@@ -8,6 +8,8 @@
 #include "NavGrid.h"
 #include "AStar.h"
 
+
+
 class TDLevel : public Level
 {
 public:
@@ -31,6 +33,7 @@ private:
 	Procedural::Terrain terrain;
 	Model floorModel;
 	NavGrid _navGrid;
+	UINT GOAL_INDEX = 0;
 	//Model boxModel;
 	//Actor box;
 	float mspeed = 100.f;

@@ -13,13 +13,13 @@ private:
 
 	std::unordered_map<std::string, Material*> _matMap;
 
-	//@TODO obviously, this is to be replaced, sooner the better
-	void createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
-
 public:
 	void init(ShaderCache* shaderCache, ResourceManager* resMan);
 
 	Material* getMaterial(const std::string& name);
 
 	bool addMaterial(const std::string& name, Material* mat);
+
+	//@TODO obviously, this is to be replaced, sooner the better
+	void createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 };

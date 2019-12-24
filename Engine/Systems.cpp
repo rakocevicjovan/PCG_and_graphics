@@ -34,16 +34,16 @@ bool Systems::Initialize()
 		return false;
 	}
 
+	//loads in the td game and first level for now... cba going through the selection each time
+	_resMan.init(_device);
+
 	_shaderCompiler.init(&_hwnd, _device);
 	_shaderCache.init(&_shaderCompiler);
-	_matCache.init(&_shaderCache);
+	_matCache.init(&_shaderCache, &_resMan);
 	
 	_colEngine.init();
 	_colEngine.registerController(_controller);	//works both ways
 	_renderer._cam._controller = &_controller;
-
-	//loads in the td game and first level for now... cba going through the selection each time
-	_resMan.init(_device);
 
 	_levelMan = new LevelManager(*this);
 
