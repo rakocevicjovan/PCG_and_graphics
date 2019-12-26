@@ -734,6 +734,9 @@
     <ClInclude Include="RenderState.h">
       <Filter>Rendering\AAANow do it properly</Filter>
     </ClInclude>
+    <ClInclude Include="SteeringComponent.h">
+      <Filter>AI\Steering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

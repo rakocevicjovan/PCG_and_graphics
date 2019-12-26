@@ -16,24 +16,31 @@ public:
 
 
 	template <typename NavAgent>
-	static SVec3 separate(NavAgent& me, std::vector<NavAgent>& theBois)
+	static SVec3 separate(NavAgent& me, const std::vector<NavAgent>& theBois)
 	{
 		SVec3 result = SVec3::Zero;
+		int counter = 0;			//remove this idiocy when octree neighbours within radius is figured out
 
 		if (theBois.empty())
 			return result;
 
-		for (NavAgent& boi : theBois)
+		for (const NavAgent& boi : theBois)
 		{
 			SVec3 separator = -static_cast<SVec3>(boi.getPosition() - me.getPosition());
 			float distance = max(0.0001f, separator.Length());
+
+			//temporary fix for only checking near ones... octree should do this @TODO
+			if (distance < 3.f)
+			{
 			separator /= distance;
-			float intensityAdjustment = Math::smoothstep(10.f, 0.f, distance);	//me.getPersonalDistance() * 5.f
+			float intensityAdjustment = distance;//Math::smoothstep(2.f, 0.f, distance);
 			separator *= intensityAdjustment;
 			result += separator;	//me->r
+			counter++;
+			}
 		}
 
-		result /= theBois.size();
+		result /= counter;
 		return result;		// * agent.maxForce... not sure wth that is though, and I need another class not
 	}
 

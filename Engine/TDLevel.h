@@ -36,7 +36,6 @@ private:
 	UINT GOAL_INDEX = 0;
 	//Model boxModel;
 	//Actor box;
-	float mspeed = 100.f;
 
 	PointLight pLight;
 	

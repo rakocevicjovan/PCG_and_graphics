@@ -145,7 +145,7 @@ public:
 
 
 
-	int posToCell(SVec3 pos)
+	int posToCell(SVec3 pos) const
 	{
 		SVec3 offsetFromGrid = pos - _offset;
 
@@ -159,7 +159,7 @@ public:
 
 
 
-	SVec3 cellIndexToPos(int i)
+	SVec3 cellIndexToPos(int i) const
 	{
 		int row = i % _w;
 		int column = floor(i / _w);
@@ -172,25 +172,25 @@ public:
 
 
 
-	inline SVec3 flowAtIndex(int i)
+	inline SVec3 flowAtIndex(int i) const
 	{
 		return _cells[i]._direction;
 	}
 
 
-	inline SVec3 flowAtPosition(SVec3 pos)
+	inline SVec3 flowAtPosition(SVec3 pos) const
 	{
 		return _cells[posToCell(pos)]._direction;
 	}
 
 
-	inline SVec2 getCellSize()
+	inline SVec2 getCellSize() const
 	{
 		return _cellSize;
 	}
 
 
-	inline int getGoalIndex()
+	inline int getGoalIndex() const
 	{
 		return _goalIndex;
 	}
@@ -202,7 +202,7 @@ public:
 	}
 
 
-	inline float getLeeway()
+	inline float getLeeway() const
 	{
 		return _leeway;
 	}

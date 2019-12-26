@@ -43,7 +43,7 @@ void TDLevel::init(Systems& sys)
 	creeps.reserve(NUM_ENEMIES);
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
-		float offset = (i % 10) * ((i % 2) * 2 - 1);
+		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 		//creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
 		creeps.emplace_back(SMatrix::CreateTranslation(pos), S_RESMAN.getByName<Model*>("FlyingMage"));
@@ -124,27 +124,18 @@ void TDLevel::update(const RenderContext& rc)
 	
 
 
+	//not known to individuals as it depends on group size, therefore should not be in components I'd say... 
+	SVec2 stopArea(sqrt(creeps.size()), sqrt(creeps.size()));
+	stopArea *= 3.f;
+	float stopDistance = stopArea.Length();
+
+
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		//pathfinding
-		SVec3 cumulativeMovement = SVec3::Zero;
-		SVec3 flowVector = _navGrid.flowAtPosition(creeps[i].getPosition());
+		//pathfinding and steering
+		if (!S_INMAN.isKeyDown('R'))
+			creeps[i]._steerComp.update(_navGrid, rc.dTime, creeps, i, stopDistance);
 		
-		int creepsCell = _navGrid.posToCell(creeps[i].getPosition());
-		SVec3 vecToGoal = creeps[i].getPosition() - _navGrid.cellIndexToPos(_navGrid.getGoalIndex());
-		float distToGoal = vecToGoal.Length();
-		float adjustment = Math::smoothstep(0, _navGrid.getLeeway() * 5.f, distToGoal);
-		flowVector *= adjustment;
-		
-		//not holding R
-		if( !S_INMAN.isKeyDown('R') )
-			if(creepsCell != _navGrid.getGoalIndex())
-				cumulativeMovement += flowVector;
-
-		cumulativeMovement += Steering::separate(creeps[i], creeps);
-		
-		Math::Translate(creeps[i].transform, cumulativeMovement * mspeed * rc.dTime);
-
 		//height
 		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
 		float intervalPassed = fmod(rc.elapsed * 5.f + i * 2.f, 10.f);

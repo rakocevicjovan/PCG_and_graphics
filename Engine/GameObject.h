@@ -3,7 +3,7 @@
 #include "Model.h"
 #include "ShaderManager.h"
 #include "Camera.h"
-#include "AiController.h"
+#include "SteeringComponent.h"
 #include "Renderable.h"
 
 
@@ -34,10 +34,10 @@ public:
 class Actor : public GameObject
 {
 public:
-	Actor() {};
-	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc) {}
+	Actor() : _steerComp(this) {};
+	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc), _steerComp(this) {}
 
-	Actor(SMatrix& transform, Model* model) : transform(transform)
+	Actor(SMatrix& transform, Model* model) : transform(transform), _steerComp(this)
 	{
 		renderables.reserve(model->meshes.size());
 		for (Mesh& mesh : model->meshes)
@@ -54,6 +54,7 @@ public:
 	GraphicComponent gc;
 	std::vector<Renderable> renderables;
 	Collider* collider;
+	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const
 	{
@@ -117,8 +118,10 @@ public:
 
 
 
+/*
 class ActorAI : public Actor
 {
 	Actor a;
 	AiController* brain;
 };
+*/

@@ -365,6 +365,7 @@
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="StackAllocator.h" />
     <ClInclude Include="Steering.h" />
+    <ClInclude Include="SteeringComponent.h" />
     <ClInclude Include="StrifeLevel.h" />
     <ClInclude Include="Systems.h" />
     <ClInclude Include="TDLevel.h" />
