@@ -13,6 +13,30 @@ Octree::~Octree()
 
 
 
+void Octree::init(const AABB& worldBounds, int maxDepth)
+{
+	_worldBounds = worldBounds;
+	_maxDepth = maxDepth;
+}
+
+
+
+void Octree::preallocateTree()
+{
+	_rootNode = preallocateNode(_worldBounds.getPosition(), _worldBounds.getHalfSize(), _maxDepth, nullptr);
+}
+
+
+
+void Octree::prellocateRootOnly()
+{
+	_rootNode = new OctNode();
+	//_rootNode->parent = nullptr;
+	_rootNode->bBox = _worldBounds;	//kinda wasteful with copy construction...
+}
+
+
+
 void Octree::deleteNode(OctNode*& pNode)
 {
 	//delete each existing child first, then self, to avoid "orphans" leaking memory
@@ -51,42 +75,19 @@ void Octree::trimNode(OctNode*& pNode)
 
 bool Octree::isEmpty(OctNode* pNode)
 {
-	bool empty = pNode->hulls.empty();
-
 	//hulls not empty, no need to check the children
-	if (!empty)
+	if (!pNode->hulls.empty())
 		return false;
 
 	//hulls are empty, empty = true for now, check children
 	for (int i = 0; i < 8; ++i)
-		empty &= (pNode->children[i] == nullptr);		//can be stopped on first false but this seems to be quite fast anyways...
+	{
+		if (pNode->children[i] != nullptr)
+			return false;
+	}
 
 	//empy is still true if and only if all children are nullptr
-	return empty;
-}
-
-
-
-void Octree::init(const AABB& worldBounds, int maxDepth)
-{
-	_worldBounds = worldBounds;
-	_maxDepth = maxDepth;
-}
-
-
-
-void Octree::preallocateTree()
-{
-	_rootNode = preallocateNode(_worldBounds.getPosition(), _worldBounds.getHalfSize(), _maxDepth, nullptr);
-}
-
-
-
-void Octree::prellocateRootOnly()
-{
-	_rootNode = new OctNode();
-	//_rootNode->parent = nullptr;
-	_rootNode->bBox = _worldBounds;	//kinda wasteful with copy construction...
+	return true;
 }
 
 
@@ -260,25 +261,30 @@ void Octree::testAllCollisions(OctNode *pNode)
 {
 	// Keep track of all ancestor object lists in a stack
 	const int MAX_DEPTH = 40;
-	static OctNode *ancestorStack[MAX_DEPTH];
+	static OctNode* ancestorStack[MAX_DEPTH];
 	static int depth = 0;
 
-	// Check collision between all objects on this level and all ancestor objects. The current level is included as its own
-	// ancestor so all necessary pairwise tests are done
-	ancestorStack[depth++] = pNode;
-	for (int n = 0; n < depth; n++)
-	{
-		SphereHull pA, pB;
+	// Check collision between all objects on this level and all ancestor objects. 
+	// Current node is already included into the ancestory stack.
 
-		for (SphereHull* spA : ancestorStack[n]->hulls)	//std::list<SphereHull*>::iterator LI;
+	//empty nodes have no hulls OR children so we can just cut it off right there
+	if (isEmpty(pNode))
+		return;
+
+	ancestorStack[depth++] = pNode;
+
+	for (int n = 0; n < depth; n++)	//iterate the ancestor stack
+	{
+		for (SphereHull* spA : ancestorStack[n]->hulls)	//check all hulls in ancestors (inclu
 		{
 			for (SphereHull* spL : pNode->hulls)
 			{
 				if (spA == spL)	//not sure if continue or break, book says break but that seems incorrect!
 					continue;
 
-				//what to do with the hit result now... should separate response from detection
-				HitResult hr = Col::SphereSphereIntersection(*spA, *spL);		
+				//What to do with the hit result now? @TODO Separate response from detection!
+				//collider seems to be a good candidate to hold response logic and definition
+				HitResult hr = Col::SphereSphereIntersection(*spA, *spL);
 				if (hr.hit == true)
 				{
 					//breaks apart if actors relocate... consider between indices and allocators...
@@ -290,6 +296,7 @@ void Octree::testAllCollisions(OctNode *pNode)
 			}
 		}
 	}
+
 	// Recursively visit all existing children
 	for (int i = 0; i < 8; i++)
 	{

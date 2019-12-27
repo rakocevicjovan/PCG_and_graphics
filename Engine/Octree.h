@@ -54,6 +54,38 @@ public:
 	void getTreeAsAABBVector(std::vector<AABB>& AABBVector);
 
 	inline int getNodeCount() { return _nodeCount; }
+
+
+	//templates
+public:
+	template<typename NeighbourType>
+	void findWithin(const SVec3& p, float r, std::list<NeighbourType*>& neighbours)
+	{
+		findInNode(_rootNode, p, r, neighbours);
+	}
+
+private:
+	template<typename NeighbourType>
+	void findInNode(OctNode* pNode, const SVec3& p, float r, std::list<NeighbourType*>& neighbours)
+	{
+		if (isEmpty(pNode))
+			return;
+
+		for (SphereHull* curHull : pNode->hulls)
+		{
+			if ((curHull->getPosition() - p).LengthSquared() < ((r + curHull->r) * (r + curHull->r)))
+			{
+				neighbours.push_back(curHull->_collider->actParent);
+			}
+		}
+
+		for (int i = 0; i < 8; i++)
+		{
+			if (pNode->children[i])
+				findInNode(pNode->children[i], p, r, neighbours);
+		}
+	}
+
 };
 
 

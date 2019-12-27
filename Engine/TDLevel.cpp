@@ -133,9 +133,15 @@ void TDLevel::update(const RenderContext& rc)
 	for (int i = 0; i < creeps.size(); ++i)
 	{
 		//pathfinding and steering
-		if (!S_INMAN.isKeyDown('R'))
-			creeps[i]._steerComp.update(_navGrid, rc.dTime, creeps, i, stopDistance);
-		
+		std::list<Actor*> neighbourCreeps;
+
+		//this needs to turn off once nobody is moving...
+		if (creeps[i]._steerComp._active)
+		{
+			_oct.findWithin(creeps[i].getPosition(), 2.f, neighbourCreeps);
+			creeps[i]._steerComp.update(_navGrid, rc.dTime, neighbourCreeps, i, stopDistance);
+		}
+
 		//height
 		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
 		float intervalPassed = fmod(rc.elapsed * 5.f + i * 2.f, 10.f);
