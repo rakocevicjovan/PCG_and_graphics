@@ -4,7 +4,7 @@
 
 void FireLevel::init(Systems& sys)
 {
-	S_COLLISION.registerController(_sys._controller);
+	S_COLLISION.registerController(_sys._defController);
 
 	sceneTex.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
 	brightnessMask.Init(S_DEVICE, _sys.getWinW(), _sys.getWinH());
@@ -116,7 +116,7 @@ void FireLevel::update(const RenderContext & rc)
 		}
 	}
 	
-	if (!_sys._controller.isFlying())
+	if (!_sys._defController.isFlying())
 	{
 		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
 		float newHeight = terrain.getHeightAtPosition(rc.cam->GetPosition());

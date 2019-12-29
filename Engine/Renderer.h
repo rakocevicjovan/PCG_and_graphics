@@ -73,7 +73,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool initialize(int wWidth, int wHeight, HWND wHandle, ResourceManager& resMan, D3D& d3d, Controller& ctrl);
+	bool initialize(int wWidth, int wHeight, HWND wHandle, ResourceManager& resMan, D3D& d3d);
 	bool frame(float dTime, InputManager* inMan);
 	bool updatePerFrameBuffer(float dTime);
 	

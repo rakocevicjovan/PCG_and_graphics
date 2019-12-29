@@ -55,7 +55,7 @@ void InputManager::setKeyPressed(unsigned int input)
 	_keys[input] = true;
 
 	for (auto obs : _observers)
-		obs->Observe(KeyPressMessage((char)input, true ));
+		obs->Observe(KeyPressMessage((char)input, true));
 }
 
 
@@ -132,7 +132,6 @@ void InputManager::mouseRPressed()
 {
 	for (auto obs : _observers)
 		obs->Observe({ _abs.x, _abs.y, MBT::RIGHT, 1 });
-	return;
 }
 
 
@@ -140,7 +139,6 @@ void InputManager::mouseRReleased()
 {
 	for (auto obs : _observers)
 		obs->Observe({ _abs.x, _abs.y, MBT::RIGHT, 0 });
-	return;
 }
 
 

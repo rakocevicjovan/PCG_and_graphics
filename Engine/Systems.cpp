@@ -25,11 +25,12 @@ bool Systems::Initialize()
 	_deviceContext = _D3D.GetDeviceContext();
 
 	_inputManager.Initialize(_hwnd);
-	_controller = Controller(&_inputManager);
-	_inputManager.registerController(&_controller);
+	_defController = Controller(&_inputManager);
+	_inputManager.registerController(&_defController);
 
-	if (!_renderer.initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D, _controller))
+	if (!_renderer.initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D))
 	{
+		_renderer._cam._controller = &_defController;
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
 	}
@@ -42,8 +43,8 @@ bool Systems::Initialize()
 	_matCache.init(&_shaderCache, &_resMan);
 	
 	_colEngine.init();
-	_colEngine.registerController(_controller);	//works both ways
-	_renderer._cam._controller = &_controller;
+	_colEngine.registerController(_defController);	//works both ways
+	_renderer._cam._controller = &_defController;
 
 	_levelMan = new LevelManager(*this);
 

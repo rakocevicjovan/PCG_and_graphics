@@ -17,4 +17,6 @@ private:
 public:
 	void Observe(const KeyPressMessage& msg) override;
 	void Observe(const MouseClickMessage& msg) override;
+
+	void update(float dTime);
 };

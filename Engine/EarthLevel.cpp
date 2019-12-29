@@ -49,7 +49,7 @@ void EarthLevel::init(Systems& sys)
 	S_SHADY.instanced._instanceCount = 10;
 
 	S_RANDY._cam.SetTranslation(SVec3(16, 10, 16));
-	_sys._controller.toggleFlying();
+	_sys._defController.toggleFlying();
 }
 
 
@@ -59,7 +59,7 @@ void EarthLevel::update(const RenderContext & rc)
 	updateCam(rc.dTime);
 	win(rc.cam->GetPosition(), 10.f);
 
-	if (!_sys._controller.isFlying())
+	if (!_sys._defController.isFlying())
 	{
 		SVec3 oldPos = _sys._renderer._cam.GetCameraMatrix().Translation();
 		float newHeight = proceduralTerrain.getHeightAtPosition(rc.cam->GetPosition());

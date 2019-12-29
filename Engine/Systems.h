@@ -47,7 +47,7 @@ public:
 	CollisionEngine _colEngine;
 	Audio _audio;
 	GameClock _clock;
-	Controller _controller;
+	Controller _defController;
 
 	//rendering
 	Renderer _renderer;

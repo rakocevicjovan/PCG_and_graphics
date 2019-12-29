@@ -52,7 +52,7 @@ void AirLevel::init(Systems& sys)
 	player.a.transform *= SMatrix::CreateRotationY(PI * 1.25);
 	player.a.transform *= SMatrix::CreateTranslation(SVec3(256, 400, 256));
 	player.a.gc.shader = &S_SHADY.light;
-	player.con = _sys._controller;
+	player.con = _sys._defController;
 	player.cam = S_RANDY._cam;
 	player.cam.SetTranslation(player.a.transform.Translation() + player.a.transform.Forward() * SVec3(0, 1, 2));
 	

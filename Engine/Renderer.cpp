@@ -15,7 +15,7 @@ Renderer::~Renderer() {}
 
 
 
-bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d, Controller& ctrl)
+bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d)
 {
 	_d3d = &d3d;
 	_resMan = &resMan;
@@ -30,7 +30,6 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, Resource
 	_aspectRatio = (float)windowWidth / (float)windowHeight;
 
 	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _aspectRatio, SCREEN_NEAR, SCREEN_DEPTH));
-	_cam._controller = &ctrl;
 
 	createGlobalBuffers();
 

@@ -30,7 +30,7 @@ public:
 	ScreenspaceDrawer winScreen;
 	ScreenspaceDrawer::UINODE* winScreenNode;
 
-	AirLevel(Systems& sys) : Level(sys), player(sys._controller) {};
+	AirLevel(Systems& sys) : Level(sys), player(sys._defController) {};
 	~AirLevel() {};
 	void init(Systems& sys);
 	void update(const RenderContext& rc);

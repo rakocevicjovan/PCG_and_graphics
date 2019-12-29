@@ -3,7 +3,7 @@
 
 void WaterLevel::init(Systems& sys)
 {
-	_sys._colEngine.registerController(_sys._controller);
+	_sys._colEngine.registerController(_sys._defController);
 
 	skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/night.dds");
@@ -63,7 +63,7 @@ void WaterLevel::init(Systems& sys)
 	plat.transform *= SMatrix::CreateRotationY(-PI * 0.5f);
 	plat.transform *= _startingTransform;
 	S_COLLISION.registerModel(plat, BVT_AABB);
-	S_COLLISION.registerController(_sys._controller);
+	S_COLLISION.registerController(_sys._defController);
 
 	SMatrix petalScale = SMatrix::CreateScale(SVec3(5));
 
@@ -284,7 +284,7 @@ void WaterLevel::fakeCollision()
 	for (Ring& ring : _lillies._lillyRings)
 		for (Lilly& l : ring._lillies)
 			if (SVec3::DistanceSquared(S_RANDY._cam.GetCameraMatrix().Translation(), l.act.transform.Translation()) < 33.333 * 33.333
-				&& !_sys._controller.isFlying()
+				&& !_sys._defController.isFlying()
 				&& l.real)
 			{
 				onLilly = true;

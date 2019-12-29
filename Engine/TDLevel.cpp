@@ -21,6 +21,8 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 void TDLevel::init(Systems& sys)
 {
 	S_INMAN.registerController(&_rtsc);
+	_camera = S_RANDY._cam;
+
 
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
@@ -108,6 +110,8 @@ void TDLevel::update(const RenderContext& rc)
 #endif
 
 	ProcessSpecialInput(rc.dTime);
+
+	_rtsc.update(rc.dTime);
 
 	//this seems...unnecessarily slow, but i can't rely on pointing back
 	for (const Actor& creep : creeps)

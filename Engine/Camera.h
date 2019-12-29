@@ -5,12 +5,18 @@
 #include "Controller.h"
 #include "Frustum.h"
 
+
+
 class Camera
 {
+protected:
+	SMatrix _cameraMatrix;
+	SMatrix _viewMatrix;
+	SMatrix _projectionMatrix;
+
 public:
 	Controller* _controller;
 	Frustum frustum;
-
 
 	Camera();
 	Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix);
@@ -40,10 +46,5 @@ public:
 	void SetProjectionMatrix(const SMatrix& proj);
 
 	SVec3   GetPosition() const;
-	
-protected:
-	SMatrix _cameraMatrix;
-	SMatrix _viewMatrix;
-	SMatrix _projectionMatrix;
 };
 #endif

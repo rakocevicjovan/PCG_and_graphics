@@ -37,7 +37,7 @@ protected:
 
 	SVec3 goal;
 
-	Camera camera;
+	Camera _camera;
 
 public:
 	Level(Systems& sys);
