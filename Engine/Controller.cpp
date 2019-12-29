@@ -40,8 +40,8 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 
 
 
-void Controller::processRotationFPS(float dTime, SMatrix& transformation) const {
-
+void Controller::processRotationFPS(float dTime, SMatrix& transformation) const
+{
 	SMatrix rh;
 	rh = rh.CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
 
@@ -58,8 +58,8 @@ void Controller::processRotationFPS(float dTime, SMatrix& transformation) const 
 
 
 
-SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transformation) const {
-
+SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transformation) const
+{
 	SVec3 dir = -transformation.Forward();	//this is for rh... fml
 	SVec3 right = SVec3::Up.Cross(dir);
 
@@ -199,7 +199,7 @@ void Controller::setFlying(bool b)
 }
 
 
-
+//this shouldn't be here...
 void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity)
 {
 	if (!_colEng)

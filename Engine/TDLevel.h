@@ -7,6 +7,7 @@
 #include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
+#include "RTSController.h"
 
 
 
@@ -18,12 +19,14 @@ public:
 	void init(Systems& sys) override;
 	void update(const RenderContext& rc) override;
 	void draw(const RenderContext& rc) override;
-	void demolish() { this->~TDLevel(); };
+	void demolish();
 
 private:
 
 	SceneGraph _sg;
 	Octree _oct;
+
+	RTSController _rtsc;
 
 	//some enemy specific stuff...
 	UINT NUM_ENEMIES = 100u;

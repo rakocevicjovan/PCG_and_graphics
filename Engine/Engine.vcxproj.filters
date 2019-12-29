@@ -114,6 +114,9 @@
     <Filter Include="Interfaces">
       <UniqueIdentifier>{8cf5dbd4-d5b0-4454-a8b8-1549fab81550}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene management\Controllers">
+      <UniqueIdentifier>{214e74bf-8c92-4802-966a-1f8829005ba2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -302,9 +305,6 @@
     <ClCompile Include="Chaos.cpp">
       <Filter>Main systems</Filter>
     </ClCompile>
-    <ClCompile Include="Controller.cpp">
-      <Filter>Main systems</Filter>
-    </ClCompile>
     <ClCompile Include="GameClock.cpp">
       <Filter>Main systems</Filter>
     </ClCompile>
@@ -387,15 +387,18 @@
     <ClCompile Include="MaterialCache.cpp">
       <Filter>Rendering\AAANow do it properly\Materials</Filter>
     </ClCompile>
+    <ClCompile Include="Controller.cpp">
+      <Filter>Scene management\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="RTSController.cpp">
+      <Filter>Scene management\Controllers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
       <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Systems.h">
-      <Filter>Main systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Controller.h">
       <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
@@ -736,6 +739,12 @@
     </ClInclude>
     <ClInclude Include="SteeringComponent.h">
       <Filter>AI\Steering</Filter>
+    </ClInclude>
+    <ClInclude Include="Controller.h">
+      <Filter>Scene management\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="RTSController.h">
+      <Filter>Scene management\Controllers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

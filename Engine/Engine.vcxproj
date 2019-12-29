@@ -223,6 +223,7 @@
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="RTSController.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderBase.cpp" />
@@ -334,6 +335,7 @@
     <ClInclude Include="RenderStateManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="RTSController.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderBase.h" />

@@ -114,16 +114,3 @@ namespace Procedural
 		void setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames);
 	};
 }
-
-/*
-
-private:
-	bool CalculateNormals();
-
-	bool InitializeBuffers(ID3D11Device*);
-	void ShutdownBuffers();
-	void RenderBuffers(ID3D11DeviceContext*);
-
-
-
-*/

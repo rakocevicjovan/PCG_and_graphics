@@ -6,7 +6,7 @@
 
 InputManager::InputManager()
 {
-	mouse = std::make_unique<DirectX::Mouse>();
+	_mouse = std::make_unique<DirectX::Mouse>();
 }
 
 
@@ -16,7 +16,7 @@ InputManager::~InputManager()
 
 void InputManager::Initialize(HWND hwnd)
 {
-	mouse->SetWindow(hwnd);
+	_mouse->SetWindow(hwnd);
 
 	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
 
@@ -34,7 +34,7 @@ void InputManager::Initialize(HWND hwnd)
 		MessageBoxW(NULL, L"Could not register the raw input devices", L"Raw input fail", 0);
 
 	for(int i=0; i<256; i++)
-		m_keys[i] = false;
+		_keys[i] = false;
 }
 
 
@@ -52,7 +52,7 @@ void InputManager::unregisterController(Observer* controller)
 
 void InputManager::setKeyPressed(unsigned int input)
 {
-	m_keys[input] = true;
+	_keys[input] = true;
 
 	for (auto obs : _observers)
 		obs->Observe(KeyPressMessage((char)input, true ));
@@ -61,7 +61,7 @@ void InputManager::setKeyPressed(unsigned int input)
 
 void InputManager::setKeyReleased(unsigned int input)
 {
-	m_keys[input] = false;
+	_keys[input] = false;
 
 	for (auto obs : _observers)
 		obs->Observe(KeyPressMessage((char)input, false));
@@ -84,13 +84,13 @@ void InputManager::getRelativeXY(short& x, short& y)
 
 bool InputManager::isKeyDown(unsigned int key)
 {
-	return m_keys[key];
+	return _keys[key];
 }
 
 
 void InputManager::queryMouse()
 {
-	DirectX::Mouse::State state = mouse->GetState();
+	DirectX::Mouse::State state = _mouse->GetState();
 	tracker.Update(state);
 	_abs.x = state.x;
 	_abs.y = state.y;
@@ -117,37 +117,41 @@ void InputManager::queryMouse()
 void InputManager::mouseLPressed()
 {
 	for (auto obs : _observers)
-		obs->Observe({_abs.x, _abs.y, 1, 1});
+		obs->Observe({_abs.x, _abs.y, MBT::LEFT, 1});
 }
 
 
 void InputManager::mouseLReleased()
 {
 	for (auto obs : _observers)
-		obs->Observe(MouseClickMessage(_abs.x, _abs.y, 1, 0));
+		obs->Observe(MouseClickMessage(_abs.x, _abs.y, MBT::LEFT, 0));
 }
 
 
 void InputManager::mouseRPressed()
 {
+	for (auto obs : _observers)
+		obs->Observe({ _abs.x, _abs.y, MBT::RIGHT, 1 });
 	return;
 }
 
 
 void InputManager::mouseRReleased()
 {
+	for (auto obs : _observers)
+		obs->Observe({ _abs.x, _abs.y, MBT::RIGHT, 0 });
 	return;
 }
 
 
 void InputManager::toggleMouseMode()
 {
-	cursorVisible = !cursorVisible;
-	mouse->SetVisible(cursorVisible);
+	_cursorVisible = !_cursorVisible;
+	_mouse->SetVisible(_cursorVisible);
 }
 
 
 bool InputManager::getMouseMode()
 {
-	return cursorVisible;
+	return _cursorVisible;
 }

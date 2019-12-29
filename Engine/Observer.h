@@ -13,9 +13,10 @@ enum class MBT { LEFT, MIDDLE, RIGHT};
 struct MouseClickMessage
 {
 	short x, y;
-	bool isLeft, pressed;
+	bool pressed;
+	MBT mButtonType;
 
-	MouseClickMessage(short x, short y, bool left, bool pressed) : x(x), y(y), isLeft(left), pressed(pressed) {}
+	MouseClickMessage(short x, short y, MBT btn, bool pressed) : x(x), y(y), mButtonType(btn), pressed(pressed) {}
 };
 
 

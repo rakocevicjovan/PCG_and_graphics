@@ -20,11 +20,11 @@ class InputManager
 {
 private:
 	std::vector<Observer*> _observers;
-	std::unique_ptr<DirectX::Mouse> mouse;
+	std::unique_ptr<DirectX::Mouse> _mouse;
 	DirectX::Mouse::ButtonStateTracker tracker;
 
-	bool m_keys[256];
-	bool cursorVisible = false;
+	bool _keys[256];
+	bool _cursorVisible = false;
 	MCoords _rel;
 	MCoords _abs;
 

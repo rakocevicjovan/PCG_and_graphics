@@ -30,7 +30,9 @@ private:
 	void applyGravity(const float dTime, SMatrix& transformation) const;
 	void resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity);
 
-	float rotCf = 15.f, movCf = 50.f, camDist = 66.f;
+	float rotCf = 15.f;
+	float movCf = 50.f;
+	float camDist = 66.f;
 	short dx = 0, dy = 0;
 
 	bool _isFlying = true;

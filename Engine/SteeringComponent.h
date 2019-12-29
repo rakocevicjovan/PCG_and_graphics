@@ -39,9 +39,6 @@ public:
 		SVec3 vecToGoal = myPos - goalPos;
 		float distToGoal = vecToGoal.Length();
 
-		//if (!S_INMAN.isKeyDown('R')) {}
-
-
 		//seeking using the flowfield
 		if (distToGoal > stopDistance)
 		{

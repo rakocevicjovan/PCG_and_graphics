@@ -104,6 +104,9 @@ namespace Procedural
 		return result;
 	}
 
+
+
+
 	void Terrain::GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax) 
 	{
 		_numRows = _numColumns = pow(2, steps) + 1;
@@ -409,7 +412,7 @@ namespace Procedural
 		indexBufferDesc.MiscFlags = 0;
 		indexBufferDesc.StructureByteStride = 0;
 
-		// Give the subresource structure a pointer to the index data.
+
 		indexData.pSysMem = indices.data();
 		indexData.SysMemPitch = 0;
 		indexData.SysMemSlicePitch = 0;
@@ -426,7 +429,6 @@ namespace Procedural
 	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		unsigned int bufferNumber;
 
 		MatrixBuffer* dataPtr;
 		LightBuffer* dataPtr2;
@@ -436,14 +438,14 @@ namespace Procedural
 		SMatrix vT = cam.GetViewMatrix().Transpose();
 		SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
-		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return;
+		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+			return;
 		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 		dataPtr->world = mT;
 		dataPtr->view = vT;
 		dataPtr->projection = pT;
 		dc->Unmap(s._matrixBuffer, 0);
-		bufferNumber = 0;
-		dc->VSSetConstantBuffers(bufferNumber, 1, &s._matrixBuffer);
+		dc->VSSetConstantBuffers(0, 1, &s._matrixBuffer);
 
 
 		if (FAILED(dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
@@ -458,8 +460,7 @@ namespace Procedural
 		dataPtr2->pos = pointLight.pos;
 		dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 		dc->Unmap(s._lightBuffer, 0);
-		bufferNumber = 0;
-		dc->PSSetConstantBuffers(bufferNumber, 1, &s._lightBuffer);
+		dc->PSSetConstantBuffers(0, 1, &s._lightBuffer);
 
 		unsigned int stride = sizeof(Vert3D);
 		unsigned int offset = 0;
@@ -639,7 +640,7 @@ namespace Procedural
 		result.reserve(vertices.size());
 		
 		for (int i = 0; i < vertices.size(); i++)
-			result.push_back(SVec2(vertices[i].pos.x, vertices[i].pos.z));
+			result.emplace_back(vertices[i].pos.x, vertices[i].pos.z);
 
 		return result;
 	}

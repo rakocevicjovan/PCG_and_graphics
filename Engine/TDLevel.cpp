@@ -20,6 +20,8 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 
 void TDLevel::init(Systems& sys)
 {
+	S_INMAN.registerController(&_rtsc);
+
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
@@ -132,12 +134,11 @@ void TDLevel::update(const RenderContext& rc)
 
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		//pathfinding and steering
-		std::list<Actor*> neighbourCreeps;
+		//pathfinding and steering, needs to turn off once nobody is moving...
 
-		//this needs to turn off once nobody is moving...
 		if (creeps[i]._steerComp._active)
 		{
+			std::list<Actor*> neighbourCreeps;
 			_oct.findWithin(creeps[i].getPosition(), 2.f, neighbourCreeps);
 			creeps[i]._steerComp.update(_navGrid, rc.dTime, neighbourCreeps, i, stopDistance);
 		}
@@ -246,6 +247,14 @@ void TDLevel::draw(const RenderContext& rc)
 	renderGuiElems(guiElems);
 
 	rc.d3d->EndScene();
+}
+
+
+
+void TDLevel::demolish()
+{
+	S_INMAN.unregisterController(&_rtsc);
+	finished = true;
 }
 
 

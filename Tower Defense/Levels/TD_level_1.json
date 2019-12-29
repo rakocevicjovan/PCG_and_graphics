@@ -4,7 +4,7 @@
     "project": "Tower defense",
     "jsonDefPath": "Levels\\TD_level_1.json",
     "createdAt": "25. Nov 2019 22:07",
-    "updatedAt": "02. Dec 2019 14:35",
+    "updatedAt": "29. Dec 2019 14:37",
     "description": "Easy intro level.",
     "assets": [
         {
@@ -34,8 +34,15 @@
             "name": "Skysphere",
             "level": "Level 1",
             "resType": "mesh"
+        },
+        {
+            "id": 11,
+            "path": "Assets\\Models\\Guard tower\\GuardTower.dae",
+            "name": "GuardTower",
+            "level": "Level 1",
+            "resType": "mesh"
         }
     ],
-    "resourceCount": 4,
+    "resourceCount": 5,
     "fileName": "TD_level_1.json"
 }
