@@ -64,8 +64,8 @@ void RTSController::Observe(const MouseClickMessage& msg)
 }
 
 
-
-void update()
+//not implemented
+void RTSController::update(float dTime)
 {
-
+	return;
 }
