@@ -22,9 +22,9 @@ private:
 	
 	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
 	
-	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
+	bool loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
 	
-	bool loadEmbeddedTexture(ID3D11Device* device, Texture& texture, const aiScene* scene, UINT index);
+	bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index);
 	
 	SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
 

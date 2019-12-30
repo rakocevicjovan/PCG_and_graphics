@@ -101,13 +101,11 @@ std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
 
 
 
-bool Texture::LoadFromMemory(const unsigned char* data, size_t size, ID3D11Device* device)
+bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 {
 	try
 	{
 		_data = stbi_load_from_memory(data, size, &w, &h, &n, 4);
-
-		Setup(device);
 
 		return (_data != nullptr);
 	}

@@ -15,9 +15,11 @@
 #include "SkeletalMesh.h"
 #include "Animation.h"
 
+
+//@TODO Make this use the model class for everything but skinning... 
+//can't replicate all material changes that happened without messing something up
 class SkeletalModel
 {
-
 public:
 
 	std::vector<SkeletalMesh> meshes;
@@ -131,7 +133,7 @@ public:
 
 
 
-	SkeletalMesh processSkeletalMesh(ID3D11Device* dvc, aiMesh *mesh, const aiScene *scene, unsigned int ind/*, aiMatrix4x4 parentTransform*/, float rUVx, float rUVy)
+	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind/*, aiMatrix4x4 parentTransform*/, float rUVx, float rUVy)
 	{
 		// Data to fill
 		std::vector<BonedVert3D> vertices;
@@ -170,16 +172,19 @@ public:
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 			// 1. Diffuse maps
-			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(dvc, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
+			std::vector<Texture> diffuseMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 			locTextures.insert(locTextures.end(), diffuseMaps.begin(), diffuseMaps.end());
 			// 2. Specular maps
-			std::vector<Texture> specularMaps = this->loadMaterialTextures(dvc, scene, material, aiTextureType_SPECULAR, "texture_specular");
+			std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
 			locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
 
 		}
 		loadBones(*mesh, vertices);
 
-		return SkeletalMesh(vertices, indices, locTextures, dvc, ind);
+		for (Texture& t : locTextures)
+			t.Setup(device);
+
+		return SkeletalMesh(vertices, indices, locTextures, device, ind);
 	}
 
 
@@ -210,7 +215,7 @@ public:
 			{   // If texture hasn't been loaded already, load it
 
 				std::string fPath = directory + "/" + std::string(str.data);
-				Texture texture(dvc, fPath);
+				Texture texture(fPath);
 				texture.typeName = typeName;
 
 				//texture.Bind(type);
@@ -218,6 +223,7 @@ public:
 
 				if (!loaded)
 				{
+					//@TODO use the same version as in model... and stop duplicating code for all this anyways
 					loaded = this->LoadEmbeddedTextures(dvc, textures, scene, fPath, type, typeName);	//for embedded textures
 
 					if (!loaded)
@@ -243,7 +249,7 @@ public:
 		{
 			for (size_t ti = 0; ti < scene->mNumTextures; ti++)
 			{
-				Texture texture(dvc, fPath);
+				Texture texture(fPath);
 				texture.typeName = typeName;
 
 				size_t texSize = scene->mTextures[ti]->mWidth;
@@ -252,7 +258,7 @@ public:
 				if (scene->mTextures[ti]->mHeight != 0)
 					texSize *= scene->mTextures[ti]->mHeight;
 
-				texture.LoadFromMemory(reinterpret_cast<unsigned char*>(scene->mTextures[ti]->pcData), texSize, dvc);
+				texture.LoadFromMemory(reinterpret_cast<unsigned char*>(scene->mTextures[ti]->pcData), texSize);
 
 				textures.push_back(texture);
 				textures_loaded.push_back(texture);

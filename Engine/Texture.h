@@ -38,7 +38,7 @@ public:
 
 	bool LoadFromStoredPath();
 	bool LoadFromFile(std::string path);
-	bool LoadFromMemory(const unsigned char* texture, size_t size, ID3D11Device* device);
+	bool LoadFromMemory(const unsigned char* texture, size_t size);
 	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
 	void LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 	bool Setup(ID3D11Device* device, bool grayscale = false);

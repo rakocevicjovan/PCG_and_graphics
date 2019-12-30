@@ -157,12 +157,10 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 		// Diffuse maps
-		std::vector<Texture> diffuseMaps = loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
-		locTextures.insert(locTextures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		loadMaterialTextures(locTextures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 
 		// Specular maps
-		std::vector<Texture> specularMaps = loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
-		locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
+		loadMaterialTextures(locTextures, scene, material, aiTextureType_SPECULAR, "texture_specular");
 
 		// Normal maps
 		// ...
@@ -176,16 +174,14 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 
 
 
-std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
+bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
 {
-	std::vector<Texture> textures;
-
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
 	{
 		aiString obtainedTexturePath;
 		mat->GetTexture(type, i, &obtainedTexturePath);
 
-		//what? this returns whatever I gave it doesn't it???
+		//this line seems rather pointless...
 		std::string fPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
 		Texture curTexture(fPath);
 		curTexture.typeName = typeName;
@@ -197,7 +193,7 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 		if (!loaded)
 		{
 			int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
-			loaded = this->loadEmbeddedTexture(device, curTexture, scene, embeddedIndex);
+			loaded = this->loadEmbeddedTexture(curTexture, scene, embeddedIndex);
 		}
 			
 
@@ -211,22 +207,23 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 		textures.push_back(curTexture);
 	}
 
-	return textures;
+	//goes through for now... I'm using some bootleg meshes, happens on occasion, don't want to terminate over it
+	return true;
 }
 
 
 
-bool Model::loadEmbeddedTexture(ID3D11Device* device, Texture& texture, const aiScene* scene, UINT index)
+bool Model::loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index)
 {
 	aiTexture* aiTex = scene->mTextures[index];
 
 	size_t texSize = aiTex->mWidth;
 
-	//compressed textures tend to have height value 0
+	//compressed textures could have height value of 0
 	if (aiTex->mHeight != 0)
 		texSize *= aiTex->mHeight;
 
-	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize, device);
+	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
 
 	return true;
 }
