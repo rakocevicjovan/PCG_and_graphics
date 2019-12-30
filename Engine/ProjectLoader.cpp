@@ -78,7 +78,7 @@ const std::vector<std::string>& ProjectLoader::getLevelList() const
 
 
 
-/* olf signature... prefer ref to rvalue anyways
+/* old signature... prefer ref to rvalue anyways
 bool ProjectLoader::loadProjFromConfig(const std::string&& projConfPath)
 {
 	_projConfPath = projConfPath;

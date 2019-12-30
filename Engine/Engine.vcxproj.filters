@@ -77,30 +77,6 @@
     <Filter Include="Scene management">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game levels">
-      <UniqueIdentifier>{100f2c1d-a426-4133-a273-4e1933746ec0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\__Picker">
-      <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\Air">
-      <UniqueIdentifier>{f4e8c8f2-39b6-472c-ad78-802d67ec4c86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\Earth">
-      <UniqueIdentifier>{06b06c8e-a6f3-40c0-99a9-59da9586da86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\Fire">
-      <UniqueIdentifier>{12476446-bd60-4e81-aa57-428a9d103ac8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\SKTest">
-      <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\TowerDefense">
-      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Game levels\Water">
-      <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI\Steering">
       <UniqueIdentifier>{fb52adb5-581e-43f4-837f-315408e6648f}</UniqueIdentifier>
     </Filter>
@@ -116,6 +92,33 @@
     </Filter>
     <Filter Include="Scene management\Controllers">
       <UniqueIdentifier>{214e74bf-8c92-4802-966a-1f8829005ba2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels">
+      <UniqueIdentifier>{100f2c1d-a426-4133-a273-4e1933746ec0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels\__Picker">
+      <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels\Air">
+      <UniqueIdentifier>{f4e8c8f2-39b6-472c-ad78-802d67ec4c86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels\Earth">
+      <UniqueIdentifier>{06b06c8e-a6f3-40c0-99a9-59da9586da86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels\Fire">
+      <UniqueIdentifier>{12476446-bd60-4e81-aa57-428a9d103ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels\SKTest">
+      <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Old levels\Water">
+      <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TowerDefense">
+      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{1a0b1252-978b-4ec4-843f-e14ff86410ac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -273,31 +276,31 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="AirLevel.cpp">
-      <Filter>Game levels\Air</Filter>
+      <Filter>Old levels\Air</Filter>
     </ClCompile>
     <ClCompile Include="Dragon.cpp">
-      <Filter>Game levels\Air</Filter>
+      <Filter>Old levels\Air</Filter>
     </ClCompile>
     <ClCompile Include="EarthLevel.cpp">
-      <Filter>Game levels\Earth</Filter>
+      <Filter>Old levels\Earth</Filter>
     </ClCompile>
     <ClCompile Include="Hexer.cpp">
-      <Filter>Game levels\Fire</Filter>
+      <Filter>Old levels\Fire</Filter>
     </ClCompile>
     <ClCompile Include="FireLevel.cpp">
-      <Filter>Game levels\Fire</Filter>
+      <Filter>Old levels\Fire</Filter>
     </ClCompile>
     <ClCompile Include="Lillies.cpp">
-      <Filter>Game levels\Water</Filter>
+      <Filter>Old levels\Water</Filter>
     </ClCompile>
     <ClCompile Include="WaterLevel.cpp">
-      <Filter>Game levels\Water</Filter>
+      <Filter>Old levels\Water</Filter>
     </ClCompile>
     <ClCompile Include="TestLevel.cpp">
-      <Filter>Game levels\SKTest</Filter>
+      <Filter>Old levels\SKTest</Filter>
     </ClCompile>
     <ClCompile Include="TDLevel.cpp">
-      <Filter>Game levels\TowerDefense</Filter>
+      <Filter>TowerDefense</Filter>
     </ClCompile>
     <ClCompile Include="Audio.cpp">
       <Filter>Main systems</Filter>
@@ -306,9 +309,6 @@
       <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="GameClock.cpp">
-      <Filter>Main systems</Filter>
-    </ClCompile>
-    <ClCompile Include="InputManager.cpp">
       <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -393,15 +393,15 @@
     <ClCompile Include="RTSController.cpp">
       <Filter>Scene management\Controllers</Filter>
     </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
       <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Systems.h">
-      <Filter>Main systems</Filter>
-    </ClInclude>
-    <ClInclude Include="InputManager.h">
       <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="GameClock.h">
@@ -594,31 +594,31 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="AirLevel.h">
-      <Filter>Game levels\Air</Filter>
+      <Filter>Old levels\Air</Filter>
     </ClInclude>
     <ClInclude Include="Dragon.h">
-      <Filter>Game levels\Air</Filter>
+      <Filter>Old levels\Air</Filter>
     </ClInclude>
     <ClInclude Include="EarthLevel.h">
-      <Filter>Game levels\Earth</Filter>
+      <Filter>Old levels\Earth</Filter>
     </ClInclude>
     <ClInclude Include="Hexer.h">
-      <Filter>Game levels\Fire</Filter>
+      <Filter>Old levels\Fire</Filter>
     </ClInclude>
     <ClInclude Include="FireLevel.h">
-      <Filter>Game levels\Fire</Filter>
+      <Filter>Old levels\Fire</Filter>
     </ClInclude>
     <ClInclude Include="Lillies.h">
-      <Filter>Game levels\Water</Filter>
+      <Filter>Old levels\Water</Filter>
     </ClInclude>
     <ClInclude Include="WaterLevel.h">
-      <Filter>Game levels\Water</Filter>
+      <Filter>Old levels\Water</Filter>
     </ClInclude>
     <ClInclude Include="TestLevel.h">
-      <Filter>Game levels\SKTest</Filter>
+      <Filter>Old levels\SKTest</Filter>
     </ClInclude>
     <ClInclude Include="TDLevel.h">
-      <Filter>Game levels\TowerDefense</Filter>
+      <Filter>TowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="FileUtilities.h">
       <Filter>Main systems</Filter>
@@ -627,7 +627,7 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPickerLevel.h">
-      <Filter>Game levels\__Picker</Filter>
+      <Filter>Old levels\__Picker</Filter>
     </ClInclude>
     <ClInclude Include="LevelReader.h">
       <Filter>Resources</Filter>
@@ -745,6 +745,12 @@
     </ClInclude>
     <ClInclude Include="RTSController.h">
       <Filter>Scene management\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Input</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

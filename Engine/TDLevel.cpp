@@ -31,8 +31,8 @@ void TDLevel::init(Systems& sys)
 	terrain.SetUp(S_DEVICE);
 	floorModel = Model(terrain, S_DEVICE);
 
-	_oct.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it is reaaallly big... probably not worth it for my game
-	_oct.prellocateRootOnly();						//_oct.preallocateTree();	
+	_octree.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it's really big, probably not worth it for my game
+	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.populate();
@@ -61,7 +61,7 @@ void TDLevel::init(Systems& sys)
 		creeps[i].collider->hulls.push_back(new SphereHull(pos, 1));	//eliminate duplicate pos, redundant and pain to update
 		creeps[i].collider->hulls.back()->_collider = creeps[i].collider;
 
-		_oct.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
+		_octree.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
 	}
 
 	/*
@@ -118,13 +118,12 @@ void TDLevel::update(const RenderContext& rc)
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
 	//Another alternative is having a bool empty; in the octnode...
-	_oct.updateAll();	//@TODO probably should optimize this
-	_oct.lazyTrim();
-	_oct.collideAll();	//@TODO this as well?
+	_octree.updateAll();	//@TODO probably should optimize this
+	_octree.lazyTrim();
+	_octree.collideAll();	//@TODO this as well?
 	
 
-
-	//not known to individuals as it depends on group size, therefore should not be in components I'd say... 
+	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
 	SVec2 stopArea(sqrt(creeps.size()), sqrt(creeps.size()));
 	stopArea *= 3.f;
 	float stopDistance = stopArea.Length();
@@ -137,7 +136,7 @@ void TDLevel::update(const RenderContext& rc)
 		if (creeps[i]._steerComp._active)
 		{
 			std::list<Actor*> neighbourCreeps;
-			_oct.findWithin(creeps[i].getPosition(), 2.f, neighbourCreeps);
+			_octree.findWithin(creeps[i].getPosition(), 2.f, neighbourCreeps);
 			creeps[i]._steerComp.update(_navGrid, rc.dTime, neighbourCreeps, i, stopDistance);
 		}
 
@@ -173,7 +172,7 @@ void TDLevel::update(const RenderContext& rc)
 		ray.direction *= 500.f;
 		Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), floorIntersect);
 
-		//box.transform = SMatrix::CreateTranslation(floorIntersect);
+		creeps[0].transform = SMatrix::CreateTranslation(floorIntersect);
 	}
 
 
@@ -238,7 +237,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	std::vector<GuiElement> guiElems =
 	{
-		{"Octree",	std::string("OCT node count " + std::to_string(_oct.getNodeCount()))},
+		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};

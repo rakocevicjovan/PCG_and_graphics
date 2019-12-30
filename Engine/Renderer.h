@@ -16,7 +16,6 @@ const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
-class ResourceManager;
 class InputManager;
 class Renderable;
 
@@ -53,7 +52,6 @@ private:
 
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-	ResourceManager* _resMan;
 	D3D* _d3d;
 	//StackAllocator sAlloc;
 
@@ -61,7 +59,7 @@ private:
 	ID3D11Buffer* _perCamBuffer;
 	ID3D11Buffer* _perFrameBuffer;
 
-	bool updateRenderContext(float dTime);
+	void updateRenderContext(float dTime);
 	bool createGlobalBuffers();
 
 public:
@@ -73,8 +71,8 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool initialize(int wWidth, int wHeight, HWND wHandle, ResourceManager& resMan, D3D& d3d);
-	bool frame(float dTime, InputManager* inMan);
+	bool initialize(int wWidth, int wHeight, HWND wHandle, D3D& d3d);
+	bool frame(float dTime);
 	bool updatePerFrameBuffer(float dTime);
 	
 	void setOSTRenderTarget(OST& ost);

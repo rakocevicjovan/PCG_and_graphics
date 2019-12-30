@@ -1,6 +1,5 @@
 #include "Renderer.h"
 #include "InputManager.h"
-#include "ResourceManager.h"
 #include "GameObject.h"
 #include "Shader.h"
 
@@ -15,10 +14,9 @@ Renderer::~Renderer() {}
 
 
 
-bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, ResourceManager& resMan, D3D& d3d)
+bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d)
 {
 	_d3d = &d3d;
-	_resMan = &resMan;
 	
 	_device = d3d.GetDevice();
 	_deviceContext = d3d.GetDeviceContext();
@@ -68,14 +66,14 @@ bool Renderer::createGlobalBuffers()
 
 
 
-bool Renderer::frame(float dTime, InputManager* inMan)
+bool Renderer::frame(float dTime)
 {
 	elapsed += dTime;
 	
-	bool res = updateRenderContext(dTime);
+	updateRenderContext(dTime);
 	_cam.Update(dTime);
 
-	updatePerFrameBuffer(dTime);
+	bool res = updatePerFrameBuffer(dTime);
 
 	return res;
 }
@@ -111,15 +109,13 @@ void Renderer::setCameraMatrix(const SMatrix& camMatrix)
 
 
 
-bool Renderer::updateRenderContext(float dTime)
+void Renderer::updateRenderContext(float dTime)
 {
 	rc.cam = &_cam;
 	rc.d3d = _d3d;
 	rc.dTime = dTime;
 	rc.elapsed = elapsed;
 	rc.shMan = &_shMan;
-
-	return true;
 }
 
 

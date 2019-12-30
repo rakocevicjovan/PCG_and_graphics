@@ -272,6 +272,7 @@
     <ClInclude Include="CBuffer.h" />
     <ClInclude Include="ColFuncs.h" />
     <ClInclude Include="AStar.h" />
+    <ClInclude Include="Controls.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
     <ClInclude Include="LevelReader.h" />

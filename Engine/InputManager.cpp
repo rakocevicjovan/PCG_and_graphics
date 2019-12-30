@@ -14,7 +14,7 @@ InputManager::~InputManager()
 {}
 
 
-void InputManager::Initialize(HWND hwnd)
+void InputManager::initialize(HWND hwnd)
 {
 	_mouse->SetWindow(hwnd);
 
@@ -35,6 +35,13 @@ void InputManager::Initialize(HWND hwnd)
 
 	for(int i=0; i<256; i++)
 		_keys[i] = false;
+}
+
+
+void InputManager::update()
+{
+	queryMouse();
+	setRelativeXY(0, 0);
 }
 
 

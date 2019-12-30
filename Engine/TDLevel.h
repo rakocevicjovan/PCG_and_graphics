@@ -24,7 +24,7 @@ public:
 private:
 
 	SceneGraph _sg;
-	Octree _oct;
+	Octree _octree;
 
 	RTSController _rtsc;
 
@@ -38,7 +38,6 @@ private:
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
 	//Model boxModel;
-	//Actor box;
 
 	PointLight pLight;
 	

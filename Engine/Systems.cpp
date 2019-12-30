@@ -24,11 +24,11 @@ bool Systems::Initialize()
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-	_inputManager.Initialize(_hwnd);
+	_inputManager.initialize(_hwnd);
 	_defController = Controller(&_inputManager);
 	_inputManager.registerController(&_defController);
 
-	if (!_renderer.initialize(windowWidth, windowHeight, _hwnd, _resMan, _D3D))
+	if (!_renderer.initialize(windowWidth, windowHeight, _hwnd, _D3D))
 	{
 		_renderer._cam._controller = &_defController;
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
@@ -179,7 +179,7 @@ bool Systems::Frame(float dTime)
 	if (_inputManager.isKeyDown(VK_ESCAPE))
 		return false;
 
-	if (!_renderer.frame(dTime, &_inputManager))
+	if (!_renderer.frame(dTime))
 		return false;
 
 	_levelMan->update(*this, dTime);
@@ -188,9 +188,7 @@ bool Systems::Frame(float dTime)
 
 	_colEngine.update();
 
-	_inputManager.queryMouse();
-
-	_inputManager.setRelativeXY(0, 0);
+	_inputManager.update();
 
 	return true;
 }

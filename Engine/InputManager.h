@@ -28,12 +28,19 @@ private:
 	MCoords _rel;
 	MCoords _abs;
 
+	void queryMouse();
+	void mouseLPressed();
+	void mouseLReleased();
+	void mouseRPressed();
+	void mouseRReleased();
+
 public:
 
 	InputManager();
 	~InputManager();
 
-	void Initialize(HWND hwnd);
+	void initialize(HWND hwnd);
+	void update();
 
 	void registerController(Observer* controller);
 	void unregisterController(Observer* controller);
@@ -51,10 +58,4 @@ public:
 
 	void toggleMouseMode();
 	bool getMouseMode();
-
-	void queryMouse();
-	void mouseLPressed();
-	void mouseLReleased();
-	void mouseRPressed();
-	void mouseRReleased();
 };
