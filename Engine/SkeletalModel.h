@@ -218,7 +218,7 @@ public:
 
 				if (!loaded)
 				{
-					loaded = this->LoadGLTextures(dvc, textures, scene, fPath, type, typeName);	//for embedded textures
+					loaded = this->LoadEmbeddedTextures(dvc, textures, scene, fPath, type, typeName);	//for embedded textures
 
 					if (!loaded)
 						std::cout << "Texture did not load!" << std::endl;
@@ -237,17 +237,22 @@ public:
 
 
 
-	bool LoadGLTextures(ID3D11Device* dvc, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
+	bool LoadEmbeddedTextures(ID3D11Device* dvc, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
 	{
 		if (scene->HasTextures())
 		{
 			for (size_t ti = 0; ti < scene->mNumTextures; ti++)
 			{
-
 				Texture texture(dvc, fPath);
 				texture.typeName = typeName;
 
-				texture.LoadFromMemory(scene->mTextures[ti], dvc);
+				size_t texSize = scene->mTextures[ti]->mWidth;
+
+				//compressed textures tend to have height value 0
+				if (scene->mTextures[ti]->mHeight != 0)
+					texSize *= scene->mTextures[ti]->mHeight;
+
+				texture.LoadFromMemory(reinterpret_cast<unsigned char*>(scene->mTextures[ti]->pcData), texSize, dvc);
 
 				textures.push_back(texture);
 				textures_loaded.push_back(texture);

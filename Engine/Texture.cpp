@@ -32,6 +32,8 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 	Setup(device);
 }
 
+
+
 Texture::Texture(const std::string& fileName) : _fileName(fileName)
 {
 	if (!LoadFromStoredPath())

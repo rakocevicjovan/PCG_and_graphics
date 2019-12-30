@@ -32,7 +32,7 @@ public:
 
 	SMatrix transform;
 	Material* baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
-	SphereHull* baseHull;
+	Hull* baseHull = new SphereHull(SVec3(), 0);
 
 	std::vector<Texture> textures;	//@TODO get rid of it
 	unsigned int indexIntoModelMeshArray;

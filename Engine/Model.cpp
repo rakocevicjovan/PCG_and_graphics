@@ -165,7 +165,11 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 		locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
 
 		// Normal maps
+		// ...
 	}
+
+	for (Texture& t : locTextures)
+		t.Setup(device);
 
 	return Mesh(vertices, indices, locTextures, device, ind);
 }
@@ -183,15 +187,19 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 
 		//what? this returns whatever I gave it doesn't it???
 		std::string fPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
-		Texture texture(device, fPath);
-		texture.typeName = typeName;
+		Texture curTexture(fPath);
+		curTexture.typeName = typeName;
 
 		//try to load this texture from file
-		bool loaded = texture.LoadFromStoredPath();	
+		bool loaded = curTexture.LoadFromStoredPath();
 
 		//load from file failed - probably means it is embedded, try to load from memory instead...
 		if (!loaded)
-			loaded = this->loadEmbeddedTextures(device, textures, scene, fPath, type, typeName);
+		{
+			int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
+			loaded = this->loadEmbeddedTexture(device, curTexture, scene, embeddedIndex);
+		}
+			
 
 		//load failed completely - most likely the data is corrupted or my library doesn't support it
 		if (!loaded)
@@ -200,7 +208,7 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 			continue;
 		}
 
-		textures.push_back(texture);
+		textures.push_back(curTexture);
 	}
 
 	return textures;
@@ -208,28 +216,19 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 
 
 
-bool Model::loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName)
+bool Model::loadEmbeddedTexture(ID3D11Device* device, Texture& texture, const aiScene* scene, UINT index)
 {
-	if (scene->HasTextures())
-	{
-		for (size_t texIndex = 0; texIndex < scene->mNumTextures; texIndex++)
-		{
-			Texture texture(device, fPath);
-			texture.typeName = typeName;
+	aiTexture* aiTex = scene->mTextures[index];
 
-			size_t texSize = scene->mTextures[texIndex]->mHeight * scene->mTextures[texIndex]->mWidth;
-			
-			if (texSize == 0)
-				texSize = scene->mTextures[texIndex]->mWidth;
+	size_t texSize = aiTex->mWidth;
 
-			texture.LoadFromMemory(reinterpret_cast<unsigned char*>(scene->mTextures[texIndex]->pcData), texSize, device);
+	//compressed textures tend to have height value 0
+	if (aiTex->mHeight != 0)
+		texSize *= aiTex->mHeight;
 
-			textures.push_back(texture);
-		}
+	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize, device);
 
-		return true;
-	}
-	return false;
+	return true;
 }
 
 

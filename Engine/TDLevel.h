@@ -39,6 +39,8 @@ private:
 	UINT GOAL_INDEX = 0;
 	Actor tower;
 
+	Model WAAAT;
+
 	PointLight pLight;
 	
 	CubeMapper skyboxCubeMapper;

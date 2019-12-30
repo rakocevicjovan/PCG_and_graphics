@@ -24,7 +24,7 @@ private:
 	
 	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
 	
-	bool loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName);
+	bool loadEmbeddedTexture(ID3D11Device* device, Texture& texture, const aiScene* scene, UINT index);
 	
 	SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
 

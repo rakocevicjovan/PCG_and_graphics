@@ -174,7 +174,7 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	return true;
 }
 
-Hull * Mesh::getHull()
+Hull* Mesh::getHull()
 {
 	return baseHull;
 }

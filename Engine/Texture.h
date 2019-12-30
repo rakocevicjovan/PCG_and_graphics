@@ -32,7 +32,7 @@ public:
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
 	std::string typeName;	//type should be a part of Material definition when that's working, not here
 
-	Texture(ID3D11Device*, const std::string& fileName);
+	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
 	Texture();
 
