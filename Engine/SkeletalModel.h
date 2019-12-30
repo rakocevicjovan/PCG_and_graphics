@@ -198,7 +198,7 @@ public:
 			// Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture			
 			for (unsigned int j = 0; j < textures_loaded.size(); j++)
 			{
-				if (aiString(textures_loaded[j].fileName) == str)
+				if (aiString(textures_loaded[j]._fileName) == str)
 				{
 					textures.push_back(textures_loaded[j]);
 					skip = true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
@@ -214,7 +214,7 @@ public:
 				texture.typeName = typeName;
 
 				//texture.Bind(type);
-				bool loaded = texture.Load();
+				bool loaded = texture.LoadFromStoredPath();
 
 				if (!loaded)
 				{

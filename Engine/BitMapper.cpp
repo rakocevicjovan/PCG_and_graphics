@@ -50,7 +50,7 @@
 
 	bool BitMapper::createTerrain() {
 
-		if (!t.Load())
+		if (!t.LoadFromStoredPath())
 			return false;
 
 		if (t.getW() % 2 != 0 || t.getH() % 2 != 0) {

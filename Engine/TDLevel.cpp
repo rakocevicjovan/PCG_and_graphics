@@ -53,16 +53,13 @@ void TDLevel::init(Systems& sys)
 			r.mat = S_MATCACHE.getMaterial("creepMat");
 			r.pLight = &pLight;
 		}
-		
-		creeps[i].collider = new Collider();
-		creeps[i].collider->actParent = &creeps.back();
-		creeps[i].collider->BVT = BVT_SPHERE;
-		creeps[i].collider->dynamic = true;
-		creeps[i].collider->hulls.push_back(new SphereHull(pos, 1));	//eliminate duplicate pos, redundant and pain to update
-		creeps[i].collider->hulls.back()->_collider = creeps[i].collider;
 
 		_octree.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
 	}
+
+	tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
+	//tower.
+	
 
 	/*
 	Procedural::Geometry g;

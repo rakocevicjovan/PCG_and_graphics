@@ -1,6 +1,5 @@
 #pragma once
 #include "Mesh.h"
-#include "CollisionEngine.h"
 #include "Geometry.h"
 #include "Terrain.h"
 
@@ -173,4 +172,9 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	//indices.clear();
 
 	return true;
+}
+
+Hull * Mesh::getHull()
+{
+	return baseHull;
 }

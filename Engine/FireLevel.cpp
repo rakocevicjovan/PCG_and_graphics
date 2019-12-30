@@ -156,8 +156,8 @@ void FireLevel::draw(const RenderContext& rc)
 		hexModel.Draw(S_CONTEXT, S_SHADY.normalMapper);
 	}
 
-	S_SHADY.normalMapper.SetShaderParameters(S_CONTEXT, tree, *rc.cam, pointLight, rc.dTime, tree.textures_loaded[0], tree.textures_loaded[1]);
-	tree.Draw(S_CONTEXT, S_SHADY.normalMapper);
+	//S_SHADY.normalMapper.SetShaderParameters(S_CONTEXT, tree, *rc.cam, pointLight, rc.dTime, tree.loadedTexList[0], tree.loadedTexList[1]);
+	//tree.Draw(S_CONTEXT, S_SHADY.normalMapper);
 
 	S_RANDY.renderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 

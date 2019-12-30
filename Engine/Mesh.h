@@ -7,19 +7,20 @@
 #include <vector>
 
 #include "Resource.h"
+#include "Math.h"
 #include "MeshDataStructs.h"
 #include "Material.h"
-#include "Math.h"
+#include "Hull.h"
 #include "Geometry.h"
 #include "ShaderManager.h"
 
 
 namespace Procedural { class Terrain; }
 
-class Hull;
-
 class Mesh : public Resource
 {
+protected:
+
 public:
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	vertices;
@@ -29,23 +30,31 @@ public:
 	ID3D11Buffer* _vertexBuffer = nullptr;
 	ID3D11Buffer* _indexBuffer = nullptr;
 
-	Material* baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
 	SMatrix transform;
+	Material* baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
+	SphereHull* baseHull;
 
-	std::vector<Texture> textures;
+	std::vector<Texture> textures;	//@TODO get rid of it
 	unsigned int indexIntoModelMeshArray;
 
+	//valid, useful constructors... but @TODO make a material instead of textures!
 	Mesh();
 	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind);
+	~Mesh();
+	
+	//not so sure, seems like heavy coupling for no reason really!
 	Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z = 0);	//this is used for the screen quads...
 	Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true, bool hasTangents = true);
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(Hull* hull, ID3D11Device* device);
-	~Mesh();
+	
 
-	//@todo - pull D3D11_BUFFER_DESC from a parameter?
+	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
+	Hull* getHull();
 
+
+	//from the old rendering system, but still could be very useful...
 	template <typename FlexibleShaderType>
 	void draw(ID3D11DeviceContext* dc, FlexibleShaderType& s)
 	{
@@ -62,7 +71,7 @@ public:
 	}
 
 
-
+	//special case for instanced shader... this will disappear when I adapt everything to the new system
 	void Mesh::draw(ID3D11DeviceContext* dc, InstancedShader& s)
 	{
 		unsigned int strides[2];

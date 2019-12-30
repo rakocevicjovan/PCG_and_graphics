@@ -22,8 +22,6 @@ private:
 	
 	Mesh processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
 	
-	bool ifTexIsLoaded(const aiString& texPath, int& index);
-	
 	std::vector<Texture> loadMaterialTextures(ID3D11Device* device, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
 	
 	bool loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& textures, const aiScene* scene, std::string& fPath, aiTextureType type, std::string& typeName);
@@ -32,7 +30,6 @@ private:
 
 
 public:
-	std::vector<Texture> textures_loaded;
 	std::vector<Mesh> meshes;
 
 	SMatrix transform;

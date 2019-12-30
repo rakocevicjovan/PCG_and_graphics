@@ -312,6 +312,7 @@
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="Lillies.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialCache.h" />

@@ -220,11 +220,13 @@ bool ShaderDepth::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
-	if (model.textures_loaded.size() != 0)
+	/*
+	if (model.loadedTexList.size() != 0)
 	{
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[0].srv));
+		deviceContext->PSSetShaderResources(0, 1, &(model.loadedTexList[0].srv));
 		texturesAdded = 1;
 	}
+	*/
 		
 	return true;
 }

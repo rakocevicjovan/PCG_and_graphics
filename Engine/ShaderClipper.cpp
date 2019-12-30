@@ -94,8 +94,8 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mode
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
 	//if(model.textures_loaded.size() != 0)
-	for (int i = 0; i < model.textures_loaded.size(); i++)
-		deviceContext->PSSetShaderResources(0, 1, &(model.textures_loaded[i].srv));
+	//for (int i = 0; i < model.loadedTexList.size(); i++)
+		//deviceContext->PSSetShaderResources(0, 1, &(model.loadedTexList[i].srv));
 
 
 	return true;

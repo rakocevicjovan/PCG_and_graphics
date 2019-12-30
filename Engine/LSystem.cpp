@@ -272,11 +272,10 @@ namespace Procedural
 			pos = nextPos;
 		}
 
-		tree.textures_loaded.emplace_back(device, "../Textures/Bark/diffuse.jpg");
-		tree.textures_loaded.emplace_back(device, "../Textures/Bark/normal.jpg");
-
+		//@TODO this probably shouldn't bere here...
 		Mesh finalMesh;
-		finalMesh.textures = tree.textures_loaded;
+		finalMesh.textures.emplace_back(device, "../Textures/Bark/diffuse.jpg");
+		finalMesh.textures.emplace_back(device, "../Textures/Bark/normal.jpg");
 		int totalVerts = 0, totalInds = 0;
 
 		for (auto&m : tree.meshes)
@@ -298,7 +297,7 @@ namespace Procedural
 		}
 		//finalMesh.setupMesh(device);
 		tree.meshes.clear();
-		tree.meshes.emplace_back(finalMesh.vertices, finalMesh.indices, tree.textures_loaded, device, 0);
+		tree.meshes.emplace_back(finalMesh.vertices, finalMesh.indices, finalMesh.textures, device, 0);
 		
 		return tree;
 	}

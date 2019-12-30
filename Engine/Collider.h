@@ -19,6 +19,7 @@ public:
 	Collider() {}
 	Collider(BoundingVolumeType type, Model* m, std::vector<Hull*> hullptrs) : BVT(type), modParent(m), hulls(hullptrs) {}
 	Collider(BoundingVolumeType type, Actor* a, std::vector<Hull*> hullptrs) : BVT(type), actParent(a), hulls(hullptrs) {}
+	Collider(BoundingVolumeType type, Actor* a, bool dyn) : BVT(type), actParent(a), dynamic(dyn) {}
 
 	~Collider() { }
 

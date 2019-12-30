@@ -37,7 +37,7 @@ private:
 	Model floorModel;
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
-	//Model boxModel;
+	Actor tower;
 
 	PointLight pLight;
 	

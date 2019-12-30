@@ -37,16 +37,7 @@ public:
 	Actor() : _steerComp(this) {};
 	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc), _steerComp(this) {}
 
-	Actor(SMatrix& transform, Model* model) : transform(transform), _steerComp(this)
-	{
-		renderables.reserve(model->meshes.size());
-		for (Mesh& mesh : model->meshes)
-		{
-			renderables.emplace_back(mesh);
-			renderables.back().transform = mesh.transform;
-			renderables.back().worldTransform = transform * mesh.transform;
-		}
-	}
+	Actor(SMatrix& transform, Model* model);
 	Actor* parent;
 
 

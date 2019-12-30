@@ -21,9 +21,9 @@ Texture::Texture() {}
 
 
 
-Texture::Texture(ID3D11Device* device, const std::string& fileName) : fileName(fileName)
+Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName)
 {
-	if (!Load())
+	if (!LoadFromStoredPath())
 	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 		return;
@@ -32,18 +32,26 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : fileName(f
 	Setup(device);
 }
 
+Texture::Texture(const std::string& fileName) : _fileName(fileName)
+{
+	if (!LoadFromStoredPath())
+	{
+		OutputDebugStringA("Texture not in file, checking memory... \n");
+	}
+}
 
 
-bool Texture::Load()
+
+bool Texture::LoadFromStoredPath()
 {
 	try
 	{
-		data = stbi_load(fileName.c_str(), &w, &h, &n, 4);	//4?
-		return (data != nullptr);
+		_data = stbi_load(_fileName.c_str(), &w, &h, &n, 4);	//4?
+		return (_data != nullptr);
 	}
 	catch (...)
 	{
-		OutputDebugStringA( ("Error loading texture '" + fileName + "' \n").c_str() );
+		OutputDebugStringA( ("Error loading texture '" + _fileName + "' \n").c_str() );
 		return false;
 	}
 }
@@ -52,16 +60,16 @@ bool Texture::Load()
 
 bool Texture::LoadFromFile(std::string path)
 {
-	fileName = path;
+	_fileName = path;
 
 	try
 	{
-		data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
-		return (data != nullptr);
+		_data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
+		return (_data != nullptr);
 	}
 	catch (...)
 	{
-		OutputDebugStringA(("Error loading texture '" + fileName + "' \n").c_str());
+		OutputDebugStringA(("Error loading texture '" + _fileName + "' \n").c_str());
 		return false;
 	}
 }
@@ -89,19 +97,17 @@ std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
 	}
 }
 
-//has to be set up if used like this!!
-bool Texture::LoadFromMemory(const aiTexture *texture, ID3D11Device* device) {
 
+
+bool Texture::LoadFromMemory(const unsigned char* data, size_t size, ID3D11Device* device)
+{
 	try
 	{
-		if (texture->mHeight == 0)
-			data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth, &w, &h, &n, 4);
-		else
-			data = stbi_load_from_memory(reinterpret_cast<unsigned char*>(texture->pcData), texture->mWidth * texture->mHeight, &w, &h, &n, 4);
+		_data = stbi_load_from_memory(data, size, &w, &h, &n, 4);
 
 		Setup(device);
 
-		return (data != nullptr);
+		return (_data != nullptr);
 	}
 	catch (...)
 	{
@@ -116,7 +122,7 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 {
 	w = perlin._w;
 	h = perlin._h;
-	data = perlin.getUCharVector().data();
+	_data = perlin.getUCharVector().data();
 
 	return Setup(device, true);
 }
@@ -139,7 +145,7 @@ bool Texture::Setup(ID3D11Device* device, bool grayscale)
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA texData;
-	texData.pSysMem = (void *)data;
+	texData.pSysMem = (void *)_data;
 	texData.SysMemPitch = grayscale ? desc.Width : desc.Width * 4;
 	texData.SysMemSlicePitch = 0;
 

@@ -59,9 +59,6 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 		return false;
 	}
 
-	//directory = path.substr(0, path.find_last_of('/'));
-	//name = path.substr(path.find_last_of('/') + 1, path.size());
-
 	processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
 	return true;
 }
@@ -92,94 +89,82 @@ Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene
 {
 	std::vector<Vert3D> vertices;
 	std::vector<unsigned int> indices;
-	std::vector<SVec3> faceTangents;
+
 	std::vector<Texture> locTextures;
+	Material myMat;
+
+	std::vector<SVec3> faceTangents;
 
 	vertices.reserve(mesh->mNumVertices);
 	indices.reserve(mesh->mNumFaces * 3);
 	faceTangents.reserve(mesh->mNumFaces);
 
-	///THIS COULD BE AN ERROR! WATCH OUT!
 	bool hasTexCoords = mesh->mTextureCoords[0];
-
+	float maxDist = 0.f;
 	Vert3D vertex;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 	{
-		//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		//vertex.pos = SVec3(temp.x, temp.y, temp.z);
-		//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-		//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
-
+		//memcpy faster?
 		vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-		//vertex.normal.Normalize();	not sure if required
+		
+		float curDist = vertex.pos.LengthSquared();
+		if (maxDist < curDist)
+			maxDist = curDist;
 
-		if (hasTexCoords)
-			vertex.texCoords = SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy);
-		else
-			vertex.texCoords = SVec2(0.0f, 0.0f);
+		vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		//vertex.normal.Normalize();	//not sure if required, should be so already
+
+		vertex.texCoords = hasTexCoords ? SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
 
 		vertices.push_back(vertex);
 	}
 
+	maxDist = sqrt(maxDist);
 
+
+	aiFace face;
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
-		aiFace face = mesh->mFaces[i];
+		 face = mesh->mFaces[i];
 
 		//populate indices from faces
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
 			indices.push_back(face.mIndices[j]);
 
+		//calculate tangents for faces
 		faceTangents.push_back(calculateTangent(vertices, face));
 	}
 
 
-	//this is ~ O(n^2) where n = mesh->mNumVertices!!! Horrible way to do it!
-	/*for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
-	{
-		SVec3 vertTangent(0.f);
-		float found = 0.f;
-
-		for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
-		{
-			//if face contains the vertex, add the tangent of the face to the vertex
-			if (mesh->mFaces[j].mIndices[0] == i || mesh->mFaces[j].mIndices[1] == i || mesh->mFaces[j].mIndices[2] == i)
-			{
-				vertTangent += faceTangents[j];
-				found += 1.0f;
-			}
-		}
-
-		if (found > 0.0001f)
-			vertices[i].tangent = found > 0.0f ? vertTangent /= found : vertTangent;
-	}*/
-
-	///better solution, since I'm not using weights anyways I can just normalize it... even if it's not too fast, still better
+	//even if it's not too fast, this is still a better solution to the previous one (bottom)
 	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 	{
-		aiFace& face = mesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
+		face = mesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
+		
+		//assign face tangents to vertex tangents
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-		{
 			vertices[face.mIndices[j]].tangent += faceTangents[i];
-		}
 	}
 
+	//after this step we have all the tangents properly calculated
 	for (Vert3D& vert : vertices)
 		vert.tangent.Normalize();
-	///end of better solution
+
 
 	if (mesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		// 1. Diffuse maps
-		std::vector<Texture> diffuseMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
+		// Diffuse maps
+		std::vector<Texture> diffuseMaps = loadMaterialTextures(device, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 		locTextures.insert(locTextures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		// 2. Specular maps
-		std::vector<Texture> specularMaps = this->loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
+
+		// Specular maps
+		std::vector<Texture> specularMaps = loadMaterialTextures(device, scene, material, aiTextureType_SPECULAR, "texture_specular");
 		locTextures.insert(locTextures.end(), specularMaps.begin(), specularMaps.end());
+
+		// Normal maps
 	}
 
 	return Mesh(vertices, indices, locTextures, device, ind);
@@ -196,56 +181,29 @@ std::vector<Texture> Model::loadMaterialTextures(ID3D11Device* device, const aiS
 		aiString obtainedTexturePath;
 		mat->GetTexture(type, i, &obtainedTexturePath);
 
-		// Check if texture was loaded before and if so
-		int loadedIndex = -1;
-		boolean alreadyLoaded = ifTexIsLoaded(obtainedTexturePath, loadedIndex);
+		//what? this returns whatever I gave it doesn't it???
+		std::string fPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
+		Texture texture(device, fPath);
+		texture.typeName = typeName;
 
-		if (alreadyLoaded)
+		//try to load this texture from file
+		bool loaded = texture.LoadFromStoredPath();	
+
+		//load from file failed - probably means it is embedded, try to load from memory instead...
+		if (!loaded)
+			loaded = this->loadEmbeddedTextures(device, textures, scene, fPath, type, typeName);
+
+		//load failed completely - most likely the data is corrupted or my library doesn't support it
+		if (!loaded)
 		{
-			textures.push_back(textures_loaded[loadedIndex]);
+			std::cout << "TEX_LOAD::Texture did not load!" << std::endl;	//@TODO use logger here instead
+			continue;
 		}
-		else
-		{
-			std::string fPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
-			Texture texture(device, fPath);
-			texture.typeName = typeName;
 
-			//try to load from file
-			bool loaded = texture.Load();	
-
-			//load from file failed, try to load from memory instead...
-			if (!loaded)
-			{
-				loaded = this->loadEmbeddedTextures(device, textures, scene, fPath, type, typeName);
-
-				if (!loaded)
-					std::cout << "TEX_LOAD::Texture did not load!" << std::endl;
-
-				return textures;
-			}
-
-			textures.push_back(texture);
-			textures_loaded.push_back(texture); //@TODO THIS IS DUPLICATING TEXTURES
-			// Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-		}
+		textures.push_back(texture);
 	}
 
 	return textures;
-}
-
-
-
-bool Model::ifTexIsLoaded(const aiString& texPath, int& index)
-{
-	for (unsigned int j = 0; j < textures_loaded.size(); ++j)
-	{
-		if (aiString(textures_loaded[j].fileName) == texPath)
-		{
-			index = j;
-			return true; // A texture with the same filepath has already been loaded, continue to next one. (optimization)
-		}	
-	}
-	return false;
 }
 
 
@@ -256,14 +214,17 @@ bool Model::loadEmbeddedTextures(ID3D11Device* device, std::vector<Texture>& tex
 	{
 		for (size_t texIndex = 0; texIndex < scene->mNumTextures; texIndex++)
 		{
-
 			Texture texture(device, fPath);
 			texture.typeName = typeName;
 
-			texture.LoadFromMemory(scene->mTextures[texIndex], device);
+			size_t texSize = scene->mTextures[texIndex]->mHeight * scene->mTextures[texIndex]->mWidth;
+			
+			if (texSize == 0)
+				texSize = scene->mTextures[texIndex]->mWidth;
+
+			texture.LoadFromMemory(reinterpret_cast<unsigned char*>(scene->mTextures[texIndex]->pcData), texSize, device);
 
 			textures.push_back(texture);
-			textures_loaded.push_back(texture);
 		}
 
 		return true;
@@ -303,3 +264,35 @@ SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace&
 
 	return tangent;
 }
+
+
+
+//this is ~ O(n^2) where n = mesh->mNumVertices!!! Horrible way to do tangents!
+/*for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+{
+	SVec3 vertTangent(0.f);
+	float found = 0.f;
+
+	for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
+	{
+		//if face contains the vertex, add the tangent of the face to the vertex
+		if (mesh->mFaces[j].mIndices[0] == i || mesh->mFaces[j].mIndices[1] == i || mesh->mFaces[j].mIndices[2] == i)
+		{
+			vertTangent += faceTangents[j];
+			found += 1.0f;
+		}
+	}
+
+	if (found > 0.0001f)
+		vertices[i].tangent = found > 0.0f ? vertTangent /= found : vertTangent;
+}*/
+
+/*	part of resource now
+	//directory = path.substr(0, path.find_last_of('/'));
+	//name = path.substr(path.find_last_of('/') + 1, path.size());
+*/
+
+//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+//vertex.pos = SVec3(temp.x, temp.y, temp.z);
+//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
