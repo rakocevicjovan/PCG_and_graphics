@@ -1,5 +1,6 @@
 #include "LSystem.h" 
 #include "Geometry.h"
+#include "Material.h"
 
 
 namespace Procedural

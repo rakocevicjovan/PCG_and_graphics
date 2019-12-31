@@ -1,27 +1,28 @@
 #pragma once
 #include "Hull.h"
-
-class Actor;
-class Model;
-class Mesh;
+#include "ColFuncs.h"
+#include "GameObject.h"
 
 
 class Collider
 {
 public:
 	BoundingVolumeType BVT;
-	Model* modParent;		//delete this eventually... it should all be actors, static or dynamic however, determined by collider type
-	Actor* actParent;
+	Actor* parent;
 	std::vector<Hull*> hulls;	//this could be templated... unless i want to support multiple, yet different type, hulls
 	bool dynamic;
 
 
 	Collider() {}
-	Collider(BoundingVolumeType type, Model* m, std::vector<Hull*> hullptrs) : BVT(type), modParent(m), hulls(hullptrs) {}
-	Collider(BoundingVolumeType type, Actor* a, std::vector<Hull*> hullptrs) : BVT(type), actParent(a), hulls(hullptrs) {}
-	Collider(BoundingVolumeType type, Actor* a, bool dyn) : BVT(type), actParent(a), dynamic(dyn) {}
+	Collider(BoundingVolumeType type, Actor* a, std::vector<Hull*> hullptrs)
+		: BVT(type), parent(a), hulls(hullptrs) {}
+
+	Collider(BoundingVolumeType type, Actor* a, bool dyn)
+		: BVT(type), parent(a), dynamic(dyn) {}
 
 	~Collider() { }
+
+
 
 	void ReleaseMemory()
 	{
@@ -36,11 +37,41 @@ public:
 	//each collider has only one parent so this works I guess... could it simply work by default though???
 	bool operator ==(const Collider& other) const
 	{
-		if (dynamic == true)
-			return actParent == other.actParent;
-		else
-			return modParent == other.modParent;
+		return parent == other.parent;
 	}
 
-	HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector);
+
+
+	void updateHullPositions()
+	{
+		for (auto& hull : hulls)
+			hull->setPosition(parent->getPosition() + hull->getPosition());
+	}
+
+
+
+	HitResult Collide(const Collider& other, SVec3& resolutionVector)
+	{
+		HitResult hitRes;
+
+		for (Hull* hull1 : hulls)
+		{
+			for (Hull* hull2 : other.hulls)
+			{
+				if (BVT == BVT_AABB)
+					hitRes = reinterpret_cast<AABB*>(hull1)->intersect(hull2, other.BVT);
+				if (BVT == BVT_SPHERE)
+					hitRes = reinterpret_cast<SphereHull*>(hull1)->intersect(hull2, other.BVT);
+
+				if (hitRes.hit)
+				{
+					resolutionVector = hull2->getPosition() - hull1->getPosition();
+					resolutionVector.Normalize();
+					break;
+				}
+			}
+		}
+
+		return hitRes;
+	}
 };

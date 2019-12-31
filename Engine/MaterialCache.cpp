@@ -17,7 +17,9 @@ void MaterialCache::createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven()
 	creepMat->opaque = true;
 	creepMat->setVS(_shCache->getVertShader("basicVS"));
 	creepMat->setPS(_shCache->getPixShader("lightPS"));
-	creepMat->textures.push_back(&(_resMan->getByName<Model*>("FlyingMage")->meshes[0].textures[0]));
+
+	//this kind of crap is exactly why I need a data driven material system... nothing else will cut it!
+	creepMat->textures.push_back(&_resMan->getByName<Model*>("FlyingMage")->meshes[0].textures[0]);
 
 	addMaterial("creepMat", creepMat);
 }

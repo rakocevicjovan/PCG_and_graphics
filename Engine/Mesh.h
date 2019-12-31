@@ -31,10 +31,9 @@ public:
 	ID3D11Buffer* _indexBuffer = nullptr;
 
 	SMatrix transform;
-	Material* baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
-	Hull* baseHull = new SphereHull(SVec3(), 0);
+	Material _baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
 
-	std::vector<Texture> textures;	//@TODO get rid of it
+	std::vector<Texture> textures;	//@TODO not sure what to do with this... who should own them?
 	unsigned int indexIntoModelMeshArray;
 
 	//valid, useful constructors... but @TODO make a material instead of textures!
@@ -51,7 +50,6 @@ public:
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
-	Hull* getHull();
 
 
 	//from the old rendering system, but still could be very useful...

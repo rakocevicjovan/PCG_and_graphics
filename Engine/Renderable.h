@@ -19,7 +19,7 @@ public:
 
 	unsigned char* cbufferdata;
 
-	Renderable(Mesh& mesh) : mesh(&mesh), mat(mesh.baseMaterial)
+	Renderable(Mesh& mesh) : mesh(&mesh), mat(&mesh._baseMaterial)
 	{
 	}
 

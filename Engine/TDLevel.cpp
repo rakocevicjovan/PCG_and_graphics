@@ -21,7 +21,6 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 void TDLevel::init(Systems& sys)
 {
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
-	WAAAT.LoadModel(S_DEVICE, "../Models/ball.fbx");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
@@ -46,7 +45,7 @@ void TDLevel::init(Systems& sys)
 	{
 		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
-		//creeps.emplace_back(SMatrix::CreateTranslation(pos), GraphicComponent(resources.getByName<Model*>("FlyingMage"), &randy._shMan.light));
+
 		creeps.emplace_back(SMatrix::CreateTranslation(pos), S_RESMAN.getByName<Model*>("FlyingMage"));
 		
 		for (Renderable& r : creeps[i].renderables)
@@ -55,11 +54,19 @@ void TDLevel::init(Systems& sys)
 			r.pLight = &pLight;
 		}
 
-		_octree.insertObject(static_cast<SphereHull*>(creeps[i].collider->hulls.back()));
+		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider.hulls.back()));
 	}
 
 	tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
-	//tower.
+	for (Renderable& r : tower.renderables)
+	{
+		//r.mat = S_MATCACHE.getMaterial("creepMat");
+		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
+		r.mat->setPS(_sys._shaderCache.getPixShader("lightPS"));
+		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
+	}
+
+	creeps.emplace_back(tower);
 	
 
 	/*
@@ -104,13 +111,6 @@ void TDLevel::update(const RenderContext& rc)
 #endif
 
 	ProcessSpecialInput(rc.dTime);
-
-	//this seems...unnecessarily slow, but i can't rely on pointing back
-	for (const Actor& creep : creeps)
-	{
-		for (auto& hull : creep.collider->hulls)
-			hull->setPosition(creep.getPosition());
-	}
 	
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
@@ -133,7 +133,7 @@ void TDLevel::update(const RenderContext& rc)
 
 		if (creeps[i]._steerComp._active)
 		{
-			std::list<Actor*> neighbourCreeps;
+			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
 			_octree.findWithin(creeps[i].getPosition(), 2.f, neighbourCreeps);
 			creeps[i]._steerComp.update(_navGrid, rc.dTime, neighbourCreeps, i, stopDistance);
 		}
@@ -148,6 +148,7 @@ void TDLevel::update(const RenderContext& rc)
 		creeps[i].propagate();
 	}
 
+	tower.propagate();
 
 
 	//picking, put this away somewhere else...
@@ -160,7 +161,7 @@ void TDLevel::update(const RenderContext& rc)
 
 		for (int i = 0; i < creeps.size(); ++i)
 		{
-			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
+			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider.hulls[0])))
 			{
 				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
 			}
@@ -170,7 +171,7 @@ void TDLevel::update(const RenderContext& rc)
 		ray.direction *= 500.f;
 		Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), floorIntersect);
 
-		creeps[0].transform = SMatrix::CreateTranslation(floorIntersect);
+		tower.transform = SMatrix::CreateTranslation(floorIntersect);
 	}
 
 
@@ -185,7 +186,7 @@ void TDLevel::update(const RenderContext& rc)
 	//cull and add to render queue
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i].collider->hulls[0])))
+		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider.hulls[0])))
 		{
 			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : creeps[i].renderables)
@@ -225,14 +226,11 @@ void TDLevel::draw(const RenderContext& rc)
 	
 	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
-	/*
-	for (int i = 0; i < _navGrid._cells.size(); i++)
+	for (Renderable& r : tower.renderables)
 	{
-		box.renderables[0].worldTransform = SMatrix::CreateTranslation(_navGrid.cellIndexToPos(i));
-		randy.render(box.renderables[0]);
+		S_RANDY.render(r);
 	}
-	*/
-
+	
 	std::vector<GuiElement> guiElems =
 	{
 		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},

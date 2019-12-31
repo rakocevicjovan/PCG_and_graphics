@@ -44,7 +44,7 @@ public:
 	SMatrix transform;
 	GraphicComponent gc;
 	std::vector<Renderable> renderables;
-	Collider* collider;
+	Collider _collider;
 	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const
@@ -63,6 +63,9 @@ public:
 		{
 			r.worldTransform = transform * r.transform;
 		}
+
+		//@TODO consider changing to per-mesh collider... could be cleaner tbh
+		_collider.updateHullPositions();
 	}
 
 	void Draw(ID3D11DeviceContext* context, Camera& cam, PointLight& pl, float dTime)

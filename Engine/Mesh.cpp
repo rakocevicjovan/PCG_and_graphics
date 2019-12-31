@@ -11,12 +11,18 @@ Mesh::Mesh()
 
 
 
-Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texs, ID3D11Device* device, unsigned int ind)
+Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texes, ID3D11Device* device, unsigned int ind)
 	//: vertices(vertices), indices(indices), textures(textures)
 {
 	vertices = std::move(verts);
 	indices = std::move(inds);
-	textures = std::move(texs);
+	textures = std::move(texes);
+
+	//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
+	for (auto& t : textures)
+	{
+		_baseMaterial.textures.push_back(&t);
+	}
 
 	_vertexBuffer = 0;
 	_indexBuffer = 0;
@@ -172,9 +178,4 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	//indices.clear();
 
 	return true;
-}
-
-Hull* Mesh::getHull()
-{
-	return baseHull;
 }

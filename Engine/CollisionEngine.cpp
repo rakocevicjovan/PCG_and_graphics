@@ -54,7 +54,7 @@ void CollisionEngine::registerActor(Actor& actor, BoundingVolumeType bvt)
 	_colliders.back()->BVT = bvt;
 	_colliders.back()->dynamic = true;
 
-	actor.collider = _colliders.back();
+	actor._collider = _colliders.back();
 
 	//@WARNING SHOULD NOT WORK THIS WAY! THIS IS OLD CODE MIXED WITH NEW, NO RENDERING/COLLISION MIXING! FIX ASAP!
 	switch (bvt)
@@ -97,7 +97,7 @@ void CollisionEngine::unregisterActor(Actor& actor)
 
 	for (Collider* c : _colliders)
 	{
-		if (c == actor.collider)
+		if (c == actor._collider)
 		{
 			removeFromGrid(*c);
 			c->ReleaseMemory();
@@ -106,7 +106,7 @@ void CollisionEngine::unregisterActor(Actor& actor)
 		}
 	}
 
-	_colliders.erase(remove(_colliders.begin(), _colliders.end(), actor.collider), _colliders.end());
+	_colliders.erase(remove(_colliders.begin(), _colliders.end(), actor._collider), _colliders.end());
 }
 
 

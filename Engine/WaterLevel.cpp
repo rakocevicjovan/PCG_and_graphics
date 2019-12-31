@@ -19,7 +19,7 @@ void WaterLevel::init(Systems& sys)
 
 	lotusTex.LoadFromFile("../Textures/Lotus/diffuse.jpg");
 	lotusTex.Setup(S_DEVICE);
-	for (auto& m : lotus.meshes)
+	for (Mesh& m : lotus.meshes)
 		m.textures.push_back(lotusTex);
 
 	waterTerrain = Procedural::Terrain(256, 256, SVec3(2, 1, 2));
@@ -245,7 +245,7 @@ void WaterLevel::setUpCollision()
 		{
 			Collider c;
 			c.BVT = BVT_AABB;
-			c.actParent = &lil.act;
+			c.parent = &lil.act;
 			c.dynamic = true;
 
 			c.hulls.push_back(_sys._colEngine.genBoxHull(&lillyModel.meshes[0], lil.act.transform, &c));
@@ -253,12 +253,12 @@ void WaterLevel::setUpCollision()
 
 			for (Hull* h : c.hulls)
 			{
-				SVec3 p = c.actParent->transform.Translation();
+				SVec3 p = c.parent->transform.Translation();
 				h->setPosition(p);
 			}
 
 			_levelColliders.push_back(c);
-			lil.act.collider = &_levelColliders.back();
+			lil.act._collider = _levelColliders.back();
 			_sys._colEngine.addToGrid(&_levelColliders.back());
 		}
 	}
@@ -270,7 +270,7 @@ void WaterLevel::updateCollision()
 {
 	for (Ring& ring : _lillies._lillyRings)
 		for (Lilly& l : ring._lillies)
-			for (Hull* h : l.act.collider->hulls)
+			for (Hull* h : l.act._collider.hulls)
 				h->setPosition(l.act.transform.Translation());
 }
 

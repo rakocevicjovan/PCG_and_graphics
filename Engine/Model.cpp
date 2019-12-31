@@ -51,6 +51,7 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, pFlags);
+	meshes.reserve(scene->mNumMeshes);
 
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -72,7 +73,9 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		unsigned int ind = meshes.size();
-		meshes.push_back(processMesh(device, mesh, scene, ind, concatenatedTransform, rUVx, rUVy));
+		meshes.emplace_back();
+		processMesh(device, mesh, meshes.back(), scene, ind, concatenatedTransform, rUVx, rUVy);
+		meshes.back().setupMesh(device);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -85,91 +88,91 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 
 
 
-Mesh Model::processMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
+bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
 {
-	std::vector<Vert3D> vertices;
-	std::vector<unsigned int> indices;
-
-	std::vector<Texture> locTextures;
-	Material myMat;
-
 	std::vector<SVec3> faceTangents;
 
-	vertices.reserve(mesh->mNumVertices);
-	indices.reserve(mesh->mNumFaces * 3);
-	faceTangents.reserve(mesh->mNumFaces);
+	mesh.vertices.reserve(aiMesh->mNumVertices);
+	mesh.indices.reserve(aiMesh->mNumFaces * 3);
+	faceTangents.reserve(aiMesh->mNumFaces);
 
-	bool hasTexCoords = mesh->mTextureCoords[0];
+	bool hasTexCoords = aiMesh->mTextureCoords[0];
 	float maxDist = 0.f;
 	Vert3D vertex;
 
-	for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
+	for (unsigned int i = 0; i < aiMesh->mNumVertices; ++i)
 	{
 		//memcpy faster?
-		vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+		vertex.pos = SVec3(aiMesh->mVertices[i].x, aiMesh->mVertices[i].y, aiMesh->mVertices[i].z);
 		
 		float curDist = vertex.pos.LengthSquared();
 		if (maxDist < curDist)
 			maxDist = curDist;
 
-		vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		vertex.normal = SVec3(aiMesh->mNormals[i].x, aiMesh->mNormals[i].y, aiMesh->mNormals[i].z);
 		//vertex.normal.Normalize();	//not sure if required, should be so already
 
-		vertex.texCoords = hasTexCoords ? SVec2(mesh->mTextureCoords[0][i].x * rUVx, mesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
+		vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x * rUVx, aiMesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
 
-		vertices.push_back(vertex);
+		mesh.vertices.push_back(vertex);
 	}
 
 	maxDist = sqrt(maxDist);
 
 
 	aiFace face;
-	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+	for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i)
 	{
-		 face = mesh->mFaces[i];
+		 face = aiMesh->mFaces[i];
 
 		//populate indices from faces
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			indices.push_back(face.mIndices[j]);
+			mesh.indices.push_back(face.mIndices[j]);
 
 		//calculate tangents for faces
-		faceTangents.push_back(calculateTangent(vertices, face));
+		faceTangents.push_back(calculateTangent(mesh.vertices, face));
 	}
 
 
 	//even if it's not too fast, this is still a better solution to the previous one (bottom)
-	for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+	for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i)
 	{
-		face = mesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
+		face = aiMesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
 		
 		//assign face tangents to vertex tangents
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			vertices[face.mIndices[j]].tangent += faceTangents[i];
+			mesh.vertices[face.mIndices[j]].tangent += faceTangents[i];
 	}
 
-	//after this step we have all the tangents properly calculated
-	for (Vert3D& vert : vertices)
+	//after the normalization step we have all the tangents properly calculated
+	for (Vert3D& vert : mesh.vertices)
 		vert.tangent.Normalize();
 
 
-	if (mesh->mMaterialIndex >= 0)
+	if (aiMesh->mMaterialIndex >= 0)
 	{
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
 
 		// Diffuse maps
-		loadMaterialTextures(locTextures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 
 		// Specular maps
-		loadMaterialTextures(locTextures, scene, material, aiTextureType_SPECULAR, "texture_specular");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SPECULAR, "texture_specular");
 
 		// Normal maps
-		// ...
+		// ...etc, will support this eventually as I need it
 	}
 
-	for (Texture& t : locTextures)
-		t.Setup(device);
 
-	return Mesh(vertices, indices, locTextures, device, ind);
+	for (Texture& t : mesh.textures)
+	{
+		t.Setup(device);
+		mesh._baseMaterial.textures.push_back(&t);
+	}
+	
+	mesh._baseMaterial.opaque = true;	//that just isn't true... I really need tool support for this!
+
+	return true;
 }
 
 
@@ -181,9 +184,8 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 		aiString obtainedTexturePath;
 		mat->GetTexture(type, i, &obtainedTexturePath);
 
-		//this line seems rather pointless...
-		std::string fPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
-		Texture curTexture(fPath);
+		std::string texPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
+		Texture curTexture(texPath);
 		curTexture.typeName = typeName;
 
 		//try to load this texture from file
