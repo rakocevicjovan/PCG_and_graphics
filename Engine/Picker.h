@@ -6,7 +6,7 @@ class Picker
 {
 public:
 
-	SRay generateRay(int scrW, int scrH, int mX, int mY, const Camera& cam)
+	static SRay generateRay(int scrW, int scrH, int mX, int mY, const Camera& cam)
 	{
 		SRay pickingRay;
 		pickingRay.position = cam.GetPosition();

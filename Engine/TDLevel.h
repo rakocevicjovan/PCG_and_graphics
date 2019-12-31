@@ -7,7 +7,7 @@
 #include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
-#include "RTSController.h"
+#include "TDController.h"	//#include "RTSController.h" flawed idea...
 
 
 
@@ -23,10 +23,11 @@ public:
 
 private:
 
+	void rayPick(Camera* cam);
+	void handleInput();
+
 	SceneGraph _sg;
 	Octree _octree;
-
-	RTSController _rtsc;
 
 	//some enemy specific stuff...
 	UINT NUM_ENEMIES = 100u;
@@ -37,7 +38,6 @@ private:
 	Model floorModel;
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
-	Actor tower;
 
 	PointLight pLight;
 	
@@ -45,11 +45,15 @@ private:
 
 	std::vector<Actor> creeps;
 
-	SRay ray;
 	int numCulled;
 
 	//octree meshes
 	Model debugModel;
 	std::vector<AABB> tempBoxes;
 	std::vector<InstanceData> octNodeMatrices;
+
+	TDController _tdController;
+	std::vector<Actor> _built;
+	Actor tower;
+	bool _building = false;
 };

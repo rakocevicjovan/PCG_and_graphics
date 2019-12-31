@@ -57,20 +57,26 @@ public:
 
 	bool finished = false;
 
-	void renderGuiElems(const std::vector<GuiElement>& elements)
+	void startGuiFrame()
 	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+	}
 
+	//convenience function for fast windows
+	void renderGuiElems(const std::vector<GuiElement>& elements)
+	{
 		for (const GuiElement& e : elements)
 		{
 			ImGui::Begin(e.title.c_str());
 			ImGui::Text(e.content.c_str());
 			ImGui::End();
 		}
+	}
 
-
+	void endGuiFrame()
+	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}

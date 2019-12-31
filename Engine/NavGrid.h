@@ -144,6 +144,24 @@ public:
 	}
 
 
+	
+	SVec3 snapToCell(const SVec3& pos)
+	{
+		SVec3 result;
+
+		SVec3 adjPos = pos - _offset;
+
+		int row = floor(adjPos.z * _invCellSize.y);
+		int column = floor(adjPos.x * _invCellSize.x);
+
+		//SVec2 offset = pos - SVec2(row * _cellSize.x, column * _cellSize.y);
+
+		result = cellIndexToPos(row * _w + column);
+
+		return result;
+	}
+
+
 
 	int posToCell(SVec3 pos) const
 	{
@@ -158,7 +176,6 @@ public:
 	}
 
 
-
 	SVec3 cellIndexToPos(int i) const
 	{
 		int row = i % _w;
@@ -169,7 +186,6 @@ public:
 
 		return _offset + posInGrid + cellCenterOffset;
 	}
-
 
 
 	inline SVec3 flowAtIndex(int i) const

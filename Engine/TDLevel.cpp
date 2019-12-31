@@ -20,6 +20,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
 
 void TDLevel::init(Systems& sys)
 {
+	S_INMAN.registerController(&_tdController);
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
@@ -58,6 +59,7 @@ void TDLevel::init(Systems& sys)
 	}
 
 	tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
+	tower.transform = SMatrix::CreateScale(.33);
 	for (Renderable& r : tower.renderables)
 	{
 		//r.mat = S_MATCACHE.getMaterial("creepMat");
@@ -150,31 +152,8 @@ void TDLevel::update(const RenderContext& rc)
 
 	tower.propagate();
 
-
-	//picking, put this away somewhere else...
-	if (_sys._inputManager.isKeyDown('R'))
-	{
-		MCoords mc = _sys._inputManager.getAbsXY();
-
-		Picker p;
-		ray = p.generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *rc.cam);
-
-		for (int i = 0; i < creeps.size(); ++i)
-		{
-			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
-			{
-				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
-			}
-		}
-
-		SVec3 floorIntersect;
-		ray.direction *= 500.f;
-		Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), floorIntersect);
-
-		tower.transform = SMatrix::CreateTranslation(floorIntersect);
-	}
-
-
+	if(_building)
+		rayPick(rc.cam);
 
 	/// FRUSTUM CULLING
 	numCulled = 0;
@@ -226,18 +205,70 @@ void TDLevel::draw(const RenderContext& rc)
 	
 	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
-	for (Renderable& r : tower.renderables)
-	{
-		S_RANDY.render(r);
-	}
+	if(_building)
+		for (Renderable& r : tower.renderables)
+		{
+			S_RANDY.render(r);
+		}
 	
+	for (Actor& myTower : _built)
+	{
+		for (Renderable& r : myTower.renderables)
+		{
+			S_RANDY.render(r);
+		}
+	}
+
+
+
 	std::vector<GuiElement> guiElems =
 	{
 		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
+
+	startGuiFrame();
 	renderGuiElems(guiElems);
+
+	static const char* towerList[]{ "Guard tower", "Another tower" };
+	static int selectedItem = 0;
+
+	ImGui::SetNextWindowPos(ImVec2(_sys.getScrW() - 500, _sys.getScrH() - 200), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(500, 200), ImGuiCond_Once);
+	ImGui::Begin("Buildings", false);
+
+	ImGui::Text("Buildings");
+	ImGui::ListBoxHeader("");
+
+	ImGui::PushID(0);
+	if (ImGui::ImageButton((void*)tower.renderables[0].mat->textures[0]->srv, ImVec2(64, 64)))
+	{
+		_building = true;
+	}
+	ImGui::PopID();
+
+	ImGui::PushID(1);
+	if (ImGui::ImageButton((void*)tower.renderables[0].mat->textures[0]->srv, ImVec2(64, 64)))
+	{
+		_building = true;
+	}
+	ImGui::PopID();
+
+	ImGui::ListBoxFooter();
+
+	ImGui::End();
+
+	endGuiFrame();
+
+	//make this do two things
+	// 1. be smart and not stupid - we need to handle each of these, not pop them even if they are not handled here
+	// 2. check if the spot is taken - using the nav grid, only clear cells can do! and update the navgrid after
+	if (_tdController.getNextAction() == InputEventTD::BUILD && _building)
+	{
+		_built.push_back(tower);
+		_building = false;
+	}
 
 	rc.d3d->EndScene();
 }
@@ -246,9 +277,38 @@ void TDLevel::draw(const RenderContext& rc)
 
 void TDLevel::demolish()
 {
-	S_INMAN.unregisterController(&_rtsc);
 	finished = true;
 }
+
+
+
+void TDLevel::rayPick(Camera* cam)
+{
+	MCoords mc = _sys._inputManager.getAbsXY();
+	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
+
+	//intersect base plane... for now, can do terrain as well but it's slower, no need yet
+	SVec3 POI;
+	ray.direction *= 500.f;
+	Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), POI);
+
+	SVec3 snappedPos = _navGrid.snapToCell(POI);
+
+	Math::SetTranslation(tower.transform, snappedPos);
+}
+
+
+
+void TDLevel::handleInput()
+{
+	
+}
+
+
+
+
+
+
 
 
 
@@ -257,3 +317,13 @@ for (int i = 0; i < 125; ++i)
 {
 	SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f + SVec3(5.f);
 }*/
+
+/*
+for (int i = 0; i < creeps.size(); ++i)
+{
+	if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
+	{
+		Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
+	}
+}
+*/

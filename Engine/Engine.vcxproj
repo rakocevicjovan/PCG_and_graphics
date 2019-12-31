@@ -267,6 +267,10 @@
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
+    <ClInclude Include="InputContext.h" />
+    <ClInclude Include="InputConstants.h" />
+    <ClInclude Include="InputMapper.h" />
+    <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Biome.h" />

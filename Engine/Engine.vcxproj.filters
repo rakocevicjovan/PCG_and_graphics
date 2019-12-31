@@ -701,6 +701,18 @@
     <ClInclude Include="Logger.h">
       <Filter>Main systems</Filter>
     </ClInclude>
+    <ClInclude Include="TDController.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="InputContext.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="InputMapper.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="InputConstants.h">
+      <Filter>Input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">
