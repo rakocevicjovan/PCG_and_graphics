@@ -7,9 +7,7 @@
 #include "Collider.h"
 
 class Actor;
-class Model;
 class Mesh;
-class Collider;
 
 
 class CollisionEngine
@@ -29,9 +27,7 @@ public:
 
 	void init() {}
 
-	void registerModel(Model& model, BoundingVolumeType bvt);
 	void registerActor(Actor& actor, BoundingVolumeType bvt);
-	void unregisterModel(Model& model);
 	void unregisterActor(Actor& actor);
 	void addToGrid(Collider* collider);
 	void removeFromGrid(Collider& collider);

@@ -3,7 +3,7 @@
 
 Actor::Actor(SMatrix& transform, Model* model) : transform(transform), _steerComp(this)
 {
-	_collider = Collider(BoundingVolumeType::BVT_SPHERE, this, true);
+	_collider = new Collider(BoundingVolumeType::BVT_SPHERE, this, true);
 
 	renderables.reserve(model->meshes.size());
 
@@ -17,4 +17,16 @@ Actor::Actor(SMatrix& transform, Model* model) : transform(transform), _steerCom
 		_collider->hulls.push_back(new SphereHull(mesh.transform.Translation(), 1.f));	//@TODO see what to do about this
 		_collider->hulls.back()->_collider = _collider;	//wonderful way to put it innit?
 	}
+}
+
+
+void Actor::propagate()
+{
+	for (Renderable& r : renderables)
+	{
+		r.worldTransform = transform * r.transform;
+	}
+
+	//@TODO consider changing to per-mesh collider... could be cleaner tbh
+	_collider->updateHullPositions();
 }

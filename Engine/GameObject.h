@@ -6,6 +6,7 @@
 #include "SteeringComponent.h"
 #include "Renderable.h"
 
+class Collider;
 
 class GameObject
 {
@@ -36,15 +37,14 @@ class Actor : public GameObject
 public:
 	Actor() : _steerComp(this) {};
 	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc), _steerComp(this) {}
-
 	Actor(SMatrix& transform, Model* model);
-	Actor* parent;
 
+	Actor* parent;
 
 	SMatrix transform;
 	GraphicComponent gc;
 	std::vector<Renderable> renderables;
-	Collider _collider;
+	Collider* _collider;
 	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const
@@ -56,17 +56,7 @@ public:
 	//lets just pretend im not a monkey and have a way to get some approximate radius for steering separation...
 	float getPersonalDistance() { return 2.f; }	
 
-
-	void propagate()
-	{
-		for (Renderable& r : renderables)
-		{
-			r.worldTransform = transform * r.transform;
-		}
-
-		//@TODO consider changing to per-mesh collider... could be cleaner tbh
-		_collider.updateHullPositions();
-	}
+	void propagate();
 
 	void Draw(ID3D11DeviceContext* context, Camera& cam, PointLight& pl, float dTime)
 	{

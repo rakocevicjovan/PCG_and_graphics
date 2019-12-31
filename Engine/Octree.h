@@ -75,7 +75,7 @@ private:
 		{
 			if ((curHull->getPosition() - p).LengthSquared() < ((r + curHull->r) * (r + curHull->r)))
 			{
-				neighbours.push_back(curHull->_collider->actParent);
+				neighbours.push_back(curHull->_collider->parent);
 			}
 		}
 

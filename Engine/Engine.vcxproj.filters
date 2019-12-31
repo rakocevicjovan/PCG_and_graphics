@@ -99,20 +99,8 @@
     <Filter Include="Old levels\__Picker">
       <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Old levels\Air">
-      <UniqueIdentifier>{f4e8c8f2-39b6-472c-ad78-802d67ec4c86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Old levels\Earth">
-      <UniqueIdentifier>{06b06c8e-a6f3-40c0-99a9-59da9586da86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Old levels\Fire">
-      <UniqueIdentifier>{12476446-bd60-4e81-aa57-428a9d103ac8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Old levels\SKTest">
       <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Old levels\Water">
-      <UniqueIdentifier>{b3d35bd8-aae1-49da-8b6c-175bb42b833e}</UniqueIdentifier>
     </Filter>
     <Filter Include="TowerDefense">
       <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
@@ -274,27 +262,6 @@
     </ClCompile>
     <ClCompile Include="Celestials.cpp">
       <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="AirLevel.cpp">
-      <Filter>Old levels\Air</Filter>
-    </ClCompile>
-    <ClCompile Include="Dragon.cpp">
-      <Filter>Old levels\Air</Filter>
-    </ClCompile>
-    <ClCompile Include="EarthLevel.cpp">
-      <Filter>Old levels\Earth</Filter>
-    </ClCompile>
-    <ClCompile Include="Hexer.cpp">
-      <Filter>Old levels\Fire</Filter>
-    </ClCompile>
-    <ClCompile Include="FireLevel.cpp">
-      <Filter>Old levels\Fire</Filter>
-    </ClCompile>
-    <ClCompile Include="Lillies.cpp">
-      <Filter>Old levels\Water</Filter>
-    </ClCompile>
-    <ClCompile Include="WaterLevel.cpp">
-      <Filter>Old levels\Water</Filter>
     </ClCompile>
     <ClCompile Include="TestLevel.cpp">
       <Filter>Old levels\SKTest</Filter>
@@ -592,27 +559,6 @@
     </ClInclude>
     <ClInclude Include="BitMapper.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="AirLevel.h">
-      <Filter>Old levels\Air</Filter>
-    </ClInclude>
-    <ClInclude Include="Dragon.h">
-      <Filter>Old levels\Air</Filter>
-    </ClInclude>
-    <ClInclude Include="EarthLevel.h">
-      <Filter>Old levels\Earth</Filter>
-    </ClInclude>
-    <ClInclude Include="Hexer.h">
-      <Filter>Old levels\Fire</Filter>
-    </ClInclude>
-    <ClInclude Include="FireLevel.h">
-      <Filter>Old levels\Fire</Filter>
-    </ClInclude>
-    <ClInclude Include="Lillies.h">
-      <Filter>Old levels\Water</Filter>
-    </ClInclude>
-    <ClInclude Include="WaterLevel.h">
-      <Filter>Old levels\Water</Filter>
     </ClInclude>
     <ClInclude Include="TestLevel.h">
       <Filter>Old levels\SKTest</Filter>

@@ -54,7 +54,7 @@ void TDLevel::init(Systems& sys)
 			r.pLight = &pLight;
 		}
 
-		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider.hulls.back()));
+		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider->hulls.back()));
 	}
 
 	tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
@@ -66,7 +66,7 @@ void TDLevel::init(Systems& sys)
 		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
 
-	creeps.emplace_back(tower);
+	//creeps.emplace_back(tower);
 	
 
 	/*
@@ -161,7 +161,7 @@ void TDLevel::update(const RenderContext& rc)
 
 		for (int i = 0; i < creeps.size(); ++i)
 		{
-			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider.hulls[0])))
+			if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
 			{
 				Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
 			}
@@ -186,7 +186,7 @@ void TDLevel::update(const RenderContext& rc)
 	//cull and add to render queue
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider.hulls[0])))
+		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
 		{
 			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : creeps[i].renderables)

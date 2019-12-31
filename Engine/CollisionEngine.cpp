@@ -1,5 +1,4 @@
 #include "CollisionEngine.h"
-#include "Model.h"
 #include "Math.h"
 #include "GameObject.h"
 #include "SimpleMath.h"	//nani?
@@ -21,92 +20,27 @@ CollisionEngine::~CollisionEngine()
 }
 
 
-//tbd
-void CollisionEngine::registerModel(Model& model, BoundingVolumeType bvt)
-{
-	_colliders.push_back(new Collider());
-	_colliders.back()->modParent = &model;
-	_colliders.back()->BVT = bvt;
-	_colliders.back()->dynamic = false;
-
-	model.collider = _colliders.back();
-
-	switch (bvt)
-	{
-	case BVT_AABB:
-		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genBoxHull(&m, model.transform));
-		break;
-
-	case BVT_SPHERE:
-		for (Mesh m : model.meshes) _colliders.back()->hulls.push_back(genSphereHull(&m, model.transform));
-		break;
-	}
-
-	addToGrid(_colliders.back());
-}
-
-
 
 void CollisionEngine::registerActor(Actor& actor, BoundingVolumeType bvt)
 {
-	_colliders.push_back(new Collider());
-	_colliders.back()->actParent = &actor;
-	_colliders.back()->BVT = bvt;
-	_colliders.back()->dynamic = true;
-
-	actor._collider = _colliders.back();
-
-	//@WARNING SHOULD NOT WORK THIS WAY! THIS IS OLD CODE MIXED WITH NEW, NO RENDERING/COLLISION MIXING! FIX ASAP!
-	switch (bvt)
-	{
-	case BVT_AABB:
-		for (const Renderable& r : actor.renderables)
-			_colliders.back()->hulls.push_back(genBoxHull(r.mesh, actor.transform));
-		break;
-
-	case BVT_SPHERE:
-		for (const Renderable&  r : actor.renderables)
-			_colliders.back()->hulls.push_back(genSphereHull(r.mesh, actor.transform));
-		break;
-	}
-
-	addToGrid(_colliders.back());
-}
-
-
-
-void CollisionEngine::unregisterModel(Model& model)
-{
-	for (Collider* c : _colliders)
-	{
-		if (c->modParent == &model)
-		{
-			removeFromGrid(*c);
-			c->ReleaseMemory();
-			delete c;
-			c = nullptr;
-		}
-	}
-	_colliders.erase(remove(_colliders.begin(), _colliders.end(), model.collider), _colliders.end());
 }
 
 
 
 void CollisionEngine::unregisterActor(Actor& actor)
 {
-
 	for (Collider* c : _colliders)
 	{
-		if (c == actor._collider)
+		/*if (c == &actor._collider)
 		{
 			removeFromGrid(*c);
 			c->ReleaseMemory();
 			delete c;
 			c = nullptr;
-		}
+		}*/
 	}
 
-	_colliders.erase(remove(_colliders.begin(), _colliders.end(), actor._collider), _colliders.end());
+	//_colliders.erase(remove(_colliders.begin(), _colliders.end(), actor._collider), _colliders.end());
 }
 
 
@@ -149,7 +83,7 @@ void CollisionEngine::update()
 		if (collider->dynamic)
 		{
 			for (Hull* h : collider->hulls)	//@TODO allow offsets for multiple hulls!
-				h->setPosition(collider->actParent->transform.Translation());
+				h->setPosition(collider->parent->transform.Translation());
 
 			addToGrid(collider);
 		}
