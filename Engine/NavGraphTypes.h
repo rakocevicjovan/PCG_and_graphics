@@ -17,6 +17,12 @@ struct NavEdge
 	int first;
 	int last;
 	float weight;
+	bool active = true;
 
 	NavEdge(int f, int l, float w = 1.f) : first(f), last(l), weight(w) {}
+
+	inline UINT getNeighbourIndex(UINT myIndex) const
+	{
+		return first == myIndex ? last : first;
+	}
 };

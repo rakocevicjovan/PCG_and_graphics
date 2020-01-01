@@ -7,7 +7,6 @@
 template <float (*calcHeuristic)(const NavNode& a, const NavNode& b)>
 class AStar
 {
-private:
 	template <typename NavNodeType>
 	static void prepareGraph(std::vector<NavNodeType>& nodes, int goalIndex)
 	{
@@ -38,10 +37,10 @@ private:
 			const NavEdgeType& curEdge = edges[edgeIndex];							//by iterating through edges
 			NavNodeType& curNbr = nodes[getNeighbourIndex(curEdge, curNodeIndex)];	//and getting the node that isn't curNode
 
-			if (curNbr.visited)	//ignore the previously visited nodes!
+			if (curNbr.visited || !curEdge.active)	//ignore the previously visited nodes or dead edges
 				continue;
 
-			float curNbrWeight = curNbr.pathWeight;		//get the current cost of pathing through the neighbours
+			float curNbrWeight = curNbr.pathWeight;	//get the current cost of pathing through the neighbours
 
 			float gWeight = curNode.pathWeight + curEdge.weight;	//get the new cost based on g
 			float hWeight = calculateHeuristic(curNbr, nodes[goalIndex]);
@@ -74,15 +73,19 @@ private:
 public:
 
 	template <typename NavNodeType, typename NavEdgeType>
-	static void fillGraph(std::vector<NavNodeType>& nodes, std::vector<NavEdgeType>& edges, int goalIndex)
+	static UINT fillGraph(std::vector<NavNodeType>& nodes, std::vector<NavEdgeType>& edges, int goalIndex)
 	{
 		prepareGraph(nodes, goalIndex);
 
 		int curNodeIndex = goalIndex;
+		
+		UINT nrVisited = 0u;
 
 		while (curNodeIndex > -1)
 		{
 			visitNode(nodes, edges, curNodeIndex, goalIndex);
+
+			++nrVisited;
 
 			float minPathWeight = (std::numeric_limits<float>::max)();
 			curNodeIndex = -1;
@@ -104,5 +107,6 @@ public:
 			//If this was a target search, I'd check if the found node is the target one... 
 			//Instead, I simply continue until the reachable nodes are checked because I'm filling the flow field
 		}
+		return nrVisited;
 	}
 };

@@ -33,7 +33,7 @@ public:
 			return;
 
 		SVec3 myPos = _parent->getPosition();
-		int creepsCell = navGrid.posToCell(myPos);
+		int creepsCell = navGrid.posToCellIndex(myPos);
 		SVec3 flowVector = navGrid.flowAtIndex(creepsCell);
 		SVec3 goalPos = navGrid.cellIndexToPos(navGrid.getGoalIndex());
 		SVec3 vecToGoal = myPos - goalPos;
@@ -50,8 +50,8 @@ public:
 			SVec3 desiredPos = goalPos + 2.f * SVec3(index % 10, 0, (index / 10) % 10);
 			
 			//a bit hacky really... but it allows collision to overtake and sort them out instead of fighting it
-			if ((SVec2(desiredPos.x, desiredPos.z) - SVec2(myPos.x, myPos.z)).LengthSquared() < (2.f * _radius) * (2.f * _radius))
-				_active = false;
+			//if ((SVec2(desiredPos.x, desiredPos.z) - SVec2(myPos.x, myPos.z)).LengthSquared() < (2.f * _radius) * (2.f * _radius))
+				//_active = false;
 
 			_cumulativeMovement += Math::getNormalizedVec3(desiredPos - myPos);
 			

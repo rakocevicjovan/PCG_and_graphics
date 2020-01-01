@@ -25,6 +25,7 @@ public:
 		_towerGuiDefs.push_back({towerDesc, towerName, towerIcon});
 	}
 
+
 	void init(ImVec2 pos, ImVec2 size)
 	{
 		_buildingWidgetPos = pos;

@@ -70,7 +70,10 @@ void TDLevel::init(Systems& sys)
 		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
 
-	_tdgui.addTowerGuiDef("Guard tower is bla bla", "Guard tower", tower.renderables[0].mat->textures[0]->srv);
+	_tdgui.addTowerGuiDef(
+		"Guard tower is a common, yet powerful defensive building.", 
+		"Guard tower", 
+		tower.renderables[0].mat->textures[0]->srv);
 
 	//creeps.emplace_back(tower);
 
@@ -146,8 +149,7 @@ void TDLevel::update(const RenderContext& rc)
 
 	tower.propagate();
 
-	if(_building)
-		rayPick(rc.cam);
+	rayPick(rc.cam);
 
 	/// FRUSTUM CULLING
 	numCulled = 0;
@@ -173,6 +175,9 @@ void TDLevel::update(const RenderContext& rc)
 			numCulled++;
 		}
 	}
+
+	handleInput();
+
 }
 
 
@@ -225,20 +230,10 @@ void TDLevel::draw(const RenderContext& rc)
 	startGuiFrame();
 	renderGuiElems(guiElems);
 
-
 	static int selectedTower = 0;
 	_tdgui.renderBuildingWidget(_building, selectedTower);
 
 	endGuiFrame();
-
-	//make this do two things
-	// 1. be smart and not stupid - we need to handle each of these, not pop them even if they are not handled here
-	// 2. check if the spot is taken - using the nav grid, only clear cells can do! and update the navgrid after
-	if (_tdController.getNextAction() == InputEventTD::BUILD && _building)
-	{
-		_built.push_back(tower);
-		_building = false;
-	}
 
 	rc.d3d->EndScene();
 }
@@ -262,16 +257,44 @@ void TDLevel::rayPick(Camera* cam)
 	ray.direction *= 500.f;
 	Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), POI);
 
-	SVec3 snappedPos = _navGrid.snapToCell(POI);
+	if (_building)
+	{
+		SVec3 snappedPos = _navGrid.snapToCell(POI);
+		Math::SetTranslation(tower.transform, snappedPos);
+	}
 
-	Math::SetTranslation(tower.transform, snappedPos);
+	for (int i = 0; i < creeps.size(); ++i)
+	{
+		if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
+			Math::SetTranslation(creeps[i].transform, SVec3(250, 0, 250));
+	}
 }
 
 
 
 void TDLevel::handleInput()
 {
+	//check if the spot is taken - using the nav grid, only clear cells can do! and update the navgrid after
+
+	InputEventTD inEvent;
 	
+	while (_tdController.consumeNextAction(inEvent))
+	{
+		if (inEvent == InputEventTD::BUILD && _building)
+		{
+			if (_navGrid.tryAddObstacle(tower.getPosition()))
+			{
+				AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
+				_navGrid.fillFlowField();
+				_built.push_back(tower);
+				_building = false;
+			}
+			else
+			{
+				//detected path blocking, can't build, pop some gui warning etc...
+			}
+		}
+	}
 }
 
 
@@ -287,16 +310,6 @@ for (int i = 0; i < 125; ++i)
 {
 	SVec3 pos = SVec3(i % 5, (i / 5) % 5, (i / 25) % 5) * 20.f + SVec3(5.f);
 }*/
-
-/*
-for (int i = 0; i < creeps.size(); ++i)
-{
-	if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
-	{
-		Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
-	}
-}
-*/
 
 /*
 Procedural::Geometry g;

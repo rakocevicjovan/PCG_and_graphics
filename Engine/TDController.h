@@ -35,21 +35,13 @@ public:
 		}
 	}
 
-	InputEventTD getNextAction()
+	bool consumeNextAction(InputEventTD& inEvent)
 	{
-		InputEventTD result;
+		if (_inputEventList.empty())
+			return false;
 
-		if (!_inputEventList.empty())
-		{
-			result = _inputEventList.front();
-			_inputEventList.pop_front();
-		}
-		else
-		{
-			result = InputEventTD::NONE;
-		}
-		
-		return result;
+		inEvent = _inputEventList.front();
+		_inputEventList.pop_front();
+		return true;
 	}
-
 };

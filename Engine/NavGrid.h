@@ -1,9 +1,10 @@
 #pragma once
 #include "Math.h"
 #include "NavGraphTypes.h"
+#include "AStar.h"
 
 
-struct NavCell : NavNode
+struct NavCell : public NavNode
 {
 	int _row;
 	int _column;
@@ -21,6 +22,7 @@ private:
 	SVec3 _offset;
 	int _goalIndex;
 	float _leeway;
+	UINT _activeCellCount;
 
 public:
 	std::vector<NavCell> _cells;
@@ -46,8 +48,7 @@ public:
 		_cells.resize(_w * _h);
 		_edges.reserve(2 * _w * _h - _w - _h);
 
-		//_cells.resize(_w * _h);
-		//_edges.resize(2 * _w * _h - _w - _h);
+		_activeCellCount = _cells.size();
 	}
 
 
@@ -163,7 +164,76 @@ public:
 
 
 
-	int posToCell(SVec3 pos) const
+	bool tryAddObstacle(const SVec3& pos)
+	{
+		int obstacleCellIndex = posToCellIndex(pos);
+		std::vector<bool> backUp;
+		if (addObstacle(obstacleCellIndex, backUp))
+		{
+			if (countReachable() == getActiveCellCount())
+			{
+				return true;
+			}
+			else
+			{
+				removeObstacle(obstacleCellIndex, backUp);
+				return false;
+			}
+		}
+		return false;
+	}
+
+
+
+	UINT countReachable(int startIndex = 0) const
+	{
+		UINT curNodeIndex = startIndex;
+		UINT count = 0u;
+
+		std::vector<bool> visitedList(_cells.size(), false);
+		std::list<int> toCheck;
+		toCheck.push_back(curNodeIndex);
+		
+		while (!toCheck.empty())
+		{
+			curNodeIndex = toCheck.front();
+			toCheck.pop_front();
+
+			//visitNode(nodes, edges, curNodeIndex, goalIndex);
+			const NavCell& curCell = _cells[curNodeIndex];
+
+			for (int edgeIndex : curCell.edges)
+			{
+				const NavEdge& edge = _edges[edgeIndex];
+				
+				if (!edge.active)
+					continue;
+
+				UINT nbrIndex = edge.getNeighbourIndex(curNodeIndex);
+				const NavCell& nbr = _cells[nbrIndex];
+
+				if (visitedList[nbrIndex] == false)
+				{
+					++count;
+					visitedList[nbrIndex] = true;
+					toCheck.push_back(nbrIndex);
+				}
+			}
+		}
+		return count;
+	}
+
+
+
+	//returns the count of cells NOT covered by obstacles
+	UINT getActiveCellCount()
+	{
+		return _activeCellCount;
+	}
+
+
+
+	int posToCellIndex(const SVec3& pos) const
 	{
 		SVec3 offsetFromGrid = pos - _offset;
 
@@ -196,7 +266,7 @@ public:
 
 	inline SVec3 flowAtPosition(SVec3 pos) const
 	{
-		return _cells[posToCell(pos)]._direction;
+		return _cells[posToCellIndex(pos)]._direction;
 	}
 
 
@@ -227,5 +297,48 @@ public:
 	inline void setLeeway(float leeway)
 	{
 		_leeway = leeway;
+	}
+
+private:
+
+	//this could be sorted out better I guess... with a bool in cell or similar... @TODO if necessary
+	bool obstacleExists(UINT index)
+	{
+		for (int i : _cells[index].edges)
+		{
+			if (_edges[i].active)
+				return false;
+		}
+		return true;
+	}
+
+
+	bool addObstacle(UINT index, std::vector<bool>& backUp)
+	{
+		if (obstacleExists(index))
+			return false;
+
+		backUp.reserve(_cells[index].edges.size());
+
+		//might validate here tbh... but for now it's in AStar<>::fillGraph
+		for (int edgeIndex : _cells[index].edges)
+		{
+			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); 
+			//not such a good solution, can still path through unpredictable since we are dealing with over max values
+			backUp.push_back(_edges[edgeIndex].active);
+			_edges[edgeIndex].active = false;	//prevents deleting the vector... list is slower to iterate so this!
+		}
+		--_activeCellCount;
+		return true;
+	}
+
+
+	void removeObstacle(int index, const std::vector<bool>& backUp)
+	{
+		for (int i = 0; i < _cells[index].edges.size(); i++)
+		{
+			_edges[_cells[index].edges[i]].active = backUp[i];
+		}
+		++_activeCellCount;
 	}
 };
