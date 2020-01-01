@@ -8,6 +8,7 @@
 #include "NavGrid.h"
 #include "AStar.h"
 #include "TDController.h"	//#include "RTSController.h" flawed idea...
+#include "TDGUI.h"
 
 
 
@@ -56,4 +57,5 @@ private:
 	std::vector<Actor> _built;
 	Actor tower;
 	bool _building = false;
+	TDGUI _tdgui;
 };

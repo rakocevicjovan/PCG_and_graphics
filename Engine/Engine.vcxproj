@@ -363,6 +363,7 @@
     <ClInclude Include="SteeringComponent.h" />
     <ClInclude Include="StrifeLevel.h" />
     <ClInclude Include="Systems.h" />
+    <ClInclude Include="TDGUI.h" />
     <ClInclude Include="TDLevel.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainShader.h" />

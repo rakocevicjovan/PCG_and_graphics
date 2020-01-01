@@ -2,7 +2,7 @@
 #include <list>
 #include "Observer.h"
 
-enum class InputEventTD { BUILD, NONE };
+enum class InputEventTD { BUILD, STOP_BUILDING, NONE };
 
 class TDController : public Observer
 {
@@ -18,7 +18,8 @@ public:
 
 	void Observe(const KeyPressMessage& msg) override
 	{
-
+		if (msg.key == 'C')
+			_inputEventList.push_back(InputEventTD::STOP_BUILDING);
 	}
 	
 	void Observe(const MouseClickMessage& msg) override
@@ -26,6 +27,11 @@ public:
 		if (msg.mButtonType == MBT::LEFT && msg.pressed == true)
 		{
 			_inputEventList.push_back(InputEventTD::BUILD);
+		}
+
+		if (msg.mButtonType == MBT::RIGHT && msg.pressed == true)
+		{
+			_inputEventList.push_back(InputEventTD::STOP_BUILDING);
 		}
 	}
 

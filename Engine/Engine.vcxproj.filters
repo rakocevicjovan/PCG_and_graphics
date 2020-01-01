@@ -713,6 +713,9 @@
     <ClInclude Include="InputConstants.h">
       <Filter>Input</Filter>
     </ClInclude>
+    <ClInclude Include="TDGUI.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

@@ -23,6 +23,8 @@ void TDLevel::init(Systems& sys)
 	S_INMAN.registerController(&_tdController);
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
+	_tdgui.init(ImVec2(_sys.getScrW() - 500, _sys.getScrH() - 200), ImVec2(500, 200));
+
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
 
@@ -68,17 +70,9 @@ void TDLevel::init(Systems& sys)
 		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
 
-	//creeps.emplace_back(tower);
-	
+	_tdgui.addTowerGuiDef("Guard tower is bla bla", "Guard tower", tower.renderables[0].mat->textures[0]->srv);
 
-	/*
-	Procedural::Geometry g;
-	g.GenBox(SVec3(_navGrid.getCellSize().x, 1, _navGrid.getCellSize().y));
-	boxModel.meshes.push_back(Mesh(g, S_DEVICE, true, false));
-	box = Actor(SMatrix(), &boxModel);
-	box.renderables[0].mat = &creepMat;
-	box.renderables[0].pLight = &pLight;
-	*/
+	//creeps.emplace_back(tower);
 
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g;
@@ -231,33 +225,9 @@ void TDLevel::draw(const RenderContext& rc)
 	startGuiFrame();
 	renderGuiElems(guiElems);
 
-	static const char* towerList[]{ "Guard tower", "Another tower" };
-	static int selectedItem = 0;
 
-	ImGui::SetNextWindowPos(ImVec2(_sys.getScrW() - 500, _sys.getScrH() - 200), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(500, 200), ImGuiCond_Once);
-	ImGui::Begin("Buildings", false);
-
-	ImGui::Text("Buildings");
-	ImGui::ListBoxHeader("");
-
-	ImGui::PushID(0);
-	if (ImGui::ImageButton((void*)tower.renderables[0].mat->textures[0]->srv, ImVec2(64, 64)))
-	{
-		_building = true;
-	}
-	ImGui::PopID();
-
-	ImGui::PushID(1);
-	if (ImGui::ImageButton((void*)tower.renderables[0].mat->textures[0]->srv, ImVec2(64, 64)))
-	{
-		_building = true;
-	}
-	ImGui::PopID();
-
-	ImGui::ListBoxFooter();
-
-	ImGui::End();
+	static int selectedTower = 0;
+	_tdgui.renderBuildingWidget(_building, selectedTower);
 
 	endGuiFrame();
 
@@ -326,4 +296,13 @@ for (int i = 0; i < creeps.size(); ++i)
 		Math::RotateMatByQuat(creeps[i].transform, SQuat(SVec3(0, 1, 0), 1.f * rc.dTime));
 	}
 }
+*/
+
+/*
+Procedural::Geometry g;
+g.GenBox(SVec3(_navGrid.getCellSize().x, 1, _navGrid.getCellSize().y));
+boxModel.meshes.push_back(Mesh(g, S_DEVICE, true, false));
+box = Actor(SMatrix(), &boxModel);
+box.renderables[0].mat = &creepMat;
+box.renderables[0].pLight = &pLight;
 */
