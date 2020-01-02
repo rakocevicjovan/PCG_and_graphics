@@ -38,7 +38,7 @@ void TDLevel::init(Systems& sys)
 	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
-	_navGrid.populate();
+	_navGrid.createEdges();
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();

@@ -27,22 +27,16 @@ public:
 		for (const NavAgent* boi : theBois)
 		{
 			SVec3 separator = -static_cast<SVec3>(boi->getPosition() - me.getPosition());
-			float distance = separator.Length();
 			
-			
-			if (distance < 0.00001)	//avoid self... could be handled otherwise but cba
+			if (separator.LengthSquared() < 0.00001)	//avoid self... could be handled otherwise but cba
 				continue;
 
-			separator /= distance;
-			//float intensityAdjustment = distance;//Math::smoothstep(2.f, 0.f, distance);
-			//separator *= intensityAdjustment;
 			result += separator;	//me->r
 		}
 
-		//result /= theBois.size();
 		result.Normalize();
 
-		return result;		// * agent.maxForce... not sure wth that is though, and I need another class not
+		return result;
 	}
 
 

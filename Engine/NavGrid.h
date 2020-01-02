@@ -6,9 +6,8 @@
 
 struct NavCell : public NavNode
 {
-	int _row;
-	int _column;
 	SVec3 _direction;
+	bool obstacle = false;
 };
 
 
@@ -61,7 +60,7 @@ public:
 
 
 	//this is a naive implementation that simply adds all edges, does not check for obstacles
-	void NavGrid::populate()
+	void NavGrid::createEdges()
 	{
 		//create and connect edges...
 		int thisCell = 0, neighbour = 0, edgeCount = 0;
@@ -69,9 +68,9 @@ public:
 		float diagonalWeight = sqrt(2);
 
 		//wastes some but likely faster... this could fragment a lot though as _cells is a vector...
-		//should use a std::array<int, 4> instead, should be much much better performance wise
+		//should use a std::array<int, 8> instead, should be much much better performance wise
 		for (auto& cell : _cells)
-			cell.edges.reserve(4);
+			cell.edges.reserve(8);
 
 		for (int i = 0; i < _h; i++)
 		{
@@ -79,28 +78,15 @@ public:
 			{
 				thisCell = i * _w + j;
 
-				//right edge
-				if (j != _w - 1)
-				{
-					neighbour = thisCell + 1;
-
-					_edges.emplace_back(thisCell, neighbour);
-					edgeCount++;
-
-					_cells[thisCell].edges.push_back(edgeCount - 1);
-					_cells[neighbour].edges.push_back(edgeCount - 1);
-				}
-
 				//top edge
 				if (i != _h - 1)
 				{
 					neighbour = thisCell + _w;
 
 					_edges.emplace_back(thisCell, neighbour);
-					edgeCount++;
-					
-					_cells[thisCell].edges.push_back(edgeCount - 1);
-					_cells[neighbour].edges.push_back(edgeCount - 1);
+					_cells[thisCell].edges.push_back(edgeCount);
+					_cells[neighbour].edges.push_back(edgeCount);
+					++edgeCount;
 				}
 
 				//top right diagonal edge
@@ -109,11 +95,33 @@ public:
 					neighbour = thisCell + _w + 1;
 
 					_edges.emplace_back(thisCell, neighbour, diagonalWeight);
-					edgeCount++;
-
-					_cells[thisCell].edges.push_back(edgeCount - 1);
-					_cells[neighbour].edges.push_back(edgeCount - 1);
+					_cells[thisCell].edges.push_back(edgeCount);
+					_cells[neighbour].edges.push_back(edgeCount);
+					++edgeCount;
 				}
+
+				//right edge
+				if (j != _w - 1)
+				{
+					neighbour = thisCell + 1;
+
+					_edges.emplace_back(thisCell, neighbour);
+					_cells[thisCell].edges.push_back(edgeCount);
+					_cells[neighbour].edges.push_back(edgeCount);
+					++edgeCount;
+				}
+
+				//bottom right diagonal edge
+				if (i != 0  && j != _w - 1)
+				{
+					neighbour = thisCell - _w + 1;
+
+					_edges.emplace_back(thisCell, neighbour, diagonalWeight);
+					_cells[thisCell].edges.push_back(edgeCount);
+					_cells[neighbour].edges.push_back(edgeCount);
+					++edgeCount;
+				}
+
 			}
 		}
 	}
@@ -126,21 +134,27 @@ public:
 		{
 			SVec3 myPos = cellIndexToPos(i);
 			float minPathCost = (std::numeric_limits<float>::max)();
+			int bestNIndex = -1;
 
 			for (int j = 0; j < _cells[i].edges.size(); ++j)
 			{
 				const NavEdge& edge = _edges[_cells[i].edges[j]];
-				int nIndex = edge.first == i ? edge.last : edge.first;
+				
+				if (!edge.active)
+					continue;
+
+				int nIndex = edge.getNeighbourIndex(i);
 				const NavCell& neighbour = _cells[nIndex];
 				float curPathCost = neighbour.pathWeight;
 
 				if (neighbour.pathWeight < minPathCost)
 				{
 					minPathCost = neighbour.pathWeight;
-					_cells[i]._direction = cellIndexToPos(nIndex) - myPos;
-					_cells[i]._direction.Normalize();
+					bestNIndex = nIndex;
 				}
 			}
+			_cells[i]._direction = cellIndexToPos(bestNIndex) - myPos;
+			_cells[i]._direction.Normalize();
 		}
 	}
 
@@ -264,6 +278,16 @@ public:
 	}
 
 
+	inline SVec3 flowObstacleCorrection(const SVec3& pos) const
+	{
+		int obsIndex = posToCellIndex(pos);
+		if (_cells[obsIndex].obstacle)
+			return Math::getNormalizedVec3(pos - cellIndexToPos(obsIndex));
+
+		return SVec3::Zero;
+	}
+
+
 	inline SVec3 flowAtPosition(SVec3 pos) const
 	{
 		return _cells[posToCellIndex(pos)]._direction;
@@ -302,32 +326,33 @@ public:
 private:
 
 	//this could be sorted out better I guess... with a bool in cell or similar... @TODO if necessary
-	bool obstacleExists(UINT index)
+	bool isObstacle(UINT index)
 	{
-		for (int i : _cells[index].edges)
-		{
+		/*for (int i : _cells[index].edges)
 			if (_edges[i].active)
 				return false;
-		}
-		return true;
+		return true;*/
+		return _cells[index].obstacle;
 	}
 
 
 	bool addObstacle(UINT index, std::vector<bool>& backUp)
 	{
-		if (obstacleExists(index))
+		if (isObstacle(index))
 			return false;
+
+		_cells[index].obstacle = true;
 
 		backUp.reserve(_cells[index].edges.size());
 
 		//might validate here tbh... but for now it's in AStar<>::fillGraph
 		for (int edgeIndex : _cells[index].edges)
 		{
-			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); 
-			//not such a good solution, can still path through unpredictable since we are dealing with over max values
+			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); //let's hope so
 			backUp.push_back(_edges[edgeIndex].active);
-			_edges[edgeIndex].active = false;	//prevents deleting the vector... list is slower to iterate so this!
+			_edges[edgeIndex].active = false;	//prevents deleting in the vector... list is slower to iterate so this!
 		}
+		
 		--_activeCellCount;
 		return true;
 	}
@@ -335,6 +360,8 @@ private:
 
 	void removeObstacle(int index, const std::vector<bool>& backUp)
 	{
+		_cells[index].obstacle = false;
+
 		for (int i = 0; i < _cells[index].edges.size(); i++)
 		{
 			_edges[_cells[index].edges[i]].active = backUp[i];

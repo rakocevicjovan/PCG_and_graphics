@@ -37,7 +37,7 @@ class AStar
 			const NavEdgeType& curEdge = edges[edgeIndex];							//by iterating through edges
 			NavNodeType& curNbr = nodes[getNeighbourIndex(curEdge, curNodeIndex)];	//and getting the node that isn't curNode
 
-			if (curNbr.visited || !curEdge.active)	//ignore the previously visited nodes or dead edges
+			if (curNbr.visited)	//ignore the previously visited nodes or dead edges
 				continue;
 
 			float curNbrWeight = curNbr.pathWeight;	//get the current cost of pathing through the neighbours
@@ -50,7 +50,15 @@ class AStar
 			if (newPathCost < curNbrWeight)	//if the path from cur node to neighbour is "cheaper" then nbr's original path
 			{
 				curNbr.pathPredecessor = curNodeIndex;	//readjust the path to the new, cheaper version
-				curNbr.pathWeight = newPathCost;
+				if (curEdge.active)
+				{
+					curNbr.pathWeight = newPathCost;
+				}
+				else
+				{
+					curNbr.pathWeight = (std::numeric_limits<float>::max)();
+				}
+				
 			}
 		}
 	}
@@ -69,6 +77,7 @@ class AStar
 	{ 
 		return calcHeuristic(a, b);
 	}
+
 
 public:
 
