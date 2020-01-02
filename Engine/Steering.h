@@ -4,10 +4,8 @@
 #include "Math.h"
 #include "Hull.h"
 
-class Steering
+namespace Steering
 {
-public:
-
 	//trivial but I don't even need it rn...
 	static SVec3 seek(SVec3 pos)
 	{

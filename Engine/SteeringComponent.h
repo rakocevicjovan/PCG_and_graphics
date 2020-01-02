@@ -3,14 +3,14 @@
 #include "NavGrid.h"
 #include "Math.h"
 
-template <typename T>
+template <typename ParentType>
 class SteeringComponent
 {
 public:
-	SVec3 _cumulativeMovement = SVec3::Zero;
+	SVec3 _totalInfluence = SVec3::Zero;
 	float _mspeed = 100.f;
 	float _radius = 1.f;
-	T* _parent;
+	ParentType* _parent;
 
 	//notes whether there an assigned movement intent exists
 	//this needs to be set to true from a higher place in gameplay code that issues movement commands
@@ -19,7 +19,7 @@ public:
 
 
 
-	SteeringComponent(T* parent)
+	SteeringComponent(ParentType* parent)
 	{
 		_parent = parent;
 	}
@@ -35,8 +35,8 @@ public:
 		SVec3 myPos = _parent->getPosition();
 		int creepsCell = navGrid.posToCellIndex(myPos);
 		SVec3 flowVector = navGrid.flowAtIndex(creepsCell);
-		SVec3 obstacleCorrection = navGrid.flowObstacleCorrection(myPos + flowVector * _mspeed * dTime);
-		flowVector += obstacleCorrection;
+		SVec3 obstacleCorrection = navGrid.flowObstacleCorrection(myPos);
+		flowVector += 5.f * obstacleCorrection;
 
 		SVec3 goalPos = navGrid.cellIndexToPos(navGrid.getGoalIndex());
 		SVec3 vecToGoal = myPos - goalPos;
@@ -45,26 +45,26 @@ public:
 		//seeking using the flowfield
 		if (distToGoal > stopDistance)
 		{
-			_cumulativeMovement += flowVector;
-			_cumulativeMovement += Steering::separate(static_cast<NavAgent>(*_parent), others);
+			_totalInfluence += flowVector;
+			_totalInfluence += Steering::separate(static_cast<NavAgent>(*_parent), others);
 		}
 		else	//arrival behaviour
 		{
 			SVec3 desiredPos = goalPos + 2.f * SVec3(index % 10, 0, (index / 10) % 10);
-			_cumulativeMovement += Math::getNormalizedVec3(desiredPos - myPos);
+			_totalInfluence += Math::getNormalizedVec3(desiredPos - myPos);
 
 			//a bit hacky really... but it allows collision to overtake and sort them out instead of fighting it
-			//if ((SVec2(desiredPos.x, desiredPos.z) - SVec2(myPos.x, myPos.z)).LengthSquared() < (2.f * _radius) * (2.f * _radius))
-				//_active = false;
+			if ((SVec2(desiredPos.x, desiredPos.z) - SVec2(myPos.x, myPos.z)).LengthSquared() < (2.f * _radius) * (2.f * _radius))
+				_active = false;
 			
 		}
 
-		if (_cumulativeMovement.LengthSquared() < 0.0001)
+		if (_totalInfluence.LengthSquared() < 0.0001)
 			return;
 
-		_cumulativeMovement.Normalize();
+		_totalInfluence.Normalize();
 
-		Math::Translate(_parent->transform, _cumulativeMovement * _mspeed * dTime);
-		_cumulativeMovement = SVec3::Zero;
+		Math::Translate(_parent->transform, _totalInfluence * _mspeed * dTime);
+		_totalInfluence = SVec3::Zero;
 	}
 };

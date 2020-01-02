@@ -7,7 +7,7 @@
 struct NavCell : public NavNode
 {
 	SVec3 _direction;
-	bool obstacle = false;
+	bool obstructed = false;
 };
 
 
@@ -29,6 +29,8 @@ public:
 
 	NavGrid()
 	{
+		sizeof(NavCell);
+		sizeof(NavEdge);
 		_w = _h = 0;
 		_fw = _fh = 0;
 	}
@@ -60,12 +62,12 @@ public:
 
 
 	//this is a naive implementation that simply adds all edges, does not check for obstacles
-	void NavGrid::createEdges()
+	void NavGrid::createAllEdges(float cardinalWeight = 1.f)
 	{
 		//create and connect edges...
 		int thisCell = 0, neighbour = 0, edgeCount = 0;
 
-		float diagonalWeight = sqrt(2);
+		float diagonalWeight = sqrt(2) * cardinalWeight;
 
 		//wastes some but likely faster... this could fragment a lot though as _cells is a vector...
 		//should use a std::array<int, 8> instead, should be much much better performance wise
@@ -83,7 +85,7 @@ public:
 				{
 					neighbour = thisCell + _w;
 
-					_edges.emplace_back(thisCell, neighbour);
+					_edges.emplace_back(thisCell, neighbour, cardinalWeight);
 					_cells[thisCell].edges.push_back(edgeCount);
 					_cells[neighbour].edges.push_back(edgeCount);
 					++edgeCount;
@@ -105,7 +107,7 @@ public:
 				{
 					neighbour = thisCell + 1;
 
-					_edges.emplace_back(thisCell, neighbour);
+					_edges.emplace_back(thisCell, neighbour, cardinalWeight);
 					_cells[thisCell].edges.push_back(edgeCount);
 					_cells[neighbour].edges.push_back(edgeCount);
 					++edgeCount;
@@ -144,6 +146,39 @@ public:
 					continue;
 
 				int nIndex = edge.getNeighbourIndex(i);
+
+
+				/*
+				//if not cardinal with abs value of indexDelta	//if (!(indexDelta == 1 || indexDelta == _w))
+
+
+				UINT indexDelta = nIndex - i;
+
+				if (indexDelta == _w + 1)	//top right
+				{
+					if (_cells[i + 1].obstacle || _cells[i + _w].obstacle)
+						continue;
+				}
+
+				if (indexDelta == _w - 1)	//top left
+				{
+					if (_cells[i - 1].obstacle || _cells[i + _w].obstacle)
+						continue;
+				}
+
+				if (indexDelta == -_w + 1)	//bottom right
+				{
+					if (_cells[i + 1].obstacle || _cells[i - _w].obstacle)
+						continue;
+				}
+
+				if (indexDelta == -_w - 1)	//bottom left
+				{
+					if (_cells[i - 1].obstacle || _cells[i - _w].obstacle)
+						continue;
+				}
+				*/
+
 				const NavCell& neighbour = _cells[nIndex];
 				float curPathCost = neighbour.pathWeight;
 
@@ -153,6 +188,8 @@ public:
 					bestNIndex = nIndex;
 				}
 			}
+
+			//all edges have been examined! assign the best one to the flow field cell and normalize it
 			_cells[i]._direction = cellIndexToPos(bestNIndex) - myPos;
 			_cells[i]._direction.Normalize();
 		}
@@ -199,7 +236,7 @@ public:
 
 
 
-	UINT countReachable(int startIndex = 0) const
+	UINT countReachable(UINT startIndex = 0u) const
 	{
 		UINT curNodeIndex = startIndex;
 		UINT count = 0u;
@@ -213,7 +250,6 @@ public:
 			curNodeIndex = toCheck.front();
 			toCheck.pop_front();
 
-			//visitNode(nodes, edges, curNodeIndex, goalIndex);
 			const NavCell& curCell = _cells[curNodeIndex];
 
 			for (int edgeIndex : curCell.edges)
@@ -274,14 +310,17 @@ public:
 
 	inline SVec3 flowAtIndex(int i) const
 	{
-		return _cells[i]._direction;
+		if (!_cells[i].obstructed)
+			return _cells[i]._direction;
+		else
+			return SVec3::Zero;
 	}
 
 
 	inline SVec3 flowObstacleCorrection(const SVec3& pos) const
 	{
 		int obsIndex = posToCellIndex(pos);
-		if (_cells[obsIndex].obstacle)
+		if (_cells[obsIndex].obstructed)
 			return Math::getNormalizedVec3(pos - cellIndexToPos(obsIndex));
 
 		return SVec3::Zero;
@@ -323,6 +362,8 @@ public:
 		_leeway = leeway;
 	}
 
+
+
 private:
 
 	//this could be sorted out better I guess... with a bool in cell or similar... @TODO if necessary
@@ -332,8 +373,9 @@ private:
 			if (_edges[i].active)
 				return false;
 		return true;*/
-		return _cells[index].obstacle;
+		return _cells[index].obstructed;
 	}
+
 
 
 	bool addObstacle(UINT index, std::vector<bool>& backUp)
@@ -341,11 +383,10 @@ private:
 		if (isObstacle(index))
 			return false;
 
-		_cells[index].obstacle = true;
+		_cells[index].obstructed = true;	//mark current cell as obstructed
 
-		backUp.reserve(_cells[index].edges.size());
+		backUp.reserve(_cells[index].edges.size());	//save current edge state just in case we need to disallow this
 
-		//might validate here tbh... but for now it's in AStar<>::fillGraph
 		for (int edgeIndex : _cells[index].edges)
 		{
 			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); //let's hope so
@@ -360,7 +401,7 @@ private:
 
 	void removeObstacle(int index, const std::vector<bool>& backUp)
 	{
-		_cells[index].obstacle = false;
+		_cells[index].obstructed = false;
 
 		for (int i = 0; i < _cells[index].edges.size(); i++)
 		{
@@ -368,4 +409,37 @@ private:
 		}
 		++_activeCellCount;
 	}
+
+
+	//unused
+	UINT getEdgeIndexFromCells(UINT first, UINT second)
+	{
+		for (auto index : _cells[first].edges)
+		{
+			if (_edges[index].getNeighbourIndex(first))
+				return index;
+		}
+	}
+
+
+	//unused
+	void handleDiagonals(UINT index)
+	{
+		UINT tr = index + _w + 1;
+		if (_cells[tr].obstructed)	//disable edge between right and top
+			_edges[getEdgeIndexFromCells(index + 1, index + _w)].active = false;
+
+		UINT tl = index + _w - 1;
+		if (_cells[tl].obstructed)	//disable edge between left and top
+			_edges[getEdgeIndexFromCells(index - 1, index + _w)].active = false;
+
+		UINT bl = index - _w - 1;
+		if (_cells[bl].obstructed)	//disable edge between left and bottom
+			_edges[getEdgeIndexFromCells(index - 1, index - _w)].active = false;
+
+		UINT br = index - _w + 1;
+		if (_cells[br].obstructed)	//disable edge between right and bottom
+			_edges[getEdgeIndexFromCells(index + 1, index - _w)].active = false;
+	}
+
 };

@@ -38,7 +38,7 @@ void TDLevel::init(Systems& sys)
 	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
-	_navGrid.createEdges();
+	_navGrid.createAllEdges();
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
@@ -263,11 +263,13 @@ void TDLevel::rayPick(Camera* cam)
 		Math::SetTranslation(tower.transform, snappedPos);
 	}
 
-	for (int i = 0; i < creeps.size(); ++i)
-	{
-		if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
+	if(S_INMAN.isKeyDown('R'))
+		for (int i = 0; i < creeps.size(); ++i)
+		{
+			//if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
 			Math::SetTranslation(creeps[i].transform, SVec3(250, 0, 250));
-	}
+			creeps[i]._steerComp._active = true;
+		}
 }
 
 

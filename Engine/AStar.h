@@ -34,31 +34,31 @@ class AStar
 
 		for (int edgeIndex : curNode.edges)	//check all neighbours
 		{
-			const NavEdgeType& curEdge = edges[edgeIndex];							//by iterating through edges
-			NavNodeType& curNbr = nodes[getNeighbourIndex(curEdge, curNodeIndex)];	//and getting the node that isn't curNode
+			const NavEdgeType& curEdge = edges[edgeIndex];	//by iterating through edges
+			const UINT nbrIndex = getNeighbourIndex(curEdge, curNodeIndex);
+			NavNodeType& curNbr = nodes[nbrIndex];	//and getting the node that isn't curNode
 
-			if (curNbr.visited)	//ignore the previously visited nodes or dead edges
+			if (curNbr.visited)	//ignore the previously visited nodes
 				continue;
 
 			float curNbrWeight = curNbr.pathWeight;	//get the current cost of pathing through the neighbours
 
-			float gWeight = curNode.pathWeight + curEdge.weight;	//get the new cost based on g
-			float hWeight = calculateHeuristic(curNbr, nodes[goalIndex]);
+			float gWeight = curNode.pathWeight + curEdge.weight;			//g cost
+			float hWeight = calculateHeuristic(curNbr, nodes[goalIndex]);	//heuristic cost
 
-			float newPathCost = gWeight + hWeight;
+			float newPathCost = gWeight + hWeight;	//combine costs
 
-			if (newPathCost < curNbrWeight)	//if the path from cur node to neighbour is "cheaper" then nbr's original path
+			if (newPathCost < curNbrWeight)	//if the path from cur node to neighbour is easier then nbr's original path
 			{
-				curNbr.pathPredecessor = curNodeIndex;	//readjust the path to the new, cheaper version
 				if (curEdge.active)
 				{
+					curNbr.pathPredecessor = curNodeIndex;	//readjust the path to the new, easier version
 					curNbr.pathWeight = newPathCost;
 				}
-				else
+				else	//while avoiding dead edges (frame/pool allocator would simplify this... should use one)
 				{
 					curNbr.pathWeight = (std::numeric_limits<float>::max)();
 				}
-				
 			}
 		}
 	}
