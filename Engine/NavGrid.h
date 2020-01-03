@@ -218,7 +218,9 @@ public:
 	bool tryAddObstacle(const SVec3& pos)
 	{
 		int obstacleCellIndex = posToCellIndex(pos);
-		std::vector<bool> backUp;
+		std::list<std::pair<int, bool>> backUp;
+		
+
 		if (addObstacle(obstacleCellIndex, backUp))
 		{
 			if (countReachable() == getActiveCellCount())
@@ -378,68 +380,94 @@ private:
 
 
 
-	bool addObstacle(UINT index, std::vector<bool>& backUp)
+	bool addObstacle(UINT index, std::list<std::pair<int, bool>>& backUp)
 	{
 		if (isObstacle(index))
 			return false;
 
 		_cells[index].obstructed = true;	//mark current cell as obstructed
 
-		backUp.reserve(_cells[index].edges.size());	//save current edge state just in case we need to disallow this
-
 		for (int edgeIndex : _cells[index].edges)
 		{
-			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); //let's hope so
-			backUp.push_back(_edges[edgeIndex].active);
+			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); // hmmm, maybe?
+			backUp.push_back(std::make_pair(edgeIndex, _edges[edgeIndex].active));
 			_edges[edgeIndex].active = false;	//prevents deleting in the vector... list is slower to iterate so this!
 		}
+
+		handleDiagonals(index, backUp);
 		
 		--_activeCellCount;
+
 		return true;
 	}
 
 
-	void removeObstacle(int index, const std::vector<bool>& backUp)
+	void removeObstacle(int index, const std::list<std::pair<int, bool>>& backUp)
 	{
 		_cells[index].obstructed = false;
 
-		for (int i = 0; i < _cells[index].edges.size(); i++)
-		{
-			_edges[_cells[index].edges[i]].active = backUp[i];
-		}
+		for (const std::pair<int, bool>& ib_pair : backUp)
+			_edges[ib_pair.first].active = ib_pair.second;
+
 		++_activeCellCount;
 	}
 
 
-	//unused
-	UINT getEdgeIndexFromCells(UINT first, UINT second)
+	//returns the index of the edge connecting the cells at the two provided indices, returns -1 if none found
+	int getEdgeIndexFromCells(UINT first, UINT second)
 	{
 		for (auto index : _cells[first].edges)
 		{
-			if (_edges[index].getNeighbourIndex(first))
+			if (_edges[index].getNeighbourIndex(first) == second)
 				return index;
 		}
+		return -1;
 	}
 
 
-	//unused
-	void handleDiagonals(UINT index)
+
+	void obstructEdgeBetween(UINT c1, UINT c2, std::list<std::pair<int, bool>>& backUpList)
 	{
-		UINT tr = index + _w + 1;
-		if (_cells[tr].obstructed)	//disable edge between right and top
-			_edges[getEdgeIndexFromCells(index + 1, index + _w)].active = false;
+		int edgeIndex = getEdgeIndexFromCells(c1, c2);
+		backUpList.push_back(std::make_pair(edgeIndex, _edges[edgeIndex].active));
+		_edges[edgeIndex].active = false;
+	}
 
-		UINT tl = index + _w - 1;
-		if (_cells[tl].obstructed)	//disable edge between left and top
-			_edges[getEdgeIndexFromCells(index - 1, index + _w)].active = false;
 
-		UINT bl = index - _w - 1;
-		if (_cells[bl].obstructed)	//disable edge between left and bottom
-			_edges[getEdgeIndexFromCells(index - 1, index - _w)].active = false;
+	//returns the list of pairs (consisting of indices of edges and their activity status) used to revert 
+	//those edges to their previous states if the obstacle is not allowed
+	void handleDiagonals(UINT index, std::list<std::pair<int, bool>>& backUpList)
+	{
+		UINT row = floor(index / _w);
+		UINT column = index % _w;
 
-		UINT br = index - _w + 1;
-		if (_cells[br].obstructed)	//disable edge between right and bottom
-			_edges[getEdgeIndexFromCells(index + 1, index - _w)].active = false;
+		if (row < _h - 1 && column < _w - 1)
+		{
+			UINT tr = index + _w + 1;
+			if (_cells[tr].obstructed)	//disable edge between right and top
+				obstructEdgeBetween(index + 1, index + _w, backUpList);
+		}
+		
+		if (row < _h - 1 && column > 0)
+		{
+			UINT tl = index + _w - 1;
+			if (_cells[tl].obstructed)	//disable edge between left and top
+				obstructEdgeBetween(index - 1, index + _w, backUpList);
+		}
+	
+		if (row > 0 && column > 0)
+		{
+			UINT bl = index - _w - 1;
+			if (_cells[bl].obstructed)	//disable edge between left and bottom
+				obstructEdgeBetween(index - 1, index - _w, backUpList);
+		}
+		
+		if (row > 0 && column < _w - 1)
+		{
+			UINT br = index - _w + 1;
+			if (_cells[br].obstructed)	//disable edge between right and bottom
+				obstructEdgeBetween(index + 1, index - _w, backUpList);
+		}
 	}
 
 };
