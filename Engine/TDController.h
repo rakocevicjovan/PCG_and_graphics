@@ -2,19 +2,17 @@
 #include <list>
 #include "Observer.h"
 
-enum class InputEventTD { BUILD, STOP_BUILDING, NONE };
+enum class InputEventTD { BUILD, STOP_BUILDING, CUR_TEST };
 
 class TDController : public Observer
 {
 	std::list<InputEventTD> _inputEventList;
 
 public:
-	enum class InputMode { PLAYING, BUILDING } mode;
+	//enum class InputMode { PLAYING, BUILDING } mode;	//mode = InputMode::PLAYING;
 
 	TDController()
-	{
-		mode = InputMode::PLAYING;
-	}
+	{}
 
 	void Observe(const KeyPressMessage& msg) override
 	{
@@ -34,6 +32,8 @@ public:
 			_inputEventList.push_back(InputEventTD::STOP_BUILDING);
 		}
 	}
+
+
 
 	bool consumeNextAction(InputEventTD& inEvent)
 	{

@@ -52,6 +52,16 @@ namespace Col
 	}
 
 
+	inline static bool AABBSphereSimpleIntersection(const AABB& b, const SphereHull& s)
+	{
+		SVec3 closestPointOnAABB;
+
+		float sqdToClosestPoint = ClosestPointOnAABB(s.ctr, b, closestPointOnAABB);
+		
+		return (sq(s.r) > sqdToClosestPoint);
+	}
+
+
 
 	static HitResult SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
 	{

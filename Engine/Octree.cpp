@@ -1,6 +1,4 @@
 #include "Octree.h"
-#include "ColFuncs.h"
-
 //big include lists everywhere brought to you by wonky design inc.
 #include "Collider.h"
 #include "GameObject.h"

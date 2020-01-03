@@ -1,5 +1,6 @@
 #pragma once
 #include "Hull.h"
+#include "ColFuncs.h"
 #include <list>
 #include <array>
 
@@ -56,34 +57,32 @@ public:
 	inline int getNodeCount() { return _nodeCount; }
 
 
-	//templates
+//templates
 public:
 	template<typename NeighbourType>
-	void findWithin(const SVec3& p, float r, std::list<NeighbourType*>& neighbours)
+	void findWithin(const SVec3& p, float r, std::list<NeighbourType*>& neighbours) const
 	{
-		findInNode(_rootNode, p, r, neighbours);
+		SphereHull sp(p, r);
+		findInNode(_rootNode, sp, neighbours);
 	}
 
 private:
 	template<typename NeighbourType>
-	void findInNode(OctNode* pNode, const SVec3& p, float r, std::list<NeighbourType*>& neighbours)
+	void findInNode(OctNode* pNode, const SphereHull& sp, std::list<NeighbourType*>& neighbours) const
 	{
 		if (isEmpty(pNode))
 			return;
 
+		if(!Col::AABBSphereSimpleIntersection(pNode->bBox, sp))
+			return;
+
 		for (SphereHull* curHull : pNode->hulls)
-		{
-			if ((curHull->getPosition() - p).LengthSquared() < ((r + curHull->r) * (r + curHull->r)))
-			{
+			if ((curHull->getPosition() - sp.ctr).LengthSquared() < (sq(sp.r + curHull->r)))
 				neighbours.push_back(curHull->_collider->parent);
-			}
-		}
 
 		for (int i = 0; i < 8; i++)
-		{
 			if (pNode->children[i])
-				findInNode(pNode->children[i], p, r, neighbours);
-		}
+				findInNode(pNode->children[i], sp, neighbours);
 	}
 
 };

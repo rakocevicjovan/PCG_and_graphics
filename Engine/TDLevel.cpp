@@ -296,6 +296,10 @@ void TDLevel::handleInput()
 				//detected path blocking, can't build, pop some gui warning etc...
 			}
 		}
+		else if (inEvent == InputEventTD::STOP_BUILDING)
+		{
+			_building = false;
+		}
 	}
 }
 
