@@ -34,7 +34,7 @@ private:
 	void trimNode(OctNode*& pNode);
 	void deleteNode(OctNode*& pNode);
 	void testAllCollisions(OctNode *pNode);
-	bool isEmpty(OctNode* pNode);
+	bool isEmpty(OctNode* pNode) const;
 	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector);
 
 	int getIndexByPosition(const AABB& parentBox, const SVec3& pos);

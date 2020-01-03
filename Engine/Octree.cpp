@@ -71,20 +71,18 @@ void Octree::trimNode(OctNode*& pNode)
 
 
 
-bool Octree::isEmpty(OctNode* pNode)
+bool Octree::isEmpty(OctNode* pNode) const
 {
 	//hulls not empty, no need to check the children
 	if (!pNode->hulls.empty())
 		return false;
 
-	//hulls are empty, empty = true for now, check children
+	//hulls are empty, check children
 	for (int i = 0; i < 8; ++i)
-	{
 		if (pNode->children[i] != nullptr)
 			return false;
-	}
 
-	//empy is still true if and only if all children are nullptr
+	//empy is still true if and only if all children are nullptr and hulls list is empty
 	return true;
 }
 

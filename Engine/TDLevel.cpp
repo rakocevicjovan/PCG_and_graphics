@@ -133,7 +133,7 @@ void TDLevel::update(const RenderContext& rc)
 		if (creeps[i]._steerComp._active)
 		{
 			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
-			_octree.findWithin(creeps[i].getPosition(), 2.f, neighbourCreeps);
+			_octree.findWithin(creeps[i].getPosition(), 4.f, neighbourCreeps);
 			creeps[i]._steerComp.update(_navGrid, rc.dTime, neighbourCreeps, i, stopDistance);
 		}
 
@@ -266,8 +266,7 @@ void TDLevel::rayPick(Camera* cam)
 	if(S_INMAN.isKeyDown('R'))
 		for (int i = 0; i < creeps.size(); ++i)
 		{
-			//if (Col::RaySphereIntersection(ray, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
-			Math::SetTranslation(creeps[i].transform, SVec3(250, 0, 250));
+			Math::SetTranslation(creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
 			creeps[i]._steerComp._active = true;
 		}
 }
