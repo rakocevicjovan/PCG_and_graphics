@@ -237,6 +237,7 @@ void Octree::updateAll()
 
 
 
+//Bugged! It works, but they can be possibly reinserted twice! Also quite lame in general... Very important @TODO!
 void Octree::updateNode(OctNode* node)
 {
 	std::list<SphereHull*> wat = std::move(node->hulls);

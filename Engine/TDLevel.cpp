@@ -7,15 +7,10 @@
 #include "Shader.h"
 #include "Steering.h"
 
-inline float pureDijkstra(const NavNode& n1, const NavNode& n2)
-{
-	return 0.f;
-}
-
-
-
 //#define DEBUG_OCTREE
 
+
+inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
 void TDLevel::init(Systems& sys)
@@ -60,9 +55,9 @@ void TDLevel::init(Systems& sys)
 		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider->hulls.back()));
 	}
 
-	tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
-	tower.transform = SMatrix::CreateScale(.33);
-	for (Renderable& r : tower.renderables)
+	_tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
+	_tower.transform = SMatrix::CreateScale(.33);
+	for (Renderable& r : _tower.renderables)
 	{
 		//r.mat = S_MATCACHE.getMaterial("creepMat");
 		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
@@ -73,7 +68,7 @@ void TDLevel::init(Systems& sys)
 	_tdgui.addTowerGuiDef(
 		"Guard tower is a common, yet powerful defensive building.", 
 		"Guard tower", 
-		tower.renderables[0].mat->textures[0]->srv);
+		_tower.renderables[0].mat->textures[0]->srv);
 
 	//creeps.emplace_back(tower);
 
@@ -105,7 +100,6 @@ void TDLevel::update(const RenderContext& rc)
 
 	shady.instanced.UpdateInstanceData(octNodeMatrices);
 	octNodeMatrices.clear();
-
 	tempBoxes.clear();
 #endif
 
@@ -115,9 +109,9 @@ void TDLevel::update(const RenderContext& rc)
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
 	//Another alternative is having a bool empty; in the octnode...
-	_octree.updateAll();	//@TODO probably should optimize this
+	_octree.updateAll();	//@TODO redo this, does redundant work and blows in general
 	_octree.lazyTrim();
-	_octree.collideAll();	//@TODO this as well?
+	_octree.collideAll();
 	
 
 	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
@@ -147,7 +141,7 @@ void TDLevel::update(const RenderContext& rc)
 		creeps[i].propagate();
 	}
 
-	tower.propagate();
+	_tower.propagate();
 
 	rayPick(rc.cam);
 
@@ -205,7 +199,7 @@ void TDLevel::draw(const RenderContext& rc)
 	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model*>("Skysphere")), skyboxCubeMapper);
 
 	if(_building)
-		for (Renderable& r : tower.renderables)
+		for (Renderable& r : _tower.renderables)
 		{
 			S_RANDY.render(r);
 		}
@@ -260,7 +254,7 @@ void TDLevel::rayPick(Camera* cam)
 	if (_building)
 	{
 		SVec3 snappedPos = _navGrid.snapToCell(POI);
-		Math::SetTranslation(tower.transform, snappedPos);
+		Math::SetTranslation(_tower.transform, snappedPos);
 	}
 
 	if(S_INMAN.isKeyDown('R'))
@@ -283,11 +277,11 @@ void TDLevel::handleInput()
 	{
 		if (inEvent == InputEventTD::BUILD && _building)
 		{
-			if (_navGrid.tryAddObstacle(tower.getPosition()))
+			if (_navGrid.tryAddObstacle(_tower.getPosition()))
 			{
 				AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 				_navGrid.fillFlowField();
-				_built.push_back(tower);
+				_built.push_back(_tower);
 				_building = false;
 			}
 			else

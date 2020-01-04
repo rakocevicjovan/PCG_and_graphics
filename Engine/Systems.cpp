@@ -72,7 +72,7 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 	_hinstance = GetModuleHandle(NULL);
 
 	// Give the application a name.
-	_applicationName = L"Aeolipile";
+	_applicationName = L"Aeolian";
 
 	// Setup the windows class with default settings.
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;

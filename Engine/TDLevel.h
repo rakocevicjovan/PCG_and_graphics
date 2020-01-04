@@ -9,6 +9,7 @@
 #include "AStar.h"
 #include "TDController.h"	//#include "RTSController.h" flawed idea...
 #include "TDGUI.h"
+#include "Economy.h"
 
 
 
@@ -53,9 +54,14 @@ private:
 	std::vector<AABB> tempBoxes;
 	std::vector<InstanceData> octNodeMatrices;
 
+
+	//gameplay
 	TDController _tdController;
-	std::vector<Actor> _built;
-	Actor tower;
-	bool _building = false;
 	TDGUI _tdgui;
+
+	Actor _tower;
+	bool _building = false;
+	std::vector<Actor> _built;
+	
+	Economy _eco;
 };

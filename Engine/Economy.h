@@ -5,38 +5,42 @@
 #include <vector>
 
 //not really easy to modify and make data driven, strings would be more flexible for marginal perf loss...
-enum class TD_RES_TYPE { COIN, WOOD, STONE, IRON };
+//enum class TD_RES_TYPE { COIN, WOOD, STONE, IRON };
 
 struct Transaction
 {
-	TD_RES_TYPE _type;
+	std::string _type;
 	UINT _qty;
 };
 
 
 struct Income
 {
-	float _frequency;
+	float _tickDuration;
 	UINT _amount;
+
+	Income(float tickDur, UINT perTick) : _tickDuration(tickDur), _amount(perTick) {}
 };
 
 
 struct TDResource
 {
-	TD_RES_TYPE _type;
-	std::string name;
+	std::string _type;
 	UINT _qty;
 	UINT _capacity;
 	Income _income;
+
+	TDResource(const std::string& type, UINT qty, UINT cap, float tick, UINT perTick)
+		: _type(type), _qty(qty), _capacity(cap), _income(tick, perTick) {}
 };
 
 
 class Economy
 {
 
-	std::map< TD_RES_TYPE, TDResource> _storage;
+	std::map<std::string, TDResource> _storage;
 
-	inline bool gotEnough(const TD_RES_TYPE type, const UINT quantity) const
+	inline bool gotEnough(const std::string& type, const UINT quantity) const
 	{
 		if (_storage.at(type)._qty >= quantity)
 			return true;
@@ -46,13 +50,20 @@ class Economy
 
 public:
 
-	void deposit(const TD_RES_TYPE type, const UINT quantity)
+	bool createResource(const std::string& name, UINT cap = 100u, UINT qty = 0u, float tickDuration = 10.f, UINT perTick = 0u)
+	{
+		return _storage.emplace(name, TDResource(name, qty, cap, tickDuration, perTick)).second;
+	}
+
+
+
+	void deposit(const std::string& type, const UINT quantity)
 	{
 		_storage.at(type)._qty = min(_storage.at(type)._qty + quantity, _storage.at(type)._capacity);
 	}
 
 	
-	bool withdraw(const TD_RES_TYPE type, const UINT quantity)
+	bool withdraw(const std::string& type, const UINT quantity)
 	{
 		if (gotEnough(type, quantity))
 		{
@@ -89,9 +100,9 @@ public:
 
 	//This could prove useless in case of various buildings at different/variable frequencies etc... could be better 
 	//to simply let the game deposit resources if it gets too complicated... or have a full blown system for it
-	bool setResourceIncome(const TD_RES_TYPE type, float freq = 10.f, UINT amount = 0u)
+	bool setResourceIncome(const std::string& type, float tickDuration = 10.f, UINT amount = 0u)
 	{
-		_storage.at(type)._income = { freq, amount };
+		_storage.at(type)._income = { tickDuration, amount };
 	}
 
 
