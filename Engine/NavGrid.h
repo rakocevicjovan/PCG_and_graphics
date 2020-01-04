@@ -70,7 +70,8 @@ public:
 		float diagonalWeight = sqrt(2) * cardinalWeight;
 
 		//wastes some but likely faster... this could fragment a lot though as _cells is a vector...
-		//should use a std::array<int, 8> instead, should be much much better performance wise
+		//should use a std::array<int, 8> instead, should be much much better performance wise... however
+		//a general use nav mesh node NEEDS to support a variable number of edges!!! :\ reee
 		for (auto& cell : _cells)
 			cell.edges.reserve(8);
 

@@ -716,6 +716,9 @@
     <ClInclude Include="TDGUI.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
+    <ClInclude Include="Economy.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

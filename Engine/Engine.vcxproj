@@ -265,6 +265,7 @@
     <ClInclude Include="ColFuncs.h" />
     <ClInclude Include="AStar.h" />
     <ClInclude Include="Controls.h" />
+    <ClInclude Include="Economy.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
     <ClInclude Include="InputContext.h" />
