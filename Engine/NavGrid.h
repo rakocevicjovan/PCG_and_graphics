@@ -148,38 +148,6 @@ public:
 
 				int nIndex = edge.getNeighbourIndex(i);
 
-
-				/*
-				//if not cardinal with abs value of indexDelta	//if (!(indexDelta == 1 || indexDelta == _w))
-
-
-				UINT indexDelta = nIndex - i;
-
-				if (indexDelta == _w + 1)	//top right
-				{
-					if (_cells[i + 1].obstacle || _cells[i + _w].obstacle)
-						continue;
-				}
-
-				if (indexDelta == _w - 1)	//top left
-				{
-					if (_cells[i - 1].obstacle || _cells[i + _w].obstacle)
-						continue;
-				}
-
-				if (indexDelta == -_w + 1)	//bottom right
-				{
-					if (_cells[i + 1].obstacle || _cells[i - _w].obstacle)
-						continue;
-				}
-
-				if (indexDelta == -_w - 1)	//bottom left
-				{
-					if (_cells[i - 1].obstacle || _cells[i - _w].obstacle)
-						continue;
-				}
-				*/
-
 				const NavCell& neighbour = _cells[nIndex];
 				float curPathCost = neighbour.pathWeight;
 
@@ -443,32 +411,29 @@ private:
 		UINT column = index % _w;
 
 		if (row < _h - 1 && column < _w - 1)
-		{
-			UINT tr = index + _w + 1;
-			if (_cells[tr].obstructed)	//disable edge between right and top
-				obstructEdgeBetween(index + 1, index + _w, backUpList);
-		}
+			obstructEdgeBetween(index + 1, index + _w, backUpList);
 		
 		if (row < _h - 1 && column > 0)
-		{
-			UINT tl = index + _w - 1;
-			if (_cells[tl].obstructed)	//disable edge between left and top
-				obstructEdgeBetween(index - 1, index + _w, backUpList);
-		}
+			obstructEdgeBetween(index - 1, index + _w, backUpList);
 	
 		if (row > 0 && column > 0)
-		{
-			UINT bl = index - _w - 1;
-			if (_cells[bl].obstructed)	//disable edge between left and bottom
-				obstructEdgeBetween(index - 1, index - _w, backUpList);
-		}
+			obstructEdgeBetween(index - 1, index - _w, backUpList);
 		
 		if (row > 0 && column < _w - 1)
-		{
-			UINT br = index - _w + 1;
-			if (_cells[br].obstructed)	//disable edge between right and bottom
-				obstructEdgeBetween(index + 1, index - _w, backUpList);
-		}
+			obstructEdgeBetween(index + 1, index - _w, backUpList);
 	}
 
 };
+
+
+//UINT tr = index + _w + 1;
+//if (_cells[tr].obstructed)	//disable edge between right and top
+
+//UINT tl = index + _w - 1;
+//if (_cells[tl].obstructed)	//disable edge between left and top
+
+//UINT bl = index - _w - 1;
+//if (_cells[bl].obstructed)	//disable edge between left and bottom
+
+//UINT br = index - _w + 1;
+//if (_cells[br].obstructed)	//disable edge between right and bottom
