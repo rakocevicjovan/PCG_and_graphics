@@ -7,6 +7,7 @@
 #include "Renderable.h"
 
 class Collider;
+class Renderer;
 
 class GameObject
 {
@@ -37,7 +38,7 @@ class Actor : public GameObject
 public:
 	Actor() : _steerComp(this) {};
 	Actor(SMatrix& transform, GraphicComponent gc) : transform(transform), gc(gc), _steerComp(this) {}
-	Actor(SMatrix& transform, Model* model);
+	Actor(Model* model, SMatrix& transform = SMatrix());
 
 	Actor* parent;
 
@@ -64,6 +65,8 @@ public:
 		gc.model->Draw(context, *gc.shader);
 		gc.shader->ReleaseShaderParameters(context);
 	}
+
+	void render(const Renderer& r) const;
 };
 
 

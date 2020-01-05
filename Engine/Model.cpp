@@ -217,6 +217,9 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 
 bool Model::loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index)
 {
+	if (!scene->mTextures[index])
+		return false;
+
 	aiTexture* aiTex = scene->mTextures[index];
 
 	size_t texSize = aiTex->mWidth;

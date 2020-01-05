@@ -108,6 +108,9 @@
     <Filter Include="Input">
       <UniqueIdentifier>{1a0b1252-978b-4ec4-843f-e14ff86410ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\GUI">
+      <UniqueIdentifier>{824188f2-d45c-420f-adcb-02dfecc27548}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -314,9 +317,6 @@
     <ClCompile Include="ColFuncs.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
-    <ClCompile Include="ScreenSpaceDrawer.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -362,6 +362,9 @@
     </ClCompile>
     <ClCompile Include="InputManager.cpp">
       <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenSpaceDrawer.cpp">
+      <Filter>Rendering\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -608,9 +611,6 @@
     <ClInclude Include="AiController.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenSpaceDrawer.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="AStar.h">
       <Filter>AI\Pathfinding</Filter>
     </ClInclude>
@@ -718,6 +718,9 @@
     </ClInclude>
     <ClInclude Include="Economy.h">
       <Filter>TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenSpaceDrawer.h">
+      <Filter>Rendering\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

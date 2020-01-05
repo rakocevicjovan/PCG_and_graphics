@@ -9,20 +9,20 @@ class TDGUI
 	ImVec2 _buildingWidgetPos;
 	ImVec2 _buildingWidgetSize;
 
-	struct TowerGuiDef
+	struct BuildingGuiDef
 	{
 		std::string towerDesc;
 		std::string towerName;
 		void* towerIcon;
 	};
 
-	std::vector<TowerGuiDef> _towerGuiDefs;
+	std::vector<BuildingGuiDef> _buildingGuiDefs;
 
 public:
 
-	void addTowerGuiDef(const std::string& towerDesc, const std::string& towerName, void* towerIcon)
+	void addBuildingGuiDef(const std::string& towerDesc, const std::string& towerName, void* towerIcon)
 	{
-		_towerGuiDefs.push_back({towerDesc, towerName, towerIcon});
+		_buildingGuiDefs.push_back({towerDesc, towerName, towerIcon});
 	}
 
 
@@ -43,12 +43,12 @@ public:
 		ImGui::Text("Buildings");
 		ImGui::ListBoxHeader("");
 
-		for (int i = 0; i < _towerGuiDefs.size(); ++i)
+		for (int i = 0; i < _buildingGuiDefs.size(); ++i)
 		{
 			ImGui::PushID(i);
 			
 			
-			if (ImGui::ImageButton(_towerGuiDefs[i].towerIcon, ImVec2(64, 64)))
+			if (ImGui::ImageButton(_buildingGuiDefs[i].towerIcon, ImVec2(64, 64)))
 			{
 				building = true;
 				structureIndex = i;
@@ -57,11 +57,11 @@ public:
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
-				ImGui::SetTooltip(_towerGuiDefs[i].towerDesc.c_str());
+				ImGui::SetTooltip(_buildingGuiDefs[i].towerDesc.c_str());
 				ImGui::EndTooltip();
 			}
 			
-			ImGui::Text(_towerGuiDefs[i].towerName.c_str());
+			ImGui::Text(_buildingGuiDefs[i].towerName.c_str());
 			ImGui::PopID();
 		}
 

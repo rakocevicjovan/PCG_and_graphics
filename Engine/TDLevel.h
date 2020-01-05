@@ -56,10 +56,11 @@ private:
 
 
 	//gameplay
+	void selectBuilding(const std::string& name);
 	TDController _tdController;
 	TDGUI _tdgui;
 
-	Actor _tower;
+	Actor _selectedBuilding;
 	bool _building = false;
 	std::vector<Actor> _built;
 	

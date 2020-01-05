@@ -85,7 +85,7 @@ public:
 	void flushRenderQueue();
 	inline void clearRenderQueue() { _rQue.clear(); };
 
-	void render(const Renderable& renderable);
+	void render(const Renderable& renderable) const;
 	
 	void setCameraMatrix(const SMatrix& camMatrix);
 

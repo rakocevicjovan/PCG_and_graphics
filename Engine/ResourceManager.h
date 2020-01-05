@@ -27,14 +27,12 @@ public:
 	void init(ID3D11Device*);
 	void pushLevel(int i);
 	void popLevel(int i);
-	bool loadResource();
-	bool removeResource();
 
 	ProjectLoader& getProjectLoader() { return _projLoader; }
 
 	template <typename ResType>
-	ResType getByName(const std::string& name)
+	ResType* getByName(const std::string& name)
 	{
-		return static_cast<ResType>(_resourceMap[name]);
+		return static_cast<ResType*>(_resourceMap[name]);
 	}
 };

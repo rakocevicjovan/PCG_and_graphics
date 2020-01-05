@@ -159,7 +159,7 @@ void Renderer::flushRenderQueue()
 
 
 //mind all the pointers, this can fail spectacularly if anything relocates...
-void Renderer::render(const Renderable& r)
+void Renderer::render(const Renderable& r) const
 {
 	unsigned int stride = r.mat->stride;
 	unsigned int offset = r.mat->offset;

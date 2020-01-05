@@ -44,7 +44,7 @@ void TDLevel::init(Systems& sys)
 		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
-		creeps.emplace_back(SMatrix::CreateTranslation(pos), S_RESMAN.getByName<Model*>("FlyingMage"));
+		creeps.emplace_back(S_RESMAN.getByName<Model*>("FlyingMage"), SMatrix::CreateTranslation(pos));
 		
 		for (Renderable& r : creeps[i].renderables)
 		{
@@ -55,22 +55,21 @@ void TDLevel::init(Systems& sys)
 		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider->hulls.back()));
 	}
 
-	_tower = Actor(SMatrix(), S_RESMAN.getByName<Model*>("GuardTower"));
-	_tower.transform = SMatrix::CreateScale(.33);
-	for (Renderable& r : _tower.renderables)
-	{
-		//r.mat = S_MATCACHE.getMaterial("creepMat");
-		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
-		r.mat->setPS(_sys._shaderCache.getPixShader("lightPS"));
-		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
-	}
+	selectBuilding("GuardTower");
 
-	_tdgui.addTowerGuiDef(
+	_tdgui.addBuildingGuiDef(
 		"Guard tower is a common, yet powerful defensive building.", 
 		"Guard tower", 
-		_tower.renderables[0].mat->textures[0]->srv);
+		S_RESMAN.getByName<Texture>("guard_tower")->srv);
 
-	//creeps.emplace_back(tower);
+	_tdgui.addBuildingGuiDef(
+		"Produces 10 wood per minute. Time to get lumber-jacked.",
+		"Lumberyard",
+		S_RESMAN.getByName<Texture>("lumber_yard")->srv);
+
+
+	_eco.createResource("Coin", 1000);
+	_eco.createResource("Wood", 1000);
 
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g;
@@ -141,7 +140,7 @@ void TDLevel::update(const RenderContext& rc)
 		creeps[i].propagate();
 	}
 
-	_tower.propagate();
+	_selectedBuilding.propagate();
 
 	rayPick(rc.cam);
 
@@ -196,20 +195,14 @@ void TDLevel::draw(const RenderContext& rc)
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
 	
-	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model*>("Skysphere")), skyboxCubeMapper);
+	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model>("Skysphere")), skyboxCubeMapper);
 
-	if(_building)
-		for (Renderable& r : _tower.renderables)
-		{
-			S_RANDY.render(r);
-		}
+	if (_building)
+		_selectedBuilding.render(S_RANDY);
 	
-	for (Actor& myTower : _built)
+	for (Actor& building : _built)
 	{
-		for (Renderable& r : myTower.renderables)
-		{
-			S_RANDY.render(r);
-		}
+		building.render(S_RANDY);
 	}
 
 
@@ -254,7 +247,7 @@ void TDLevel::rayPick(Camera* cam)
 	if (_building)
 	{
 		SVec3 snappedPos = _navGrid.snapToCell(POI);
-		Math::SetTranslation(_tower.transform, snappedPos);
+		Math::SetTranslation(_selectedBuilding.transform, snappedPos);
 	}
 
 	if(S_INMAN.isKeyDown('R'))
@@ -277,11 +270,11 @@ void TDLevel::handleInput()
 	{
 		if (inEvent == InputEventTD::BUILD && _building)
 		{
-			if (_navGrid.tryAddObstacle(_tower.getPosition()))
+			if (_navGrid.tryAddObstacle(_selectedBuilding.getPosition()))
 			{
 				AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 				_navGrid.fillFlowField();
-				_built.push_back(_tower);
+				_built.push_back(_selectedBuilding);
 				_building = false;
 			}
 			else
@@ -298,7 +291,17 @@ void TDLevel::handleInput()
 
 
 
-
+void TDLevel::selectBuilding(const std::string& name)
+{
+	_selectedBuilding = Actor(S_RESMAN.getByName<Model>(name));
+	_selectedBuilding.transform = SMatrix::CreateScale(.33);
+	for (Renderable& r : _selectedBuilding.renderables)
+	{
+		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
+		r.mat->setPS(_sys._shaderCache.getPixShader("lightPS"));
+		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
+	}
+}
 
 
 

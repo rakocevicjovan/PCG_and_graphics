@@ -1,7 +1,8 @@
 #include "GameObject.h"
 #include "Collider.h"
+#include "Renderer.h"
 
-Actor::Actor(SMatrix& transform, Model* model) : transform(transform), _steerComp(this)
+Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(transform)
 {
 	_collider = new Collider(BoundingVolumeType::BVT_SPHERE, this, true);
 
@@ -29,4 +30,11 @@ void Actor::propagate()
 
 	//@TODO consider changing to per-mesh collider... could be cleaner tbh
 	_collider->updateHullPositions();
+}
+
+
+void Actor::render(const Renderer& renderer) const
+{
+	for (const Renderable& r : renderables)
+		renderer.render(r);
 }

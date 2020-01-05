@@ -103,7 +103,7 @@ void LevelReader::clearLevelResourceDefs()
 
 const std::map<std::string, ResType> LevelReader::resTypeMap =
 {
-	{"mesh", ResType::MESH},
+	{"model", ResType::MESH},
 	{"texture", ResType::TEXTURE},
 	{"material", ResType::MATERIAL},
 	{"skeleton", ResType::SKELETON},
