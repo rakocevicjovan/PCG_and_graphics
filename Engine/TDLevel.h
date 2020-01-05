@@ -10,6 +10,7 @@
 #include "TDController.h"	//#include "RTSController.h" flawed idea...
 #include "TDGUI.h"
 #include "Economy.h"
+#include "Building.h"
 
 
 
@@ -25,8 +26,9 @@ public:
 
 private:
 
-	void rayPick(Camera* cam);
-	void handleInput();
+	void rayPickTerrain(const Camera* cam);
+	void rayPickBuildings(const Camera* cam);
+	void handleInput(const Camera* cam);	//involves ray picking, so we need this
 
 	SceneGraph _sg;
 	Octree _octree;

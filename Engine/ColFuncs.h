@@ -95,7 +95,7 @@ namespace Col
 
 		SVec3 closestPointOnRay = ray.position + projectedPoint;
 
-		return ((closestPointOnRay - s.ctr).Length() < s.r);
+		return ((closestPointOnRay - s.ctr).LengthSquared() < sq(s.r));
 	}
 
 
@@ -123,15 +123,11 @@ namespace Col
 
 
 	//ray structure used for convenience, it's actually first and last point of the line
-	static HitResult RayAABBIntersection(const SRay& lineSeg, const AABB& b, SVec3& poi, float& t)
+	static HitResult LSegmentAABBIntersection(const SRay& lineSeg, const AABB& b, SVec3& poi, float& t)
 	{
 		HitResult hr;
 
 		SVec3 lineDirection = lineSeg.direction - lineSeg.position;
-
-		float invDeltaX = 1.f / (lineDirection.x);
-		float invDeltaY = 1.f / (lineDirection.y);
-		float invDeltaZ = 1.f / (lineDirection.z);
 
 		float flow = 0.f;
 		float fhigh = 1.f;
@@ -146,6 +142,22 @@ namespace Col
 		t = flow;
 
 		return hr;
+	}
+
+
+
+	static bool LSegmentAABBSimpleIntersection(const SRay& lineSeg, const AABB& b)
+	{
+		SVec3 lineDirection = lineSeg.direction - lineSeg.position;
+
+		float flow = 0.f;
+		float fhigh = 1.f;
+
+		for (int i = 0; i < 3; ++i)
+			if (!ClipLine(i, b, lineSeg, flow, fhigh))
+				return false;
+
+		return true;
 	}
 
 

@@ -138,12 +138,12 @@ void TDLevel::update(const RenderContext& rc)
 		creeps[i].propagate();
 	}
 
+
 	if (_selectedBuilding && _building)
 	{
+		rayPickTerrain(rc.cam);
 		_selectedBuilding->propagate();
 	}
-	
-	rayPick(rc.cam);
 
 	/// FRUSTUM CULLING
 	numCulled = 0;
@@ -170,7 +170,7 @@ void TDLevel::update(const RenderContext& rc)
 		}
 	}
 
-	handleInput();
+	handleInput(rc.cam);
 
 }
 
@@ -239,7 +239,7 @@ void TDLevel::demolish()
 
 
 
-void TDLevel::rayPick(Camera* cam)
+void TDLevel::rayPickTerrain(const Camera* cam)
 {
 	MCoords mc = _sys._inputManager.getAbsXY();
 	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
@@ -254,18 +254,35 @@ void TDLevel::rayPick(Camera* cam)
 		SVec3 snappedPos = _navGrid.snapToCell(POI);
 		Math::SetTranslation(_selectedBuilding->transform, snappedPos);
 	}
-
-	if(S_INMAN.isKeyDown('R'))
-		for (int i = 0; i < creeps.size(); ++i)
-		{
-			Math::SetTranslation(creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
-			creeps[i]._steerComp._active = true;
-		}
 }
 
 
 
-void TDLevel::handleInput()
+void TDLevel::rayPickBuildings(const Camera* cam)
+{
+	MCoords mc = _sys._inputManager.getAbsXY();
+	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
+
+	//intersect base plane... for now, can do terrain as well but it's slower, no need yet
+	SVec3 POI;
+	ray.direction *= 500.f;
+	
+	std::list<SphereHull*> sps;
+
+	_octree.rayCastTree(ray, sps);
+
+	for (auto s : sps)
+	{
+		if (dynamic_cast<Building*>(s->_collider->parent))
+		{
+			//select building
+		}
+	}
+}
+
+
+
+void TDLevel::handleInput(const Camera* cam)
 {
 	//check if the spot is taken - using the nav grid, only clear cells can do! and update the navgrid after
 
@@ -273,23 +290,43 @@ void TDLevel::handleInput()
 	
 	while (_tdController.consumeNextAction(inEvent))
 	{
-		if (inEvent == InputEventTD::BUILD && _building)
+		switch (inEvent)
 		{
-			if (_navGrid.tryAddObstacle(_selectedBuilding->getPosition()))
+		case InputEventTD::SELECT:
+
+			if (_building)
 			{
-				AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
-				_navGrid.fillFlowField();
-				_built.push_back(*_selectedBuilding);
-				_building = false;
+
+				if (_navGrid.tryAddObstacle(_selectedBuilding->getPosition()))
+				{
+					AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
+					_navGrid.fillFlowField();
+					_built.push_back(*_selectedBuilding);
+					_building = false;
+				}
+				else
+				{
+					//detected path blocking, can't build, pop some gui warning etc...
+				}
 			}
-			else
+			else	//select an existing building
 			{
-				//detected path blocking, can't build, pop some gui warning etc...
+				rayPickBuildings(cam);
 			}
-		}
-		else if (inEvent == InputEventTD::STOP_BUILDING)
-		{
+			break;
+		
+
+		case InputEventTD::STOP_BUILDING:
 			_building = false;
+			break;
+
+		case InputEventTD::RESET_CREEPS:
+			for (int i = 0; i < creeps.size(); ++i)
+			{
+				Math::SetTranslation(creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
+				creeps[i]._steerComp._active = true;
+			}
+			break;
 		}
 	}
 }
@@ -302,7 +339,6 @@ void TDLevel::selectBuilding(const std::string& name)
 		delete _selectedBuilding;
 
 	_selectedBuilding = new Actor(S_RESMAN.getByName<Model>(name));
-	_selectedBuilding->transform = SMatrix::CreateScale(.33);
 	for (Renderable& r : _selectedBuilding->renderables)
 	{
 		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));

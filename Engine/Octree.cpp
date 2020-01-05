@@ -324,3 +324,28 @@ void Octree::getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector)
 		if (pNode->children[i])
 			getNodeAABB(pNode->children[i], AABBVector);
 }
+
+
+//Needs full length ray! This fn converts the given ray to a line segment internally for now
+void Octree::rayCastTree(const SRay& ray, std::list<SphereHull*>& spl) const
+{
+	rayCastNode(_rootNode, SRay(ray.position, ray.position + ray.direction), spl);
+}
+
+
+
+void Octree::rayCastNode(const OctNode* pNode, const SRay& ray, std::list<SphereHull*>& spl) const
+{
+	if (!Col::LSegmentAABBSimpleIntersection(ray, pNode->bBox))
+		return;
+
+	for (SphereHull* sp : pNode->hulls)
+	{
+		if (Col::RaySphereIntersection(ray, *sp))
+			spl.push_back(sp);
+	}
+
+	for (int i = 0; i < 8; ++i)
+		if (pNode->children[i])
+			rayCastNode(pNode->children[i], ray, spl);
+}

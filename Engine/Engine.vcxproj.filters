@@ -722,6 +722,9 @@
     <ClInclude Include="ScreenSpaceDrawer.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
+    <ClInclude Include="Building.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

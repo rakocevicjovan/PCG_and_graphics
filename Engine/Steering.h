@@ -15,7 +15,7 @@ namespace Steering
 
 
 	template <typename NavAgent>
-	static SVec3 separate(NavAgent& me, const std::list<NavAgent*>& theBois)
+	static SVec3 separate(NavAgent*& me, const std::list<NavAgent*>& theBois)
 	{
 		SVec3 result = SVec3::Zero;
 
@@ -24,7 +24,7 @@ namespace Steering
 
 		for (const NavAgent* boi : theBois)
 		{
-			SVec3 separator = -static_cast<SVec3>(boi->getPosition() - me.getPosition());
+			SVec3 separator = -static_cast<SVec3>(boi->getPosition() - me->getPosition());
 			
 			if (separator.LengthSquared() < 0.00001)	//avoid self... could be handled otherwise but cba
 				continue;

@@ -36,6 +36,7 @@ private:
 	void testAllCollisions(OctNode *pNode);
 	bool isEmpty(OctNode* pNode) const;
 	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector);
+	void rayCastNode(const OctNode* pNode, const SRay& ray, std::list<SphereHull*>& spl) const;
 
 	int getIndexByPosition(const AABB& parentBox, const SVec3& pos);
 	AABB createBoxByIndex(int i, const AABB& parentBox);
@@ -51,6 +52,7 @@ public:
 	void collideAll();
 	void lazyTrim();	//once per frame deallocate what's not required... would be faster with a pool allocator...
 	void updateAll();
+	void rayCastTree(const SRay& ray, std::list<SphereHull*>& spl) const;
 
 	void getTreeAsAABBVector(std::vector<AABB>& AABBVector);
 

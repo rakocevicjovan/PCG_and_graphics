@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "SteeringComponent.h"
 #include "Renderable.h"
+#include <memory>
 
 class Collider;
 class Renderer;
@@ -23,12 +24,16 @@ class Actor : public GameObject
 public:
 	Actor() : _steerComp(this) {};
 	Actor(Model* model, SMatrix& transform = SMatrix());
+	virtual ~Actor()
+	{
+		/*delete _collider;*/
+	};
 
 	Actor* parent;
 
 	SMatrix transform;
 	std::vector<Renderable> renderables;
-	Collider* _collider;
+	Collider* _collider;				//make it a unique ptr later, safer...
 	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const { return transform.Translation(); }
