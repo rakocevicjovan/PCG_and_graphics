@@ -32,7 +32,7 @@ protected:
 	Systems& _sys;
 
 	std::vector<GameObject*> objects;
-	std::vector<GraphicComponent*> lesRenderables;
+	//std::vector<GraphicComponent*> lesRenderables;
 	std::vector<Collider> _levelColliders;
 
 	SVec3 goal;

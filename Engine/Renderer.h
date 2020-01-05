@@ -11,6 +11,7 @@
 #include "StackAllocator.h"
 
 
+//@TODO make data driven and add a menu to set them...
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;

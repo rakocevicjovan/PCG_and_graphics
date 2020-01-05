@@ -8,6 +8,7 @@ struct NavCell : public NavNode
 {
 	SVec3 _direction;
 	bool obstructed = false;
+	bool _buildable = true;
 };
 
 
@@ -187,8 +188,11 @@ public:
 	bool tryAddObstacle(const SVec3& pos)
 	{
 		int obstacleCellIndex = posToCellIndex(pos);
+
+		if (!_cells[obstacleCellIndex]._buildable)
+			return false;
+
 		std::list<std::pair<int, bool>> backUp;
-		
 
 		if (addObstacle(obstacleCellIndex, backUp))
 		{

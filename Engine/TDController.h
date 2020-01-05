@@ -1,5 +1,6 @@
 #pragma once
 #include <list>
+#include "IMGUI/imgui.h"
 #include "Observer.h"
 
 enum class InputEventTD { BUILD, STOP_BUILDING, CUR_TEST };
@@ -22,15 +23,20 @@ public:
 	
 	void Observe(const MouseClickMessage& msg) override
 	{
-		if (msg.mButtonType == MBT::LEFT && msg.pressed == true)
-		{
-			_inputEventList.push_back(InputEventTD::BUILD);
-		}
 
-		if (msg.mButtonType == MBT::RIGHT && msg.pressed == true)
+		if (!ImGui::GetIO().WantCaptureMouse)
 		{
-			_inputEventList.push_back(InputEventTD::STOP_BUILDING);
+			if (msg.mButtonType == MBT::LEFT && msg.pressed == true)
+			{
+				_inputEventList.push_back(InputEventTD::BUILD);
+			}
+
+			if (msg.mButtonType == MBT::RIGHT && msg.pressed == true)
+			{
+				_inputEventList.push_back(InputEventTD::STOP_BUILDING);
+			}
 		}
+			
 	}
 
 

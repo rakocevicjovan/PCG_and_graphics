@@ -60,7 +60,7 @@ private:
 	TDController _tdController;
 	TDGUI _tdgui;
 
-	Actor _selectedBuilding;
+	Actor* _selectedBuilding = nullptr;
 	bool _building = false;
 	std::vector<Actor> _built;
 	

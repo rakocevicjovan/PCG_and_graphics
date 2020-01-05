@@ -11,6 +11,7 @@ class TDGUI
 
 	struct BuildingGuiDef
 	{
+		std::string modelName;
 		std::string towerDesc;
 		std::string towerName;
 		void* towerIcon;
@@ -20,9 +21,9 @@ class TDGUI
 
 public:
 
-	void addBuildingGuiDef(const std::string& towerDesc, const std::string& towerName, void* towerIcon)
+	void addBuildingGuiDef(const std::string& modelName, const std::string& towerDesc, const std::string& towerName, void* towerIcon)
 	{
-		_buildingGuiDefs.push_back({towerDesc, towerName, towerIcon});
+		_buildingGuiDefs.push_back({modelName, towerDesc, towerName, towerIcon});
 	}
 
 
@@ -34,24 +35,22 @@ public:
 
 
 
-	void renderBuildingWidget(bool& building, int& structureIndex)
+	bool renderBuildingWidget(std::string& structureName)
 	{
+		bool result = false;
+
 		ImGui::SetNextWindowPos(_buildingWidgetPos, ImGuiCond_Once);
 		ImGui::SetNextWindowSize(_buildingWidgetSize, ImGuiCond_Once);
 		ImGui::Begin("Buildings", false);
-
-		ImGui::Text("Buildings");
-		ImGui::ListBoxHeader("");
 
 		for (int i = 0; i < _buildingGuiDefs.size(); ++i)
 		{
 			ImGui::PushID(i);
 			
-			
 			if (ImGui::ImageButton(_buildingGuiDefs[i].towerIcon, ImVec2(64, 64)))
 			{
-				building = true;
-				structureIndex = i;
+				result = true;
+				structureName = _buildingGuiDefs[i].modelName;
 			}
 
 			if (ImGui::IsItemHovered())
@@ -60,13 +59,14 @@ public:
 				ImGui::SetTooltip(_buildingGuiDefs[i].towerDesc.c_str());
 				ImGui::EndTooltip();
 			}
-			
+			ImGui::SameLine();
 			ImGui::Text(_buildingGuiDefs[i].towerName.c_str());
+
 			ImGui::PopID();
 		}
 
-		ImGui::ListBoxFooter();
-
 		ImGui::End();
+
+		return result;
 	}
 };

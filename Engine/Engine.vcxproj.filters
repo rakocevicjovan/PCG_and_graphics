@@ -4,9 +4,6 @@
     <Filter Include="Procedural">
       <UniqueIdentifier>{da188881-b302-4db2-9786-b8e11ead4641}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Strife">
-      <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{c448c636-6f18-4d93-926b-e9e3e59e23cb}</UniqueIdentifier>
     </Filter>
@@ -111,6 +108,9 @@
     <Filter Include="Rendering\GUI">
       <UniqueIdentifier>{824188f2-d45c-420f-adcb-02dfecc27548}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Old levels\Strife">
+      <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -192,13 +192,13 @@
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ToolGUI.cpp">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClCompile>
     <ClCompile Include="CloudVolumeGenerator.cpp">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClCompile>
     <ClCompile Include="Illumination.cpp">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClCompile>
     <ClCompile Include="IMGUI\imgui.cpp">
       <Filter>GUI</Filter>
@@ -219,7 +219,7 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="StrifeLevel.cpp">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClCompile>
     <ClCompile Include="CollisionEngine.cpp">
       <Filter>Collision</Filter>
@@ -468,13 +468,13 @@
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ToolGUI.h">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClInclude>
     <ClInclude Include="CloudVolumeGenerator.h">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClInclude>
     <ClInclude Include="Illumination.h">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClInclude>
     <ClInclude Include="IMGUI\imconfig.h">
       <Filter>GUI</Filter>
@@ -501,13 +501,13 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="StrifeLevel.h">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClInclude>
     <ClInclude Include="CloudscapeDefinition.h">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClInclude>
     <ClInclude Include="ShaderUtils.h">
-      <Filter>Strife</Filter>
+      <Filter>Old levels\Strife</Filter>
     </ClInclude>
     <ClInclude Include="CollisionEngine.h">
       <Filter>Collision</Filter>

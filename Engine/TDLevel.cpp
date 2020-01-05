@@ -44,7 +44,7 @@ void TDLevel::init(Systems& sys)
 		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
-		creeps.emplace_back(S_RESMAN.getByName<Model*>("FlyingMage"), SMatrix::CreateTranslation(pos));
+		creeps.emplace_back(S_RESMAN.getByName<Model>("FlyingMage"), SMatrix::CreateTranslation(pos));
 		
 		for (Renderable& r : creeps[i].renderables)
 		{
@@ -58,15 +58,16 @@ void TDLevel::init(Systems& sys)
 	selectBuilding("GuardTower");
 
 	_tdgui.addBuildingGuiDef(
+		"GuardTower",
 		"Guard tower is a common, yet powerful defensive building.", 
 		"Guard tower", 
 		S_RESMAN.getByName<Texture>("guard_tower")->srv);
 
 	_tdgui.addBuildingGuiDef(
+		"Lumberyard",
 		"Produces 10 wood per minute. Time to get lumber-jacked.",
 		"Lumberyard",
 		S_RESMAN.getByName<Texture>("lumber_yard")->srv);
-
 
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
@@ -101,10 +102,7 @@ void TDLevel::update(const RenderContext& rc)
 	octNodeMatrices.clear();
 	tempBoxes.clear();
 #endif
-
-	ProcessSpecialInput(rc.dTime);
 	
-
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
 	//Another alternative is having a bool empty; in the octnode...
@@ -140,8 +138,11 @@ void TDLevel::update(const RenderContext& rc)
 		creeps[i].propagate();
 	}
 
-	_selectedBuilding.propagate();
-
+	if (_selectedBuilding && _building)
+	{
+		_selectedBuilding->propagate();
+	}
+	
 	rayPick(rc.cam);
 
 	/// FRUSTUM CULLING
@@ -190,7 +191,6 @@ void TDLevel::draw(const RenderContext& rc)
 	shady.instanced.ReleaseShaderParameters(context);
 #endif
 
-	
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
@@ -198,7 +198,7 @@ void TDLevel::draw(const RenderContext& rc)
 	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model>("Skysphere")), skyboxCubeMapper);
 
 	if (_building)
-		_selectedBuilding.render(S_RANDY);
+		_selectedBuilding->render(S_RANDY);
 	
 	for (Actor& building : _built)
 	{
@@ -217,8 +217,13 @@ void TDLevel::draw(const RenderContext& rc)
 	startGuiFrame();
 	renderGuiElems(guiElems);
 
-	static int selectedTower = 0;
-	_tdgui.renderBuildingWidget(_building, selectedTower);
+	std::string selectedTower;
+
+	if (_tdgui.renderBuildingWidget(selectedTower))
+	{
+		selectBuilding(selectedTower);
+		_building = true;
+	}
 
 	endGuiFrame();
 
@@ -247,7 +252,7 @@ void TDLevel::rayPick(Camera* cam)
 	if (_building)
 	{
 		SVec3 snappedPos = _navGrid.snapToCell(POI);
-		Math::SetTranslation(_selectedBuilding.transform, snappedPos);
+		Math::SetTranslation(_selectedBuilding->transform, snappedPos);
 	}
 
 	if(S_INMAN.isKeyDown('R'))
@@ -270,11 +275,11 @@ void TDLevel::handleInput()
 	{
 		if (inEvent == InputEventTD::BUILD && _building)
 		{
-			if (_navGrid.tryAddObstacle(_selectedBuilding.getPosition()))
+			if (_navGrid.tryAddObstacle(_selectedBuilding->getPosition()))
 			{
 				AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 				_navGrid.fillFlowField();
-				_built.push_back(_selectedBuilding);
+				_built.push_back(*_selectedBuilding);
 				_building = false;
 			}
 			else
@@ -293,9 +298,12 @@ void TDLevel::handleInput()
 
 void TDLevel::selectBuilding(const std::string& name)
 {
-	_selectedBuilding = Actor(S_RESMAN.getByName<Model>(name));
-	_selectedBuilding.transform = SMatrix::CreateScale(.33);
-	for (Renderable& r : _selectedBuilding.renderables)
+	if(_selectedBuilding != nullptr)
+		delete _selectedBuilding;
+
+	_selectedBuilding = new Actor(S_RESMAN.getByName<Model>(name));
+	_selectedBuilding->transform = SMatrix::CreateScale(.33);
+	for (Renderable& r : _selectedBuilding->renderables)
 	{
 		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
 		r.mat->setPS(_sys._shaderCache.getPixShader("lightPS"));
