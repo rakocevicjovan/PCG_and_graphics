@@ -229,7 +229,7 @@ void TDLevel::draw(const RenderContext& rc)
 		_inBuildingMode = true;
 	}
 
-	if (_selectedBuilding)
+	if (_selectedBuilding != nullptr)
 	{
 		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
 		{
@@ -257,7 +257,7 @@ void TDLevel::rayPickTerrain(const Camera* cam)
 	MCoords mc = _sys._inputManager.getAbsXY();
 	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
 
-	//intersect base plane... for now, can do terrain as well but it's slower, no need yet
+	//intersect base plane for now... terrain works using projection + bresenham/superset if gridlike
 	SVec3 POI;
 	ray.direction *= 500.f;
 	Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), POI);
@@ -367,7 +367,7 @@ void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type
 	_buildable.push_back(new Building(a, name, type));
 	_buildable.back()->_guiDef = guiDef;
 
-	//hacky workaround but aight for now what do I know...
+	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
 	_buildable.back()->_collider.clearHulls();
 	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
 	_buildable.back()->_collider.parent = _buildable.back();

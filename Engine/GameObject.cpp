@@ -1,6 +1,8 @@
 #include "GameObject.h"
 #include "Renderer.h"
 
+
+
 Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(transform)
 {
 	_collider = Collider(BoundingVolumeType::BVT_SPHERE, this, true);
@@ -19,6 +21,14 @@ Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(tra
 }
 
 
+
+Actor::Actor(const Actor& other) : _steerComp(other._steerComp)
+{
+	copyShenanigans(other);
+}
+
+
+
 void Actor::propagate()
 {
 	for (Renderable& r : renderables)
@@ -31,8 +41,25 @@ void Actor::propagate()
 }
 
 
+
 void Actor::render(const Renderer& renderer) const
 {
 	for (const Renderable& r : renderables)
 		renderer.render(r);
+}
+
+
+
+
+void Actor::copyShenanigans(const Actor& other)
+{
+	_collider = other._collider;
+	_collider.clearHullsNoDelete();
+
+	for (Hull* sp : other._collider.getHulls())
+		_collider.addHull(new SphereHull(sp->getPosition(), sp->getExtent()));
+
+	renderables.reserve(other.renderables.size());
+	for (const Renderable& r : other.renderables)
+		renderables.push_back(r);
 }

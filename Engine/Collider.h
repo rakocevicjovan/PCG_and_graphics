@@ -42,6 +42,11 @@ public:
 		_hulls.clear();
 	}
 
+	void clearHullsNoDelete()
+	{
+		_hulls.clear();
+	}
+
 	Hull* getHull(UINT i) const
 	{
 		return _hulls[i];
