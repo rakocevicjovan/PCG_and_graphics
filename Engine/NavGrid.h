@@ -2,6 +2,7 @@
 #include "Math.h"
 #include "NavGraphTypes.h"
 #include "AStar.h"
+#include <algorithm>
 
 
 struct NavCell : public NavNode
@@ -23,6 +24,7 @@ private:
 	int _goalIndex;
 	float _leeway;
 	UINT _activeCellCount;
+	std::vector<UINT> _forbiddenCells;
 
 public:
 	std::vector<NavCell> _cells;
@@ -189,7 +191,7 @@ public:
 	{
 		int obstacleCellIndex = posToCellIndex(pos);
 
-		if (!_cells[obstacleCellIndex]._buildable)
+		if (!_cells[obstacleCellIndex]._buildable || isForbidden(obstacleCellIndex))
 			return false;
 
 		std::list<std::pair<int, bool>> backUp;
@@ -338,6 +340,17 @@ public:
 	}
 
 
+	void forbidCell(UINT index)
+	{
+		_forbiddenCells.push_back(index);
+	}
+
+
+	void allowCell(UINT index)
+	{
+		_forbiddenCells.erase(std::remove(_forbiddenCells.begin(), _forbiddenCells.end(), index));
+	}
+
 
 private:
 
@@ -427,6 +440,11 @@ private:
 			obstructEdgeBetween(index + 1, index - _w, backUpList);
 	}
 
+
+	bool isForbidden(UINT index) const
+	{
+		return (std::find(_forbiddenCells.begin(), _forbiddenCells.end(), index) != _forbiddenCells.end());
+	}
 };
 
 
