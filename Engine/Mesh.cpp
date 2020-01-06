@@ -99,9 +99,9 @@ Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool
 
 
 
-Mesh::Mesh(Hull* hull, ID3D11Device* device)
+Mesh::Mesh(const Hull* hull, ID3D11Device* device)
 {
-	AABB* aabb = reinterpret_cast<AABB*>(hull);
+	const AABB*  aabb = reinterpret_cast<const AABB*>(hull);
 
 	SVec3 sizes = (aabb->maxPoint - aabb->minPoint);
 	SVec3 offset = aabb->minPoint + sizes * 0.5f;

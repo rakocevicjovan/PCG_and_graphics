@@ -94,8 +94,10 @@ namespace Col
 		//float t = projectedPoint.Length();
 
 		SVec3 closestPointOnRay = ray.position + projectedPoint;
+		float sqDistToRay = (closestPointOnRay - s.ctr).LengthSquared();
+		float sqRadius = sq(s.r);
 
-		return ((closestPointOnRay - s.ctr).LengthSquared() < sq(s.r));
+		return (sqDistToRay < sqRadius);
 	}
 
 

@@ -26,10 +26,6 @@ public:
 
 private:
 
-	void rayPickTerrain(const Camera* cam);
-	void rayPickBuildings(const Camera* cam);
-	void handleInput(const Camera* cam);	//involves ray picking, so we need this
-
 	SceneGraph _sg;
 	Octree _octree;
 
@@ -58,13 +54,20 @@ private:
 
 
 	//gameplay
-	void selectBuilding(const std::string& name);
+	void selectBuilding(Building* b);
+	void addBuildable(Actor&& a, const std::string& name, BuildingType type);
+	void rayPickTerrain(const Camera* cam);
+	Building* rayPickBuildings(const Camera* cam);
+	void handleInput(const Camera* cam);	//involves ray picking, so we need this
+
+
 	TDController _tdController;
 	TDGUI _tdgui;
 
-	Actor* _selectedBuilding = nullptr;
+	Building* _selectedBuilding = nullptr;
 	bool _building = false;
-	std::vector<Actor> _built;
+	std::vector<Building*> _buildable;
+	std::list<Building> _structures;
 	
 	Economy _eco;
 };

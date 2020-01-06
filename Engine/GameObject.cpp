@@ -15,8 +15,7 @@ Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(tra
 		renderables.back().worldTransform = transform * mesh.transform;
 		renderables.back().mat = &mesh._baseMaterial;
 
-		_collider->hulls.push_back(new SphereHull(mesh.transform.Translation(), 1.f));	//@TODO see what to do about this
-		_collider->hulls.back()->_collider = _collider;	//wonderful way to put it innit?
+		_collider->addHull(new SphereHull(mesh.transform.Translation(), 1.f));		//@TODO see what to do about this
 	}
 }
 

@@ -36,7 +36,7 @@ private:
 	void testAllCollisions(OctNode *pNode);
 	bool isEmpty(OctNode* pNode) const;
 	void getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector);
-	void rayCastNode(const OctNode* pNode, const SRay& ray, std::list<SphereHull*>& spl) const;
+	void rayCastNode(const OctNode* pNode, const SRay& lineSeg, const SRay& ray, std::list<SphereHull*>& spl) const;
 
 	int getIndexByPosition(const AABB& parentBox, const SVec3& pos);
 	AABB createBoxByIndex(int i, const AABB& parentBox);

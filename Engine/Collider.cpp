@@ -5,7 +5,7 @@
 
 void Collider::ReleaseMemory()
 {
-	for (Hull* hull : hulls)
+	for (Hull* hull : _hulls)
 	{
 		delete hull;
 		hull = nullptr;
@@ -23,7 +23,7 @@ bool Collider::operator==(const Collider& other) const
 
 void Collider::updateHullPositions()
 {
-	for (auto& hull : hulls)
+	for (auto& hull : _hulls)
 		hull->setPosition(parent->getPosition());
 }
 
@@ -33,9 +33,9 @@ HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector)
 {
 	HitResult hitRes;
 
-	for (Hull* hull1 : hulls)
+	for (Hull* hull1 : _hulls)
 	{
-		for (Hull* hull2 : other.hulls)
+		for (Hull* hull2 : other._hulls)
 		{
 			if (BVT == BVT_AABB)
 				hitRes = reinterpret_cast<AABB*>(hull1)->intersect(hull2, other.BVT);

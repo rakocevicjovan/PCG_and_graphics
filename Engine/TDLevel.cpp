@@ -19,6 +19,7 @@ void TDLevel::init(Systems& sys)
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
 	_tdgui.init(ImVec2(_sys.getScrW() - 500, _sys.getScrH() - 200), ImVec2(500, 200));
+	_tdgui.addWidget();
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
@@ -52,23 +53,26 @@ void TDLevel::init(Systems& sys)
 			r.pLight = &pLight;
 		}
 
-		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider->hulls.back()));
+		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider->getHull(0)));
 	}
 
-	selectBuilding("GuardTower");
+
+	//Add building types... again, @TODO make data driven...
+	_buildable.reserve(2);
+	addBuildable(Actor(S_RESMAN.getByName<Model>("GuardTower")), "Guard tower", BuildingType::MARTIAL);
+	addBuildable(Actor(S_RESMAN.getByName<Model>("Lumberyard")), "Lumberyard", BuildingType::INDUSTRIAL);
 
 	_tdgui.addBuildingGuiDef(
-		"GuardTower",
 		"Guard tower is a common, yet powerful defensive building.", 
 		"Guard tower", 
 		S_RESMAN.getByName<Texture>("guard_tower")->srv);
 
 	_tdgui.addBuildingGuiDef(
-		"Lumberyard",
 		"Produces 10 wood per minute. Time to get lumber-jacked.",
 		"Lumberyard",
 		S_RESMAN.getByName<Texture>("lumber_yard")->srv);
 
+	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
 
@@ -155,7 +159,7 @@ void TDLevel::update(const RenderContext& rc)
 	//cull and add to render queue
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider->hulls[0])))
+		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider->getHull(0))))
 		{
 			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : creeps[i].renderables)
@@ -200,7 +204,7 @@ void TDLevel::draw(const RenderContext& rc)
 	if (_building)
 		_selectedBuilding->render(S_RANDY);
 	
-	for (Actor& building : _built)
+	for (Actor& building : _structures)
 	{
 		building.render(S_RANDY);
 	}
@@ -217,11 +221,11 @@ void TDLevel::draw(const RenderContext& rc)
 	startGuiFrame();
 	renderGuiElems(guiElems);
 
-	std::string selectedTower;
+	UINT structureIndex;
 
-	if (_tdgui.renderBuildingWidget(selectedTower))
+	if (_tdgui.renderBuildingWidget(structureIndex))
 	{
-		selectBuilding(selectedTower);
+		selectBuilding(_buildable[structureIndex]);
 		_building = true;
 	}
 
@@ -258,26 +262,28 @@ void TDLevel::rayPickTerrain(const Camera* cam)
 
 
 
-void TDLevel::rayPickBuildings(const Camera* cam)
+Building* TDLevel::rayPickBuildings(const Camera* cam)
 {
 	MCoords mc = _sys._inputManager.getAbsXY();
 	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
-
-	//intersect base plane... for now, can do terrain as well but it's slower, no need yet
-	SVec3 POI;
 	ray.direction *= 500.f;
 	
 	std::list<SphereHull*> sps;
 
+	Building* b = nullptr;
+
 	_octree.rayCastTree(ray, sps);
 
-	for (auto s : sps)
+	float minDist = 9999999.f;
+
+	for (SphereHull* s : sps)
 	{
 		if (dynamic_cast<Building*>(s->_collider->parent))
-		{
-			//select building
-		}
+			if ((s->ctr - cam->GetPosition()).LengthSquared() < minDist)
+				b = reinterpret_cast<Building*>(s->_collider->parent);
 	}
+
+	return b;
 }
 
 
@@ -301,7 +307,10 @@ void TDLevel::handleInput(const Camera* cam)
 				{
 					AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 					_navGrid.fillFlowField();
-					_built.push_back(*_selectedBuilding);
+
+					///BUILD
+					_structures.push_back(*_selectedBuilding);
+					_octree.insertObject((SphereHull*)_structures.back()._collider->getHull(0));
 					_building = false;
 				}
 				else
@@ -311,7 +320,11 @@ void TDLevel::handleInput(const Camera* cam)
 			}
 			else	//select an existing building
 			{
-				rayPickBuildings(cam);
+				Building* pickedBuilding = rayPickBuildings(cam);
+				if (pickedBuilding)
+				{
+					//GUI response
+				}
 			}
 			break;
 		
@@ -333,18 +346,28 @@ void TDLevel::handleInput(const Camera* cam)
 
 
 
-void TDLevel::selectBuilding(const std::string& name)
+void TDLevel::selectBuilding(Building* b)
 {
-	if(_selectedBuilding != nullptr)
-		delete _selectedBuilding;
+	_selectedBuilding = b;
+}
 
-	_selectedBuilding = new Actor(S_RESMAN.getByName<Model>(name));
-	for (Renderable& r : _selectedBuilding->renderables)
+
+
+void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type)
+{
+	for (Renderable& r : a.renderables)
 	{
 		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
 		r.mat->setPS(_sys._shaderCache.getPixShader("lightPS"));
 		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
+
+	_buildable.push_back(new Building(a, name, type));
+
+	//hacky workaround but aight for now what do I know...
+	_buildable.back()->_collider->clearHulls();
+	_buildable.back()->_collider->addHull(new SphereHull(SVec3(), 25));
+	_buildable.back()->_collider->parent = _buildable.back();
 }
 
 

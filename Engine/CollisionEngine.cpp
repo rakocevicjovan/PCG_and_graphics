@@ -50,12 +50,12 @@ void CollisionEngine::addToGrid(Collider* collider)
 	auto bvt = collider->BVT;
 
 	if (bvt == BVT_AABB)
-		for (Hull* h : collider->hulls)
+		for (Hull* h : collider->getHulls())
 			grid.addAABB(reinterpret_cast<AABB*>(h));
 			
 
 	if (bvt == BVT_SPHERE)
-		for (Hull* h : collider->hulls)
+		for (Hull* h : collider->getHulls())
 			grid.addSphere(reinterpret_cast<SphereHull*>(h));
 }
 
@@ -63,7 +63,7 @@ void CollisionEngine::addToGrid(Collider* collider)
 
 void CollisionEngine::removeFromGrid(Collider& collider)
 {
-	for (Hull* h : collider.hulls)
+	for (Hull* h : collider.getHulls())
 	{
 		for (auto& keyCellPair : grid.cells)
 		{
@@ -82,7 +82,7 @@ void CollisionEngine::update()
 	{
 		if (collider->dynamic)
 		{
-			for (Hull* h : collider->hulls)	//@TODO allow offsets for multiple hulls!
+			for (Hull* h : collider->getHulls())	//@TODO allow offsets for multiple hulls!
 				h->setPosition(collider->parent->transform.Translation());
 
 			addToGrid(collider);
