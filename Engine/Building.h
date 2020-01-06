@@ -17,27 +17,60 @@ public:
 	BuildingGuiDef _guiDef;
 
 	Building(const Actor& actor, const std::string& name, BuildingType type)
-		: Actor(actor), _name(name), _type(type) {}
+		: Actor(actor), _name(name), _type(type), _elapsed(0.f) {}
 
 	//void update(float dTime) { _elapsed += dTime; }
 };
 
 
-class IndustrialBuilding : public Building
+
+
+
+class MartialBuilding : public Building
 {
 public:
-	Income _income;
+};
 
-	UINT getResources(float dTime)
+
+
+
+
+class IndustrialBuilding : public Building
+{
+	Income _income;
+	bool _active = true;
+
+public:
+
+	IndustrialBuilding(const Actor& actor, const std::string& name, BuildingType type, const Income& inc)
+		: Building(actor, name, type), _income(inc) {}
+
+
+	//starts by default, no biggie regardless
+	void startUp()
 	{
+		_active = true;
+		_elapsed = 0.f;
+	}
+
+
+	void shutDown()
+	{
+		_active = false;
+		_elapsed = 0.f;
+	}
+
+	void getResources(float dTime, std::list<Income>& incomeLedger)
+	{
+		if (!_active)
+			return;
+
 		_elapsed += dTime;
 
 		if (_elapsed >= _income._tickDuration)
 		{
 			_elapsed = fmodf(_elapsed, _income._tickDuration);
-			return _income._amount;
+			incomeLedger.push_back(_income);
 		}
-
-		return 0u;
 	}
 };

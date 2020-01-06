@@ -387,6 +387,7 @@ tempBoxes.reserve(1000);
 octNodeMatrices.reserve(1000);
 #endif
 
+
 #ifdef DEBUG_OCTREE	//for update()
 _oct.getTreeAsAABBVector(tempBoxes);
 
