@@ -20,6 +20,7 @@ class Octree
 {
 private:
 	int _nodeCount = 1;	//root node is there by default
+	int _hullCount = 0;
 	int _maxDepth = 3;	//for preallocation and insertion/search max depths
 	AABB _worldBounds;
 	OctNode* _rootNode;
@@ -57,6 +58,7 @@ public:
 	void getTreeAsAABBVector(std::vector<AABB>& AABBVector);
 
 	inline int getNodeCount() { return _nodeCount; }
+	inline int getHullCount() { return _hullCount; }
 
 
 //templates

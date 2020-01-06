@@ -62,10 +62,10 @@ public:
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
-	UINT getScrW() { return screenWidth;  }
-	UINT getScrH() { return screenHeight; }
-	UINT getWinW() { return windowWidth;  }
-	UINT getWinH() { return windowHeight; }
+	inline UINT getScrW() const { return screenWidth;  }
+	inline UINT getScrH() const { return screenHeight; }
+	inline UINT getWinW() const { return windowWidth;  }
+	inline UINT getWinH() const { return windowHeight; }
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

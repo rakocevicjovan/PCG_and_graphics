@@ -42,7 +42,7 @@ public:
 		_hulls.clear();
 	}
 
-	Hull* getHull(UINT i)
+	Hull* getHull(UINT i) const
 	{
 		return _hulls[i];
 	}
@@ -55,5 +55,5 @@ public:
 	void ReleaseMemory();
 	bool operator==(const Collider& other) const;
 	void updateHullPositions();
-	HitResult Collide(const Collider& other, SVec3& resolutionVector);
+	HitResult Collide(const Collider& other, SVec3& resolutionVector) const;
 };

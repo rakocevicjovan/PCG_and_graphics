@@ -1,10 +1,9 @@
 #include "GameObject.h"
-#include "Collider.h"
 #include "Renderer.h"
 
 Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(transform)
 {
-	_collider = new Collider(BoundingVolumeType::BVT_SPHERE, this, true);
+	_collider = Collider(BoundingVolumeType::BVT_SPHERE, this, true);
 
 	renderables.reserve(model->meshes.size());
 
@@ -15,7 +14,7 @@ Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(tra
 		renderables.back().worldTransform = transform * mesh.transform;
 		renderables.back().mat = &mesh._baseMaterial;
 
-		_collider->addHull(new SphereHull(mesh.transform.Translation(), 1.f));		//@TODO see what to do about this
+		_collider.addHull(new SphereHull(mesh.transform.Translation(), 1.f));		//@TODO see what to do about this
 	}
 }
 
@@ -28,7 +27,7 @@ void Actor::propagate()
 	}
 
 	//@TODO consider changing to per-mesh collider... could be cleaner tbh
-	_collider->updateHullPositions();
+	_collider.updateHullPositions();
 }
 
 

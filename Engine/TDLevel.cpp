@@ -18,8 +18,8 @@ void TDLevel::init(Systems& sys)
 	S_INMAN.registerController(&_tdController);
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
-	_tdgui.init(ImVec2(_sys.getScrW() - 500, _sys.getScrH() - 200), ImVec2(500, 200));
-	_tdgui.addWidget();
+	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
+	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
@@ -53,24 +53,24 @@ void TDLevel::init(Systems& sys)
 			r.pLight = &pLight;
 		}
 
-		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider->getHull(0)));
+		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider.getHull(0)));
 	}
 
 
 	//Add building types... again, @TODO make data driven...
 	_buildable.reserve(2);
-	addBuildable(Actor(S_RESMAN.getByName<Model>("GuardTower")), "Guard tower", BuildingType::MARTIAL);
-	addBuildable(Actor(S_RESMAN.getByName<Model>("Lumberyard")), "Lumberyard", BuildingType::INDUSTRIAL);
+	addBuildable(Actor(S_RESMAN.getByName<Model>("GuardTower")), "Guard tower", BuildingType::MARTIAL,
+		BuildingGuiDef(
+			"Guard tower is a common, yet powerful defensive building.",
+			"Guard tower",
+			S_RESMAN.getByName<Texture>("guard_tower")->srv));
 
-	_tdgui.addBuildingGuiDef(
-		"Guard tower is a common, yet powerful defensive building.", 
-		"Guard tower", 
-		S_RESMAN.getByName<Texture>("guard_tower")->srv);
+	addBuildable(Actor(S_RESMAN.getByName<Model>("Lumberyard")), "Lumberyard", BuildingType::INDUSTRIAL,
+		BuildingGuiDef(
+			"Produces 10 wood per minute. Time to get lumber-jacked.",
+			"Lumberyard",
+			S_RESMAN.getByName<Texture>("lumber_yard")->srv));
 
-	_tdgui.addBuildingGuiDef(
-		"Produces 10 wood per minute. Time to get lumber-jacked.",
-		"Lumberyard",
-		S_RESMAN.getByName<Texture>("lumber_yard")->srv);
 
 	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);
@@ -142,11 +142,11 @@ void TDLevel::update(const RenderContext& rc)
 		creeps[i].propagate();
 	}
 
-
-	if (_selectedBuilding && _building)
+	//moves around the selected building
+	if (_templateBuilding && _inBuildingMode)
 	{
 		rayPickTerrain(rc.cam);
-		_selectedBuilding->propagate();
+		_templateBuilding->propagate();
 	}
 
 	/// FRUSTUM CULLING
@@ -159,7 +159,7 @@ void TDLevel::update(const RenderContext& rc)
 	//cull and add to render queue
 	for (int i = 0; i < creeps.size(); ++i)
 	{
-		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider->getHull(0))))
+		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider.getHull(0))))
 		{
 			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : creeps[i].renderables)
@@ -175,7 +175,6 @@ void TDLevel::update(const RenderContext& rc)
 	}
 
 	handleInput(rc.cam);
-
 }
 
 
@@ -201,8 +200,8 @@ void TDLevel::draw(const RenderContext& rc)
 	
 	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model>("Skysphere")), skyboxCubeMapper);
 
-	if (_building)
-		_selectedBuilding->render(S_RANDY);
+	if (_inBuildingMode)
+		_templateBuilding->render(S_RANDY);
 	
 	for (Actor& building : _structures)
 	{
@@ -214,6 +213,7 @@ void TDLevel::draw(const RenderContext& rc)
 	std::vector<GuiElement> guiElems =
 	{
 		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},
+		{"Octree",	std::string("OCT hull count " + std::to_string(_octree.getHullCount()))},
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
@@ -223,10 +223,19 @@ void TDLevel::draw(const RenderContext& rc)
 
 	UINT structureIndex;
 
-	if (_tdgui.renderBuildingWidget(structureIndex))
+	if (_tdgui.renderBuildingPalette(structureIndex))
 	{
-		selectBuilding(_buildable[structureIndex]);
-		_building = true;
+		selectBuildingToBuild(_buildable[structureIndex]);
+		_inBuildingMode = true;
+	}
+
+	if (_selectedBuilding)
+	{
+		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
+		{
+			delete _selectedBuilding;
+			_selectedBuilding = nullptr;
+		}
 	}
 
 	endGuiFrame();
@@ -253,11 +262,8 @@ void TDLevel::rayPickTerrain(const Camera* cam)
 	ray.direction *= 500.f;
 	Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), POI);
 
-	if (_building)
-	{
-		SVec3 snappedPos = _navGrid.snapToCell(POI);
-		Math::SetTranslation(_selectedBuilding->transform, snappedPos);
-	}
+	SVec3 snappedPos = _navGrid.snapToCell(POI);
+	Math::SetTranslation(_templateBuilding->transform, snappedPos);
 }
 
 
@@ -280,7 +286,7 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 	{
 		if (dynamic_cast<Building*>(s->_collider->parent))
 			if ((s->ctr - cam->GetPosition()).LengthSquared() < minDist)
-				b = reinterpret_cast<Building*>(s->_collider->parent);
+				b = new Building(*reinterpret_cast<Building*>(s->_collider->parent));
 	}
 
 	return b;
@@ -300,18 +306,17 @@ void TDLevel::handleInput(const Camera* cam)
 		{
 		case InputEventTD::SELECT:
 
-			if (_building)
+			if (_inBuildingMode)
 			{
-
-				if (_navGrid.tryAddObstacle(_selectedBuilding->getPosition()))
+				if (_navGrid.tryAddObstacle(_templateBuilding->getPosition()))
 				{
 					AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 					_navGrid.fillFlowField();
 
 					///BUILD
-					_structures.push_back(*_selectedBuilding);
-					_octree.insertObject((SphereHull*)_structures.back()._collider->getHull(0));
-					_building = false;
+					_structures.push_back(*_templateBuilding);
+					_octree.insertObject((SphereHull*)_structures.back()._collider.getHull(0));
+					_inBuildingMode = false;
 				}
 				else
 				{
@@ -320,17 +325,13 @@ void TDLevel::handleInput(const Camera* cam)
 			}
 			else	//select an existing building
 			{
-				Building* pickedBuilding = rayPickBuildings(cam);
-				if (pickedBuilding)
-				{
-					//GUI response
-				}
+				_selectedBuilding = rayPickBuildings(cam);
 			}
 			break;
 		
 
 		case InputEventTD::STOP_BUILDING:
-			_building = false;
+			_inBuildingMode = false;
 			break;
 
 		case InputEventTD::RESET_CREEPS:
@@ -346,14 +347,14 @@ void TDLevel::handleInput(const Camera* cam)
 
 
 
-void TDLevel::selectBuilding(Building* b)
+void TDLevel::selectBuildingToBuild(Building* b)
 {
-	_selectedBuilding = b;
+	_templateBuilding = b;
 }
 
 
 
-void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type)
+void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type, const BuildingGuiDef& guiDef)
 {
 	for (Renderable& r : a.renderables)
 	{
@@ -362,12 +363,17 @@ void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type
 		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
 
+
 	_buildable.push_back(new Building(a, name, type));
+	_buildable.back()->_guiDef = guiDef;
 
 	//hacky workaround but aight for now what do I know...
-	_buildable.back()->_collider->clearHulls();
-	_buildable.back()->_collider->addHull(new SphereHull(SVec3(), 25));
-	_buildable.back()->_collider->parent = _buildable.back();
+	_buildable.back()->_collider.clearHulls();
+	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
+	_buildable.back()->_collider.parent = _buildable.back();
+
+	//can use pointers but this much data replicated is not really important
+	_tdgui.addBuildingGuiDef(guiDef._desc, guiDef._name, guiDef._icon);
 }
 
 

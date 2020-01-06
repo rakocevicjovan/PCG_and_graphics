@@ -29,7 +29,7 @@ void Collider::updateHullPositions()
 
 
 
-HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector)
+HitResult Collider::Collide(const Collider& other, SVec3& resolutionVector) const
 {
 	HitResult hitRes;
 

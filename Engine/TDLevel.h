@@ -54,8 +54,8 @@ private:
 
 
 	//gameplay
-	void selectBuilding(Building* b);
-	void addBuildable(Actor&& a, const std::string& name, BuildingType type);
+	void selectBuildingToBuild(Building* b);
+	void addBuildable(Actor&& a, const std::string& name, BuildingType type, const BuildingGuiDef& guiDef);
 	void rayPickTerrain(const Camera* cam);
 	Building* rayPickBuildings(const Camera* cam);
 	void handleInput(const Camera* cam);	//involves ray picking, so we need this
@@ -64,8 +64,9 @@ private:
 	TDController _tdController;
 	TDGUI _tdgui;
 
+	Building* _templateBuilding = nullptr;
 	Building* _selectedBuilding = nullptr;
-	bool _building = false;
+	bool _inBuildingMode = false;
 	std::vector<Building*> _buildable;
 	std::list<Building> _structures;
 	

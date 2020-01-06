@@ -1,5 +1,6 @@
 #pragma once
 #include "IMGUI/imgui.h"
+#include "BuildingGuiDef.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -30,16 +31,7 @@ struct TransientWidget : public Widget
 
 class TDGUI
 {
-	struct BuildingGuiDef
-	{
-		std::string towerDesc;
-		std::string towerName;
-		void* towerIcon;
-	};
-
 	std::vector<BuildingGuiDef> _buildingGuiDefs;
-
-
 	std::map<std::string, Widget*> _widgets;
 	std::map<std::string, TransientWidget*> _transients;
 
@@ -60,19 +52,20 @@ public:
 	}
 
 
-	bool renderBuildingWidget(UINT& index) const
+	bool renderBuildingPalette(UINT& index) const
 	{
 		bool result = false;
 
 		ImGui::SetNextWindowPos(_paletteWidget._pos, ImGuiCond_Once);
 		ImGui::SetNextWindowSize(_paletteWidget._size, ImGuiCond_Once);
+
 		ImGui::Begin("Buildings", false);
 
 		for (int i = 0; i < _buildingGuiDefs.size(); ++i)
 		{
 			ImGui::PushID(i);
 			
-			if (ImGui::ImageButton(_buildingGuiDefs[i].towerIcon, ImVec2(64, 64)))
+			if (ImGui::ImageButton(_buildingGuiDefs[i]._icon, ImVec2(64, 64)))
 			{
 				result = true;
 				index = i;
@@ -81,11 +74,11 @@ public:
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
-				ImGui::SetTooltip(_buildingGuiDefs[i].towerDesc.c_str());
+				ImGui::SetTooltip(_buildingGuiDefs[i]._desc.c_str());
 				ImGui::EndTooltip();
 			}
 			ImGui::SameLine();
-			ImGui::Text(_buildingGuiDefs[i].towerName.c_str());
+			ImGui::Text(_buildingGuiDefs[i]._name.c_str());
 
 			ImGui::PopID();
 		}
@@ -94,6 +87,28 @@ public:
 
 		return result;
 	}
+
+
+	bool renderSelectedWidget(const BuildingGuiDef& def) const
+	{
+		bool result = false;
+
+		ImGui::SetNextWindowPos(_widgets.at("selected")->_pos, ImGuiCond_Once);
+		ImGui::SetNextWindowSize(_widgets.at("selected")->_size, ImGuiCond_Once);
+		
+		ImGui::Begin("Selected", false);
+
+		ImGui::Image(def._icon, ImVec2(128, 128));
+		ImGui::Text(def._name.c_str());
+		ImGui::Text(def._desc.c_str());
+
+		result = ImGui::Button("DELET DIS");
+
+		ImGui::End();
+
+		return result;
+	}
+
 
 
 	void makeTransientWidget()

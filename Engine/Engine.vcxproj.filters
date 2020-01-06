@@ -725,6 +725,9 @@
     <ClInclude Include="Building.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
+    <ClInclude Include="BuildingGuiDef.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

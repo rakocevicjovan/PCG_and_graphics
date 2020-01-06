@@ -136,6 +136,7 @@ OctNode* Octree::preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, Oc
 
 void Octree::insertObject(SphereHull* pSpHull)
 {
+	_hullCount++;
 	insertObjectIntoNode(_rootNode, pSpHull);
 }
 
@@ -190,7 +191,12 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 
 bool Octree::removeObject(SphereHull* pSpHull)
 {
-	return removeObjectFromNode(_rootNode, pSpHull);
+	if (removeObjectFromNode(_rootNode, pSpHull))
+	{
+		_hullCount--;
+		return true;
+	}
+	return false;
 }
 
 

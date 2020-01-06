@@ -6,8 +6,8 @@
 #include "SteeringComponent.h"
 #include "Renderable.h"
 #include <memory>
+#include "Collider.h"
 
-class Collider;
 class Renderer;
 
 class GameObject
@@ -33,7 +33,7 @@ public:
 
 	SMatrix transform;
 	std::vector<Renderable> renderables;
-	Collider* _collider;				//make it a unique ptr later, safer...
+	Collider _collider;				//make it a unique ptr later, safer...
 	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const { return transform.Translation(); }
