@@ -11,6 +11,7 @@
 #include "TDGUI.h"
 #include "Economy.h"
 #include "Building.h"
+#include "Enemy.h"
 
 
 
@@ -25,6 +26,9 @@ public:
 	void demolish();
 
 private:
+
+	//should really be in scene manager
+	void cull(const RenderContext& rc);
 
 	SceneGraph _sg;
 	Octree _octree;
@@ -43,7 +47,7 @@ private:
 	
 	CubeMapper skyboxCubeMapper;
 
-	std::vector<Actor> creeps;
+	std::vector<Enemy> creeps;
 
 	int numCulled;
 
@@ -59,6 +63,7 @@ private:
 	void rayPickTerrain(const Camera* cam);
 	Building* rayPickBuildings(const Camera* cam);
 	void handleInput(const Camera* cam);	//involves ray picking, so we need this
+	void steerEnemies(float dTime);
 
 
 	TDController _tdController;

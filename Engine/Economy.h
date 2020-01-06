@@ -11,15 +11,20 @@ struct Transaction
 {
 	std::string _type;
 	UINT _qty;
+
+	Transaction() {}
+	Transaction(const std::string& type, UINT qty) : _type(type), _qty(qty) {}
 };
 
 
 struct Income
 {
 	float _tickDuration;
-	UINT _amount;
+	Transaction _transaction;
 
-	Income(float tickDur, UINT perTick) : _tickDuration(tickDur), _amount(perTick) {}
+	Income() {}
+	Income(float tickDur, const std::string& type, UINT perTick)
+		: _tickDuration(tickDur), _transaction(type, perTick) {}
 };
 
 
@@ -28,10 +33,10 @@ struct TDResource
 	std::string _type;
 	UINT _qty;
 	UINT _capacity;
-	Income _income;
+	Income _income;	//used to support some custom income 
 
-	TDResource(const std::string& type, UINT qty, UINT cap, float tick, UINT perTick)
-		: _type(type), _qty(qty), _capacity(cap), _income(tick, perTick) {}
+	TDResource(const std::string& type, UINT qty, UINT cap)
+		: _type(type), _qty(qty), _capacity(cap) {}
 };
 
 
@@ -52,7 +57,7 @@ public:
 
 	bool createResource(const std::string& name, UINT cap = 100u, UINT qty = 0u, float tickDuration = 10.f, UINT perTick = 0u)
 	{
-		return _storage.emplace(name, TDResource(name, qty, cap, tickDuration, perTick)).second;
+		return _storage.emplace(name, TDResource(name, qty, cap)).second;
 	}
 
 
@@ -102,7 +107,7 @@ public:
 	//to simply let the game deposit resources if it gets too complicated... or have a full blown system for it
 	bool setResourceIncome(const std::string& type, float tickDuration = 10.f, UINT amount = 0u)
 	{
-		_storage.at(type)._income = { tickDuration, amount };
+		_storage.at(type)._income = Income(tickDuration, type, amount);
 	}
 
 

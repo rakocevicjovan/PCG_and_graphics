@@ -728,6 +728,9 @@
     <ClInclude Include="BuildingGuiDef.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

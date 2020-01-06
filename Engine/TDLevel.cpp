@@ -76,72 +76,20 @@ void TDLevel::init(Systems& sys)
 	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
-
-#ifdef DEBUG_OCTREE
-	Procedural::Geometry g;
-	g.GenBox(SVec3(1));
-	debugModel.meshes.push_back(Mesh(g, S_DEVICE));
-	tempBoxes.reserve(1000);
-	octNodeMatrices.reserve(1000);
-#endif
 }
 
 
 
 void TDLevel::update(const RenderContext& rc)
-{
-#ifdef DEBUG_OCTREE
-	_oct.getTreeAsAABBVector(tempBoxes);
-
-	for (int i = 0; i < tempBoxes.size(); ++i)
-	{
-		octNodeMatrices.push_back(
-			(
-				SMatrix::CreateScale(tempBoxes[i].getHalfSize() * 2.f) *
-				SMatrix::CreateTranslation(tempBoxes[i].getPosition())
-				).Transpose()
-		);
-	}
-
-	shady.instanced.UpdateInstanceData(octNodeMatrices);
-	octNodeMatrices.clear();
-	tempBoxes.clear();
-#endif
-	
+{	
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
 	//Another alternative is having a bool empty; in the octnode...
 	_octree.updateAll();	//@TODO redo this, does redundant work and blows in general
 	_octree.lazyTrim();
 	_octree.collideAll();
-	
 
-	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
-	SVec2 stopArea(sqrt(creeps.size()), sqrt(creeps.size()));
-	stopArea *= 3.f;
-	float stopDistance = stopArea.Length();
-
-
-	for (int i = 0; i < creeps.size(); ++i)
-	{
-		//pathfinding and steering, needs to turn off once nobody is moving...
-
-		if (creeps[i]._steerComp._active)
-		{
-			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
-			_octree.findWithin(creeps[i].getPosition(), 4.f, neighbourCreeps);
-			creeps[i]._steerComp.update(_navGrid, rc.dTime, neighbourCreeps, i, stopDistance);
-		}
-
-		//height
-		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
-		float intervalPassed = fmod(rc.elapsed * 5.f + i * 2.f, 10.f);
-		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
-		Math::setHeight(creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
-
-		//propagate transforms to children
-		creeps[i].propagate();
-	}
+	steerEnemies(rc.dTime);
 
 	//moves around the selected building
 	if (_templateBuilding && _inBuildingMode)
@@ -150,32 +98,9 @@ void TDLevel::update(const RenderContext& rc)
 		_templateBuilding->propagate();
 	}
 
-	/// FRUSTUM CULLING
-	numCulled = 0;
-	const SMatrix v = rc.cam->GetViewMatrix();
-	const SVec3 v3c(v._13, v._23, v._33);
-	const SVec3 camPos = rc.cam->GetPosition();
-	
-	
-	//cull and add to render queue
-	for (int i = 0; i < creeps.size(); ++i)
-	{
-		if(Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider.getHull(0))))
-		{
-			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
-			for (auto& r : creeps[i].renderables)
-			{
-				r.zDepth = zDepth;
-				S_RANDY.addToRenderQueue(r);
-			}
-		}
-		else
-		{
-			numCulled++;
-		}
-	}
-
 	handleInput(rc.cam);
+
+	cull(rc);
 }
 
 
@@ -379,6 +304,63 @@ void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type
 
 
 
+void TDLevel::steerEnemies(float dTime)
+{
+	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
+	SVec2 stopArea(sqrt(creeps.size()));
+	stopArea *= 3.f;
+	float stopDistance = stopArea.Length();
+
+	for (int i = 0; i < creeps.size(); ++i)
+	{
+		//pathfinding and steering, needs to turn off once nobody is moving...
+
+		if (creeps[i]._steerComp._active)
+		{
+			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
+			_octree.findWithin(creeps[i].getPosition(), 4.f, neighbourCreeps);
+			creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreeps, i, stopDistance);
+		}
+
+		//height
+		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
+		float intervalPassed = fmod(_sys._clock.TotalTime() * 5.f + i * 2.f, 10.f);
+		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
+		Math::setHeight(creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
+
+		//propagate transforms to children
+		creeps[i].propagate();
+	}
+}
+
+
+
+void TDLevel::cull(const RenderContext& rc)
+{
+	numCulled = 0;
+	const SMatrix v = rc.cam->GetViewMatrix();
+	const SVec3 v3c(v._13, v._23, v._33);
+	const SVec3 camPos = rc.cam->GetPosition();
+
+
+	//cull and add to render queue
+	for (int i = 0; i < creeps.size(); ++i)
+	{
+		if (Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider.getHull(0))))
+		{
+			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
+			for (auto& r : creeps[i].renderables)
+			{
+				r.zDepth = zDepth;
+				S_RANDY.addToRenderQueue(r);
+			}
+		}
+		else
+		{
+			numCulled++;
+		}
+	}
+}
 
 
 /* old sphere placement, it's here because it's rad
@@ -395,3 +377,30 @@ box = Actor(SMatrix(), &boxModel);
 box.renderables[0].mat = &creepMat;
 box.renderables[0].pLight = &pLight;
 */
+
+
+#ifdef DEBUG_OCTREE	//for init()
+Procedural::Geometry g;
+g.GenBox(SVec3(1));
+debugModel.meshes.push_back(Mesh(g, S_DEVICE));
+tempBoxes.reserve(1000);
+octNodeMatrices.reserve(1000);
+#endif
+
+#ifdef DEBUG_OCTREE	//for update()
+_oct.getTreeAsAABBVector(tempBoxes);
+
+for (int i = 0; i < tempBoxes.size(); ++i)
+{
+	octNodeMatrices.push_back(
+		(
+			SMatrix::CreateScale(tempBoxes[i].getHalfSize() * 2.f) *
+			SMatrix::CreateTranslation(tempBoxes[i].getPosition())
+			).Transpose()
+	);
+}
+
+shady.instanced.UpdateInstanceData(octNodeMatrices);
+octNodeMatrices.clear();
+tempBoxes.clear();
+#endif
