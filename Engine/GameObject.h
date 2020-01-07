@@ -35,6 +35,8 @@ public:
 	Actor(const Actor& other);
 	//void operator=(const Actor& other);	I think this is ok as a shallow assignment by default...
 
+	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
+
 	Actor* parent;
 
 	SMatrix transform;

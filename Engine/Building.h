@@ -19,7 +19,8 @@ public:
 	Building(const Actor& actor, const std::string& name, BuildingType type)
 		: Actor(actor), _name(name), _type(type), _elapsed(0.f) {}
 
-	//void update(float dTime) { _elapsed += dTime; }
+	Building(const Actor& actor, const std::string& name, BuildingType type, const BuildingGuiDef& guiDef)
+		: Actor(actor), _name(name), _type(type), _guiDef(guiDef), _elapsed(0.f) {}
 };
 
 
@@ -29,6 +30,22 @@ public:
 class MartialBuilding : public Building
 {
 public:
+
+	MartialBuilding(const Actor& actor, const std::string& name, BuildingType type, 
+		const BuildingGuiDef& guiDef, float range, float damage)
+		: Building(actor, name, type, guiDef), _range(range), _damage(damage)
+	{
+		_rangeSq = _range * _range;
+	}
+
+	float _range = 30.f;
+	float _rangeSq = _range * _range;
+	float _damage = 1.f;
+
+	inline bool inRange(const SVec3& enemyPos) const
+	{
+		return ((enemyPos - getPosition()).LengthSquared() < _rangeSq);
+	}
 };
 
 
@@ -42,8 +59,10 @@ class IndustrialBuilding : public Building
 
 public:
 
-	IndustrialBuilding(const Actor& actor, const std::string& name, BuildingType type, const Income& inc)
-		: Building(actor, name, type), _income(inc) {}
+	IndustrialBuilding(const Actor& actor, const std::string& name, BuildingType type,
+		const BuildingGuiDef& guiDef, const Income& inc)
+		: Building(actor, name, type, guiDef), _income(inc)
+	{}
 
 
 	//starts by default, no biggie regardless

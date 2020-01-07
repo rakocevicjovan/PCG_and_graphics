@@ -21,12 +21,21 @@ Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(tra
 }
 
 
+void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
+{
+	for (Renderable& r : renderables)
+	{
+		r.mat->setVS(vs);
+		r.mat->setPS(ps);
+		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
+	}
+}
+
 
 Actor::Actor(const Actor& other) : _steerComp(other._steerComp)
 {
 	copyShenanigans(other);
 }
-
 
 
 void Actor::propagate()
@@ -41,13 +50,11 @@ void Actor::propagate()
 }
 
 
-
 void Actor::render(const Renderer& renderer) const
 {
 	for (const Renderable& r : renderables)
 		renderer.render(r);
 }
-
 
 
 

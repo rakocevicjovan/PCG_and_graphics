@@ -44,6 +44,10 @@ public:
 		_buildingGuiDefs.push_back({towerDesc, towerName, towerIcon});
 	}
 
+	void addBuildingGuiDef(const BuildingGuiDef& guiDef)
+	{
+		_buildingGuiDefs.push_back(guiDef);
+	}
 
 	void init(const ImVec2& pos, const ImVec2& size)
 	{

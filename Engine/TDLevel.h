@@ -47,8 +47,6 @@ private:
 	
 	CubeMapper skyboxCubeMapper;
 
-	std::vector<Enemy> creeps;
-
 	int numCulled;
 
 	//octree meshes
@@ -58,8 +56,9 @@ private:
 
 
 	//gameplay
+	void addBuildables();
+	void addBuildable(Building* b);
 	void selectBuildingToBuild(Building* b);
-	void addBuildable(Actor&& a, const std::string& name, BuildingType type, const BuildingGuiDef& guiDef);
 	void rayPickTerrain(const Camera* cam);
 	Building* rayPickBuildings(const Camera* cam);
 	void handleInput(const Camera* cam);	//involves ray picking, so we need this
@@ -72,7 +71,11 @@ private:
 	Building* _templateBuilding = nullptr;
 	Building* _selectedBuilding = nullptr;
 	bool _inBuildingMode = false;
+
+	std::vector<Enemy> _creeps;
 	std::vector<Building*> _buildable;
+
+	std::list<MartialBuilding*> _towers;
 	std::list<Building> _structures;
 	
 	Economy _eco;

@@ -35,15 +35,16 @@ public:
 		SVec3 myPos = _parent->getPosition();
 		int creepsCell = navGrid.posToCellIndex(myPos);
 		SVec3 flowVector = navGrid.flowAtIndex(creepsCell);
-		SVec3 obstacleCorrection = navGrid.flowObstacleCorrection(myPos);
-		flowVector += 5.f * obstacleCorrection;
+		
+		//SVec3 obstacleCorrection = navGrid.flowObstacleCorrection(myPos);
+		//flowVector += 5.f * obstacleCorrection;
 
 		SVec3 goalPos = navGrid.cellIndexToPos(navGrid.getGoalIndex());
 		SVec3 vecToGoal = myPos - goalPos;
-		float distToGoal = vecToGoal.Length();
+		float sqDistToGoal = vecToGoal.LengthSquared();
 
 		//seeking using the flowfield
-		if (distToGoal > stopDistance)
+		if (sqDistToGoal > stopDistance * stopDistance)
 		{
 			_totalInfluence += flowVector;
 			_totalInfluence += .2f * Steering::separate(static_cast<NavAgent*>(_parent), others);

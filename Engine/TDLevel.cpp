@@ -40,37 +40,26 @@ void TDLevel::init(Systems& sys)
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
 
-	creeps.reserve(NUM_ENEMIES);
+	_creeps.reserve(NUM_ENEMIES);
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
 		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
-		creeps.emplace_back(S_RESMAN.getByName<Model>("FlyingMage"), SMatrix::CreateTranslation(pos));
+		_creeps.emplace_back(S_RESMAN.getByName<Model>("FlyingMage"), SMatrix::CreateTranslation(pos));
 		
-		for (Renderable& r : creeps[i].renderables)
+		for (Renderable& r : _creeps[i].renderables)
 		{
 			r.mat = S_MATCACHE.getMaterial("creepMat");
 			r.pLight = &pLight;
 		}
 
-		_octree.insertObject(static_cast<SphereHull*>(creeps[i]._collider.getHull(0)));
+		_octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 	}
 
 
-	//Add building types... again, @TODO make data driven...
-	_buildable.reserve(2);
-	addBuildable(Actor(S_RESMAN.getByName<Model>("GuardTower")), "Guard tower", BuildingType::MARTIAL,
-		BuildingGuiDef(
-			"Guard tower is a common, yet powerful defensive building.",
-			"Guard tower",
-			S_RESMAN.getByName<Texture>("guard_tower")->srv));
-
-	addBuildable(Actor(S_RESMAN.getByName<Model>("Lumberyard")), "Lumberyard", BuildingType::INDUSTRIAL,
-		BuildingGuiDef(
-			"Produces 10 wood per minute. Time to get lumber-jacked.",
-			"Lumberyard",
-			S_RESMAN.getByName<Texture>("lumber_yard")->srv));
+	//Add building types... again, could make data driven...
+	addBuildables();
 
 
 	//Add resource types, same @TODO as above
@@ -99,6 +88,17 @@ void TDLevel::update(const RenderContext& rc)
 	}
 
 	handleInput(rc.cam);
+
+	for (MartialBuilding* tower : _towers)
+	{
+		for (Enemy& creep : _creeps)
+		{
+			if (tower->inRange(creep.getPosition()))
+			{
+				creep.receiveDamage(tower->_damage * rc.dTime);
+			}
+		}
+	}
 
 	cull(rc);
 }
@@ -134,6 +134,7 @@ void TDLevel::draw(const RenderContext& rc)
 		building.render(S_RANDY);
 	}
 
+	startGuiFrame();
 
 
 	std::vector<GuiElement> guiElems =
@@ -143,17 +144,16 @@ void TDLevel::draw(const RenderContext& rc)
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
-
-	startGuiFrame();
 	renderGuiElems(guiElems);
 
-	UINT structureIndex;
 
+	UINT structureIndex;
 	if (_tdgui.renderBuildingPalette(structureIndex))
 	{
 		selectBuildingToBuild(_buildable[structureIndex]);
 		_inBuildingMode = true;
 	}
+
 
 	if (_selectedBuilding != nullptr)
 	{
@@ -240,6 +240,10 @@ void TDLevel::handleInput(const Camera* cam)
 					_navGrid.fillFlowField();
 
 					///BUILD
+					if (_templateBuilding->_type == BuildingType::MARTIAL)
+					{
+						_towers.push_back((MartialBuilding*)_templateBuilding);
+					}
 					_structures.push_back(*_templateBuilding);
 					_octree.insertObject((SphereHull*)_structures.back()._collider.getHull(0));
 					_inBuildingMode = false;
@@ -261,10 +265,10 @@ void TDLevel::handleInput(const Camera* cam)
 			break;
 
 		case InputEventTD::RESET_CREEPS:
-			for (int i = 0; i < creeps.size(); ++i)
+			for (int i = 0; i < _creeps.size(); ++i)
 			{
-				Math::SetTranslation(creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
-				creeps[i]._steerComp._active = true;
+				Math::SetTranslation(_creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
+				_creeps[i]._steerComp._active = true;
 			}
 			break;
 		}
@@ -280,18 +284,42 @@ void TDLevel::selectBuildingToBuild(Building* b)
 
 
 
-void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type, const BuildingGuiDef& guiDef)
+void TDLevel::addBuildables()
 {
-	for (Renderable& r : a.renderables)
-	{
-		r.mat->setVS(_sys._shaderCache.getVertShader("basicVS"));
-		r.mat->setPS(_sys._shaderCache.getPixShader("lightPS"));
-		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
-	}
+	_buildable.reserve(2);
+	Building* b = new MartialBuilding(
+		Actor(S_RESMAN.getByName<Model>("GuardTower")),
+		"Guard tower",
+		BuildingType::MARTIAL,
+		BuildingGuiDef(
+			"Guard tower is a common, yet powerful defensive building.",
+			"Guard tower",
+			S_RESMAN.getByName<Texture>("guard_tower")->srv),
+		50.f,
+		10.f
+	);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	addBuildable(b);
+
+	b = new IndustrialBuilding(
+		Actor(S_RESMAN.getByName<Model>("Lumberyard")),
+		"Lumberyard",
+		BuildingType::INDUSTRIAL,
+		BuildingGuiDef(
+			"Produces 10 wood per minute. Time to get lumber-jacked.",
+			"Lumberyard",
+			S_RESMAN.getByName<Texture>("lumber_yard")->srv),
+		Income(10.f, "Coin", 10.f)
+	);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	addBuildable(b);
+}
 
 
-	_buildable.push_back(new Building(a, name, type));
-	_buildable.back()->_guiDef = guiDef;
+
+void TDLevel::addBuildable(Building* b)
+{
+	_buildable.push_back(b);
 
 	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
 	_buildable.back()->_collider.clearHulls();
@@ -299,7 +327,7 @@ void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type
 	_buildable.back()->_collider.parent = _buildable.back();
 
 	//can use pointers but this much data replicated is not really important
-	_tdgui.addBuildingGuiDef(guiDef._desc, guiDef._name, guiDef._icon);
+	_tdgui.addBuildingGuiDef(_buildable.back()->_guiDef);
 }
 
 
@@ -307,29 +335,32 @@ void TDLevel::addBuildable(Actor&& a, const std::string& name, BuildingType type
 void TDLevel::steerEnemies(float dTime)
 {
 	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
-	SVec2 stopArea(sqrt(creeps.size()));
+	SVec2 stopArea(sqrt(_creeps.size()));
 	stopArea *= 3.f;
 	float stopDistance = stopArea.Length();
 
-	for (int i = 0; i < creeps.size(); ++i)
+	for (int i = 0; i < _creeps.size(); ++i)
 	{
+		if (_creeps[i].isDead())
+			continue;
+
 		//pathfinding and steering, needs to turn off once nobody is moving...
 
-		if (creeps[i]._steerComp._active)
+		if (_creeps[i]._steerComp._active)
 		{
 			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
-			_octree.findWithin(creeps[i].getPosition(), 4.f, neighbourCreeps);
-			creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreeps, i, stopDistance);
+			_octree.findWithin(_creeps[i].getPosition(), 4.f, neighbourCreeps);
+			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreeps, i, stopDistance);
 		}
 
 		//height
-		float h = terrain.getHeightAtPosition(creeps[i].getPosition());
+		float h = terrain.getHeightAtPosition(_creeps[i].getPosition());
 		float intervalPassed = fmod(_sys._clock.TotalTime() * 5.f + i * 2.f, 10.f);
 		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
-		Math::setHeight(creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
+		Math::setHeight(_creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
 
 		//propagate transforms to children
-		creeps[i].propagate();
+		_creeps[i].propagate();
 	}
 }
 
@@ -344,12 +375,12 @@ void TDLevel::cull(const RenderContext& rc)
 
 
 	//cull and add to render queue
-	for (int i = 0; i < creeps.size(); ++i)
+	for (int i = 0; i < _creeps.size(); ++i)
 	{
-		if (Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(creeps[i]._collider.getHull(0))))
+		if (Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(0))))
 		{
-			float zDepth = (creeps[i].transform.Translation() - camPos).Dot(v3c);
-			for (auto& r : creeps[i].renderables)
+			float zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
+			for (auto& r : _creeps[i].renderables)
 			{
 				r.zDepth = zDepth;
 				S_RANDY.addToRenderQueue(r);
