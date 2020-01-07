@@ -21,6 +21,14 @@ public:
 
 	Building(const Actor& actor, const std::string& name, BuildingType type, const BuildingGuiDef& guiDef)
 		: Actor(actor), _name(name), _type(type), _guiDef(guiDef), _elapsed(0.f) {}
+
+	Building(const Building& b) : Actor(b)
+	{
+		_name = b._name;
+		_type = b._type;
+		_elapsed = 0.f;
+		_guiDef = b._guiDef;
+	}
 };
 
 
@@ -38,13 +46,15 @@ public:
 		_rangeSq = _range * _range;
 	}
 
+	//MartialBuilding();
+
 	float _range = 30.f;
-	float _rangeSq = _range * _range;
+	float _rangeSq;
 	float _damage = 1.f;
 
 	inline bool inRange(const SVec3& enemyPos) const
 	{
-		return ((enemyPos - getPosition()).LengthSquared() < _rangeSq);
+		return ((enemyPos - getPosition() ).LengthSquared() < _rangeSq);
 	}
 };
 

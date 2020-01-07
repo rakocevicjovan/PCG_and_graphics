@@ -34,8 +34,20 @@ void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
 
 Actor::Actor(const Actor& other) : _steerComp(other._steerComp)
 {
-	copyShenanigans(other);
+	_collider = other._collider;
+	_collider.clearHullsNoDelete();
+
+	for (Hull* sp : other._collider.getHulls())
+		_collider.addHull(new SphereHull(sp->getPosition(), sp->getExtent()));
+
+	renderables.reserve(other.renderables.size());
+	for (const Renderable& r : other.renderables)
+		renderables.push_back(r);
 }
+
+
+
+Actor::~Actor() {}
 
 
 void Actor::propagate()
@@ -57,7 +69,7 @@ void Actor::render(const Renderer& renderer) const
 }
 
 
-
+/*
 void Actor::copyShenanigans(const Actor& other)
 {
 	_collider = other._collider;
@@ -70,3 +82,4 @@ void Actor::copyShenanigans(const Actor& other)
 	for (const Renderable& r : other.renderables)
 		renderables.push_back(r);
 }
+*/

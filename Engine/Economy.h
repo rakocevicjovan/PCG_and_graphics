@@ -1,5 +1,6 @@
 #pragma once
 #include "Math.h"
+#include "IMGUI/imgui.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -40,14 +41,14 @@ struct TDResource
 };
 
 
+
 class Economy
 {
-
-	std::map<std::string, TDResource> _storage;
+	std::map<std::string, TDResource> _vault;
 
 	inline bool gotEnough(const std::string& type, const UINT quantity) const
 	{
-		if (_storage.at(type)._qty >= quantity)
+		if (_vault.at(type)._qty >= quantity)
 			return true;
 		return false;
 	}
@@ -57,14 +58,14 @@ public:
 
 	bool createResource(const std::string& name, UINT cap = 100u, UINT qty = 0u, float tickDuration = 10.f, UINT perTick = 0u)
 	{
-		return _storage.emplace(name, TDResource(name, qty, cap)).second;
+		return _vault.emplace(name, TDResource(name, qty, cap)).second;
 	}
 
 
 
 	void deposit(const std::string& type, const UINT quantity)
 	{
-		_storage.at(type)._qty = min(_storage.at(type)._qty + quantity, _storage.at(type)._capacity);
+		_vault.at(type)._qty = min(_vault.at(type)._qty + quantity, _vault.at(type)._capacity);
 	}
 
 	
@@ -72,7 +73,7 @@ public:
 	{
 		if (gotEnough(type, quantity))
 		{
-			_storage.at(type)._qty -= quantity;
+			_vault.at(type)._qty -= quantity;
 			return true;
 		}
 		return false;
@@ -96,7 +97,7 @@ public:
 
 		for (const Transaction& transaction : transactions)
 		{
-			_storage.at(transaction._type)._qty -= transaction._qty;
+			_vault.at(transaction._type)._qty -= transaction._qty;
 		}
 
 		return true;
@@ -107,7 +108,7 @@ public:
 	//to simply let the game deposit resources if it gets too complicated... or have a full blown system for it
 	bool setResourceIncome(const std::string& type, float tickDuration = 10.f, UINT amount = 0u)
 	{
-		_storage.at(type)._income = Income(tickDuration, type, amount);
+		_vault.at(type)._income = Income(tickDuration, type, amount);
 	}
 
 
@@ -118,5 +119,27 @@ public:
 				return false;
 
 		return true;
+	}
+
+
+	const std::map<std::string, TDResource>& getVault()
+	{
+		return _vault;
+	}
+
+
+	void renderEconomyWidget()
+	{
+		ImGui::Begin("Resources");
+
+		for (const auto& r : _vault)
+		{
+			ImGui::Text(r.first.c_str());
+			ImGui::SameLine();
+			ImGui::Text( (std::to_string(r.second._qty) + "/" + std::to_string(r.second._capacity)).c_str() );
+			//sum icon too
+		}
+
+		ImGui::End();
 	}
 };

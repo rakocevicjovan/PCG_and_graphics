@@ -13,6 +13,7 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
+///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
 	S_INMAN.registerController(&_tdController);
@@ -69,6 +70,55 @@ void TDLevel::init(Systems& sys)
 
 
 
+void TDLevel::addBuildables()
+{
+	_buildable.reserve(2);
+	Building* b = new MartialBuilding(
+		Actor(S_RESMAN.getByName<Model>("GuardTower")),
+		"Guard tower",
+		BuildingType::MARTIAL,
+		BuildingGuiDef(
+			"Guard tower is a common, yet powerful defensive building.",
+			"Guard tower",
+			S_RESMAN.getByName<Texture>("guard_tower")->srv),
+		100.f,
+		100.f
+	);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	fixBuildable(b);
+
+	b = new IndustrialBuilding(
+		Actor(S_RESMAN.getByName<Model>("Lumberyard")),
+		"Lumberyard",
+		BuildingType::INDUSTRIAL,
+		BuildingGuiDef(
+			"Produces 10 wood per minute. Time to get lumber-jacked.",
+			"Lumberyard",
+			S_RESMAN.getByName<Texture>("lumber_yard")->srv),
+		Income(10.f, "Coin", 10.f)
+	);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	fixBuildable(b);
+}
+
+
+
+void TDLevel::fixBuildable(Building* b)
+{
+	_buildable.push_back(b);
+
+	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
+	_buildable.back()->_collider.clearHulls();
+	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
+	_buildable.back()->_collider.parent = _buildable.back();
+
+	//can use pointers but this much data replicated is not really important
+	_tdgui.addBuildingGuiDef(_buildable.back()->_guiDef);
+}
+
+
+
+///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {	
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
@@ -89,91 +139,18 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 
-	for (MartialBuilding* tower : _towers)
+	for (MartialBuilding tower : _towers)
 	{
 		for (Enemy& creep : _creeps)
 		{
-			if (tower->inRange(creep.getPosition()))
+			if (tower.inRange(creep.getPosition()))
 			{
-				creep.receiveDamage(tower->_damage * rc.dTime);
+				creep.receiveDamage(tower._damage * rc.dTime);
 			}
 		}
 	}
 
 	cull(rc);
-}
-
-
-
-void TDLevel::draw(const RenderContext& rc)
-{
-	rc.d3d->ClearColourDepthBuffers();
-	rc.d3d->setRSSolidNoCull();
-
-	S_SHADY.light.SetShaderParameters(S_CONTEXT, floorModel.transform, *rc.cam, pLight, rc.dTime);
-	floorModel.Draw(S_CONTEXT, S_SHADY.light);
-	S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
-
-#ifdef DEBUG_OCTREE
-	shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
-	debugModel.DrawInstanced(context, shady.instanced);
-	shady.instanced.ReleaseShaderParameters(context);
-#endif
-
-	S_RANDY.sortRenderQueue();
-	S_RANDY.flushRenderQueue();
-	S_RANDY.clearRenderQueue();
-	
-	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model>("Skysphere")), skyboxCubeMapper);
-
-	if (_inBuildingMode)
-		_templateBuilding->render(S_RANDY);
-	
-	for (Actor& building : _structures)
-	{
-		building.render(S_RANDY);
-	}
-
-	startGuiFrame();
-
-
-	std::vector<GuiElement> guiElems =
-	{
-		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},
-		{"Octree",	std::string("OCT hull count " + std::to_string(_octree.getHullCount()))},
-		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
-		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
-	};
-	renderGuiElems(guiElems);
-
-
-	UINT structureIndex;
-	if (_tdgui.renderBuildingPalette(structureIndex))
-	{
-		selectBuildingToBuild(_buildable[structureIndex]);
-		_inBuildingMode = true;
-	}
-
-
-	if (_selectedBuilding != nullptr)
-	{
-		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
-		{
-			delete _selectedBuilding;
-			_selectedBuilding = nullptr;
-		}
-	}
-
-	endGuiFrame();
-
-	rc.d3d->EndScene();
-}
-
-
-
-void TDLevel::demolish()
-{
-	finished = true;
 }
 
 
@@ -190,32 +167,6 @@ void TDLevel::rayPickTerrain(const Camera* cam)
 
 	SVec3 snappedPos = _navGrid.snapToCell(POI);
 	Math::SetTranslation(_templateBuilding->transform, snappedPos);
-}
-
-
-
-Building* TDLevel::rayPickBuildings(const Camera* cam)
-{
-	MCoords mc = _sys._inputManager.getAbsXY();
-	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
-	ray.direction *= 500.f;
-	
-	std::list<SphereHull*> sps;
-
-	Building* b = nullptr;
-
-	_octree.rayCastTree(ray, sps);
-
-	float minDist = 9999999.f;
-
-	for (SphereHull* s : sps)
-	{
-		if (dynamic_cast<Building*>(s->_collider->parent))
-			if ((s->ctr - cam->GetPosition()).LengthSquared() < minDist)
-				b = new Building(*reinterpret_cast<Building*>(s->_collider->parent));
-	}
-
-	return b;
 }
 
 
@@ -239,14 +190,7 @@ void TDLevel::handleInput(const Camera* cam)
 					AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 					_navGrid.fillFlowField();
 
-					///BUILD
-					if (_templateBuilding->_type == BuildingType::MARTIAL)
-					{
-						_towers.push_back((MartialBuilding*)_templateBuilding);
-					}
-					_structures.push_back(*_templateBuilding);
-					_octree.insertObject((SphereHull*)_structures.back()._collider.getHull(0));
-					_inBuildingMode = false;
+					build();	///BUILD
 				}
 				else
 				{
@@ -269,6 +213,7 @@ void TDLevel::handleInput(const Camera* cam)
 			{
 				Math::SetTranslation(_creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
 				_creeps[i]._steerComp._active = true;
+				_creeps[i].revive();
 			}
 			break;
 		}
@@ -277,57 +222,49 @@ void TDLevel::handleInput(const Camera* cam)
 
 
 
-void TDLevel::selectBuildingToBuild(Building* b)
+Building* TDLevel::rayPickBuildings(const Camera* cam)
 {
-	_templateBuilding = b;
+	MCoords mc = _sys._inputManager.getAbsXY();
+	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
+	ray.direction *= 500.f;
+
+	std::list<SphereHull*> sps;
+
+	Building* b = nullptr;
+
+	_octree.rayCastTree(ray, sps);
+
+	float minDist = 9999999.f;
+
+	for (SphereHull* s : sps)
+	{
+		if ((s->ctr - cam->GetPosition()).LengthSquared() < minDist)
+		{
+			b = dynamic_cast<Building*>(s->_collider->parent);	//b = reinterpret_cast<Building*>(s->_collider->parent);
+		}
+	}
+
+	return b;
 }
 
 
-
-void TDLevel::addBuildables()
+//@TODO awful syntax but I want to enforce the copy constructor deep copying the stuff...
+void TDLevel::build()
 {
-	_buildable.reserve(2);
-	Building* b = new MartialBuilding(
-		Actor(S_RESMAN.getByName<Model>("GuardTower")),
-		"Guard tower",
-		BuildingType::MARTIAL,
-		BuildingGuiDef(
-			"Guard tower is a common, yet powerful defensive building.",
-			"Guard tower",
-			S_RESMAN.getByName<Texture>("guard_tower")->srv),
-		50.f,
-		10.f
-	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
-	addBuildable(b);
+	//_structures.push_back(new Building(*_templateBuilding));
 
-	b = new IndustrialBuilding(
-		Actor(S_RESMAN.getByName<Model>("Lumberyard")),
-		"Lumberyard",
-		BuildingType::INDUSTRIAL,
-		BuildingGuiDef(
-			"Produces 10 wood per minute. Time to get lumber-jacked.",
-			"Lumberyard",
-			S_RESMAN.getByName<Texture>("lumber_yard")->srv),
-		Income(10.f, "Coin", 10.f)
-	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
-	addBuildable(b);
-}
+	if (_templateBuilding->_type == BuildingType::MARTIAL)
+	{
+		_towers.push_back( MartialBuilding(*(MartialBuilding*)_templateBuilding) );
+		_octree.insertObject((SphereHull*)_towers.back()._collider.getHull(0));
+	}
+	else
+	{
+		_industry.push_back(IndustrialBuilding(*(IndustrialBuilding*)_templateBuilding));
+		_octree.insertObject((SphereHull*)_industry.back()._collider.getHull(0));
+	}
 
-
-
-void TDLevel::addBuildable(Building* b)
-{
-	_buildable.push_back(b);
-
-	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
-	_buildable.back()->_collider.clearHulls();
-	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
-	_buildable.back()->_collider.parent = _buildable.back();
-
-	//can use pointers but this much data replicated is not really important
-	_tdgui.addBuildingGuiDef(_buildable.back()->_guiDef);
+	_inBuildingMode = false;
 }
 
 
@@ -366,6 +303,70 @@ void TDLevel::steerEnemies(float dTime)
 
 
 
+///DRAW AND HELPERS
+void TDLevel::draw(const RenderContext& rc)
+{
+	rc.d3d->ClearColourDepthBuffers();
+	rc.d3d->setRSSolidNoCull();
+
+	S_SHADY.light.SetShaderParameters(S_CONTEXT, floorModel.transform, *rc.cam, pLight, rc.dTime);
+	floorModel.Draw(S_CONTEXT, S_SHADY.light);
+	S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
+
+	S_RANDY.sortRenderQueue();
+	S_RANDY.flushRenderQueue();
+	S_RANDY.clearRenderQueue();
+
+	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model>("Skysphere")), skyboxCubeMapper);
+
+	if (_inBuildingMode)
+		_templateBuilding->render(S_RANDY);
+
+	for (IndustrialBuilding building : _industry)
+		building.render(S_RANDY);
+
+	for (MartialBuilding building : _towers)
+		building.render(S_RANDY);
+
+	startGuiFrame();
+
+
+	std::vector<GuiElement> guiElems =
+	{
+		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},
+		{"Octree",	std::string("OCT hull count " + std::to_string(_octree.getHullCount()))},
+		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
+		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
+	};
+	renderGuiElems(guiElems);
+
+
+	UINT structureIndex;
+	if (_tdgui.renderBuildingPalette(structureIndex))
+	{
+		_templateBuilding = _buildable[structureIndex];
+		_inBuildingMode = true;
+	}
+
+
+	if (_selectedBuilding != nullptr)
+	{
+		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
+		{
+			_selectedBuilding = nullptr;
+		}
+	}
+
+	
+	_eco.renderEconomyWidget();
+
+	endGuiFrame();
+
+	rc.d3d->EndScene();
+}
+
+
+//cull and add to render queue
 void TDLevel::cull(const RenderContext& rc)
 {
 	numCulled = 0;
@@ -373,13 +374,13 @@ void TDLevel::cull(const RenderContext& rc)
 	const SVec3 v3c(v._13, v._23, v._33);
 	const SVec3 camPos = rc.cam->GetPosition();
 
+	float zDepth;
 
-	//cull and add to render queue
 	for (int i = 0; i < _creeps.size(); ++i)
 	{
 		if (Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(0))))
 		{
-			float zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
+			zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : _creeps[i].renderables)
 			{
 				r.zDepth = zDepth;
@@ -394,6 +395,17 @@ void TDLevel::cull(const RenderContext& rc)
 }
 
 
+///whatever this is... don't need it really
+void TDLevel::demolish()
+{
+	finished = true;
+}
+
+
+
+
+
+///Currently unused, yet useful, code
 /* old sphere placement, it's here because it's rad
 for (int i = 0; i < 125; ++i)
 {
@@ -435,4 +447,11 @@ for (int i = 0; i < tempBoxes.size(); ++i)
 shady.instanced.UpdateInstanceData(octNodeMatrices);
 octNodeMatrices.clear();
 tempBoxes.clear();
+#endif
+
+
+#ifdef DEBUG_OCTREE
+shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
+debugModel.DrawInstanced(context, shady.instanced);
+shady.instanced.ReleaseShaderParameters(context);
 #endif

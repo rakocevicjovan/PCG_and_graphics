@@ -57,8 +57,8 @@ private:
 
 	//gameplay
 	void addBuildables();
-	void addBuildable(Building* b);
-	void selectBuildingToBuild(Building* b);
+	void fixBuildable(Building* b);
+	void build();
 	void rayPickTerrain(const Camera* cam);
 	Building* rayPickBuildings(const Camera* cam);
 	void handleInput(const Camera* cam);	//involves ray picking, so we need this
@@ -72,11 +72,18 @@ private:
 	Building* _selectedBuilding = nullptr;
 	bool _inBuildingMode = false;
 
-	std::vector<Enemy> _creeps;
+	//this pretty much stays the same
 	std::vector<Building*> _buildable;
 
-	std::list<MartialBuilding*> _towers;
-	std::list<Building> _structures;
+	//separate lists as they will behave differently
+	std::list<MartialBuilding> _towers;
+	std::list<IndustrialBuilding> _industry;
+
+	//the master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
+	std::list<Building*> _structures;
+
+	//changes per wave
+	std::vector<Enemy> _creeps;
 	
 	Economy _eco;
 };

@@ -7,7 +7,8 @@ class Actor;
 class Collider
 {
 protected:
-	std::vector<Hull*> _hulls;	//this could be templated... unless I need various hulls within a collider (it's likely)
+	//this could be templated... unless I need various hulls within a collider (it's likely)
+	std::vector<Hull*> _hulls;	
 
 public:
 	BoundingVolumeType BVT;

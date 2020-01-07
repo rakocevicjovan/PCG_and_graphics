@@ -30,4 +30,9 @@ public:
 	{
 		_hp -= damage;
 	};
+
+	void revive()
+	{
+		_hp = _maxHp;
+	}
 };

@@ -32,6 +32,7 @@ struct TransientWidget : public Widget
 class TDGUI
 {
 	std::vector<BuildingGuiDef> _buildingGuiDefs;
+
 	std::map<std::string, Widget*> _widgets;
 	std::map<std::string, TransientWidget*> _transients;
 
@@ -44,10 +45,12 @@ public:
 		_buildingGuiDefs.push_back({towerDesc, towerName, towerIcon});
 	}
 
+
 	void addBuildingGuiDef(const BuildingGuiDef& guiDef)
 	{
 		_buildingGuiDefs.push_back(guiDef);
 	}
+
 
 	void init(const ImVec2& pos, const ImVec2& size)
 	{
@@ -114,11 +117,11 @@ public:
 	}
 
 
-
 	void makeTransientWidget()
 	{
 		//_transients.push_back();
 	}
+
 
 	//allows creating widgets on the fly, some are static to avoid map searches as they always exist
 	bool createWidget(const ImVec2& pos, const ImVec2& size, const std::string& name)

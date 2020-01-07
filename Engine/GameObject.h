@@ -22,18 +22,16 @@ public:
 class Actor : public GameObject
 {
 private:
-	void copyShenanigans(const Actor& other);
-
+	//void copyShenanigans(const Actor& other);
+	
 public:
 	Actor() : _steerComp(this) {};
 	Actor(Model* model, SMatrix& transform = SMatrix());
-	virtual ~Actor()
-	{
-		/*delete _collider;*/
-	};
-
 	Actor(const Actor& other);
+	virtual ~Actor();
+	
 	//void operator=(const Actor& other);	I think this is ok as a shallow assignment by default...
+	//virtual Actor* Clone() const;
 
 	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
 
