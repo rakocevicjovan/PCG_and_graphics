@@ -29,6 +29,11 @@ public:
 		_elapsed = 0.f;
 		_guiDef = b._guiDef;
 	}
+
+	virtual Building* clone() const
+	{
+		return new Building(*this);
+	}
 };
 
 
@@ -46,7 +51,11 @@ public:
 		_rangeSq = _range * _range;
 	}
 
-	//MartialBuilding();
+	virtual MartialBuilding* clone() const override
+	{
+		return new MartialBuilding(*this);
+	}
+
 
 	float _range = 30.f;
 	float _rangeSq;
@@ -73,6 +82,11 @@ public:
 		const BuildingGuiDef& guiDef, const Income& inc)
 		: Building(actor, name, type, guiDef), _income(inc)
 	{}
+
+	virtual IndustrialBuilding* clone() const override
+	{
+		return new IndustrialBuilding(*this);
+	}
 
 
 	//starts by default, no biggie regardless

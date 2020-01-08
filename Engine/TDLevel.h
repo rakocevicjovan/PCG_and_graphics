@@ -68,8 +68,8 @@ private:
 	TDController _tdController;
 	TDGUI _tdgui;
 
-	Building* _templateBuilding = nullptr;
-	Building* _selectedBuilding = nullptr;
+	Building* _templateBuilding = nullptr;	//not owning
+	Building* _selectedBuilding = nullptr;	//not owning
 	bool _inBuildingMode = false;
 
 	//this pretty much stays the same

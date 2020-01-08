@@ -47,7 +47,8 @@ void TDLevel::init(Systems& sys)
 		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
-		_creeps.emplace_back(S_RESMAN.getByName<Model>("FlyingMage"), SMatrix::CreateTranslation(pos));
+		_creeps.emplace_back(S_RESMAN.getByName<Model>("FlyingMage"), 
+			SMatrix::CreateScale(2.f) * SMatrix::CreateTranslation(pos));
 		
 		for (Renderable& r : _creeps[i].renderables)
 		{
@@ -62,6 +63,11 @@ void TDLevel::init(Systems& sys)
 	//Add building types... again, could make data driven...
 	addBuildables();
 
+	/*for (int i = 0; i < 50; i++)
+	{
+		_towers.push_back(MartialBuilding(*(MartialBuilding*)_buildable[0]));
+	}*/
+	
 
 	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);
@@ -139,6 +145,7 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 
+	//for 50 towers and 100 units takes 5-6 ms
 	for (MartialBuilding tower : _towers)
 	{
 		for (Enemy& creep : _creeps)
@@ -236,35 +243,45 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 
 	float minDist = 9999999.f;
 
+	SphereHull* closest = nullptr;
+
 	for (SphereHull* s : sps)
 	{
-		if ((s->ctr - cam->GetPosition()).LengthSquared() < minDist)
+		float dist = (s->ctr - cam->GetPosition()).LengthSquared();
+		if (dist < minDist)
 		{
-			b = dynamic_cast<Building*>(s->_collider->parent);	//b = reinterpret_cast<Building*>(s->_collider->parent);
+			closest = s;
+			minDist = dist;
 		}
 	}
+
+	if(closest)
+		b = dynamic_cast<Building*>(closest->_collider->parent);
 
 	return b;
 }
 
 
-//@TODO awful syntax but I want to enforce the copy constructor deep copying the stuff...
+//awful syntax but I want to enforce the copy constructor deep copying the stuff...
+//BE CAREFUL ABOUT DELETING BUILDINGS! _structures holds non owning pointers, which must be removed!
 void TDLevel::build()
 {
-	//_structures.push_back(new Building(*_templateBuilding));
-
+	//could use traits to infer the type but it's not really an issue with only two types... what better way?
+	//single array idea could make shooting worse with longer iterations...
 	if (_templateBuilding->_type == BuildingType::MARTIAL)
 	{
-		_towers.push_back( MartialBuilding(*(MartialBuilding*)_templateBuilding) );
-		_octree.insertObject((SphereHull*)_towers.back()._collider.getHull(0));
+		_towers.push_back( MartialBuilding(*(MartialBuilding*)_templateBuilding->clone()) );
+		_structures.push_back(&_towers.back());
 	}
 	else
 	{
-		_industry.push_back(IndustrialBuilding(*(IndustrialBuilding*)_templateBuilding));
-		_octree.insertObject((SphereHull*)_industry.back()._collider.getHull(0));
+		_industry.push_back(IndustrialBuilding(*(IndustrialBuilding*)_templateBuilding->clone()));
+		_structures.push_back(&_industry.back());
 	}
+	_octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
 
 	_inBuildingMode = false;
+	_templateBuilding = nullptr;
 }
 
 
@@ -273,7 +290,7 @@ void TDLevel::steerEnemies(float dTime)
 {
 	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
 	SVec2 stopArea(sqrt(_creeps.size()));
-	stopArea *= 3.f;
+	stopArea *= 9.f;
 	float stopDistance = stopArea.Length();
 
 	for (int i = 0; i < _creeps.size(); ++i)
@@ -286,7 +303,7 @@ void TDLevel::steerEnemies(float dTime)
 		if (_creeps[i]._steerComp._active)
 		{
 			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
-			_octree.findWithin(_creeps[i].getPosition(), 4.f, neighbourCreeps);
+			_octree.findWithin(_creeps[i].getPosition(), 5.f, neighbourCreeps);
 			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreeps, i, stopDistance);
 		}
 
@@ -322,11 +339,14 @@ void TDLevel::draw(const RenderContext& rc)
 	if (_inBuildingMode)
 		_templateBuilding->render(S_RANDY);
 
-	for (IndustrialBuilding building : _industry)
+	/*for (IndustrialBuilding building : _industry)
 		building.render(S_RANDY);
 
 	for (MartialBuilding building : _towers)
-		building.render(S_RANDY);
+		building.render(S_RANDY);*/
+
+	for (Building* building : _structures)
+		building->render(S_RANDY);
 
 	startGuiFrame();
 

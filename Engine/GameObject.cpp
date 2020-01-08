@@ -16,7 +16,7 @@ Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(tra
 		renderables.back().worldTransform = transform * mesh.transform;
 		renderables.back().mat = &mesh._baseMaterial;
 
-		_collider.addHull(new SphereHull(mesh.transform.Translation(), 1.f));		//@TODO see what to do about this
+		_collider.addHull(new SphereHull(mesh.transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
 	}
 }
 
@@ -34,6 +34,7 @@ void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
 
 Actor::Actor(const Actor& other) : _steerComp(other._steerComp)
 {
+	transform = other.transform;
 	_collider = other._collider;
 	_collider.clearHullsNoDelete();
 

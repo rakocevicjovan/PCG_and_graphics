@@ -36,8 +36,8 @@ public:
 		int creepsCell = navGrid.posToCellIndex(myPos);
 		SVec3 flowVector = navGrid.flowAtIndex(creepsCell);
 		
-		//SVec3 obstacleCorrection = navGrid.flowObstacleCorrection(myPos);
-		//flowVector += 5.f * obstacleCorrection;
+		SVec3 obstacleCorrection = navGrid.flowObstacleCorrection(myPos);
+		flowVector += 1.f * obstacleCorrection;
 
 		SVec3 goalPos = navGrid.cellIndexToPos(navGrid.getGoalIndex());
 		SVec3 vecToGoal = myPos - goalPos;

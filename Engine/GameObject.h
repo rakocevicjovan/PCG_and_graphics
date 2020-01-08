@@ -39,7 +39,7 @@ public:
 
 	SMatrix transform;
 	std::vector<Renderable> renderables;
-	Collider _collider;				//make it a unique ptr later, safer...
+	Collider _collider;
 	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const { return transform.Translation(); }
