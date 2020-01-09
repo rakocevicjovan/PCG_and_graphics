@@ -169,20 +169,9 @@ public:
 
 
 	
-	SVec3 snapToCell(const SVec3& pos)
+	inline SVec3 snapToCell(const SVec3& pos) const
 	{
-		SVec3 result;
-
-		SVec3 adjPos = pos - _offset;
-
-		int row = floor(adjPos.z * _invCellSize.y);
-		int column = floor(adjPos.x * _invCellSize.x);
-
-		//SVec2 offset = pos - SVec2(row * _cellSize.x, column * _cellSize.y);
-
-		result = cellIndexToPos(row * _w + column);
-
-		return result;
+		return cellIndexToPos(posToCellIndex(pos));
 	}
 
 

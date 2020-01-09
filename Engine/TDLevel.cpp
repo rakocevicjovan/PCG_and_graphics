@@ -44,11 +44,15 @@ void TDLevel::init(Systems& sys)
 	_creeps.reserve(NUM_ENEMIES);
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
-		//float offset = (i % 10) * ((i % 2) * 2 - 1);
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
-		_creeps.emplace_back(S_RESMAN.getByName<Model>("FlyingMage"), 
-			SMatrix::CreateScale(2.f) * SMatrix::CreateTranslation(pos));
+		_creeps.emplace_back(
+			S_RESMAN.getByName<Model>("FlyingMage"), 
+			SMatrix::CreateScale(2.f) * SMatrix::CreateTranslation(pos),
+			100.f, 50.f, 1.1f, 0.9f
+		);
+
+		_creeps[i]._steerComp._mspeed = 40.f;
 		
 		for (Renderable& r : _creeps[i].renderables)
 		{
@@ -79,7 +83,7 @@ void TDLevel::init(Systems& sys)
 void TDLevel::addBuildables()
 {
 	_buildable.reserve(2);
-	Building* b = new MartialBuilding(
+	Building* b = new Tower(
 		Actor(S_RESMAN.getByName<Model>("GuardTower")),
 		"Guard tower",
 		BuildingType::MARTIAL,
@@ -87,8 +91,7 @@ void TDLevel::addBuildables()
 			"Guard tower is a common, yet powerful defensive building.",
 			"Guard tower",
 			S_RESMAN.getByName<Texture>("guard_tower")->srv),
-		100.f,
-		100.f
+		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
 	fixBuildable(b);
@@ -145,19 +148,37 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 
-	//for 50 towers and 100 units takes 5-6 ms
-	for (MartialBuilding tower : _towers)
+	
+	Attack a;
+	//for 50 towers and 100 units takes 5-6 ms in debug mode, game has great fps in release idm that
+	for (Tower& tower : _towers)
 	{
+		tower.advanceCooldown(rc.dTime);
+
 		for (Enemy& creep : _creeps)
 		{
-			if (tower.inRange(creep.getPosition()))
+			if (tower.shoot(creep.getPosition(), a))
 			{
-				creep.receiveDamage(tower._damage * rc.dTime);
+				creep.receiveDamage(resolveAttack(a, creep._arm));
+				continue;
 			}
 		}
 	}
 
 	cull(rc);
+}
+
+
+
+//really simple for now, don't need more
+float TDLevel::resolveAttack(const Attack& att, const Armour& arm)
+{
+	float result = att._damage;
+	float armMultiplier = att._type == Attack::AttackType::PHYS ? arm._physArmour : arm._magicArmour;
+	float flatPen = att._flatPen;
+
+	//attack's penetration value simply changes the multiplier, no fancy math needed
+	return result * (armMultiplier + flatPen);
 }
 
 
@@ -192,17 +213,7 @@ void TDLevel::handleInput(const Camera* cam)
 
 			if (_inBuildingMode)
 			{
-				if (_navGrid.tryAddObstacle(_templateBuilding->getPosition()))
-				{
-					AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
-					_navGrid.fillFlowField();
-
-					build();	///BUILD
-				}
-				else
-				{
-					//detected path blocking, can't build, pop some gui warning etc...
-				}
+				build();
 			}
 			else	//select an existing building
 			{
@@ -266,22 +277,34 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 //BE CAREFUL ABOUT DELETING BUILDINGS! _structures holds non owning pointers, which must be removed!
 void TDLevel::build()
 {
-	//could use traits to infer the type but it's not really an issue with only two types... what better way?
-	//single array idea could make shooting worse with longer iterations...
-	if (_templateBuilding->_type == BuildingType::MARTIAL)
+	if (_navGrid.tryAddObstacle(_templateBuilding->getPosition()))
 	{
-		_towers.push_back( MartialBuilding(*(MartialBuilding*)_templateBuilding->clone()) );
-		_structures.push_back(&_towers.back());
+		AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
+		_navGrid.fillFlowField();
+
+		if (_templateBuilding->_type == BuildingType::MARTIAL)
+		{
+			_towers.push_back(Tower(*(Tower*)_templateBuilding->clone()));
+			_structures.push_back(&_towers.back());
+		}
+		else
+		{
+			_industry.push_back(IndustrialBuilding(*(IndustrialBuilding*)_templateBuilding->clone()));
+			_structures.push_back(&_industry.back());
+		}
+		_octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
+
+		_inBuildingMode = false;
+		_templateBuilding = nullptr;
+
 	}
 	else
 	{
-		_industry.push_back(IndustrialBuilding(*(IndustrialBuilding*)_templateBuilding->clone()));
-		_structures.push_back(&_industry.back());
+		//detected path blocking, can't build, pop some gui warning etc...
 	}
-	_octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
-
-	_inBuildingMode = false;
-	_templateBuilding = nullptr;
+	//could use traits to infer the type but it's not really an issue with only two types... what better way?
+	//single array idea could make shooting worse with longer iterations...
+	
 }
 
 

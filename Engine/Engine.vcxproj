@@ -258,6 +258,7 @@
     <ClCompile Include="Voronoi.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Animator.h" />
@@ -376,6 +377,7 @@
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
     <ClInclude Include="ToolGUI.h" />
+    <ClInclude Include="Tower.h" />
     <ClInclude Include="Volumetric.h" />
     <ClInclude Include="VolumetricScreen.h" />
     <ClInclude Include="Voronoi.h" />

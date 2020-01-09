@@ -731,6 +731,12 @@
     <ClInclude Include="Enemy.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
+    <ClInclude Include="Affliction.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="Tower.h">
+      <Filter>TowerDefense</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

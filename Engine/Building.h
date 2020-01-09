@@ -39,38 +39,6 @@ public:
 
 
 
-
-class MartialBuilding : public Building
-{
-public:
-
-	MartialBuilding(const Actor& actor, const std::string& name, BuildingType type, 
-		const BuildingGuiDef& guiDef, float range, float damage)
-		: Building(actor, name, type, guiDef), _range(range), _damage(damage)
-	{
-		_rangeSq = _range * _range;
-	}
-
-	virtual MartialBuilding* clone() const override
-	{
-		return new MartialBuilding(*this);
-	}
-
-
-	float _range = 30.f;
-	float _rangeSq;
-	float _damage = 1.f;
-
-	inline bool inRange(const SVec3& enemyPos) const
-	{
-		return ((enemyPos - getPosition() ).LengthSquared() < _rangeSq);
-	}
-};
-
-
-
-
-
 class IndustrialBuilding : public Building
 {
 	Income _income;
@@ -82,11 +50,6 @@ public:
 		const BuildingGuiDef& guiDef, const Income& inc)
 		: Building(actor, name, type, guiDef), _income(inc)
 	{}
-
-	virtual IndustrialBuilding* clone() const override
-	{
-		return new IndustrialBuilding(*this);
-	}
 
 
 	//starts by default, no biggie regardless
@@ -115,5 +78,11 @@ public:
 			_elapsed = fmodf(_elapsed, _income._tickDuration);
 			incomeLedger.push_back(_income);
 		}
+	}
+
+
+	virtual IndustrialBuilding* clone() const override
+	{
+		return new IndustrialBuilding(*this);
 	}
 };

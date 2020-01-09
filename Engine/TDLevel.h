@@ -11,6 +11,7 @@
 #include "TDGUI.h"
 #include "Economy.h"
 #include "Building.h"
+#include "Tower.h"
 #include "Enemy.h"
 
 
@@ -63,6 +64,7 @@ private:
 	Building* rayPickBuildings(const Camera* cam);
 	void handleInput(const Camera* cam);	//involves ray picking, so we need this
 	void steerEnemies(float dTime);
+	float resolveAttack(const Attack& att, const Armour& arm);
 
 
 	TDController _tdController;
@@ -76,7 +78,7 @@ private:
 	std::vector<Building*> _buildable;
 
 	//separate lists as they will behave differently
-	std::list<MartialBuilding> _towers;
+	std::list<Tower> _towers;
 	std::list<IndustrialBuilding> _industry;
 
 	//the master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
