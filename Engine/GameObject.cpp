@@ -3,10 +3,9 @@
 
 
 
-Actor::Actor(Model* model, SMatrix& transform) : _steerComp(this), transform(transform)
+Actor::Actor(Model* model, SMatrix& transform) 
+	: _steerComp(this), transform(transform), _collider(Collider(BoundingVolumeType::BVT_SPHERE, this, true))
 {
-	_collider = Collider(BoundingVolumeType::BVT_SPHERE, this, true);
-
 	renderables.reserve(model->meshes.size());
 
 	for (Mesh& mesh : model->meshes)
@@ -32,11 +31,10 @@ void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
 }
 
 
-Actor::Actor(const Actor& other) : _steerComp(other._steerComp)
+Actor::Actor(const Actor& other) 
+	: _steerComp(other._steerComp), _collider(Collider(other._collider.BVT, this, other._collider.dynamic))
 {
 	transform = other.transform;
-	_collider = other._collider;
-	_collider.clearHulls();
 
 	for (Hull* sp : other._collider.getHulls())
 		_collider.addHull(new SphereHull(sp->getPosition(), sp->getExtent()));

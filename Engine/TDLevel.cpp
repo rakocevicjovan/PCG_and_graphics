@@ -148,23 +148,25 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 	
-	Attack a;
-	//for 50 towers and 100 units takes 5-6 ms in debug mode, game has great fps in release idm that
+	//could use octree if that will help it go faster...
 	for (Tower& tower : _towers)
 	{
 		tower.advanceCooldown(rc.dTime);
 
-		if (!tower.readyToFire())
+		if (!tower.readyToFire())	//exit early per tower, no need to check anything, tower not ready
 			continue;
 
 		for (Enemy& creep : _creeps)
 		{
-			if (!tower.inRange(creep.getPosition()) || creep.isDead())
+			if (creep.isDead())	//exit early per creep with cheapest option
+				continue; 
+
+			if (!tower.inRange(creep.getPosition()))	//exit early per creep, less cheap but still all right
 				continue;
 			
-			tower.shoot(creep.getPosition(), a);
-			creep.receiveDamage(120);	//creep.receiveDamage(resolveAttack(a, creep._arm));
-			break;
+			creep.receiveDamage(resolveAttack(tower.shoot(), creep._arm));
+
+			break;	//we managed to shoot, it will be on CD, just break immediately
 		}
 	}
 
@@ -294,10 +296,12 @@ void TDLevel::build()
 		}
 		else
 		{
-			//_industry.push_back(IndustrialBuilding(*static_cast<IndustrialBuilding*>(_templateBuilding->clone())));
-			_industry.push_back(*static_cast<IndustrialBuilding*>(_templateBuilding->clone()));
+			IndustrialBuilding* ib = static_cast<IndustrialBuilding*>(_templateBuilding->clone());
+			_industry.push_back(*ib);
+			delete ib;
 			_structures.push_back(&_industry.back());
 		}
+
 		_octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
 
 		_inBuildingMode = false;
@@ -368,12 +372,6 @@ void TDLevel::draw(const RenderContext& rc)
 	if (_inBuildingMode)
 		_templateBuilding->render(S_RANDY);
 
-	/*for (IndustrialBuilding building : _industry)
-		building.render(S_RANDY);
-
-	for (MartialBuilding building : _towers)
-		building.render(S_RANDY);*/
-
 	for (Building* building : _structures)
 		building->render(S_RANDY);
 
@@ -402,22 +400,16 @@ void TDLevel::draw(const RenderContext& rc)
 	{
 		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
 		{
-			/*if (_selectedBuilding->_type == BuildingType::MARTIAL)
-			{
+			/* @TODO add a == sign... also this sucks big time its gonna compare them all, best not do it this way
+			if (_selectedBuilding->_type == BuildingType::MARTIAL)
 				_towers.remove(*static_cast<Tower*>(_selectedBuilding));
-			}
 			else
-			{
-				_industry.remove(*static_cast<IndustrialBuilding*>(_selectedBuilding));
-			}*/
-			
-			if (_structures.front() == _selectedBuilding)
-			{
-				_structures.remove(_selectedBuilding);
-				_selectedBuilding = nullptr;
-			}
-			
+				_industry.remove(*static_cast<IndustrialBuilding*>(_selectedBuilding));}
+			*/
 
+			//this works now, silly error where collider kept its old parent because of a bad copy constructor!
+			_structures.remove(_selectedBuilding);
+			_selectedBuilding = nullptr;
 		}
 	}
 

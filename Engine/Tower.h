@@ -48,13 +48,11 @@ public:
 	}
 
 
-	//performs inRange() check internally
-	inline void shoot(const SVec3& enemyPos, Attack& attack)
+	//returns the attack type, resets the shot cooldown to full
+	inline Attack& shoot()
 	{
 		_sinceShot = 0.f;
-		attack = _attack;
-
-		return;
+		return _attack;
 	}
 
 	
