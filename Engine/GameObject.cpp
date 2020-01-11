@@ -36,7 +36,7 @@ Actor::Actor(const Actor& other) : _steerComp(other._steerComp)
 {
 	transform = other.transform;
 	_collider = other._collider;
-	_collider.clearHullsNoDelete();
+	_collider.clearHulls();
 
 	for (Hull* sp : other._collider.getHulls())
 		_collider.addHull(new SphereHull(sp->getPosition(), sp->getExtent()));

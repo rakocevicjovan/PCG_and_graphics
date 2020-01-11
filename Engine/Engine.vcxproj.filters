@@ -111,6 +111,9 @@
     <Filter Include="Old levels\Strife">
       <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TowerDefense\Buildings">
+      <UniqueIdentifier>{3a84d31f-b925-429e-9d0a-695dfe515ee3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -722,9 +725,6 @@
     <ClInclude Include="ScreenSpaceDrawer.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
-    <ClInclude Include="Building.h">
-      <Filter>TowerDefense</Filter>
-    </ClInclude>
     <ClInclude Include="BuildingGuiDef.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
@@ -734,8 +734,14 @@
     <ClInclude Include="Affliction.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
+    <ClInclude Include="Building.h">
+      <Filter>TowerDefense\Buildings</Filter>
+    </ClInclude>
     <ClInclude Include="Tower.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>TowerDefense\Buildings</Filter>
+    </ClInclude>
+    <ClInclude Include="IndustrialBuilding.h">
+      <Filter>TowerDefense\Buildings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

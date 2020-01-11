@@ -33,12 +33,6 @@ namespace Strife
 		void procGen();
 		void update(const RenderContext& rc);
 		void draw(const RenderContext& rc);
-
-		void demolish()
-		{
-			this->~StrifeLevel();
-		};
-
 		
 		ID3D11ShaderResourceView* baseSrv;
 		ID3D11ShaderResourceView* fineSrv;

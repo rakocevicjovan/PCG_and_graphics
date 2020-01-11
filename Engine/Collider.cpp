@@ -3,13 +3,20 @@
 #include "GameObject.h"
 
 
-void Collider::ReleaseMemory()
+void Collider::releaseMemory()
 {
 	for (Hull* hull : _hulls)
 	{
 		delete hull;
 		hull = nullptr;
 	}
+}
+
+
+void Collider::deleteAndClearHulls()
+{
+	releaseMemory();
+	_hulls.clear();
 }
 
 

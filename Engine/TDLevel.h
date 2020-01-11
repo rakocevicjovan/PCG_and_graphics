@@ -7,10 +7,12 @@
 #include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
-#include "TDController.h"	//#include "RTSController.h" flawed idea...
+
+//game specific
+#include "TDController.h"
 #include "TDGUI.h"
 #include "Economy.h"
-#include "Building.h"
+#include "IndustrialBuilding.h"
 #include "Tower.h"
 #include "Enemy.h"
 
@@ -24,7 +26,7 @@ public:
 	void init(Systems& sys) override;
 	void update(const RenderContext& rc) override;
 	void draw(const RenderContext& rc) override;
-	void demolish();
+	void freeLevelMemory();
 
 private:
 
@@ -74,10 +76,11 @@ private:
 	Building* _selectedBuilding = nullptr;	//not owning
 	bool _inBuildingMode = false;
 
-	//this pretty much stays the same
+
+	//hmmm
 	std::vector<Building*> _buildable;
 
-	//separate lists as they will behave differently
+	//separate lists as they will behave differently?
 	std::list<Tower> _towers;
 	std::list<IndustrialBuilding> _industry;
 

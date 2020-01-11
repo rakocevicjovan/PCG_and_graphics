@@ -193,7 +193,7 @@ public:
 			}
 			else
 			{
-				removeObstacle(obstacleCellIndex, backUp);
+				cancelObstacle(obstacleCellIndex, backUp);
 				return false;
 			}
 		}
@@ -364,7 +364,6 @@ private:
 
 		for (int edgeIndex : _cells[index].edges)
 		{
-			//_edges[edgeIndex].weight = (std::numeric_limits<float>::max)(); // hmmm, maybe?
 			backUp.push_back(std::make_pair(edgeIndex, _edges[edgeIndex].active));
 			_edges[edgeIndex].active = false;	//prevents deleting in the vector... list is slower to iterate so this!
 		}
@@ -377,7 +376,7 @@ private:
 	}
 
 
-	void removeObstacle(int index, const std::list<std::pair<int, bool>>& backUp)
+	void cancelObstacle(int index, const std::list<std::pair<int, bool>>& backUp)
 	{
 		_cells[index].obstructed = false;
 
@@ -388,8 +387,67 @@ private:
 	}
 
 
+	//can't think of a better way... big lengthy but simple to understand, same logic as restricting paths
+	void removeObstacle(int index)
+	{
+		if (!_cells[index].obstructed)
+			return;
+
+		UINT row = floor(index / _w);
+		UINT column = index % _w;
+
+		UINT li = index - 1;
+		UINT bi = index - _w;
+		UINT ri = index + 1;
+		UINT ti = index + _w;
+
+		//whether the cell exists (not on edge) and is traversable
+		bool hasLeft =		column	> 0			&& !_cells[li].obstructed;
+		bool hasBottom =	row		> 0			&& !_cells[bi].obstructed;
+		bool hasRight =		column	< _w - 1	&& !_cells[ri].obstructed;
+		bool hasTop =		row		< _h - 1	&& !_cells[ti].obstructed;
+
+		if (hasLeft)
+		{
+			_edges[edgeIndexBetweenCells(index, li)].active = true;
+
+			if(hasBottom)
+				_edges[edgeIndexBetweenCells(bi - 1, index)].active = true;
+		}
+			
+
+		if (hasBottom)
+		{
+			_edges[edgeIndexBetweenCells(index, bi)].active = true;
+
+			if (hasRight)
+				_edges[edgeIndexBetweenCells(bi + 1, index)].active = true;
+		}
+			
+
+		if (hasRight)
+		{
+			_edges[edgeIndexBetweenCells(index, ri)].active = true;
+
+			if(hasTop)
+				_edges[edgeIndexBetweenCells(ti + 1, index)].active = true;
+		}
+			
+
+		if (hasTop)
+		{
+			_edges[edgeIndexBetweenCells(index, ti)].active = true;
+
+			if(hasLeft)
+				_edges[edgeIndexBetweenCells(ti - 1, index)].active = true;
+		}
+
+		return;
+	}
+
+
 	//returns the index of the edge connecting the cells at the two provided indices, returns -1 if none found
-	int getEdgeIndexFromCells(UINT first, UINT second)
+	int edgeIndexBetweenCells(UINT first, UINT second)
 	{
 		for (auto index : _cells[first].edges)
 		{
@@ -403,7 +461,7 @@ private:
 
 	void obstructEdgeBetween(UINT c1, UINT c2, std::list<std::pair<int, bool>>& backUpList)
 	{
-		int edgeIndex = getEdgeIndexFromCells(c1, c2);
+		int edgeIndex = edgeIndexBetweenCells(c1, c2);
 		backUpList.push_back(std::make_pair(edgeIndex, _edges[edgeIndex].active));
 		_edges[edgeIndex].active = false;
 	}

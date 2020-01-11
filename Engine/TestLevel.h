@@ -16,7 +16,6 @@ public:
 	void init(Systems& sys) override;
 	void update(const RenderContext& rc) override;
 	void draw(const RenderContext& rc) override;
-	void demolish() { this->~SkelAnimTestLevel(); };
 
 private:
 

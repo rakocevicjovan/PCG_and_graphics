@@ -272,6 +272,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
+    <ClInclude Include="IndustrialBuilding.h" />
     <ClInclude Include="InputContext.h" />
     <ClInclude Include="InputConstants.h" />
     <ClInclude Include="InputMapper.h" />

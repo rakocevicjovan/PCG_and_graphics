@@ -21,6 +21,4 @@ public:
 
 		rc.d3d->EndScene();
 	}
-
-	void demolish() override { _sys._inputManager.toggleMouseMode(); }
 };

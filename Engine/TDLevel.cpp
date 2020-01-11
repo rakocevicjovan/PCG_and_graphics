@@ -117,7 +117,7 @@ void TDLevel::fixBuildable(Building* b)
 	_buildable.push_back(b);
 
 	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
-	_buildable.back()->_collider.clearHulls();
+	_buildable.back()->_collider.deleteAndClearHulls();
 	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
 	_buildable.back()->_collider.parent = _buildable.back();
 
@@ -147,7 +147,6 @@ void TDLevel::update(const RenderContext& rc)
 	}
 
 	handleInput(rc.cam);
-
 	
 	Attack a;
 	//for 50 towers and 100 units takes 5-6 ms in debug mode, game has great fps in release idm that
@@ -155,13 +154,17 @@ void TDLevel::update(const RenderContext& rc)
 	{
 		tower.advanceCooldown(rc.dTime);
 
+		if (!tower.readyToFire())
+			continue;
+
 		for (Enemy& creep : _creeps)
 		{
-			if (tower.shoot(creep.getPosition(), a))
-			{
-				creep.receiveDamage(resolveAttack(a, creep._arm));
+			if (!tower.inRange(creep.getPosition()) || creep.isDead())
 				continue;
-			}
+			
+			tower.shoot(creep.getPosition(), a);
+			creep.receiveDamage(120);	//creep.receiveDamage(resolveAttack(a, creep._arm));
+			break;
 		}
 	}
 
@@ -284,12 +287,15 @@ void TDLevel::build()
 
 		if (_templateBuilding->_type == BuildingType::MARTIAL)
 		{
-			_towers.push_back(Tower(*(Tower*)_templateBuilding->clone()));
+			Tower* t = static_cast<Tower*>(_templateBuilding->clone());
+			_towers.push_back(*t);
+			delete t;
 			_structures.push_back(&_towers.back());
 		}
 		else
 		{
-			_industry.push_back(IndustrialBuilding(*(IndustrialBuilding*)_templateBuilding->clone()));
+			//_industry.push_back(IndustrialBuilding(*static_cast<IndustrialBuilding*>(_templateBuilding->clone())));
+			_industry.push_back(*static_cast<IndustrialBuilding*>(_templateBuilding->clone()));
 			_structures.push_back(&_industry.back());
 		}
 		_octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
@@ -396,7 +402,22 @@ void TDLevel::draw(const RenderContext& rc)
 	{
 		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
 		{
-			_selectedBuilding = nullptr;
+			/*if (_selectedBuilding->_type == BuildingType::MARTIAL)
+			{
+				_towers.remove(*static_cast<Tower*>(_selectedBuilding));
+			}
+			else
+			{
+				_industry.remove(*static_cast<IndustrialBuilding*>(_selectedBuilding));
+			}*/
+			
+			if (_structures.front() == _selectedBuilding)
+			{
+				_structures.remove(_selectedBuilding);
+				_selectedBuilding = nullptr;
+			}
+			
+
 		}
 	}
 
@@ -439,7 +460,7 @@ void TDLevel::cull(const RenderContext& rc)
 
 
 ///whatever this is... don't need it really
-void TDLevel::demolish()
+void TDLevel::freeLevelMemory()
 {
 	finished = true;
 }

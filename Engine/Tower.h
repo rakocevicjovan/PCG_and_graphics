@@ -49,18 +49,12 @@ public:
 
 
 	//performs inRange() check internally
-	inline bool shoot(const SVec3& enemyPos, Attack& attack)
+	inline void shoot(const SVec3& enemyPos, Attack& attack)
 	{
-		if (!inRange(enemyPos))
-			return false;
-
-		if (_sinceShot < _attack._cooldown)
-			return false;
-
 		_sinceShot = 0.f;
 		attack = _attack;
 
-		return true;
+		return;
 	}
 
 	
@@ -72,6 +66,8 @@ public:
 
 	const Attack& getAttack() { return _attack; }
 
+
+	bool readyToFire() { return _sinceShot >= _attack._cooldown;  }
 
 	virtual Tower* clone() const override
 	{

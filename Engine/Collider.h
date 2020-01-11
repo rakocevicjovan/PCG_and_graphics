@@ -10,6 +10,8 @@ protected:
 	//this could be templated... unless I need various hulls within a collider (it's likely)
 	std::vector<Hull*> _hulls;	
 
+	void releaseMemory();
+
 public:
 	BoundingVolumeType BVT;
 	Actor* parent;
@@ -24,42 +26,24 @@ public:
 	Collider(BoundingVolumeType type, Actor* a, bool dyn)
 		: BVT(type), parent(a), dynamic(dyn) {}
 
-	~Collider() {}
+	~Collider() { deleteAndClearHulls(); }
 
-	void addHull(Hull* hull)
+
+	inline void addHull(Hull* hull)
 	{
 		_hulls.push_back(hull);
 		_hulls.back()->_collider = this;
 	}
 
-	void clearHulls()
-	{
-		for (Hull* hull : _hulls)
-		{
-			delete hull;
-			hull = nullptr;
-		}
-
-		_hulls.clear();
-	}
-
-	void clearHullsNoDelete()
-	{
-		_hulls.clear();
-	}
-
-	Hull* getHull(UINT i) const
-	{
-		return _hulls[i];
-	}
-
-	const std::vector<Hull*>& getHulls() const
-	{
-		return _hulls;
-	}
-
-	void ReleaseMemory();
 	bool operator==(const Collider& other) const;
-	void updateHullPositions();
 	HitResult Collide(const Collider& other, SVec3& resolutionVector) const;
+
+	void updateHullPositions();
+	void deleteAndClearHulls();
+
+	inline void clearHulls() { _hulls.clear(); }
+
+	inline Hull* getHull(UINT i) const { return _hulls[i]; }
+
+	inline const std::vector<Hull*>& getHulls() const { return _hulls; }
 };
