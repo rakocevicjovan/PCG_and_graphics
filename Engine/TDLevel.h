@@ -62,6 +62,7 @@ private:
 	void addBuildables();
 	void fixBuildable(Building* b);
 	void build();
+	void demolish();
 	void rayPickTerrain(const Camera* cam);
 	Building* rayPickBuildings(const Camera* cam);
 	void handleInput(const Camera* cam);	//involves ray picking, so we need this

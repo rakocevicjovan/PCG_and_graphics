@@ -746,6 +746,9 @@
     <ClInclude Include="SlotVector.h">
       <Filter>Scene management</Filter>
     </ClInclude>
+    <ClInclude Include="PoolAllocator.h">
+      <Filter>MemoryAllocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

@@ -2,15 +2,17 @@
 #include <vector>
 #include <list>
 
-struct Handle
+
+
+struct ID
 {
-	uint32_t _index;		//over 4 billion slots, good luck running out
+	uint32_t _index;		//over 4 billion slots, good luck running out... I guess?
+	uint32_t _internal;
 };
 
 
-
-template <typename Object>
-class SlotVector
+//not implemented, do not use yet, @TODO
+template <typename Object> class SlotVector
 {
 private:
 	std::vector<Object> _vec;

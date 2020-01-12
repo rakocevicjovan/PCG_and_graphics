@@ -279,7 +279,6 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 
 
 //awful syntax but I want to enforce the copy constructor deep copying the stuff...
-//BE CAREFUL ABOUT DELETING BUILDINGS! _structures holds non owning pointers, which must be removed!
 void TDLevel::build()
 {
 	if (_navGrid.tryAddObstacle(_templateBuilding->getPosition()))
@@ -306,15 +305,32 @@ void TDLevel::build()
 
 		_inBuildingMode = false;
 		_templateBuilding = nullptr;
-
 	}
 	else
 	{
 		//detected path blocking, can't build, pop some gui warning etc...
 	}
 	//could use traits to infer the type but it's not really an issue with only two types... what better way?
-	//single array idea could make shooting worse with longer iterations...
-	
+	//single array idea could make shooting worse with longer iterations...	
+}
+
+
+void TDLevel::demolish()
+{
+	_navGrid.removeObstacle(_navGrid.posToCellIndex(_selectedBuilding->getPosition()));
+	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
+	_navGrid.fillFlowField();
+
+	_octree.removeObject((SphereHull*)_selectedBuilding->_collider.getHull(0));
+
+	// @TODO add a == sign... also this sucks big time its gonna compare them all, best not do it this way
+	if (_selectedBuilding->_type == BuildingType::MARTIAL)
+		_towers.remove(*static_cast<Tower*>(_selectedBuilding));
+	else
+		_industry.remove(*static_cast<IndustrialBuilding*>(_selectedBuilding));
+
+	_structures.remove(_selectedBuilding);
+	_selectedBuilding = nullptr;
 }
 
 
@@ -350,7 +366,6 @@ void TDLevel::steerEnemies(float dTime)
 		_creeps[i].propagate();
 	}
 }
-
 
 
 ///DRAW AND HELPERS
@@ -400,21 +415,7 @@ void TDLevel::draw(const RenderContext& rc)
 	{
 		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
 		{
-			//this works now, silly error where collider kept its old parent because of a bad copy constructor!
-			_navGrid.removeObstacle(_navGrid.posToCellIndex(_selectedBuilding->getPosition()));
-			AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
-			_navGrid.fillFlowField();
-
-			_octree.removeObject((SphereHull*)_selectedBuilding->_collider.getHull(0));
-
-			// @TODO add a == sign... also this sucks big time its gonna compare them all, best not do it this way
-			if (_selectedBuilding->_type == BuildingType::MARTIAL)
-				_towers.remove(*static_cast<Tower*>(_selectedBuilding));
-			else
-				_industry.remove(*static_cast<IndustrialBuilding*>(_selectedBuilding));
-
-			_structures.remove(_selectedBuilding);
-			_selectedBuilding = nullptr;
+			demolish();
 		}
 	}
 
