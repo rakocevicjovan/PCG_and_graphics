@@ -341,15 +341,88 @@ public:
 	}
 
 
+	//can't think of a better way... big lengthy but simple to understand, same logic as restricting paths
+	void removeObstacle(int index)
+	{
+		if (!_cells[index].obstructed)
+			return;
+
+		++_activeCellCount;
+		_cells[index].obstructed = false;
+
+		UINT row = floor(index / _w);
+		UINT column = index % _w;
+
+		UINT li = index - 1;
+		UINT bi = index - _w;
+		UINT ri = index + 1;
+		UINT ti = index + _w;
+
+		//whether the cell exists (not on edge) and is traversable
+		bool hasLeft = column > 0		&& !_cells[li].obstructed;
+		bool hasBottom = row > 0		&& !_cells[bi].obstructed;
+		bool hasRight = column < _w - 1 && !_cells[ri].obstructed;
+		bool hasTop = row < _h - 1		&& !_cells[ti].obstructed;
+
+		if (hasLeft)
+		{
+			_edges[edgeIndexBetweenCells(index, li)].active = true;
+
+			//we know that the center, left AND bottom cell are not obstructed any longer!
+			if (hasBottom)
+			{
+				_edges[edgeIndexBetweenCells(bi - 1, index)].active = true;	//enable center to bottom left
+				_edges[edgeIndexBetweenCells(li, bi)].active = true;		//enable left to bottom
+			}
+				
+		}
+
+
+		if (hasBottom)
+		{
+			_edges[edgeIndexBetweenCells(index, bi)].active = true;
+
+			if (hasRight)
+			{
+				_edges[edgeIndexBetweenCells(bi + 1, index)].active = true;
+				_edges[edgeIndexBetweenCells(bi, ri)].active = true;
+			}
+		}
+
+
+		if (hasRight)
+		{
+			_edges[edgeIndexBetweenCells(index, ri)].active = true;
+
+			if (hasTop)
+			{
+				_edges[edgeIndexBetweenCells(ti + 1, index)].active = true;
+				_edges[edgeIndexBetweenCells(ri, ti)].active = true;
+			}
+				
+		}
+
+
+		if (hasTop)
+		{
+			_edges[edgeIndexBetweenCells(index, ti)].active = true;
+
+			if (hasLeft)
+			{
+				_edges[edgeIndexBetweenCells(ti - 1, index)].active = true;
+				_edges[edgeIndexBetweenCells(ti, li)].active = true;
+			}
+				
+		}
+
+	}
+
+
 private:
 
 	//this could be sorted out better I guess... with a bool in cell or similar... @TODO if necessary
-	bool isObstacle(UINT index)
+	inline bool isObstacle(UINT index)
 	{
-		/*for (int i : _cells[index].edges)
-			if (_edges[i].active)
-				return false;
-		return true;*/
 		return _cells[index].obstructed;
 	}
 
@@ -387,65 +460,6 @@ private:
 	}
 
 
-	//can't think of a better way... big lengthy but simple to understand, same logic as restricting paths
-	void removeObstacle(int index)
-	{
-		if (!_cells[index].obstructed)
-			return;
-
-		UINT row = floor(index / _w);
-		UINT column = index % _w;
-
-		UINT li = index - 1;
-		UINT bi = index - _w;
-		UINT ri = index + 1;
-		UINT ti = index + _w;
-
-		//whether the cell exists (not on edge) and is traversable
-		bool hasLeft =		column	> 0			&& !_cells[li].obstructed;
-		bool hasBottom =	row		> 0			&& !_cells[bi].obstructed;
-		bool hasRight =		column	< _w - 1	&& !_cells[ri].obstructed;
-		bool hasTop =		row		< _h - 1	&& !_cells[ti].obstructed;
-
-		if (hasLeft)
-		{
-			_edges[edgeIndexBetweenCells(index, li)].active = true;
-
-			if(hasBottom)
-				_edges[edgeIndexBetweenCells(bi - 1, index)].active = true;
-		}
-			
-
-		if (hasBottom)
-		{
-			_edges[edgeIndexBetweenCells(index, bi)].active = true;
-
-			if (hasRight)
-				_edges[edgeIndexBetweenCells(bi + 1, index)].active = true;
-		}
-			
-
-		if (hasRight)
-		{
-			_edges[edgeIndexBetweenCells(index, ri)].active = true;
-
-			if(hasTop)
-				_edges[edgeIndexBetweenCells(ti + 1, index)].active = true;
-		}
-			
-
-		if (hasTop)
-		{
-			_edges[edgeIndexBetweenCells(index, ti)].active = true;
-
-			if(hasLeft)
-				_edges[edgeIndexBetweenCells(ti - 1, index)].active = true;
-		}
-
-		return;
-	}
-
-
 	//returns the index of the edge connecting the cells at the two provided indices, returns -1 if none found
 	int edgeIndexBetweenCells(UINT first, UINT second)
 	{
@@ -478,17 +492,17 @@ private:
 			obstructEdgeBetween(index + 1, index + _w, backUpList);
 		
 		if (row < _h - 1 && column > 0)
-			obstructEdgeBetween(index - 1, index + _w, backUpList);
+			obstructEdgeBetween(index + _w, index - 1, backUpList);
 	
 		if (row > 0 && column > 0)
 			obstructEdgeBetween(index - 1, index - _w, backUpList);
 		
 		if (row > 0 && column < _w - 1)
-			obstructEdgeBetween(index + 1, index - _w, backUpList);
+			obstructEdgeBetween(index - _w, index + 1, backUpList);
 	}
 
 
-	bool isForbidden(UINT index) const
+	inline bool isForbidden(UINT index) const
 	{
 		return (std::find(_forbiddenCells.begin(), _forbiddenCells.end(), index) != _forbiddenCells.end());
 	}

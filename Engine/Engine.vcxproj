@@ -276,6 +276,7 @@
     <ClInclude Include="InputContext.h" />
     <ClInclude Include="InputConstants.h" />
     <ClInclude Include="InputMapper.h" />
+    <ClInclude Include="SlotVector.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />

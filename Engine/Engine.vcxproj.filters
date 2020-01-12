@@ -743,6 +743,9 @@
     <ClInclude Include="IndustrialBuilding.h">
       <Filter>TowerDefense\Buildings</Filter>
     </ClInclude>
+    <ClInclude Include="SlotVector.h">
+      <Filter>Scene management</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

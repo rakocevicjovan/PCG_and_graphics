@@ -226,7 +226,10 @@ bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 
 	//it's straddling, which means it's here and not in children (so far...)
 	if (straddle)
+	{
 		pNode->hulls.remove(pSpHull);//(std::remove(pNode->hulls.begin(), pNode->hulls.end(), pSpHull));
+		return true;
+	}
 
 	if (pNode->children[index])
 		removeObjectFromNode(pNode->children[index], pSpHull);

@@ -77,15 +77,14 @@ private:
 	bool _inBuildingMode = false;
 
 
-	//hmmm
 	std::vector<Building*> _buildable;
+	//@TODO replace all three with SlotVector
 
-	//separate lists as they will behave differently?
 	std::list<Tower> _towers;
 	std::list<IndustrialBuilding> _industry;
-
-	//the master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
 	std::list<Building*> _structures;
+	//the master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
+	
 
 	//changes per wave
 	std::vector<Enemy> _creeps;

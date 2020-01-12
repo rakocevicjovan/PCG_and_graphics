@@ -31,6 +31,13 @@ public:
 		_guiDef = b._guiDef;
 	}
 
+	//this really feels like a bad idea but it's quite fast and it works since buildings can't be in the same place
+	const bool operator==(const Building& other)
+	{
+		//return ((this->getPosition() - other.getPosition()).LengthSquared() < 0.1f);
+		return std::addressof(*this) == std::addressof(other);
+	}
+
 	virtual Building* clone() const
 	{
 		return new Building(*this);

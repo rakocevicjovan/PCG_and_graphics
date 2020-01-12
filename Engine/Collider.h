@@ -26,7 +26,10 @@ public:
 	Collider(BoundingVolumeType type, Actor* a, bool dyn)
 		: BVT(type), parent(a), dynamic(dyn) {}
 
-	~Collider() { deleteAndClearHulls(); }
+	~Collider()
+	{
+		releaseMemory();
+	}
 
 
 	inline void addHull(Hull* hull)
