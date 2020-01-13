@@ -369,6 +369,9 @@
     <ClCompile Include="ScreenSpaceDrawer.cpp">
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="QuadTree.cpp">
+      <Filter>Collision\Spatial partitioning</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -748,6 +751,9 @@
     </ClInclude>
     <ClInclude Include="PoolAllocator.h">
       <Filter>MemoryAllocators</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>Collision\Spatial partitioning</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

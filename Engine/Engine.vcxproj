@@ -214,6 +214,7 @@
     <ClCompile Include="PerlinShader.cpp" />
     <ClCompile Include="ProjectLoader.cpp" />
     <ClCompile Include="ProjectPicker.cpp" />
+    <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="Renderable.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="InputConstants.h" />
     <ClInclude Include="InputMapper.h" />
     <ClInclude Include="PoolAllocator.h" />
+    <ClInclude Include="QuadTree.h" />
     <ClInclude Include="SlotVector.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
