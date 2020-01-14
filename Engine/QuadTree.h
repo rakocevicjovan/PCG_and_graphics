@@ -5,6 +5,15 @@
 
 
 
+class AABB2D
+{
+public:
+	SVec2 _min;
+	SVec2 _max;
+};
+
+
+class QTNode;
 //parent to anything we are throwing into the quadtree
 class QTObject
 {
@@ -13,22 +22,20 @@ protected:
 	QTNode* _qtNode;
 
 public:
-	QTObject() {}
 
-	void setQuadTreeNode();
+	QTObject()
+	{
+	}
+
+	void setQuadTreeNode()
+	{
+
+	}
 
 	virtual const AABB2D& getQuadTreeRect() const;
+
+
 	inline const QTNode* getQuadTreeNode() const;
-
-};
-
-
-
-class AABB2D
-{
-public:
-	SVec2 _c;
-	float _r;
 };
 
 
@@ -38,7 +45,8 @@ class QTNode
 	friend class QuadTree;
 
 protected:
-	AABB2D _rect;
+	SVec2 _c;
+	float _r;
 	std::list<QTObject*> _objects;
 	QTNode* _children[4];
 
@@ -46,12 +54,12 @@ public:
 
 	inline void setCenterAndRadius(const SVec2& ctr, float radius)
 	{
-		_rect._c = ctr;
-		_rect._r = radius;
+		_c = ctr;
+		_r = radius;
 	}
 
-	inline const SVec2& getCenter() { return _rect._c; }
-	inline float getRadius() { return _rect._r; }
+	inline const SVec2& getCenter() { return _c; }
+	inline float getRadius() { return _r; }
 
 	void setChild(uint32_t index, QTNode* pNode);
 	bool addObject(QTObject* pObj);
@@ -69,7 +77,8 @@ protected:
 
 	//std::vector<QTNode> _nodes;
 	//QTNode* _nodes;
-	uint32_t* _nodes;
+	
+	uint8_t* _nodePool;
 
 	QTNode* _levels[8];
 	float _radius;
@@ -79,14 +88,14 @@ protected:
 
 public:
 
-	bool init(float size);
+	bool create(float size);
 	void reset();
 	bool insert(QTObject* pObject);
 
 	const QTNode* cRoot() const;
 
 
-	QuadTree() : _nodes(nullptr)
+	QuadTree() : _nodePool(nullptr)
 	{}
 
 	~QuadTree()

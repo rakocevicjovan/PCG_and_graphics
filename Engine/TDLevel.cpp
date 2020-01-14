@@ -16,6 +16,10 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 ///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
+	QuadTree qt;
+
+	qt.create(100.f);
+
 	S_INMAN.registerController(&_tdController);
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
