@@ -1,42 +1,9 @@
 #pragma once
 #include "Math.h"
+#include "QTObject.h"
+#include "AABB2D.h"
 #include <list>
 #include <vector>
-
-
-
-class AABB2D
-{
-public:
-	SVec2 _min;
-	SVec2 _max;
-};
-
-
-class QTNode;
-//parent to anything we are throwing into the quadtree
-class QTObject
-{
-protected:
-
-	QTNode* _qtNode;
-
-public:
-
-	QTObject()
-	{
-	}
-
-	void setQuadTreeNode()
-	{
-
-	}
-
-	virtual const AABB2D& getQuadTreeRect() const;
-
-
-	inline const QTNode* getQuadTreeNode() const;
-};
 
 
 
@@ -92,7 +59,7 @@ public:
 	void reset();
 	bool insert(QTObject* pObject);
 
-	const QTNode* cRoot() const;
+	const QTNode* rootC() const;
 
 
 	QuadTree() : _nodePool(nullptr)

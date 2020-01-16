@@ -114,6 +114,12 @@
     <Filter Include="TowerDefense\Buildings">
       <UniqueIdentifier>{3a84d31f-b925-429e-9d0a-695dfe515ee3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{48809b9d-88ab-4cad-a975-8831cf39c049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision\Spatial partitioning\QT">
+      <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -228,9 +234,6 @@
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="Collider.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="Hull.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="ProjectLoader.cpp">
@@ -370,7 +373,10 @@
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
     <ClCompile Include="QuadTree.cpp">
-      <Filter>Collision\Spatial partitioning</Filter>
+      <Filter>Collision\Spatial partitioning\QT</Filter>
+    </ClCompile>
+    <ClCompile Include="Hull.cpp">
+      <Filter>Collision</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -519,9 +525,6 @@
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="Hull.h">
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="HitResult.h">
@@ -752,8 +755,20 @@
     <ClInclude Include="PoolAllocator.h">
       <Filter>MemoryAllocators</Filter>
     </ClInclude>
+    <ClInclude Include="Bits.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="QTObject.h">
+      <Filter>Collision\Spatial partitioning\QT</Filter>
+    </ClInclude>
     <ClInclude Include="QuadTree.h">
-      <Filter>Collision\Spatial partitioning</Filter>
+      <Filter>Collision\Spatial partitioning\QT</Filter>
+    </ClInclude>
+    <ClInclude Include="Hull.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB2D.h">
+      <Filter>Collision\Spatial partitioning\QT</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

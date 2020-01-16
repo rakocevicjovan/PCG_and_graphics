@@ -1,19 +1,5 @@
 #include "QuadTree.h"
-
-
-
-void QTNode::setChild(uint32_t index, QTNode * pNode)
-{
-}
-
-bool QTNode::addObject(QTObject* pObj)
-{
-	return true;
-}
-
-void QTNode::remObject(QTObject * pObj)
-{
-}
+#include "Bits.h"
 
 
 
@@ -58,7 +44,7 @@ bool QuadTree::create(float fSize)
 		// For each node at this level (across both for loops within)
 		for (uint32_t y = rowSize; y--; )
 		{
-			//starting address of the row - first level: 1 * 1, second level: 2 * 2
+			//starting address of the row - first level: at 0 then at 1
 			QTNode* row = &thisNode[y * rowSize];
 
 			//first level's position is is 1 / 1 * fullSize + halfSize = fullSize + halfSize
@@ -69,12 +55,18 @@ bool QuadTree::create(float fSize)
 			{
 				row[x].setCenterAndRadius(SVec2(float(x) / float(rowSize) * fullSize + halfSize, yPos) + vOffset, halfSize);
 
+				//first level (root node, pos 0) does not enter this, all the others do
 				if (lastNode)
 				{
-					// There is a parent.  Get its index.
+					// There is a parent.  Get its index. Divide x and y by two to address previous level.
 					uint32_t ui32ParentX = x >> 1UL;
 					uint32_t ui32ParentY = y >> 1UL;
+
+					//left shift 1 to (i-1) to get the row of the parent (for i=0: 0 * (1 << 0) + 0 = 0
 					uint32_t ui32ParentIndex = (ui32ParentY * (1ul << (i - 1ul))) + ui32ParentX;
+
+					//not sure exactly how this works... it maps 0 to 0 and anything else to 1
+					//we get 4 children at 00, 01, 10, 11 true but how
 					uint32_t ui32X = x & 1UL;
 					uint32_t ui32Y = y & 1UL;
 					lastNode[ui32ParentIndex].setChild((ui32Y << 1ul) + ui32X, &row[x]);
@@ -110,17 +102,65 @@ void QuadTree::reset()
 }
 
 
-//this makes sure anything outside the octree still ends up in the root to avoid awkward cases later
+//untested, should see if I ported it right from L. Spiro's tutorial
 bool QuadTree::insert(QTObject* pObject)
 {
-	/* uncomment when ready to finish
 	const AABB2D& box = pObject->getQuadTreeRect();
 
-	//consider storing 2 SVec2s to avoid eye bleed... structs are aligned anyways so not saving any memory as is
+	//this makes sure anything outside the octree still ends up in the root to avoid awkward cases later
 	if (box._min.x < -_radius || box._max.x > _radius || box._min.y < -_radius || box._max.y > _radius)
 		return root()->addObject(pObject);
-	*/
-	return false;
+
+	// The quad-tree exists in the range from -m_fRadius to m_fRadius.
+	//	Convert to the range 0 to (m_fRadius * 2).
+	AABB2D a2Shifted;
+	a2Shifted._min = box._min + SVec2(_radius, _radius);
+	a2Shifted._max = box._max + SVec2(_radius, _radius);
+
+	// Now to the range from [0..255].
+	a2Shifted._min.x *= _invRadius;
+	a2Shifted._min.y *= _invRadius;
+	a2Shifted._max.x *= _invRadius;
+	a2Shifted._max.y *= _invRadius;
+
+	// Convert to integers and clamp.
+	uint32_t ui32MinX = static_cast<uint32_t>(Math::clamp(floor(a2Shifted._min.x), 0, static_cast<float>(255.f)));
+	uint32_t ui32MaxX = static_cast<uint32_t>(Math::clamp(ceil(a2Shifted._max.x), 0, static_cast<float>(255.f)));
+
+	uint32_t ui32MinY = static_cast<uint32_t>(Math::clamp(floor(a2Shifted._min.y), 0, static_cast<float>(255.f)));
+	uint32_t ui32MaxY = static_cast<uint32_t>(Math::clamp(ceil(a2Shifted._max.y), 0, static_cast<float>(255.f)));
+
+	// Get the level at which the object will be inserted.
+	//XOR min and max values, kinda mapping the bits to exists/doesn't along the axis (
+	uint32_t ui32X = ui32MinX ^ ui32MaxX;	
+	if (!ui32X)
+		ui32X = 7UL;	// 100% flat objects go to the highest (smallest) level.
+	else
+		ui32X = 7UL - Bits::msbDeBruijn32(ui32X);
+
+	uint32_t ui32Y = ui32MinY ^ ui32MaxY;
+	if (!ui32Y)
+		ui32Y = 7UL;	// 100% flat objects go to the highest (smallest) level.
+	else
+		ui32Y = 7UL - Bits::msbDeBruijn32(ui32Y);
+
+	uint32_t ui32Level = min(ui32X, ui32Y);
+
+	// Now we know which level in the tree it is.
+	// Find out which node on that level owns it.
+	ui32X = ui32MinX >> (8UL - ui32Level);
+	ui32Y = ui32MinY >> (8UL - ui32Level);
+
+#ifdef _QTDEBUG
+	QTNode* pNode = &_levels[ui32Level][ui32Y*(1UL << ui32Level) + ui32X];
+	assert(pNode->getCenter().x - pNode->getRadius() <= box.m_vMin.x);
+	assert(pNode->getCenter().x + pNode->getRadius() >= box.m_vMax.x);
+	assert(pNode->getCenter().y - pNode->getRadius() <= box.m_vMin.y);
+	assert(pNode->getCenter().y + pNode->getRadius() >= box.m_vMax.y);
+#endif	// #ifdef _DEBUG
+	return _levels[ui32Level][ui32Y*(1UL << ui32Level) + ui32X].addObject(pObject);
+
+	return true;
 }
 
 
@@ -133,8 +173,28 @@ QTNode* QuadTree::root()
 
 
 
-//public read access, can't modify it
-const QTNode* QuadTree::cRoot() const
+//public read access, can't modify it outside of class, added c to indicate const and avoid confusion
+const QTNode* QuadTree::rootC() const
 {
 	return reinterpret_cast<const QTNode*>(&_nodePool[0]);
+}
+
+
+
+void QTNode::setChild(uint32_t index, QTNode * pNode)
+{
+	_children[index] = pNode;
+}
+
+
+bool QTNode::addObject(QTObject* pObj)
+{
+	_objects.push_back(pObj);
+	return false;
+}
+
+
+void QTNode::remObject(QTObject* pObj)
+{
+	_objects.remove(pObj);
 }
