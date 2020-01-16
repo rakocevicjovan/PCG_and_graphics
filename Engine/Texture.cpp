@@ -80,12 +80,13 @@ bool Texture::LoadFromFile(std::string path)
 
 std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
 {
+	float* temp;
 	try
 	{
 		int tw, th, tn;
 
 		//alas...//can't think of a way to avoid a copy if I want a vector, but this is rarely used so it's ok I guess
-		float* temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
+		temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
 		std::vector<float> result(temp, temp + tw * th * tn);
 
 		delete temp;
@@ -94,6 +95,9 @@ std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
 	}
 	catch (...)
 	{
+		if (temp)
+			delete temp;
+
 		OutputDebugStringA(("Error loading texture '" + path + "' \n").c_str());
 		return std::vector<float>();
 	}
@@ -124,19 +128,45 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 	h = perlin._h;
 	_data = perlin.getUCharVector().data();
 
-	return Setup(device, true);
+	return Setup(device, DXGI_FORMAT::DXGI_FORMAT_R8_UNORM);
 }
 
 
 
-bool Texture::Setup(ID3D11Device* device, bool grayscale) 
+void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
+{
+	std::wstring temp(path.begin(), path.end());
+	const wchar_t* widecstr = temp.c_str();
+
+	/*ID3D11Resource* resource;
+
+	HRESULT hr = resource->QueryInterface(IID_ID3D11Texture2D, (void **)&baseTexId);
+
+	if (FAILED(hr))
+	{
+		OutputDebugStringA("Ma jebem mu ja sve zivo i mrtvo... \n");
+		exit(4202);
+	}*/
+
+	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &srv, 0);
+
+	if (FAILED(result))
+	{
+		OutputDebugStringA("Can't create texture2d with mip levels (WIC). \n");
+		exit(4201);
+	}
+}
+
+
+
+bool Texture::Setup(ID3D11Device* device, DXGI_FORMAT format) 
 {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = w;
 	desc.Height = h;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.Format = grayscale ? DXGI_FORMAT_R8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM;
+	desc.Format = format;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -144,9 +174,12 @@ bool Texture::Setup(ID3D11Device* device, bool grayscale)
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
+	//for now only supports this but I should make a map/table of sorts really... @TODO
+	UINT pixelWidth = format == DXGI_FORMAT::DXGI_FORMAT_R8_UNORM ? 1 : 4;
+
 	D3D11_SUBRESOURCE_DATA texData;
 	texData.pSysMem = (void *)_data;
-	texData.SysMemPitch = grayscale ? desc.Width : desc.Width * 4;
+	texData.SysMemPitch = desc.Width * pixelWidth;
 	texData.SysMemSlicePitch = 0;
 
 	if (FAILED(device->CreateTexture2D(&desc, &texData, &texId)))
@@ -221,10 +254,9 @@ float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain,
 
 std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	//std::vector<unsigned char> curData;
+	//std::vector<unsigned char> result;
 	std::vector<float> result;
 	
-	//curData.reserve(w * h);
 	result.reserve(w * h);
 
 	float wInverse = 1.f / (float)w;
@@ -237,12 +269,11 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 			float x = (float)i * wInverse;
 			float y = (float)j * hInverse;
 
-			float rgb = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
-			int r = (int)((rgb + 1.f) * 0.5f * 255.f);
-			unsigned char uc = (unsigned char)r;
+			float noiseVal = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+			result.push_back(noiseVal);
 
+			//unsigned char uc = ((rgb + 1.f) * 0.5f) * 255;
 			//curData.push_back(uc);
-			result.push_back(rgb);
 		}
 	}
 
@@ -253,10 +284,10 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 
 std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	//std::vector<unsigned char> curData;
+	//std::vector<unsigned char> result;
 	std::vector<float> result;
 	
-	//curData.reserve(w * h);
+	//result.reserve(w * h);
 	result.reserve(w * h);
 
 	float wInverse = 1.f / (float)w;
@@ -269,40 +300,13 @@ std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunari
 			float x = (float)i * wInverse;
 			float y = (float)j * hInverse;
 
-			float rgb = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
-			int r = (int)((rgb + 1.f) * 0.5f);
-			unsigned char uc = (unsigned char)r;
+			float noiseVal = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
+			result.push_back(noiseVal);
 
+			//unsigned char uc = ((rgb + 1.f) * 0.5f) * 255;	works only if -1, 1 which is not the case
 			//curData.push_back(uc);
-			result.push_back(rgb);
 		}
 	}
 
 	return result;
-}
-
-
-
-void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
-{
-	std::wstring temp(path.begin(), path.end());
-	const wchar_t* widecstr = temp.c_str();
-
-	/*ID3D11Resource* resource;
-
-	HRESULT hr = resource->QueryInterface(IID_ID3D11Texture2D, (void **)&baseTexId);
-
-	if (FAILED(hr))
-	{
-		OutputDebugStringA("Ma jebem mu ja sve zivo i mrtvo... \n");
-		exit(4202);
-	}*/
-
-	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &srv, 0);
-
-	if (FAILED(result))
-	{
-		OutputDebugStringA("Can't create texture2d with mip levels (WIC). \n");
-		exit(4201);
-	}
 }

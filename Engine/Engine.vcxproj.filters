@@ -770,6 +770,9 @@
     <ClInclude Include="AABB2D.h">
       <Filter>Collision\Spatial partitioning\QT</Filter>
     </ClInclude>
+    <ClInclude Include="TextureGen.h">
+      <Filter>Procedural</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="depth.vs">

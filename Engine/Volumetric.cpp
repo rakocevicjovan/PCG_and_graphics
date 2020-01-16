@@ -1,4 +1,5 @@
 #include "Volumetric.h"
+#include "TextureGen.h"
 
 namespace Procedural
 {
@@ -49,7 +50,7 @@ namespace Procedural
 	{
 		for (auto& v : _volume)
 		{
-			float col = Texture::Turbulence3D(v.pos.x, v.pos.y, v.pos.z, 2.013759, 0.49739, 4);
+			float col = TextureGen::Turbulence3D(v.pos.x, v.pos.y, v.pos.z, 2.013759, 0.49739, 4);
 			v.col = SVec4(col, col, col, 1.0f);
 		}
 	}

@@ -384,6 +384,7 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
+    <ClInclude Include="TextureGen.h" />
     <ClInclude Include="ToolGUI.h" />
     <ClInclude Include="Tower.h" />
     <ClInclude Include="Volumetric.h" />
