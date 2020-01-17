@@ -11,7 +11,7 @@ struct ID
 };
 
 
-//not implemented, do not use yet, @TODO
+//not implemented, do not use yet @TODO
 template <typename Object> class SlotVector
 {
 private:
