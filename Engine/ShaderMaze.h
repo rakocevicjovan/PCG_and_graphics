@@ -2,11 +2,11 @@
 #include "Math.h"
 #include "Light.h"
 #include "ShaderDataStructs.h"
-#include "ShaderBase.h"
 
 class Camera;
 
-class ShaderMaze : public ShaderBase
+//used to inherit from base @TODO
+class ShaderMaze
 {
 public:
 	ShaderMaze();

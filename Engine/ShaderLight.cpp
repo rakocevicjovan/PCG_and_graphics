@@ -1,60 +1,110 @@
 #include "ShaderLight.h"
-#include "Model.h"
 #include "Camera.h"
 
 
-ShaderLight::ShaderLight() : ShaderBase()
+
+
+
+ShaderLight::ShaderLight()
 {
+	_vertexShader = nullptr;
+	_pixelShader = nullptr;
+	_layout = nullptr;
+	_sampleState = nullptr;
+	_matrixBuffer = nullptr;
+	_lightBuffer = nullptr;
 }
 
 
 
 ShaderLight::~ShaderLight()
 {
+	DECIMATE(_vertexShader);
+	DECIMATE(_pixelShader);
+	DECIMATE(_layout);
+	DECIMATE(_sampleState);
+	DECIMATE(_matrixBuffer);
+	DECIMATE(_lightBuffer);
 }
 
 
 
-bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
+bool ShaderLight::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* dataPtr;
-	LightBuffer* dataPtr2;
+	bool result = true;
+
+	this->_filePaths = filePaths;
+
+	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
+	result &= shc.compilePS(filePaths.at(1), _pixelShader);
+	result &= shc.createSamplerState(samplerDesc, _sampleState);
+
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createCBufferDesc(sizeof(WMBuffer));
+	result &= shc.createConstantBuffer(mmBuffDesc, _matrixBuffer);
+
+	D3D11_BUFFER_DESC lightBuffDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
+	result &= shc.createConstantBuffer(lightBuffDesc, _lightBuffer);
+
+	return result;
+}
+
+
+
+bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
+{
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	unsigned int bufferNumber;
+	WMBuffer* wmptr;
+	LightBuffer* lptr;
 
 	SMatrix mT = modelMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
-	
-	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;
-	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
-	deviceContext->Unmap(_matrixBuffer, 0);
-    deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 
-	SVec4 ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
-
-	if(FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	//WMBuffer
+	if (FAILED(dc->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 
-	dataPtr2 = (LightBuffer*)mappedResource.pData;
-	dataPtr2->alc = pLight.alc;
-	dataPtr2->ali = pLight.ali;
-	dataPtr2->dlc = pLight.dlc;
-	dataPtr2->dli = pLight.dli;
-	dataPtr2->slc = pLight.slc;
-	dataPtr2->sli = pLight.sli;
-	dataPtr2->pos = pLight.pos;
-	dataPtr2->ePos = ePos;
-	deviceContext->Unmap(_lightBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
+	wmptr = (WMBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+	wmptr->world = mT;
 
-	deviceContext->IASetInputLayout(_layout);
-	deviceContext->VSSetShader(_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(_pixelShader, NULL, 0);
-	deviceContext->PSSetSamplers(0, 1, &_sampleState);
+	dc->Unmap(_matrixBuffer, 0);
+
+	bufferNumber = 0;
+	dc->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
+	//
+
+
+	//LightBuffer
+	if (FAILED(dc->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+
+	lptr = (LightBuffer*)mappedResource.pData;
+
+	lptr->alc = pLight.alc;
+	lptr->ali = pLight.ali;
+	lptr->dlc = pLight.dlc;
+	lptr->dli = pLight.dli;
+	lptr->slc = pLight.slc;
+	lptr->sli = pLight.sli;
+	lptr->pos = pLight.pos;
+	lptr->ePos = Math::fromVec3(cam.GetPosition(), 1.f);
+
+	dc->Unmap(_lightBuffer, 0);
+
+	bufferNumber = 0;
+	dc->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
+	//
+
+
+	//generalize this for all materials
+	dc->IASetInputLayout(_layout);
+	dc->VSSetShader(_vertexShader, NULL, 0);
+	dc->PSSetShader(_pixelShader, NULL, 0);
+	dc->PSSetSamplers(0, 1, &_sampleState);
 
 	return true;
 }
@@ -64,4 +114,7 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* deviceContext, SMatri
 void ShaderLight::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
 	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
+	//deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
+	//deviceContext->PSSetShaderResources(2, 1, &(unbinder[0]));
+	//deviceContext->PSSetShaderResources(3, 1, &(unbinder[0]));
 }

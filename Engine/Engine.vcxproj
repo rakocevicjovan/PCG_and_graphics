@@ -220,7 +220,7 @@
     <ClCompile Include="RTSController.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="ShaderBase.cpp" />
+    <ClCompile Include="ShaderLight.cpp" />
     <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="ShaderClipper.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
@@ -231,7 +231,6 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Light.cpp" />
-    <ClCompile Include="ShaderLight.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="ShaderHUD.cpp" />
@@ -342,7 +341,7 @@
     <ClInclude Include="RTSController.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderBase.h" />
+    <ClInclude Include="ShaderLight.h" />
     <ClInclude Include="ShaderClipper.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderCompiler.h" />
@@ -353,7 +352,6 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Light.h" />
-    <ClInclude Include="ShaderLight.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

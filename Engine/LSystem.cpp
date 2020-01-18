@@ -451,9 +451,8 @@ namespace Procedural
 			const PointLight& dLight, float deltaTime, SVec3 eyePos)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		MatrixBuffer* dataPtr;
+		WMBuffer* dataPtr;
 		LightBuffer* dataPtr2;
-		VariableBuffer* dataPtr3;
 
 		SMatrix mT = mt.Transpose();
 		SMatrix vT = vt.Transpose();
@@ -461,20 +460,10 @@ namespace Procedural
 
 		// Lock the constant matrix buffer so it can be written to.
 		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))return;
-		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+		dataPtr = (WMBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 		dataPtr->world = mT;
-		dataPtr->view = vT;
-		dataPtr->projection = pT;
 		dc->Unmap(s._matrixBuffer, 0);
 		dc->VSSetConstantBuffers(0, 1, &s._matrixBuffer);	
-
-
-		if (FAILED(dc->Map(s._variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource))) return;
-		dataPtr3 = (VariableBuffer*)mappedResource.pData;
-		dataPtr3->deltaTime = deltaTime;
-		dataPtr3->padding = SVec3();
-		dc->Unmap(s._variableBuffer, 0);
-		dc->VSSetConstantBuffers(1, 1, &s._variableBuffer);
 
 		if (FAILED(dc->Map(s._lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource))) return;
 		dataPtr2 = (LightBuffer*)mappedResource.pData;

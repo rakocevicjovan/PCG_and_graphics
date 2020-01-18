@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 
-VolumetricScreen::VolumetricScreen() : ShaderBase()
+VolumetricScreen::VolumetricScreen()
 {
 }
 
@@ -17,9 +17,11 @@ VolumetricScreen::~VolumetricScreen()
 bool VolumetricScreen::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
+	/*@TODO SHADERS
 	this->_filePaths = filePaths;
 	if (!ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc))
 		return false;
+	*/
 
 	D3D11_BUFFER_DESC viewRayDesc;
 	viewRayDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -42,7 +44,7 @@ bool VolumetricScreen::Initialize(ID3D11Device* device, HWND hwnd, const std::ve
 bool VolumetricScreen::SetShaderParameters(ID3D11DeviceContext* deviceContext, const Camera& camera, const SMatrix& gales, float elapsed)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* matBuffer;
+	WMBuffer* matBuffer;
 	VolumetricScreenBuffer* volumScreenBuffer;
 
 	//near plane offset
@@ -53,15 +55,15 @@ bool VolumetricScreen::SetShaderParameters(ID3D11DeviceContext* deviceContext, c
 	SMatrix vT = camera.GetViewMatrix().Transpose();
 	SMatrix pT = camera.GetProjectionMatrix().Transpose();
 
+	/*
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	matBuffer = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+	matBuffer = (WMBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 	matBuffer->world = mT;
-	matBuffer->view = vT;
-	matBuffer->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
-	
+	*/
+
 	//view data - updates per frame
 	if (FAILED(deviceContext->Map(_viewRayBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
@@ -75,10 +77,12 @@ bool VolumetricScreen::SetShaderParameters(ID3D11DeviceContext* deviceContext, c
 	deviceContext->Unmap(_viewRayBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_viewRayBuffer);
 
+	/*
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
+	*/
 
 	return true;
 }

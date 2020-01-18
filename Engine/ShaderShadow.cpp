@@ -2,7 +2,7 @@
 #include "Model.h"
 
 
-ShaderShadow::ShaderShadow() : ShaderBase()
+ShaderShadow::ShaderShadow()
 {
 	_sampleStateClamp = nullptr;
 	_lightBuffer2 = nullptr;
@@ -17,6 +17,7 @@ ShaderShadow::~ShaderShadow()
 
 bool ShaderShadow::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths)
 {
+	/*
 	this->filePaths = filePaths;
 
 	HRESULT result;
@@ -163,14 +164,16 @@ bool ShaderShadow::Initialize(ID3D11Device* device, HWND hwnd, const std::vector
 		return false;
 
 	return true;
+	*/
+	return false;
 }
 
 
 
 bool ShaderShadow::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const SMatrix& v, const SMatrix& v2,
-	const SMatrix& p, const SMatrix& p2, const PointLight& pLight, const SVec3& eyePos, ID3D11ShaderResourceView* depthMapTexture) {
-
-
+	const SMatrix& p, const SMatrix& p2, const PointLight& pLight, const SVec3& eyePos, ID3D11ShaderResourceView* depthMapTexture)
+{
+	/*
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
@@ -234,6 +237,6 @@ bool ShaderShadow::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model
 	deviceContext->PSSetSamplers(1, 1, &_sampleState);
 
 	deviceContext->PSSetShaderResources(1, 1, &depthMapTexture);
-
-	return true;
+	*/
+	return false;
 }

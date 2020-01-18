@@ -2,7 +2,7 @@
 #include "Model.h"
 #include "Camera.h"
 
-ShaderMaze::ShaderMaze() : ShaderBase()
+ShaderMaze::ShaderMaze()
 {
 }
 
@@ -21,7 +21,7 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
-	MatrixBuffer* dataPtr;
+	WMBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 	MazeVarBuff* playerPosBuffer;
 
@@ -29,12 +29,10 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
-
+	/*
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;
+	dataPtr = (WMBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
 	bufferNumber = 0;
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
@@ -74,6 +72,7 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 
 	//deviceContext->VSSetSamplers(0, 1, &_sampleState);
 	//deviceContext->VSSetShaderResources(0, 1, &(disp.baseSrv));
+	*/
 
 	return true;
 }
@@ -82,6 +81,6 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 
 void ShaderMaze::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
-	deviceContext->VSSetShaderResources(0, 1, &(_unbinder[0]));
+	//deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
+	//deviceContext->VSSetShaderResources(0, 1, &(_unbinder[0]));
 }

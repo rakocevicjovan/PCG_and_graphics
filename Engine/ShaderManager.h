@@ -3,7 +3,6 @@
 
 #include "Animator.h"
 #include "ShaderDataStructs.h"
-#include "ShaderBase.h"
 #include "ShaderLight.h"
 #include "ShaderDepth.h"
 #include "ShaderShadow.h"
@@ -17,7 +16,6 @@
 #include "ShaderVolumetric.h"
 #include "InstancedShader.h"
 #include "TerrainShader.h"
-#include "PerlinShader.h"
 #include "ShaderMaze.h"
 #include "ShaderClipper.h"
 #include "VolumetricScreen.h"
@@ -30,14 +28,13 @@ protected:
 	ID3D11Device* _device;
 	HWND hwnd;
 
-	MatrixBuffer matrixBuffer;
+	WMBuffer matrixBuffer;
 	VariableBuffer variableBuffer;
 	LightBuffer lightBuffer;
 
 public:
 
 	Animator animator;
-	ShaderBase base;
 	ShaderLight light;
 	WireframeShader wireframe;
 	ShaderHUD HUD, brightnessMasker, blurHor, blurVer, bloom;
@@ -49,7 +46,6 @@ public:
 	ShaderStrife strife;
 	ShaderWater water;
 	InstancedShader instanced, dragon;
-	PerlinShader perlin;
 	TerrainShader terrainMultiTex, terrainNormals, treeShader;
 	ShaderMaze dynamicHeightMaze, normalMapper;
 	ShaderClipper clipper;

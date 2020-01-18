@@ -9,7 +9,7 @@ ShaderClipper::ShaderClipper()
 
 ShaderClipper::~ShaderClipper()
 {
-	DECIMATE(_clipperBuffer)
+	if (_clipperBuffer) { _clipperBuffer->Release(); _clipperBuffer = nullptr; }
 }
 
 
@@ -17,7 +17,7 @@ ShaderClipper::~ShaderClipper()
 bool ShaderClipper::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-	ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
+	//ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
 
 	this->filePaths = filePaths;
 
@@ -51,8 +51,9 @@ bool ShaderClipper::SetClipper(ID3D11DeviceContext* deviceContext, const SVec4& 
 
 bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMatrix& mMat, const Camera& cam, const PointLight& pLight, float elapsed)
 {
+	/*
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* dataPtr;
+	WMBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 
 	SMatrix mT = mMat.Transpose();
@@ -60,10 +61,8 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;
+	dataPtr = (WMBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
 
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
@@ -88,6 +87,8 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
+	*/
+
 
 	//if(model.textures_loaded.size() != 0)
 	//for (int i = 0; i < model.loadedTexList.size(); i++)
@@ -101,5 +102,5 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, cons
 
 void ShaderClipper::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
+	//deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
 }

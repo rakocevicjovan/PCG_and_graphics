@@ -1,5 +1,5 @@
 #include "ShaderManager.h"
-
+#include "ShaderCompiler.h"
 
 
 ShaderManager::ShaderManager()
@@ -32,6 +32,12 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 		//,{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
+	//move all this to material cache in this way or another!
+	ShaderCompiler shc;
+	shc.init(&hwnd, device);
+
+	light.Initialize(shc, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+
 	
 	/*base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
 	clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
@@ -44,7 +50,6 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	wireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
 
 	animator.Initialize(_device, hwnd, { L"AnimaVS.hlsl", L"AnimaPS.hlsl" });
-	light.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
 	//cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
 	skyboxShader.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
 	strife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });

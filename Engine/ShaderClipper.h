@@ -8,8 +8,6 @@
 #include "Math.h"
 #include "Light.h"
 #include "ShaderDataStructs.h"
-#include "ShaderBase.h"
-
 #include "ShaderCompiler.h"
 
 class Camera;

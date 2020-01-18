@@ -164,12 +164,6 @@
     <ClCompile Include="ShaderWireframe.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderBase.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderLight.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
@@ -378,6 +372,9 @@
     <ClCompile Include="Celestials.cpp">
       <Filter>Rendering\Lights</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderLight.cpp">
+      <Filter>Rendering\MaterialsOLD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -433,12 +430,6 @@
     </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderBase.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderLight.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderManager.h">
       <Filter>Rendering\MaterialsOLD</Filter>
@@ -769,6 +760,9 @@
     </ClInclude>
     <ClInclude Include="Celestials.h">
       <Filter>Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLight.h">
+      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

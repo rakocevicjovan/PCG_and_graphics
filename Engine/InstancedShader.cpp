@@ -4,7 +4,7 @@
 
 
 
-InstancedShader::InstancedShader() : ShaderBase()
+InstancedShader::InstancedShader()
 {
 }
 
@@ -20,7 +20,7 @@ InstancedShader::~InstancedShader()
 bool InstancedShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths, 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc, unsigned int instanceBufferSizeInElements)
 {
-	ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
+	//ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
 
 	D3D11_BUFFER_DESC instanceBufferDesc;
 	instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -41,7 +41,7 @@ bool InstancedShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vec
 bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float dTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* matrixBufferPtr;
+	WMBuffer* matrixBufferPtr;
 	InstanceData* instanceDataPtr;
 	VariableBuffer* varBufferPtr;
 	LightBuffer* lightBufferPtr;
@@ -50,6 +50,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
+	/*
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	matrixBufferPtr = (MatrixBuffer*)mappedResource.pData;
@@ -92,6 +93,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
+	*/
 	return true;
 }
 
@@ -99,7 +101,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 
 void InstancedShader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
+	//deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
 }
 
 

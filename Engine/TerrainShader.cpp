@@ -3,7 +3,7 @@
 #include "Camera.h"
 
 
-TerrainShader::TerrainShader() : ShaderBase()
+TerrainShader::TerrainShader()
 {
 }
 
@@ -18,7 +18,7 @@ TerrainShader::~TerrainShader()
 bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-	ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
+	//ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
 	
 	return true;
 }
@@ -27,8 +27,10 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vecto
 
 void TerrainShader::SetShaderParameters(ID3D11DeviceContext* dc, const SMatrix& mt, const Camera& cam, const PointLight& pointLight, float deltaTime)
 {
+	
+	/*
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* dataPtr;
+	WMBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 
 	SMatrix mT = mt.Transpose();
@@ -36,10 +38,8 @@ void TerrainShader::SetShaderParameters(ID3D11DeviceContext* dc, const SMatrix& 
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
 	if (FAILED(dc->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+	dataPtr = (WMBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
 	dc->Unmap(_matrixBuffer, 0);
 	dc->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 
@@ -61,4 +61,5 @@ void TerrainShader::SetShaderParameters(ID3D11DeviceContext* dc, const SMatrix& 
 	dc->VSSetShader(_vertexShader, NULL, 0);
 	dc->PSSetShader(_pixelShader, NULL, 0);
 	dc->PSSetSamplers(0, 1, &_sampleState);
+	*/
 }

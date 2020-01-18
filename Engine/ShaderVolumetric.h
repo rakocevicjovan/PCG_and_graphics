@@ -3,13 +3,14 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
-#include "ShaderBase.h"
 #include "Camera.h"
 #include "ShaderDataStructs.h"
 
 class Model;
 
-class ShaderVolumetric : public ShaderBase {
+//used to inherit from base @TODO
+class ShaderVolumetric
+{
 
 public:
 	ShaderVolumetric();

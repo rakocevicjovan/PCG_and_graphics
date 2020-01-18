@@ -10,12 +10,12 @@
 #include <string>
 #include "Math.h"
 #include "Light.h"
-#include "ShaderBase.h"
 #include "ShaderDataStructs.h"
 
 class Model;
 
-class ShaderShadow : public ShaderBase 
+//used to inherit from base @TODO
+class ShaderShadow
 {
 protected:
 	ID3D11Buffer* _lightBuffer2;

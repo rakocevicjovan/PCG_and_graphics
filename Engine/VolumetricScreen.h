@@ -3,7 +3,6 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
-#include "ShaderBase.h"
 #include "Camera.h"
 #include "ShaderDataStructs.h"
 
@@ -20,7 +19,9 @@ struct VolumetricScreenBuffer
 	SVec4 gale4;
 };
 
-class VolumetricScreen : public ShaderBase
+
+//used to inherit from base @TODO
+class VolumetricScreen
 {
 private:
 	ID3D11Buffer* _viewRayBuffer;

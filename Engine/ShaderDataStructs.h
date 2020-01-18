@@ -15,17 +15,16 @@ struct RenderFormat
 };
 
 
-struct MatrixBuffer
+struct WMBuffer
 {
 	SMatrix world;
-	SMatrix view;
-	SMatrix projection;
 };
 
 
-struct ShadowMatrixBuffer : public MatrixBuffer
+struct ShadowMatrixBuffer
 {
-	SMatrix lightView, lightProjection;
+	SMatrix lightView;
+	SMatrix lightProjection;
 };
 
 

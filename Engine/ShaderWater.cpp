@@ -101,7 +101,7 @@ bool ShaderWater::InitializeShader(ID3D11Device* device, HWND hwnd)
 		return false;
 
 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
+	matrixBufferDesc.ByteWidth = sizeof(WMBuffer);
 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	matrixBufferDesc.MiscFlags = 0;
@@ -176,7 +176,7 @@ bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 	ID3D11ShaderResourceView* whiteSRV, ID3D11ShaderResourceView* reflectionMap, ID3D11ShaderResourceView* refractionMap)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* dataPtr;
+	WMBuffer* dataPtr;
 	WaterBuffer* dataPtr2;
 
 	SMatrix mT = model.transform.Transpose();
@@ -187,10 +187,8 @@ bool ShaderWater::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model&
 
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	dataPtr = (MatrixBuffer*)mappedResource.pData;
+	dataPtr = (WMBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
-	dataPtr->view = vT;
-	dataPtr->projection = pT;
 	deviceContext->Unmap(_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 

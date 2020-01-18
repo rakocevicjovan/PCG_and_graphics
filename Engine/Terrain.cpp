@@ -1,7 +1,7 @@
 #include "Terrain.h"
 #include "Chaos.h"
 #include "Perlin.h"
-#include "ShaderBase.h"
+#include "ShaderLight.h"
 #include "Camera.h"
 
 
@@ -426,11 +426,11 @@ namespace Procedural
 
 
 
-	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderBase& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
+	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderLight& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-		MatrixBuffer* dataPtr;
+		WMBuffer* dataPtr;
 		LightBuffer* dataPtr2;
 
 
@@ -440,10 +440,8 @@ namespace Procedural
 
 		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 			return;
-		dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
+		dataPtr = (WMBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 		dataPtr->world = mT;
-		dataPtr->view = vT;
-		dataPtr->projection = pT;
 		dc->Unmap(s._matrixBuffer, 0);
 		dc->VSSetConstantBuffers(0, 1, &s._matrixBuffer);
 

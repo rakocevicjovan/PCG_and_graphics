@@ -1,10 +1,9 @@
 #pragma once
-#include "ShaderBase.h"
+#include "ShaderLight.h"
 
-struct BaseInstanceData {};
 class Camera;
 
-struct InstanceData : public BaseInstanceData
+struct InstanceData
 {
 	SMatrix _m;
 
@@ -14,7 +13,7 @@ struct InstanceData : public BaseInstanceData
 
 
 
-class InstancedShader : public ShaderBase
+class InstancedShader
 {
 protected:
 	std::vector<InstanceData> _instanceData;
