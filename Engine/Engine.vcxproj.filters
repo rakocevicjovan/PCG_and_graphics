@@ -120,6 +120,9 @@
     <Filter Include="Collision\Spatial partitioning\QT">
       <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\MaterialsNEW">
+      <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -177,9 +180,6 @@
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="TerrainShader.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="PerlinShader.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
@@ -267,9 +267,6 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="Celestials.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="TestLevel.cpp">
@@ -378,6 +375,9 @@
     <ClCompile Include="Hull.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
+    <ClCompile Include="Celestials.cpp">
+      <Filter>Rendering\Lights</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -453,9 +453,6 @@
       <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
-    <ClInclude Include="PerlinShader.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
@@ -549,9 +546,6 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="CubeMapper.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="Celestials.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -772,6 +766,9 @@
     </ClInclude>
     <ClInclude Include="TextureGen.h">
       <Filter>Procedural</Filter>
+    </ClInclude>
+    <ClInclude Include="Celestials.h">
+      <Filter>Rendering\Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

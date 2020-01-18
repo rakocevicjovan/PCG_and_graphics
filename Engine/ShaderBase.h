@@ -26,10 +26,10 @@ public:
 	ShaderBase();
 	~ShaderBase();
 
-	virtual bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths,
+	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring> filePaths,
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
-	virtual bool SetShaderParameters(SPBase* spb);
-	virtual void ReleaseShaderParameters(ID3D11DeviceContext*);
+	bool SetShaderParameters(ID3D11DeviceContext*, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime);
+	void ReleaseShaderParameters(ID3D11DeviceContext*);
 	
 
 	ID3D11InputLayout* _layout;
@@ -42,7 +42,8 @@ public:
 	ID3D11Buffer* _variableBuffer;
 	ID3D11Buffer* _lightBuffer;
 
-	RenderFormat renderFormat;
-	unsigned int texturesAdded = 0;
+	RenderFormat renderFormat;		//belongs to vertex data, shouldn't be here
+
+	unsigned int texturesAdded = 0;	//not robust
 };
 

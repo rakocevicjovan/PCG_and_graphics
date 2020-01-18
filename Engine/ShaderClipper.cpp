@@ -1,5 +1,4 @@
 #include "ShaderClipper.h"
-#include "Model.h"
 #include "Camera.h"
 
 
@@ -20,13 +19,10 @@ bool ShaderClipper::Initialize(ID3D11Device* device, HWND hwnd, const std::vecto
 {
 	ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
 
+	this->filePaths = filePaths;
+
 	D3D11_BUFFER_DESC clipperBufferDesc;
-	clipperBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	clipperBufferDesc.ByteWidth = sizeof(ClipperBuffer);
-	clipperBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	clipperBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	clipperBufferDesc.MiscFlags = 0;
-	clipperBufferDesc.StructureByteStride = 0;
+	clipperBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(ClipperBuffer));
 
 	if (FAILED(device->CreateBuffer(&clipperBufferDesc, NULL, &_clipperBuffer)))
 		return false;
@@ -53,13 +49,13 @@ bool ShaderClipper::SetClipper(ID3D11DeviceContext* deviceContext, const SVec4& 
 
 
 
-bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float elapsed)
+bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMatrix& mMat, const Camera& cam, const PointLight& pLight, float elapsed)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 
-	SMatrix mT = model.transform.Transpose();
+	SMatrix mT = mMat.Transpose();
 	SMatrix vT = cam.GetViewMatrix().Transpose();
 	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 

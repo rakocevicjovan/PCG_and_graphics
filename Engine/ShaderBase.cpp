@@ -29,12 +29,18 @@ ShaderBase::~ShaderBase()
 bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
+	//common
 	this->filePaths = filePaths;
+
+	//common
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	ID3D10Blob* pixelShaderBuffer = nullptr;
+	ID3D10Blob* errorMessage = nullptr;
+	////////////////////
 
 	HRESULT result;
 
-	ID3D10Blob* vertexShaderBuffer = nullptr, *pixelShaderBuffer = nullptr, *errorMessage = nullptr;
-
+	//NOT common
 	D3D11_BUFFER_DESC matrixBufferDesc, variableBufferDesc, lightBufferDesc;
 
 	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
@@ -143,7 +149,7 @@ void ShaderBase::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, W
 
 
 
-bool ShaderBase::SetShaderParameters(SPBase* spb)
+bool ShaderBase::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
@@ -151,14 +157,12 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	VariableBuffer* dataPtr3;
 	LightBuffer* dataPtr2;
 
-	SPLight spl = *(SPLight*)spb;
-
-	SMatrix mT = spl.modelMatrix->Transpose();
-	SMatrix vT = spl.view->Transpose();
-	SMatrix pT = spl.proj->Transpose();
+	SMatrix mT = modelMat.Transpose();
+	SMatrix vT = cam.GetViewMatrix().Transpose();
+	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
 	// Lock the constant matrix buffer so it can be written to.
-	if (FAILED(spl.deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(dc->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 
 	dataPtr = (MatrixBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
@@ -169,51 +173,51 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 	dataPtr->projection = pT;
 
 	// Unlock the constant buffer.
-	spl.deviceContext->Unmap(_matrixBuffer, 0);
+	dc->Unmap(_matrixBuffer, 0);
 
 	bufferNumber = 0;
-	spl.deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
+	dc->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
 
 
 	//VARIABLE BUFFER
-	if (FAILED(spl.deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
+	if (FAILED(dc->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-	dataPtr3->deltaTime = spl.deltaTime;
+	dataPtr3->deltaTime = deltaTime;
 	dataPtr3->padding = SVec3(); 
-	spl.deviceContext->Unmap(_variableBuffer, 0);
+	dc->Unmap(_variableBuffer, 0);
 	bufferNumber = 1;
-	spl.deviceContext->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
+	dc->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
 	//END VARIABLE BUFFER
 
 
 	// Lock the light constant buffer so it can be written to.
-	if (FAILED(spl.deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(dc->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 
 	// Get a pointer to the data in the constant buffer.
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
 
 	// Copy the lighting variables into the constant buffer.
-	dataPtr2->alc = spl.dLight->alc;
-	dataPtr2->ali = spl.dLight->ali;
-	dataPtr2->dlc = spl.dLight->dlc;
-	dataPtr2->dli = spl.dLight->dli;
-	dataPtr2->slc = spl.dLight->slc;
-	dataPtr2->sli = spl.dLight->sli;
-	dataPtr2->pos = spl.dLight->pos;
-	dataPtr2->ePos = SVec4(spl.eyePos->x, spl.eyePos->y, spl.eyePos->z, 1.0f);
+	dataPtr2->alc = pLight.alc;
+	dataPtr2->ali = pLight.ali;
+	dataPtr2->dlc = pLight.dlc;
+	dataPtr2->dli = pLight.dli;
+	dataPtr2->slc = pLight.slc;
+	dataPtr2->sli = pLight.sli;
+	dataPtr2->pos = pLight.pos;
+	dataPtr2->ePos = Math::fromVec3(cam.GetPosition(), 1.f);
 
 	// Unlock the constant buffer.
-	spl.deviceContext->Unmap(_lightBuffer, 0);
+	dc->Unmap(_lightBuffer, 0);
 
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 0;
-	spl.deviceContext->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
+	dc->PSSetConstantBuffers(bufferNumber, 1, &_lightBuffer);
 
-	spl.deviceContext->IASetInputLayout(_layout);
-	spl.deviceContext->VSSetShader(_vertexShader, NULL, 0);
-	spl.deviceContext->PSSetShader(_pixelShader, NULL, 0);
-	spl.deviceContext->PSSetSamplers(0, 1, &_sampleState);
+	dc->IASetInputLayout(_layout);
+	dc->VSSetShader(_vertexShader, NULL, 0);
+	dc->PSSetShader(_pixelShader, NULL, 0);
+	dc->PSSetSamplers(0, 1, &_sampleState);
 
 	return true;
 }
@@ -223,7 +227,7 @@ bool ShaderBase::SetShaderParameters(SPBase* spb)
 void ShaderBase::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
 	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
-	deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
-	deviceContext->PSSetShaderResources(2, 1, &(unbinder[0]));
-	deviceContext->PSSetShaderResources(3, 1, &(unbinder[0]));
+	//deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
+	//deviceContext->PSSetShaderResources(2, 1, &(unbinder[0]));
+	//deviceContext->PSSetShaderResources(3, 1, &(unbinder[0]));
 }

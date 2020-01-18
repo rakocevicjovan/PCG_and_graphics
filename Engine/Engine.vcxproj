@@ -211,7 +211,6 @@
     <ClCompile Include="Octree.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="Perlin.cpp" />
-    <ClCompile Include="PerlinShader.cpp" />
     <ClCompile Include="ProjectLoader.cpp" />
     <ClCompile Include="ProjectPicker.cpp" />
     <ClCompile Include="QuadTree.cpp" />
@@ -329,7 +328,6 @@
     <ClInclude Include="ParticleBase.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Perlin.h" />
-    <ClInclude Include="PerlinShader.h" />
     <ClInclude Include="Illumination.h" />
     <ClInclude Include="Picker.h" />
     <ClInclude Include="ProjectLoader.h" />

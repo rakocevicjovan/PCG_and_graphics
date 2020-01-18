@@ -37,7 +37,7 @@ PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
 
-    output.worldPos = mul(input.position, worldMatrix);	//careful... doing this to optimize and avoid copying
+    output.worldPos = mul(input.position, worldMatrix);
     output.position = mul(output.worldPos, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     

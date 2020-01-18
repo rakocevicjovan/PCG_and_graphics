@@ -191,6 +191,8 @@ public:
 
 	ID3D11Device* getDevice() const { return _device; }
 
+
+
 	inline static D3D11_BUFFER_DESC createCBufferDesc(
 		UINT byteWidth,
 		D3D11_USAGE usage = D3D11_USAGE_DYNAMIC,
