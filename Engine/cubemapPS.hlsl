@@ -50,7 +50,7 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 
 static const float iceRefractionIndex = 1.309;
 
-float4 CMFS(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 

@@ -69,7 +69,7 @@ float3 getCartiesan(float3 inSph)
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-    /*
+    /* @TODO move to a separate shader, its kinda cool, this was a test
     float3 spPos = getSpherical(-input.normal);
     float3 wat = gridSpherical(spPos, 20., 20.);
     float3 cart = getCartiesan(wat);

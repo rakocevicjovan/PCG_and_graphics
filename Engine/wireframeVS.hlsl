@@ -1,22 +1,36 @@
-cbuffer MatrixBuffer{
-	matrix worldMatrix;
-	matrix viewMatrix;
+cbuffer PerCameraBuffer : register(b10)
+{
 	matrix projectionMatrix;
 };
 
-struct VertexInputType{
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
+};
+
+struct VertexInputType
+{
     float4 position : POSITION;
     float2 tex : TEXCOORD;
 	float3 normal : NORMAL;
 };
 
-struct GeomInputType{
+struct GeomInputType
+{
     float4 position : SV_POSITION;
 	float4 worldPos : WPOS;
 };
 
-GeomInputType WFVS(VertexInputType input){
-   
+GeomInputType main(VertexInputType input)
+{
    	GeomInputType output;
 
     output.worldPos = mul(input.position, worldMatrix);

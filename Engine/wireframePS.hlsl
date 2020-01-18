@@ -1,11 +1,12 @@
-struct Pyxis{
+struct Pyxis
+{
     float4 position : SV_POSITION;
 	noperspective float3 distance : DIST;
 };
 
 
-float4 WFPS(Pyxis input) : SV_TARGET{
-	
+float4 main(Pyxis input) : SV_TARGET
+{
 	float minDist = min(length(input.distance[0]), min(length(input.distance[1]), length(input.distance[2])));
 
 	float alpha = .1f - 0.1f * minDist;

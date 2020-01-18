@@ -1,10 +1,20 @@
-cbuffer MatrixBuffer : register(b0)
+cbuffer PerCameraBuffer : register(b10)
 {
-	matrix worldMatrix;
-	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
+};
 
 cbuffer VariableBuffer : register(b1)
 {
@@ -31,7 +41,8 @@ struct PixelInputType
 };
 
 
-PixelInputType LightVertexShader(VertexInputType input) {
+PixelInputType main(VertexInputType input)
+{
 
 	PixelInputType output;
 

@@ -1,8 +1,19 @@
-cbuffer MatrixBuffer  : register(b0)
+cbuffer PerCameraBuffer : register(b10)
+{
+	matrix projectionMatrix;
+};
+
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
 {
 	matrix worldMatrix;
-	matrix viewMatrix;
-	matrix projectionMatrix;
 };
 
 
@@ -26,8 +37,8 @@ struct PixelInputType
 };
 
 
-PixelInputType strifeVertex(VertexInputType input) {
-
+PixelInputType main(VertexInputType input)
+{
 	PixelInputType output;
 
 	input.position.w = 1.0f;

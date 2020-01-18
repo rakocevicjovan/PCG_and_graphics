@@ -3,7 +3,8 @@ Texture2D projectionTexture : register(t1);
 
 SamplerState SampleType;
 
-cbuffer LightBuffer{
+cbuffer LightBuffer
+{
     float4 ambientColor;
     float4 diffuseColor;
     float3 lightDirection;
@@ -11,7 +12,8 @@ cbuffer LightBuffer{
 };
 
 
-struct PixelInputType{
+struct PixelInputType
+{
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
@@ -19,7 +21,7 @@ struct PixelInputType{
 };
 
 
-float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
     float4 color;
     float3 lightDir;
@@ -32,7 +34,8 @@ float4 ProjectionPixelShader(PixelInputType input) : SV_TARGET
     lightDir = -lightDirection;
     lightIntensity = saturate(dot(input.normal, lightDir));
 
-    if(lightIntensity > 0.0f){
+    if(lightIntensity > 0.0f)
+	{
         // Determine the light color based on the diffuse color and the amount of light intensity.
         color += (diffuseColor * lightIntensity);
     }

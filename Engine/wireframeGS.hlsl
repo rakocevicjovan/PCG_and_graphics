@@ -10,8 +10,8 @@ struct Pyxis{
 
 
 [maxvertexcount(3)]
-void WFGS(triangle GeomInputType myVertInp[3], inout TriangleStream<Pyxis> OutputStream  ){
-	
+void main(triangle GeomInputType myVertInp[3], inout TriangleStream<Pyxis> OutputStream)
+{	
 	Pyxis output;
 
 	float2 vps = float2(800.0f, 600.0f);

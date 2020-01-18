@@ -1,10 +1,28 @@
-cbuffer MatrixBuffer{
-    matrix worldMatrix;
-    matrix viewMatrix;
-    matrix projectionMatrix;
-    matrix viewMatrix2;
-    matrix projectionMatrix2;
+cbuffer PerCameraBuffer : register(b10)
+{
+	matrix projectionMatrix;
 };
+
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
+};
+
+cbuffer ProjectionBuffer : register(b1)
+{
+	matrix viewMatrix2;
+	matrix projectionMatrix2;
+};
+
 
 struct VertexInputType{
     float4 position : POSITION;
@@ -21,8 +39,8 @@ struct PixelInputType{
 
 
 
-PixelInputType ProjectionVertexShader(VertexInputType input){
-
+PixelInputType main(VertexInputType input)
+{
     PixelInputType output;
     
     input.position.w = 1.0f;

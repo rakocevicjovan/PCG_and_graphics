@@ -48,8 +48,8 @@ float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in f
 
 
 
-float4 main(PixelInputType input) : SV_TARGET{
-
+float4 main(PixelInputType input) : SV_TARGET
+{
 	input.normal = normalize(input.normal);
 
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
@@ -59,9 +59,6 @@ float4 main(PixelInputType input) : SV_TARGET{
 	float distance = length(viewDir);
 	viewDir = viewDir / distance;
 	float3 invViewDir = -viewDir;
-
-
-
 
 	float4 colour = shaderTexture.Sample(Sampler, input.tex);
 	float4 ambient = calcAmbient(alc, ali);

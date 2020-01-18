@@ -1,23 +1,42 @@
-cbuffer MatrixBuffer{
-    matrix worldMatrix;
-    matrix viewMatrix;
-    matrix projectionMatrix;
-    matrix lightViewMatrix;
-    matrix lightProjectionMatrix;
+cbuffer PerCameraBuffer : register(b10)
+{
+	matrix projectionMatrix;
 };
 
-cbuffer LightBuffer2{
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
+};
+
+cbuffer ProjectionBuffer : register(b1)
+{
+	matrix lightViewMatrix;
+	matrix lightProjectionMatrix;
+};
+
+cbuffer LightPosBuffer : register(b2)
+{
     float3 lightPosition;
 	float padding;
 };
 
-struct VertexInputType{
+struct VertexInputType
+{
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
 };
 
-struct PixelInputType{
+struct PixelInputType
+{
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
@@ -27,8 +46,8 @@ struct PixelInputType{
 
 
 
-PixelInputType ShadowVertexShader(VertexInputType input){
-
+PixelInputType main(VertexInputType input)
+{
     PixelInputType output;
     
     input.position.w = 1.0f;
@@ -42,7 +61,7 @@ PixelInputType ShadowVertexShader(VertexInputType input){
     output.fragPosLightSpace = mul(output.fragPosLightSpace, lightProjectionMatrix);
 
     output.tex = input.tex;
-    output.normal = normalize(mul(input.normal, (float3x3)worldMatrix));	//output.normal = (output.normal);
+    output.normal = normalize(mul(input.normal, (float3x3)worldMatrix));
 
     return output;
 }

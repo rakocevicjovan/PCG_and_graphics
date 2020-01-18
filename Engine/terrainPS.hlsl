@@ -89,7 +89,7 @@ void calcNormals(in float2 weights, in float2 tex, in float3 tangent, inout floa
     normal = lerp(n1n2, n3, weights.y);
 }
 
-float4 LightPixelShader(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
     input.normal = normalize(input.normal);
 

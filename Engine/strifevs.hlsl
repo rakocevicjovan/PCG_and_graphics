@@ -1,9 +1,21 @@
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
 	matrix worldMatrix;
-	matrix viewMatrix;
+};
+
+cbuffer PerCameraBuffer : register(b10)
+{
 	matrix projectionMatrix;
 };
+
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
 
 
 struct VertexInputType
@@ -21,7 +33,8 @@ struct PixelInputType
 };
 
 
-PixelInputType main(VertexInputType input) {
+PixelInputType main(VertexInputType input)
+{
 
 	PixelInputType output;
 

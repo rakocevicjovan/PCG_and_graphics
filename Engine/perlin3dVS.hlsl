@@ -1,23 +1,31 @@
-cbuffer MatrixBuffer {
-	matrix worldMatrix;
-	matrix viewMatrix;
+cbuffer PerCameraBuffer : register(b10)
+{
 	matrix projectionMatrix;
 };
 
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
 
-cbuffer VariableBuffer {
-	float delta;
-	float3 padding;
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
 };
 
 
-struct VertexInputType {
+struct VertexInputType
+{
 	float4 position : POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
-struct PixelInputType {
+struct PixelInputType
+{
 	float4 position : SV_POSITION;
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
@@ -26,18 +34,18 @@ struct PixelInputType {
 };
 
 
-PixelInputType LightVertexShader(VertexInputType input) {
-
+PixelInputType main(VertexInputType input)
+{
 	PixelInputType output;
 
 	float4 worldPos = mul(input.position, worldMatrix);
 
-	output.worldPos = worldPos;	//careful... doing this to optimize and avoid copying
+	output.worldPos = worldPos;
 	output.position = mul(worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
-	output.normal = mul(input.normal, (float3x3)worldMatrix);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
+	output.normal = mul(input.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
 
 	output.time = delta;

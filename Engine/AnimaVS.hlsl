@@ -1,15 +1,19 @@
-cbuffer MatrixBuffer : register(b0)
+cbuffer PerCameraBuffer : register(b10)
 {
-	matrix worldMatrix;
-	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
-
-cbuffer VariableBuffer : register(b1)
+cbuffer PerFrameBuffer : register(b11)
 {
-	float delta;
-	float3 padding;
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
 };
 
 

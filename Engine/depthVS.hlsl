@@ -1,21 +1,35 @@
-cbuffer MatrixBuffer{
-	matrix worldMatrix;
-	matrix viewMatrix;
+cbuffer PerCameraBuffer : register(b10)
+{
 	matrix projectionMatrix;
 };
 
-struct VertexInputType{
+cbuffer PerFrameBuffer : register(b11)
+{
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
+};
+
+struct VertexInputType
+{
     float4 position : POSITION;
 };
 
-struct PixelInputType{
+struct PixelInputType
+{
     float4 position : SV_POSITION;
     float4 depthPosition : TEXTURE0;	//sv_position creates an offset of 0.5 (microsoft... why???) therefore we need this as well
 };
 
 
 
-PixelInputType DepthVertexShader(VertexInputType input)
+PixelInputType main(VertexInputType input)
 {
     PixelInputType output;
 

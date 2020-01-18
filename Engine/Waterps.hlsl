@@ -96,7 +96,7 @@ float fbm(in float2 hPos)
 }
 
 
-float4 strifeFragment(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {	
 	float time = elapsed * .2f;
 

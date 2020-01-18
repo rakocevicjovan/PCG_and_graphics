@@ -172,7 +172,7 @@ float turbulentFBM(float3 x)
 }
 
 
-float4 LightPixelShader(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
 	
 	input.normal = normalize(input.normal);

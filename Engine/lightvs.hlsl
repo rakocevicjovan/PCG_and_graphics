@@ -17,7 +17,6 @@ cbuffer MatrixBuffer : register(b0)
 };
 
 
-
 struct VertexInputType
 {
     float4 position : POSITION;

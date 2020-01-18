@@ -71,7 +71,7 @@ float map(float value, float min1, float max1, float min2, float max2)
 
 
 
-float4 LightPixelShader(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
 	float4 texNormal = tex1.Sample(Sampler, input.tex);	//sample normal from the map
 	texNormal = 2.0f * texNormal - 1.f;					//remap it to [-1, 1]

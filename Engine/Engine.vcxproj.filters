@@ -29,18 +29,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Rendering\Shader Files\Volumetric">
-      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Common">
-      <UniqueIdentifier>{dc171221-b077-4f1b-afb0-932d39c23157}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Specific">
-      <UniqueIdentifier>{e1bad4ba-8d4f-45de-93e9-ad1efd03f633}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\PostProcessing">
-      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shader Files\Clouds">
       <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
     </Filter>
@@ -122,6 +110,24 @@
     </Filter>
     <Filter Include="Rendering\MaterialsNEW">
       <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Vertex shaders">
+      <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders">
+      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Geometry shaders">
+      <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders\Volumetric">
+      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders\PostProcessing">
+      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Functions">
+      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -766,52 +772,49 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="depth.vs">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="depth.ps">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="shadowvs.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="wireframe.gs">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="wireframe.ps">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="wireframe.vs">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="lightvs.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="lightps.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="cubemap.ps">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="cubemap.vs">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
-    <None Include="projectTex.ps">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </None>
-    <None Include="projectTex.vs">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </None>
-    <None Include="rekt.ps">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </None>
-    <None Include="rekt.vs">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </None>
-    <None Include="shadowps.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </None>
     <None Include="packages.config" />
+    <None Include="projectTexPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="rektPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="projectTexVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </None>
+    <None Include="depthVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </None>
+    <None Include="depthPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="cubemapVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </None>
+    <None Include="cubemapPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="wireframeGS.hlsl">
+      <Filter>Rendering\Shader Files\Geometry shaders</Filter>
+    </None>
+    <None Include="wireframePS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="wireframeVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </None>
+    <None Include="lightVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </None>
+    <None Include="shadowVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </None>
+    <None Include="lightPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="shadowPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
@@ -823,106 +826,46 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="volumAirPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumEarthPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumFirePS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="VolumJuliaPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumTreePS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumLavaPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="volumVS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumWaterPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="clipperPS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="clipperVS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="skyboxps.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="InstancedVS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="InstancedPS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="AnimaPS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="AnimaVS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="mazefloorVS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
-    <FxCompile Include="mazePS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
-    <FxCompile Include="mazeVS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
-    <FxCompile Include="skyboxvs.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="perlin3dVS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
-    <FxCompile Include="perlin3dPS.hlsl">
-      <Filter>Rendering\Shader Files\Specific</Filter>
-    </FxCompile>
-    <FxCompile Include="normalsTerrainPS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="terrainPS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="brightmaskPS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="bloomPS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurHorPS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurVerPS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="dragonPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="windpipePS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="windpipeVS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="dragonVS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumTornadoPS.hlsl">
-      <Filter>Rendering\Shader Files\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="waterPS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
-    </FxCompile>
-    <FxCompile Include="waterVS.hlsl">
-      <Filter>Rendering\Shader Files\Common</Filter>
+      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="strifevs.hlsl">
       <Filter>Rendering\Shader Files\Clouds</Filter>
@@ -930,14 +873,71 @@
     <FxCompile Include="strifeps.hlsl">
       <Filter>Rendering\Shader Files\Clouds</Filter>
     </FxCompile>
-    <FxCompile Include="Simplex.hlsl">
-      <Filter>Rendering\Shader Files\Clouds</Filter>
+    <FxCompile Include="windpipeVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Simplex_derivative.hlsl">
-      <Filter>Rendering\Shader Files\Clouds</Filter>
+    <FxCompile Include="volumVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="mazefloorVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="mazeVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="perlin3dVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="mazePS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="perlin3dPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="screenspaceVS.hlsl">
-      <Filter>Rendering\Shader Files\PostProcessing</Filter>
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Simplex_derivative.hlsl">
+      <Filter>Rendering\Shader Files\Functions</Filter>
+    </FxCompile>
+    <FxCompile Include="Simplex.hlsl">
+      <Filter>Rendering\Shader Files\Functions</Filter>
+    </FxCompile>
+    <FxCompile Include="AnimaVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="AnimaPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="InstancedPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="normalsTerrainPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="clipperVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="clipperPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="terrainPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="waterPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="waterVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="skyboxVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="skyboxPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

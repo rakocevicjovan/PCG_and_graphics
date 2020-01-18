@@ -1,15 +1,19 @@
-cbuffer MatrixBuffer
+cbuffer PerCameraBuffer : register(b10)
 {
-	matrix worldMatrix;
-	matrix viewMatrix;
 	matrix projectionMatrix;
 };
 
-
-cbuffer VariableBuffer
+cbuffer PerFrameBuffer : register(b11)
 {
-    float delta;
-	float3 padding;
+	matrix viewMatrix;
+	float dTime;
+	float eTime;
+	float2 padding;
+};
+
+cbuffer MatrixBuffer : register(b0)
+{
+	matrix worldMatrix;
 };
 
 
@@ -28,8 +32,9 @@ struct PixelInputType
 	float4 worldPos : WPOS;
 };
 
-PixelInputType CMVS(VertexInputType input){
-   
+
+PixelInputType main(VertexInputType input)
+{
 	PixelInputType output;
 
     output.worldPos = mul(input.position, worldMatrix);
