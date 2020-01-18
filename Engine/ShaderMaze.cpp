@@ -82,6 +82,6 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const M
 
 void ShaderMaze::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
-	deviceContext->VSSetShaderResources(0, 1, &(unbinder[0]));
+	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
+	deviceContext->VSSetShaderResources(0, 1, &(_unbinder[0]));
 }

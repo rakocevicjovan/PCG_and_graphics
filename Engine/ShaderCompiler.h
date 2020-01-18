@@ -35,7 +35,7 @@ public:
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
 
-		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
+		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 		{
 			outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
 			return false;
@@ -68,7 +68,7 @@ public:
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
 
-		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
+		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 		{	
 			outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
 			return false;
@@ -92,7 +92,7 @@ public:
 		ID3D10Blob* errorMessage = nullptr;
 		ID3D10Blob* shaderBuffer = nullptr;
 
-		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, NULL, "main", "gs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
+		if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 		{
 			outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
 			return false;

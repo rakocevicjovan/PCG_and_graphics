@@ -3,6 +3,8 @@
 
 
 
+
+
 ShaderBase::ShaderBase()
 {
 	_vertexShader = nullptr;
@@ -12,6 +14,9 @@ ShaderBase::ShaderBase()
 	_matrixBuffer = nullptr;
 	_lightBuffer = nullptr;
 }
+
+
+
 
 
 ShaderBase::~ShaderBase()
@@ -26,126 +31,36 @@ ShaderBase::~ShaderBase()
 
 
 
-bool ShaderBase::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
+
+
+
+
+
+
+
+bool ShaderBase::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-	//common
-	this->filePaths = filePaths;
+	bool result = true;
 
-	//common
-	ID3D10Blob* vertexShaderBuffer = nullptr;
-	ID3D10Blob* pixelShaderBuffer = nullptr;
-	ID3D10Blob* errorMessage = nullptr;
-	////////////////////
+	this->_filePaths = filePaths;
 
-	HRESULT result;
-
-	//NOT common
-	D3D11_BUFFER_DESC matrixBufferDesc, variableBufferDesc, lightBufferDesc;
-
-	result = D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
-		&vertexShaderBuffer, &errorMessage);
-
-	if (FAILED(result)) 
-	{
-		if (errorMessage)	OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
-		else	MessageBox(hwnd, filePaths.at(0).c_str(), L"Missing Shader File", MB_OK);
-		return false;
-	}
-
-	result = D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "main", "ps_5_0",
-		D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage);
-
-	if (FAILED(result)) 
-	{
-		if (errorMessage)	OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()));
-		else	MessageBox(hwnd, filePaths.at(1).c_str(), L"Missing Shader File", MB_OK);
-		return false;
-	}
-
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &_vertexShader);
-	if (FAILED(result))
-		return false;
-
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &_pixelShader);
-	if (FAILED(result))
-		return false;
-
-	result = device->CreateInputLayout(layoutDesc.data(), layoutDesc.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &_layout);
-	if (FAILED(result))
-		return false;
-
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = nullptr;
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = nullptr;
-
-	if (FAILED(device->CreateSamplerState(&samplerDesc, &_sampleState)))
-		return false;
+	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
+	result &= shc.compilePS(filePaths.at(1), _pixelShader);
+	result &= shc.createSamplerState(samplerDesc, _sampleState);
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBuffer);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createCBufferDesc(sizeof(MatrixBuffer));
+	result &= shc.createConstantBuffer(mmBuffDesc, _matrixBuffer);
 
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &_matrixBuffer)))
-		return false;
+	D3D11_BUFFER_DESC lightBuffDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
+	result &= shc.createConstantBuffer(lightBuffDesc, _lightBuffer);
 
-	// Setup the description of the variable dynamic constant buffer that is in the vertex shader.
-	variableBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	variableBufferDesc.ByteWidth = sizeof(VariableBuffer);
-	variableBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	variableBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	variableBufferDesc.MiscFlags = 0;
-	variableBufferDesc.StructureByteStride = 0;
-
-	// Create the variable constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&variableBufferDesc, NULL, &_variableBuffer);
-	if (FAILED(result))
-		return false;
-
-
-	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
-	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
-	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
-	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	lightBufferDesc.MiscFlags = 0;
-	lightBufferDesc.StructureByteStride = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&lightBufferDesc, NULL, &_lightBuffer);
-	if (FAILED(result))
-		return false;
-
-	return true;
+	return result;
 }
 
 
-void ShaderBase::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename)
-{
-	char* compileErrors = (char*)(errorMessage->GetBufferPointer());
-	unsigned long bufferSize = errorMessage->GetBufferSize();
 
-	std::ofstream fout;
-
-	fout.open("shader-error.txt");
-	
-	for (unsigned long i = 0; i < bufferSize; i++)
-		fout << compileErrors[i];
-
-	fout.close();
-
-	errorMessage->Release();
-	errorMessage = nullptr;
-
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
-}
 
 
 
@@ -177,17 +92,6 @@ bool ShaderBase::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat,
 
 	bufferNumber = 0;
 	dc->VSSetConstantBuffers(bufferNumber, 1, &_matrixBuffer);
-
-
-	//VARIABLE BUFFER
-	if (FAILED(dc->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
-	dataPtr3 = (VariableBuffer*)mappedResource.pData;
-	dataPtr3->deltaTime = deltaTime;
-	dataPtr3->padding = SVec3(); 
-	dc->Unmap(_variableBuffer, 0);
-	bufferNumber = 1;
-	dc->VSSetConstantBuffers(bufferNumber, 1, &_variableBuffer);
-	//END VARIABLE BUFFER
 
 
 	// Lock the light constant buffer so it can be written to.
@@ -226,7 +130,7 @@ bool ShaderBase::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat,
 
 void ShaderBase::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
+	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
 	//deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
 	//deviceContext->PSSetShaderResources(2, 1, &(unbinder[0]));
 	//deviceContext->PSSetShaderResources(3, 1, &(unbinder[0]));

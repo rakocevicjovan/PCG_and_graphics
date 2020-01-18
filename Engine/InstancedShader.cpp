@@ -99,7 +99,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 
 void InstancedShader::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
+	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
 }
 
 

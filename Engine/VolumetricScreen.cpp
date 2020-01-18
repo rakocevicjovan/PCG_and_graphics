@@ -17,7 +17,7 @@ VolumetricScreen::~VolumetricScreen()
 bool VolumetricScreen::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-	this->filePaths = filePaths;
+	this->_filePaths = filePaths;
 	if (!ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc))
 		return false;
 
