@@ -19,9 +19,9 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 {
 	_device = device;
 
-	D3D11_SAMPLER_DESC sbSamplerDesc;
-	ZeroMemory(&sbSamplerDesc, sizeof(sbSamplerDesc));
-	sbSamplerDesc = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
+	D3D11_SAMPLER_DESC regularSD;
+	ZeroMemory(&regularSD, sizeof(regularSD));
+	regularSD = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
 		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
@@ -36,8 +36,10 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	ShaderCompiler shc;
 	shc.init(&hwnd, device);
 
-	light.Initialize(shc, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
+	light.Initialize(shc, { L"lightVS.hlsl", L"lightPS.hlsl" }, sbLayout, regularSD);
 
+	D3D11_SAMPLER_DESC skbyoxSD = shc.createSamplerDesc(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_NEVER);
+	skyboxShader.Initialize(shc, { L"skyboxVS.hlsl", L"skyboxPS.hlsl" }, sbLayout, skbyoxSD);
 	
 	/*base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
 	clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
@@ -45,19 +47,19 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	depth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
 	texProjector.Initialize(_device, hwnd, { L"projectTex.vs", L"projectTex.ps" });
 	shadow.Initialize(_device, hwnd, { L"shadowvs.hlsl", L"shadowps.hlsl" });
-	*/
+	
 
-	wireframe.Initialize(_device, hwnd, { L"wireframe.vs", L"wireframe.gs", L"wireframe.ps" });
+	wireframe.Initialize(_device, hwnd, { L"wireframeVS.hlsl", L"wireframeGS.hlsl", L"wireframePS.hlsl" });
 
 	animator.Initialize(_device, hwnd, { L"AnimaVS.hlsl", L"AnimaPS.hlsl" });
 	//cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
-	skyboxShader.Initialize(_device, hwnd, { L"skyboxvs.hlsl", L"skyboxps.hlsl" });
-	strife.Initialize(_device, hwnd, { L"strifevs.hlsl", L"strifeps.hlsl" });
+	
+	strife.Initialize(_device, hwnd, { L"strifeVS.hlsl", L"strifePS.hlsl" });
 
 	//ui and post processing
-	HUD.Initialize(_device, hwnd, { L"rekt.vs", L"rekt.ps" });
+	HUD.Initialize(_device, hwnd, { L"rektVS.hlsl", L"rektPS.hlsl" });
 	
-	/*brightnessMasker.Initialize(_device, hwnd, { L"brightMaskVS.hlsl", L"brightMaskPS.hlsl" });
+	brightnessMasker.Initialize(_device, hwnd, { L"brightMaskVS.hlsl", L"brightMaskPS.hlsl" });
 	blurHor.Initialize(_device, hwnd, { L"blurVS.hlsl", L"blurHorPS.hlsl" });
 	blurVer.Initialize(_device, hwnd, { L"blurVS.hlsl", L"blurVerPS.hlsl" });
 	bloom.Initialize(_device, hwnd, { L"bloomVS.hlsl", L"bloomPS.hlsl" });
@@ -91,7 +93,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	sbSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 
 	perlin.Initialize(_device, hwnd, { L"perlin3dVS.hlsl", L"perlin3dPS.hlsl" }, sbLayout, sbSamplerDesc);
-	*/
+	
 
 	//with instancing
 	std::vector<D3D11_INPUT_ELEMENT_DESC> instancedLayout =
@@ -109,5 +111,5 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	instanced.Initialize(_device, hwnd, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, instancedLayout, sbSamplerDesc, 5000);
 	
 	//dragon.Initialize(_device, hwnd, { L"dragonVS.hlsl", L"dragonPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
-	
+	*/
 }

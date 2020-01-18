@@ -13,9 +13,11 @@ void ShaderCache::init(ShaderCompiler* shCompiler)
 
 void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 {
-	D3D11_BUFFER_DESC matrixBufferDesc, lightBufferDesc;
-	matrixBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(SMatrix));
-	lightBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
+	//VERTEX SHADERS
+
+	//DATA
+	D3D11_BUFFER_DESC matrixBufferDesc;
+	matrixBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(WMBuffer));
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayout =
 	{
@@ -24,11 +26,10 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,	0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	//_shCompiler->createSamplerDesc()
-
 	D3D11_SAMPLER_DESC sbSamplerDesc = _shCompiler->createSamplerDesc();
 
-	VertexShader* vs = new VertexShader(*_shCompiler, L"lightvs.hlsl", inLayout, { matrixBufferDesc });
+	//CREATION
+	VertexShader* vs = new VertexShader(*_shCompiler, L"lightVS.hlsl", inLayout, { matrixBufferDesc });
 	//make this happen during construction, if possible...need to load from files tbh
 	CBufferMeta meta(0, sizeof(SMatrix));
 	meta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix)));
@@ -38,7 +39,21 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 
 
-	PixelShader* ps = new PixelShader(*_shCompiler, L"lightps.hlsl", sbSamplerDesc, { lightBufferDesc });
+
+
+
+
+
+
+
+	//PIXEL SHADERS
+
+	//DATA
+	D3D11_BUFFER_DESC lightBufferDesc;
+	lightBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
+
+	//CREATION
+	PixelShader* ps = new PixelShader(*_shCompiler, L"lightPS.hlsl", sbSamplerDesc, { lightBufferDesc });
 	CBufferMeta psmeta(0, sizeof(LightBuffer));
 	psmeta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer)));
 	ps->describeBuffers({ psmeta });
