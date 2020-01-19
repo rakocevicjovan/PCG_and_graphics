@@ -143,9 +143,6 @@
     <ClCompile Include="Voronoi.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderCM.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderDepth.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
@@ -183,9 +180,6 @@
       <Filter>Procedural</Filter>
     </ClCompile>
     <ClCompile Include="ShaderMaze.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderClipper.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
@@ -374,13 +368,19 @@
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderLight.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
     <ClCompile Include="InstancedShader.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderClipper.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="Phong.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCM.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
   </ItemGroup>
@@ -421,9 +421,6 @@
     <ClInclude Include="ShaderDepth.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderCM.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderStrife.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
@@ -458,9 +455,6 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="ShaderMaze.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderClipper.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
@@ -763,13 +757,25 @@
     <ClInclude Include="ShaderManager.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderLight.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="Files.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderMeta.h">
+      <Filter>Rendering\AAANow do it properly</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderClipper.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="Phong.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCM.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
   </ItemGroup>

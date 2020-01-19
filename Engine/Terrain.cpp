@@ -1,7 +1,7 @@
 #include "Terrain.h"
 #include "Chaos.h"
 #include "Perlin.h"
-#include "ShaderLight.h"
+#include "Phong.h"
 #include "Camera.h"
 
 
@@ -426,7 +426,7 @@ namespace Procedural
 
 
 
-	void Terrain::Draw(ID3D11DeviceContext* dc, ShaderLight& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
+	void Terrain::Draw(ID3D11DeviceContext* dc, Phong& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 

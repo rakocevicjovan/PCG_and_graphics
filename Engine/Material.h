@@ -8,16 +8,18 @@
 class Material
 {
 protected:
+
 	//most important sorting criteria
 	VertexShader* _vertexShader;
 	PixelShader* _pixelShader;
 
 public:
-	//determines whether it goes to the transparent or opaque queue... different sorting
-	bool opaque;
 
 	//second most important sorting criteria
 	std::vector<Texture*> textures;
+
+	//determines whether it goes to the transparent or opaque queue... different sorting
+	bool opaque;
 
 	//determines how many textures are added by the shader itself
 	//won't ever have 256 textures so that's even too big but can't help it for now without bitsets meh...
@@ -30,7 +32,7 @@ public:
 
 	Material();
 	~Material();
-
+	
 	void setVS(VertexShader* vs);
 	void setPS(PixelShader* ps);
 

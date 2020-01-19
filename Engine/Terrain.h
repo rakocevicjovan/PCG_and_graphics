@@ -6,7 +6,7 @@
 #include "Light.h"
 #include "Texture.h"
 
-class ShaderLight;
+class Phong;
 class Camera;
 
 namespace Procedural 
@@ -90,7 +90,7 @@ namespace Procedural
 		void CalculateTexCoords();
 		SVec3 calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2);
 		bool SetUp(ID3D11Device* device);
-		void Draw(ID3D11DeviceContext* dc, ShaderLight& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
+		void Draw(ID3D11DeviceContext* dc, Phong& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
 
 		void populateMesh(std::vector<Vert3D>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
 		{

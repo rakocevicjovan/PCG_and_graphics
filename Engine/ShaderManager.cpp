@@ -40,6 +40,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	D3D11_SAMPLER_DESC skbyoxSD = shc.createSamplerDesc(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_NEVER);
 	skyboxShader.Initialize(shc, { L"skyboxVS.hlsl", L"skyboxPS.hlsl" }, sbLayout, skbyoxSD);
+	//cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" }, sbLayout, skbyoxSD);
 	
 	/*base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
 	clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
@@ -47,13 +48,8 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	depth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
 	texProjector.Initialize(_device, hwnd, { L"projectTex.vs", L"projectTex.ps" });
 	shadow.Initialize(_device, hwnd, { L"shadowvs.hlsl", L"shadowps.hlsl" });
-	
-
 	wireframe.Initialize(_device, hwnd, { L"wireframeVS.hlsl", L"wireframeGS.hlsl", L"wireframePS.hlsl" });
-
 	animator.Initialize(_device, hwnd, { L"AnimaVS.hlsl", L"AnimaPS.hlsl" });
-	//cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" });
-	
 	strife.Initialize(_device, hwnd, { L"strifeVS.hlsl", L"strifePS.hlsl" });
 
 	//ui and post processing

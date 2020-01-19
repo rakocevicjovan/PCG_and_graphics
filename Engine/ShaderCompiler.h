@@ -7,7 +7,7 @@
 #include <fstream>
 #include <vector>
 
-
+#define DECIMATE(x) if(x) { x->Release(); x = nullptr; }
 
 class ShaderCompiler
 {

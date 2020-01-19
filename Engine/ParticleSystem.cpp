@@ -1,7 +1,7 @@
 #include "ParticleSystem.h"
 #include "Model.h"
 
-class ShaderLight;
+class Phong;
 
 
 ParticleSystem::ParticleSystem()
@@ -42,7 +42,7 @@ void ParticleSystem::init(Model* pModel, unsigned int particleCount, SMatrix tra
 
 
 
-void ParticleSystem::setShader(ShaderLight* shader)
+void ParticleSystem::setShader(Phong* shader)
 {
 	_shader = shader;
 }

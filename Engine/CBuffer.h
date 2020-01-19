@@ -61,7 +61,7 @@ public:
 
 
 	//@TODO rething this, so far everything would have to be packed at once or maps multiple times...
-	static bool updateBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, UCHAR* data, size_t size, size_t offset)
+	static void updateBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, UCHAR* data, size_t size, size_t offset)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		map(cont, cbuffer, mappedResource);

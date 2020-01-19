@@ -1,10 +1,4 @@
 #pragma once
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dcompiler.lib")
-
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <fstream>
 #include <vector>
 #include <string>
 #include "Math.h"
@@ -14,9 +8,7 @@
 
 class Camera;
 
-#define DECIMATE(x) if(x) { x->Release(); x = nullptr; }
-
-class ShaderLight
+class Phong
 {
 protected:
 
@@ -24,8 +16,8 @@ protected:
 	ID3D11ShaderResourceView* _unbinder[1] = { nullptr };
 
 public:
-	ShaderLight();
-	~ShaderLight();
+	Phong();
+	~Phong();
 
 	bool Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);

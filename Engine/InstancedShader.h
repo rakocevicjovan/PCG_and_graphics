@@ -1,5 +1,5 @@
 #pragma once
-#include "ShaderLight.h"
+#include "Phong.h"
 
 class Camera;
 
@@ -39,9 +39,9 @@ public:
 	ID3D11Buffer* _lightBuffer;
 	ID3D11Buffer* _instanceBuffer;
 
-	RenderFormat renderFormat;		//belongs to vertex data, shouldn't be here
+	RenderFormat renderFormat;		//should it be here?
 
-	unsigned int texturesAdded = 0;	//not robust
+	unsigned int texturesAdded = 0;	//not robust...
 	
 	unsigned int _instanceCount;
 };

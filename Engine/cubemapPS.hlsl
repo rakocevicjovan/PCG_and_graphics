@@ -1,4 +1,6 @@
-cbuffer LightBuffer
+#include "Light.hlsli"
+
+cbuffer LightBuffer : register(b0)
 {
 	float3 alc;
 	float ali;
@@ -22,33 +24,7 @@ struct PixelInputType
 TextureCube cubeMapTexture;
 SamplerState Sampler;
 
-
 static const float SpecularPower = 64.f;
-
-
-float4 calcAmbient(in float3 alc, in float ali)
-{
-	return saturate(float4(alc, 1.0f) * ali);
-}
-
-
-float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float dFactor)
-{	
-	dFactor = max(dot(normal, invLightDir), 0.0f);
-	return saturate(float4(dlc, 1.0f) * dli * dFactor);
-}
-
-
-float4 calcSpecular(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float dFactor)
-{
-	float3 reflection = normalize(reflect(invLightDir, normal));
-	float sFactor = pow(saturate(dot(reflection, invViewDir)), SpecularPower);
-	return saturate(float4(slc, 1.0f) * sFactor * sli * dFactor);	// sli
-}
-
-
-
-static const float iceRefractionIndex = 1.309;
 
 float4 main(PixelInputType input) : SV_TARGET
 {
@@ -63,14 +39,10 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	float4 colour = cubeMapTexture.Sample(Sampler, reflected);
 
-	//float3 refracted = refract(incident, input.normal, iceRefractionIndex);
-	//float4 refrColour = cubeMapTexture.Sample(Sampler, refracted);
-	//colour = lerp(colour, refrColour, .5f);
-
 	float4 ambient = calcAmbient(alc, ali);
 	float dFactor = 0.f;
 	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
-	float4 specular = calcSpecular(invLightDir, input.normal, slc, sli, viewDir, dFactor);
+	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, sli, viewDir, dFactor, SpecularPower);
 	colour = (ambient + diffuse) * colour + specular;
 
 	colour.rgb = pow( colour.xyz, float3(0.333, 0.333, 0.333));

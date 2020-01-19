@@ -3,7 +3,7 @@
 
 #include "Animator.h"
 #include "ShaderDataStructs.h"
-#include "ShaderLight.h"
+#include "Phong.h"
 #include "ShaderDepth.h"
 #include "ShaderShadow.h"
 #include "ShaderHUD.h"
@@ -35,7 +35,7 @@ protected:
 public:
 
 	Animator animator;
-	ShaderLight light;
+	Phong light;
 	WireframeShader wireframe;
 	ShaderHUD HUD, brightnessMasker, blurHor, blurVer, bloom;
 	ShaderDepth depth;

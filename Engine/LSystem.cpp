@@ -446,7 +446,7 @@ namespace Procedural
 
 
 
-	void LSystem::drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s, 
+	void LSystem::drawAsLines(ID3D11DeviceContext* dc, Phong& s, 
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt, 
 			const PointLight& dLight, float deltaTime, SVec3 eyePos)
 	{

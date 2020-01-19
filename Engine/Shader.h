@@ -1,28 +1,26 @@
 #pragma once
-
 #include "ShaderCompiler.h"
 #include "Math.h"
 #include "Light.h"
 #include "CBuffer.h"
 
 
-enum class SHADER_TYPE { VS, GS, PS };
+enum class SHADER_TYPE { VS, GS, PS, TS, HS };
 
 
 class Shader
 {
 protected:
 	static UINT ID_COUNTER;
+	Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
 	const UINT _id;
-	SHADER_TYPE type;
-	std::string path;
+	SHADER_TYPE _type;
+	std::wstring _path;
 
 	std::vector<CBufferMeta> _bufferMetaData;
 	std::vector<ID3D11Buffer*> _cbuffers;
-
-	Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 	//copout for when the automatic system doesn't work
 	bool updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);

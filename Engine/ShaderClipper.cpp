@@ -14,20 +14,28 @@ ShaderClipper::~ShaderClipper()
 
 
 
-bool ShaderClipper::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths,
+bool ShaderClipper::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-	//ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
+	bool result = true;
 
-	this->filePaths = filePaths;
+	this->_filePaths = filePaths;
 
-	D3D11_BUFFER_DESC clipperBufferDesc;
-	clipperBufferDesc = ShaderCompiler::createBufferDesc(sizeof(ClipperBuffer));
+	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
+	result &= shc.compilePS(filePaths.at(1), _pixelShader);
+	result &= shc.createSamplerState(samplerDesc, _sampleState);
 
-	if (FAILED(device->CreateBuffer(&clipperBufferDesc, NULL, &_clipperBuffer)))
-		return false;
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
+	result &= shc.createConstantBuffer(mmBuffDesc, _matrixBuffer);
 
-	return true;
+	D3D11_BUFFER_DESC lightBuffDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
+	result &= shc.createConstantBuffer(lightBuffDesc, _lightBuffer);
+
+	D3D11_BUFFER_DESC clipperBufferDesc = ShaderCompiler::createBufferDesc(sizeof(ClipperBuffer));
+	result &= shc.createConstantBuffer(clipperBufferDesc, _clipperBuffer);
+
+	return result;
 }
 
 
@@ -51,24 +59,18 @@ bool ShaderClipper::SetClipper(ID3D11DeviceContext* deviceContext, const SVec4& 
 
 bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMatrix& mMat, const Camera& cam, const PointLight& pLight, float elapsed)
 {
-	/*
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	WMBuffer* dataPtr;
 	LightBuffer* dataPtr2;
 
 	SMatrix mT = mMat.Transpose();
-	SMatrix vT = cam.GetViewMatrix().Transpose();
-	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr = (WMBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
 	deviceContext->Unmap(_matrixBuffer, 0);
-
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
-
 	deviceContext->VSSetConstantBuffers(1, 1, &_clipperBuffer);
-
 
 	if (FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))	return false;
 	dataPtr2 = (LightBuffer*)mappedResource.pData;
@@ -87,13 +89,6 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
-	*/
-
-
-	//if(model.textures_loaded.size() != 0)
-	//for (int i = 0; i < model.loadedTexList.size(); i++)
-		//deviceContext->PSSetShaderResources(0, 1, &(model.loadedTexList[i].srv));
-
 
 	return true;
 }

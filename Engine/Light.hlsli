@@ -3,13 +3,18 @@
 float3 applyFog(in float3  rgb,		// original color of the pixel
 	in float distance,				// camera to point distance
 	in float3  rayDir,				// camera to point vector
-	in float3  sunDir)				// sun light direction
+	in float3  lightDir)			// light direction
 {
-	float fogAmount = 1.0 - exp(-distance * 0.0001f)
-	float moonIntensity = max(dot(rayDir, sunDir), 0.0);
-	float3 fogColor = lerp(float3(0.5, 0.6, 0.8), // bluish
+	float fogAmount = 1.0 - exp(-distance * 0.0001f);
+
+	float lightIntensity = max(dot(rayDir, lightDir), 0.0);
+
+	float3 fogColor = lerp(
+		float3(0.5, 0.6, 0.8), // bluish
 		float3(1.0, 0.9, 0.7), // yellowish
-		pow(moonIntensity, 8.0));
+		pow(lightIntensity, 8.0)
+	);
+
 	return lerp(rgb, fogColor, fogAmount);
 }
 

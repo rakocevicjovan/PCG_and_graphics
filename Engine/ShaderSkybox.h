@@ -1,9 +1,9 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "ShaderCompiler.h"
 #include "Math.h"
 #include "Light.h"
+#include "ShaderCompiler.h"
 #include "ShaderDataStructs.h"
 
 class Model;

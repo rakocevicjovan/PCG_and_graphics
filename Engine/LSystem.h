@@ -3,7 +3,7 @@
 #include <map>
 #include "Math.h"
 #include "MeshDataStructs.h"
-#include "ShaderLight.h"
+#include "Phong.h"
 #include "Model.h"
 
 namespace Procedural
@@ -51,7 +51,7 @@ namespace Procedural
 		Model genModel(ID3D11Device* pDevice, float length, float radius, const float lengthConstriction, const float radiusConstriction, float pitch, float yaw);
 		Model genFlower(ID3D11Device* pDevice, Model* petalModel, float stalkSegmentLength, float stalkRadius, float deescalator, float angle, float tilt);
 		void setUp(ID3D11Device* pDevice);
-		void drawAsLines(ID3D11DeviceContext* dc, ShaderLight& s,
+		void drawAsLines(ID3D11DeviceContext* dc, Phong& s,
 			const SMatrix& mt, const SMatrix& vt, const SMatrix& pt,
 			const PointLight& dLight, float deltaTime, SVec3 eyePos);
 		std::string getString() { return _current; }

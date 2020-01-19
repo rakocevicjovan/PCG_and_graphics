@@ -1,11 +1,11 @@
-#include "ShaderLight.h"
+#include "Phong.h"
 #include "Camera.h"
 
 
 
 
 
-ShaderLight::ShaderLight()
+Phong::Phong()
 {
 	_vertexShader = nullptr;
 	_pixelShader = nullptr;
@@ -17,7 +17,7 @@ ShaderLight::ShaderLight()
 
 
 
-ShaderLight::~ShaderLight()
+Phong::~Phong()
 {
 	DECIMATE(_vertexShader);
 	DECIMATE(_pixelShader);
@@ -29,12 +29,12 @@ ShaderLight::~ShaderLight()
 
 
 
-bool ShaderLight::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
+bool Phong::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
 	bool result = true;
 
-	this->_filePaths = filePaths;
+	_filePaths = filePaths;
 
 	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
 	result &= shc.compilePS(filePaths.at(1), _pixelShader);
@@ -52,7 +52,7 @@ bool ShaderLight::Initialize(const ShaderCompiler& shc, const std::vector<std::w
 
 
 
-bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
+bool Phong::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;
@@ -60,9 +60,6 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat
 	LightBuffer* lptr;
 
 	SMatrix mT = modelMat.Transpose();
-	SMatrix vT = cam.GetViewMatrix().Transpose();
-	SMatrix pT = cam.GetProjectionMatrix().Transpose();
-
 
 	//WMBuffer
 	if (FAILED(dc->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
@@ -110,7 +107,7 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat
 
 
 
-void ShaderLight::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
+void Phong::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
 	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
 	//deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));

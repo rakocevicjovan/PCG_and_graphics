@@ -220,7 +220,7 @@
     <ClCompile Include="RTSController.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="ShaderLight.cpp" />
+    <ClCompile Include="Phong.cpp" />
     <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="ShaderClipper.cpp" />
     <ClCompile Include="ShaderCM.cpp" />
@@ -271,6 +271,7 @@
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Economy.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Files.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
     <ClInclude Include="IndustrialBuilding.h" />
@@ -280,6 +281,7 @@
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="QTObject.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="ShaderMeta.h" />
     <ClInclude Include="SlotVector.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
@@ -341,7 +343,7 @@
     <ClInclude Include="RTSController.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderLight.h" />
+    <ClInclude Include="Phong.h" />
     <ClInclude Include="ShaderClipper.h" />
     <ClInclude Include="ShaderCM.h" />
     <ClInclude Include="ShaderCompiler.h" />

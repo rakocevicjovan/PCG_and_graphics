@@ -22,7 +22,7 @@ bool InstancedShader::Initialize(const ShaderCompiler& shc, const std::vector<st
 {
 	bool result = true;
 
-	this->_filePaths = filePaths;
+	_filePaths = filePaths;
 
 	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
 	result &= shc.compilePS(filePaths.at(1), _pixelShader);

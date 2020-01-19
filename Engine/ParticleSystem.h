@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "ParticleBase.h"
-#include "ShaderLight.h"
+#include "Phong.h"
 
 class Model;
 
@@ -11,7 +11,7 @@ public:
 
 	unsigned int _numParticles;
 	Model* _model;
-	ShaderLight* _shader;
+	Phong* _shader;
 	ParticleUpdateData* pud;
 	SMatrix _transform;
 	std::vector<ParticleBase*> _particles;
@@ -20,7 +20,7 @@ public:
 	~ParticleSystem();
 
 	void init(Model* pModel, unsigned int particleCount, SMatrix transform);
-	void setShader(ShaderLight* shader);
+	void setShader(Phong* shader);
 	void setUpdateFunction(std::function<void(ParticleUpdateData* pud)> particleUpdFunc);
 	void update(float deltaTime);
 	void draw(ID3D11DeviceContext* dc);
