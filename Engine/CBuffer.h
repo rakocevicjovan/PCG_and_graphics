@@ -37,25 +37,42 @@ class CBuffer
 {
 public:
 
-	static bool map(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer)
+	inline static bool map(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, D3D11_MAPPED_SUBRESOURCE& mappedResource)
 	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-
 		if (FAILED(cont->Map(cbuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 			return false;
+
+		return true;
 	}
 
+
+	inline static void updateField(ID3D11Buffer*& cbuffer, UCHAR* data, size_t size, size_t offset, D3D11_MAPPED_SUBRESOURCE mappedResource)
+	{
+		UCHAR* dataPtr = (UCHAR*)mappedResource.pData;
+		memcpy(dataPtr + offset, data, size);
+	}
+
+
+	inline static void unmap(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer)
+	{
+		cont->Unmap(cbuffer, 0);
+	}
+
+
+
+	//@TODO rething this, so far everything would have to be packed at once or maps multiple times...
 	static bool updateBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, UCHAR* data, size_t size, size_t offset)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-
-		if (FAILED(cont->Map(cbuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-			return false;
+		map(cont, cbuffer, mappedResource);
 
 		UCHAR* dataPtr = (UCHAR*)mappedResource.pData;
 		memcpy(dataPtr + offset, data, size);
-		cont->Unmap(cbuffer, 0);
+		
+		unmap(cont, cbuffer);
 	}
+
+
 };
 
 

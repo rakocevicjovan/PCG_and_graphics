@@ -22,7 +22,7 @@ bool ShaderClipper::Initialize(ID3D11Device* device, HWND hwnd, const std::vecto
 	this->filePaths = filePaths;
 
 	D3D11_BUFFER_DESC clipperBufferDesc;
-	clipperBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(ClipperBuffer));
+	clipperBufferDesc = ShaderCompiler::createBufferDesc(sizeof(ClipperBuffer));
 
 	if (FAILED(device->CreateBuffer(&clipperBufferDesc, NULL, &_clipperBuffer)))
 		return false;

@@ -38,11 +38,11 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d
 
 bool Renderer::createGlobalBuffers()
 {
-	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(PerCameraBuffer));
+	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PerCameraBuffer));
 	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_perCamBuffer)))
 		return false;
 
-	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(PerFrameBuffer));
+	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PerFrameBuffer));
 	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &_perFrameBuffer)))
 		return false;
 

@@ -17,23 +17,35 @@ InstancedShader::~InstancedShader()
 
 
 
-bool InstancedShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths, 
+bool InstancedShader::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc, unsigned int instanceBufferSizeInElements)
 {
-	//ShaderBase::Initialize(device, hwnd, filePaths, layoutDesc, samplerDesc);
+	bool result = true;
 
-	D3D11_BUFFER_DESC instanceBufferDesc;
-	instanceBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	instanceBufferDesc.ByteWidth = sizeof(InstanceData) * instanceBufferSizeInElements;
-	instanceBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	instanceBufferDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
-	instanceBufferDesc.MiscFlags = 0;
-	instanceBufferDesc.StructureByteStride = 0;
+	this->_filePaths = filePaths;
 
-	if (FAILED(device->CreateBuffer(&instanceBufferDesc, NULL, &_instanceBuffer)))
-		return false;
+	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
+	result &= shc.compilePS(filePaths.at(1), _pixelShader);
+	result &= shc.createSamplerState(samplerDesc, _sampleState);
 
-	return true;
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
+	result &= shc.createConstantBuffer(mmBuffDesc, _matrixBuffer);
+
+	D3D11_BUFFER_DESC lightBuffDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
+	result &= shc.createConstantBuffer(lightBuffDesc, _lightBuffer);
+
+
+	D3D11_BUFFER_DESC instanceBufferDesc = 
+		shc.createBufferDesc(
+			sizeof(InstanceData) * instanceBufferSizeInElements, 
+			D3D11_USAGE_DYNAMIC,
+			D3D11_BIND_VERTEX_BUFFER,
+			D3D11_CPU_ACCESS_WRITE
+		);
+	shc.createConstantBuffer(instanceBufferDesc, _instanceBuffer);
+	
+	return result;
 }
 
 
@@ -41,34 +53,22 @@ bool InstancedShader::Initialize(ID3D11Device* device, HWND hwnd, const std::vec
 bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float dTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	WMBuffer* matrixBufferPtr;
+	WMBuffer* wmptr;
 	InstanceData* instanceDataPtr;
-	VariableBuffer* varBufferPtr;
 	LightBuffer* lightBufferPtr;
 
 	SMatrix mT = model.transform.Transpose();
-	SMatrix vT = cam.GetViewMatrix().Transpose();
-	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 
-	/*
+	
+	//WMBuffer
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	matrixBufferPtr = (MatrixBuffer*)mappedResource.pData;
-	matrixBufferPtr->world = mT;
-	matrixBufferPtr->view = vT;
-	matrixBufferPtr->projection = pT;
+	wmptr = (WMBuffer*)mappedResource.pData;
+	wmptr->world = mT;
 	deviceContext->Unmap(_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 
-	if (FAILED(deviceContext->Map(_variableBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-		return false;
-	varBufferPtr = (VariableBuffer*)mappedResource.pData;
-	varBufferPtr->deltaTime = dTime;
-	varBufferPtr->padding = SVec3();
-	deviceContext->Unmap(_variableBuffer, 0);
-	deviceContext->VSSetConstantBuffers(1, 1, &_variableBuffer);
-
-
+	//LightBuffer
 	if (FAILED(deviceContext->Map(_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	lightBufferPtr = (LightBuffer*)mappedResource.pData;
@@ -83,6 +83,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 	deviceContext->Unmap(_lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
 
+
 	if (FAILED(deviceContext->Map(_instanceBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	memcpy(mappedResource.pData, _instanceData.data(), _instanceData.size() * sizeof(InstanceData));
@@ -93,7 +94,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Mo
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
-	*/
+
 	return true;
 }
 

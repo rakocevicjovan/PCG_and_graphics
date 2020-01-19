@@ -158,9 +158,6 @@
     <ClCompile Include="ShaderShadow.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
@@ -168,9 +165,6 @@
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="InstancedShader.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="Volumetric.cpp">
@@ -374,14 +368,20 @@
     <ClCompile Include="Celestials.cpp">
       <Filter>Rendering\Lights</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderLight.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\AAANow do it properly\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderLight.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderSkybox.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="InstancedShader.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -412,9 +412,6 @@
     <ClInclude Include="ShaderShadow.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderSkybox.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderPT.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
@@ -438,9 +435,6 @@
     </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="InstancedShader.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="Volumetric.h">
       <Filter>Procedural</Filter>
@@ -766,11 +760,17 @@
     <ClInclude Include="Celestials.h">
       <Filter>Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderLight.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderManager.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLight.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderSkybox.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="InstancedShader.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

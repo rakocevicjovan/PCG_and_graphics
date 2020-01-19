@@ -17,7 +17,7 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	//DATA
 	D3D11_BUFFER_DESC matrixBufferDesc;
-	matrixBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(WMBuffer));
+	matrixBufferDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayout =
 	{
@@ -50,7 +50,7 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	//DATA
 	D3D11_BUFFER_DESC lightBufferDesc;
-	lightBufferDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
+	lightBufferDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
 
 	//CREATION
 	PixelShader* ps = new PixelShader(*_shCompiler, L"lightPS.hlsl", sbSamplerDesc, { lightBufferDesc });

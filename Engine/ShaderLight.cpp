@@ -41,10 +41,10 @@ bool ShaderLight::Initialize(const ShaderCompiler& shc, const std::vector<std::w
 	result &= shc.createSamplerState(samplerDesc, _sampleState);
 
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createCBufferDesc(sizeof(WMBuffer));
+	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
 	result &= shc.createConstantBuffer(mmBuffDesc, _matrixBuffer);
 
-	D3D11_BUFFER_DESC lightBuffDesc = ShaderCompiler::createCBufferDesc(sizeof(LightBuffer));
+	D3D11_BUFFER_DESC lightBuffDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
 	result &= shc.createConstantBuffer(lightBuffDesc, _lightBuffer);
 
 	return result;
@@ -70,7 +70,6 @@ bool ShaderLight::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat
 
 	wmptr = (WMBuffer*)mappedResource.pData;	// Get a pointer to the data in the constant buffer.
 	wmptr->world = mT;
-
 	dc->Unmap(_matrixBuffer, 0);
 
 	bufferNumber = 0;

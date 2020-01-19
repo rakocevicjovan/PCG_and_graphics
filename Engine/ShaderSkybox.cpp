@@ -33,7 +33,7 @@ bool ShaderSkybox::Initialize(const ShaderCompiler& shc,const std::vector<std::w
 	result &= shc.compilePS(filePaths.at(1), _pixelShader);
 	result &= shc.createSamplerState(samplerDesc, _sampleState);
 
-	D3D11_BUFFER_DESC matrixBufferDesc = shc.createCBufferDesc(sizeof(SMatrix));
+	D3D11_BUFFER_DESC matrixBufferDesc = shc.createBufferDesc(sizeof(SMatrix));
 	result &= shc.createConstantBuffer(matrixBufferDesc, _matrixBuffer);
 
 	return true;
@@ -53,6 +53,7 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->Unmap(_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 
+	//questionable @TODO
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->VSSetShader(_vertexShader, NULL, 0);
 	deviceContext->PSSetShader(_pixelShader, NULL, 0);

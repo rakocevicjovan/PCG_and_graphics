@@ -193,7 +193,7 @@ public:
 
 
 
-	inline static D3D11_BUFFER_DESC createCBufferDesc(
+	inline static D3D11_BUFFER_DESC createBufferDesc(
 		UINT byteWidth,
 		D3D11_USAGE usage = D3D11_USAGE_DYNAMIC,
 		D3D11_BIND_FLAG binding = D3D11_BIND_CONSTANT_BUFFER,
