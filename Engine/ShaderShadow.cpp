@@ -32,7 +32,7 @@ ShaderShadow::~ShaderShadow()
 
 
 bool ShaderShadow::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
-	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& sdWrap, const D3D11_SAMPLER_DESC& sdClamp)
 {
 	bool result = true;
 
@@ -42,14 +42,14 @@ bool ShaderShadow::Initialize(const ShaderCompiler& shc, const std::vector<std::
 	result &= shc.compilePS(filePaths.at(1), _pixelShader);
 
 	// First sample state is the usual, other one has clamping on all axes
-	result &= shc.createSamplerState(samplerDesc, _sampleStateWrap);
-	result &= shc.createSamplerState(samplerDesc, _sampleStateClamp);
+	result &= shc.createSamplerState(sdWrap, _sampleStateWrap);
+	result &= shc.createSamplerState(sdClamp, _sampleStateClamp);
 
 	
 	D3D11_BUFFER_DESC matrixBufferDesc = shc.createBufferDesc(sizeof(WMBuffer));
 	result &= shc.createConstantBuffer(matrixBufferDesc, _matrixBuffer);
 
-	D3D11_BUFFER_DESC shadowMatrixBufferDesc = shc.createBufferDesc(sizeof(ShadowMatrixBuffer));
+	D3D11_BUFFER_DESC shadowMatrixBufferDesc = shc.createBufferDesc(sizeof(ViewProjBuffer));
 	result &= shc.createConstantBuffer(shadowMatrixBufferDesc, _shadowMatrixBuffer);
 
 	D3D11_BUFFER_DESC lightBufferDesc = shc.createBufferDesc(sizeof(LightBuffer));
@@ -67,7 +67,7 @@ bool ShaderShadow::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 
 	WMBuffer* wmBuffer;
-	ShadowMatrixBuffer* shadowMatBuffer;
+	ViewProjBuffer* shadowMatBuffer;
 	LightBuffer* lightBuffer;
 
 	SMatrix mT = mMat.Transpose();
@@ -89,7 +89,7 @@ bool ShaderShadow::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	result = deviceContext->Map(_shadowMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result))
 		return false;
-	shadowMatBuffer = (ShadowMatrixBuffer*)mappedResource.pData;
+	shadowMatBuffer = (ViewProjBuffer*)mappedResource.pData;
 	shadowMatBuffer->lightView = v2T;
 	shadowMatBuffer->lightProjection = p2T;
 	deviceContext->Unmap(_shadowMatrixBuffer, 0);

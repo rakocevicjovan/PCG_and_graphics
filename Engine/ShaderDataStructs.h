@@ -15,13 +15,19 @@ struct RenderFormat
 };
 
 
+struct Vec4Buffer
+{
+	SVec4 vec4;
+};
+
+
 struct WMBuffer
 {
 	SMatrix world;
 };
 
 
-struct ShadowMatrixBuffer
+struct ViewProjBuffer
 {
 	SMatrix lightView;
 	SMatrix lightProjection;

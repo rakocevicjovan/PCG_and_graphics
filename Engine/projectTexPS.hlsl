@@ -1,14 +1,18 @@
-Texture2D shaderTexture : register(t0);
-Texture2D projectionTexture : register(t1);
+Texture2D projectionTexture : register(t0);
+Texture2D shaderTexture : register(t1);
 
 SamplerState SampleType;
 
-cbuffer LightBuffer
+cbuffer LightBuffer : register(b0)
 {
-    float4 ambientColor;
-    float4 diffuseColor;
-    float3 lightDirection;
-    float padding;
+	float3 alc;
+	float ali;
+	float3 dlc;
+	float dli;
+	float3 slc;
+	float sli;
+	float4 lightPosition;
+	float4 eyePos;
 };
 
 
@@ -30,14 +34,14 @@ float4 main(PixelInputType input) : SV_TARGET
     float2 projectTexCoord;
     float4 projectionColor;
 
-    color = ambientColor;
-    lightDir = -lightDirection;
+    color = alc * ali;
+    lightDir = -lightPosition.xyz;
     lightIntensity = saturate(dot(input.normal, lightDir));
 
     if(lightIntensity > 0.0f)
 	{
         // Determine the light color based on the diffuse color and the amount of light intensity.
-        color += (diffuseColor * lightIntensity);
+        color += (dlc * dli * lightIntensity);
     }
 
     color = saturate(color);

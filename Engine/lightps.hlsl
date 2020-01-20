@@ -1,6 +1,6 @@
 #include "Light.hlsli"
 
-cbuffer LightBuffer
+cbuffer LightBuffer : register(b0)
 {
 	float3 alc;
 	float ali;

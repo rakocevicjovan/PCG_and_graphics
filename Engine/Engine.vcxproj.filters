@@ -143,12 +143,6 @@
     <ClCompile Include="Voronoi.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderHUD.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderPT.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
@@ -169,9 +163,6 @@
     </ClCompile>
     <ClCompile Include="Maze.cpp">
       <Filter>Procedural</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderMaze.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
@@ -383,6 +374,15 @@
     <ClCompile Include="ShaderShadow.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderHUD.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderPT.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderMaze.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -409,12 +409,6 @@
     <ClInclude Include="Voronoi.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderPT.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderHUD.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderStrife.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
@@ -439,14 +433,8 @@
     <ClInclude Include="ShaderVolumetric.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderDataStructs.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="Maze.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderMaze.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
       <Filter>Rendering\MaterialsOLD</Filter>
@@ -776,6 +764,18 @@
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
     <ClInclude Include="ShaderShadow.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderHUD.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderPT.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderDataStructs.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderMaze.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
   </ItemGroup>

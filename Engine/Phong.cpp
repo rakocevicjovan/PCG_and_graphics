@@ -3,8 +3,6 @@
 
 
 
-
-
 Phong::Phong()
 {
 	_vertexShader = nullptr;
@@ -110,7 +108,4 @@ bool Phong::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, cons
 void Phong::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
 	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
-	//deviceContext->PSSetShaderResources(1, 1, &(unbinder[0]));
-	//deviceContext->PSSetShaderResources(2, 1, &(unbinder[0]));
-	//deviceContext->PSSetShaderResources(3, 1, &(unbinder[0]));
 }

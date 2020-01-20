@@ -19,7 +19,7 @@ public:
 	~ShaderShadow();
 
 	bool Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
-		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
+		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& wrap, const D3D11_SAMPLER_DESC& clamp);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMatrix& mMat, const SMatrix& vLight,
 		const SMatrix& pLight, const PointLight& dLight, const SVec3& eyePos, ID3D11ShaderResourceView* projectionTexture);
 
