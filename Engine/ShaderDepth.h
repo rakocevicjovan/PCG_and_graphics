@@ -1,9 +1,8 @@
 #pragma once
 #include <d3d11.h>
 #include <vector>
+#include "ShaderCompiler.h"
 #include "ShaderDataStructs.h"
-
-class Model;
 
 class ShaderDepth
 {
@@ -11,21 +10,23 @@ public:
 	ShaderDepth();
 	~ShaderDepth();
 
-	bool Initialize(ID3D11Device*, HWND, const std::vector<std::wstring>);
-	bool SetShaderParameters(ID3D11DeviceContext*, Model&, const SMatrix&, const SMatrix&);
+	bool Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
+		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
+	bool SetShaderParameters(ID3D11DeviceContext*, const SMatrix&);
 	void ShaderDepth::ShutdownShader();
 
 	RenderFormat renderFormat;
 	unsigned int texturesAdded = 0;
 
 private:
-	bool InitializeShader(ID3D11Device*, HWND);
-	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR);
-	
-	ID3D11VertexShader* m_vertexShader;
-	ID3D11PixelShader* m_pixelShader;
-	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer;
-	std::vector<std::wstring> filePaths;
-};
 
+	ID3D11InputLayout* _layout;
+	ID3D11SamplerState* _sampleState;
+	
+	ID3D11VertexShader* _vertexShader;
+	ID3D11PixelShader* _pixelShader;
+
+	ID3D11Buffer* _matrixBuffer;
+
+	std::vector<std::wstring> _filePaths;
+};

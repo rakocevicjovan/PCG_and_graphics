@@ -114,20 +114,20 @@
     <Filter Include="Rendering\Shader Files\Vertex shaders">
       <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Shader Files\Pixel shaders">
-      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shader Files\Geometry shaders">
       <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Functions">
+      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders">
+      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\Shader Files\Pixel shaders\Volumetric">
       <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\Shader Files\Pixel shaders\PostProcessing">
       <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Functions">
-      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -143,22 +143,13 @@
     <ClCompile Include="Voronoi.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderDepth.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderHUD.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderPT.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderShadow.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderWater.cpp">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWireframe.cpp">
@@ -383,6 +374,15 @@
     <ClCompile Include="ShaderCM.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderDepth.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderWater.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderShadow.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -409,22 +409,13 @@
     <ClInclude Include="Voronoi.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderShadow.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderPT.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHUD.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderDepth.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderStrife.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderWater.h">
       <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWireframe.h">
@@ -776,6 +767,15 @@
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCM.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderDepth.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderWater.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderShadow.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
   </ItemGroup>

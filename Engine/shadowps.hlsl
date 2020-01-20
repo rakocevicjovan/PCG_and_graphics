@@ -1,11 +1,12 @@
-Texture2D shaderTexture : register(t0);
-Texture2D depthMapTexture : register(t1);
-
-SamplerState SampleTypeClamp : register(s0);
-SamplerState SampleTypeWrap  : register(s1);
+Texture2D depthMapTexture : register(t0);
+Texture2D shaderTexture : register(t1);
 
 
-cbuffer LightBuffer
+SamplerState SampleTypeWrap  : register(s0);
+SamplerState SampleTypeClamp : register(s1);
+
+
+cbuffer LightBuffer : register(b0)
 {
 	float3 alc;
 	float ali;

@@ -22,11 +22,6 @@ cbuffer ProjectionBuffer : register(b1)
 	matrix lightProjectionMatrix;
 };
 
-cbuffer LightPosBuffer : register(b2)
-{
-    float3 lightPosition;
-	float padding;
-};
 
 struct VertexInputType
 {

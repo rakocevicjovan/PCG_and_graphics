@@ -19,42 +19,57 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 {
 	_device = device;
 
-	D3D11_SAMPLER_DESC regularSD;
-	ZeroMemory(&regularSD, sizeof(regularSD));
-	regularSD = { D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP,
-		0.0f, 1, D3D11_COMPARISON_ALWAYS, 0, 0, 0, 0, 0, D3D11_FLOAT32_MAX };
-
-	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
-		//,{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	//move all this to material cache in this way or another!
 	ShaderCompiler shc;
 	shc.init(&hwnd, device);
 
-	light.Initialize(shc, { L"lightVS.hlsl", L"lightPS.hlsl" }, sbLayout, regularSD);
+	std::vector<D3D11_INPUT_ELEMENT_DESC> p_layout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_layout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	std::vector<D3D11_INPUT_ELEMENT_DESC> ptnt_layout =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+
+	D3D11_SAMPLER_DESC regularSD = shc.createSamplerDesc();	//uses default settings
 	D3D11_SAMPLER_DESC skbyoxSD = shc.createSamplerDesc(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_NEVER);
-	skyboxShader.Initialize(shc, { L"skyboxVS.hlsl", L"skyboxPS.hlsl" }, sbLayout, skbyoxSD);
-	//cubeMapShader.Initialize(_device, hwnd, { L"cubemap.vs", L"cubemap.ps" }, sbLayout, skbyoxSD);
+	D3D11_SAMPLER_DESC waterSD = shc.createSamplerDesc(
+		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0, D3D11_FLOAT32_MAX,
+		D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_CLAMP
+	);
+
+
+	//move all this to material cache in this way or another!
+
+	light.Initialize(shc, { L"lightVS.hlsl", L"lightPS.hlsl" }, ptn_layout, regularSD);
+	skyboxShader.Initialize(shc, { L"skyboxVS.hlsl", L"skyboxPS.hlsl" }, ptn_layout, skbyoxSD);
 	
-	/*base.Initialize(_device, hwnd, { L"lightvs.hlsl", L"lightps.hlsl" }, sbLayout, sbSamplerDesc);
-	clipper.Initialize(_device, hwnd, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, sbLayout, sbSamplerDesc);
-	water.Initialize(_device, hwnd, { L"waterVS.hlsl", L"waterPS.hlsl" });
-	depth.Initialize(_device, hwnd, { L"depth.vs", L"depth.ps" });
+	//cubeMapShader.Initialize(shc, { L"cubemapVS.hlsl", L"cubemapPS.hlsl" }, ptn_layout, skbyoxSD);
+	//depth.Initialize(shc, { L"depthVS.hlsl", L"depthPS.hlsl" }, p_layout, regularSD);
+	//clipper.Initialize(shc, { L"clipperVS.hlsl", L"clipperPS.hlsl" }, ptn_layout, regularSD);
+	//water.Initialize(shc, { L"waterVS.hlsl", L"waterPS.hlsl" }, ptnt_layout, waterSD);
+	shadow.Initialize(shc, { L"shadowvVS.hlsl", L"shadowPS.hlsl" });
+
+	/*
 	texProjector.Initialize(_device, hwnd, { L"projectTex.vs", L"projectTex.ps" });
-	shadow.Initialize(_device, hwnd, { L"shadowvs.hlsl", L"shadowps.hlsl" });
 	wireframe.Initialize(_device, hwnd, { L"wireframeVS.hlsl", L"wireframeGS.hlsl", L"wireframePS.hlsl" });
 	animator.Initialize(_device, hwnd, { L"AnimaVS.hlsl", L"AnimaPS.hlsl" });
 	strife.Initialize(_device, hwnd, { L"strifeVS.hlsl", L"strifePS.hlsl" });
 
 	//ui and post processing
 	HUD.Initialize(_device, hwnd, { L"rektVS.hlsl", L"rektPS.hlsl" });
-	
 	brightnessMasker.Initialize(_device, hwnd, { L"brightMaskVS.hlsl", L"brightMaskPS.hlsl" });
 	blurHor.Initialize(_device, hwnd, { L"blurVS.hlsl", L"blurHorPS.hlsl" });
 	blurVer.Initialize(_device, hwnd, { L"blurVS.hlsl", L"blurVerPS.hlsl" });

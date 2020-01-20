@@ -66,49 +66,8 @@ struct ViewRayBuffer
 };
 
 
-struct LightBufferType2
+struct LightPosBuffer
 {
 	SVec3 lightPosition;
 	float padding;
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-//Shader parameters for frame by frame drawing
-
-struct DrawParams
-{
-	SMatrix m, v, p;
-	
-	float deltaTime;
-
-	PointLight pLight;
-	SVec3 camPos;
-};
-
-
-class Model;
-struct PointLight;
-
-struct SPLight
-{
-	SPLight() {}
-
-	ID3D11DeviceContext* deviceContext;
-	SMatrix* modelMatrix;
-	SMatrix* view;
-	SMatrix* proj;
-	PointLight* dLight;
-	SVec3* eyePos;
-	float deltaTime;
 };

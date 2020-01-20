@@ -227,6 +227,7 @@ public:
 		std::vector<FLOAT> borderColor = { 0.f, 0.f, 0.f, 0.f })
 	{
 		D3D11_SAMPLER_DESC sDesc;
+		ZeroMemory(&sDesc, sizeof(D3D11_SAMPLER_DESC));
 		sDesc.Filter = filter;
 		sDesc.AddressU = addressU;
 		sDesc.AddressV = addressV;
