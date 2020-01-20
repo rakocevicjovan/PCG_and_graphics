@@ -69,13 +69,11 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	D3D11_SAMPLER_DESC clampSD = shc.createSamplerDesc(
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0, D3D11_FLOAT32_MAX,
-		D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP
-	);
+		D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP);
 
 	D3D11_SAMPLER_DESC waterSD = shc.createSamplerDesc(
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0, D3D11_FLOAT32_MAX,
-		D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_CLAMP
-	);
+		D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_CLAMP);
 
 	D3D11_SAMPLER_DESC cloudSD = shc.createSamplerDesc(
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0.f, 8.f);
@@ -113,16 +111,15 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	//shVolumFire.Initialize(shc,		{ L"volumVS.hlsl", L"volumFirePS.hlsl" }, ptn_layout, regularSD);
 	//shVolumWater.Initialize(shc,		{ L"volumVS.hlsl", L"volumWaterPS.hlsl" }, ptn_layout, regularSD);
 	//shVolumAir.Initialize(shc,		{ L"volumVS.hlsl", L"volumAirPS.hlsl" }, ptn_layout, regularSD);
-
 	//shVolumLava.Initialize(shc,		{ L"volumVS.hlsl", L"volumLavaPS.hlsl" }, ptn_layout, regularSD);
 	//shVolumTornado.Initialize(shc,	{ L"volumVS.hlsl", L"volumTornadoPS.hlsl" }, ptn_layout, regularSD);
 	//shVolumScreen.Initialize(_shc,	{ L"windpipeVS.hlsl", L"windpipePS.hlsl" }, ptn_layout, regularSD);
 
+	//terrain shenanigans
 	//terrainMultiTex.Initialize(shc, { L"mazefloorVS.hlsl", L"terrainPS.hlsl" }, ptnt_layout, regularSD);
 	//terrainNormals.Initialize(shc, { L"mazefloorVS.hlsl", L"rerrainVNPS.hlsl" }, ptnt_layout, regularSD);
 
-	/*
-	instanced.Initialize(shc, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, instancedLayout, sbSamplerDesc, 5000);
-	dragon.Initialize(shc, { L"dragonVS.hlsl", L"dragonPS.hlsl" }, instancedLayout, sbSamplerDesc, 100);
-	*/
+	//intanced shaders
+	//instanced.Initialize(shc, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, ptn_instanced_layout, regularSD, 5000);
+	//dragon.Initialize(shc, { L"dragonVS.hlsl", L"dragonPS.hlsl" }, ptn_instanced_layout, regularSD, 100);
 }
