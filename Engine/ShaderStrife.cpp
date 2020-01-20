@@ -1,161 +1,58 @@
 #include "ShaderStrife.h"
-#include "Model.h"
 #include "Camera.h"
 
 
 ShaderStrife::ShaderStrife()
 {
-	m_vertexShader = nullptr;
-	m_pixelShader = nullptr;
-	m_layout = nullptr;
-	m_sampleState = nullptr;
-	m_matrixBuffer = nullptr;
-	cloudBuffer = nullptr;
+	_vertexShader = nullptr;
+	_pixelShader = nullptr;
+	_layout = nullptr;
+	_sampleState = nullptr;
+	_matrixBuffer = nullptr;
+	_cloudBuffer = nullptr;
 }
 
 
 
 ShaderStrife::~ShaderStrife()
 {
+	ShutdownShader();
 }
 
 
 
-bool ShaderStrife::Initialize(ID3D11Device* device, HWND hwnd, const std::vector<std::wstring> filePaths)
+//uses ptn layout and custom sample state
+bool ShaderStrife::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
+	std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc)
 {
-	this->filePaths = filePaths;
-	return InitializeShader(device, hwnd);
-}
+	bool result = true;
 
+	_filePaths = filePaths;
 
+	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
+	result &= shc.compilePS(filePaths.at(1), _pixelShader);
+	result &= shc.createSamplerState(samplerDesc, _sampleState);
 
-bool ShaderStrife::InitializeShader(ID3D11Device* device, HWND hwnd)
-{
-	ID3D10Blob* errorMessage = nullptr;
+	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
+	D3D11_BUFFER_DESC mmBuffDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
+	result &= shc.createConstantBuffer(mmBuffDesc, _matrixBuffer);
 
-	ID3D10Blob* vertexShaderBuffer = nullptr;
-	ID3D10Blob* pixelShaderBuffer = nullptr;
+	D3D11_BUFFER_DESC cloudBufferDesc = ShaderCompiler::createBufferDesc(sizeof(CloudBuffer));
+	result &= shc.createConstantBuffer(cloudBufferDesc, _cloudBuffer);
 
-	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC matrixBufferDesc;
-	D3D11_BUFFER_DESC cloudBufferDesc;
-
-	
-	if (FAILED(D3DCompileFromFile(filePaths.at(0).c_str(), NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage))) {
-		if (errorMessage)
-			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(0).c_str()));
-		else
-			MessageBox(hwnd, filePaths.at(0).c_str(), L"Missing Shader File", MB_OK);
-
-		return false;
-	}
-
-	if (FAILED(D3DCompileFromFile(filePaths.at(1).c_str(), NULL, NULL, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &pixelShaderBuffer, &errorMessage))) {
-		if (errorMessage)
-			OutputShaderErrorMessage(errorMessage, hwnd, *(filePaths.at(1).c_str()));
-		else
-			MessageBox(hwnd, filePaths.at(1).c_str(), L"Missing Shader File", MB_OK);
-
-		return false;
-	}
-	
-
-	// Create the vertex shader from the buffer.
-	if (FAILED(device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader)))
-		return false;
-
-	// Create the pixel shader from the buffer.
-	if (FAILED(device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader)))
-		return false;
-
-	std::vector<D3D11_INPUT_ELEMENT_DESC> sbLayout =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		//{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
-
-	if (FAILED(device->CreateInputLayout(sbLayout.data(), sbLayout.size(), vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout)))
-		return false;
-
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vertexShaderBuffer->Release();
-	vertexShaderBuffer = 0;
-	pixelShaderBuffer->Release();
-	pixelShaderBuffer = 0;
-
-	ZeroMemory(&samplerDesc, sizeof(samplerDesc));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0.f;
-	samplerDesc.MaxLOD = 8.f;
-	if (FAILED(device->CreateSamplerState(&samplerDesc, &m_sampleState)))
-		return false;
-
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(WMBuffer);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
-	if (FAILED(device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer)))
-		return false;
-
-	cloudBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cloudBufferDesc.ByteWidth = sizeof(CloudBuffer);
-	cloudBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cloudBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cloudBufferDesc.MiscFlags = 0;
-	cloudBufferDesc.StructureByteStride = 0;
-	if (FAILED(device->CreateBuffer(&cloudBufferDesc, NULL, &cloudBuffer)))
-		return false;
-
-	return true;
+	return result;
 }
 
 
 
 void ShaderStrife::ShutdownShader()
 {
-	DECIMATE(cloudBuffer)
-	DECIMATE(m_variableBuffer)
-	DECIMATE(m_matrixBuffer)
-	DECIMATE(m_sampleState)
-	DECIMATE(m_layout)
-	DECIMATE(m_pixelShader)
-	DECIMATE(m_vertexShader)
-}
-
-
-
-void ShaderStrife::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename)
-{
-	char* compileErrors;
-	unsigned long bufferSize, i;
-	std::ofstream fout;
-
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
-	bufferSize = errorMessage->GetBufferSize();
-	fout.open("shader-error.txt");
-	for (i = 0; i < bufferSize; i++)
-		fout << compileErrors[i];
-
-	fout.close();
-
-	errorMessage->Release();
-	errorMessage = 0;
-
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
+	DECIMATE(_cloudBuffer)
+	DECIMATE(_matrixBuffer)
+	DECIMATE(_sampleState)
+	DECIMATE(_layout)
+	DECIMATE(_pixelShader)
+	DECIMATE(_vertexShader)
 }
 
 
@@ -167,29 +64,23 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	CloudBuffer* dataPtr2;
 
 #define SCREENSPACE true
-
 #if SCREENSPACE
-	SMatrix mT, vT, pT;
-	mT = vT = pT = SMatrix::Identity;
+	SMatrix mT = SMatrix::Identity;
 #else
 	SMatrix mT = csDef.planeMat.Transpose();
-	SMatrix vT = cam.GetViewMatrix().Transpose();
-	SMatrix pT = cam.GetProjectionMatrix().Transpose();
 #endif
 
-	if (FAILED(deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	dataPtr = (WMBuffer*)mappedResource.pData;
 	dataPtr->world = mT;
-	deviceContext->Unmap(m_matrixBuffer, 0);
-	deviceContext->VSSetConstantBuffers(0, 1, &m_matrixBuffer);	
+	deviceContext->Unmap(_matrixBuffer, 0);
+	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);	
 
 
-
-	if (FAILED(deviceContext->Map(cloudBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(deviceContext->Map(_cloudBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	dataPtr2 = (CloudBuffer*)mappedResource.pData;
-
 	dataPtr2->lightPos = csDef.celestial.pos * 99999999.f;
 	dataPtr2->lightRGBI = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
 	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 1.f - csDef.globalCoverage);
@@ -203,16 +94,14 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr2->misc = Math::fromVec3(csDef.skyRGB, csDef.distanceLimit);
 	dataPtr2->ALTop = Math::fromVec3(csDef.ALTop, csDef.carvingThreshold);
 	dataPtr2->ALBot = Math::fromVec3(csDef.ALBot, csDef.textureSpan);
-
 	dataPtr2->camMatrix = cam.GetCameraMatrix().Transpose();
+	deviceContext->Unmap(_cloudBuffer, 0);
+	deviceContext->PSSetConstantBuffers(0, 1, &_cloudBuffer);
 
-	deviceContext->Unmap(cloudBuffer, 0);
-	deviceContext->PSSetConstantBuffers(0, 1, &cloudBuffer);
-
-	deviceContext->IASetInputLayout(m_layout);
-	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
-	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+	deviceContext->VSSetShader(_vertexShader, NULL, 0);
+	deviceContext->PSSetShader(_pixelShader, NULL, 0);
+	deviceContext->IASetInputLayout(_layout);
+	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
 	deviceContext->PSSetShaderResources(0, 1, &(csDef.weather.srv));
 	deviceContext->PSSetShaderResources(1, 1, &(csDef.blue_noise.srv));
@@ -224,8 +113,10 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 
 
 
-bool ShaderStrife::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
+void ShaderStrife::ReleaseShaderParameters(ID3D11DeviceContext* deviceContext)
 {
-	deviceContext->PSSetShaderResources(0, 1, &(unbinder[0]));
-	return true;
+	deviceContext->PSSetShaderResources(0, 1, &(_unbinder[0]));
+	deviceContext->PSSetShaderResources(1, 1, &(_unbinder[0]));
+	deviceContext->PSSetShaderResources(2, 1, &(_unbinder[0]));
+	deviceContext->PSSetShaderResources(3, 1, &(_unbinder[0]));
 }

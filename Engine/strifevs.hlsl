@@ -35,7 +35,6 @@ struct PixelInputType
 
 PixelInputType main(VertexInputType input)
 {
-
 	PixelInputType output;
 
 	input.position.w = 1.;

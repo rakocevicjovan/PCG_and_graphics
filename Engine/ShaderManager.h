@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "Animator.h"
+#include "SkelAnimShader.h"
 #include "ShaderDataStructs.h"
 #include "Phong.h"
 #include "ShaderDepth.h"
@@ -29,15 +29,15 @@ protected:
 	HWND hwnd;
 
 	WMBuffer matrixBuffer;
-	VariableBuffer variableBuffer;
+	ElapsedTimeBuffer variableBuffer;
 	LightBuffer lightBuffer;
 
 public:
 
-	Animator animator;
+	ShaderSkelAnim animator;
 	Phong light;
 	WireframeShader wireframe;
-	ShaderHUD HUD, brightnessMasker, blurHor, blurVer, bloom;
+	ShaderHUD HUD, brightMask, blurHor, blurVer, bloom;
 	ShaderDepth depth;
 	ShaderPT texProjector;
 	ShaderShadow shadow;
@@ -47,7 +47,7 @@ public:
 	ShaderWater water;
 	InstancedShader instanced, dragon;
 	TerrainShader terrainMultiTex, terrainNormals, treeShader;
-	ShaderMaze dynamicHeightMaze, normalMapper;
+	ShaderMaze mazeMat, mazeFloorMat;
 	ShaderClipper clipper;
 
 	//wisps

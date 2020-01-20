@@ -487,7 +487,7 @@ public:
 
 
 
-	void Draw(ID3D11DeviceContext* dc, Animator& shader)
+	void Draw(ID3D11DeviceContext* dc, ShaderSkelAnim& shader)
 	{
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);

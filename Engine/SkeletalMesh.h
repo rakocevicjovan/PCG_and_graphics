@@ -8,7 +8,7 @@
 #include "Math.h"
 #include "Geometry.h"
 #include "ShaderManager.h"
-#include "Animator.h"
+#include "SkelAnimShader.h"
 
 class SkeletalMesh
 {
@@ -87,7 +87,7 @@ public:
 
 
 
-	void draw(ID3D11DeviceContext* dc, Animator& s)
+	void draw(ID3D11DeviceContext* dc, ShaderSkelAnim& s)
 	{
 		unsigned int stride = sizeof(BonedVert3D);
 		unsigned int offset = 0;
@@ -95,7 +95,7 @@ public:
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		dc->PSSetSamplers(0, 1, &s.m_sampleState);
+		dc->PSSetSamplers(0, 1, &s._sampleState);
 		dc->DrawIndexed(indices.size(), 0, 0);
 	}
 };

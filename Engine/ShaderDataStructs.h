@@ -34,9 +34,9 @@ struct ViewProjBuffer
 };
 
 
-struct VariableBuffer
+struct ElapsedTimeBuffer
 {
-	float deltaTime;
+	float elapsed;
 	SVec3 padding;
 };
 
@@ -65,7 +65,7 @@ struct LightBuffer2
 };
 
 
-struct ViewRayBuffer
+struct VolumShaderBuffer
 {
 	SMatrix rot;
 	SVec4 ePos;

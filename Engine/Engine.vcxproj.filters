@@ -56,9 +56,6 @@
     <Filter Include="Rendering\AAANow do it properly\Materials">
       <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\MaterialsOLD">
-      <UniqueIdentifier>{cf82194b-476f-415d-aa92-751fdbb4a3f8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene management">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
     </Filter>
@@ -143,29 +140,14 @@
     <ClCompile Include="Voronoi.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="Volumetric.cpp">
       <Filter>Procedural</Filter>
-    </ClCompile>
-    <ClCompile Include="TerrainShader.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderVolumetric.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClCompile>
     <ClCompile Include="Maze.cpp">
       <Filter>Procedural</Filter>
-    </ClCompile>
-    <ClCompile Include="VolumetricScreen.cpp">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClCompile>
     <ClCompile Include="ToolGUI.cpp">
       <Filter>Old levels\Strife</Filter>
@@ -207,9 +189,6 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>Rendering\SkelAnim</Filter>
-    </ClCompile>
-    <ClCompile Include="Animator.cpp">
       <Filter>Rendering\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
@@ -383,6 +362,24 @@
     <ClCompile Include="ShaderMaze.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderStrife.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderVolumetric.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderWireframe.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="SkelAnimShader.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainShader.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumetricScreen.cpp">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -409,12 +406,6 @@
     <ClInclude Include="Voronoi.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderStrife.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderWireframe.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="Biome.h">
       <Filter>Procedural</Filter>
     </ClInclude>
@@ -424,20 +415,11 @@
     <ClInclude Include="Audio.h">
       <Filter>Main systems</Filter>
     </ClInclude>
-    <ClInclude Include="TerrainShader.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderVolumetric.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
-    </ClInclude>
     <ClInclude Include="Maze.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumetricScreen.h">
-      <Filter>Rendering\MaterialsOLD</Filter>
     </ClInclude>
     <ClInclude Include="ToolGUI.h">
       <Filter>Old levels\Strife</Filter>
@@ -494,9 +476,6 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
-      <Filter>Rendering\SkelAnim</Filter>
-    </ClInclude>
-    <ClInclude Include="Animator.h">
       <Filter>Rendering\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalMesh.h">
@@ -778,6 +757,24 @@
     <ClInclude Include="ShaderMaze.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderStrife.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderVolumetric.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderWireframe.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="SkelAnimShader.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainShader.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumetricScreen.h">
+      <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -805,9 +802,6 @@
     <None Include="wireframeGS.hlsl">
       <Filter>Rendering\Shader Files\Geometry shaders</Filter>
     </None>
-    <None Include="wireframePS.hlsl">
-      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
-    </None>
     <None Include="wireframeVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </None>
@@ -821,6 +815,9 @@
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="shadowPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </None>
+    <None Include="wireframePS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </None>
   </ItemGroup>
@@ -923,9 +920,6 @@
     <FxCompile Include="InstancedPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
-    <FxCompile Include="normalsTerrainPS.hlsl">
-      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
-    </FxCompile>
     <FxCompile Include="clipperVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
@@ -949,6 +943,9 @@
     </FxCompile>
     <FxCompile Include="Light.hlsli">
       <Filter>Rendering\Shader Files\Functions</Filter>
+    </FxCompile>
+    <FxCompile Include="terrainVNPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

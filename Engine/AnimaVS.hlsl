@@ -16,8 +16,7 @@ cbuffer MatrixBuffer : register(b0)
 	matrix worldMatrix;
 };
 
-
-cbuffer TransformsBuffer : register(b2)
+cbuffer TransformsBuffer : register(b1)
 {
 	float4x4 boneTransforms[96];
 };
