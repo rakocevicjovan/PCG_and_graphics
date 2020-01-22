@@ -179,6 +179,8 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
 {
+
+	//iterate all textures related to the material
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
 	{
 		aiString obtainedTexturePath;

@@ -4,7 +4,6 @@
 
 ShaderManager::ShaderManager()
 {
-
 }
 
 
@@ -24,7 +23,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> p_layout =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0, static_cast<DXGI_FORMAT>(6), 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }	//DXGI_FORMAT_R32G32B32_FLOAT
 	};
 
 	std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_layout =
