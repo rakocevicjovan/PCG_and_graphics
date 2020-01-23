@@ -138,16 +138,6 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 	std::wstring temp(path.begin(), path.end());
 	const wchar_t* widecstr = temp.c_str();
 
-	/*ID3D11Resource* resource;
-
-	HRESULT hr = resource->QueryInterface(IID_ID3D11Texture2D, (void **)&baseTexId);
-
-	if (FAILED(hr))
-	{
-		OutputDebugStringA("Ma jebem mu ja sve zivo i mrtvo... \n");
-		exit(4202);
-	}*/
-
 	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &srv, 0);
 
 	if (FAILED(result))

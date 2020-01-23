@@ -82,7 +82,7 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
 	{
-		this->processNode(device, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
+		processNode(device, node->mChildren[i], scene, concatenatedTransform, rUVx, rUVy);
 	}
 
 	return true;
@@ -166,7 +166,6 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 		// Displacement maps
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DISPLACEMENT, "texture_displacement");
-
 	}
 
 
@@ -176,7 +175,12 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 		mesh._baseMaterial.textures.push_back(&t);
 	}
 	
-	mesh._baseMaterial.opaque = true;	//that just isn't true... I really need tool support for this!
+	//not true in the general case... I really need tool support with my own format for this!
+	//there is no good way to know whether a texture is transparent or not, as some textures use 
+	//32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
+	//brute force checking could solve this but incurs a lot of overhead on load
+	//and randomized sampling is not reliable, so for now... we have this
+	mesh._baseMaterial.opaque = true;	
 
 	return true;
 }
@@ -192,7 +196,8 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 		mat->GetTexture(type, i, &obtainedTexturePath);
 
 		std::string texPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
-		Texture curTexture(texPath);
+		Texture curTexture;
+		curTexture._fileName = texPath;
 		curTexture.typeName = typeName;
 
 		//try to load this texture from file
@@ -202,7 +207,7 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 		if (!loaded)
 		{
 			int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
-			loaded = this->loadEmbeddedTexture(curTexture, scene, embeddedIndex);
+			loaded = loadEmbeddedTexture(curTexture, scene, embeddedIndex);
 		}
 			
 
