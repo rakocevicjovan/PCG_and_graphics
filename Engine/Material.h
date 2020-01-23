@@ -3,6 +3,13 @@
 #include "ShaderManager.h"
 #include "Shader.h"
 
+enum TextureRole
+{ 
+	DIFFUSE,
+	NORMAL,
+	SPECULAR,
+	DISPLACEMENT
+};
 
 
 class Material

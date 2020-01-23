@@ -56,11 +56,7 @@ private:
 
 	int numCulled;
 
-	//octree meshes
-	Model debugModel;
-	std::vector<AABB> tempBoxes;
-	std::vector<InstanceData> octNodeMatrices;
-
+	Model flintLock;
 
 	//gameplay
 	void addBuildables();

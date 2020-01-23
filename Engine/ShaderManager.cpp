@@ -99,7 +99,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	//wireframe.Initialize(shc,		{ L"wireframeVS.hlsl", L"wireframeGS.hlsl", L"wireframePS.hlsl" }, ptn_layout, regularSD);
 	
 	//screen space shaders, post processing mostly
-	//HUD.Initialize(shc,			{ L"screenspaceVS.hlsl",L"rektPS.hlsl" }, ptn_layout, clampSD);
+	//HUD.Initialize(shc,			{ L"screenspaceVS.hlsl", L"rektPS.hlsl" }, ptn_layout, clampSD);
 	//brightMask.Initialize(shc,	{ L"screenspaceVS.hlsl", L"brightMaskPS.hlsl" }, ptn_layout, regularSD);
 	//blurHor.Initialize(shc,		{ L"screenspaceVS.hlsl", L"blurHorPS.hlsl" }, ptn_layout, regularSD);
 	//blurVer.Initialize(shc,		{ L"screenspaceVS.hlsl", L"blurVerPS.hlsl" }, ptn_layout, regularSD);

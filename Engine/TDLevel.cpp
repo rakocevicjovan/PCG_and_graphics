@@ -16,6 +16,8 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 ///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
+	flintLock.LoadModel(S_DEVICE, "../Models/flintlock_rifle/flintlock.fbx");
+
 	S_INMAN.registerController(&_tdController);
 	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
 
@@ -484,16 +486,27 @@ box.renderables[0].pLight = &pLight;
 */
 
 
-#ifdef DEBUG_OCTREE	//for init()
+
+
+
+
+#ifdef DEBUG_OCTREE
+
+//for header
+Model debugModel;
+std::vector<AABB> tempBoxes;
+std::vector<InstanceData> octNodeMatrices;
+
+
+//for init
 Procedural::Geometry g;
 g.GenBox(SVec3(1));
 debugModel.meshes.push_back(Mesh(g, S_DEVICE));
 tempBoxes.reserve(1000);
 octNodeMatrices.reserve(1000);
-#endif
 
 
-#ifdef DEBUG_OCTREE	//for update()
+//for update
 _oct.getTreeAsAABBVector(tempBoxes);
 
 for (int i = 0; i < tempBoxes.size(); ++i)
@@ -509,10 +522,9 @@ for (int i = 0; i < tempBoxes.size(); ++i)
 shady.instanced.UpdateInstanceData(octNodeMatrices);
 octNodeMatrices.clear();
 tempBoxes.clear();
-#endif
 
 
-#ifdef DEBUG_OCTREE
+//for draw
 shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
 debugModel.DrawInstanced(context, shady.instanced);
 shady.instanced.ReleaseShaderParameters(context);

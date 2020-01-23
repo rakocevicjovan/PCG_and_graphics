@@ -51,7 +51,6 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, pFlags);
-	meshes.reserve(scene->mNumMeshes);
 
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -60,7 +59,10 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 		return false;
 	}
 
+	meshes.reserve(scene->mNumMeshes);
+
 	processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
+
 	return true;
 }
 
@@ -157,10 +159,13 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 
 		//  Normal maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NORMALS, "texture_diffuse");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NORMALS, "texture_normal");
 
 		// Specular maps
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SPECULAR, "texture_specular");
+
+		// Displacement maps
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DISPLACEMENT, "texture_displacement");
 
 	}
 
@@ -204,7 +209,7 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 		//load failed completely - most likely the data is corrupted or my library doesn't support it
 		if (!loaded)
 		{
-			std::cout << "TEX_LOAD::Texture did not load!" << std::endl;	//@TODO use logger here instead
+			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
 			continue;
 		}
 
@@ -219,10 +224,14 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 
 bool Model::loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index)
 {
-	if (!scene->mTextures[index])
+	if (!scene->mTextures)
 		return false;
 
 	aiTexture* aiTex = scene->mTextures[index];
+
+	if (!aiTex)
+		return false;
+
 
 	size_t texSize = aiTex->mWidth;
 

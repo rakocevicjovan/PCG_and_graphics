@@ -19,7 +19,7 @@ void ResourceManager::init(ID3D11Device* device)
 	_projLoader.loadProjFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
 	_levelReader.setProjectPath(_projLoader.getProjDir());
 
-	_stackAllocator.init(1024 * 1024 * 100);
+	_stackAllocator.init(1024 * 1024 * 30);
 }
 
 

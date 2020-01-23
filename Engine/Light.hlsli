@@ -1,5 +1,51 @@
 //a bunch of utility function that deal with light calculations
 
+
+
+float4 calcAmbient(in float3 alc, in float ali)
+{
+	return saturate(float4(alc, 1.0f) * ali);
+}
+
+
+float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float diffIntensity)
+{
+	diffIntensity = max(dot(normal, invLightDir), 0.0f);
+	return saturate(float4(dlc, 1.0f) * dli * diffIntensity);
+}
+
+
+float4 calcSpecularPhong(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float diffIntensity, in float sp)
+{
+	float3 reflection = normalize(reflect(invLightDir, normal));
+	float specIntensity = pow(saturate(dot(reflection, invViewDir)), sp);
+	return saturate(float4(slc, 1.0f) * specIntensity * sli * diffIntensity);
+}
+
+
+//will do once I have a better light data definition current one is bulky and sucks
+float4 calcPhong(in float3 alc, in float3 dlc, in float3 slc)
+{
+	return float4(0., 0., 0., 0.);
+}
+
+
+
+
+
+float3 gammaCorrect(in float3 colour, in float3 gammaFactor)
+{
+	return pow(colour.xyz, gammaFactor);
+}
+
+
+float3 gammaCorrect(in float3 colour, in float gammaFactor)	//convenient overload nothing more
+{
+	return pow(colour.xyz, float3(gammaFactor, gammaFactor, gammaFactor));
+}
+
+
+//exponential fog from Inigo Quilez
 float3 applyFog(in float3  rgb,		// original color of the pixel
 	in float distance,				// camera to point distance
 	in float3  rayDir,				// camera to point vector
@@ -19,31 +65,7 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
 }
 
 
-
-float4 calcAmbient(in float3 alc, in float ali)
-{
-	return saturate(float4(alc, 1.0f) * ali);
-}
-
-
-
-float4 calcDiffuse(in float3 invLightDir, in float3 normal, in float3 dlc, in float dli, inout float diffIntensity)
-{
-	diffIntensity = max(dot(normal, invLightDir), 0.0f);
-	return saturate(float4(dlc, 1.0f) * dli * diffIntensity);
-}
-
-
-
-float4 calcSpecularPhong(in float3 invLightDir, in float3 normal, in float3 slc, in float sli, in float3 invViewDir, in float diffIntensity, in float sp)
-{
-	float3 reflection = normalize(reflect(invLightDir, normal));
-	float specIntensity = pow(saturate(dot(reflection, invViewDir)), sp);
-	return saturate(float4(slc, 1.0f) * specIntensity * sli * diffIntensity);
-}
-
-
-//@TODO add blinn phong whenever
+//@TODO add blinn phong
 
 
 //NVIDIA FORMULA FOR BLINN-PHONG:

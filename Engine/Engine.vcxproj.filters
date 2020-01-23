@@ -114,9 +114,6 @@
     <Filter Include="Rendering\Shader Files\Geometry shaders">
       <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Shader Files\Functions">
-      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shader Files\Pixel shaders">
       <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
     </Filter>
@@ -125,6 +122,9 @@
     </Filter>
     <Filter Include="Rendering\Shader Files\Pixel shaders\PostProcessing">
       <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\HLSL helpers">
+      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -820,6 +820,21 @@
     <None Include="wireframePS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </None>
+    <None Include="Noise.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="MathUtils.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="SDF.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="Constants.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="PhysUtils.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
@@ -831,9 +846,6 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="volumAirPS.hlsl">
-      <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
-    </FxCompile>
-    <FxCompile Include="volumEarthPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumFirePS.hlsl">
@@ -902,12 +914,6 @@
     <FxCompile Include="screenspaceVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Simplex_derivative.hlsl">
-      <Filter>Rendering\Shader Files\Functions</Filter>
-    </FxCompile>
-    <FxCompile Include="Simplex.hlsl">
-      <Filter>Rendering\Shader Files\Functions</Filter>
-    </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
@@ -942,10 +948,16 @@
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="Light.hlsli">
-      <Filter>Rendering\Shader Files\Functions</Filter>
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </FxCompile>
     <FxCompile Include="terrainVNPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Simplex.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </FxCompile>
+    <FxCompile Include="Simplex_derivative.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

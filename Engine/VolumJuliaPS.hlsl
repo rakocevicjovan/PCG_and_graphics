@@ -80,8 +80,42 @@ float4 julia2D(float4 pos)
 
 
 
+float4 main(PixelInputType input) : SV_TARGET
+{	
+	return julia2D(input.msPos * 2.f);
+}
 
-/*
+
+
+/* julia 3D from main
+float3 viewDir = normalize(input.wPos.xyz - eyePos.xyz);
+float3 increment = RM_STEP_SIZE * viewDir;
+
+float r = 0.f;
+float3 curPos = input.msPos.xyz;
+int i = 0;
+
+for (i = 0; i < RM_STEPS; ++i)
+{
+	float distToJuliaSet = julia3D(curPos, quat);
+	r += distToJuliaSet * RM_STEP_SIZE * .1f;
+
+	if (r < -1.0f)	//distToJuliaSet < J3D_MIN ||
+		break;
+
+	curPos += increment;
+}
+
+r /= (float)(i * 0.05f);
+
+float3 n = calcNormal(curPos);
+
+return float4(-r, -r, -r, -r);
+*/
+
+
+
+/* Julia 3D code, from shadertoy somewhere I forgot who wrote it :\ used for learning
 static const float RM_STEPS = 64.f;
 static const float RM_STEP_SIZE = 1.f / RM_STEPS;
 static const float4 c = { -0.213,-0.0410,-0.563,-0.560 };
@@ -138,38 +172,3 @@ float3 calcNormal(float3 p) {
 	return normalize(n - julia3D(p, quat));
 }
 */
-
-
-float4 LightPixelShader(PixelInputType input) : SV_TARGET
-{
-	/*
-	float3 viewDir = normalize(input.wPos.xyz - eyePos.xyz);
-	float3 increment = RM_STEP_SIZE * viewDir;
-
-	float r = 0.f;
-	float3 curPos = input.msPos.xyz;
-	int i = 0;
-	
-	for (i = 0; i < RM_STEPS; ++i)
-	{
-		float distToJuliaSet = julia3D(curPos, quat);
-		r += distToJuliaSet * RM_STEP_SIZE * .1f;
-
-		if (r < -1.0f)	//distToJuliaSet < J3D_MIN ||
-			break;
-
-		curPos += increment;
-	}
-
-	r /= (float)(i * 0.05f);
-
-	float3 n = calcNormal(curPos);
-
-	return float4(-r, -r, -r, -r);
-	*/
-
-	
-	return julia2D(input.msPos * 2.f);
-}
-
-

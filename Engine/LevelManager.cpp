@@ -15,12 +15,10 @@ LevelManager::LevelManager(Systems& systems)
 	systems._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 	systems._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 	
-
 	current = new TDLevel(systems);		//new ProjectPickerLevel(systems); boring to click through...
 	current->init(systems);
 	_levels.push_back(current);
 
-	//needs to be able to load to gpu so needs device... also, resource manager doesn't belong in levels, keep it in systems
 
 	//_levels.push_back(new EarthLevel(systems));
 	//_levels.push_back(new FireLevel(systems));
