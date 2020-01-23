@@ -3,6 +3,8 @@
 #include "ShaderDataStructs.h"
 #include "ShaderCompiler.h"
 
+class Mesh;
+
 
 class VolumetricScreen
 {

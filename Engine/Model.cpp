@@ -156,11 +156,12 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 		// Diffuse maps
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
 
+		//  Normal maps
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NORMALS, "texture_diffuse");
+
 		// Specular maps
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SPECULAR, "texture_specular");
 
-		// Normal maps
-		// ...etc, will support this eventually as I need it
 	}
 
 
@@ -179,8 +180,7 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
 {
-
-	//iterate all textures related to the material
+	//iterate all textures of relevant related to the material
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
 	{
 		aiString obtainedTexturePath;

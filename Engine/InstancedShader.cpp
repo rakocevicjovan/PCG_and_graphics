@@ -50,14 +50,14 @@ bool InstancedShader::Initialize(const ShaderCompiler& shc, const std::vector<st
 
 
 
-bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float dTime)
+bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMatrix& mMat, const Camera& cam, const PointLight& pLight, float dTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	WMBuffer* wmptr;
 	InstanceData* instanceDataPtr;
 	LightBuffer* lightBufferPtr;
 
-	SMatrix mT = model.transform.Transpose();
+	SMatrix mT = mMat.Transpose();
 
 	
 	//WMBuffer

@@ -44,7 +44,7 @@ namespace SkelAnim
 
 		sm.update(rc.dTime, bts, 0u);
 
-		S_SHADY.animator.SetShaderParameters(S_CONTEXT, sm, *rc.cam, pLight, rc.elapsed, bts);
+		S_SHADY.animator.SetShaderParameters(S_CONTEXT, sm.transform, rc.cam->GetPosition(), pLight, bts);
 		sm.Draw(S_CONTEXT, S_SHADY.animator);
 
 		S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);

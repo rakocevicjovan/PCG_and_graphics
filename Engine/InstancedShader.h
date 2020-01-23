@@ -25,7 +25,7 @@ public:
 
 	virtual bool Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc, unsigned int instanceBufferSizeInElements);
-	virtual bool SetShaderParameters(ID3D11DeviceContext* deviceContext, Model& model, const Camera& cam, const PointLight& pLight, float dTime);
+	virtual bool SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMatrix& mMat, const Camera& cam, const PointLight& pLight, float dTime);
 	bool UpdateInstanceData(const std::vector<InstanceData>& instanceData);
 	void ReleaseShaderParameters(ID3D11DeviceContext* deviceContext);
 

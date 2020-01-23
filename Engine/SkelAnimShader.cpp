@@ -1,4 +1,4 @@
-#include "Animator.h"
+#include "SkelAnimShader.h"
 #include "SkeletalModel.h"
 #include "Camera.h"
 
