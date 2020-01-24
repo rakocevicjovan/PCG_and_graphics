@@ -58,7 +58,9 @@ void TDLevel::init(Systems& sys)
 		
 		for (Renderable& r : _creeps[i].renderables)
 		{
-			r.mat = S_MATCACHE.getMaterial("creepMat");
+			//r.mat = S_MATCACHE.getMaterial("creepMat");
+			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
+			r.mat->setPS(sys._shaderCache.getPixShader("lightPS"));
 			r.pLight = &pLight;
 		}
 

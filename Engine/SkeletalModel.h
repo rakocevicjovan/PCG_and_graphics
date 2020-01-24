@@ -216,7 +216,7 @@ public:
 
 				std::string fPath = directory + "/" + std::string(str.data);
 				Texture texture(fPath);
-				texture.typeName = typeName;
+				texture._typeName = typeName;
 
 				//texture.Bind(type);
 				bool loaded = texture.LoadFromStoredPath();
@@ -250,7 +250,7 @@ public:
 			for (size_t ti = 0; ti < scene->mNumTextures; ti++)
 			{
 				Texture texture(fPath);
-				texture.typeName = typeName;
+				texture._typeName = typeName;
 
 				size_t texSize = scene->mTextures[ti]->mWidth;
 

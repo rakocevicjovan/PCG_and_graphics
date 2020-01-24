@@ -1,11 +1,8 @@
 #pragma once
-
 #include <string>
 #include <d3d11.h>
 #include <vector>
-#include "WICTextureLoader.h"
 #include "Resource.h"
-#include "StackAllocator.h"
 
 
 
@@ -14,6 +11,22 @@ namespace Procedural
 	class Perlin;
 	class TextureGen;
 }
+
+
+
+//used as indices into the array where the values indicate texture slot in shaders
+//last one indicates nr of textures used by the shader
+enum TextureRole
+{
+	DIFFUSE = 0,
+	NORMAL = 1,
+	SPECULAR = 2,
+	SHININESS = 3,
+	OPACITY = 4,
+	DISPLACEMENT = 5,
+	OTHER = 6,
+	NUM_TEXTURES = 7
+};	//REMEMBER TO UPDATE NUM_ROLES IF THIS CHANGES!
 
 
 
@@ -26,23 +39,17 @@ protected:
 	int w, h, n;
 	unsigned char *_data;
 
-
-	//shouldn't be here but not sure if I can call stb functions outside of texture cpp... solved with friend class
-	inline static float Perlin3D(float x, float  y, float z, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	inline static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	inline static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	inline static float Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-
-	static std::vector<float> generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-
 public:
 	//needs to be retained for GPU use
 	ID3D11Texture2D* texId;
 	ID3D11ShaderResourceView* srv;
 
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
-	std::string typeName;	//type should be a part of Material definition when that's working (I think...)
+	
+	//static const size_t NUM_ROLES = 8u;
+	TextureRole _role;
+	std::string _typeName;	//type should be a part of Material definition when that's working (I think...)
+
 
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
@@ -56,16 +63,27 @@ public:
 
 	bool Setup(ID3D11Device* device, DXGI_FORMAT f = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
 
-
-	//this really, really, does not belong here...
-	static std::vector<float> Texture::GetFloatsFromFile(const std::string& path);
-	
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
-
+	
 	ID3D11ShaderResourceView* getTextureResourceView() { return srv; }
 
 	inline int getW() const { return w; } 
 	inline int getH() const { return h; }
 	inline int getN() const { return n; }
 	inline const unsigned char* getData() const { return _data; }	//data can't be modified, only read
+
+
+	//this really, really, does not belong here...
+	static std::vector<float> Texture::LoadAsFloatVec(const std::string& path);
+
+protected:
+
+	//shouldn't be here but not sure if I can call stb functions outside of texture cpp... solved with friend class
+	inline static float Perlin3D(float x, float  y, float z, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	inline static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	inline static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	inline static float Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+
+	static std::vector<float> generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 };

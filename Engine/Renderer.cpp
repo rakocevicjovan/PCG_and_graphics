@@ -176,7 +176,7 @@ void Renderer::render(const Renderable& r) const
 
 	//extract to sort by, won't be very uniform... tex arrays can help though...
 	for (int i = 0; i < r.mat->textures.size(); ++i)
-		_deviceContext->PSSetShaderResources(r.mat->texturesAdded + i, 1, &(r.mat->textures[i]->srv));
+		_deviceContext->PSSetShaderResources(r.mat->texturesAdded + i, 1, &(r.mat->textures[i].second->srv));
 
 	//extract to sort by... should be fairly uniform though
 	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);

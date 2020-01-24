@@ -129,7 +129,7 @@ namespace Strife
 		{
 			std::stringstream ss;
 			ss << std::setw(3) << std::setfill('0') << (i + 1);
-			flVec = Texture::GetFloatsFromFile("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+			flVec = Texture::LoadAsFloatVec("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
 			yeetFloat.insert(yeetFloat.end(), flVec.begin(), flVec.end());
 		}
 
@@ -275,7 +275,7 @@ namespace Strife
 		{
 			std::stringstream ss;
 			ss << std::setw(3) << std::setfill('0') << (i + 1);
-			flVec = Texture::GetFloatsFromFile("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+			flVec = Texture::LoadAsFloatVec("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
 
 			for (int j = 0; j < flVec.size(); j += 4)
 			{

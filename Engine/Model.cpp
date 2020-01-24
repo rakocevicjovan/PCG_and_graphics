@@ -150,32 +150,40 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 	for (Vert3D& vert : mesh.vertices)
 		vert.tangent.Normalize();
 
-
 	if (aiMesh->mMaterialIndex >= 0)
 	{
 		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
 
 		// Diffuse maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
 
 		//  Normal maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NORMALS, "texture_normal");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
 
 		// Specular maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SPECULAR, "texture_specular");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+
+		// Shininess maps
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+
+		// Opacity maps
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
 
 		// Displacement maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DISPLACEMENT, "texture_displacement");
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+
+		// Other maps
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
 	}
 
 
 	for (Texture& t : mesh.textures)
 	{
 		t.Setup(device);
-		mesh._baseMaterial.textures.push_back(&t);
+		mesh._baseMaterial.textures.push_back(std::make_pair(t._role, &t));
 	}
 	
-	//not true in the general case... I really need tool support with my own format for this!
+	//not true in the general case... it would require tool support with my own format for this!
 	//there is no good way to know whether a texture is transparent or not, as some textures use 
 	//32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
 	//brute force checking could solve this but incurs a lot of overhead on load
@@ -187,7 +195,8 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 
 
-bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName)
+bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, 
+	aiTextureType type, std::string typeName, TextureRole role)
 {
 	//iterate all textures of relevant related to the material
 	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
@@ -198,7 +207,8 @@ bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* 
 		std::string texPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
 		Texture curTexture;
 		curTexture._fileName = texPath;
-		curTexture.typeName = typeName;
+		curTexture._typeName = typeName;
+		curTexture._role = role;
 
 		//try to load this texture from file
 		bool loaded = curTexture.LoadFromStoredPath();

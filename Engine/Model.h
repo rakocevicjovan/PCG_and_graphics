@@ -22,7 +22,8 @@ private:
 	
 	bool processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene* scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
 	
-	bool loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, aiTextureType type, std::string typeName);
+	bool loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, 
+		aiTextureType type, std::string typeName, TextureRole role);
 	
 	bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index);
 	

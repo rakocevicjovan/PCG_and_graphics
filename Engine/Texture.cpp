@@ -13,6 +13,7 @@
 
 #include "stb_image_write.h"
 #include "stb_perlin.h"
+#include "WICTextureLoader.h"
 #include "Texture.h"
 #include "Perlin.h"
 
@@ -78,7 +79,7 @@ bool Texture::LoadFromFile(std::string path)
 
 
 
-std::vector<float> Texture::GetFloatsFromFile(const std::string& path)
+std::vector<float> Texture::LoadAsFloatVec(const std::string& path)
 {
 	float* temp;
 	try

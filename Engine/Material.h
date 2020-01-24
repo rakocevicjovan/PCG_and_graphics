@@ -3,15 +3,6 @@
 #include "ShaderManager.h"
 #include "Shader.h"
 
-enum TextureRole
-{ 
-	DIFFUSE,
-	NORMAL,
-	SPECULAR,
-	DISPLACEMENT
-};
-
-
 class Material
 {
 protected:
@@ -23,7 +14,9 @@ protected:
 public:
 
 	//second most important sorting criteria
-	std::vector<Texture*> textures;
+	std::vector<std::pair<TextureRole, Texture*>> textures;
+	
+	//uint8_t roles[8];		//each element is a role, with shader offset number as value
 
 	//determines whether it goes to the transparent or opaque queue... different sorting
 	bool opaque;
