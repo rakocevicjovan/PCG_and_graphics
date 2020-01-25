@@ -47,16 +47,17 @@ PixelInputType main(VertexInputType input)
     
     input.position.w = 1.0f;
 
-    output.position = mul(input.position, worldMatrix);
-    output.position = mul(output.position, viewMatrix);
+	float4 wPos = mul(input.position, worldMatrix);
+
+    output.position = mul(wPos, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
-    output.viewPosition = mul(input.position, worldMatrix);
-    output.viewPosition = mul(output.viewPosition, viewMatrix2);
+    output.viewPosition = mul(wPos, viewMatrix2);
     output.viewPosition = mul(output.viewPosition, projectionMatrix2);
 
     output.tex = input.tex;
-    output.normal = mul(input.normal, (float3x3)worldMatrix);
+	
+	output.normal = mul(input.normal, (float3x3)worldMatrix);
     output.normal = normalize(output.normal);
 
     return output;

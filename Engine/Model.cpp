@@ -177,18 +177,24 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 	}
 
 
-	for (Texture& t : mesh.textures)
-	{
-		t.Setup(device);
-		mesh._baseMaterial.textures.push_back(std::make_pair(t._role, &t));
-	}
-	
 	//not true in the general case... it would require tool support with my own format for this!
 	//there is no good way to know whether a texture is transparent or not, as some textures use 
 	//32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
 	//brute force checking could solve this but incurs a lot of overhead on load
 	//and randomized sampling is not reliable, so for now... we have this
-	mesh._baseMaterial.opaque = true;	
+	mesh._baseMaterial.opaque = true;
+
+	for (Texture& t : mesh.textures)
+	{
+		t.Setup(device);
+		mesh._baseMaterial.textures.push_back(std::make_pair(t._role, &t));
+
+		//we can at least know it's transparent if it has an opacity map, better than nothing
+		if (t._role == OPACITY)
+			mesh._baseMaterial.opaque = false;
+	}
+	
+	
 
 	return true;
 }

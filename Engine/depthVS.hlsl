@@ -24,7 +24,7 @@ struct VertexInputType
 struct PixelInputType
 {
     float4 position : SV_POSITION;
-    float4 depthPosition : TEXTURE0;	//sv_position creates an offset of 0.5 (microsoft... why???) therefore we need this as well
+    float4 depthPosition : TEXTURE0;	//sv_position creates an offset of 0.5 therefore we need this as well
 };
 
 

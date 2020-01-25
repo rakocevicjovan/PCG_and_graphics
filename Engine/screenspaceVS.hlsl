@@ -19,6 +19,8 @@ PixelInputType main(VertexInputType input)
 	PixelInputType output;
 
 	output.position = input.position;
+
 	output.tex = float2(input.tex.x, 1.f - input.tex.y);
+
 	return output;
 }

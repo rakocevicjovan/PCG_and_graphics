@@ -908,9 +908,6 @@
     <FxCompile Include="mazeVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
-    <FxCompile Include="perlin3dVS.hlsl">
-      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
     <FxCompile Include="mazePS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>

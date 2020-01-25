@@ -40,6 +40,7 @@ struct PixelInputType
 };
 
 
+
 PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
@@ -54,14 +55,17 @@ PixelInputType main(VertexInputType input)
 	boneTransform  += boneTransforms[input.boneIDs.w] * input.boneWs.w;
 	
 
-	float4 wat = mul(input.position, boneTransform);
-	output.worldPos = mul(wat, worldMatrix);
+	//float4 total = mul(input.position, boneTransform);
+	//output.worldPos = mul(total, worldMatrix);
+
+	float4x4 totalMat = mul(boneTransform, worldMatrix);
+	output.worldPos = mul(input.position, totalMat);
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
-	//output.normal = mul(input.normal, (float3x3)boneTransform);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
-	output.normal = mul(input.normal, (float3x3)worldMatrix);
+
+	output.normal = mul(input.normal, (float3x3)totalMat);
 	output.normal = normalize(output.normal);
 
 	return output;

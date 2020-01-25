@@ -58,7 +58,7 @@ void TDLevel::init(Systems& sys)
 		
 		for (Renderable& r : _creeps[i].renderables)
 		{
-			//r.mat = S_MATCACHE.getMaterial("creepMat");
+			// make the system select these later on... this is a big undertaking, it will take a while
 			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
 			r.mat->setPS(sys._shaderCache.getPixShader("lightPS"));
 			r.pLight = &pLight;
@@ -92,7 +92,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("guard_tower")->srv),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	//b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
 	fixBuildable(b);
 
 	b = new IndustrialBuilding(
@@ -105,7 +105,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("lumber_yard")->srv),
 		Income(10.f, "Coin", 10.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	//b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
 	fixBuildable(b);
 }
 
@@ -461,6 +461,12 @@ void TDLevel::freeLevelMemory()
 {
 	finished = true;
 }
+
+
+
+
+
+
 
 
 

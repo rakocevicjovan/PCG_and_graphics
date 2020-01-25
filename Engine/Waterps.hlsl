@@ -18,7 +18,7 @@ struct PixelInputType
 	float2 texCoords : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
-	float4 clipSpace : CLIPPY;
+	float4 clipSpace : CLIPSPACE;
 	float3 tangent : TANGENT;
 };
 
@@ -65,7 +65,7 @@ float noise2d(in float2 _st)
 	float2 p = floor(_st);
 	float2 f = frac(_st);
 
-	//4 corners of a piece of 2d texture ran through the "random" function - it's actually deterministic tho
+	//4 corners of a piece of 2d texture ran through the pseudo-random function function
 	float a = random(p);
 	float b = random(p + float2(1.0, 0.0));
 	float c = random(p + float2(0.0, 1.0));

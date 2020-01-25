@@ -48,15 +48,16 @@ PixelInputType main(VertexInputType input)
 	output.worldPos = mul(input.position, worldMatrix);
 
 	//float3 wMatPos = float3(worldMatrix._41, worldMatrix._42, worldMatrix._43);	works!, just don't want it for the maze, but later for the fire level
-	float distance = length(playerPos.xz - output.worldPos.xz);//wMatPos.xz);
+	float distance = length(playerPos.xz - output.worldPos.xz);
 
-	output.worldPos.y -= smoothstep(32.f, 64.f, distance) * 27.f;
+	output.worldPos.y -= smoothstep(32.f, 64.f, distance) * 27.f;	//magic numbers explanation: looked good in the maze
+
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
 	output.tex = input.tex;
 
-	output.normal = mul(input.normal, (float3x3)worldMatrix);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
+	output.normal = mul(input.normal, (float3x3)worldMatrix);
 	output.normal = normalize(output.normal);
 
     output.tangent = mul(input.tangent, (float3x3)worldMatrix);

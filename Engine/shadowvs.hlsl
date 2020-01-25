@@ -47,15 +47,18 @@ PixelInputType main(VertexInputType input)
     
     input.position.w = 1.0f;
 
-    output.worldPosition = mul(input.position, worldMatrix);
+	float4 wPos = mul(input.position, worldMatrix);
+
+    output.worldPosition = wPos;
     output.position = mul(output.worldPosition, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
     // Calculate the position of the vertices as viewed by the light source.
-    output.fragPosLightSpace = mul(output.worldPosition, lightViewMatrix);
+    output.fragPosLightSpace = mul(wPos, lightViewMatrix);
     output.fragPosLightSpace = mul(output.fragPosLightSpace, lightProjectionMatrix);
 
     output.tex = input.tex;
+
     output.normal = normalize(mul(input.normal, (float3x3)worldMatrix));
 
     return output;
