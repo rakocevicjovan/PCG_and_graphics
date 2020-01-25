@@ -23,14 +23,6 @@ float4 calcSpecularPhong(in float3 invLightDir, in float3 normal, in float3 slc,
 }
 
 
-//will do once I have a better light data definition current one is bulky and sucks
-float4 calcPhong(in float3 alc, in float3 dlc, in float3 slc)
-{
-	return float4(0., 0., 0., 0.);
-}
-
-
-
 
 
 float3 gammaCorrect(in float3 colour, in float3 gammaFactor)
@@ -52,7 +44,6 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
 	in float3  lightDir)			// light direction
 {
 	float fogAmount = 1.0 - exp(-distance * 0.0001f);
-
 	float lightIntensity = max(dot(rayDir, lightDir), 0.0);
 
 	float3 fogColor = lerp(
@@ -65,7 +56,43 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
 }
 
 
-//@TODO add blinn phong
+void mapNormals(in SamplerState Sampler, in Texture2D normalMap, in float2 texCoords, in float3 tangent, inout float3 normal)
+{
+	//sample normal from the map
+	float4 texNormal = normalMap.Sample(Sampler, texCoords);
+	texNormal = 2.0f * texNormal - 1.f;
+	tangent = normalize(tangent - dot(tangent, normal) * normal);
+	float3 bitangent = cross(normal, tangent);
+	float3x3 TBNMatrix = float3x3(tangent, bitangent, normal);
+	normal = normalize(mul(texNormal.xyz, TBNMatrix));
+}
+
+
+
+
+//@TODO add blinn phong as well, and update this to the new light struct when it's ready
+
+//will redo once I have a better light data definition current one is bulky and sucks
+void applyPhong(
+	in float3 alc, in float3 dlc, in float3 slc,
+	in float3 wPos, in float3 lPos, in float3 eyePos
+	inout float4 colour)
+{
+	float3 invLightDir = normalize(lPos - wPos);
+
+	float3 invViewDir = (eyePos - wPos);
+	float distance = length(invViewDir);
+	invViewDir = invViewDir / distance;
+
+	float4 ambient = calcAmbient(alc, 1.);
+
+	float dFactor = 0;
+	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, 1., dFactor);
+
+	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, 1., viewDir, dFactor, SpecularPower);
+
+	colour.xyz = (ambient.xyz + diffuse.xyz) * colour.xyz + specular.xyz;
+}
 
 
 //NVIDIA FORMULA FOR BLINN-PHONG:

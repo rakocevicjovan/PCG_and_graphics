@@ -4,8 +4,8 @@ struct PixelInputType
     float2 tex : TEXCOORD0;
 };
 
-Texture2D shaderTexture;
-SamplerState SampleType;
+Texture2D shaderTexture : register(t0);
+SamplerState SampleType : register(s0);
 
 float4 main(PixelInputType input) : SV_TARGET
 {

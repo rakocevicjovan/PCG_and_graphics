@@ -1,7 +1,3 @@
-Texture2D projectionTexture : register(t0);
-Texture2D shaderTexture : register(t1);
-
-SamplerState SampleType;
 
 cbuffer LightBuffer : register(b0)
 {
@@ -15,7 +11,6 @@ cbuffer LightBuffer : register(b0)
 	float4 eyePos;
 };
 
-
 struct PixelInputType
 {
     float4 position : SV_POSITION;
@@ -24,7 +19,13 @@ struct PixelInputType
     float4 viewPosition : TEXCOORD1;
 };
 
+Texture2D projectionTexture : register(t0);
+Texture2D shaderTexture : register(t1);
 
+SamplerState SampleType : register(s0);
+
+
+//this one is a mess in general, just use the phong model ffs... basically copied from rastertek without thinking
 float4 main(PixelInputType input) : SV_TARGET
 {
     float4 color;

@@ -28,12 +28,6 @@ SamplerState SampleType;
 //go 2-4 times higher on this when using blinn phong compared to phong, should be material defined
 static const float SpecularPower = 8.f;
 
-
-
-
-
-
-
 float4 main(PixelInputType input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
@@ -60,10 +54,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, sli, viewDir, diffIntensity, SpecularPower);
 
 	colour = (ambient + diffuse) * colour + specular;
-	//colour += ambient + diffuse + specular;
-
-	//apply fog
-	//colour = float4(applyFog(colour.xyz, distance, viewDir, lightDir), 1.0f);
 
 	//apply gamma correction
 	colour.rgb = pow( colour.xyz, float3(1.0f/2.2f, 1.0f/2.2f, 1.0f/2.2f));
