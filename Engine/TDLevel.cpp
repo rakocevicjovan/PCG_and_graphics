@@ -70,11 +70,6 @@ void TDLevel::init(Systems& sys)
 
 	//Add building types... again, could make data driven...
 	addBuildables();
-
-	/*for (int i = 0; i < 50; i++)
-	{
-		_towers.push_back(MartialBuilding(*(MartialBuilding*)_buildable[0]));
-	}*/
 	
 
 	//Add resource types, same @TODO as above

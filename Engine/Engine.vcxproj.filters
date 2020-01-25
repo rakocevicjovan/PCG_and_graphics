@@ -7,9 +7,6 @@
     <Filter Include="GUI">
       <UniqueIdentifier>{c448c636-6f18-4d93-926b-e9e3e59e23cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor">
-      <UniqueIdentifier>{bf623ccc-dcad-4998-8852-aa8c0dc95289}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision">
       <UniqueIdentifier>{c889181d-c75c-4bd4-812a-05d30b426a25}</UniqueIdentifier>
     </Filter>
@@ -125,6 +122,9 @@
     </Filter>
     <Filter Include="Rendering\Shader Files\HLSL helpers">
       <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Editor">
+      <UniqueIdentifier>{bf623ccc-dcad-4998-8852-aa8c0dc95289}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -379,6 +379,9 @@
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCompiler.cpp">
+      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

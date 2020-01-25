@@ -21,7 +21,7 @@ Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vecto
 	//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
 	for (auto& t : textures)
 	{
-		_baseMaterial.textures.push_back(&t);
+		_baseMaterial.textures.push_back(std::make_pair(t._role, &t));
 	}
 
 	_vertexBuffer = 0;
