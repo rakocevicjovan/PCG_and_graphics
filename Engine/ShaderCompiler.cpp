@@ -14,7 +14,8 @@ void ShaderCompiler::ShaderCompiler::init(HWND* hwnd, ID3D11Device* device)
 
 
 
-bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
+bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, 
+	ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 {
 	ID3D10Blob* errorMessage = nullptr;
 	ID3D10Blob* shaderBuffer = nullptr;

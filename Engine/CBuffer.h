@@ -46,10 +46,9 @@ public:
 	}
 
 
-	inline static void updateField(ID3D11Buffer*& cbuffer, UCHAR* data, size_t size, size_t offset, D3D11_MAPPED_SUBRESOURCE mappedResource)
+	inline static void updateField(ID3D11Buffer*& cbuffer, void* data, size_t size, size_t offset, D3D11_MAPPED_SUBRESOURCE mappedResource)
 	{
-		UCHAR* dataPtr = (UCHAR*)mappedResource.pData;
-		memcpy(dataPtr + offset, data, size);
+		memcpy(static_cast<UCHAR*>(mappedResource.pData) + offset, data, size);
 	}
 
 

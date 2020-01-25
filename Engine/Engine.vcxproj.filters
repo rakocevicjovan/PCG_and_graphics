@@ -47,20 +47,11 @@
     <Filter Include="Rendering\Lights">
       <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\AAANow do it properly">
-      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAANow do it properly\Materials">
-      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene management">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
     </Filter>
     <Filter Include="AI\Steering">
       <UniqueIdentifier>{fb52adb5-581e-43f4-837f-315408e6648f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAANow do it properly\Shaders">
-      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Main systems">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
@@ -125,6 +116,15 @@
     </Filter>
     <Filter Include="Editor">
       <UniqueIdentifier>{bf623ccc-dcad-4998-8852-aa8c0dc95289}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\AAA Improved">
+      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\AAA Improved\Materials">
+      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\AAA Improved\Shaders">
+      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -270,16 +270,16 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Rendering\Lights</Filter>
     </ClCompile>
     <ClCompile Include="Renderable.cpp">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Rendering\AAANow do it properly\Materials</Filter>
+      <Filter>Rendering\AAA Improved\Materials</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Scene management</Filter>
@@ -297,10 +297,10 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="MaterialCache.cpp">
-      <Filter>Rendering\AAANow do it properly\Materials</Filter>
+      <Filter>Rendering\AAA Improved\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Scene management\Controllers</Filter>
@@ -324,7 +324,7 @@
       <Filter>Rendering\Lights</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Rendering</Filter>
@@ -381,7 +381,7 @@
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCompiler.cpp">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -575,16 +575,16 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Rendering\Lights</Filter>
     </ClInclude>
     <ClInclude Include="Renderable.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Rendering\AAANow do it properly\Materials</Filter>
+      <Filter>Rendering\AAA Improved\Materials</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Scene management</Filter>
@@ -605,31 +605,31 @@
       <Filter>AI\Pathfinding</Filter>
     </ClInclude>
     <ClInclude Include="MaterialCache.h">
-      <Filter>Rendering\AAANow do it properly\Materials</Filter>
+      <Filter>Rendering\AAA Improved\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Steering.h">
       <Filter>AI\Steering</Filter>
     </ClInclude>
     <ClInclude Include="CBuffer.h">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCompiler.h">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCache.h">
-      <Filter>Rendering\AAANow do it properly\Shaders</Filter>
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Observer.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="RenderStateManager.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="RenderState.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="SteeringComponent.h">
       <Filter>AI\Steering</Filter>
@@ -728,7 +728,7 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="ShaderMeta.h">
-      <Filter>Rendering\AAANow do it properly</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
       <Filter>Rendering\MaterialsNEW</Filter>
@@ -777,6 +777,9 @@
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
       <Filter>Rendering\MaterialsNEW</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderGenerator.h">
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

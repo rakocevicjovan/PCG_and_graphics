@@ -22,7 +22,7 @@ public:
 	std::vector<CBufferMeta> _bufferMetaData;
 	std::vector<ID3D11Buffer*> _cbuffers;
 
-	std::vector<ShRef::CBufferVar> _CBufferVars;
+	ShRef::ShaderMetadata _shMetaData;
 
 	//copout for when the automatic system doesn't work
 	bool updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);
