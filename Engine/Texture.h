@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <vector>
 #include "Resource.h"
+#include "TextureRole.h"
 
 
 
@@ -11,23 +12,6 @@ namespace Procedural
 	class Perlin;
 	class TextureGen;
 }
-
-
-
-//used as indices into the array where the values indicate texture slot in shaders
-//last one indicates nr of textures used by the shader
-enum TextureRole
-{
-	DIFFUSE = 0,
-	NORMAL = 1,
-	SPECULAR = 2,
-	SHININESS = 3,
-	OPACITY = 4,
-	DISPLACEMENT = 5,
-	OTHER = 6,
-	NUM_TEXTURES = 7
-};	//REMEMBER TO UPDATE NUM_ROLES IF THIS CHANGES!
-
 
 
 class Texture : public Resource

@@ -59,19 +59,17 @@ public:
 
 
 
-	//@TODO rething this, so far everything would have to be packed at once or maps multiple times...
-	static void updateBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, UCHAR* data, size_t size, size_t offset)
+	// utility function for updating all fields at once (if the whole cbuffer CAN be set at once)
+	static bool updateWholeBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, void* data, size_t size)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		map(cont, cbuffer, mappedResource);
+		if (!map(cont, cbuffer, mappedResource))
+			return false;
 
-		UCHAR* dataPtr = (UCHAR*)mappedResource.pData;
-		memcpy(dataPtr + offset, data, size);
+		memcpy(static_cast<UCHAR*>(mappedResource.pData), data, size);
 		
 		unmap(cont, cbuffer);
 	}
-
-
 };
 
 

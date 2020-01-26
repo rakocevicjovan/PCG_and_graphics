@@ -446,51 +446,6 @@ float4 main(PixelInputType input):SV_TARGET
 
 
 
-
-
-
-
-/*
-// Noise generation functions (by iq)
-float hash(float n)
-{
-    return frac(sin(n) * 43758.5453);
-}
-
-float hash(float2 p)
-{
-    return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453123);
-}
-
-float noise(in float3 x)
-{
-    float3 p = floor(x);
-    float3 f = frac(x);
-    f = f * f * (3.0 - 2.0 * f);
-    
-    //return fineVolTex.SampleLevel(CloudSampler, p + f + 0.5f / 32.f, 0.f).x;
-
-    float2 uv = (p.xy + float2(37.0, 17.0) * p.z) + f.xy;
-    float2 rg = fineVolTex.SampleLevel(CloudSampler, float3((uv + 0.5) / 256.0, 0.f), 0.0).yx;
-    return lerp(rg.x, rg.y, f.z);
-}
-
-float fbm(float3 p)
-{
-    float3x3 m = float3x3(0.00, 0.80, 0.60,
-              -0.80, 0.36, -0.48,
-              -0.60, -0.48, 0.64);
-    float f;
-    f = 0.5000 * noise(p);
-    p = mul(m, p) * 2.02;
-    f += 0.2500 * noise(p);
-    p = mul(m, p) * 2.03;
-    f += 0.1250 * noise(p);
-    return f;
-}
-*/
-
-
 /* FOR FUTURE REFERENCE */
 //float4 sampled = myVolTex.Sample(CloudSampler, bsc);                  //bit slower but works well
 //float4 sampled = myVolTex.Load(float4(ree.x, ree.y / 128, ree.z, 0)); //fastest, but not good enough for this purpose :(

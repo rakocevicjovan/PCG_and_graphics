@@ -3,9 +3,17 @@
 #include "Math.h"
 #include "Light.h"
 #include "CBuffer.h"
+#include "TextureRole.h"
 
 
 enum class SHADER_TYPE { VS, GS, PS, TS, HS };
+
+struct TexLayout
+{
+	uint8_t _index;
+	uint8_t _count;
+};
+
 
 
 class Shader
@@ -24,7 +32,11 @@ public:
 
 	ShRef::ShaderMetadata _shMetaData;
 
-	//copout for when the automatic system doesn't work
+	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
+	// which does mean that they have to be in contiguous texture registers but this is not a problem
+	TexLayout _textureRegisters[TextureRole::NUM_ROLES];
+
+	// alternative to the automatic system for custom data
 	bool updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);
 
 	inline void describeBuffers(const std::vector<CBufferMeta>& meta)

@@ -727,9 +727,6 @@
     <ClInclude Include="Files.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderMeta.h">
-      <Filter>Rendering\AAA Improved</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderClipper.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
@@ -780,6 +777,9 @@
     </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureRole.h">
+      <Filter>Resources\Resource classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

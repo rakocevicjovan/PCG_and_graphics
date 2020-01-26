@@ -25,16 +25,7 @@ Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::v
 
 bool Shader::updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-
-	if (FAILED(cont->Map(_cbuffers[index], 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-		return false;
-
-	void* dataPtr = mappedResource.pData;
-	memcpy(dataPtr, data, _bufferMetaData[index]._size);
-	cont->Unmap(_cbuffers[index], 0);
-
-	return true;
+	return CBuffer::updateWholeBuffer(cont, _cbuffers[index], data, _bufferMetaData[index]._size);
 }
 
 
@@ -69,7 +60,7 @@ PixelShader::PixelShader(
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(shc, path, descriptions)
 {
-	_type = SHADER_TYPE::VS;
+	_type = SHADER_TYPE::PS;
 	shc.compilePS(path, _pShader);
 	shc.createSamplerState(samplerDesc, _sState);
 }

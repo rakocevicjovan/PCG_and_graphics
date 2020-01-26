@@ -283,7 +283,6 @@
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="QTObject.h" />
     <ClInclude Include="QuadTree.h" />
-    <ClInclude Include="ShaderMeta.h" />
     <ClInclude Include="SlotVector.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
@@ -385,6 +384,7 @@
     <ClInclude Include="ShaderWireframe.h" />
     <ClInclude Include="ShaderWater.h" />
     <ClInclude Include="TextureGen.h" />
+    <ClInclude Include="TextureRole.h" />
     <ClInclude Include="ToolGUI.h" />
     <ClInclude Include="Tower.h" />
     <ClInclude Include="Volumetric.h" />
