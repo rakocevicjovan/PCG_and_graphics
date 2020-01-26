@@ -11,13 +11,20 @@
 #include "StackAllocator.h"
 
 
-//@TODO make data driven and add a menu to set them...
+// @TODO make data driven and add a menu to set them...
 const bool FULL_SCREEN = true;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
-class InputManager;
+
+// System-reserved registers.
+#define VS_PER_CAMERA_CBUFFER_REGISTER 10u
+#define VS_PER_FRAME_CBUFFER_REGISTER 11u
+
+#define PS_PER_FRAME_CBUFFER_REGISTER 10u
+
+
 class Renderable;
 
 
@@ -31,17 +38,25 @@ struct RenderContext
 };
 
 
-struct PerCameraBuffer
+struct VSPerCameraBuffer
 {
 	SMatrix proj;
 };
 
 
-struct PerFrameBuffer
+struct VSPerFrameBuffer
 {
-	SMatrix mat;
+	SMatrix viewMat;
 	float delta;
 	float elapsed;
+	SVec2 padding;
+};
+
+
+struct PSPerFrameBuffer
+{
+	float elapsed;
+	float delta;
 	SVec2 padding;
 };
 
@@ -56,9 +71,10 @@ private:
 	D3D* _d3d;
 	//StackAllocator sAlloc;
 
-	float _fieldOfView, _aspectRatio, elapsed = 0.f;
-	ID3D11Buffer* _perCamBuffer;
-	ID3D11Buffer* _perFrameBuffer;
+	float _fieldOfView, _aspectRatio, _elapsed = 0.f;
+	ID3D11Buffer* VS_perCamBuffer;
+	ID3D11Buffer* VS_perFrameBuffer;
+	ID3D11Buffer* PS_perFrameBuffer;
 
 	void updateRenderContext(float dTime);
 	bool createGlobalBuffers();

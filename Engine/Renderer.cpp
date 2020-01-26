@@ -1,6 +1,4 @@
 #include "Renderer.h"
-#include "InputManager.h"
-#include "GameObject.h"
 #include "Shader.h"
 
 
@@ -29,37 +27,34 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d
 
 	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _aspectRatio, SCREEN_NEAR, SCREEN_DEPTH));
 
-	createGlobalBuffers();
-
-	return true;
+	return createGlobalBuffers();
 }
 
 
 
 bool Renderer::createGlobalBuffers()
 {
-	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PerCameraBuffer));
-	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_perCamBuffer)))
+	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createBufferDesc(sizeof(VSPerCameraBuffer));
+	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &VS_perCamBuffer)))
 		return false;
 
-	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PerFrameBuffer));
-	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &_perFrameBuffer)))
+	SMatrix pT = _cam.GetProjectionMatrix().Transpose();
+
+	CBuffer::updateWholeBuffer(_deviceContext, VS_perCamBuffer, &pT, sizeof(VSPerCameraBuffer));
+
+	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &VS_perCamBuffer);
+
+
+	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(VSPerFrameBuffer));
+	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &VS_perFrameBuffer)))
 		return false;
+	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &VS_perFrameBuffer);
 
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	PerCameraBuffer* dataPtr;
 
-	SMatrix proj = _cam.GetProjectionMatrix();
-	SMatrix pT = proj.Transpose();
-
-	if (FAILED(_deviceContext->Map(_perCamBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	D3D11_BUFFER_DESC PS_perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SVec4));
+	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &PS_perFrameBuffer)))
 		return false;
-	dataPtr = (PerCameraBuffer*)mappedResource.pData;
-	dataPtr->proj = pT;
-	_deviceContext->Unmap(_perCamBuffer, 0);
-
-	_deviceContext->VSSetConstantBuffers(10, 1, &_perCamBuffer);
-	_deviceContext->VSSetConstantBuffers(11, 1, &_perFrameBuffer);
+	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, NULL, &PS_perFrameBuffer);
 
 	return true;
 }
@@ -68,14 +63,13 @@ bool Renderer::createGlobalBuffers()
 
 bool Renderer::frame(float dTime)
 {
-	elapsed += dTime;
+	_elapsed += dTime;
 	
-	updateRenderContext(dTime);
 	_cam.Update(dTime);
 
-	bool res = updatePerFrameBuffer(dTime);
+	updateRenderContext(dTime);
 
-	return res;
+	return updatePerFrameBuffer(dTime);
 }
 
 
@@ -83,19 +77,26 @@ bool Renderer::frame(float dTime)
 bool Renderer::updatePerFrameBuffer(float dTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	PerFrameBuffer* dataPtr;
+	
+	VSPerFrameBuffer* vsFrameBufferPtr;
+	SMatrix vT = _cam.GetViewMatrix().Transpose();
 
-	SMatrix view = _cam.GetViewMatrix();
-	SMatrix vT = view.Transpose();
-
-	if (FAILED(_deviceContext->Map(_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(_deviceContext->Map(VS_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
-	dataPtr = (PerFrameBuffer*)mappedResource.pData;
-	dataPtr->mat = vT;
-	dataPtr->delta = dTime;
-	dataPtr->elapsed = elapsed;
-	dataPtr->padding = SVec2(0.f);
-	_deviceContext->Unmap(_perFrameBuffer, 0);
+	vsFrameBufferPtr = reinterpret_cast<VSPerFrameBuffer*>(mappedResource.pData);
+	vsFrameBufferPtr->viewMat = vT;
+	vsFrameBufferPtr->delta = dTime;
+	vsFrameBufferPtr->elapsed = _elapsed;
+	_deviceContext->Unmap(VS_perFrameBuffer, 0);
+
+
+	PSPerFrameBuffer* psFrameBufferPtr;
+	if (FAILED(_deviceContext->Map(PS_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		return false;
+	psFrameBufferPtr = reinterpret_cast<PSPerFrameBuffer*>(mappedResource.pData);
+	psFrameBufferPtr->elapsed = _elapsed;
+	psFrameBufferPtr->delta = dTime;
+	_deviceContext->Unmap(PS_perFrameBuffer, 0);
 
 	return true;
 }
@@ -114,7 +115,7 @@ void Renderer::updateRenderContext(float dTime)
 	rc.cam = &_cam;
 	rc.d3d = _d3d;
 	rc.dTime = dTime;
-	rc.elapsed = elapsed;
+	rc.elapsed = _elapsed;
 	rc.shMan = &_shMan;
 }
 

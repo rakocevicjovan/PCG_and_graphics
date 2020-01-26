@@ -30,6 +30,7 @@ public:
 	std::vector<CBufferMeta> _bufferMetaData;
 	std::vector<ID3D11Buffer*> _cbuffers;
 
+	//contains texture and constant buffer meta data along with register indices for each of them
 	ShRef::ShaderMetadata _shMetaData;
 
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader

@@ -34,28 +34,30 @@ protected:
 
 public:
 
-	ShaderSkelAnim animator;
+	ShaderManager();
+	~ShaderManager();
+
+	void init(ID3D11Device* _device, HWND hwnd);
+
 	Phong light;
+	ShaderSkybox skyboxShader;
+	InstancedShader instanced;
+
+	// These don't necessarily work right now need to be tested after the rework that happened to all shader code
+	ShaderSkelAnim animator;
 	WireframeShader wireframe;
 	ShaderHUD HUD, brightMask, blurHor, blurVer, bloom;
 	ShaderDepth depth;
 	ShaderPT texProjector;
 	ShaderShadow shadow;
 	ShaderCM cubeMapShader;
-	ShaderSkybox skyboxShader;
 	ShaderStrife strife;
 	ShaderWater water;
-	InstancedShader instanced, dragon;
+	InstancedShader dragon;
 	TerrainShader terrainMultiTex, terrainNormals, treeShader;
 	ShaderMaze mazeMat, mazeFloorMat;
 	ShaderClipper clipper;
 
-	//wisps
 	ShaderVolumetric shVolumEarth, shVolumFire, shVolumWater, shVolumAir, shVolumLava, shVolumTornado;
 	VolumetricScreen shVolumScreen;
-
-	ShaderManager();
-	~ShaderManager();
-
-	void init(ID3D11Device* _device, HWND hwnd);
 };

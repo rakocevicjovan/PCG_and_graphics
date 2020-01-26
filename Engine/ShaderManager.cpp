@@ -83,7 +83,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	light.Initialize(shc,			{ L"lightVS.hlsl", L"lightPS.hlsl" }, ptn_layout, regularSD);
 	skyboxShader.Initialize(shc,	{ L"skyboxVS.hlsl", L"skyboxPS.hlsl" }, ptn_layout, skbyoxSD);
-
+	instanced.Initialize(shc,		{ L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, ptn_instanced_layout, regularSD, 5000);
 
 	///implemented, but not required for the game currently
 	//cubeMapShader.Initialize(shc, { L"cubemapVS.hlsl",	L"cubemapPS.hlsl" }, ptn_layout, skbyoxSD);
@@ -119,6 +119,5 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 	//terrainNormals.Initialize(shc, { L"mazefloorVS.hlsl", L"rerrainVNPS.hlsl" }, ptnt_layout, regularSD);
 
 	//intanced shaders
-	//instanced.Initialize(shc, { L"InstancedVS.hlsl", L"InstancedPS.hlsl" }, ptn_instanced_layout, regularSD, 5000);
 	//dragon.Initialize(shc, { L"dragonVS.hlsl", L"dragonPS.hlsl" }, ptn_instanced_layout, regularSD, 100);
 }
