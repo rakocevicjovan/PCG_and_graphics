@@ -83,7 +83,7 @@ void ShaderManager::init(ID3D11Device * device, HWND hwnd)
 
 	light.Initialize(shc,			{ L"lightVS.hlsl", L"lightPS.hlsl" }, ptn_layout, regularSD);
 	skyboxShader.Initialize(shc,	{ L"skyboxVS.hlsl", L"skyboxPS.hlsl" }, ptn_layout, skbyoxSD);
-	
+
 
 	///implemented, but not required for the game currently
 	//cubeMapShader.Initialize(shc, { L"cubemapVS.hlsl",	L"cubemapPS.hlsl" }, ptn_layout, skbyoxSD);

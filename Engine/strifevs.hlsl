@@ -1,4 +1,4 @@
-cbuffer MatrixBuffer : register(b0)
+cbuffer WMBuffer: register(b0)
 {
 	matrix worldMatrix;
 };

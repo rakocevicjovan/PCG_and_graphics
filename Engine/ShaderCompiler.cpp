@@ -209,7 +209,7 @@ void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shad
 
 	compileErrors = (char*)(errorMessage->GetBufferPointer());
 	bufferSize = errorMessage->GetBufferSize();
-	fout.open("../Shaders/shader-error.txt");
+	fout.open("shader-error.txt");
 	for (i = 0; i < bufferSize; i++)
 		fout << compileErrors[i];
 

@@ -74,22 +74,20 @@ void mapNormals(in SamplerState Sampler, in Texture2D normalMap, in float2 texCo
 
 //will redo once I have a better light data definition current one is bulky and sucks
 void applyPhong(
-	in float3 alc, in float3 dlc, in float3 slc,
-	in float3 wPos, in float3 lPos, in float3 eyePos
+	in float3 alc, in float3 dlc, in float3 slc, in float specularPower,
+	in float3 normal, in float3 wPos, in float3 lPos, in float3 eyePos,
 	inout float4 colour)
 {
 	float3 invLightDir = normalize(lPos - wPos);
 
-	float3 invViewDir = (eyePos - wPos);
-	float distance = length(invViewDir);
-	invViewDir = invViewDir / distance;
+	float3 viewDir = (wPos - eyePos);
 
 	float4 ambient = calcAmbient(alc, 1.);
 
 	float dFactor = 0;
-	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, 1., dFactor);
+	float4 diffuse = calcDiffuse(invLightDir, normal, dlc, 1., dFactor);
 
-	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, 1., viewDir, dFactor, SpecularPower);
+	float4 specular = calcSpecularPhong(invLightDir, normal, slc, 1., viewDir, dFactor, specularPower);
 
 	colour.xyz = (ambient.xyz + diffuse.xyz) * colour.xyz + specular.xyz;
 }

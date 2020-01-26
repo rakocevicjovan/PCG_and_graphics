@@ -35,10 +35,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
 
-	float3 viewDir = input.worldPos.xyz - eyePos.xyz;	
-	float distance = length(viewDir);
-	viewDir = viewDir / distance;
-	float3 invViewDir = -viewDir;
+	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);	
 
 	//texture colour
 	float4 colour = shaderTexture.Sample(SampleType, input.tex);

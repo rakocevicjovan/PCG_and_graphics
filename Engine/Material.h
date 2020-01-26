@@ -3,6 +3,7 @@
 #include "ShaderManager.h"
 #include "Shader.h"
 
+//contains everything that the attached shaders need to be set to run... I guess?
 class Material
 {
 protected:

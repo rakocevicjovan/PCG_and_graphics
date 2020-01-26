@@ -30,6 +30,7 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	//CREATION
 	VertexShader* vs = new VertexShader(*_shCompiler, L"lightVS.hlsl", inLayout, { matrixBufferDesc });
+
 	//make this happen during construction, if possible...need to load from files tbh
 	CBufferMeta meta(0, sizeof(SMatrix));
 	meta._fields.push_back(CBufferFieldDesc(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix)));
