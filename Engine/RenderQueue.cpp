@@ -10,7 +10,7 @@ RenderQueue::RenderQueue(size_t maxOpaque, size_t maxTransparents)
 
 void RenderQueue::add(Renderable& renderable)
 {
-	if (renderable.mat->opaque)
+	if (renderable.mat->_opaque)
 		opaques.push_back(renderable);	//stack allocator could work, or just reserving... not sure really
 	else
 		transparents.push_back(renderable);

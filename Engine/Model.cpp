@@ -182,16 +182,16 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 	//32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
 	//brute force checking could solve this but incurs a lot of overhead on load
 	//and randomized sampling is not reliable, so for now... we have this
-	mesh._baseMaterial.opaque = true;
+	mesh._baseMaterial._opaque = true;
 
 	for (Texture& t : mesh.textures)
 	{
 		t.Setup(device);
-		mesh._baseMaterial.textures.push_back(std::make_pair(t._role, &t));
+		mesh._baseMaterial._texDescription.push_back({ t._role, &t });
 
 		//we can at least know it's transparent if it has an opacity map, better than nothing
 		if (t._role == OPACITY)
-			mesh._baseMaterial.opaque = false;
+			mesh._baseMaterial._opaque = false;
 	}
 
 	return true;

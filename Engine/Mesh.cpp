@@ -21,7 +21,7 @@ Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vecto
 	//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
 	for (auto& t : textures)
 	{
-		_baseMaterial.textures.push_back(std::make_pair(t._role, &t));
+		_baseMaterial._texDescription.push_back({ t._role, &t });
 	}
 
 	_vertexBuffer = 0;
@@ -36,6 +36,7 @@ Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vecto
 Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 {
 	terrain.populateMesh(vertices, indices, textures);
+	transform = SMatrix::CreateTranslation(terrain.getOffset());
 	setupMesh(device);
 }
 

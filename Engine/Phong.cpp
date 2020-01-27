@@ -50,7 +50,7 @@ bool Phong::Initialize(const ShaderCompiler& shc, const std::vector<std::wstring
 
 
 
-bool Phong::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime)
+bool Phong::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, const Camera& cam, const PointLight& pLight)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	unsigned int bufferNumber;

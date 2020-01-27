@@ -46,7 +46,7 @@ private:
 
 	//unlike loaded models in the manager, these will be generated
 	Procedural::Terrain terrain;
-	Model floorModel;
+	Mesh floorMesh;
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
 

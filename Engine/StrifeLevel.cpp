@@ -81,7 +81,7 @@ namespace Strife
 		rc.d3d->ClearColourDepthBuffers();
 
 		//terrain
-		S_SHADY.light.SetShaderParameters(S_CONTEXT, floor.transform, *rc.cam, csDef.celestial, rc.dTime);
+		S_SHADY.light.SetShaderParameters(S_CONTEXT, floor.transform, *rc.cam, csDef.celestial);
 		floor.Draw(S_CONTEXT, S_SHADY.light);
 
 		sceneTex.SetRenderTarget(S_CONTEXT);

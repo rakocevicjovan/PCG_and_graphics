@@ -162,8 +162,8 @@ void Renderer::flushRenderQueue()
 //mind all the pointers, this can fail spectacularly if anything relocates...
 void Renderer::render(const Renderable& r) const
 {
-	unsigned int stride = r.mat->stride;
-	unsigned int offset = r.mat->offset;
+	unsigned int stride = r.mat->_stride;
+	unsigned int offset = r.mat->_offset;
 
 	//update and set cbuffers
 	r.updateBuffersAuto(_deviceContext);
@@ -175,9 +175,7 @@ void Renderer::render(const Renderable& r) const
 	_deviceContext->PSSetShader(r.mat->getPS()->_pShader, NULL, 0);
 	_deviceContext->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
 
-	//sort by first texture only? could be faster and easier with a smaller key... and often is the same as checking them all
-	for (int i = 0; i < r.mat->textures.size(); ++i)
-		_deviceContext->PSSetShaderResources(r.mat->texturesAdded + i, 1, &(r.mat->textures[i].second->srv));
+	r.mat->bindTextures(_deviceContext);
 
 	//could sort by this as well... should be fairly uniform though
 	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);

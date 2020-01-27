@@ -31,7 +31,14 @@ void TDLevel::init(Systems& sys)
 	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
 	terrain.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
 	terrain.SetUp(S_DEVICE);
-	floorModel = Model(terrain, S_DEVICE);
+	floorMesh = Mesh(terrain, S_DEVICE);
+
+	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
+	floorTex.Setup(S_DEVICE);
+
+	floorMesh.textures.push_back(floorTex);
+	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &(floorMesh.textures[0]) } );
+
 
 	_octree.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it's really big, probably not worth it for my game
 	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
@@ -62,6 +69,7 @@ void TDLevel::init(Systems& sys)
 			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
 			r.mat->setPS(sys._shaderCache.getPixShader("lightPS"));
 			r.pLight = &pLight;
+			
 		}
 
 		_octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
@@ -373,8 +381,8 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 
-	S_SHADY.light.SetShaderParameters(S_CONTEXT, floorModel.transform, *rc.cam, pLight, rc.dTime);
-	floorModel.Draw(S_CONTEXT, S_SHADY.light);
+	S_SHADY.light.SetShaderParameters(S_CONTEXT, floorMesh.transform, *rc.cam, pLight);
+	floorMesh.draw(S_CONTEXT, S_SHADY.light);
 	S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
 
 	S_RANDY.sortRenderQueue();

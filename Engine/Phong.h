@@ -21,7 +21,7 @@ public:
 
 	bool Initialize(const ShaderCompiler& shc, const std::vector<std::wstring> filePaths,
 		std::vector<D3D11_INPUT_ELEMENT_DESC> layoutDesc, const D3D11_SAMPLER_DESC& samplerDesc);
-	bool SetShaderParameters(ID3D11DeviceContext*, SMatrix& modelMat, const Camera& cam, const PointLight& pLight, float deltaTime);
+	bool SetShaderParameters(ID3D11DeviceContext*, SMatrix& modelMat, const Camera& cam, const PointLight& pLight);
 	void ReleaseShaderParameters(ID3D11DeviceContext*);
 	
 
