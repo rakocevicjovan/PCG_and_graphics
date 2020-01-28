@@ -39,6 +39,7 @@ namespace SkelAnim
 		rc.d3d->ClearColourDepthBuffers();
 		rc.d3d->setRSSolidNoCull();
 
+		/*
 		S_SHADY.light.SetShaderParameters(S_CONTEXT, floorModel.transform, *rc.cam, pLight);
 		floorModel.Draw(S_CONTEXT, S_SHADY.light);
 
@@ -48,6 +49,7 @@ namespace SkelAnim
 		sm.Draw(S_CONTEXT, S_SHADY.animator);
 
 		S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
+		*/
 
 		rc.d3d->EndScene();
 	}

@@ -45,6 +45,7 @@ public:
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1);
 
+	/*
 	template <class FlexibleShaderType>
 	void Draw(ID3D11DeviceContext* dc, FlexibleShaderType& shader)
 	{
@@ -57,6 +58,7 @@ public:
 		for (unsigned int i = 0; i < this->meshes.size(); i++)
 			this->meshes[i].draw(dc, shader);
 	}
+	*/
 
 	/* 
 	//it seems that this is not compatible with the placement new... or at least not the way I tried it

@@ -1,6 +1,7 @@
 #pragma once
 #include "InstancedShader.h"
 #include "Model.h"
+#include "Camera.h"
 
 
 

@@ -19,7 +19,8 @@ void TDLevel::init(Systems& sys)
 	flintLock.LoadModel(S_DEVICE, "../Models/flintlock_rifle/flintlock.fbx");
 
 	S_INMAN.registerController(&_tdController);
-	skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/day.dds");
+
+	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
 
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
@@ -31,6 +32,7 @@ void TDLevel::init(Systems& sys)
 	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
 	terrain.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
 	terrain.SetUp(S_DEVICE);
+	
 	floorMesh = Mesh(terrain, S_DEVICE);
 
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
@@ -38,7 +40,8 @@ void TDLevel::init(Systems& sys)
 
 	floorMesh.textures.push_back(floorTex);
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &(floorMesh.textures[0]) } );
-
+	floorMesh._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
+	floorMesh._baseMaterial.setPS(S_SHCACHE.getPixShader("phongPS"));
 
 	_octree.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it's really big, probably not worth it for my game
 	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
@@ -67,7 +70,7 @@ void TDLevel::init(Systems& sys)
 		{
 			// make the system select these later on... this is a big undertaking, it will take a while
 			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
-			r.mat->setPS(sys._shaderCache.getPixShader("lightPS"));
+			r.mat->setPS(sys._shaderCache.getPixShader("phongPS"));
 			r.pLight = &pLight;
 			
 		}
@@ -100,7 +103,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("guard_tower")->srv),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), pLight);
 	fixBuildable(b);
 
 	b = new IndustrialBuilding(
@@ -113,7 +116,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("lumber_yard")->srv),
 		Income(10.f, "Coin", 10.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("lightPS"), pLight);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), pLight);
 	fixBuildable(b);
 }
 
@@ -380,16 +383,14 @@ void TDLevel::draw(const RenderContext& rc)
 {
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
-
-	S_SHADY.light.SetShaderParameters(S_CONTEXT, floorMesh.transform, *rc.cam, pLight);
-	floorMesh.draw(S_CONTEXT, S_SHADY.light);
-	S_SHADY.light.ReleaseShaderParameters(S_CONTEXT);
+	
+	S_RANDY.render(floorMesh);
 
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
 
-	S_RANDY.renderSkybox(*rc.cam, *(S_RESMAN.getByName<Model>("Skysphere")), skyboxCubeMapper);
+	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
 	if (_inBuildingMode)
 		_templateBuilding->render(S_RANDY);

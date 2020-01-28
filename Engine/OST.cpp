@@ -140,7 +140,7 @@ void OST::ClearRenderTarget(ID3D11DeviceContext* deviceContext)
 }
 
 
-
+//@TODO redo model draw
 void OST::DrawDepthToTexture(D3D& d3d, std::vector<Model*>& models, ShaderDepth& sd, Camera& c)
 {
 	d3d.GetDeviceContext()->OMSetRenderTargets(1, &(rtv), d3d.GetDepthStencilView());	//switch to drawing on ost for the prepass	
@@ -150,7 +150,7 @@ void OST::DrawDepthToTexture(D3D& d3d, std::vector<Model*>& models, ShaderDepth&
 	for (auto tm : models)
 	{
 		sd.SetShaderParameters(d3d.GetDeviceContext(), tm->transform);	// offScreenTexture._view, offScreenTexture._lens
-		tm->Draw(d3d.GetDeviceContext(), sd);
+		//tm->Draw(d3d.GetDeviceContext(), sd);
 	}
 }
 

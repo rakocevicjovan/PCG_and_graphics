@@ -7,12 +7,12 @@ void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
 {
 	D3D11_MAPPED_SUBRESOURCE mr;
 
-	for (int i = 0; i < mat->getVS()->_bufferMetaData.size(); i++)
+	for (int i = 0; i < mat->getVS()->_cbuffers.size(); i++)
 	{
-		ID3D11Buffer* curBuffer = mat->getVS()->_cbuffers[i];
+		ID3D11Buffer* curBuffer = mat->getVS()->_cbuffers[i]._cbPtr;
 		CBuffer::map(cont, curBuffer, mr);
 
-		for (const CBufferFieldDesc& cbfd : mat->getVS()->_bufferMetaData[i]._fields)
+		for (const CBufferFieldDesc& cbfd : mat->getVS()->_cbuffers[i]._metaData._fields)
 		{
 			if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
 			{
@@ -23,12 +23,12 @@ void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
 		CBuffer::unmap(cont, curBuffer);
 	}
 
-	for (int i = 0; i < mat->getPS()->_bufferMetaData.size(); i++)
+	for (int i = 0; i < mat->getPS()->_cbuffers.size(); i++)
 	{
-		ID3D11Buffer* curBuffer = mat->getPS()->_cbuffers[i];
+		ID3D11Buffer* curBuffer = mat->getPS()->_cbuffers[i]._cbPtr;
 		CBuffer::map(cont, curBuffer, mr);
 
-		for (const CBufferFieldDesc& cbfd : mat->getPS()->_bufferMetaData[i]._fields)
+		for (const CBufferFieldDesc& cbfd : mat->getPS()->_cbuffers[i]._metaData._fields)
 		{
 			if (cbfd._content == CBUFFER_FIELD_CONTENT::P_LIGHT)
 			{

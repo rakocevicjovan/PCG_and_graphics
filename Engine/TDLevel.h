@@ -7,6 +7,7 @@
 #include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
+#include "Skybox.h"
 
 //game specific
 #include "TDController.h"
@@ -52,7 +53,8 @@ private:
 
 	PointLight pLight;
 	
-	CubeMapper skyboxCubeMapper;
+	//CubeMapper skyboxCubeMapper;
+	Skybox _skybox;
 
 	int numCulled;
 
@@ -92,3 +94,19 @@ private:
 	
 	Economy _eco;
 };
+
+
+/*
+
+void Renderer::renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper)
+{
+	_d3d->setRSSolidNoCull();
+	_d3d->SwitchDepthToLessEquals();
+	skyboxShader.SetShaderParameters(_deviceContext, cam, rc.dTime, skyboxCubeMapper.cm_srv);
+	skybox.Draw(_deviceContext, _shMan.skyboxShader);
+	skyboxShader.ReleaseShaderParameters(_deviceContext);
+	_d3d->SwitchDepthToDefault();
+	_d3d->setRSSolidCull();
+}
+
+*/

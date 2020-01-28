@@ -7,17 +7,14 @@ namespace Strife
 
 	void StrifeLevel::init(Systems& sys)
 	{
-		skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/night.dds");
 
 		sceneTex.Init(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);
 		screenRectangleNode = postProcessor.AddUINODE(S_DEVICE, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
 
-		skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
-
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f
 		screenQuad.meshes.push_back(scrQuadMesh);
 
-		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, S_RANDY.getAR(), 1.f, 1000.f));
+		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, S_RANDY.getAspectRatio(), 1.f, 1000.f));
 
 		//32000.f in lux but that doesn't work... not sure how to do any of this
 		LightData lightData(SVec3(1.f, 1.f, 1.f), 1.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
@@ -81,6 +78,7 @@ namespace Strife
 		rc.d3d->ClearColourDepthBuffers();
 
 		//terrain
+		/*
 		S_SHADY.light.SetShaderParameters(S_CONTEXT, floor.transform, *rc.cam, csDef.celestial);
 		floor.Draw(S_CONTEXT, S_SHADY.light);
 
@@ -91,14 +89,14 @@ namespace Strife
 		S_SHADY.strife.SetShaderParameters(S_CONTEXT, *rc.cam, csDef, rc.elapsed);
 		screenQuad.Draw(S_CONTEXT, S_SHADY.strife);
 		S_SHADY.strife.ReleaseShaderParameters(S_CONTEXT);
-
+		*/
 		rc.d3d->TurnOffAlphaBlending();
 		
 
 		S_CONTEXT->RSSetViewports(1, &_sys._D3D.viewport);
 		S_CONTEXT->OMSetRenderTargets(1, &_sys._D3D.m_renderTargetView, _sys._D3D.GetDepthStencilView());
 
-		postProcessor.draw(S_CONTEXT, S_SHADY.HUD, sceneTex.srv);
+		//postProcessor.draw(S_CONTEXT, S_SHADY.HUD, sceneTex.srv);
 		
 
 		//GUI
@@ -418,6 +416,9 @@ namespace Strife
 
 
 //skybox
+//CubeMapper skyboxCubeMapper;
+//skyboxCubeMapper.LoadFromFiles(S_DEVICE, "../Textures/night.dds");
+//skybox.LoadModel(S_DEVICE, "../Models/Skysphere.fbx");
 //randy.RenderSkybox(*rc.cam, skybox, skyboxCubeMapper);
 
 //cloudscape, blend into background which depends on the time of the day... or use anything idk...

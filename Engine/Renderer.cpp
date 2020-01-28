@@ -19,8 +19,6 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d
 	_device = d3d.GetDevice();
 	_deviceContext = d3d.GetDeviceContext();
 
-	_shMan.init(_device, hwnd);
-
 	// Setup the projection matrix.
 	_fieldOfView = PI / 3.0f;
 	_aspectRatio = (float)windowWidth / (float)windowHeight;
@@ -116,7 +114,6 @@ void Renderer::updateRenderContext(float dTime)
 	rc.d3d = _d3d;
 	rc.dTime = dTime;
 	rc.elapsed = _elapsed;
-	rc.shMan = &_shMan;
 }
 
 
@@ -135,19 +132,6 @@ void Renderer::setDefaultRenderTarget()
 
 
 
-void Renderer::renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper) 
-{
-	_d3d->setRSSolidNoCull();
-	_d3d->SwitchDepthToLessEquals();
-	_shMan.skyboxShader.SetShaderParameters(_deviceContext, cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(_deviceContext, _shMan.skyboxShader);
-	rc.shMan->skyboxShader.ReleaseShaderParameters(_deviceContext);
-	_d3d->SwitchDepthToDefault();
-	_d3d->setRSSolidCull();
-}
-
-
-
 void Renderer::flushRenderQueue()
 {	
 	for (const auto& r : _rQue.opaques)
@@ -162,9 +146,6 @@ void Renderer::flushRenderQueue()
 //mind all the pointers, this can fail spectacularly if anything relocates...
 void Renderer::render(const Renderable& r) const
 {
-	unsigned int stride = r.mat->_stride;
-	unsigned int offset = r.mat->_offset;
-
 	//update and set cbuffers
 	r.updateBuffersAuto(_deviceContext);
 	r.setBuffers(_deviceContext);
@@ -181,6 +162,10 @@ void Renderer::render(const Renderable& r) const
 	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);
 
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
+
+	unsigned int stride = r.mat->_stride;
+	unsigned int offset = r.mat->_offset;
+
 	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), &stride, &offset);
 	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 

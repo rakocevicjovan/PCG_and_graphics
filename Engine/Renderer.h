@@ -3,10 +3,7 @@
 #include "Camera.h"
 #include "RenderQueue.h"
 #include "RenderStateManager.h"
-
 #include "OST.h"
-#include "CubeMapper.h"
-#include "ShaderManager.h"
 #include "ScreenSpaceDrawer.h"
 #include "StackAllocator.h"
 
@@ -33,7 +30,6 @@ struct RenderContext
 	D3D* d3d;
 	float dTime;
 	float elapsed;
-	ShaderManager* shMan;
 	Camera* cam;
 };
 
@@ -69,7 +65,6 @@ private:
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	D3D* _d3d;
-	//StackAllocator sAlloc;
 
 	float _fieldOfView, _aspectRatio, _elapsed = 0.f;
 	ID3D11Buffer* VS_perCamBuffer;
@@ -80,7 +75,6 @@ private:
 	bool createGlobalBuffers();
 
 public:
-	ShaderManager _shMan;
 	RenderContext rc;
 	Camera _cam;
 	RenderQueue _rQue;
@@ -95,8 +89,6 @@ public:
 	void setOSTRenderTarget(OST& ost);
 	void setDefaultRenderTarget();
 
-	void renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper);
-
 	inline void addToRenderQueue(Renderable& renderable) { _rQue.add(renderable); }
 	inline void sortRenderQueue() { _rQue.sort(); }
 	void flushRenderQueue();
@@ -106,5 +98,9 @@ public:
 	
 	void setCameraMatrix(const SMatrix& camMatrix);
 
-	inline float getAR() { return _aspectRatio; }
+	inline float getAspectRatio() { return _aspectRatio; }
+
+	inline ID3D11Device* device () { return _device; }
+	inline ID3D11DeviceContext* context () { return _deviceContext; }
+	inline D3D* d3d () { return _d3d; }
 };

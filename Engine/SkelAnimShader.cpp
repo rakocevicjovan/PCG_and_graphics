@@ -1,6 +1,7 @@
 #include "SkelAnimShader.h"
 #include "SkeletalModel.h"
 #include "Camera.h"
+#include "ShaderDataStructs.h"
 
 ShaderSkelAnim::ShaderSkelAnim()
 {

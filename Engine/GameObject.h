@@ -1,7 +1,6 @@
 #pragma once
 #include "Math.h"
 #include "Model.h"
-#include "ShaderManager.h"
 #include "Camera.h"
 #include "SteeringComponent.h"
 #include "Renderable.h"

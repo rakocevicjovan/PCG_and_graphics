@@ -326,9 +326,6 @@
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderManager.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClCompile>
@@ -715,9 +712,6 @@
     <ClInclude Include="Celestials.h">
       <Filter>Rendering\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderManager.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
       <Filter>Rendering\MaterialsNEW</Filter>
     </ClInclude>
@@ -780,6 +774,9 @@
     </ClInclude>
     <ClInclude Include="TextureRole.h">
       <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -925,9 +922,6 @@
     </FxCompile>
     <FxCompile Include="InstancedVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="InstancedPS.hlsl">
-      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="clipperVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>

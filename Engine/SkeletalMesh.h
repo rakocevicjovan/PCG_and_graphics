@@ -7,7 +7,6 @@
 #include "Texture.h"
 #include "Math.h"
 #include "Geometry.h"
-#include "ShaderManager.h"
 #include "SkelAnimShader.h"
 
 class SkeletalMesh
@@ -86,7 +85,7 @@ public:
 	}
 
 
-
+	/*
 	void draw(ID3D11DeviceContext* dc, ShaderSkelAnim& s)
 	{
 		unsigned int stride = sizeof(BonedVert3D);
@@ -98,4 +97,5 @@ public:
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 		dc->DrawIndexed(indices.size(), 0, 0);
 	}
+	*/
 };

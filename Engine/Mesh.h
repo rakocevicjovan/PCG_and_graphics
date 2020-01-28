@@ -12,7 +12,6 @@
 #include "Material.h"
 #include "Hull.h"
 #include "Geometry.h"
-#include "ShaderManager.h"
 
 
 namespace Procedural { class Terrain; }
@@ -70,6 +69,7 @@ public:
 
 
 	//special case for instanced shader... this will disappear when I adapt everything to the new system
+	/*
 	void Mesh::draw(ID3D11DeviceContext* dc, InstancedShader& s)
 	{
 		unsigned int strides[2];
@@ -94,6 +94,7 @@ public:
 
 		dc->DrawIndexedInstanced(indexCount, s._instanceCount, 0, 0, 0);
 	}
+	*/
 };
 
 /*

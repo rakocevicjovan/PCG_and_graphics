@@ -19,7 +19,6 @@ namespace Strife
 		~StrifeLevel() {};
 
 		Model skybox, floor;
-		CubeMapper skyboxCubeMapper;
 		OST sceneTex;
 		ScreenspaceDrawer postProcessor;
 		ScreenspaceDrawer::UINODE* screenRectangleNode;

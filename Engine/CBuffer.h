@@ -26,16 +26,27 @@ struct CBufferMeta
 	size_t _size;
 	std::vector<CBufferFieldDesc> _fields;
 	
-	CBufferMeta(uint8_t slot, size_t size) : _slot(slot), _size(size)
-	{
+	CBufferMeta() {}
 
+	CBufferMeta(uint8_t slot, size_t size) : _slot(slot), _size(size) {}
+
+	inline void addFieldDescription(CBUFFER_FIELD_CONTENT semantic, uint16_t offset, uint16_t size)
+	{
+		_fields.push_back(CBufferFieldDesc(semantic, offset, size));
 	}
 };
+
 
 
 class CBuffer
 {
 public:
+
+	ID3D11Buffer* _cbPtr;
+	CBufferMeta _metaData;
+
+	CBuffer() {}
+	//cray utils to make the rest of the engine rid of the syntax scourge
 
 	inline static bool map(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, D3D11_MAPPED_SUBRESOURCE& mappedResource)
 	{
@@ -71,13 +82,3 @@ public:
 		unmap(cont, cbuffer);
 	}
 };
-
-
-
-/*
-class CBuffer
-{
-	ID3D11Buffer* buffer;
-	CBufferMeta metadata;
-};
-*/

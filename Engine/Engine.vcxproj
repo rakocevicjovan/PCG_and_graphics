@@ -235,7 +235,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="ShaderHUD.cpp" />
-    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="ShaderMaze.cpp" />
     <ClCompile Include="ShaderPT.cpp" />
     <ClCompile Include="ShaderShadow.cpp" />
@@ -283,6 +282,7 @@
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="QTObject.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="SlotVector.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
@@ -359,7 +359,6 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ShaderHUD.h" />
-    <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="ShaderMaze.h" />
     <ClInclude Include="ShaderPT.h" />
     <ClInclude Include="ShaderUtils.h" />
@@ -572,12 +571,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="dragonPS.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="InstancedPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

@@ -27,11 +27,13 @@ public:
 	SHADER_TYPE _type;
 	std::wstring _path;
 
-	std::vector<CBufferMeta> _bufferMetaData;
-	std::vector<ID3D11Buffer*> _cbuffers;
+	//contains texture and constant buffer meta data along with register indices for each of them, reflected from shader directly
+	ShRef::ShaderMetadata _refShMetaData;
 
-	//contains texture and constant buffer meta data along with register indices for each of them
-	ShRef::ShaderMetadata _shMetaData;
+	//set manually, similar to reflected data minus the texture bind slots
+	std::vector<CBuffer> _cbuffers;
+
+	
 
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
 	// which does mean that they have to be in successive texture registers per type but this is not a problem
@@ -42,7 +44,11 @@ public:
 
 	inline void describeBuffers(const std::vector<CBufferMeta>& meta)
 	{
-		_bufferMetaData = meta;
+		for (int i = 0; i < _cbuffers.size(); i++)
+		{
+			_cbuffers[i]._metaData = meta[i];
+		}
+		
 	}
 };
 

@@ -66,6 +66,6 @@ void ParticleSystem::update(float deltaTime)
 
 void ParticleSystem::draw(ID3D11DeviceContext* dc)
 {
-	for (ParticleBase* p : _particles)
-		_model->Draw(dc, *_shader);
+	//for (ParticleBase* p : _particles)
+		//_model->Draw(dc, *_shader);
 }

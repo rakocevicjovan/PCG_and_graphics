@@ -17,7 +17,7 @@ Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::v
 
 	for (int i = 0; i < descriptions.size(); ++i)
 	{
-		shc.createConstantBuffer(descriptions[i], _cbuffers[i]);
+		shc.createConstantBuffer(descriptions[i], _cbuffers[i]._cbPtr);
 	}
 }
 
@@ -25,7 +25,7 @@ Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::v
 
 bool Shader::updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index)
 {
-	return CBuffer::updateWholeBuffer(cont, _cbuffers[index], data, _bufferMetaData[index]._size);
+	return CBuffer::updateWholeBuffer(cont, _cbuffers[index]._cbPtr, data, _cbuffers[index]._metaData._size);
 }
 
 
@@ -48,7 +48,7 @@ void VertexShader::setBuffers(ID3D11DeviceContext* cont)
 	//for (int i = 0; i < _cbuffers.size(); ++i)
 		//cont->VSSetConstantBuffers(i, 1, &_cbuffers[i]);
 
-	cont->VSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]);
+	cont->VSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
 }
 
 
@@ -69,5 +69,5 @@ PixelShader::PixelShader(
 
 void PixelShader::setBuffers(ID3D11DeviceContext* cont)
 {
-	cont->PSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]);
+	cont->PSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
 }

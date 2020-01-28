@@ -8,7 +8,6 @@
 #define S_DEVICE	_sys._device
 #define S_CONTEXT	_sys._deviceContext
 #define S_RANDY		_sys._renderer
-#define S_SHADY		_sys._renderer._shMan
 #define S_COLLISION	_sys._colEngine
 #define S_RESMAN	_sys._resMan
 #define S_DOOT		_sys._audio
