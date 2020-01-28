@@ -39,7 +39,8 @@ namespace SkelAnim
 		rc.d3d->ClearColourDepthBuffers();
 		rc.d3d->setRSSolidNoCull();
 
-		/*
+		/* //adapt to the new system once it's done
+
 		S_SHADY.light.SetShaderParameters(S_CONTEXT, floorModel.transform, *rc.cam, pLight);
 		floorModel.Draw(S_CONTEXT, S_SHADY.light);
 

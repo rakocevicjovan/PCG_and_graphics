@@ -151,9 +151,9 @@ void Renderer::render(const Renderable& r) const
 	r.setBuffers(_deviceContext);
 
 	//set shaders and similar geebees
-	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
 	_deviceContext->VSSetShader(r.mat->getVS()->_vShader, NULL, 0);
 	_deviceContext->PSSetShader(r.mat->getPS()->_pShader, NULL, 0);
+	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
 	_deviceContext->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
 
 	r.mat->bindTextures(_deviceContext);
@@ -163,11 +163,11 @@ void Renderer::render(const Renderable& r) const
 
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
 
-	unsigned int stride = r.mat->_stride;
-	unsigned int offset = r.mat->_offset;
+	unsigned int stride = r.mesh->_vertexBuffer._stride;
+	unsigned int offset = r.mesh->_vertexBuffer._offset;
 
-	_deviceContext->IASetVertexBuffers(0, 1, &(r.mesh->_vertexBuffer), &stride, &offset);
-	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	_deviceContext->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
+	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
 	_deviceContext->DrawIndexed(r.mesh->indexCount, 0, 0);
 }

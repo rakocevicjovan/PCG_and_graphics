@@ -32,16 +32,20 @@ void TDLevel::init(Systems& sys)
 	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
 	terrain.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
 	terrain.SetUp(S_DEVICE);
-	
-	floorMesh = Mesh(terrain, S_DEVICE);
 
+
+
+	floorMesh = Mesh(terrain, S_DEVICE);
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.Setup(S_DEVICE);
-
 	floorMesh.textures.push_back(floorTex);
-	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &(floorMesh.textures[0]) } );
-	floorMesh._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
-	floorMesh._baseMaterial.setPS(S_SHCACHE.getPixShader("phongPS"));
+	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
+	floorMesh._baseMaterial.pLight = &pLight;
+	
+	floorRenderable = Renderable(floorMesh);
+	floorRenderable.mat = S_MATCACHE.getMaterial("floorMat");
+	floorRenderable.mat->pLight = &pLight;
+
 
 	_octree.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it's really big, probably not worth it for my game
 	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
@@ -71,7 +75,7 @@ void TDLevel::init(Systems& sys)
 			// make the system select these later on... this is a big undertaking, it will take a while
 			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
 			r.mat->setPS(sys._shaderCache.getPixShader("phongPS"));
-			r.pLight = &pLight;
+			r.mat->pLight = &pLight;
 			
 		}
 
@@ -384,7 +388,7 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 	
-	S_RANDY.render(floorMesh);
+	S_RANDY.render(floorRenderable);
 
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();

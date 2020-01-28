@@ -13,19 +13,11 @@ void MaterialCache::init(ShaderCache* shaderCache, ResourceManager* resMan)
 //textures must exist separately... a good data driven loading system would clear this up a lot
 void MaterialCache::createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven()
 {
-	//models create their own materials on load best they can with assimp...
-	//but they don't have a way to know about which shaders to use etc... need to patch them instead of creating like this!
-	/*
-	Material* phong = new Material();
-	phong->opaque = true;
-	phong->setVS(_shCache->getVertShader("basicVS"));
-	phong->setPS(_shCache->getPixShader("phongPS"));
-
-	//needs to pass a pair now since the system changed
-	phong->textures.push_back(&_resMan->getByName<Model>("FlyingMage")->meshes[0].textures[0]);
-
-	addMaterial("phong", phong);
-	*/
+	Material* floorMat = new Material();
+	floorMat->_opaque = true;
+	floorMat->setVS(_shCache->getVertShader("basicVS"));
+	floorMat->setPS(_shCache->getPixShader("phongPS"));
+	addMaterial("floorMat", floorMat);
 
 	Material* skybox = new Material();
 	skybox->_opaque = true;

@@ -6,6 +6,9 @@
 #include "IMGUI/imgui_impl_dx11.h"
 
 #include <windows.h>
+#include <iostream>
+#include <sstream>
+
 #include "InputManager.h"
 #include "Renderer.h"
 #include "GameClock.h"
@@ -16,6 +19,7 @@
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 #include "MaterialCache.h"
+
 
 
 //centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels

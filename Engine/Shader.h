@@ -1,12 +1,12 @@
 #pragma once
 #include "ShaderCompiler.h"
 #include "Math.h"
-#include "Light.h"
 #include "CBuffer.h"
 #include "TextureRole.h"
 
 
 enum class SHADER_TYPE { VS, GS, PS, TS, HS };
+
 
 struct TexLayout
 {
@@ -67,6 +67,30 @@ public:
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 	void setBuffers(ID3D11DeviceContext* cont);
+
+
+	//separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
+	template <typename RenderItem>
+	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
+	{
+		D3D11_MAPPED_SUBRESOURCE mr;
+
+		for (int i = 0; i < _cbuffers.size(); i++)
+		{
+			ID3D11Buffer* curBuffer = _cbuffers[i]._cbPtr;
+			CBuffer::map(cont, curBuffer, mr);
+
+			for (const CBufferFieldDesc& cbfd : _cbuffers[i]._metaData._fields)
+			{
+				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
+				{
+					CBuffer::updateField(curBuffer, &(ri._transform.Transpose()), cbfd._size, cbfd._offset, mr);
+				}
+			}
+
+			CBuffer::unmap(cont, curBuffer);
+		}
+	}
 };
 
 
@@ -84,4 +108,28 @@ public:
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 	void setBuffers(ID3D11DeviceContext* cont);
+
+
+
+	template <typename RenderItem>
+	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
+	{
+		D3D11_MAPPED_SUBRESOURCE mr;
+
+		for (int i = 0; i <_cbuffers.size(); i++)
+		{
+			ID3D11Buffer* curBuffer = _cbuffers[i]._cbPtr;
+			CBuffer::map(cont, curBuffer, mr);
+
+			for (const CBufferFieldDesc& cbfd : _cbuffers[i]._metaData._fields)
+			{
+				if (cbfd._content == CBUFFER_FIELD_CONTENT::P_LIGHT)
+				{
+					CBuffer::updateField(curBuffer, ri.getLight(), cbfd._size, cbfd._offset, mr);
+				}
+			}
+
+			CBuffer::unmap(cont, curBuffer);
+		}
+	}
 };

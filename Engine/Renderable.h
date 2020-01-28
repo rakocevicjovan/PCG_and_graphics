@@ -9,22 +9,30 @@ public:
 	int64_t sortKey;
 
 	//a bit memory heavy but... useful for now I guess?
-	SMatrix transform;
-	SMatrix worldTransform;
+	SMatrix _localTransform;
+	SMatrix _transform;
 
 	Mesh* mesh;
 	Material* mat;
-	PointLight* pLight;
 	float zDepth;
 
-	unsigned char* cbufferdata;
+	uint8_t* cbufferdata;
 
 	Renderable() {}
-	Renderable(Mesh& mesh) : mesh(&mesh), mat(&mesh._baseMaterial){}
+
+	Renderable(Mesh& mesh) : mesh(&mesh), mat(&mesh._baseMaterial), _transform(mesh._transform)
+	{
+		//for (Texture& t : mesh.textures)
+			//mat->_texDescription.push_back({ t._role, &t });
+	}
 
 
 
-	void updateBuffersAuto(ID3D11DeviceContext* cont) const;
+	void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
+	{
+		mat->getVS()->updateBuffersAuto(cont, *this);
+		mat->getPS()->updateBuffersAuto(cont, *this);
+	}
 
 
 
@@ -41,7 +49,6 @@ public:
 	{
 		return sortKey < b.sortKey;
 	}
-
-	// this could to be a template methinks...
-	//void Renderable::updateDrawData() {}
+	
+	inline PointLight* getLight() const { return mat->pLight; }
 };

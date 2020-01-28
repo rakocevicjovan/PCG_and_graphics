@@ -263,7 +263,7 @@ namespace Procedural
 				break;
 
 			default:
-				std::cout << c << std::endl;
+				//std::cout << c << std::endl;
 				break;
 			}
 
@@ -391,7 +391,7 @@ namespace Procedural
 				break;
 
 			default:
-				std::cout << c << std::endl;
+				//std::cout << c << std::endl;
 				break;
 			}
 

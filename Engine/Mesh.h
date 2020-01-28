@@ -1,14 +1,13 @@
 #pragma once
 
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <vector>
 
 #include "Resource.h"
 #include "Math.h"
 #include "MeshDataStructs.h"
+#include "VBuffer.h"
+#include "IBuffer.h"
 #include "Material.h"
 #include "Hull.h"
 #include "Geometry.h"
@@ -26,10 +25,11 @@ public:
 	std::vector<unsigned int> indices;
 	int indexCount;
 
-	ID3D11Buffer* _vertexBuffer = nullptr;
-	ID3D11Buffer* _indexBuffer = nullptr;
+	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
+	VBuffer _vertexBuffer;
+	IBuffer _indexBuffer;
 
-	SMatrix transform;
+	SMatrix _transform;
 	Material _baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
 
 	std::vector<Texture> textures;	//@TODO not sure what to do with this... who should own them?
@@ -50,8 +50,39 @@ public:
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
 
+	inline PointLight* getLight() const { return _baseMaterial.pLight; }
+
+	void draw(ID3D11DeviceContext* dc, PointLight* p)
+	{
+
+		//update and set cbuffers
+		_baseMaterial.getVS()->updateBuffersAuto(dc, *this);
+		_baseMaterial.getVS()->setBuffers(dc);
+
+		_baseMaterial.getPS()->updateBuffersAuto(dc, *this);
+		_baseMaterial.getPS()->setBuffers(dc);
+		
+
+		//set shaders and similar geebees
+		dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
+		dc->VSSetShader(_baseMaterial.getVS()->_vShader, NULL, 0);
+		dc->PSSetShader(_baseMaterial.getPS()->_pShader, NULL, 0);
+		dc->PSSetSamplers(0, 1, &_baseMaterial.getPS()->_sState);
+
+		_baseMaterial.bindTextures(dc);
+
+		//could sort by this as well... should be fairly uniform though
+		dc->IASetPrimitiveTopology(_baseMaterial.primitiveTopology);
+
+		//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
+		dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);
+		dc->IASetIndexBuffer(_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+		dc->DrawIndexed(indexCount, 0, 0);
+	}
 
 	//from the old rendering system, but still could be very useful...
+	/*
 	template <typename FlexibleShaderType>
 	void draw(ID3D11DeviceContext* dc, FlexibleShaderType& s)
 	{
@@ -67,9 +98,7 @@ public:
 		dc->DrawIndexed(indexCount, 0, 0);
 	}
 
-
 	//special case for instanced shader... this will disappear when I adapt everything to the new system
-	/*
 	void Mesh::draw(ID3D11DeviceContext* dc, InstancedShader& s)
 	{
 		unsigned int strides[2];

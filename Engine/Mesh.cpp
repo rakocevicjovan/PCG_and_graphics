@@ -2,12 +2,9 @@
 #include "Mesh.h"
 #include "Geometry.h"
 #include "Terrain.h"
+#include <iostream>
 
-Mesh::Mesh()
-{
-	_vertexBuffer = 0;
-	_indexBuffer = 0;
-}
+Mesh::Mesh() {}
 
 
 
@@ -24,8 +21,6 @@ Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vecto
 		_baseMaterial._texDescription.push_back({ t._role, &t });
 	}
 
-	_vertexBuffer = 0;
-	_indexBuffer = 0;
 
 	indexIntoModelMeshArray = ind;
 	setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
@@ -36,7 +31,7 @@ Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vecto
 Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 {
 	terrain.populateMesh(vertices, indices, textures);
-	transform = SMatrix::CreateTranslation(terrain.getOffset());
+	_transform = SMatrix::CreateTranslation(terrain.getOffset());
 	setupMesh(device);
 }
 
@@ -153,7 +148,7 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer)))
+	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer.ptrVar() )))
 		return false;
 
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -169,7 +164,7 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	indexData.SysMemSlicePitch = 0;
 
 	// Create the index buffer.
-	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
+	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer.ptrVar())))
 		return false;
 	
 	indexCount = indices.size();

@@ -26,6 +26,7 @@ public:
 		template <typename FlexibleShaderType>
 		void drawUINODE(ID3D11DeviceContext* deviceContext, FlexibleShaderType& s, ID3D11ShaderResourceView* srv, ID3D11ShaderResourceView* bloomSRV = nullptr)
 		{
+			/*
 			s.SetShaderParameters(deviceContext);
 			deviceContext->PSSetShaderResources(0, 1, &srv);
 			
@@ -39,6 +40,7 @@ public:
 
 			for (auto c : children)
 				c->drawUINODE(deviceContext, s, srv, bloomSRV);
+				*/
 		}
 
 

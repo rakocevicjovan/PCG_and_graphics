@@ -212,9 +212,6 @@
     <ClCompile Include="CubeMapper.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="TestLevel.cpp">
       <Filter>Old levels\SKTest</Filter>
     </ClCompile>
@@ -266,9 +263,6 @@
     <ClCompile Include="ColFuncs.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
-    <ClCompile Include="Frustum.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
@@ -292,9 +286,6 @@
     </ClCompile>
     <ClCompile Include="SceneGraph.cpp">
       <Filter>Scene management</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderQueue.cpp">
-      <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
@@ -379,6 +370,15 @@
     </ClCompile>
     <ClCompile Include="ShaderCompiler.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderQueue.cpp">
+      <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -490,9 +490,6 @@
     <ClInclude Include="CubeMapper.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSystem.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -568,9 +565,6 @@
     <ClInclude Include="Picker.h">
       <Filter>Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Frustum.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
@@ -594,9 +588,6 @@
     </ClInclude>
     <ClInclude Include="SceneGraph.h">
       <Filter>Scene management</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderQueue.h">
-      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="NavGraphTypes.h">
       <Filter>AI\Pathfinding</Filter>
@@ -775,8 +766,23 @@
     <ClInclude Include="TextureRole.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
+    <ClInclude Include="VBuffer.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="IBuffer.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQueue.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
     <ClInclude Include="Skybox.h">
-      <Filter>Rendering</Filter>
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

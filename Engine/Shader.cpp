@@ -47,8 +47,8 @@ void VertexShader::setBuffers(ID3D11DeviceContext* cont)
 {
 	//for (int i = 0; i < _cbuffers.size(); ++i)
 		//cont->VSSetConstantBuffers(i, 1, &_cbuffers[i]);
-
-	cont->VSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
+	if (_cbuffers.size() > 0)
+		cont->VSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
 }
 
 
@@ -69,5 +69,6 @@ PixelShader::PixelShader(
 
 void PixelShader::setBuffers(ID3D11DeviceContext* cont)
 {
-	cont->PSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
+	if(_cbuffers.size() > 0)
+		cont->PSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
 }

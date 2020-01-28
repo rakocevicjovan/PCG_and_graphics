@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include "Shader.h"
+#include "Light.h"
 #include "MeshDataStructs.h"
 
 struct RoleTexturePair
@@ -30,11 +31,11 @@ public:
 	//won't ever have 256 textures so that's even too big but can't help it for now without bitsets, meh...
 	unsigned char texturesAdded = 0u;
 
-	//don't really sort by these, should be mostly uniform for my uses...
-	unsigned int _stride = sizeof(Vert3D);
-	unsigned int _offset = 0u;
+	//this could also belong in the vertex buffer... like stride and offset do
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+	//atrocious, make this dynamic and all that... renderer will need a lot of work but it will come up some time
+	PointLight* pLight;
 
 	// Functions
 
@@ -47,6 +48,7 @@ public:
 
 	void bindTextures(ID3D11DeviceContext* context);
 
-	inline VertexShader* getVS() { return _vertexShader; }
-	inline PixelShader* getPS() { return _pixelShader; }
+	inline VertexShader* getVS() const { return _vertexShader; }
+	inline PixelShader* getPS() const { return _pixelShader; }
+	inline PointLight* getLight() const { return pLight; }
 };

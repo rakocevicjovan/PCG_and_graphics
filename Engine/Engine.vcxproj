@@ -261,6 +261,7 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="IBuffer.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h" />
     <ClInclude Include="Bits.h" />
@@ -386,6 +387,7 @@
     <ClInclude Include="TextureRole.h" />
     <ClInclude Include="ToolGUI.h" />
     <ClInclude Include="Tower.h" />
+    <ClInclude Include="VBuffer.h" />
     <ClInclude Include="Volumetric.h" />
     <ClInclude Include="VolumetricScreen.h" />
     <ClInclude Include="Voronoi.h" />

@@ -11,11 +11,11 @@ Actor::Actor(Model* model, SMatrix& transform)
 	for (Mesh& mesh : model->meshes)
 	{
 		renderables.emplace_back(mesh);
-		renderables.back().transform = mesh.transform;
-		renderables.back().worldTransform = transform * mesh.transform;
+		renderables.back()._localTransform = mesh._transform;
+		renderables.back()._transform = transform * mesh._transform;
 		renderables.back().mat = &mesh._baseMaterial;
 
-		_collider.addHull(new SphereHull(mesh.transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
+		_collider.addHull(new SphereHull(mesh._transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
 	}
 }
 
@@ -26,7 +26,7 @@ void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
 	{
 		r.mat->setVS(vs);
 		r.mat->setPS(ps);
-		r.pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
+		r.mat->pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
 }
 
@@ -53,7 +53,7 @@ void Actor::propagate()
 {
 	for (Renderable& r : renderables)
 	{
-		r.worldTransform = transform * r.transform;
+		r._transform = transform * r._localTransform;
 	}
 
 	//@TODO consider changing to per-mesh collider... could be cleaner tbh
