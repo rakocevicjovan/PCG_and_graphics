@@ -65,8 +65,8 @@ public:
 
 		//set shaders and similar geebees
 		dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
-		dc->VSSetShader(_baseMaterial.getVS()->_vShader, NULL, 0);
-		dc->PSSetShader(_baseMaterial.getPS()->_pShader, NULL, 0);
+		dc->VSSetShader(_baseMaterial.getVS()->_vsPtr, NULL, 0);
+		dc->PSSetShader(_baseMaterial.getPS()->_psPtr, NULL, 0);
 		dc->PSSetSamplers(0, 1, &_baseMaterial.getPS()->_sState);
 
 		_baseMaterial.bindTextures(dc);
@@ -80,6 +80,11 @@ public:
 
 		dc->DrawIndexed(indexCount, 0, 0);
 	}
+
+
+	inline UINT getStride() const { return _vertexBuffer._stride; }
+
+	inline UINT getOffset() const { return _vertexBuffer._offset; }
 
 	//from the old rendering system, but still could be very useful...
 	/*

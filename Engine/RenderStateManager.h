@@ -9,10 +9,10 @@ class RenderStateManager
 {
 public:
 
-	RenderState _rs;
+	RenderState _current;
 
 	//@TODO make this replace the majority of renderer's render
-	void deltaUpdate()
+	void deltaUpdate(RenderState next)
 	{
 		//if state x not value y, update to value y and set current to new... for each state
 	}

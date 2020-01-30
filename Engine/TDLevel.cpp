@@ -34,7 +34,7 @@ void TDLevel::init(Systems& sys)
 	terrain.SetUp(S_DEVICE);
 
 
-
+	//generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.Setup(S_DEVICE);
@@ -43,7 +43,8 @@ void TDLevel::init(Systems& sys)
 	floorMesh._baseMaterial.pLight = &pLight;
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat = S_MATCACHE.getMaterial("floorMat");
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("phongPS"));
 	floorRenderable.mat->pLight = &pLight;
 
 

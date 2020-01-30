@@ -151,8 +151,8 @@ void Renderer::render(const Renderable& r) const
 	r.setBuffers(_deviceContext);
 
 	//set shaders and similar geebees
-	_deviceContext->VSSetShader(r.mat->getVS()->_vShader, NULL, 0);
-	_deviceContext->PSSetShader(r.mat->getPS()->_pShader, NULL, 0);
+	_deviceContext->VSSetShader(r.mat->getVS()->_vsPtr, NULL, 0);
+	_deviceContext->PSSetShader(r.mat->getPS()->_psPtr, NULL, 0);
 	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
 	_deviceContext->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
 
@@ -161,10 +161,9 @@ void Renderer::render(const Renderable& r) const
 	//could sort by this as well... should be fairly uniform though
 	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);
 
-	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
-
-	unsigned int stride = r.mesh->_vertexBuffer._stride;
-	unsigned int offset = r.mesh->_vertexBuffer._offset;
+	//packing vertex buffers together could be a good idea eventually
+	UINT stride = r.mesh->getStride();
+	UINT offset = r.mesh->getOffset();
 
 	_deviceContext->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
 	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);

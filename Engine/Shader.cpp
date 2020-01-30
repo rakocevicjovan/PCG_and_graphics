@@ -38,7 +38,7 @@ VertexShader::VertexShader(
 	: Shader(shc , path, descriptions)
 {
 	_type = SHADER_TYPE::VS;
-	shc.compileVS(path, inputLayoutDesc,_vShader, _layout);
+	shc.compileVS(path, inputLayoutDesc,_vsPtr, _layout);
 }
 
 
@@ -61,7 +61,7 @@ PixelShader::PixelShader(
 	: Shader(shc, path, descriptions)
 {
 	_type = SHADER_TYPE::PS;
-	shc.compilePS(path, _pShader);
+	shc.compilePS(path, _psPtr);
 	shc.createSamplerState(samplerDesc, _sState);
 }
 
