@@ -45,10 +45,7 @@ public:
 
 
 	//overload after deciding how to sort them
-	bool Renderable::operator < (const Renderable& b) const
-	{
-		return sortKey < b.sortKey;
-	}
+	bool Renderable::operator < (const Renderable& b) const { return sortKey < b.sortKey; }
 	
 	inline PointLight* getLight() const { return mat->pLight; }
 };
