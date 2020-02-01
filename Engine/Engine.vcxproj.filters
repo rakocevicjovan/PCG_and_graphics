@@ -126,6 +126,9 @@
     <Filter Include="Rendering\AAA Improved\Shaders">
       <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\Buffers">
+      <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -598,9 +601,6 @@
     <ClInclude Include="Steering.h">
       <Filter>AI\Steering</Filter>
     </ClInclude>
-    <ClInclude Include="CBuffer.h">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
@@ -766,12 +766,6 @@
     <ClInclude Include="TextureRole.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
-    <ClInclude Include="VBuffer.h">
-      <Filter>Rendering\AAA Improved</Filter>
-    </ClInclude>
-    <ClInclude Include="IBuffer.h">
-      <Filter>Rendering\AAA Improved</Filter>
-    </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
@@ -783,6 +777,15 @@
     </ClInclude>
     <ClInclude Include="Skybox.h">
       <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="CBuffer.h">
+      <Filter>Rendering\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="IBuffer.h">
+      <Filter>Rendering\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="VBuffer.h">
+      <Filter>Rendering\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

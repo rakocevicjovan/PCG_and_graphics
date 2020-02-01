@@ -26,6 +26,7 @@ bool InstancedShader::Initialize(const ShaderCompiler& shc, const std::vector<st
 	_filePaths = filePaths;
 
 	result &= shc.compileVS(filePaths.at(0), layoutDesc, _vertexShader, _layout);
+	//ShRef::ShaderMetadata shMD;
 	result &= shc.compilePS(filePaths.at(1), _pixelShader);
 	result &= shc.createSamplerState(samplerDesc, _sampleState);
 

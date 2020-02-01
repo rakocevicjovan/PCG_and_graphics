@@ -60,7 +60,7 @@ public:
 	void ShaderCompiler::init(HWND* hwnd, ID3D11Device* device);
 
 	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const;
-	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader) const;
+	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::ShaderMetadata* shMetaData = nullptr) const;
 	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const;
 
 	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& shMetaData);

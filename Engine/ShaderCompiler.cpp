@@ -48,10 +48,13 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 
 
-bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader) const
+bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::ShaderMetadata* shMetaData) const
 {
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* shaderBuffer = nullptr;
+	ID3DBlob* errorMessage = nullptr;
+	ID3DBlob* shaderBuffer = nullptr;
+
+	//useful flags
+	//D3DCOMPILE_WARNINGS_ARE_ERRORS
 
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 	{
@@ -67,7 +70,8 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 
 	//not used just yet... but tested, works great
 	//ShRef::ShaderMetadata shMetaData;
-	//reflect(shaderBuffer, shMetaData);
+	if(shMetaData != nullptr)
+		reflect(shaderBuffer, *shMetaData);
 
 	shaderBuffer->Release();
 

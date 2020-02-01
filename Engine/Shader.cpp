@@ -61,7 +61,7 @@ PixelShader::PixelShader(
 	: Shader(shc, path, descriptions)
 {
 	_type = SHADER_TYPE::PS;
-	shc.compilePS(path, _psPtr);
+	shc.compilePS(path, _psPtr, &_refShMetaData);
 	shc.createSamplerState(samplerDesc, _sState);
 }
 
