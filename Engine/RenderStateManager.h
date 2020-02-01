@@ -7,6 +7,8 @@
 //used to check which state entries need to be updated and which stay the same, stores the last used state
 class RenderStateManager
 {
+	RenderState _gpuState;
+
 public:
 
 	RenderState _current;
@@ -15,6 +17,11 @@ public:
 	void deltaUpdate(RenderState next)
 	{
 		//if state x not value y, update to value y and set current to new... for each state
+	}
+
+	void applyToGPU()
+	{
+		//...set all the states to gpu state if not different
 	}
 
 };
