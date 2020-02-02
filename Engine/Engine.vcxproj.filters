@@ -129,6 +129,9 @@
     <Filter Include="Rendering\Buffers">
       <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders\PBR">
+      <UniqueIdentifier>{6dc88ee7-b2a1-42c6-8aab-2484d7aeeb6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -964,6 +967,9 @@
     </FxCompile>
     <FxCompile Include="Simplex_derivative.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </FxCompile>
+    <FxCompile Include="CookTorrancePS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders\PBR</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
