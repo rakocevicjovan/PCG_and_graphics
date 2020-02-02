@@ -11,6 +11,7 @@ enum TextureRole
 	SHININESS = 3,
 	OPACITY = 4,
 	DISPLACEMENT = 5,
-	OTHER = 6,
-	NUM_ROLES = 7
+	AMBIENT = 6,
+	OTHER = 7,
+	NUM_ROLES = 8
 };	//NUM_ROLES should always be last, it's used as the size of array of texture roles in shader classes

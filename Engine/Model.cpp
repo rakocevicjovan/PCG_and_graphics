@@ -172,8 +172,14 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 		// Displacement maps
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
 
+		// Ambient occlusion maps
+		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+
 		// Other maps
 		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
+
+		// Weird properties... that I never really saw trigger
+		//loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NONE, "texture_property", OTHER);
 	}
 
 

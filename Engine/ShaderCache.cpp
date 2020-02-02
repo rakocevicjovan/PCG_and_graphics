@@ -117,6 +117,11 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	// Skybox ps, special sampler, no lights
 	PixelShader* skyboxPS = new PixelShader(*_shc, L"skyboxPS.hlsl", skbyoxSD, {});
 	addPixShader("skyboxPS", skyboxPS);
+
+	// PBR shader
+	PixelShader* CookTorrance = new PixelShader(*_shc, L"CookTorrancePS.hlsl", regularSD, { lightBufferDesc });
+	CookTorrance->describeBuffers({lightBufferMeta});
+	addPixShader("CookTorrancePS", CookTorrance);
 }
 
 

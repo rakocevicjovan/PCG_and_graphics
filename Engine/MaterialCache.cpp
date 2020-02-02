@@ -24,6 +24,9 @@ void MaterialCache::createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven()
 	skybox->setVS(_shCache->getVertShader("skyboxVS"));
 	skybox->setPS(_shCache->getPixShader("skyboxPS"));
 	addMaterial("skybox", skybox);
+
+	Material* cookTorrance = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("CookTorrancePS"), true);
+	addMaterial("PBR", cookTorrance);
 }
 
 

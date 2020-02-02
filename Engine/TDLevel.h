@@ -59,7 +59,8 @@ private:
 
 	int numCulled;
 
-	Model flintLock;
+	Model chest;
+	Renderable chestRenderable;
 
 	//gameplay
 	void addBuildables();

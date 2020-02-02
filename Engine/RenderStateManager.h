@@ -4,24 +4,26 @@
 #include "RenderState.h"
 
 
-//used to check which state entries need to be updated and which stay the same, stores the last used state
+//used to check which state entries need to be updated and which stay the same, stores the gpu state and current scheduled state
 class RenderStateManager
 {
 	RenderState _gpuState;
+	RenderState _current;	//buffer zone
 
 public:
 
-	RenderState _current;
+	
 
 	//@TODO make this replace the majority of renderer's render
 	void deltaUpdate(RenderState next)
 	{
-		//if state x not value y, update to value y and set current to new... for each state
+		//simply copy everything to _current Render state, this needs to be more modular (functions for each state)
 	}
+
 
 	void applyToGPU()
 	{
-		//...set all the states to gpu state if not different
+		//...set all the states to gpu state if not different, copy _current to _gpuState
 	}
 
 };

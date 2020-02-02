@@ -16,7 +16,15 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 ///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
-	flintLock.LoadModel(S_DEVICE, "../Models/flintlock_rifle/flintlock.fbx");
+	//flintLock.LoadModel(S_DEVICE, "../Models/flintlock_rifle/flintlock.fbx");
+
+	chest.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
+	chest.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
+	chest.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
+	chest.meshes[0]._baseMaterial._texDescription;
+
+	chestRenderable = Renderable(chest.meshes[0]);
+	chestRenderable.mat->pLight = &pLight;
 
 	S_INMAN.registerController(&_tdController);
 
@@ -26,7 +34,7 @@ void TDLevel::init(Systems& sys)
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
-	pLight = PointLight(lightData, SVec4(0, 500, 0, 1));
+	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
 
 	float tSize = 500;
 	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
@@ -144,6 +152,10 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {	
+	SVec3 offset(0, 0, 200.f);
+	Math::RotateVecByMat(offset, SMatrix::CreateRotationY(rc.elapsed));
+	pLight.pos = Math::fromVec3(SVec3(0, 150, 0) + offset, 0.f);
+
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
 	//Another alternative is having a bool empty; in the octnode...
@@ -388,8 +400,12 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 	
-	S_RANDY.render(floorRenderable);
+	S_RANDY.render(chestRenderable);
+	Math::SetTranslation(_creeps[0].renderables[0]._transform, SVec3(&pLight.pos.x));
+	S_RANDY.render(_creeps[0].renderables[0]);
 
+	/*
+	S_RANDY.render(floorRenderable);
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
@@ -435,6 +451,7 @@ void TDLevel::draw(const RenderContext& rc)
 	_eco.renderEconomyWidget();
 
 	endGuiFrame();
+	*/
 
 	rc.d3d->EndScene();
 }
