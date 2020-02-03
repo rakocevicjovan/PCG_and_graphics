@@ -51,6 +51,7 @@ struct VSPerFrameBuffer
 
 struct PSPerFrameBuffer
 {
+	SVec4 eyePos;
 	float elapsed;
 	float delta;
 	SVec2 padding;

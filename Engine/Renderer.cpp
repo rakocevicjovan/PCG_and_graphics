@@ -49,7 +49,7 @@ bool Renderer::createGlobalBuffers()
 	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &VS_perFrameBuffer);
 
 
-	D3D11_BUFFER_DESC PS_perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SVec4));
+	D3D11_BUFFER_DESC PS_perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PSPerFrameBuffer));
 	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &PS_perFrameBuffer)))
 		return false;
 	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, NULL, &PS_perFrameBuffer);
@@ -78,6 +78,7 @@ bool Renderer::updatePerFrameBuffer(float dTime)
 	
 	VSPerFrameBuffer* vsFrameBufferPtr;
 	SMatrix vT = _cam.GetViewMatrix().Transpose();
+	SVec4 eyePos = Math::fromVec3(_cam.GetPosition(), 1.);
 
 	if (FAILED(_deviceContext->Map(VS_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
@@ -92,6 +93,7 @@ bool Renderer::updatePerFrameBuffer(float dTime)
 	if (FAILED(_deviceContext->Map(PS_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	psFrameBufferPtr = reinterpret_cast<PSPerFrameBuffer*>(mappedResource.pData);
+	psFrameBufferPtr->eyePos = eyePos;
 	psFrameBufferPtr->elapsed = _elapsed;
 	psFrameBufferPtr->delta = dTime;
 	_deviceContext->Unmap(PS_perFrameBuffer, 0);

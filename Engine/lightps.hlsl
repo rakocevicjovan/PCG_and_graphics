@@ -9,8 +9,16 @@ cbuffer LightBuffer : register(b0)
 	float3 slc;
 	float sli;
     float4 lightPosition;
-	float4 eyePos;
+	float4 stupidThingIUsedToDo;
 };
+
+cbuffer PSPerFrameBuffer : register(b10)
+{
+	float4 eyePos;
+	float elapsed;
+	float delta;
+	float2 padding;
+}
 
 
 struct PixelInputType

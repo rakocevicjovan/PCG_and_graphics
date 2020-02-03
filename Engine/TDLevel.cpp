@@ -21,6 +21,7 @@ void TDLevel::init(Systems& sys)
 	chest.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
 	chest.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
 	chest.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
+	//chest.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("phongPS"));
 	chest.meshes[0]._baseMaterial._texDescription;
 
 	chestRenderable = Renderable(chest.meshes[0]);
@@ -152,9 +153,9 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {	
-	SVec3 offset(0, 0, 200.f);
+	SVec3 offset(0, 0, 50);
 	Math::RotateVecByMat(offset, SMatrix::CreateRotationY(rc.elapsed));
-	pLight.pos = Math::fromVec3(SVec3(0, 150, 0) + offset, 0.f);
+	pLight.pos = Math::fromVec3(SVec3(0, 100, 0) + offset, 0.f);
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
@@ -304,7 +305,7 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 }
 
 
-//awful syntax but I want to enforce the copy constructor deep copying the stuff...
+//using clone to create new building instances
 void TDLevel::build()
 {
 	if (_navGrid.tryAddObstacle(_templateBuilding->getPosition()))
