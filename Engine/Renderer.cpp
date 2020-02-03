@@ -52,7 +52,7 @@ bool Renderer::createGlobalBuffers()
 	D3D11_BUFFER_DESC PS_perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PSPerFrameBuffer));
 	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &PS_perFrameBuffer)))
 		return false;
-	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, NULL, &PS_perFrameBuffer);
+	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &PS_perFrameBuffer);
 
 	return true;
 }

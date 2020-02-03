@@ -32,7 +32,7 @@ struct PixelInputType
 };
 
 /* 
-// either pack data as a constant for the whole mesh or use textures
+// OPTION 1 - pack data as a constant for the whole mesh
 cbuffer PBRBuffer : register(b1)
 {
 	float metallic;
@@ -40,7 +40,8 @@ cbuffer PBRBuffer : register(b1)
 }
 */
 
-/* bootleg models and materials for now, need to improvise, using textures as below to test the shader
+// OPTION 2 - use textures
+/* bootleg models and materials for now, need to improvise, using textures below to test the shader
 Texture2D diffuseMap : register(t0);
 Texture2D surfaceMap : register(t1);
 Texture2D normalMap : register(t2);
@@ -119,7 +120,6 @@ float3 specCookTorrance(float3 n, float3 v, float3 h, float3 l, float a, in floa
 	fresnel = fresnelSchlick(max(dot(h, v), 0.), f0);
 	float3 dfg = ndfGGXTR(n, h, a) * fresnel * geometrySmith(n, v, l, a);
 	float denom = 4 * saturate(dot(n, v)) * saturate(dot(n, l));
-	//denom = 1.;
 	return dfg / max(denom, EPS_def);
 }
 
@@ -175,6 +175,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	#define F_F0 0.04f
 	float3 f0 = float3(F_F0, F_F0, F_F0);
 	f0 = lerp(f0, albedo, metallic);	//metals have tinted reflections
+	//f0 += 5. * + sin( 2. * elapsed);
 
 	// Per light based properties
 	float3 toLight = lightPosition.xyz - input.worldPos.xyz;
