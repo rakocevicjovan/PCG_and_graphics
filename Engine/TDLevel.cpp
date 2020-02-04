@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "Steering.h"
 
-//#define DEBUG_OCTREE
+#include "ShaderGenerator.h"
 
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
@@ -16,7 +16,8 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 ///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
-	//flintLock.LoadModel(S_DEVICE, "../Models/flintlock_rifle/flintlock.fbx");
+	ShaderGenerator shg(_sys._shaderCompiler);
+	shg.mix();
 
 	chest.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
 	chest.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
@@ -410,9 +411,9 @@ void TDLevel::draw(const RenderContext& rc)
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
-
+	*/
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
-
+	/*
 	if (_inBuildingMode)
 		_templateBuilding->render(S_RANDY);
 
@@ -522,7 +523,7 @@ box.renderables[0].pLight = &pLight;
 
 
 
-
+//#define DEBUG_OCTREE
 
 #ifdef DEBUG_OCTREE
 

@@ -71,10 +71,22 @@ struct ShaderOptions
 
 	UINT p_p_ambient	: 1;
 
-	UINT p_p_textures	: 24;	//don't even know... but it ought to be a lot, got plenty of types and whatnot
+	UINT p_p_diffMap	: 1;
+	UINT p_p_normalMap	: 1;
+	UINT p_p_specMap	: 1;
+	UINT p_p_shinyMap	: 1;
+	UINT p_p_opacityMap	: 1;
+	UINT p_p_displMap	: 1;
+	UINT p_p_aoMap		: 1;
+	UINT p_p_roughMap	: 1;
+	UINT p_p_metalMap	: 1;
+	UINT p_p_iorMap		: 1;
+
 	UINT p_p_distFog	: 1;
 	UINT p_p_gCorrected : 1;
 };
+
+//well... thats just over 2 billion permutations... somehow I really don't think I need that many :V
 
 
 //will be used to create permutations based on nr of lights, inputs etc... additive approach planned
@@ -82,10 +94,103 @@ class ShaderGenerator
 {
 	ShaderCompiler _shc;
 
+public:
+	ShaderGenerator(ShaderCompiler& shc) : _shc(shc) {}
 
-	void createDefines()
+	std::vector<D3D_SHADER_MACRO> createDefines()
 	{
-		D3D_SHADER_MACRO exampleMacro = { "name", "definition" };
+		D3D_SHADER_MACRO example = { "name", "definition" };
+
+		D3D_SHADER_MACRO i_tex = { "TEX", "true" };
+		D3D_SHADER_MACRO i_nrm = { "NRM", "true" };
+		D3D_SHADER_MACRO i_tan = { "TAN", "true" };
+		D3D_SHADER_MACRO i_ins = { "INS", "true" };
+
+		D3D_SHADER_MACRO o_tex = { "OTEX", "true" };
+		D3D_SHADER_MACRO o_nrm = { "ONRM", "true" };
+		D3D_SHADER_MACRO o_wps = { "OWPS", "true" };
+		D3D_SHADER_MACRO o_tan = { "OTAN", "true" };
+
+		std::vector<D3D_SHADER_MACRO> result =
+		{
+			i_tex, i_nrm, 
+			o_wps, o_tex, o_nrm
+		};
+
+
+
+		result.push_back({ NULL, NULL });
+
+		return result;
+	}
+
+
+	bool mix()
+	{
+		ID3DBlob* precompiled = nullptr;
+		ID3DBlob* shaderBuffer = nullptr;
+		ID3DBlob* errorMessage = nullptr;
+
+
+		ID3D11VertexShader* vertexShader;
+		ID3D11InputLayout* layout;
+
+		std::vector<D3D_SHADER_MACRO> options = createDefines();
+		const D3D_SHADER_MACRO* macroArray = options.data();
+
+		std::string filePath = "ShGen\\genVS.hlsl";
+		std::wstring filePathW = L"ShGen\\genVS.hlsl";
+
+		std::wstring targetPath = L"ShGen\\generated.hlsl";
+
+
+		char* shaderText;
+		unsigned long bufferSize, i;
+		std::ofstream fout;
+
+		HRESULT res;
+
+		res = D3DReadFileToBlob(filePathW.c_str(), &precompiled);
+		res = D3DPreprocess(precompiled->GetBufferPointer(), precompiled->GetBufferSize(), filePath.c_str(), 
+			macroArray, D3D_COMPILE_STANDARD_FILE_INCLUDE, &shaderBuffer, &errorMessage);
+
+		shaderText = (char*)(shaderBuffer->GetBufferPointer());
+		bufferSize = shaderBuffer->GetBufferSize();
+
+		fout.open(targetPath);
+		for (i = 0; i < bufferSize; i++)
+			fout << shaderText[i];
+
+		fout.close();
+
+		shaderBuffer->Release();
+		shaderBuffer = nullptr;
+
+
+		// options.data()
+		if (FAILED(D3DCompileFromFile(targetPath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
+		{
+			//outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
+			return false;
+		}
+
+		return true;
+
+		/*
+		if (FAILED(_shc.getDevice()->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &vertexShader)))
+		{
+			//MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex shader.", MB_OK);
+			return false;
+		}
+		*/
+
+		/*
+		if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
+		{
+			//MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex input layout.", MB_OK);
+			return false;
+		}
+		*/
 	}
 
 
