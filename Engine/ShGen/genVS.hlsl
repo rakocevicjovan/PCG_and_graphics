@@ -3,6 +3,8 @@ cbuffer PerCameraBuffer : register(b10)
 	matrix projectionMatrix;
 };
 
+
+
 cbuffer PerFrameBuffer : register(b11)
 {
 	matrix viewMatrix;
@@ -11,10 +13,13 @@ cbuffer PerFrameBuffer : register(b11)
 	float2 padding;
 };
 
+
+
 cbuffer WMBuffer: register(b0)
 {
 	matrix worldMatrix;
 };
+
 
 
 struct VertexInputType
@@ -24,7 +29,7 @@ struct VertexInputType
 #ifdef TEX
 	float2 tex : TEXCOORD0;
 #endif
-	
+
 #ifdef NRM
 	float3 normal : NORMAL;
 #endif
@@ -34,37 +39,44 @@ struct VertexInputType
 #endif
 
 #ifdef INS
-	matrix worldMatrix : WORLDMATRIX;
+	matrix insWorldMatrix : WORLDMATRIX;
 #endif
 };
+
+
 
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
 
-#ifdef OTEX
+#ifdef TEX
 	float2 tex : TEXCOORD0;
 #endif
 
-#ifdef ONRM
+#ifdef NRM
 	float3 normal : NORMAL;
 #endif
 
-#ifdef OWPS
+#ifdef WPS
 	float3 worldPos : WPOS;
 #endif
 
-#ifdef OTAN
-	float3 tangent : WPOS;
+#ifdef TAN
+	float3 tangent : TANGENT;
 #endif
 };
+
 
 
 PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
 
-#ifdef OWPS
+#ifdef INS
+	worldMatrix = mul(worldMatrix, insWorldMatrix);		// don't think this is correct...
+#endif
+
+#ifdef WPS
 	output.worldPos = mul(input.position, worldMatrix);
 	output.position = mul(output.worldPos, viewMatrix);
 #else
@@ -74,16 +86,16 @@ PixelInputType main(VertexInputType input)
 
 	output.position = mul(output.position, projectionMatrix);
 
-#ifdef OTEX
+#ifdef TEX
 	output.tex = input.tex;
 #endif
 
-#ifdef ONRM
+#ifdef NRM
 	output.normal = mul(input.normal, (float3x3)worldMatrix);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
 	output.normal = normalize(output.normal);
 #endif
 
-#ifdef OTAN
+#ifdef TAN
 	output.tangent = mul(input.tangent, (float3x3)worldMatrix);
 #endif
 

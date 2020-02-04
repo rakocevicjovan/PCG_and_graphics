@@ -971,10 +971,10 @@
     <FxCompile Include="CookTorrancePS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders\PBR</Filter>
     </FxCompile>
-    <FxCompile Include="genVS.hlsl">
+    <FxCompile Include="generated.hlsl">
       <Filter>Rendering\Shader Files</Filter>
     </FxCompile>
-    <FxCompile Include="generated.hlsl">
+    <FxCompile Include="ShGen\genVS.hlsl">
       <Filter>Rendering\Shader Files</Filter>
     </FxCompile>
   </ItemGroup>
