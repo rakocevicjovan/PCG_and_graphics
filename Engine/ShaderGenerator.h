@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderCompiler.h"
 #include <algorithm>
+#include <set>
 
 /*
 //Vertex shader options:
@@ -64,6 +65,7 @@ class ShaderGenerator
 	};
 
 	ShaderCompiler _shc;
+	std::set<uint64_t> _existing;
 
 public:
 	ShaderGenerator(ShaderCompiler& shc) : _shc(shc) {}
@@ -126,11 +128,11 @@ public:
 
 		std::vector<D3D_SHADER_MACRO> permOptions;
 		permOptions.reserve(optionCount);
-		std::string permOptDebugString;
 
 		for (uint64_t i = 0; i < (1 << (optionCount) ); ++i)	//0 - 255, or rather 00000000 to 11111111 loop
 		{
 			uint64_t total = 0u;
+			std::string permOptDebugString;
 
 			for (int j = 0; j < optionCount; ++j)
 			{
@@ -144,39 +146,35 @@ public:
 				}
 			}
 
+			if (_existing.count(total))
+			{
+				permOptions.clear();
+				continue;	//skips unnecessary work, as this shader was already created
+			}
+			_existing.insert(total);
+
 			permOptions.push_back({ NULL, NULL });
 
-			char* shaderText;
-			unsigned long bufferSize;
-			std::ofstream fout;
 			HRESULT res;
-
-			D3D_SHADER_MACRO* macroArrayPtr = permOptions.data();
 
 			res = D3DReadFileToBlob(filePathW.c_str(), &textBuffer);
 			res = D3DPreprocess(textBuffer->GetBufferPointer(), textBuffer->GetBufferSize(), filePath.c_str(),
-				macroArrayPtr, D3D_COMPILE_STANDARD_FILE_INCLUDE, &preprocessedBuffer, &errorMessage);
+				permOptions.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, &preprocessedBuffer, &errorMessage);
 
-			shaderText = (char*)(preprocessedBuffer->GetBufferPointer());
-			bufferSize = preprocessedBuffer->GetBufferSize();
-
+			std::ofstream fout;
 			std::wstring finalFileName = L"ShGen\\GeneratedVS\\vs_" + std::to_wstring(total) + L".hlsl";
-
+			
 			fout.open(finalFileName);
-			for (ULONG j = 0; j < bufferSize; ++j)
-				fout << shaderText[j];
+			for (ULONG j = 0; j < preprocessedBuffer->GetBufferSize(); ++j)
+				fout << ((char*)(preprocessedBuffer->GetBufferPointer()))[j];
 
 			fout.close();
 
 			preprocessedBuffer->Release();
 			preprocessedBuffer = nullptr;
 
-
-			permOptions.clear();
-
 			permOptDebugString += "\n";
 			OutputDebugStringA(permOptDebugString.c_str());
-			permOptDebugString = "";
 		}
 
 		return true;
