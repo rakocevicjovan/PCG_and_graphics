@@ -106,7 +106,9 @@ public:
 	}
 
 
-
+	// @TODO handle duplications by keeping a set of inserted bit masks
+	// simply store variable "total" in there and check if exists before creating
+	// currently this sorta takes care of itself because files rewrite but it is doing unnecessary work
 	bool mix()
 	{
 		std::string filePath = "ShGen\\genVS.hlsl";
