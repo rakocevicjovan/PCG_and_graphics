@@ -93,9 +93,6 @@
     <Filter Include="Collision\Spatial partitioning\QT">
       <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\MaterialsNEW">
-      <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shader Files\Vertex shaders">
       <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
     </Filter>
@@ -131,6 +128,9 @@
     </Filter>
     <Filter Include="Rendering\Shader Files\Pixel shaders\PBR">
       <UniqueIdentifier>{6dc88ee7-b2a1-42c6-8aab-2484d7aeeb6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\DeprMaterials">
+      <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -324,55 +324,55 @@
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="InstancedShader.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderClipper.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="Phong.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCM.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderDepth.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWater.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderShadow.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderHUD.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderPT.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderMaze.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderStrife.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderVolumetric.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderWireframe.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="SkelAnimShader.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="TerrainShader.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricScreen.cpp">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCompiler.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
@@ -707,61 +707,61 @@
       <Filter>Rendering\Lights</Filter>
     </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="Files.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="Phong.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCM.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDepth.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWater.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderShadow.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHUD.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderPT.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderDataStructs.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderMaze.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderStrife.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderWireframe.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="SkelAnimShader.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="TerrainShader.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricScreen.h">
-      <Filter>Rendering\MaterialsNEW</Filter>
+      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
       <Filter>Rendering\AAA Improved\Shaders</Filter>

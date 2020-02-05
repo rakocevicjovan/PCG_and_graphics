@@ -42,6 +42,7 @@ void ShaderDepth::ShutdownShader()
 	DECIMATE(_pixelShader);
 	DECIMATE(_matrixBuffer);
 	DECIMATE(_layout);
+	DECIMATE(_sampleState);
 }
 
 

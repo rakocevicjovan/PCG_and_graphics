@@ -9,10 +9,10 @@
 
 
 // @TODO make data driven and add a menu to set them...
-const bool FULL_SCREEN = true;
-const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
+static bool FULL_SCREEN = true;
+static bool VSYNC_ENABLED = true;
+static float FAR_PLANE = 1000.0f;
+static float NEAR_PLANE = 0.1f;
 
 
 // System-reserved registers.

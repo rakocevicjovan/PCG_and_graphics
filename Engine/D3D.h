@@ -44,17 +44,17 @@ public:
 	float clearColour[4] = { 0.3f, 0.0f, 0.8f, 1.0f };
 
 private:
-	bool m_vsync_enabled;
+	bool _vsync_enabled;
 	int m_videoCardMemory;
 	char m_videoCardDescription[128];
-	IDXGISwapChain* m_swapChain;
+	IDXGISwapChain* _swapChain;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11DepthStencilState* m_depthStencilState, *DSLessEqual;
-	ID3D11DepthStencilView* m_depthStencilView;
+	ID3D11Texture2D* _depthStencilBuffer;
+	ID3D11DepthStencilState* _depthStencilLess, *_depthStencilLessEquals;
+	ID3D11DepthStencilView* _depthStencilView;
 	ID3D11RasterizerState* _r_s_solid_cull, *_r_s_solid_no_cull, *_r_s_wireframe;
-	ID3D11BlendState* m_blendState, *m_noBlendState;
+	ID3D11BlendState* _blendState, *_noBlendState;
 };
 
 #endif

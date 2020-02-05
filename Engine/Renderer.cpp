@@ -23,7 +23,7 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d
 	_fieldOfView = PI / 3.0f;
 	_aspectRatio = (float)windowWidth / (float)windowHeight;
 
-	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _aspectRatio, SCREEN_NEAR, SCREEN_DEPTH));
+	_cam = Camera(SMatrix::Identity, DirectX::XMMatrixPerspectiveFovLH(_fieldOfView, _aspectRatio, NEAR_PLANE, FAR_PLANE));
 
 	return createGlobalBuffers();
 }

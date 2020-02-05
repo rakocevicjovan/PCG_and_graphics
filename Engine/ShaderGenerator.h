@@ -76,13 +76,6 @@ public:
 		// hlsl preprocessor can only check whether something is defined or not, and not the value...
 		//D3D_SHADER_MACRO example = { "name", "definition" };
 
-		// Although these can be separate, there is no need for that. 
-		// If the shader requires tex coordinate output, it must have them (generally speaking) as input anyways...
-		// therefore we save on the number of permutations
-		//D3D_SHADER_MACRO i_tex = { "TEX", "true" };	
-		//D3D_SHADER_MACRO i_nrm = { "NRM", "true" };
-		//D3D_SHADER_MACRO i_tan = { "TAN", "true" };
-
 		// Assumes that instance data is a matrix, not very flexible
 		D3D_SHADER_MACRO i_ins = { "INS", "true" };
 
@@ -178,21 +171,6 @@ public:
 		}
 
 		return true;
-
-		// options.data()
-		/*if (FAILED(D3DCompileFromFile(targetPath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &preprocessedBuffer, &errorMessage)))
-		{
-			//outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
-			return false;
-		}*/
-
-		/*
-		if (FAILED(_shc.getDevice()->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &vertexShader)))
-		{
-			//MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex shader.", MB_OK);
-			return false;
-		}
-		*/
 	}
 };
 
@@ -235,3 +213,11 @@ struct ShaderOptions
 	UINT p_p_distFog	: 1;
 	UINT p_p_gCorrected : 1;
 };	//well... thats just over 2 billion permutations... somehow I really don't think I need that many :V
+
+
+// Although these can be separate input options, there is no need for that. 
+// If the shader requires tex coordinate output, it must have them (generally speaking) as input anyways...
+// therefore we save on the number of permutations - same for normals and tangents
+//D3D_SHADER_MACRO i_tex = { "TEX", "true" };	
+//D3D_SHADER_MACRO i_nrm = { "NRM", "true" };
+//D3D_SHADER_MACRO i_tan = { "TAN", "true" };
