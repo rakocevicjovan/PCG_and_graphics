@@ -7,21 +7,27 @@
 class Skybox
 {
 private:
-	CubeMapper _cubeMapper;
 	Material* _skyboxMaterial;
 	Renderable _r;
+
+	ID3D11Texture2D *_texPtr;
+	ID3D11ShaderResourceView* _shResView;
 
 public:
 
 	Skybox() {}
 
-	Skybox(ID3D11Device* device, std::string path, Model* model, Material* m)
+
+
+	Skybox(ID3D11Device* device, std::string path, Model* model, Material* m, UINT resolution = 512u)
 	{
-		_cubeMapper.LoadFromFiles(device, path);
+		CubeMapper::loadCubeMapFromFile(device, path, resolution, _texPtr, _shResView);
 		_r = Renderable(model->meshes[0]);
 		_r.mat->setVS(m->getVS());
 		_r.mat->setPS(m->getPS());
 	}
+
+
 
 	void renderSkybox(Camera& cam, Renderer& renderer)
 	{
@@ -43,7 +49,7 @@ public:
 		context->IASetInputLayout(_r.mat->getVS()->_layout);
 		context->PSSetSamplers(0, 1, &_r.mat->getPS()->_sState);
 
-		context->PSSetShaderResources(0, 1, &(_cubeMapper.cm_srv));
+		context->PSSetShaderResources(0, 1, &_shResView);
 
 		context->IASetPrimitiveTopology(_r.mat->primitiveTopology);
 

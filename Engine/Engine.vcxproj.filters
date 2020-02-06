@@ -200,9 +200,6 @@
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="OST.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -386,6 +383,9 @@
     <ClCompile Include="RenderQueue.cpp">
       <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
+    <ClCompile Include="OST.cpp">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -500,9 +500,6 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ParticleBase.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="OST.h">
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="D3D.h">
@@ -789,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="VBuffer.h">
       <Filter>Rendering\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="OST.h">
+      <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

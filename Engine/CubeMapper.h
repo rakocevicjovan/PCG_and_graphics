@@ -3,31 +3,38 @@
 #include <d3d11.h>
 #include <vector>
 #include "Math.h"
-#include "MeshDataStructs.h"
 
 class Camera;
 
-class CubeMapper{
+class CubeMapper
+{
+private:
+
+	unsigned int _edgeLength;
+	SMatrix _cameras[6];
+	D3D11_VIEWPORT _viewport;
+	SMatrix _projMatrix;
+
+	ID3D11Texture2D *_texPtr;
+	ID3D11ShaderResourceView* _shResView;
+	ID3D11RenderTargetView* _renderTargetViews[6];
+
+	ID3D11Texture2D* _depthTexPtr;
+	ID3D11DepthStencilView* _depthStencilViews;
+
+	float _clearColour[4] = { 0.7f, 0.7f, 0.7f, 1.0f };
 
 public:
+
 	CubeMapper(const unsigned int edgeLength = 256);
 	~CubeMapper();
 
-	unsigned int edgeLength;
-	void Init(ID3D11Device* dev);
-	void UpdateCams(const SVec3& pos);
-	void Advance(ID3D11DeviceContext* dc, UINT i);
-	void LoadFromFiles(ID3D11Device* dev, const std::string& filename);	//std::vector<std::string>& filenames
+	void init(ID3D11Device* dev);
+	void updateCams(const SVec3& pos);
+	void advance(ID3D11DeviceContext* dc, UINT i);
+	static void loadCubeMapFromFile(ID3D11Device* dev, const std::string& filename, UINT edgeLength, ID3D11Texture2D*& texPtr, ID3D11ShaderResourceView*& shResView);
+
 	Camera getCameraAtIndex(unsigned int i);
 
-	SMatrix cameras[6];
-	D3D11_VIEWPORT cm_viewport;
-	SMatrix lens;
-	ID3D11Texture2D *cm_id, *cm_depth_id;
-	ID3D11ShaderResourceView* cm_srv;
-	ID3D11RenderTargetView* cm_rtv[6];
-	ID3D11DepthStencilView* cm_depthStencilView;
-
-	float clearCol[4] = { 0.7f, 0.7f, 0.7f, 1.0f };
+	inline ID3D11ShaderResourceView*& getShResView() { return _shResView; }
 };
-
