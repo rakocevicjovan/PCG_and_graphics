@@ -14,18 +14,7 @@ CubeMapper::~CubeMapper() {}
 void CubeMapper::init(ID3D11Device* device)
 {
 	// Create a texture (and a description) for the cube mapper, using misc_texturecube and 4 8-bit channels
-	D3D11_TEXTURE2D_DESC texDesc;
-	ZeroMemory(&texDesc, sizeof(texDesc));
-	texDesc.Width = _edgeLength;
-	texDesc.Height = _edgeLength;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 6;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	//DXGI_FORMAT_R32G32B32A32_FLOAT
-	texDesc.CPUAccessFlags = 0;
-	texDesc.SampleDesc = { 1, 0 };
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	D3D11_TEXTURE2D_DESC texDesc = createCubeMapDescription(_edgeLength, true);
 
 	if (FAILED(device->CreateTexture2D(&texDesc, 0, &_texPtr)))
 	{
@@ -33,7 +22,7 @@ void CubeMapper::init(ID3D11Device* device)
 		exit(520);
 	}
 
-	// Create ONE resource view as a texturecube view
+	// Create ONE resource view as a texturecube view (this handles six faces internally, so one is enough)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
 	srvd.Format = texDesc.Format;
 	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
@@ -46,7 +35,7 @@ void CubeMapper::init(ID3D11Device* device)
 		exit(521);
 	}
 
-	// Create SIX render target view descriptions
+	// Create SIX render target views, each render target view being a slice in an array (this is sketchy, @TODO)
 	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
 	rtvd.Format = texDesc.Format;
 	rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
@@ -55,6 +44,7 @@ void CubeMapper::init(ID3D11Device* device)
 
 	for (int i = 0; i < 6; i++)
 	{
+		// Indicates that the i-th texture of the _texPtr cubemap will be rendered to using this view (cubemap is a 2d array internally)
 		rtvd.Texture2DArray.FirstArraySlice = i;
 
 		if (FAILED(device->CreateRenderTargetView(_texPtr, &rtvd, &(_renderTargetViews[i]))))
@@ -135,21 +125,17 @@ void CubeMapper::advance(ID3D11DeviceContext* dc, UINT i)
 
 
 
+Camera CubeMapper::getCameraAtIndex(unsigned int i)
+{
+	return Camera::CreateFromViewProjection(_cameras[i], _projMatrix);
+}
+
+
+
 // Utility function for skybox rendering. Loads the maps once, no render targets / depth stencil textures involved
 void CubeMapper::loadCubeMapFromFile(ID3D11Device* device, const std::string& filename, UINT edgeLength, ID3D11Texture2D*& texPtr, ID3D11ShaderResourceView*& shResView)
 {
-	D3D11_TEXTURE2D_DESC texDesc;
-	ZeroMemory(&texDesc, sizeof(texDesc));
-	texDesc.Width = edgeLength;
-	texDesc.Height = edgeLength;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 6;
-	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	//DXGI_FORMAT_R32G32B32A32_FLOAT
-	texDesc.CPUAccessFlags = 0;
-	texDesc.SampleDesc = { 1, 0 };
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	D3D11_TEXTURE2D_DESC texDesc = createCubeMapDescription(edgeLength, false);
 
 	if (FAILED(device->CreateTexture2D(&texDesc, 0, &texPtr)))
 	{
@@ -165,7 +151,7 @@ void CubeMapper::loadCubeMapFromFile(ID3D11Device* device, const std::string& fi
 
 	if (FAILED(device->CreateShaderResourceView(texPtr, &srvd, &shResView)))
 	{
-		OutputDebugStringA("Can't create shader resource view. \n");
+		OutputDebugStringA("Failed to create shader resource view. \n");
 		exit(521);
 	}
 
@@ -174,14 +160,30 @@ void CubeMapper::loadCubeMapFromFile(ID3D11Device* device, const std::string& fi
 	if (FAILED(DirectX::CreateDDSTextureFromFileEx(device, widestr.c_str(), 0u, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE,
 				0u, D3D11_RESOURCE_MISC_TEXTURECUBE, false, (ID3D11Resource**)(texPtr), &(shResView), (DirectX::DDS_ALPHA_MODE*)nullptr)))
 	{
-		OutputDebugStringA("Can't load dds texture \n");
+		OutputDebugStringA("Failed to load dds texture \n");
 		exit(522);
 	}
 }
 
 
 
-Camera CubeMapper::getCameraAtIndex(unsigned int i)
+D3D11_TEXTURE2D_DESC CubeMapper::createCubeMapDescription(UINT edgeLength, bool renderTarget, DXGI_FORMAT format)
 {
-	return Camera::CreateFromViewProjection(_cameras[i], _projMatrix);
+	D3D11_TEXTURE2D_DESC texDesc;
+	ZeroMemory(&texDesc, sizeof(texDesc));
+	texDesc.Width = edgeLength;
+	texDesc.Height = edgeLength;
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 6;
+	texDesc.Format = format;	//DXGI_FORMAT_R32G32B32A32_FLOAT
+	texDesc.CPUAccessFlags = 0;
+	texDesc.SampleDesc = { 1, 0 };
+	texDesc.Usage = D3D11_USAGE_DEFAULT;
+	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	if (renderTarget)
+		texDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+
+	return texDesc;
 }
