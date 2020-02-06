@@ -16,17 +16,16 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 ///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
-	ShaderGenerator shg(_sys._shaderCompiler);
-	shg.mix();
+	//ShaderGenerator shg(_sys._shaderCompiler);
+	//shg.mix();
 
-	chest.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
-	chest.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
-	chest.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
-	//chest.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("phongPS"));
-	chest.meshes[0]._baseMaterial._texDescription;
+	globe.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
+	globe.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
+	globe.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
+	globe.meshes[0]._baseMaterial._texDescription;
 
-	chestRenderable = Renderable(chest.meshes[0]);
-	chestRenderable.mat->pLight = &pLight;
+	globeRenderable = Renderable(globe.meshes[0]);
+	globeRenderable.mat->pLight = &pLight;
 
 	S_INMAN.registerController(&_tdController);
 
@@ -47,7 +46,7 @@ void TDLevel::init(Systems& sys)
 	//generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
-	floorTex.Setup(S_DEVICE);
+	floorTex.SetUpAsResource(S_DEVICE);
 	floorMesh.textures.push_back(floorTex);
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
 	floorMesh._baseMaterial.pLight = &pLight;
@@ -154,9 +153,10 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {	
+	/*
 	SVec3 offset(0, 0, 50);
 	Math::RotateVecByMat(offset, SMatrix::CreateRotationY(rc.elapsed));
-	pLight.pos = Math::fromVec3(SVec3(0, 100, 0) + offset, 0.f);
+	pLight.pos = Math::fromVec3(SVec3(0, 100, 0) + offset, 0.f);*/
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
@@ -402,18 +402,18 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 	
-	S_RANDY.render(chestRenderable);
-	Math::SetTranslation(_creeps[0].renderables[0]._transform, SVec3(&pLight.pos.x));
-	S_RANDY.render(_creeps[0].renderables[0]);
+	//S_RANDY.render(chestRenderable);
+	//Math::SetTranslation(_creeps[0].renderables[0]._transform, SVec3(&pLight.pos.x));
+	//S_RANDY.render(_creeps[0].renderables[0]);
 
-	/*
+	
 	S_RANDY.render(floorRenderable);
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
-	*/
+
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
-	/*
+	
 	if (_inBuildingMode)
 		_templateBuilding->render(S_RANDY);
 
@@ -449,11 +449,9 @@ void TDLevel::draw(const RenderContext& rc)
 		}
 	}
 
-	
 	_eco.renderEconomyWidget();
 
 	endGuiFrame();
-	*/
 
 	rc.d3d->EndScene();
 }

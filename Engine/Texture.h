@@ -45,7 +45,7 @@ public:
 	void LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
 
-	bool Setup(ID3D11Device* device, DXGI_FORMAT f = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
+	bool SetUpAsResource(ID3D11Device* device, DXGI_FORMAT f = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
 	
@@ -56,13 +56,28 @@ public:
 	inline int getN() const { return n; }
 	inline const unsigned char* getData() const { return _data; }	//data can't be modified, only read
 
-
-	//this really, really, does not belong here...
+	//weird...
 	static std::vector<float> Texture::LoadAsFloatVec(const std::string& path);
+
+	static inline D3D11_TEXTURE2D_DESC create2DTexDesc(
+		UINT w, 
+		UINT h, 
+		DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, 
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT, 
+		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE, 
+		UINT cpuAccessFlags = 0u,	//D3D11_CPU_ACCESS_WRITE (dynamic or staging), D3D11_CPU_ACCESS_READ	(staging)
+		UINT miscFlags = 0u,
+		UINT mipLevels = 1u,
+		UINT arraySize = 1u,
+		DXGI_SAMPLE_DESC sdcq = {1, 0})
+	{
+		//might want to ZeroMemory(&texDesc, sizeof(texDesc)), D3D11_RESOURCE_MISC_FLAG enum for reference
+		return D3D11_TEXTURE2D_DESC {w, h, mipLevels, arraySize, format, sdcq, usage, bindFlags, cpuAccessFlags, miscFlags};
+	}
 
 protected:
 
-	//shouldn't be here but not sure if I can call stb functions outside of texture cpp... solved with friend class
+	//shouldn't be here but not sure if I can call stb functions outside of texture cpp... solved with friend class for clearer interface
 	inline static float Perlin3D(float x, float  y, float z, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	inline static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	inline static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);

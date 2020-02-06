@@ -8,7 +8,7 @@ namespace Strife
 	void StrifeLevel::init(Systems& sys)
 	{
 
-		sceneTex.Init(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);
+		sceneTex.init(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);
 		screenRectangleNode = postProcessor.AddUINODE(S_DEVICE, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
 
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f
@@ -93,8 +93,8 @@ namespace Strife
 		rc.d3d->TurnOffAlphaBlending();
 		
 
-		S_CONTEXT->RSSetViewports(1, &_sys._D3D.viewport);
-		S_CONTEXT->OMSetRenderTargets(1, &_sys._D3D.m_renderTargetView, _sys._D3D.GetDepthStencilView());
+		S_CONTEXT->RSSetViewports(1, &_sys._D3D._viewport);
+		S_CONTEXT->OMSetRenderTargets(1, &_sys._D3D._renderTargetView, _sys._D3D.GetDepthStencilView());
 
 		//postProcessor.draw(S_CONTEXT, S_SHADY.HUD, sceneTex.srv);
 		

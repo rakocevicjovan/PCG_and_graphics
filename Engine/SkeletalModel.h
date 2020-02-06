@@ -182,7 +182,7 @@ public:
 		loadBones(*mesh, vertices);
 
 		for (Texture& t : locTextures)
-			t.Setup(device);
+			t.SetUpAsResource(device);
 
 		return SkeletalMesh(vertices, indices, locTextures, device, ind);
 	}

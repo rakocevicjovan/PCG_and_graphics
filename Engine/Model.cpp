@@ -192,7 +192,7 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 	for (Texture& t : mesh.textures)
 	{
-		t.Setup(device);
+		t.SetUpAsResource(device);
 		mesh._baseMaterial._texDescription.push_back({ t._role, &t });
 
 		//we can at least know it's transparent if it has an opacity map, better than nothing

@@ -61,7 +61,7 @@ void ResourceManager::pushLevel(int i)
 			Resource *temp = new (_stackAllocator.getHeadPtr()) Texture(_projLoader.getProjDir() + resDefs[i].path);
 			temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
-			static_cast<Texture*>(temp)->Setup(_device);
+			static_cast<Texture*>(temp)->SetUpAsResource(_device);
 
 			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
 			_stackAllocator.alloc(sizeof(Texture));

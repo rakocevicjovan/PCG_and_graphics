@@ -30,7 +30,7 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 		return;
 	}
 
-	Setup(device);
+	SetUpAsResource(device);
 }
 
 
@@ -129,7 +129,7 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 	h = perlin._h;
 	_data = perlin.getUCharVector().data();
 
-	return Setup(device, DXGI_FORMAT::DXGI_FORMAT_R8_UNORM);
+	return SetUpAsResource(device, DXGI_FORMAT::DXGI_FORMAT_R8_UNORM);
 }
 
 
@@ -150,7 +150,7 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 
 
 
-bool Texture::Setup(ID3D11Device* device, DXGI_FORMAT format) 
+bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format) 
 {
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = w;

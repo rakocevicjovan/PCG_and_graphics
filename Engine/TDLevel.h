@@ -59,8 +59,8 @@ private:
 
 	int numCulled;
 
-	Model chest;
-	Renderable chestRenderable;
+	Model globe;
+	Renderable globeRenderable;
 
 	//gameplay
 	void addBuildables();

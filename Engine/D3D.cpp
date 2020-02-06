@@ -5,7 +5,7 @@ D3D::D3D()
 	_swapChain = 0;
 	_device = 0;
 	_deviceContext = 0;
-	m_renderTargetView = 0;
+	_renderTargetView = 0;
 	_depthStencilBuffer = 0;
 	_depthStencilLess = 0;
 	_depthStencilLessEquals = 0;
@@ -26,7 +26,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
-	unsigned int numModes, i, numerator, denominator, stringLength;
+	unsigned int numModes, i, numerator, denominator;
+	size_t stringLength;
 	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
@@ -91,10 +92,10 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Store the dedicated video card memory in megabytes.
-	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
+	_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
 	// Convert the name of the video card to a character array and store it.
-	error = wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128);
+	error = wcstombs_s(&stringLength, _videoCardDescription, 128, adapterDesc.Description, 128);
 	if(error != 0)
 		return false;
 
@@ -157,7 +158,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Create the render target view with the back buffer pointer.
-	result = _device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
+	result = _device->CreateRenderTargetView(backBufferPtr, NULL, &_renderTargetView);
 	if(FAILED(result))
 		return false;
 
@@ -228,7 +229,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, _depthStencilView);
+	_deviceContext->OMSetRenderTargets(1, &_renderTargetView, _depthStencilView);
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	rasterDesc.AntialiasedLineEnable = false;
@@ -282,15 +283,15 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 	
 	// Setup the viewport for rendering.
-    viewport.Width = (float)windowWidth;
-    viewport.Height = (float)windowHeight;
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
+    _viewport.Width = (float)windowWidth;
+    _viewport.Height = (float)windowHeight;
+    _viewport.MinDepth = 0.0f;
+    _viewport.MaxDepth = 1.0f;
+    _viewport.TopLeftX = 0.0f;
+    _viewport.TopLeftY = 0.0f;
 
 	// Create the viewport.
-    _deviceContext->RSSetViewports(1, &viewport);
+    _deviceContext->RSSetViewports(1, &_viewport);
 
     return true;
 }
@@ -325,9 +326,9 @@ void D3D::Shutdown(){
 		_depthStencilBuffer = nullptr;
 	}
 
-	if(m_renderTargetView){
-		m_renderTargetView->Release();
-		m_renderTargetView = nullptr;
+	if(_renderTargetView){
+		_renderTargetView->Release();
+		_renderTargetView = nullptr;
 	}
 
 	if(_deviceContext){
@@ -351,7 +352,7 @@ void D3D::Shutdown(){
 
 void D3D::ClearColourDepthBuffers()
 {
-	_deviceContext->ClearRenderTargetView(m_renderTargetView, clearColour);
+	_deviceContext->ClearRenderTargetView(_renderTargetView, _clearColour);
 	_deviceContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
@@ -375,8 +376,8 @@ ID3D11DeviceContext* D3D::GetDeviceContext(){
 }
 
 void D3D::GetVideoCardInfo(char* cardName, int& memory){
-	strcpy_s(cardName, 128, m_videoCardDescription);
-	memory = m_videoCardMemory;
+	strcpy_s(cardName, 128, _videoCardDescription);
+	memory = _videoCardMemory;
 }
 
 ID3D11DepthStencilView* D3D::GetDepthStencilView()
@@ -386,8 +387,8 @@ ID3D11DepthStencilView* D3D::GetDepthStencilView()
 
 void D3D::SetBackBufferRenderTarget()
 {
-	_deviceContext->RSSetViewports(1, &viewport);
-	_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, _depthStencilView);
+	_deviceContext->RSSetViewports(1, &_viewport);
+	_deviceContext->OMSetRenderTargets(1, &_renderTargetView, _depthStencilView);
 	ClearColourDepthBuffers();
 }
 
