@@ -55,6 +55,23 @@ private:
 	ID3D11DepthStencilView* _depthStencilView;
 	ID3D11RasterizerState* _r_s_solid_cull, *_r_s_solid_no_cull, *_r_s_wireframe;
 	ID3D11BlendState* _blendState, *_noBlendState;
+
+
+public:
+
+	inline static D3D11_VIEWPORT createViewport(float w, float h, float minD = 0.f, float maxD = 1.f, float tlX = 0.f, float tlY = 0.f)
+	{
+		D3D11_VIEWPORT viewport;
+
+		viewport.Width = w;
+		viewport.Height = h;
+		viewport.MinDepth = 0.0f;
+		viewport.MaxDepth = 1.0f;
+		viewport.TopLeftX = 0.0f;
+		viewport.TopLeftY = 0.0f;
+
+		return viewport;
+	}
 };
 
 #endif

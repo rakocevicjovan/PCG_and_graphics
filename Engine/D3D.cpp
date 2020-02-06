@@ -283,12 +283,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 	
 	// Setup the viewport for rendering.
-    _viewport.Width = (float)windowWidth;
-    _viewport.Height = (float)windowHeight;
-    _viewport.MinDepth = 0.0f;
-    _viewport.MaxDepth = 1.0f;
-    _viewport.TopLeftX = 0.0f;
-    _viewport.TopLeftY = 0.0f;
+	_viewport = createViewport((float)windowWidth, (float)windowHeight);
 
 	// Create the viewport.
     _deviceContext->RSSetViewports(1, &_viewport);

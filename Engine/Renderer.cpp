@@ -122,7 +122,7 @@ void Renderer::updateRenderContext(float dTime)
 
 void Renderer::setOSTRenderTarget(OST& ost)
 {
-	ost.SetRenderTarget(_deviceContext);
+	ost.setAsRenderTarget(_deviceContext);
 }
 
 

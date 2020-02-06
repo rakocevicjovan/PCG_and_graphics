@@ -59,25 +59,10 @@ public:
 	//weird...
 	static std::vector<float> Texture::LoadAsFloatVec(const std::string& path);
 
-	static inline D3D11_TEXTURE2D_DESC create2DTexDesc(
-		UINT w, 
-		UINT h, 
-		DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, 
-		D3D11_USAGE usage = D3D11_USAGE_DEFAULT, 
-		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE, 
-		UINT cpuAccessFlags = 0u,	//D3D11_CPU_ACCESS_WRITE (dynamic or staging), D3D11_CPU_ACCESS_READ	(staging)
-		UINT miscFlags = 0u,
-		UINT mipLevels = 1u,
-		UINT arraySize = 1u,
-		DXGI_SAMPLE_DESC sdcq = {1, 0})
-	{
-		//might want to ZeroMemory(&texDesc, sizeof(texDesc)), D3D11_RESOURCE_MISC_FLAG enum for reference
-		return D3D11_TEXTURE2D_DESC {w, h, mipLevels, arraySize, format, sdcq, usage, bindFlags, cpuAccessFlags, miscFlags};
-	}
-
-protected:
-
-	//shouldn't be here but not sure if I can call stb functions outside of texture cpp... solved with friend class for clearer interface
+	
+	//delegated procedural generation interface to friend class
+protected:	
+	
 	inline static float Perlin3D(float x, float  y, float z, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	inline static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	inline static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
@@ -85,4 +70,25 @@ protected:
 
 	static std::vector<float> generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	
+
+	//utility functions for texture creation
+public:
+
+	//easier desc creation (hopefully... textures aren't quite so uniformly created in general)
+	static inline D3D11_TEXTURE2D_DESC create2DTexDesc(
+		UINT w,
+		UINT h,
+		DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE,
+		UINT cpuAccessFlags = 0u,	//D3D11_CPU_ACCESS_WRITE (dynamic or staging), D3D11_CPU_ACCESS_READ	(staging)
+		UINT miscFlags = 0u,
+		UINT mipLevels = 1u,
+		UINT arraySize = 1u,
+		DXGI_SAMPLE_DESC sdcq = { 1, 0 })
+	{
+		//might want to ZeroMemory(&texDesc, sizeof(texDesc)), D3D11_RESOURCE_MISC_FLAG enum for reference
+		return D3D11_TEXTURE2D_DESC{ w, h, mipLevels, arraySize, format, sdcq, usage, bindFlags, cpuAccessFlags, miscFlags };
+	}
 };
