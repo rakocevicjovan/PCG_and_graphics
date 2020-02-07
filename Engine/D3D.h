@@ -51,7 +51,7 @@ private:
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	ID3D11Texture2D* _depthStencilBuffer;
-	ID3D11DepthStencilState* _depthStencilLess, *_depthStencilLessEquals;
+	ID3D11DepthStencilState* _depthStencilLess, *_depthStencilLessEquals;	// , *_depthStencilNoDepthTest;
 	ID3D11DepthStencilView* _depthStencilView;
 	ID3D11RasterizerState* _r_s_solid_cull, *_r_s_solid_no_cull, *_r_s_wireframe;
 	ID3D11BlendState* _blendState, *_noBlendState;

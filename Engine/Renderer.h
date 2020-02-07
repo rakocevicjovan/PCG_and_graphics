@@ -9,7 +9,7 @@
 
 
 // @TODO make data driven and add a menu to set them...
-static bool FULL_SCREEN = true;
+static bool FULL_SCREEN = false;
 static bool VSYNC_ENABLED = true;
 static float FAR_PLANE = 1000.0f;
 static float NEAR_PLANE = 0.1f;
@@ -63,11 +63,14 @@ class Renderer
 {
 private:
 
+	float _fieldOfView;
+	float _aspectRatio;
+	float _elapsed = 0.f;
+
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	D3D* _d3d;
 
-	float _fieldOfView, _aspectRatio, _elapsed = 0.f;
 	ID3D11Buffer* VS_perCamBuffer;
 	ID3D11Buffer* VS_perFrameBuffer;
 	ID3D11Buffer* PS_perFrameBuffer;

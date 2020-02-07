@@ -12,9 +12,9 @@ Systems::~Systems(){}
 
 bool Systems::Initialize()
 {
-	screenWidth = 1600;
-	screenHeight = 900;
-	FULL_SCREEN = false;
+	//screenWidth = 0;
+	//screenHeight = 0;
+	//FULL_SCREEN = false;
 	InitializeWindows(screenWidth, screenHeight);
 	
 	if (!_D3D.Initialize(windowWidth, windowHeight, false, _hwnd, FULL_SCREEN, FAR_PLANE, NEAR_PLANE))
@@ -119,8 +119,8 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 	}
 	else
 	{
-		windowWidth = 1600;
-		windowHeight = 900;
+		//windowWidth = 1600;
+		//windowHeight = 900;
 
 		posX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
 		posY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;

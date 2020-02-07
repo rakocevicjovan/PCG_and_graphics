@@ -212,9 +212,6 @@
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="CubeMapper.cpp">
-      <Filter>Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="TestLevel.cpp">
       <Filter>Old levels\SKTest</Filter>
     </ClCompile>
@@ -386,6 +383,9 @@
     <ClCompile Include="OST.cpp">
       <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
+    <ClCompile Include="CubeMapper.cpp">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Math.h">
@@ -492,9 +492,6 @@
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="CubeMapper.h">
-      <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
       <Filter>Rendering</Filter>
@@ -788,6 +785,9 @@
       <Filter>Rendering\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="OST.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMapper.h">
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
   </ItemGroup>

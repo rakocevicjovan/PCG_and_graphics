@@ -256,7 +256,7 @@ namespace Col
 	{
 		for (int i = 0; i < 6; ++i)
 		{
-			if (!SphereInsidePlane(frustum.planes[i], sphere))
+			if (!SphereInsidePlane(frustum._planes[i], sphere))
 				return false;
 		}
 		return true;

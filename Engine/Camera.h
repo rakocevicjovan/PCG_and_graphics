@@ -1,6 +1,4 @@
-#ifndef _CAMERACLASS_H_
-#define _CAMERACLASS_H_
-
+#pragma once
 #include "Math.h"
 #include "Controller.h"
 #include "Frustum.h"
@@ -16,10 +14,11 @@ protected:
 
 public:
 	Controller* _controller;
-	Frustum frustum;
+	Frustum _frustum;
 
 	Camera();
 	Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix);
+	Camera(const SMatrix& cameraMatrix, float fov, float ar, float zNear, float zFar);
 	~Camera();
 
 	void Update(float dTime);
@@ -47,4 +46,3 @@ public:
 
 	SVec3   GetPosition() const;
 };
-#endif

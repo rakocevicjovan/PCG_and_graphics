@@ -35,7 +35,8 @@ private:
 	HWND _hwnd;
 	POINT _midWindow;
 
-	int screenWidth, screenHeight, windowWidth, windowHeight;
+	int screenWidth, screenHeight;
+	int windowWidth = 1920, windowHeight = 1080;
 
 public:
 	Systems();

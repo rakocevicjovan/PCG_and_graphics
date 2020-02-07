@@ -5,36 +5,27 @@
 
 Frustum::Frustum(const SMatrix& pm)
 {
-	SPlane left		(pm._14 + pm._11, pm._24 + pm._21, pm._34 + pm._31, pm._44 + pm._41);
-	SPlane right	(pm._14 - pm._11, pm._24 - pm._21, pm._34 - pm._31, pm._44 - pm._41);
+	extractPlanesFromMatrix(pm);
 
-	SPlane bottom	(pm._14 + pm._12, pm._24 + pm._22, pm._34 + pm._32, pm._44 + pm._42);
-	SPlane top		(pm._14 - pm._12, pm._24 - pm._22, pm._34 - pm._32, pm._44 - pm._42);
+	_fov = 2. * atan(1.0 / pm._22);	//in radians
+	_ar = pm._22 / pm._11;
 
-	SPlane pnear	(pm._13, pm._23, pm._33, pm._43);
-	SPlane pfar		(pm._14 - pm._13, pm._24 - pm._23, pm._34 - pm._33, pm._44 - pm._43);
+	float r = pm._33;
+	float a = pm._43;
 
-	planes.push_back(left);
-	planes.push_back(right);
-	planes.push_back(bottom);
-	planes.push_back(top);
-	planes.push_back(pnear);
-	planes.push_back(pfar);
-
-	for (SPlane& p : planes)
-		p.Normalize();
+	_zn = -a / r;
+	_zf = (-r * _zn) / (1. - r);
 }
 
 
-void Frustum::update(const SMatrix& pm)
+Frustum::Frustum(float fov, float ar, float zn, float zf) : _fov(fov), _ar(ar), _zn(zn), _zf(zf)
 {
-	planes[0] = { pm._14 + pm._11, pm._24 + pm._21, pm._34 + pm._31, pm._44 + pm._41 };
-	planes[1] = { pm._14 - pm._11, pm._24 - pm._21, pm._34 - pm._31, pm._44 - pm._41 };
-	planes[2] = { pm._14 + pm._12, pm._24 + pm._22, pm._34 + pm._32, pm._44 + pm._42 };
-	planes[3] = { pm._14 - pm._12, pm._24 - pm._22, pm._34 - pm._32, pm._44 - pm._42 };
-	planes[4] = { pm._13, pm._23, pm._33, pm._43 };
-	planes[5] = { pm._14 - pm._13, pm._24 - pm._23, pm._34 - pm._33, pm._44 - pm._43 };
+	extractPlanesFromMatrix(DirectX::XMMatrixPerspectiveFovLH(fov, ar, zn, zf));
+}
 
-	for (SPlane& p : planes)
-		p.Normalize();
+
+//basically recreates most of the frustum, could be done by multiplying with the view matrix I guess... but it's fast regardless
+void Frustum::update(const SMatrix& vpm)
+{
+	extractPlanesFromMatrix(vpm);
 }

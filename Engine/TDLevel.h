@@ -53,6 +53,7 @@ private:
 	UINT GOAL_INDEX = 0;
 
 	PointLight pLight;
+	DirectionalLight dirLight;
 	
 	//CubeMapper skyboxCubeMapper;
 	Skybox _skybox;

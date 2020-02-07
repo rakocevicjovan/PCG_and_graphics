@@ -14,7 +14,18 @@ Camera::Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix)
 	_viewMatrix = _cameraMatrix.Invert();
 	_projectionMatrix = projectionMatrix;
 
-	frustum = Frustum(projectionMatrix);
+	_frustum = Frustum(projectionMatrix);
+}
+
+
+
+Camera::Camera(const SMatrix& cameraMatrix, float fov, float ar, float zNear, float zFar)
+{
+	_cameraMatrix = cameraMatrix;
+	_viewMatrix = _cameraMatrix.Invert();
+	_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fov, ar, zNear, zFar);
+
+	_frustum = Frustum(fov, ar, zNear, zFar);
 }
 
 
@@ -30,6 +41,7 @@ Camera Camera::CreateFromViewProjection(const SMatrix& view, const SMatrix& proj
 	c._viewMatrix = view;
 	c._projectionMatrix = projection;
 	c._cameraMatrix = view.Invert();
+	c._frustum = Frustum(projection);
 	
 	return c;
 }
@@ -47,7 +59,7 @@ void Camera::SetCameraMatrix(const SMatrix& transform)
 void Camera::SetProjectionMatrix(const SMatrix& proj)
 {
 	_projectionMatrix = proj;
-	frustum = Frustum(_projectionMatrix);
+	_frustum = Frustum(_projectionMatrix);
 }
 
 
@@ -56,7 +68,7 @@ void Camera::Update(float dTime)
 {
 	_controller->processTransformationFPS(dTime, _cameraMatrix);
 	_viewMatrix = _cameraMatrix.Invert();
-	frustum.update(_viewMatrix * _projectionMatrix);
+	_frustum.update(_viewMatrix * _projectionMatrix);
 }
 
 

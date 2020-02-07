@@ -34,8 +34,16 @@ void TDLevel::init(Systems& sys)
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
+	//light setup
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
+	
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
+
+	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
+
+	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
+	SMatrix dlCamMatrix = dlViewMatrix.Invert();
+	SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
 
 	float tSize = 500;
 	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
@@ -153,10 +161,7 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {	
-	/*
-	SVec3 offset(0, 0, 50);
-	Math::RotateVecByMat(offset, SMatrix::CreateRotationY(rc.elapsed));
-	pLight.pos = Math::fromVec3(SVec3(0, 100, 0) + offset, 0.f);*/
+	rc.cam->_frustum.createCascadeProjMatrices(rc.cam->GetProjectionMatrix(), 3);
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
@@ -469,7 +474,7 @@ void TDLevel::cull(const RenderContext& rc)
 
 	for (int i = 0; i < _creeps.size(); ++i)
 	{
-		if (Col::FrustumSphereIntersection(rc.cam->frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(0))))
+		if (Col::FrustumSphereIntersection(rc.cam->_frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(0))))
 		{
 			zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
 			for (auto& r : _creeps[i].renderables)
