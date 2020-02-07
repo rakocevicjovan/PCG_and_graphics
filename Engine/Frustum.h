@@ -26,7 +26,33 @@ public:
 
 	void update(const SMatrix& vpMat);
 
-	void getCorners();
+	std::vector<SVec3> extractCorners(const SMatrix& vpMat)	//could be std::array for return as well really
+	{
+		std::array<SVec4, 8> vec4s;
+
+		std::vector<SVec3> result;
+		result.reserve(8);
+
+		vec4s[0] = SVec4(-1, -1,  0, 1.);
+		vec4s[1] = SVec4( 1, -1,  0, 1.);
+		vec4s[2] = SVec4(-1,  1,  0, 1.);
+		vec4s[3] = SVec4( 1,  1,  0, 1.);
+		vec4s[4] = SVec4(-1, -1,  1, 1.);
+		vec4s[5] = SVec4( 1, -1,  1, 1.);
+		vec4s[6] = SVec4(-1,  1,  1, 1.);
+		vec4s[7] = SVec4( 1,  1,  1, 1.);
+
+		SMatrix inv = vpMat.Invert();
+
+		for (auto& vec : vec4s)
+		{
+			SVec4 temp = SVec4::Transform(vec, inv);
+			SVec3 res(temp.x, temp.y, temp.z);
+			result.push_back(res / temp.w);
+		}
+
+		return result;
+	}
 
 
 	// @TODO Make logarithmic later, doesnt matter now
