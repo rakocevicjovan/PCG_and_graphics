@@ -26,29 +26,29 @@ public:
 
 	void update(const SMatrix& vpMat);
 
-	std::vector<SVec3> extractCorners(const SMatrix& vpMat)	//could be std::array for return as well really
+	std::array<SVec3, 8> extractCorners(const SMatrix& vpMat)	//could be std::array for return as well really
 	{
-		std::array<SVec4, 8> vec4s;
+		static const std::array<SVec4, 8> vec4s =
+		{
+			SVec4(-1, -1,  0, 1.),
+			SVec4( 1, -1,  0, 1.),
+			SVec4(-1,  1,  0, 1.),
+			SVec4( 1,  1,  0, 1.),
+			SVec4(-1, -1,  1, 1.),
+			SVec4( 1, -1,  1, 1.),
+			SVec4(-1,  1,  1, 1.),
+			SVec4( 1,  1,  1, 1.)
+		};
 
-		std::vector<SVec3> result;
-		result.reserve(8);
-
-		vec4s[0] = SVec4(-1, -1,  0, 1.);
-		vec4s[1] = SVec4( 1, -1,  0, 1.);
-		vec4s[2] = SVec4(-1,  1,  0, 1.);
-		vec4s[3] = SVec4( 1,  1,  0, 1.);
-		vec4s[4] = SVec4(-1, -1,  1, 1.);
-		vec4s[5] = SVec4( 1, -1,  1, 1.);
-		vec4s[6] = SVec4(-1,  1,  1, 1.);
-		vec4s[7] = SVec4( 1,  1,  1, 1.);
-
+		//the vp mat works because view is inverted camera matrix anyways... then it inverts back
 		SMatrix inv = vpMat.Invert();
 
-		for (auto& vec : vec4s)
+		std::array<SVec3, 8> result;
+		for (int i = 0; i < 8; ++i)
 		{
-			SVec4 temp = SVec4::Transform(vec, inv);
+			SVec4 temp = SVec4::Transform(vec4s[i], inv);
 			SVec3 res(temp.x, temp.y, temp.z);
-			result.push_back(res / temp.w);
+			result[i] = (res / temp.w);
 		}
 
 		return result;
@@ -56,14 +56,30 @@ public:
 
 
 	// @TODO Make logarithmic later, doesnt matter now
-	std::vector<float> calcSplitDistances(uint8_t n, float minZ, float maxZ)
+	std::vector<float> calcSplitDistances(uint8_t n, float minZ, float maxZ) const
 	{
-		return std::vector<float>(n, (maxZ - minZ) / n);
+		std::vector<float> result;
+		result.reserve(n);
+
+		float d = maxZ - minZ;
+		float r = maxZ / minZ;
+		float nf = n;
+
+		for (float i = 1; i <= n; ++i)
+		{
+			//double Zi = Math::lerp(near, far, i / nf);  // Linear increase
+			float Zi = Math::lerp(n + (i / nf) * (d - nf), pow(n * (d / nf), i / nf), .5);	//lerp(lin, log, .5), like nvidia
+
+			result.push_back(Zi);
+		}
+
+		return result;
+		//return std::vector<float>(n, (maxZ - minZ) / n); //all three same
 	}
 
 
 
-	std::vector<SMatrix> createCascadeProjMatrices(const Frustum& f, uint8_t n)
+	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n)
 	{
 		std::vector<SMatrix> result;
 
@@ -72,7 +88,7 @@ public:
 
 		for (int i = 0; i < zees.size(); ++i)
 		{
-			float currentFarZ = currentNearZ + zees[i];
+			float currentFarZ = _zn + zees[i];	// currentNearZ +
 			result.push_back(DirectX::XMMatrixPerspectiveFovLH(_fov, _ar, currentNearZ, currentFarZ));
 			currentNearZ = currentFarZ;
 		}

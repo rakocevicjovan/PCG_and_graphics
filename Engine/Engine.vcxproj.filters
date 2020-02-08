@@ -790,6 +790,9 @@
     <ClInclude Include="CubeMapper.h">
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
+    <ClInclude Include="CSM.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

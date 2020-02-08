@@ -261,6 +261,7 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="CSM.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h" />

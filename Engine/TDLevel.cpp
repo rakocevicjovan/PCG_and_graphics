@@ -161,8 +161,8 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {	
-	rc.cam->_frustum.createCascadeProjMatrices(rc.cam->GetProjectionMatrix(), 3);
-	rc.cam->_frustum.extractCorners(rc.cam->GetViewMatrix() * rc.cam->GetProjectionMatrix());
+	rc.cam->_frustum.createCascadeProjMatrices(3);
+	//rc.cam->_frustum.extractCorners(rc.cam->GetViewMatrix() * rc.cam->GetProjectionMatrix());
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
