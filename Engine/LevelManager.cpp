@@ -9,7 +9,8 @@
 
 LevelManager::LevelManager(Systems& systems)
 {
-	systems._resMan.pushLevel(0);
+	
+	//systems._resMan.pushLevel(0);
 
 	//relies on resources from the level... needs to happen afterwards
 	systems._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();

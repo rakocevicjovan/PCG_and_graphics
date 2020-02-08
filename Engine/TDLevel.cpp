@@ -7,7 +7,10 @@
 #include "Shader.h"
 #include "Steering.h"
 
-#include "ShaderGenerator.h"
+//Experimental
+//#include "ShaderGenerator.h"
+
+
 
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
@@ -18,6 +21,12 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);
 	//shg.mix();
+
+	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
+	//SMatrix dlCamMatrix = dlViewMatrix.Invert();
+	SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
+
+	_csm.prepareShadowPass(_sys._renderer._cam, dlViewMatrix, dlProjMatrix);
 
 	globe.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
 	globe.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
@@ -40,10 +49,6 @@ void TDLevel::init(Systems& sys)
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
 
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
-
-	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-	SMatrix dlCamMatrix = dlViewMatrix.Invert();
-	SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
 
 	float tSize = 500;
 	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
@@ -160,9 +165,7 @@ void TDLevel::fixBuildable(Building* b)
 
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
-{	
-	rc.cam->_frustum.createCascadeProjMatrices(3);
-	//rc.cam->_frustum.extractCorners(rc.cam->GetViewMatrix() * rc.cam->GetProjectionMatrix());
+{
 
 	//this works well to reduce the number of checked branches with simple if(null) but only profiling
 	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)

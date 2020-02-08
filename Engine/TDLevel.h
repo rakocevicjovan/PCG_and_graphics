@@ -19,7 +19,8 @@
 
 //tests
 //#include "QuadTree.h"
-#include "PoolAllocator.h"
+//#include "PoolAllocator.h"
+#include "CSM.h"
 
 
 
@@ -62,6 +63,8 @@ private:
 
 	Model globe;
 	Renderable globeRenderable;
+
+	CSM _csm;
 
 	//gameplay
 	void addBuildables();

@@ -26,7 +26,8 @@ public:
 
 	void update(const SMatrix& vpMat);
 
-	std::array<SVec3, 8> extractCorners(const SMatrix& vpMat)	//could be std::array for return as well really
+	// Also works with combined vp matrix to obtain world coordinates
+	static std::array<SVec3, 8> extractCorners(const SMatrix& vpMat)
 	{
 		static const std::array<SVec4, 8> vec4s =
 		{
@@ -40,7 +41,7 @@ public:
 			SVec4( 1,  1,  1, 1.)
 		};
 
-		//the vp mat works because view is inverted camera matrix anyways... then it inverts back
+		//the vp mat works because view is inverted camera matrix anyways... then it inverts back before transforming
 		SMatrix inv = vpMat.Invert();
 
 		std::array<SVec3, 8> result;
@@ -79,7 +80,7 @@ public:
 
 
 
-	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n)
+	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n) const
 	{
 		std::vector<SMatrix> result;
 
