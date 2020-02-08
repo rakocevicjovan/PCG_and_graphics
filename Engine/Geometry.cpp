@@ -64,7 +64,7 @@ namespace Procedural
 
 
 
-	void Geometry::GenBox(SVec3 dims)
+	void Geometry::GenBox(SVec3 dims, bool genTangents)
 	{
 		std::vector<DirectX::VertexPositionNormalTexture> verts;
 		std::vector<uint16_t> inds;
@@ -74,7 +74,6 @@ namespace Procedural
 		positions.reserve(verts.size());
 		texCoords.reserve(verts.size());
 		normals.reserve(verts.size());
-		tangents.reserve(verts.size());
 
 		for (auto v : verts)
 		{
@@ -87,23 +86,28 @@ namespace Procedural
 		for (auto i : inds)
 			indices.push_back(i);
 
-		//go through faces 3 at a time
-		std::map<int, SVec3> indexTangentMap;
-		for (int i = 0; i < indices.size(); i += 3)
+		if (genTangents)
 		{
-			SVec3 curFaceTangent = calculateTangent(positions, texCoords, indices[i], indices[i + 1], indices[i + 2]);
-			indexTangentMap[indices[i]]		+= curFaceTangent;
-			indexTangentMap[indices[i + 1]] += curFaceTangent;
-			indexTangentMap[indices[i + 2]] += curFaceTangent;
+			tangents.reserve(verts.size());
+
+			//go through faces 3 at a time
+			std::map<int, SVec3> indexTangentMap;
+			for (int i = 0; i < indices.size(); i += 3)
+			{
+				SVec3 curFaceTangent = calculateTangent(positions, texCoords, indices[i], indices[i + 1], indices[i + 2]);
+				indexTangentMap[indices[i]]		+= curFaceTangent;
+				indexTangentMap[indices[i + 1]] += curFaceTangent;
+				indexTangentMap[indices[i + 2]] += curFaceTangent;
+			}
+
+			//tangents are now added up, should be normalized
+			for (auto& tango : indexTangentMap)
+				tango.second.Normalize();
+
+			tangents.resize(positions.size());
+			for (int i = 0; i < tangents.size(); ++i)
+				tangents[i] = indexTangentMap[i];
 		}
-
-		//tangents are now added up, should be normalized
-		for (auto& tango : indexTangentMap)
-			tango.second.Normalize();
-
-		tangents.resize(positions.size());
-		for (int i = 0; i < tangents.size(); ++i)
-			tangents[i] = indexTangentMap[i];
 	}
 
 

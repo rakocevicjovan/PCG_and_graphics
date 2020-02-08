@@ -22,19 +22,18 @@ void TDLevel::init(Systems& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);
 	//shg.mix();
 
-	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-	//SMatrix dlCamMatrix = dlViewMatrix.Invert();
-	SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
+	Procedural::Geometry g;
+	g.GenBox(SVec3(2., 2., 1.));
+	for (SVec3& gp : g.positions)
+		gp += SVec3(0., 0., 0.5);
 
-	_csm.prepareShadowPass(_sys._renderer._cam, dlViewMatrix, dlProjMatrix);
+	Mesh* boxMesh = new Mesh(g, S_DEVICE, true, false);
 
-	globe.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
-	globe.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
-	globe.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
-	globe.meshes[0]._baseMaterial._texDescription;
+	frustumRenderable = Renderable(*boxMesh);
+	frustumRenderable.mat->pLight = &pLight;
+	frustumRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
+	frustumRenderable.mat->setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
 
-	globeRenderable = Renderable(globe.meshes[0]);
-	globeRenderable.mat->pLight = &pLight;
 
 	S_INMAN.registerController(&_tdController);
 
@@ -410,19 +409,32 @@ void TDLevel::draw(const RenderContext& rc)
 {
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
-	
-	//S_RANDY.render(chestRenderable);
-	//Math::SetTranslation(_creeps[0].renderables[0]._transform, SVec3(&pLight.pos.x));
-	//S_RANDY.render(_creeps[0].renderables[0]);
 
-	
 	S_RANDY.render(floorRenderable);
+
+
+	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0) + SVec3(0, 0, 500) * sin(rc.elapsed), SVec3(0, 0, 0), SVec3(0, 0, 1));
+	SMatrix dlCamMatrix = dlViewMatrix.Invert();
+	SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
+
+	Camera c = Camera(SMatrix(), _sys._renderer._cam.GetProjectionMatrix());
+
+	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix, dlProjMatrix);
+
+	for (int i = 0; i < projMats.size(); ++i)
+	{
+		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
+		S_RANDY.render(frustumRenderable);
+	}
+	
+
+
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
-	
+
 	if (_inBuildingMode)
 		_templateBuilding->render(S_RANDY);
 
@@ -519,12 +531,29 @@ for (int i = 0; i < 125; ++i)
 }*/
 
 /*
-Procedural::Geometry g;
-g.GenBox(SVec3(_navGrid.getCellSize().x, 1, _navGrid.getCellSize().y));
-boxModel.meshes.push_back(Mesh(g, S_DEVICE, true, false));
-box = Actor(SMatrix(), &boxModel);
-box.renderables[0].mat = &creepMat;
-box.renderables[0].pLight = &pLight;
+	Procedural::Geometry g;
+	g.GenBox(SVec3(_navGrid.getCellSize().x, 1, _navGrid.getCellSize().y));
+	boxModel.meshes.push_back(Mesh(g, S_DEVICE, true, false));
+	box = Actor(SMatrix(), &boxModel);
+	box.renderables[0].mat = &creepMat;
+	box.renderables[0].pLight = &pLight;
+*/
+
+
+/* for debugging pbr, its done now
+	// in init()
+	globe.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
+	globe.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
+	globe.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
+	globe.meshes[0]._baseMaterial._texDescription;
+
+	globeRenderable = Renderable(globe.meshes[0]);
+	globeRenderable.mat->pLight = &pLight;
+
+	// in draw()
+	S_RANDY.render(globeRenderable);
+	Math::SetTranslation(_creeps[0].renderables[0]._transform, SVec3(&pLight.pos.x));
+	S_RANDY.render(_creeps[0].renderables[0]);
 */
 
 

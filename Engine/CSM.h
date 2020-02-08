@@ -6,7 +6,7 @@ class CSM
 {
 	std::vector<Frustum> _lightFrusta;
 
-	UINT _edgeLength;
+	UINT _resolution;
 	
 	ID3D11Texture2D* _shadowMap;
 
@@ -20,68 +20,77 @@ public:
 
 
 	// Expects input frustum corners to be in world space
-	// I always admire my naming abilities... but it is what it says it is :V 
-	void createFrustumBoundingFrustum(const std::array<SVec3, 8>& corners, const SMatrix& lvpMat)
+	SMatrix createLightProjectionMatrix(const std::array<SVec3, 8>& corners, const SMatrix& lvpMat) const
 	{
 		float minX, maxX;
 		float minY, maxY;
 		float minZ, maxZ;
 
-		std::array<SVec3, 8> lClipSpaceCorners;
+		minX = minY = minZ = 999999.f;	//use limits...
+		maxX = maxY = maxZ = -999999.f;
+
+		std::array<SVec3, 8> lViewSpaceCorners;
 
 		// Transform the world space positions of frustum coordinates into light's clip space
 		for (int i = 0; i < corners.size(); ++i)
 		{
 			SVec3 pos = SVec3::Transform(corners[i], lvpMat);
-			lClipSpaceCorners[i] = pos;
+			lViewSpaceCorners[i] = pos;
 
 			if (pos.x < minX) minX = pos.x;
 			if (pos.x > maxX) maxX = pos.x;
 
 			if (pos.y < minY) minY = pos.y;
-			if (pos.y > minY) minY = pos.y;
+			if (pos.y > maxY) maxY = pos.y;
 
 			if (pos.z < minZ) minZ = pos.z;
-			if (pos.z > minZ) minZ = pos.z;
+			if (pos.z > maxZ) maxZ = pos.z;
 		}
 		
+		// Calculate the crop matrix, which should limit the orthographic matrix to only encompass the frustum
 		float Sx = 2.f / (maxX - minX);
 		float Sy = 2.f / (maxY - minY);
 
 		float Ox = -0.5 * (maxX + minX) * Sx;
 		float Oy = -0.5 * (minY + minY) * Sy;
 
+		/*
 		SMatrix cropMatrix(
 			Sx, 0., 0., Ox,
 			0., Sy, 0., Oy,
 			0,  0,  1., 0.,
 			0., 0., 0., 1.);
 
-		SMatrix Pz = DirectX::XMMatrixOrthographicLH(_edgeLength, _edgeLength, minZ, maxZ);
+		// @TODO If done like this, only objects in the camera frustum will cast shadows, need to account for it
+		SMatrix Pz = DirectX::XMMatrixOrthographicLH(128, 128, minZ, maxZ);	// @TODO convert numbers to resolution
+		SMatrix projMatrix = Pz * cropMatrix;	// I think this is reversed...
+		*/
 
-		SMatrix projMatrix = cropMatrix * Pz;
+		SMatrix Pz = DirectX::XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 
+		return Pz;
 	}
 
 
 
-	void prepareShadowPass(const Camera& cam, const SMatrix& lightViewMatrix, const SMatrix& lightProjMatrix)
+	std::vector<SMatrix> calcProjMats(const Camera& cam, const SMatrix& lightViewMatrix, const SMatrix& lightProjMatrix) const
 	{
-		std::vector<SMatrix> pms = cam._frustum.createCascadeProjMatrices(3);
+		std::vector<SMatrix> projMats;
+		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(3);
 
-		SMatrix lvpMat = lightViewMatrix * lightProjMatrix;
+		SMatrix lvpMat = lightViewMatrix; //* lightProjMatrix;
 
-		for (int i = 0; i < pms.size(); ++i)
+		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
 			// In order to obtain the corners in world space, combine camera's view matrix and subdivision projection matrices
-			SMatrix vpm = cam.GetViewMatrix() * pms[i];
+			SMatrix vpm = cam.GetViewMatrix() * camFrustumSubdivisionPMs[i];
 			
-			// Obtain the corners
-			std::array<SVec3, 8> corners = Frustum::extractCorners(vpm);
+			std::array<SVec3, 8> corners = Frustum::extractCorners(vpm);	// Obtain the corners in world space
 
-			createFrustumBoundingFrustum(corners, lvpMat);
-
+			projMats.push_back(createLightProjectionMatrix(corners, lvpMat));	// Transform them to light space etc...
 		}
+
+		return projMats;
 	}
 
 

@@ -19,7 +19,7 @@ namespace Procedural
 		~Geometry();
 
 		void GenRectangle(float halfWidth, float halfHeight, bool vertical = true);
-		void GenBox(SVec3 dims);
+		void GenBox(SVec3 dims, bool genTangents = false);
 		void GenUVCircle(float radius, unsigned int subdivs);
 		void GenUVDisk(float radius, unsigned int subdivs, float thiccness);
 		void GenHalo(float radius, float innerRadius, unsigned int subdivs);

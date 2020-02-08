@@ -61,8 +61,10 @@ private:
 
 	int numCulled;
 
-	Model globe;
-	Renderable globeRenderable;
+	//Model globe;
+	//Renderable globeRenderable;
+
+	Renderable frustumRenderable;
 
 	CSM _csm;
 
