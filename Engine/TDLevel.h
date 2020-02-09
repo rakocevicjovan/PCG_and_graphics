@@ -37,7 +37,7 @@ public:
 private:
 
 	//should really be in scene manager
-	void cull(const RenderContext& rc);
+	void cull(const Camera& cam);
 
 	SceneGraph _sg;
 	Octree _octree;

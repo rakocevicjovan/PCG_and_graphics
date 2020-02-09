@@ -412,20 +412,23 @@ void TDLevel::draw(const RenderContext& rc)
 
 	S_RANDY.render(floorRenderable);
 
+	
 	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0) + SVec3(0, 0, 500) * sin(rc.elapsed), SVec3(0, 0, 0), SVec3(0, 0, 1));
 	SMatrix dlCamMatrix = dlViewMatrix.Invert();
 	//SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
-
+	
+	/*
 	SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
 	SMatrix rt = SMatrix::CreateRotationY(.5 * PI);
 	Camera c = Camera(rt, _sys._renderer._cam.GetProjectionMatrix());
 
-	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix);
+	*/
 
-	for (int i = 0; i < projMats.size(); ++i)
+	std::vector<Frustum> frusta = _csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
+
+	for (Frustum& f : frusta)
 	{
-		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
-		S_RANDY.render(frustumRenderable);
+
 	}
 
 	S_RANDY.sortRenderQueue();
@@ -478,29 +481,27 @@ void TDLevel::draw(const RenderContext& rc)
 
 
 //cull and add to render queue
-void TDLevel::cull(const RenderContext& rc)
+void TDLevel::cull(const Camera& cam)
 {
 	numCulled = 0;
-	const SMatrix v = rc.cam->GetViewMatrix();
+	const SMatrix v = cam.GetViewMatrix();
 	const SVec3 v3c(v._13, v._23, v._33);
-	const SVec3 camPos = rc.cam->GetPosition();
+	const SVec3 camPos = cam.GetPosition();
 
-	float zDepth;
 
 	for (int i = 0; i < _creeps.size(); ++i)
 	{
-		if (Col::FrustumSphereIntersection(rc.cam->_frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(0))))
+		for (int j = 0; j < _creeps[i].renderables.size(); ++j)
 		{
-			zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
-			for (auto& r : _creeps[i].renderables)
+			if (cam._frustum.cull(static_cast<SphereHull*>(_creeps[i]._collider.getHull(j))))
 			{
-				r.zDepth = zDepth;
-				S_RANDY.addToRenderQueue(r);
+				_creeps[i].renderables[j].zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
+				S_RANDY.addToRenderQueue(_creeps[i].renderables[j]);
 			}
-		}
-		else
-		{
-			numCulled++;
+			else
+			{
+				numCulled++;
+			}
 		}
 	}
 }
@@ -511,12 +512,6 @@ void TDLevel::freeLevelMemory()
 {
 	finished = true;
 }
-
-
-
-
-
-
 
 
 

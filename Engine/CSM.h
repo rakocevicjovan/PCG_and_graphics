@@ -78,14 +78,13 @@ public:
 		std::vector<SMatrix> projMats;
 		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(3);
 
-		SMatrix lvpMat = lightViewMatrix; //* lightProjMatrix;
+		SMatrix lvMat = lightViewMatrix;
 
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
 			// Obtain the corners in world space
 			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.GetViewMatrix() * camFrustumSubdivisionPMs[i]);	//, cam.GetCameraMatrix()
-
-			projMats.push_back(createLightProjectionMatrix(corners, lvpMat));	// Transform them to light space etc...
+			projMats.push_back(createLightProjectionMatrix(corners, lvMat));	// Transform them to light space etc...
 		}
 
 		return projMats;
@@ -93,4 +92,21 @@ public:
 
 
 
+	std::vector<Frustum> createShadowPassFrusta(const Camera& cam, const SMatrix& dirLightViewMatrix, const SMatrix dirLightCamMatrix)
+	{
+		std::vector<SMatrix> projMats = calcProjMats(cam, dirLightViewMatrix);
+		
+		std::vector<Frustum> frusta;
+		frusta.reserve(projMats.size());
+
+		for (int i = 0; i < projMats.size(); ++i)
+		{
+			//frustumRenderable._transform = projMats[i].Invert() * dirLightCamMatrix;
+			//S_RANDY.render(frustumRenderable);
+
+			frusta.emplace_back(projMats[i] * dirLightCamMatrix);
+		}
+
+		return frusta;
+	}
 };
