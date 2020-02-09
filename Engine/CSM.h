@@ -47,6 +47,7 @@ public:
 			if (pos.z > maxZ) maxZ = pos.z;
 		}
 		
+		/*
 		// Calculate the crop matrix, which should limit the orthographic matrix to only encompass the frustum
 		float Sx = 2.f / (maxX - minX);
 		float Sy = 2.f / (maxY - minY);
@@ -54,7 +55,6 @@ public:
 		float Ox = -0.5 * (maxX + minX) * Sx;
 		float Oy = -0.5 * (minY + minY) * Sy;
 
-		/*
 		SMatrix cropMatrix(
 			Sx, 0., 0., Ox,
 			0., Sy, 0., Oy,
@@ -73,7 +73,7 @@ public:
 
 
 
-	std::vector<SMatrix> calcProjMats(const Camera& cam, const SMatrix& lightViewMatrix, const SMatrix& lightProjMatrix) const
+	std::vector<SMatrix> calcProjMats(const Camera& cam, const SMatrix& lightViewMatrix) const
 	{
 		std::vector<SMatrix> projMats;
 		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(3);
@@ -82,10 +82,8 @@ public:
 
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
-			// In order to obtain the corners in world space, combine camera's view matrix and subdivision projection matrices
-			SMatrix vpm = cam.GetViewMatrix() * camFrustumSubdivisionPMs[i];
-			
-			std::array<SVec3, 8> corners = Frustum::extractCorners(vpm);	// Obtain the corners in world space
+			// Obtain the corners in world space
+			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.GetViewMatrix() * camFrustumSubdivisionPMs[i]);	//, cam.GetCameraMatrix()
 
 			projMats.push_back(createLightProjectionMatrix(corners, lvpMat));	// Transform them to light space etc...
 		}

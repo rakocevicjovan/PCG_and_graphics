@@ -31,8 +31,8 @@ void Frustum::update(const SMatrix& vpm)
 }
 
 
-
-std::array<SVec3, 8> Frustum::extractCorners(const SMatrix& vpMat)
+//this can be slightly faster with pmat precombined with vmat (In row major it's vmat*pmat) because vmat is an inverted cmat
+std::array<SVec3, 8> Frustum::extractCorners(const SMatrix& pMat)	//, const SMatrix& cMat)
 {
 	static const std::array<SVec4, 8> vec4s =
 	{
@@ -46,15 +46,16 @@ std::array<SVec3, 8> Frustum::extractCorners(const SMatrix& vpMat)
 		SVec4(1,  1,  1, 1.) 	//ftr
 	};
 
-	//the vp mat works because view is inverted camera matrix anyways... then it inverts back before transforming
-	SMatrix inv = vpMat.Invert();
+	SMatrix inv = pMat.Invert();
 
 	std::array<SVec3, 8> result;
 	for (int i = 0; i < 8; ++i)
 	{
 		SVec4 temp = SVec4::Transform(vec4s[i], inv);
 		SVec3 res(temp.x, temp.y, temp.z);
-		result[i] = (res / temp.w);
+		res /= temp.w;
+		//res = SVec3::Transform(res, cMat);
+		result[i] = res;
 	}
 
 	return result;

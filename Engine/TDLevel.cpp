@@ -412,22 +412,21 @@ void TDLevel::draw(const RenderContext& rc)
 
 	S_RANDY.render(floorRenderable);
 
-
 	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0) + SVec3(0, 0, 500) * sin(rc.elapsed), SVec3(0, 0, 0), SVec3(0, 0, 1));
 	SMatrix dlCamMatrix = dlViewMatrix.Invert();
-	SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
+	//SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
 
-	Camera c = Camera(SMatrix(), _sys._renderer._cam.GetProjectionMatrix());
+	SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
+	SMatrix rt = SMatrix::CreateRotationY(.5 * PI);
+	Camera c = Camera(rt, _sys._renderer._cam.GetProjectionMatrix());
 
-	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix, dlProjMatrix);
+	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix);
 
 	for (int i = 0; i < projMats.size(); ++i)
 	{
 		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
 		S_RANDY.render(frustumRenderable);
 	}
-	
-
 
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();

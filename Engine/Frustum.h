@@ -25,7 +25,7 @@ public:
 	Frustum(float fov, float ar, float zn, float zf);
 	Frustum(const SMatrix& pm);
 
-	static std::array<SVec3, 8> extractCorners(const SMatrix& vpMat);	// Also works with combined vp matrix to obtain world coordinates
+	static std::array<SVec3, 8> extractCorners(const SMatrix& pMat);//, const SMatrix& cMat);
 	
 	void update(const SMatrix& vpMat);
 	std::vector<float> calcSplitDistances(uint8_t n, float minZ, float maxZ) const;
