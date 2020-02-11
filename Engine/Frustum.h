@@ -3,11 +3,7 @@
 #include <vector>
 #include <array>
 
-#include "Geometry.h"
-#include "GeometricPrimitive.h"
-
 class Camera;
-class SphereHull;
 
 // To draw the frustum for debugging just draw a uniform box (dimensions depends on API) using (camView * camProj).Invert() as world mat
 class Frustum
@@ -31,13 +27,6 @@ public:
 	void update(const SMatrix& vpMat);
 	std::vector<float> calcSplitDistances(uint8_t n, float minZ, float maxZ) const;
 	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n) const;
-
-
-	inline bool Frustum::cull(SphereHull* sp) const
-	{
-		return Col::FrustumSphereIntersection(*this, *sp);
-	}
-
 
 private:
 

@@ -1,7 +1,5 @@
 #pragma once
 #include "Frustum.h"
-#include "Hull.h"
-#include "ColFuncs.h"
 
 
 Frustum::Frustum(const SMatrix& pm)

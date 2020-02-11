@@ -22,6 +22,8 @@ void TDLevel::init(Systems& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);
 	//shg.mix();
 
+	_csm.init(S_DEVICE, 3u, 1280u, 720u);
+
 	Procedural::Geometry g;
 	g.GenBox(SVec3(2., 2., 1.));
 	for (SVec3& gp : g.positions)
@@ -206,7 +208,7 @@ void TDLevel::update(const RenderContext& rc)
 		}
 	}
 
-	cull(rc);
+	cull(*rc.cam);
 }
 
 
@@ -417,19 +419,20 @@ void TDLevel::draw(const RenderContext& rc)
 	SMatrix dlCamMatrix = dlViewMatrix.Invert();
 	//SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
 	
-	/*
+	
 	SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
 	SMatrix rt = SMatrix::CreateRotationY(.5 * PI);
 	Camera c = Camera(rt, _sys._renderer._cam.GetProjectionMatrix());
+	
 
-	*/
-
-	std::vector<Frustum> frusta = _csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
-
-	for (Frustum& f : frusta)
+	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix);
+	//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
+	for (int i = 0; i < projMats.size(); ++i)
 	{
-
+		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
+		S_RANDY.render(frustumRenderable);
 	}
+
 
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
@@ -493,7 +496,7 @@ void TDLevel::cull(const Camera& cam)
 	{
 		for (int j = 0; j < _creeps[i].renderables.size(); ++j)
 		{
-			if (cam._frustum.cull(static_cast<SphereHull*>(_creeps[i]._collider.getHull(j))))
+			if (Col::FrustumSphereIntersection(cam._frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(j))))
 			{
 				_creeps[i].renderables[j].zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
 				S_RANDY.addToRenderQueue(_creeps[i].renderables[j]);
