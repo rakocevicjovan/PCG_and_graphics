@@ -64,10 +64,10 @@ public:
 
 		viewport.Width = w;
 		viewport.Height = h;
-		viewport.MinDepth = 0.0f;
-		viewport.MaxDepth = 1.0f;
-		viewport.TopLeftX = 0.0f;
-		viewport.TopLeftY = 0.0f;
+		viewport.MinDepth = minD;
+		viewport.MaxDepth = maxD;
+		viewport.TopLeftX = tlX;
+		viewport.TopLeftY = tlY;
 
 		return viewport;
 	}

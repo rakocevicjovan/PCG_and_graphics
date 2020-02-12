@@ -21,6 +21,12 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 		{ "POSITION", 0, static_cast<DXGI_FORMAT>(6), 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }	//DXGI_FORMAT_R32G32B32_FLOAT
 	};
 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> pt_layout =
+	{
+		{ "POSITION", 0, static_cast<DXGI_FORMAT>(6), 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
 	std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_layout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -110,6 +116,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	csmVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmVS", csmVS);
 
+	VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});
+	addVertShader("hudVS", hudVS);
+
 	/// PIXEL SHADERS
 
 	// Phong
@@ -125,6 +134,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	PixelShader* CookTorrance = new PixelShader(*_shc, L"CookTorrancePS.hlsl", regularSD, { lightBufferDesc });
 	CookTorrance->describeBuffers({lightBufferMeta});
 	addPixShader("CookTorrancePS", CookTorrance);
+
+	PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});
+	addPixShader("hudPS", hudPS);
 }
 
 

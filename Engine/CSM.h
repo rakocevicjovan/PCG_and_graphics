@@ -12,7 +12,7 @@ class CSM
 	ID3D11Texture2D* _shadowMapArray;
 	std::vector<ID3D11DepthStencilView*> _dsvPtrs;
 	std::vector<D3D11_VIEWPORT> _viewports;
-	ID3D11ShaderResourceView* _shadowResView;
+	ID3D11ShaderResourceView* _shadowResView, *_debugResView;
 
 	// I trust MJP but not myself. Not sure if I even need this but want to know it's purpose.
 	ID3D11DepthStencilView* _readOnlyDSV;
@@ -133,6 +133,20 @@ public:
 			return false;
 		}
 
+
+		// for debugging
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc2;
+		srvDesc2.Format = DXGI_FORMAT_R32_FLOAT;
+		srvDesc2.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc2.Texture2D.MipLevels = 1u;
+		srvDesc2.Texture2D.MostDetailedMip = 0u;
+
+		if (FAILED(device->CreateShaderResourceView(_shadowMapArray, &srvDesc2, &_debugResView)))
+		{
+			OutputDebugStringA("Can't create debug shader resource view. (CSM) \n");
+			return false;
+		}
+
 		return true;
 	}
 
@@ -185,7 +199,11 @@ public:
 		SMatrix projMatrix = Pz * cropMatrix;	// I think this is reversed...
 		*/
 
+		// @TODO these ended up being all the same... I thought it differed at first, move this to single viewport class member
+		//_viewports[vpIndex] = { (FLOAT)0.f, (FLOAT)0.f, (FLOAT)(abs(maxX - minX)), (FLOAT)(abs(maxZ - minZ)), 0.f, 1.f };
+
 		_viewports[vpIndex] = { (FLOAT)0.f, (FLOAT)0.f, (FLOAT)_width, (FLOAT)_height, 0.f, 1.f };
+
 		return DirectX::XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	}
 
@@ -260,6 +278,8 @@ public:
 
 
 	uint8_t getNMaps() { return _nMaps; }
+	ID3D11ShaderResourceView* getResView() { return _shadowResView;}
+	ID3D11ShaderResourceView* getDebugView() { return _debugResView; }
 };
 
 

@@ -23,7 +23,10 @@ void MaterialCache::createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven()
 	addMaterial("PBR", cookTorrance);
 
 	Material* csmMaterial = new Material(_shCache->getVertShader("csmVS"), nullptr, true);
-	addMaterial("csmVS", csmMaterial);
+	addMaterial("csm", csmMaterial);
+
+	Material* hudMaterial = new Material(_shCache->getVertShader("hudVS"), _shCache->getPixShader("hudPS"), true);
+	addMaterial("HUD", hudMaterial);
 }
 
 

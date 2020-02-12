@@ -22,7 +22,7 @@ void TDLevel::init(Systems& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);
 	//shg.mix();
 
-	_csm.init(S_DEVICE, 3u, 1280u, 720u);
+	_csm.init(S_DEVICE, 3u, 1024, 1024u);
 
 	Procedural::Geometry g;
 	g.GenBox(SVec3(2., 2., 1.));
@@ -417,12 +417,13 @@ void TDLevel::draw(const RenderContext& rc)
 	SMatrix dlCamMatrix = dlViewMatrix.Invert();
 
 	
-	SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
+	//SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
 	SMatrix rt = SMatrix::CreateRotationY(.5 * PI);
+	Math::SetTranslation(rt, SVec3(-250, 0., 275.));
 	Camera c = Camera(rt, _sys._renderer._cam.GetProjectionMatrix());
 	
 
-	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix);	//*rc.cam
+	std::vector<SMatrix> projMats = _csm.calcProjMats(*rc.cam, dlViewMatrix);	//*rc.cam
 	_csm.beginShadowPassSequence(S_CONTEXT, S_SHCACHE.getVertShader("csmVS"));
 
 	for (int i = 0; i < _csm.getNMaps(); ++i)
@@ -443,11 +444,11 @@ void TDLevel::draw(const RenderContext& rc)
 	S_RANDY.clearRenderQueue();
 
 	//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
-	for (int i = 0; i < projMats.size(); ++i)
+	/*for (int i = 0; i < projMats.size(); ++i)
 	{
 		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
 		S_RANDY.render(frustumRenderable);
-	}
+	}*/
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
@@ -487,6 +488,18 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	_eco.renderEconomyWidget();
+
+	// Debug texture output, wrap this somewhere, it is very, very useful!
+	/*
+	ImGui::SetNextWindowPos(ImVec2(S_WW - 512, 0), ImGuiCond_Once);
+	ImGui::SetNextWindowSize(ImVec2(512, 512), ImGuiCond_Once);
+
+	ImGui::Begin("Debug csm", false);
+
+	ImGui::Image(_csm.getDebugView(), ImVec2(512, 512));
+
+	ImGui::End();
+	*/
 
 	endGuiFrame();
 

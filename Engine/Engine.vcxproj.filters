@@ -799,9 +799,6 @@
     <None Include="projectTexPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </None>
-    <None Include="rektPS.hlsl">
-      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
-    </None>
     <None Include="projectTexVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </None>
@@ -852,6 +849,9 @@
     </None>
     <None Include="PhysUtils.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="hudPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
