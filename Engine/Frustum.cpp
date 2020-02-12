@@ -64,7 +64,7 @@ std::array<SVec3, 8> Frustum::extractCorners(const SMatrix& pMat)	//, const SMat
 
 std::vector<float> Frustum::calcSplitDistances(uint8_t n, float minZ, float maxZ) const
 {
-	// Alternative 1: return std::vector<float>(n, (maxZ - minZ) / n); //all three same
+	// Alternative 1: return std::vector<float>(n, (maxZ - minZ) / n); //all three distances are the same
 	std::vector<float> result;
 	result.reserve(n);
 
@@ -87,7 +87,7 @@ std::vector<SMatrix> Frustum::createCascadeProjMatrices(uint8_t n) const
 {
 	std::vector<SMatrix> result;
 
-	std::vector<float> zees = calcSplitDistances(3, _zn, _zf);
+	std::vector<float> zees = calcSplitDistances(n, _zn, _zf);
 	float currentNearZ = _zn;
 
 	for (int i = 0; i < zees.size(); ++i)

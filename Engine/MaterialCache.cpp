@@ -13,20 +13,17 @@ void MaterialCache::init(ShaderCache* shaderCache, ResourceManager* resMan)
 //textures must exist separately... a good data driven loading system would clear this up a lot
 void MaterialCache::createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven()
 {
-	Material* floorMat = new Material();
-	floorMat->_opaque = true;
-	floorMat->setVS(_shCache->getVertShader("basicVS"));
-	floorMat->setPS(_shCache->getPixShader("phongPS"));
+	Material* floorMat = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("phongPS"), true);
 	addMaterial("floorMat", floorMat);
 
-	Material* skybox = new Material();
-	skybox->_opaque = true;
-	skybox->setVS(_shCache->getVertShader("skyboxVS"));
-	skybox->setPS(_shCache->getPixShader("skyboxPS"));
+	Material* skybox = new Material(_shCache->getVertShader("skyboxVS"), _shCache->getPixShader("skyboxPS"), true);
 	addMaterial("skybox", skybox);
 
 	Material* cookTorrance = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("CookTorrancePS"), true);
 	addMaterial("PBR", cookTorrance);
+
+	Material* csmMaterial = new Material(_shCache->getVertShader("csmVS"), nullptr, true);
+	addMaterial("csmVS", csmMaterial);
 }
 
 

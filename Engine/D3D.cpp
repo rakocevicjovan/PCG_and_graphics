@@ -216,6 +216,10 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(result))
 		return false;
 
+	depthStencilDesc.DepthEnable = false;
+	depthStencilDesc.StencilEnable = false;
+	result = _device->CreateDepthStencilState(&depthStencilDesc, &_depthStencilNoDepthTest);
+
 	// Set the depth stencil state.
 	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 1);
 
@@ -417,11 +421,16 @@ void D3D::setRSWireframe()
 	_deviceContext->RSSetState(_r_s_wireframe);
 }
 
-void D3D::SwitchDepthToLessEquals()
+void D3D::setDSSNoTest()
+{
+	_deviceContext->OMSetDepthStencilState(_depthStencilNoDepthTest, 1);
+}
+
+void D3D::setDSSLessEquals()
 {
 	_deviceContext->OMSetDepthStencilState(_depthStencilLessEquals, 1);
 }
 
-void D3D::SwitchDepthToDefault(){
+void D3D::setDSSLess(){
 	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 1);
 }

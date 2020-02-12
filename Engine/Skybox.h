@@ -35,7 +35,7 @@ public:
 		auto* context = renderer.context();
 
 		d3d->setRSSolidNoCull();
-		d3d->SwitchDepthToLessEquals();
+		d3d->setDSSLessEquals();
 
 		Math::SetTranslation(_r._transform, cam.GetPosition());
 		
@@ -63,7 +63,7 @@ public:
 		ID3D11ShaderResourceView* unbinder[] = { nullptr };
 		context->PSSetShaderResources(0, 1, unbinder);
 
-		d3d->SwitchDepthToDefault();
+		d3d->setDSSLess();
 		d3d->setRSSolidCull();
 	}
 };

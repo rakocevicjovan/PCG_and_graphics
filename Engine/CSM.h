@@ -1,21 +1,29 @@
 #pragma once
 #include "Camera.h"
 #include "Texture.h"
-#include <d3d11.h>
+#include "ShaderCompiler.h"
+#include "Renderable.h"
 
 class CSM
 {
 	uint8_t _nMaps;
 	UINT _width, _height;
-
-	std::vector<Frustum> _lightFrusta;
 	
 	ID3D11Texture2D* _shadowMapArray;
 	std::vector<ID3D11DepthStencilView*> _dsvPtrs;
+	std::vector<D3D11_VIEWPORT> _viewports;
 	ID3D11ShaderResourceView* _shadowResView;
 
 	// I trust MJP but not myself. Not sure if I even need this but want to know it's purpose.
-	ID3D11DepthStencilView* _readOnlyDSV;		
+	ID3D11DepthStencilView* _readOnlyDSV;
+
+	std::vector<SMatrix> _lvpMats;
+	ID3D11InputLayout* _inLay;
+
+	ID3D11Buffer* _wmBuffer;
+	ID3D11Buffer* _lvpBuffer;
+
+	//std::vector<Frustum> _lightFrusta;
 
 	// Alternative... I will want to use the pixel shader later to deal with transparency, for now only the depth stencil buffer.
 	//std::vector<ID3D11Texture2D*> _shadowMaps;
@@ -26,18 +34,36 @@ public:
 
 	bool init(ID3D11Device* device, uint8_t nMaps, UINT width, UINT height)
 	{
+		// Set the required parameters
 		_width = width;
 		_height = height;
 		_nMaps = nMaps;
 
 		_dsvPtrs.reserve(nMaps);
 
+		_lvpMats.resize(nMaps);
+		_viewports.resize(nMaps);
 
-		// initialize n textures for shadow mapping... could be depth stencil only for starters, but transparent objects...
 
-		//DXGI_FORMAT format = DXGI_FORMAT_D32_FLOAT;
-		//uint32_t bindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		// Initialize buffers used by the csm shader
 
+		auto lptBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix));
+		
+		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_lvpBuffer)))
+		{
+			OutputDebugStringA("Failed to create CSM light view projection matrix buffer. ");
+			return false;
+		}
+
+
+		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_wmBuffer)))
+		{
+			OutputDebugStringA("Failed to create CSM world matrix buffer. ");
+			return false;
+		}
+
+
+		// Initialize GPU resources for shadow mapping... could be depth stencil only for starters, but transparent objects...
 
 		D3D11_TEXTURE2D_DESC texDesc = Texture::create2DTexDesc(
 			_width, _height, DXGI_FORMAT_R32_TYPELESS, D3D11_USAGE_DEFAULT,
@@ -113,13 +139,13 @@ public:
 
 
 	// Expects input frustum corners to be in world space
-	SMatrix createLightProjectionMatrix(const std::array<SVec3, 8>& corners, const SMatrix& lvpMat) const
+	SMatrix createLightProjectionMatrix(const std::array<SVec3, 8>& corners, const SMatrix& lvMat, uint8_t vpIndex)
 	{
 		float minX, maxX;
 		float minY, maxY;
 		float minZ, maxZ;
 
-		minX = minY = minZ = 999999.f;	//use limits...
+		minX = minY = minZ = 999999.f;	//could use limits instead...
 		maxX = maxY = maxZ = -999999.f;
 
 		std::array<SVec3, 8> lViewSpaceCorners;
@@ -127,7 +153,7 @@ public:
 		// Transform the world space positions of frustum coordinates into light's clip space
 		for (int i = 0; i < corners.size(); ++i)
 		{
-			SVec3 pos = SVec3::Transform(corners[i], lvpMat);
+			SVec3 pos = SVec3::Transform(corners[i], lvMat);
 			lViewSpaceCorners[i] = pos;
 
 			if (pos.x < minX) minX = pos.x;
@@ -159,47 +185,101 @@ public:
 		SMatrix projMatrix = Pz * cropMatrix;	// I think this is reversed...
 		*/
 
-		SMatrix Pz = DirectX::XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
-
-		return Pz;
+		_viewports[vpIndex] = { (FLOAT)0.f, (FLOAT)0.f, (FLOAT)_width, (FLOAT)_height, 0.f, 1.f };
+		return DirectX::XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	}
 
 
 
-	std::vector<SMatrix> calcProjMats(const Camera& cam, const SMatrix& lightViewMatrix) const
+	std::vector<SMatrix> calcProjMats(const Camera& cam, const SMatrix& lightViewMatrix)
 	{
 		std::vector<SMatrix> projMats;
-		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(3);
+		projMats.reserve(_nMaps);
 
-		SMatrix lvMat = lightViewMatrix;
+		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(_nMaps);
 
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
 			// Obtain the corners in world space
 			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.GetViewMatrix() * camFrustumSubdivisionPMs[i]);	//, cam.GetCameraMatrix()
-			projMats.push_back(createLightProjectionMatrix(corners, lvMat));	// Transform them to light space etc...
+			projMats.push_back(createLightProjectionMatrix(corners, lightViewMatrix, i));	// Transform them to light space etc...
+			_lvpMats[i] = lightViewMatrix * projMats.back();
 		}
 
 		return projMats;
 	}
 
 
-
-	std::vector<Frustum> createShadowPassFrusta(const Camera& cam, const SMatrix& dirLightViewMatrix, const SMatrix dirLightCamMatrix)
+	// All of this below will probably be refactored to just return it's state and not set it directly...
+	void beginShadowPassSequence(ID3D11DeviceContext* context, VertexShader* vs)
 	{
-		std::vector<SMatrix> projMats = calcProjMats(cam, dirLightViewMatrix);
-		
-		std::vector<Frustum> frusta;
-		frusta.reserve(projMats.size());
+		context->VSSetShader(vs->_vsPtr, nullptr, 0);
+		context->PSSetShader(NULL, nullptr, 0);
 
-		for (int i = 0; i < projMats.size(); ++i)
-		{
-			//frustumRenderable._transform = projMats[i].Invert() * dirLightCamMatrix;
-			//S_RANDY.render(frustumRenderable);
-
-			frusta.emplace_back(projMats[i] * dirLightCamMatrix);
-		}
-
-		return frusta;
+		_inLay = vs->_layout;
 	}
+
+
+
+	void beginShadowPassN(ID3D11DeviceContext* context, uint8_t n)
+	{
+		context->ClearDepthStencilView(_dsvPtrs[n], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+		context->OMSetRenderTargets(0, nullptr, _dsvPtrs[n]);
+
+		context->RSSetViewports(1, &(_viewports[n]));
+
+		SMatrix lvpMatTranspose = _lvpMats[n].Transpose();
+		CBuffer::updateWholeBuffer(context, _lvpBuffer, &lvpMatTranspose, sizeof(SMatrix));
+		context->VSSetConstantBuffers(1, 1, &_lvpBuffer);
+	}
+
+
+
+	void drawToCurrentShadowPass(ID3D11DeviceContext* context, Renderable& r)
+	{
+		//r.updateBuffersAuto(_deviceContext);
+		//r.setBuffers(_deviceContext);
+
+		SMatrix transformTranspose = r._transform.Transpose();
+		CBuffer::updateWholeBuffer(context, _wmBuffer, &transformTranspose, sizeof(SMatrix));
+		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
+
+		context->IASetInputLayout(_inLay);
+
+		context->IASetPrimitiveTopology(r.mat->primitiveTopology);
+
+		UINT stride = r.mesh->getStride();
+		UINT offset = r.mesh->getOffset();
+
+		context->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
+		context->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+		context->DrawIndexed(r.mesh->indexCount, 0, 0);
+	}
+
+
+	uint8_t getNMaps() { return _nMaps; }
 };
+
+
+
+/* Can be an useful function but not needed right now
+std::vector<Frustum> createShadowPassFrusta(const Camera& cam, const SMatrix& dirLightViewMatrix, const SMatrix dirLightCamMatrix)
+{
+	std::vector<SMatrix> projMats = calcProjMats(cam, dirLightViewMatrix);
+
+	std::vector<Frustum> frusta;
+	frusta.reserve(projMats.size());
+
+	for (int i = 0; i < projMats.size(); ++i)
+	{
+		//frustumRenderable._transform = projMats[i].Invert() * dirLightCamMatrix;
+		//S_RANDY.render(frustumRenderable);
+
+		frusta.emplace_back(projMats[i] * dirLightCamMatrix);
+	}
+
+	return frusta;
+}
+*/

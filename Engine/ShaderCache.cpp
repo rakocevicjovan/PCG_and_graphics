@@ -106,6 +106,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	instancedVS->describeBuffers({ WMBufferMeta });
 	addVertShader("instancedVS", instancedVS);
 
+	VertexShader* csmVS = new VertexShader(*_shc, L"CSMVS.hlsl", p_layout, { WMBufferDesc });
+	csmVS->describeBuffers({ WMBufferMeta });
+	addVertShader("csmVS", csmVS);
 
 	/// PIXEL SHADERS
 

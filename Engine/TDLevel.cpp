@@ -36,7 +36,6 @@ void TDLevel::init(Systems& sys)
 	frustumRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
 	frustumRenderable.mat->setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
 
-
 	S_INMAN.registerController(&_tdController);
 
 	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
@@ -412,31 +411,43 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 
-	S_RANDY.render(floorRenderable);
-
-	
-	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 500, 0) + SVec3(0, 0, 500) * sin(rc.elapsed), SVec3(0, 0, 0), SVec3(0, 0, 1));
+	// CSM testing code
+	/*+ SVec3(0, 0, 500) * sin(rc.elapsed)*/
+	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
 	SMatrix dlCamMatrix = dlViewMatrix.Invert();
-	//SMatrix dlProjMatrix = DirectX::XMMatrixOrthographicLH(1024, 1024, 1, 600);
-	
+
 	
 	SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
 	SMatrix rt = SMatrix::CreateRotationY(.5 * PI);
 	Camera c = Camera(rt, _sys._renderer._cam.GetProjectionMatrix());
 	
 
-	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix);
+	std::vector<SMatrix> projMats = _csm.calcProjMats(c, dlViewMatrix);	//*rc.cam
+	_csm.beginShadowPassSequence(S_CONTEXT, S_SHCACHE.getVertShader("csmVS"));
+
+	for (int i = 0; i < _csm.getNMaps(); ++i)
+	{
+		_csm.beginShadowPassN(S_CONTEXT, i);
+
+		_csm.drawToCurrentShadowPass(S_CONTEXT, floorRenderable);
+
+		//for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep.renderables[0]);
+	}
+
+	S_RANDY.setDefaultRenderTarget();
+
+	S_RANDY.render(floorRenderable);
+
+	S_RANDY.sortRenderQueue();
+	//S_RANDY.flushRenderQueue();
+	S_RANDY.clearRenderQueue();
+
 	//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
 	for (int i = 0; i < projMats.size(); ++i)
 	{
 		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
 		S_RANDY.render(frustumRenderable);
 	}
-
-
-	S_RANDY.sortRenderQueue();
-	S_RANDY.flushRenderQueue();
-	S_RANDY.clearRenderQueue();
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
