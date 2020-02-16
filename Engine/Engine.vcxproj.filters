@@ -983,5 +983,11 @@
     <FxCompile Include="csmVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
+    <FxCompile Include="csmScenePS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="csmSceneVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

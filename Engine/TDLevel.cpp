@@ -22,7 +22,7 @@ void TDLevel::init(Systems& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);
 	//shg.mix();
 
-	_csm.init(S_DEVICE, 3u, 1024, 1024u);
+	_csm.init(S_DEVICE, 3u, 1024u, 1024u);
 
 	Procedural::Geometry g;
 	g.GenBox(SVec3(2., 2., 1.));
@@ -58,9 +58,9 @@ void TDLevel::init(Systems& sys)
 
 	//generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
-	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
+	/*Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
-	floorMesh.textures.push_back(floorTex);
+	floorMesh.textures.push_back(floorTex);*/
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
 	floorMesh._baseMaterial.pLight = &pLight;
 	
