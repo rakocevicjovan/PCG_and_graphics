@@ -256,7 +256,7 @@ public:
 
 	void drawToCurrentShadowPass(ID3D11DeviceContext* context, Renderable& r)
 	{
-		//r.updateBuffersAuto(_deviceContext);
+		//r.updateBuffersAuto(context);
 		//r.setBuffers(_deviceContext);
 
 		SMatrix transformTranspose = r._transform.Transpose();
@@ -275,6 +275,10 @@ public:
 
 		context->DrawIndexed(r.mesh->indexCount, 0, 0);
 	}
+
+
+
+
 
 
 	uint8_t getNMaps() { return _nMaps; }

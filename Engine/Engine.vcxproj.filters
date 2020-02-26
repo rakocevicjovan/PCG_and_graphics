@@ -221,16 +221,7 @@
     <ClCompile Include="Audio.cpp">
       <Filter>Main systems</Filter>
     </ClCompile>
-    <ClCompile Include="Chaos.cpp">
-      <Filter>Main systems</Filter>
-    </ClCompile>
-    <ClCompile Include="GameClock.cpp">
-      <Filter>Main systems</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Main systems</Filter>
-    </ClCompile>
-    <ClCompile Include="Math.cpp">
       <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="Systems.cpp">
@@ -311,9 +302,6 @@
     <ClCompile Include="Hull.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
-    <ClCompile Include="Celestials.cpp">
-      <Filter>Rendering\Lights</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
@@ -386,22 +374,22 @@
     <ClCompile Include="CubeMapper.cpp">
       <Filter>Rendering\AAA Improved</Filter>
     </ClCompile>
+    <ClCompile Include="Chaos.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Math.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="GameClock.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Math.h">
-      <Filter>Main systems</Filter>
-    </ClInclude>
     <ClInclude Include="Systems.h">
-      <Filter>Main systems</Filter>
-    </ClInclude>
-    <ClInclude Include="GameClock.h">
       <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Perlin.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="Chaos.h">
-      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Procedural</Filter>
@@ -510,9 +498,6 @@
     </ClInclude>
     <ClInclude Include="TDLevel.h">
       <Filter>TowerDefense</Filter>
-    </ClInclude>
-    <ClInclude Include="FileUtilities.h">
-      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPicker.h">
       <Filter>Resources</Filter>
@@ -631,9 +616,6 @@
     <ClInclude Include="InputManager.h">
       <Filter>Input</Filter>
     </ClInclude>
-    <ClInclude Include="Logger.h">
-      <Filter>Main systems</Filter>
-    </ClInclude>
     <ClInclude Include="TDController.h">
       <Filter>TowerDefense</Filter>
     </ClInclude>
@@ -697,17 +679,11 @@
     <ClInclude Include="TextureGen.h">
       <Filter>Procedural</Filter>
     </ClInclude>
-    <ClInclude Include="Celestials.h">
-      <Filter>Rendering\Lights</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderSkybox.h">
       <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
       <Filter>Rendering\DeprMaterials</Filter>
-    </ClInclude>
-    <ClInclude Include="Files.h">
-      <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="ShaderClipper.h">
       <Filter>Rendering\DeprMaterials</Filter>
@@ -792,6 +768,24 @@
     </ClInclude>
     <ClInclude Include="CSM.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSource.h">
+      <Filter>Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Chaos.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="GameClock.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="FileUtilities.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

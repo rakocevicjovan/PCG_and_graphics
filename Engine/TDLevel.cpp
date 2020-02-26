@@ -60,8 +60,8 @@ void TDLevel::init(Systems& sys)
 	floorMesh = Mesh(terrain, S_DEVICE);
 	/*Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
-	floorMesh.textures.push_back(floorTex);*/
-	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
+	floorMesh.textures.push_back(floorTex);
+	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });*/
 	floorMesh._baseMaterial.pLight = &pLight;
 	
 	floorRenderable = Renderable(floorMesh);
@@ -432,9 +432,10 @@ void TDLevel::draw(const RenderContext& rc)
 
 		_csm.drawToCurrentShadowPass(S_CONTEXT, floorRenderable);
 
-		//for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep.renderables[0]);
+		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep.renderables[0]);
 	}
 
+	// Scene rendering code
 	S_RANDY.setDefaultRenderTarget();
 
 	S_RANDY.render(floorRenderable);
@@ -490,7 +491,7 @@ void TDLevel::draw(const RenderContext& rc)
 	_eco.renderEconomyWidget();
 
 	// Debug texture output, wrap this somewhere, it is very, very useful!
-	/*
+	
 	ImGui::SetNextWindowPos(ImVec2(S_WW - 512, 0), ImGuiCond_Once);
 	ImGui::SetNextWindowSize(ImVec2(512, 512), ImGuiCond_Once);
 
@@ -499,7 +500,7 @@ void TDLevel::draw(const RenderContext& rc)
 	ImGui::Image(_csm.getDebugView(), ImVec2(512, 512));
 
 	ImGui::End();
-	*/
+	
 
 	endGuiFrame();
 

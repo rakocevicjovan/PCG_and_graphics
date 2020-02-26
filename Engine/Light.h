@@ -65,3 +65,10 @@ struct SpotLight : PointLight
 	SpotLight() {}
 	SpotLight(PointLight pl, SVec3 coneAxis, float dotProdMin) : PointLight(pl), coneAxisAngle(coneAxisAngle) {}
 };
+
+
+
+struct PBRLight
+{
+	SVec4 colourIntensity;
+};

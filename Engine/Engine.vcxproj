@@ -177,7 +177,6 @@
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="BitMapper.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Celestials.cpp" />
     <ClCompile Include="Chaos.cpp" />
     <ClCompile Include="CloudVolumeGenerator.cpp" />
     <ClCompile Include="Collider.cpp" />
@@ -263,6 +262,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="CSM.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="LightSource.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h" />
     <ClInclude Include="Bits.h" />
@@ -274,7 +274,6 @@
     <ClInclude Include="Controls.h" />
     <ClInclude Include="Economy.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="Files.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="HashOctree.h" />
     <ClInclude Include="IndustrialBuilding.h" />
@@ -292,7 +291,6 @@
     <ClInclude Include="Biome.h" />
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Celestials.h" />
     <ClInclude Include="Chaos.h" />
     <ClInclude Include="CloudscapeDefinition.h" />
     <ClInclude Include="CloudVolumeGenerator.h" />

@@ -116,8 +116,11 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	csmVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmVS", csmVS);
 
-	VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});
-	addVertShader("hudVS", hudVS);
+	//VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
+
+	VertexShader* csmSceneVS = new VertexShader(*_shc, L"csmSceneVS.hlsl", p_layout, { WMBufferDesc });
+	csmSceneVS->describeBuffers({ WMBufferMeta });
+	addVertShader("csmSceneVS", csmSceneVS);
 
 	/// PIXEL SHADERS
 
@@ -135,8 +138,7 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	CookTorrance->describeBuffers({lightBufferMeta});
 	addPixShader("CookTorrancePS", CookTorrance);
 
-	PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});
-	addPixShader("hudPS", hudPS);
+	//PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});	addPixShader("hudPS", hudPS);
 }
 
 
