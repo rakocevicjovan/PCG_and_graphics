@@ -118,7 +118,7 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	//VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
 
-	VertexShader* csmSceneVS = new VertexShader(*_shc, L"csmSceneVS.hlsl", p_layout, { WMBufferDesc });
+	VertexShader* csmSceneVS = new VertexShader(*_shc, L"csmSceneVS.hlsl", ptn_layout, { WMBufferDesc });
 	csmSceneVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmSceneVS", csmSceneVS);
 
