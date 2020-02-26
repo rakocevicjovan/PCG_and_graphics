@@ -769,9 +769,6 @@
     <ClInclude Include="CSM.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="LightSource.h">
-      <Filter>Rendering\Lights</Filter>
-    </ClInclude>
     <ClInclude Include="Chaos.h">
       <Filter>Utils</Filter>
     </ClInclude>

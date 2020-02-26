@@ -65,8 +65,8 @@ void TDLevel::init(Systems& sys)
 	floorMesh._baseMaterial.pLight = &pLight;
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
-	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("phongPS"));
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
 
 	_octree.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it's really big, probably not worth it for my game

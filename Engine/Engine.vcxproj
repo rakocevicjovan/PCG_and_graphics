@@ -262,7 +262,6 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="CSM.h" />
     <ClInclude Include="IBuffer.h" />
-    <ClInclude Include="LightSource.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h" />
     <ClInclude Include="Bits.h" />

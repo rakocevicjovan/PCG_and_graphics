@@ -1,6 +1,7 @@
 #include "ShaderCache.h"
 #include "ShaderDataStructs.h"
 #include "Math.h"
+#include <assert.h>
 
 
 
@@ -83,16 +84,16 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	// Constant buffer descriptions, although it can be reflected
 
-	D3D11_BUFFER_DESC WMBufferDesc;
-	WMBufferDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
-	CBufferMeta WMBufferMeta(0, sizeof(SMatrix));
+	D3D11_BUFFER_DESC WMBufferDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
+	CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
 	WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
 
-	D3D11_BUFFER_DESC lightBufferDesc;
-	lightBufferDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
-	CBufferMeta lightBufferMeta(0, sizeof(LightBuffer));
+	D3D11_BUFFER_DESC lightBufferDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
+	CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
 	lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
 
+	D3D11_BUFFER_DESC shadowBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 3 + sizeof(SVec4));
+	//CBufferMeta shadowBufferMeta(0, shadowBufferDesc.ByteWidth);
 
 
 	/// VERTEX SHADERS
@@ -116,11 +117,12 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	csmVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmVS", csmVS);
 
-	//VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
-
 	VertexShader* csmSceneVS = new VertexShader(*_shc, L"csmSceneVS.hlsl", ptn_layout, { WMBufferDesc });
 	csmSceneVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmSceneVS", csmSceneVS);
+
+	//VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
+
 
 	/// PIXEL SHADERS
 
@@ -139,6 +141,11 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	addPixShader("CookTorrancePS", CookTorrance);
 
 	//PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});	addPixShader("hudPS", hudPS);
+
+	// CSM Scene shader
+	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", regularSD, { shadowBufferDesc });
+	//csmScenePs->describeBuffers({ lightBufferMeta });
+	addPixShader("csmScenePS", csmScenePs);
 }
 
 
@@ -147,7 +154,7 @@ VertexShader* ShaderCache::getVertShader(const std::string& name)
 {
 	std::unordered_map<std::string, VertexShader*>::const_iterator found = _vsMap.find(name);
 	if (found == _vsMap.end())
-		return nullptr;
+		assert(false && "VERTEX SHADER NOT FOUND!");
 	else
 		return found->second;
 }
@@ -158,7 +165,7 @@ PixelShader* ShaderCache::getPixShader(const std::string& name)
 {
 	std::unordered_map<std::string, PixelShader*>::const_iterator found = _psMap.find(name);
 	if (found == _psMap.end())
-		return nullptr;
+		assert(false && "PIXEL SHADER NOT FOUND!");
 	else
 		return found->second;
 }
