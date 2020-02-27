@@ -32,7 +32,7 @@ struct PixelInputType
 
 
 #define NUM_CASCADES 3
-cbuffer ShadowBuffer : register(b12)
+cbuffer ShadowBuffer : register(b11)
 {
 	matrix lvpMatrix[NUM_CASCADES];
 	float4 cascadeLimits;			//rudimentary but ok for now, I will hardly need more than 4 cascades anyways

@@ -25,8 +25,8 @@ public:
 	static std::array<SVec3, 8> extractCorners(const SMatrix& pMat);//, const SMatrix& cMat);
 	
 	void update(const SMatrix& vpMat);
-	std::vector<float> calcSplitDistances(uint8_t n, float minZ, float maxZ) const;
-	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n) const;
+	std::vector<float> calcSplitDistances(uint8_t n) const;
+	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n, const std::vector<float>& zees) const;
 
 private:
 

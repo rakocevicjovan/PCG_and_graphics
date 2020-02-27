@@ -88,7 +88,7 @@ public:
 
 	bool initialize(int wWidth, int wHeight, HWND wHandle, D3D& d3d);
 	bool frame(float dTime);
-	bool updatePerFrameBuffer(float dTime);
+	bool updatePerFrameBuffers(float dTime);
 	
 	void setOSTRenderTarget(OST& ost);
 	void setDefaultRenderTarget();

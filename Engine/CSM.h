@@ -4,6 +4,15 @@
 #include "ShaderCompiler.h"
 #include "Renderable.h"
 
+
+struct ShadowBufferData
+{
+	SMatrix lvpMatrices[3];
+	SVec4 cascadeLimits;			//rudimentary but ok for now, I will hardly need more than 4 cascades anyways
+};
+
+
+
 class CSM
 {
 	uint8_t _nMaps;
@@ -18,17 +27,16 @@ class CSM
 	ID3D11DepthStencilView* _readOnlyDSV;
 
 	std::vector<SMatrix> _lvpMats;
+	std::vector<float> _distances;
 	ID3D11InputLayout* _inLay;
 
 	ID3D11Buffer* _wmBuffer;
 	ID3D11Buffer* _lvpBuffer;
+	ID3D11Buffer* _shadowBuffer;
 
-	//std::vector<Frustum> _lightFrusta;
+	ShadowBufferData _shBuffData;
 
 	// Alternative... I will want to use the pixel shader later to deal with transparency, for now only the depth stencil buffer.
-	//std::vector<ID3D11Texture2D*> _shadowMaps;
-	//std::vector<ID3D11ShaderResourceView*> _shadowResViews;
-	//std::vector<ID3D11RenderTargetView*> _shadowRTVs;
 
 public:
 
@@ -48,17 +56,23 @@ public:
 		// Initialize buffers used by the csm shader
 
 		auto lptBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix));
-		
 		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_lvpBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM light view projection matrix buffer. ");
 			return false;
 		}
 
-
-		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_wmBuffer)))
+		auto wmBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix));
+		if (FAILED(device->CreateBuffer(&wmBufferDesc, NULL, &_wmBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM world matrix buffer. ");
+			return false;
+		}
+
+		auto shadowBufferDesc = ShaderCompiler::createBufferDesc(sizeof(ShadowBufferData));
+		if (FAILED(device->CreateBuffer(&shadowBufferDesc, NULL, &_shadowBuffer)))
+		{
+			OutputDebugStringA("Failed to create CSM shadow buffer. ");
 			return false;
 		}
 
@@ -214,7 +228,8 @@ public:
 		std::vector<SMatrix> projMats;
 		projMats.reserve(_nMaps);
 
-		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(_nMaps);
+		_distances = cam._frustum.calcSplitDistances(_nMaps);
+		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(_nMaps, _distances);
 
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
@@ -248,6 +263,7 @@ public:
 		context->RSSetViewports(1, &(_viewports[n]));
 
 		SMatrix lvpMatTranspose = _lvpMats[n].Transpose();
+		_shBuffData.lvpMatrices[n] = lvpMatTranspose;
 		CBuffer::updateWholeBuffer(context, _lvpBuffer, &lvpMatTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(1, 1, &_lvpBuffer);
 	}
@@ -259,6 +275,7 @@ public:
 		//r.updateBuffersAuto(context);
 		//r.setBuffers(_deviceContext);
 
+		//this is not flexible, it must use the above somehow in order to work properly //@TODO
 		SMatrix transformTranspose = r._transform.Transpose();
 		CBuffer::updateWholeBuffer(context, _wmBuffer, &transformTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
@@ -278,6 +295,44 @@ public:
 
 
 
+	void drawToSceneWithCSM(ID3D11DeviceContext* context, Renderable& r)
+	{
+		context->VSSetShader(r.mat->getVS()->_vsPtr, nullptr, 0);
+		context->PSSetShader(r.mat->getPS()->_psPtr, nullptr, 0);
+
+		// Again, bad, needs to be more flexible... but put together the pieces for now
+		SMatrix transformTranspose = r._transform.Transpose();
+		CBuffer::updateWholeBuffer(context, r.mat->getVS()->_cbuffers[0]._cbPtr, &transformTranspose, sizeof(SMatrix));
+		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
+
+		//_shBuffData.lvpMatrices = _lvpMats;
+		_shBuffData.cascadeLimits = SVec4(_distances.data());	//unsafe...
+		CBuffer::updateWholeBuffer(context, _shadowBuffer, &_shBuffData, sizeof(_shBuffData));
+		context->PSSetConstantBuffers(11, 1, &_shadowBuffer);
+
+
+		// Bind usual textures
+		r.mat->bindTextures(context);
+		context->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
+
+		// Bind shadow map array
+		context->PSSetShaderResources(11, 1, &_shadowResView);
+
+		context->IASetInputLayout(r.mat->getVS()->_layout);
+		context->IASetPrimitiveTopology(r.mat->primitiveTopology);
+
+		UINT stride = r.mesh->getStride();
+		UINT offset = r.mesh->getOffset();
+
+		context->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
+		context->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+		context->DrawIndexed(r.mesh->indexCount, 0, 0);
+
+		// Unvind shadow map array
+		ID3D11ShaderResourceView *const pSRV[1] = { NULL };
+		context->PSSetShaderResources(11, 1, pSRV);
+	}
 
 
 

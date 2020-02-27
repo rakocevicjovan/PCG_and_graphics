@@ -67,12 +67,12 @@ bool Renderer::frame(float dTime)
 
 	updateRenderContext(dTime);
 
-	return updatePerFrameBuffer(dTime);
+	return updatePerFrameBuffers(dTime);
 }
 
 
 
-bool Renderer::updatePerFrameBuffer(float dTime)
+bool Renderer::updatePerFrameBuffers(float dTime)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	

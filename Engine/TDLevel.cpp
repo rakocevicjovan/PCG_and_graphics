@@ -58,10 +58,10 @@ void TDLevel::init(Systems& sys)
 
 	//generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
-	/*Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
+	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
 	floorMesh.textures.push_back(floorTex);
-	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });*/
+	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
 	floorMesh._baseMaterial.pLight = &pLight;
 	
 	floorRenderable = Renderable(floorMesh);
@@ -434,11 +434,13 @@ void TDLevel::draw(const RenderContext& rc)
 
 		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep.renderables[0]);
 	}
+	//_csm.endShadowPassSequence(S_CONTEXT);
 
 	// Scene rendering code
 	S_RANDY.setDefaultRenderTarget();
 
-	S_RANDY.render(floorRenderable);
+	//S_RANDY.render(floorRenderable);
+	_csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 
 	S_RANDY.sortRenderQueue();
 	//S_RANDY.flushRenderQueue();
