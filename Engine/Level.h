@@ -59,6 +59,8 @@ public:
 
 	bool finished = false;
 
+
+	// This is not supposed to be here, create a GUI class and move all IMGUI utilities and wrappers into it! @TODO
 	void startGuiFrame()
 	{
 		ImGui_ImplDX11_NewFrame();
