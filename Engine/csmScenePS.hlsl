@@ -39,7 +39,7 @@ cbuffer ShadowBuffer : register(b11)
 }
 
 Texture2D shaderTexture : register(t0);
-Texture2DArray<float> csms : register(t10);
+Texture2DArray<float> csms : register(t11);
 
 SamplerState SampleType;
 
@@ -52,36 +52,30 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
-
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
 
-	//texture colour
 	float4 colour = shaderTexture.Sample(SampleType, input.tex);
 
-	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);
 
-
-
-	// Determine whether the pixel is shadowed or not	
-
-	//Check how far it is from the camera compared to cascade far planes
-	float4 fComparison = (input.depth > cascadeLimits[0]);
+	// Determine whether the pixel is shadowed or not
+	// Check how far it is from the camera compared to cascade far planes
+	float4 fComparison = float4(input.depth > cascadeLimits[0], input.depth > cascadeLimits[1], input.depth > cascadeLimits[2], input.depth > cascadeLimits[3]);
 
 	// Determine which cascade it is in, up to NUM_CASCADES
 	float fIndex = dot(float4(NUM_CASCADES > 0, NUM_CASCADES > 1, NUM_CASCADES > 2, NUM_CASCADES > 3), fComparison);
-	fIndex = min(fIndex, NUM_CASCADES);
-	int index = (int)fIndex;
+	int index = (int)(min(fIndex, NUM_CASCADES));
 
 	// Using the selected cascade's light view projection matrix, determine the pixel's position in light space
 	float4 shadowCoord = mul(input.worldPos, lvpMatrix[index]);
+	float2 shadowCoord2 = float2(shadowCoord.x / shadowCoord.w / 2.0f + 0.5f, -shadowCoord.y / shadowCoord.w / 2.0f + 0.5f);
 
 	// Using the selected cascade's shadow map, determine the depth of the closest pixel to the light along the light direction ray
-	float closestDepth = csms.Sample(SampleType, float3(shadowCoord.xy, index));
+	float closestDepth = csms.Sample(SampleType, float3(shadowCoord2.x, shadowCoord2.y, index)).x;
 
 	// Compare the two - only the pixels closest to the light will be directly illuminated
 	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
-	float lit = step(closestDepth, shadowCoord.z);	// MIGHT WANT TO MAX(lit, minLight) THIS TO AVOID DARK SHADOWS
+	float lit = step(closestDepth + 0.000001, shadowCoord.z);	// MIGHT WANT TO MAX(lit, minLight) THIS TO AVOID DARK SHADOWS
 
 	//calculate diffuse light
 	float diffIntensity = 0.f;
@@ -96,5 +90,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	colour.rgb = gammaCorrect(colour.xyz, 1.f / 2.2f);
 
 	colour.a = 1.f;
+
 	return colour;
 }

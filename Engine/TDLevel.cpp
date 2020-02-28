@@ -443,7 +443,7 @@ void TDLevel::draw(const RenderContext& rc)
 	_csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 
 	S_RANDY.sortRenderQueue();
-	//S_RANDY.flushRenderQueue();
+	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
 
 	//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);

@@ -77,7 +77,7 @@ public:
 		if (!map(cont, cbuffer, mappedResource))
 			return false;
 
-		memcpy(static_cast<UCHAR*>(mappedResource.pData), data, size);
+		memcpy(mappedResource.pData, data, size);
 		
 		unmap(cont, cbuffer);
 	}

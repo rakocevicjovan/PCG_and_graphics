@@ -300,12 +300,14 @@ public:
 		context->VSSetShader(r.mat->getVS()->_vsPtr, nullptr, 0);
 		context->PSSetShader(r.mat->getPS()->_psPtr, nullptr, 0);
 
+		r.mat->getPS()->updateBuffersAuto(context, r);
+		r.mat->getPS()->setBuffers(context);
+
 		// Again, bad, needs to be more flexible... but put together the pieces for now
 		SMatrix transformTranspose = r._transform.Transpose();
 		CBuffer::updateWholeBuffer(context, r.mat->getVS()->_cbuffers[0]._cbPtr, &transformTranspose, sizeof(SMatrix));
-		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
+		context->VSSetConstantBuffers(0, 1, &(r.mat->getVS()->_cbuffers[0]._cbPtr));
 
-		//_shBuffData.lvpMatrices = _lvpMats;
 		_shBuffData.cascadeLimits = SVec4(_distances.data());	//unsafe...
 		CBuffer::updateWholeBuffer(context, _shadowBuffer, &_shBuffData, sizeof(_shBuffData));
 		context->PSSetConstantBuffers(11, 1, &_shadowBuffer);
@@ -329,7 +331,7 @@ public:
 
 		context->DrawIndexed(r.mesh->indexCount, 0, 0);
 
-		// Unvind shadow map array
+		// Unbind shadow map array
 		ID3D11ShaderResourceView *const pSRV[1] = { NULL };
 		context->PSSetShaderResources(11, 1, pSRV);
 	}

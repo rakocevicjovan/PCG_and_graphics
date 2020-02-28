@@ -144,7 +144,7 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	// CSM Scene shader
 	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", regularSD, { shadowBufferDesc });
-	//csmScenePs->describeBuffers({ lightBufferMeta });
+	csmScenePs->describeBuffers({ lightBufferMeta });
 	addPixShader("csmScenePS", csmScenePs);
 }
 

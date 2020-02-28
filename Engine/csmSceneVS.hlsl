@@ -38,16 +38,18 @@ PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
 
+	input.position.w = 1.;
+
 	output.worldPos = mul(input.position, worldMatrix);
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
+
+	output.depth = output.position.z;
 
 	output.tex = input.tex;
 
 	output.normal = mul(input.normal, (float3x3)worldMatrix);		//transpose(inverse((float3x3)worldMatrix)) with non-uniform scaling
 	output.normal = normalize(output.normal);
-
-	output.depth = output.worldPos.z;
 
 	return output;
 }
