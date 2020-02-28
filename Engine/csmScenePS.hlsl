@@ -54,17 +54,13 @@ float4 main(PixelInputType input) : SV_TARGET
 	float3 invLightDir = -lightDir;
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
 
-	float4 colour = shaderTexture.Sample(SampleType, input.tex);
-
-	float4 ambient = calcAmbient(alc, ali);
-
 	// Determine whether the pixel is shadowed or not
 	// Check how far it is from the camera compared to cascade far planes
 	float4 fComparison = float4(input.depth > cascadeLimits[0], input.depth > cascadeLimits[1], input.depth > cascadeLimits[2], input.depth > cascadeLimits[3]);
 
 	// Determine which cascade it is in, up to NUM_CASCADES
 	float fIndex = dot(float4(NUM_CASCADES > 0, NUM_CASCADES > 1, NUM_CASCADES > 2, NUM_CASCADES > 3), fComparison);
-	int index = (int)(min(fIndex, NUM_CASCADES));
+	int index = (int)(min(fIndex, NUM_CASCADES - 1));
 
 	// Using the selected cascade's light view projection matrix, determine the pixel's position in light space
 	float4 shadowCoord = mul(input.worldPos, lvpMatrix[index]);
@@ -75,7 +71,10 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	// Compare the two - only the pixels closest to the light will be directly illuminated
 	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
-	float lit = step(closestDepth + 0.000001, shadowCoord.z);	// MIGHT WANT TO MAX(lit, minLight) THIS TO AVOID DARK SHADOWS
+	float lit = step(shadowCoord.z, closestDepth + 0.000001);	// can use max(lit, minLight) to avoid overly dark shadows
+
+	//calculate ambient light
+	float4 ambient = calcAmbient(alc, ali);
 
 	//calculate diffuse light
 	float diffIntensity = 0.f;
@@ -84,6 +83,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	//calculate specular light
 	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, sli, viewDir, diffIntensity, SpecularPower);
 
+	float4 colour = shaderTexture.Sample(SampleType, input.tex);
 	colour = (ambient + diffuse * lit) * colour + specular * lit;	// Incorporate the "lit-ness" into the final calculation
 
 	//apply gamma correction
