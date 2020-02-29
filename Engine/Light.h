@@ -1,5 +1,53 @@
 #pragma once
 #include "Math.h"
+#include <cmath>
+
+
+struct SceneLight
+{
+	SVec4 _chromaIntensity;
+
+	SceneLight(const SVec3& rgb, float intensity) : _chromaIntensity(rgb.x, rgb.y, rgb.z, intensity) {}
+	SceneLight(const SVec4& rgbi) : _chromaIntensity(rgbi) {}
+};
+
+
+
+struct DLight : public SceneLight
+{
+	SVec4 _dir;	//takes care of cbuffer byte alignment on it's own... safest solution
+
+	DLight(const SVec3& rgb, float intensity, const SVec3& dir) : SceneLight(rgb, intensity), _dir(Math::fromVec3(dir, 0)) {}
+	DLight(const SVec4& rgbi, const SVec3& dir) : SceneLight(rgbi), _dir(Math::fromVec3(dir, 0)) {}
+};
+
+
+
+struct PLight : public SceneLight
+{
+	SVec4 _pos;
+
+	PLight(const SVec3& rgb, float intensity, const SVec3& pos) : SceneLight(rgb, intensity), _pos(Math::fromVec3(pos, 1)) {}
+	PLight(const SVec4& rgbi, const SVec3& pos) : SceneLight(rgbi), _pos(Math::fromVec3(pos, 1)) {}
+};
+
+
+
+struct SLight : public PLight
+{
+	SVec4 _dirCosTheta;
+
+	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, float cosTheta)
+		: PLight(rgb, intensity, pos), _dirCosTheta(Math::fromVec3(dir, cosTheta)) {}
+
+	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, float theta)
+		: PLight(rgb, intensity, pos), _dirCosTheta(Math::fromVec3(dir, std::cosf(theta))) {}
+};
+
+
+
+
+
 
 struct LightData
 {
@@ -64,11 +112,4 @@ struct SpotLight : PointLight
 
 	SpotLight() {}
 	SpotLight(PointLight pl, SVec3 coneAxis, float dotProdMin) : PointLight(pl), coneAxisAngle(coneAxisAngle) {}
-};
-
-
-
-struct PBRLight
-{
-	SVec4 colourIntensity;
 };

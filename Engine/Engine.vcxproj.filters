@@ -787,6 +787,9 @@
     <ClInclude Include="Scene.h">
       <Filter>Scene management</Filter>
     </ClInclude>
+    <ClInclude Include="LightManager.h">
+      <Filter>Rendering\Lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
