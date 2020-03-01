@@ -1,39 +1,84 @@
 #pragma once
 #include <vector>
-#include <list>
+#include <assert.h>
+
+typedef unsigned int UINT;
+typedef uint16_t Handle;
 
 
-
-struct ID
-{
-	uint32_t _index;		//over 4 billion slots, good luck running out... I guess?
-	uint32_t _internal;
-};
-
-
-//not implemented, do not use yet @TODO
+// Preallocated vector that keeps contiguous elements using "swap" (not really but close) and an index lookup vector
+// Allows contiguous memory allocation with stable references to vector elements
+// WARNING! Erased element handles are NOT... well, handled. If you call erase(), make sure to not use the handle any more!
 template <typename Object> class SlotVector
 {
 private:
-	std::vector<Object> _vec;
-	std::list<uint32_t> _freeList;
+
+	std::vector<Object> _objects;
+	std::vector<uint16_t> _indices;	// Index of this vector is the handle, value is the actual index in _objects array
+	uint16_t _firstFree;
+	uint16_t _capacity;
 
 public:
 
-	void create(uint32_t size)
+	SlotVector(uint16_t numObjects) : _capacity(numObjects), _firstFree(0u)
 	{
-		_vec.resize(size);
+		_objects.resize(numObjects);
+		_indices.resize(numObjects);
 	}
 
 
-	void pushToFree(Object obj)
+
+	Handle insert(const Object& o)
 	{
-		_vec[_freeList.front()] = obj;
+		//Crash or adapt... hmmm? Adapting silently could be very bad in case of a bug somewhere, size is limited for a reason.
+		if (_firstFree >= _capacity)
+		{
+			assert(false && "Slot vector - attempted insert over capacity.");
+			//_capacity <<= 1;
+			//_objects.resize(_capacity);
+			//_indices.resize(_capacity);
+		}
+
+		Handle result = _firstFree;			// index of first free element
+		_objects[_firstFree] = o;			// insert object into array		
+		_indices[_firstFree] = _firstFree;	// index vector updated, contains real index of object (they are same for now)
+		_firstFree++;						// free index increments
+
+		return result;
 	}
 
 
-	void eraseByIndex(uint32_t index)
+
+	void erase(Handle h)
 	{
-		_vec[index];
+		if (h >= _firstFree)
+			return;
+
+		uint16_t objIndex = _indices[h];
+
+		_firstFree--;		// no need to pop last element, we can just decrement firstFree and it will be overwritten soon
+
+		// _indices[--_firstFree] held the index of last element of object vector, which now changed!
+		_objects[objIndex] = _objects[_firstFree];		// overwrite erased element with last element
+		_indices[_firstFree] = objIndex;	// therefore, the last object from objects vector now claims the old index
+	}
+
+
+
+	inline Object* getPtrByHandle(Handle h)
+	{
+		return h >= _firstFree ? nullptr : &(_objects[_indices[h]]);	// Double indirection but it shouldn't be used often anyways!
+	}
+
+
+	//Remember that size is not necessarily the number of used slots, instead use getNumAllocated to iterate
+	inline std::vector<Object>& getObjectVector()
+	{
+		return _objects;
+	}
+
+	inline uint16_t getNumAllocated() const
+	{
+		return _firstFree;
 	}
 };

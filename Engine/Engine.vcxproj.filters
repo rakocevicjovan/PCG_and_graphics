@@ -655,9 +655,6 @@
     <ClInclude Include="IndustrialBuilding.h">
       <Filter>TowerDefense\Buildings</Filter>
     </ClInclude>
-    <ClInclude Include="SlotVector.h">
-      <Filter>Scene management</Filter>
-    </ClInclude>
     <ClInclude Include="PoolAllocator.h">
       <Filter>MemoryAllocators</Filter>
     </ClInclude>
@@ -789,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="LightManager.h">
       <Filter>Rendering\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="SlotVector.h">
+      <Filter>MemoryAllocators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
