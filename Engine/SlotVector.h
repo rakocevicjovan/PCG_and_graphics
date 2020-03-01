@@ -6,7 +6,7 @@ typedef unsigned int UINT;
 typedef uint16_t Handle;
 
 
-// Preallocated vector that keeps contiguous elements using "swap" (not really but close) and an index lookup vector
+// Preallocated vector that keeps contiguous elements using "swapping" (not really but close) and an index lookup vector
 // Allows contiguous memory allocation with stable references to vector elements
 // WARNING! Erased element handles are NOT... well, handled. If you call erase(), make sure to not use the handle any more!
 template <typename Object> class SlotVector
@@ -55,12 +55,9 @@ public:
 			return;
 
 		uint16_t objIndex = _indices[h];
-
-		_firstFree--;		// no need to pop last element, we can just decrement firstFree and it will be overwritten soon
-
-		// _indices[--_firstFree] held the index of last element of object vector, which now changed!
+		--_firstFree;
 		_objects[objIndex] = _objects[_firstFree];		// overwrite erased element with last element
-		_indices[_firstFree] = objIndex;	// therefore, the last object from objects vector now claims the old index
+		_indices[_firstFree] = objIndex;				// last element also claims the index to keep it synchronized
 	}
 
 
@@ -76,6 +73,8 @@ public:
 	{
 		return _objects;
 	}
+
+
 
 	inline uint16_t getNumAllocated() const
 	{

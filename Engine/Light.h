@@ -40,6 +40,7 @@ struct SLight : public PLight
 {
 	SVec4 _dirCosTheta;
 
+	SLight() {}
 	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, float thetaRadians)
 		: PLight(rgb, intensity, pos), _dirCosTheta(Math::fromVec3(dir, std::cosf(thetaRadians))) {}
 };
