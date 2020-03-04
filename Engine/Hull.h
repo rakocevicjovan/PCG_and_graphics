@@ -2,6 +2,7 @@
 #include <vector>
 #include "Math.h"
 #include "HitResult.h"
+#include "Cone.h"
 
 class Collider;
 
@@ -79,6 +80,7 @@ public:
 
 	SphereHull() {};
 	SphereHull(const SVec3& pos, float rad) : ctr(pos), r(rad) {};
+	SphereHull(const SVec4& posRadius) : ctr(posRadius.x, posRadius.y, posRadius.z), r(posRadius.w) {}
 
 	HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
 	inline SVec3 getPosition()	const override { return ctr; }

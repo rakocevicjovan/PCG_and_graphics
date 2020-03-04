@@ -1,17 +1,19 @@
 #pragma once
 #include "Light.h"
 #include "PoolAllocator.h"
+#include "Frustum.h"
+#include "ColFuncs.h"
 #include <list>
 
 
 // This class assumes that there won't be too many lights added and removed often - it stores data optimized for iteration
-// It would be prudent to use a pool allocated version for different use cases, which I don't need right now
+// Probably should eliminate list inserts if we need those operations often
 class LightManager
 {
 private:
 
 	// For fast iteration every frame, we want them contiguous... this usually won't be that many lights, especially directional
-	// but it should be able to handle a lot of point/spot lights in the scene regardless
+	// but it should be able to handle a lot of point/spot lights in the scene regardless and keep stable references (so list+pool)
 	std::list<DLight*> _dirLights;
 	PoolAllocator<DLight> _dlPool;
 
@@ -78,6 +80,22 @@ public:
 	void removePointLight(SLight* sLight)
 	{
 		_slPool.deallocate(sLight);
+	}
+
+
+
+	void cullLights(const Frustum& frustum)
+	{
+		// @TODO redo collision functions to take the bare minimum data instead of SphereHull/cone structs... this is wasteful!
+		for (const PLight* p : _pLights)
+		{
+			Col::FrustumSphereIntersection(frustum, SphereHull(p->_posRange));
+		}
+
+		for (const SLight* s : _sLights)
+		{
+			//Col::FrustumConeIntersection(frustum, Cone(SVec3(s->_posRange), SVec3(s->_dirCosTheta), s->_posRange.w, );
+		}
 	}
 
 };

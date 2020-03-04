@@ -1,6 +1,16 @@
 #pragma once
 #include "Math.h"
+#include "Cone.h"
 #include <cmath>
+
+#define MIN_LIGHT 0.01
+#define INTENSITY_TO_RANGE(i) (sqrt(i / MIN_LIGHT))
+
+// i / (r * r) = MIN_LIGHT; // multiply both sides by (r*r)
+// i = MIN_LIGHT * (r * r);
+// r * r = i /MIN_LIGHT;
+// r =  sqrt(i / MIN_LIGHT);
+
 
 
 struct SceneLight
@@ -27,22 +37,27 @@ struct DLight : public SceneLight
 
 struct PLight : public SceneLight
 {
-	SVec4 _pos;
+	SVec4 _posRange;
 
-	PLight() {}
-	PLight(const SVec3& rgb, float intensity, const SVec3& pos) : SceneLight(rgb, intensity), _pos(Math::fromVec3(pos, 1)) {}
-	PLight(const SVec4& rgbi, const SVec3& pos) : SceneLight(rgbi), _pos(Math::fromVec3(pos, 1)) {}
+	PLight() { sizeof(PLight); }
+	PLight(const SVec3& rgb, float intensity, const SVec3& pos) 
+		: SceneLight(rgb, intensity), _posRange(Math::fromVec3(pos, INTENSITY_TO_RANGE(intensity))) {}
+
+	PLight(const SVec4& rgbi, const SVec3& pos) 
+		: SceneLight(rgbi), _posRange(Math::fromVec3(pos, INTENSITY_TO_RANGE(rgbi.w))) {}
 };
 
 
 
-struct SLight : public PLight
+struct SLight : public SceneLight
 {
+	SVec4 _posRange;
 	SVec4 _dirCosTheta;
 
-	SLight() {}
+	SLight() { sizeof(Cone); }
+
 	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, float thetaRadians)
-		: PLight(rgb, intensity, pos), _dirCosTheta(Math::fromVec3(dir, std::cosf(thetaRadians))) {}
+		: SceneLight(rgb, intensity), _posRange(Math::fromVec3(pos, INTENSITY_TO_RANGE(intensity))), _dirCosTheta(Math::fromVec3(dir, std::cosf(thetaRadians))) {}
 };
 
 

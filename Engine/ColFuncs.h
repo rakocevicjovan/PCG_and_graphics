@@ -262,4 +262,32 @@ namespace Col
 		return true;
 	}
 
+
+
+	static bool ConeInsidePlane(const SPlane& plane, const Cone& cone)
+	{
+		float coneTipOnPlaneProjection = cone._tip.Dot(plane.Normal());
+		float coneTipPlaneDist = coneTipOnPlaneProjection + plane.w;	//I would use .D() but it's not even inline smh
+		
+		if (coneTipPlaneDist < 0.f)
+			return false;
+
+		SVec3 m = (plane.Normal().Cross(cone._dir)).Cross(cone._dir);	//"downwards" vector along the cone's rim surface
+		SVec3 Q = cone._tip + cone._d * cone._dir + cone._r * m;		//closest point on the cone's rim towards the plane
+
+		return (Q.Dot(plane.Normal()) + plane.w > 0.f);
+	}
+
+
+
+	static bool FrustumConeIntersection(const Frustum& frustum, const Cone& cone)
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			if (!ConeInsidePlane(frustum._planes[i], cone))
+				return false;
+		}
+		return true;
+	}
+
 }

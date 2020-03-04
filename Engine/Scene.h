@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "LightManager.h"
 
 class Scene
 {

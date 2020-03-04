@@ -790,6 +790,9 @@
     <ClInclude Include="SlotVector.h">
       <Filter>MemoryAllocators</Filter>
     </ClInclude>
+    <ClInclude Include="Cone.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
