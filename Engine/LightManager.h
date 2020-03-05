@@ -94,7 +94,7 @@ public:
 
 		for (const SLight* s : _sLights)
 		{
-			//Col::FrustumConeIntersection(frustum, Cone(SVec3(s->_posRange), SVec3(s->_dirCosTheta), s->_posRange.w, );
+			Col::FrustumConeIntersection(frustum, Cone(s->_posRange, SVec3(s->_dirCosTheta), s->_radius));
 		}
 	}
 

@@ -13,19 +13,27 @@
 
 
 
-struct SceneLight
+class SceneLight
 {
+protected:
 	SVec4 _chromaIntensity;
 
+public:
 	SceneLight() {}
 	SceneLight(const SVec3& rgb, float intensity) : _chromaIntensity(rgb.x, rgb.y, rgb.z, intensity) {}
 	SceneLight(const SVec4& rgbi) : _chromaIntensity(rgbi) {}
+
+	SVec3 getChroma() { return SVec3(_chromaIntensity); }
+	void setChroma(const SVec3& chroma) { _chromaIntensity = Math::fromVec3(chroma, _chromaIntensity.w); }
+
+
 };
 
 
 
-struct DLight : public SceneLight
+class DLight : public SceneLight
 {
+public:
 	SVec4 _dir;	//takes care of cbuffer byte alignment on it's own... safest solution
 
 	DLight() {}
@@ -35,8 +43,9 @@ struct DLight : public SceneLight
 
 
 
-struct PLight : public SceneLight
+class PLight : public SceneLight
 {
+public:
 	SVec4 _posRange;
 
 	PLight() { sizeof(PLight); }
@@ -49,15 +58,21 @@ struct PLight : public SceneLight
 
 
 
-struct SLight : public SceneLight
+class SLight : public SceneLight
 {
+public:
 	SVec4 _posRange;
 	SVec4 _dirCosTheta;
+	float _radius;
 
-	SLight() { sizeof(Cone); }
+	SLight() { sizeof(SLight); }
 
 	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, float thetaRadians)
-		: SceneLight(rgb, intensity), _posRange(Math::fromVec3(pos, INTENSITY_TO_RANGE(intensity))), _dirCosTheta(Math::fromVec3(dir, std::cosf(thetaRadians))) {}
+		: SceneLight(rgb, intensity), 
+		_posRange(Math::fromVec3(pos, INTENSITY_TO_RANGE(intensity))), 
+		_dirCosTheta(Math::fromVec3(dir, std::cosf(thetaRadians))),
+		_radius(tan(thetaRadians) * _posRange.w)
+	{}
 };
 
 

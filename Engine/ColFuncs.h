@@ -273,7 +273,7 @@ namespace Col
 			return false;
 
 		SVec3 m = (plane.Normal().Cross(cone._dir)).Cross(cone._dir);	//"downwards" vector along the cone's rim surface
-		SVec3 Q = cone._tip + cone._d * cone._dir + cone._r * m;		//closest point on the cone's rim towards the plane
+		SVec3 Q = cone._tip + cone._d * cone._dir + cone._radius * m;		//closest point on the cone's rim towards the plane
 
 		return (Q.Dot(plane.Normal()) + plane.w > 0.f);
 	}
