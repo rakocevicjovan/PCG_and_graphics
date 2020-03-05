@@ -26,7 +26,7 @@ public:
 	~StackAllocator()
 	{
 		if(_stackPtr)
-			delete _stackPtr;
+			delete[] _stackPtr;
 	}
 
 

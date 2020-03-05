@@ -4,8 +4,23 @@
 
 class Scene
 {
-	Scene() {}
-	~Scene() {}
+private:
+
+	LightManager* _lightManager;
+
+public:
+
+	Scene()
+	{
+		_lightManager = new LightManager(4, 256, 256, 128, 128);
+	}
+
+	~Scene()
+	{
+		delete _lightManager;
+	}
+
+
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
