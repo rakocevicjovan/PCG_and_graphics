@@ -1,6 +1,7 @@
 #pragma once
 #include "Light.h"
 #include "PoolAllocator.h"
+#include "StackAllocator.h"
 #include "Frustum.h"
 #include "ColFuncs.h"
 #include <list>
@@ -23,20 +24,18 @@ private:
 	std::list<SLight*> _sLights;
 	PoolAllocator<SLight> _slPool;
 
+	// For per frame allocations, we use a stack allocator - there will be no random deletions so it's the fastest option
+	// Not quite sure if this is the best way to do it, I could avoid copying them alltogether as well...
+	StackAllocator _pfPointPool;
+	StackAllocator _pfSpotPool;
 
 public:
 
-	LightManager(uint16_t maxDirLights, uint16_t maxPointLights, uint16_t maxSpotLights)
+	LightManager(uint16_t maxDirLights, uint16_t maxPointLights, uint16_t maxSpotLights, uint16_t frPLights, uint16_t frSLights)
 		: _dlPool(maxDirLights), _plPool(maxPointLights), _slPool(maxSpotLights)
 	{
-		//_dirLights.reserve(maxDirLights);
-		//_pLights.reserve(maxPointLights);
-		//_sLights.reserve(maxSpotLights);
-
-		// Evidently, a lot of these fit into the cache very easily... even my mid range i5 has 256 kb l1 cache
-		sizeof(DLight);
-		sizeof(PLight);
-		sizeof(SLight);
+		_pfPointPool.init(sizeof(PLight) * frPLights);
+		_pfSpotPool.init(sizeof(SLight) * frSLights);
 	}
 
 	~LightManager() {}
@@ -89,13 +88,54 @@ public:
 		// @TODO redo collision functions to take the bare minimum data instead of SphereHull/cone structs... this is wasteful!
 		for (const PLight* p : _pLights)
 		{
-			Col::FrustumSphereIntersection(frustum, SphereHull(p->_posRange));
+			if (Col::FrustumSphereIntersection(frustum, SphereHull(p->_posRange)))
+			{
+				_pfPointPool.alloc(sizeof(PLight));
+			}
+			
 		}
 
 		for (const SLight* s : _sLights)
 		{
-			Col::FrustumConeIntersection(frustum, Cone(s->_posRange, SVec3(s->_dirCosTheta), s->_radius));
+			if(Col::FrustumConeIntersection(frustum, Cone(s->_posRange, SVec3(s->_dirCosTheta), s->_radius)))
+			{
+				_pfSpotPool.alloc(sizeof(SLight));
+			}
 		}
+	}
+
+
+
+	PLight* getVisiblePointLightArray()
+	{
+		return reinterpret_cast<PLight*>(_pfPointPool.getStackPtr());
+	}
+
+	UINT getVisiblePointLightCount()
+	{
+		//for (auto i = _pfPointPool.getStackPtr(); i < _pfPointPool.getHeadPtr(); i += sizeof(PLight))
+		return (_pfPointPool.getHeadPtr() - _pfPointPool.getStackPtr()) / sizeof(PLight);
+	}
+
+
+
+	SLight* getVisibleSpotLightArray()
+	{
+		return reinterpret_cast<SLight*>(_pfSpotPool.getStackPtr());
+	}
+
+	UINT getVisibleSpotLightCount()
+	{
+		//for (auto i = _pfSpotPool.getStackPtr(); i < _pfSpotPool.getHeadPtr(); i += sizeof(SLight))
+		return (_pfSpotPool.getHeadPtr() - _pfSpotPool.getStackPtr()) / sizeof(SLight);
+	}
+
+
+
+	void resetFramePools()
+	{
+		_pfPointPool.clear();
+		_pfSpotPool.clear();
 	}
 
 };

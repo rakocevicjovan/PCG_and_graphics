@@ -51,7 +51,8 @@ public:
 
 	inline void rewind(byte* target)
 	{
-		_stackPtr = target;
+		//_stackPtr = target;
+		_head = target - _stackPtr;
 	}
 
 
@@ -66,6 +67,12 @@ public:
 	inline void clear()
 	{
 		_head = 0;
+	}
+
+
+	inline byte* getStackPtr()
+	{
+		return _stackPtr;
 	}
 
 };
