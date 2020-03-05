@@ -83,6 +83,7 @@ public:
 
 
 
+	// Could be better to store pointers to them instead of copying them but its indirection + not contiguous, depends...
 	void cullLights(const Frustum& frustum)
 	{
 		// @TODO redo collision functions to take the bare minimum data instead of SphereHull/cone structs... this is wasteful!
@@ -90,7 +91,7 @@ public:
 		{
 			if (Col::FrustumSphereIntersection(frustum, SphereHull(p->_posRange)))
 			{
-				_pfPointPool.alloc(sizeof(PLight));
+				memcpy(_pfPointPool.alloc(sizeof(PLight)), p, sizeof(PLight));
 			}
 			
 		}
@@ -99,7 +100,7 @@ public:
 		{
 			if(Col::FrustumConeIntersection(frustum, Cone(s->_posRange, SVec3(s->_dirCosTheta), s->_radius)))
 			{
-				_pfSpotPool.alloc(sizeof(SLight));
+				memcpy(_pfSpotPool.alloc(sizeof(SLight)), s, sizeof(SLight));
 			}
 		}
 	}
