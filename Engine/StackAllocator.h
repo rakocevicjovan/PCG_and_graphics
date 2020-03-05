@@ -57,7 +57,7 @@ public:
 
 
 
-	inline byte* getHeadPtr()
+	inline byte* getHeadPtr() const
 	{
 		return _stackPtr + _head;
 	}
@@ -70,7 +70,7 @@ public:
 	}
 
 
-	inline byte* getStackPtr()
+	inline byte* getStackPtr() const
 	{
 		return _stackPtr;
 	}

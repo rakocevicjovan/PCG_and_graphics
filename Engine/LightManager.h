@@ -106,12 +106,12 @@ public:
 
 
 
-	PLight* getVisiblePointLightArray()
+	inline PLight* getVisiblePointLightArray() const
 	{
 		return reinterpret_cast<PLight*>(_pfPointPool.getStackPtr());
 	}
 
-	UINT getVisiblePointLightCount()
+	inline UINT getVisiblePointLightCount() const
 	{
 		//for (auto i = _pfPointPool.getStackPtr(); i < _pfPointPool.getHeadPtr(); i += sizeof(PLight))
 		return (_pfPointPool.getHeadPtr() - _pfPointPool.getStackPtr()) / sizeof(PLight);
@@ -119,12 +119,12 @@ public:
 
 
 
-	SLight* getVisibleSpotLightArray()
+	inline SLight* getVisibleSpotLightArray() const
 	{
 		return reinterpret_cast<SLight*>(_pfSpotPool.getStackPtr());
 	}
 
-	UINT getVisibleSpotLightCount()
+	inline UINT getVisibleSpotLightCount() const
 	{
 		//for (auto i = _pfSpotPool.getStackPtr(); i < _pfSpotPool.getHeadPtr(); i += sizeof(SLight))
 		return (_pfSpotPool.getHeadPtr() - _pfSpotPool.getStackPtr()) / sizeof(SLight);
@@ -132,7 +132,7 @@ public:
 
 
 
-	void resetFramePools()
+	inline void resetFramePools()
 	{
 		_pfPointPool.clear();
 		_pfSpotPool.clear();
