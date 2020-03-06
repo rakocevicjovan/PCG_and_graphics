@@ -132,6 +132,9 @@
     <Filter Include="Rendering\DeprMaterials">
       <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Collision\Hulls">
+      <UniqueIdentifier>{031777a9-3ace-4375-844b-77d05d1054c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -299,9 +302,6 @@
     <ClCompile Include="QuadTree.cpp">
       <Filter>Collision\Spatial partitioning\QT</Filter>
     </ClCompile>
-    <ClCompile Include="Hull.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClCompile>
@@ -382,6 +382,15 @@
     </ClCompile>
     <ClCompile Include="GameClock.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Hull.cpp">
+      <Filter>Collision\Hulls</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereHull.cpp">
+      <Filter>Collision\Hulls</Filter>
+    </ClCompile>
+    <ClCompile Include="AABB.cpp">
+      <Filter>Collision\Hulls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -667,9 +676,6 @@
     <ClInclude Include="QuadTree.h">
       <Filter>Collision\Spatial partitioning\QT</Filter>
     </ClInclude>
-    <ClInclude Include="Hull.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
     <ClInclude Include="AABB2D.h">
       <Filter>Collision\Spatial partitioning\QT</Filter>
     </ClInclude>
@@ -791,7 +797,16 @@
       <Filter>MemoryAllocators</Filter>
     </ClInclude>
     <ClInclude Include="Cone.h">
-      <Filter>Collision</Filter>
+      <Filter>Collision\Hulls</Filter>
+    </ClInclude>
+    <ClInclude Include="Hull.h">
+      <Filter>Collision\Hulls</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>Collision\Hulls</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereHull.h">
+      <Filter>Collision\Hulls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -168,6 +168,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp" />
@@ -241,6 +242,7 @@
     <ClCompile Include="ShaderStrife.cpp" />
     <ClCompile Include="ShaderVolumetric.cpp" />
     <ClCompile Include="SkeletalModel.cpp" />
+    <ClCompile Include="SphereHull.cpp" />
     <ClCompile Include="StrifeLevel.cpp" />
     <ClCompile Include="Systems.cpp" />
     <ClCompile Include="TDLevel.cpp" />
@@ -256,6 +258,7 @@
     <ClCompile Include="Voronoi.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AABB.h" />
     <ClInclude Include="AABB2D.h" />
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
@@ -287,6 +290,7 @@
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SlotVector.h" />
+    <ClInclude Include="SphereHull.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />

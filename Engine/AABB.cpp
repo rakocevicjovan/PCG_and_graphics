@@ -1,7 +1,8 @@
-#include "Hull.h"
+/*
+// Avoiding include shenanigans, put everything into Hull files for now
+
+#include "AABB.h"
 #include "ColFuncs.h"
-
-
 
 HitResult AABB::intersect(const Hull* other, BoundingVolumeType otherType) const
 {
@@ -57,16 +58,4 @@ std::vector<SPlane> AABB::getPlanes() const
 
 	return result;
 }
-
-
-
-
-HitResult SphereHull::intersect(const Hull* other, BoundingVolumeType otherType) const
-{
-	if (otherType == BVT_SPHERE)
-		return Col::SphereSphereIntersection(*this, *(reinterpret_cast<const SphereHull*>(other)));
-	else if (otherType == BVT_AABB)
-		return Col::AABBSphereIntersection(*(reinterpret_cast<const AABB*>(other)), *this);
-
-	return HitResult();
-}
+*/

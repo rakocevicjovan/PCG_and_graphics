@@ -51,7 +51,7 @@ public:
 	void insertObject(SphereHull* pSpHull);
 	bool removeObject(SphereHull* pSpHull);
 	void collideAll();
-	void lazyTrim();	//once per frame deallocate what's not required... would be faster with a pool allocator...
+	void lazyTrim();	//once per frame, deallocate nodes that are not required... would be faster with a pool allocator...
 	void updateAll();
 	void rayCastTree(const SRay& ray, std::list<SphereHull*>& spl) const;
 

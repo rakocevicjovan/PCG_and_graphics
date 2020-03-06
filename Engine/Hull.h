@@ -42,21 +42,12 @@ public:
 	}
 
 
-	HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
+	HitResult AABB::intersect(const Hull* other, BoundingVolumeType otherType) const;
 
-
-
-	void setPosition(const SVec3& newPos) override
-	{
-		SVec3 posDelta = newPos - getPosition();
-		minPoint += posDelta;
-		maxPoint += posDelta;
-	}
-
-
+	void setPosition(const SVec3& newPos) override;
 	bool operator ==(AABB other)	//is this really required??? Forgot why I wrote it... should be discernible by pointers...
-	{ 
-		return ( ((minPoint - other.minPoint) + (maxPoint - other.maxPoint)).LengthSquared() < 0.001f );
+	{
+		return (((minPoint - other.minPoint) + (maxPoint - other.maxPoint)).LengthSquared() < 0.001f);
 	}
 
 	std::vector<SVec3> getVertices() const;
@@ -86,5 +77,4 @@ public:
 	inline SVec3 getPosition()	const override { return ctr; }
 	inline float getExtent()	const override { return r; }
 	inline void setPosition(const SVec3& newPos) override { ctr = newPos; }
-	
 };
