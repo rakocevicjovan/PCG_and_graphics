@@ -28,9 +28,6 @@ public:
 	Actor(Model* model, SMatrix& transform = SMatrix());
 	Actor(const Actor& other);
 	virtual ~Actor();
-	
-	//void operator=(const Actor& other);	I think this is ok as a shallow assignment by default...
-	//virtual Actor* Clone() const;
 
 	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
 

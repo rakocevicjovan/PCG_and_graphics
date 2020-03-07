@@ -15,7 +15,7 @@ namespace Steering
 
 
 	template <typename NavAgent>
-	static SVec3 separate(NavAgent*& me, const std::list<NavAgent*>& theBois)
+	static SVec3 separate(NavAgent*& me, const std::vector<NavAgent*>& theBois)
 	{
 		SVec3 result = SVec3::Zero;
 

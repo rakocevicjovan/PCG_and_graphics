@@ -12,8 +12,8 @@
 
 
 
-
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
+
 
 
 ///INIT AND HELPERS
@@ -379,6 +379,9 @@ void TDLevel::steerEnemies(float dTime)
 	stopArea *= 9.f;
 	float stopDistance = stopArea.Length();
 
+	std::vector<Actor*> neighbourCreepVec;
+	neighbourCreepVec.reserve(100);			//max neighbours to consider... too big a number for this scene but aight for now
+
 	for (int i = 0; i < _creeps.size(); ++i)
 	{
 		if (_creeps[i].isDead())
@@ -388,9 +391,9 @@ void TDLevel::steerEnemies(float dTime)
 
 		if (_creeps[i]._steerComp._active)
 		{
-			std::list<Actor*> neighbourCreeps;	//this should be on the per-frame allocator
-			_octree.findWithin(_creeps[i].getPosition(), 5.f, neighbourCreeps);
-			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreeps, i, stopDistance);
+			_octree.findWithin(_creeps[i].getPosition(), 5.f, neighbourCreepVec);
+			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreepVec, i, stopDistance);
+			neighbourCreepVec.clear();
 		}
 
 		//height

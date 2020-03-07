@@ -64,7 +64,7 @@ public:
 //templates
 public:
 	template<typename NeighbourType>
-	void findWithin(const SVec3& p, float r, std::list<NeighbourType*>& neighbours) const
+	void findWithin(const SVec3& p, float r, std::vector<NeighbourType*>& neighbours) const
 	{
 		SphereHull sp(p, r);
 		findInNode(_rootNode, sp, neighbours);
@@ -72,7 +72,7 @@ public:
 
 private:
 	template<typename NeighbourType>
-	void findInNode(OctNode* pNode, const SphereHull& sp, std::list<NeighbourType*>& neighbours) const
+	void findInNode(OctNode* pNode, const SphereHull& sp, std::vector<NeighbourType*>& neighbours) const
 	{
 		if (isEmpty(pNode))
 			return;

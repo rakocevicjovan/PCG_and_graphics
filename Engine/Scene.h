@@ -37,12 +37,22 @@ public:
 	{
 		_lightManager->cullLights(c._frustum);
 
+		std::vector<Actor*> litObjects;
+		litObjects.reserve(100);
+
 		PLight* p = _lightManager->getVisiblePointLightArray();
 		for (int i = 0; i < _lightManager->getVisiblePointLightCount(); i++)
 		{
 			PLight cpl = p[i];
-			//insert into octree, cull, assign...
-			_oct.insertObject(&SphereHull(cpl._posRange));
+			// Query octree, cull, assign...
+			_oct.findWithin(SVec3(cpl._posRange), cpl._posRange.w, litObjects);
+			
+			for (Actor* a : litObjects)
+			{
+				//a.addLight()
+			}
+
+			litObjects.clear();
 		}
 
 

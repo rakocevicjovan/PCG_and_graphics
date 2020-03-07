@@ -27,7 +27,7 @@ public:
 	//I could also make this T but that would make it necessary to compare equal types...
 	//best solution is other steering components I guess?
 	template <typename NavAgent>
-	void update(const NavGrid& navGrid, float dTime, const std::list<NavAgent*>& others, int index, float stopDistance)
+	void update(const NavGrid& navGrid, float dTime, const std::vector<NavAgent*>& others, int index, float stopDistance)
 	{
 		if (!_active)
 			return;

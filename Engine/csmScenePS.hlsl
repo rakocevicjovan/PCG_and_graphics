@@ -69,6 +69,9 @@ float4 main(PixelInputType input) : SV_TARGET
 	// Using the selected cascade's shadow map, determine the depth of the closest pixel to the light along the light direction ray
 	float closestDepth = csms.Sample(SampleType, float3(shadowCoord2.x, shadowCoord2.y, index)).x;
 
+	// Works too, load is faster but I do need to pass the texture resolution, cba right now and harcoded is error prone)
+	//float closestDepth = csms.Load(float4(shadowCoord2.x * 1024, shadowCoord2.y * 1024, index, 0));
+
 	// Compare the two - only the pixels closest to the light will be directly illuminated
 	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
 	float lit = step(shadowCoord.z, closestDepth + 0.000001);	// can use max(lit, minLight) to avoid overly dark shadows
