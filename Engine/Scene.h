@@ -7,10 +7,14 @@ class Scene
 {
 private:
 
+	UINT numCulled = 0u;
+
 	LightManager* _lightManager;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
+	
+	std::vector<Renderable> _renderables;
 
 	Octree _oct;
 
@@ -57,6 +61,24 @@ public:
 
 
 		_lightManager->resetFramePools();
+	}
+
+
+
+	void frustumCull(const Camera& cam)
+	{
+		numCulled = 0;
+		const SMatrix v = cam.GetViewMatrix();
+		const SVec3 v3c(v._13, v._23, v._33);
+		const SVec3 camPos = cam.GetPosition();
+
+		for (size_t i = 0; i < _renderables.size(); ++i)
+		{
+			/*if (Col::FrustumSphereIntersection(cam._frustum, ))
+				_creeps[i].renderables[j].zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
+			else
+				numCulled++;*/
+		}
 	}
 
 };

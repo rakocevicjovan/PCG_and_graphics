@@ -98,16 +98,13 @@ void TDLevel::init(Systems& sys)
 			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
 			r.mat->setPS(sys._shaderCache.getPixShader("phongPS"));
 			r.mat->pLight = &pLight;
-			
 		}
 
 		_octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 	}
 
-
 	//Add building types... again, could make data driven...
 	addBuildables();
-	
 
 	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);

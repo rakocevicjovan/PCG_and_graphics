@@ -13,7 +13,7 @@ void Grid::addAABB(AABB* h)
 	for (int i = minCellKey.x; i <= maxCellKey.x; ++i)
 		for (int j = minCellKey.y; j <= maxCellKey.y; ++j)
 			for (int k = minCellKey.z; k <= maxCellKey.z; ++k)
-				cells[CellKey(i, j, k)].hulls.insert(h);
+				cells[CellKey(i, j, k)]._hulls.insert(h);
 }
 
 

@@ -40,7 +40,7 @@ struct CellKey
 
 struct GridCell
 {
-	std::set<Hull*> hulls;
+	std::set<Hull*> _hulls;
 };
 
 
@@ -52,7 +52,7 @@ public:
 	Grid(float cellsize) : _cellsize(cellsize) {}
 	float _cellsize = 32.f;
 	float invCellSize = 1.f / _cellsize;
-	std::map<CellKey, GridCell> cells;
+	std::map<CellKey, GridCell> cells;	//@TODO this is absolutely not okay for cache locality, change it... will take some work
 
 	void addAABB(AABB* h);
 	void addSphere(SphereHull* h);

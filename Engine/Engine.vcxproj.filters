@@ -90,9 +90,6 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{48809b9d-88ab-4cad-a975-8831cf39c049}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Collision\Spatial partitioning\QT">
-      <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shader Files\Vertex shaders">
       <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
     </Filter>
@@ -134,6 +131,9 @@
     </Filter>
     <Filter Include="Collision\Hulls">
       <UniqueIdentifier>{031777a9-3ace-4375-844b-77d05d1054c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Collision\Spatial partitioning\QuadTree">
+      <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -300,7 +300,7 @@
       <Filter>Rendering\GUI</Filter>
     </ClCompile>
     <ClCompile Include="QuadTree.cpp">
-      <Filter>Collision\Spatial partitioning\QT</Filter>
+      <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\AAA Improved\Shaders</Filter>
@@ -671,13 +671,13 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="QTObject.h">
-      <Filter>Collision\Spatial partitioning\QT</Filter>
+      <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClInclude>
     <ClInclude Include="QuadTree.h">
-      <Filter>Collision\Spatial partitioning\QT</Filter>
+      <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClInclude>
     <ClInclude Include="AABB2D.h">
-      <Filter>Collision\Spatial partitioning\QT</Filter>
+      <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClInclude>
     <ClInclude Include="TextureGen.h">
       <Filter>Procedural</Filter>
@@ -988,9 +988,6 @@
     </FxCompile>
     <FxCompile Include="CookTorrancePS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders\PBR</Filter>
-    </FxCompile>
-    <FxCompile Include="generated.hlsl">
-      <Filter>Rendering\Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="ShGen\genVS.hlsl">
       <Filter>Rendering\Shader Files</Filter>

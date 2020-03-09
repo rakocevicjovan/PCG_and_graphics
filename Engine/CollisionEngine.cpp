@@ -68,7 +68,7 @@ void CollisionEngine::removeFromGrid(Collider& collider)
 		for (auto& keyCellPair : grid.cells)
 		{
 			//keyCellPair.second.hulls.erase(std::remove(keyCellPair.second.hulls.begin(), keyCellPair.second.hulls.end(), h), keyCellPair.second.hulls.end());
-			keyCellPair.second.hulls.erase(h);
+			keyCellPair.second._hulls.erase(h);
 		}
 	}
 }
@@ -92,7 +92,7 @@ void CollisionEngine::update()
 
 	for (auto iterator = grid.cells.begin(); iterator != grid.cells.end();)
 	{
-		if (iterator->second.hulls.empty())
+		if (iterator->second._hulls.empty())
 			iterator = grid.cells.erase(iterator);
 		else
 			iterator++;
@@ -136,7 +136,7 @@ HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform
 			{
 				adjCK.z = ck.z + k;
 
-				for (auto hull : grid.cells[adjCK].hulls)
+				for (auto hull : grid.cells[adjCK]._hulls)
 				{
 					HitResult hr = hull->intersect(&playerHull, BVT_SPHERE);
 					if (hr.hit)
