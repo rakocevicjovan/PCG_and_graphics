@@ -25,21 +25,22 @@ public:
 class Octree
 {
 private:
-	UINT _nodeCount = 1;	//root node is there by default
-	UINT _hullCount = 0;
-
-	UINT _maxDepth = 3;		//for preallocation and insertion/search max depths
-	//int _minHullsToSplit = 4;	//an alternative solution, currently using max subdivision depth to control splitsanity
 
 	AABB _worldBounds;
 	OctNode* _rootNode;
-
 	PoolAllocator<OctNode> _octNodePool;
+
+	// For preallocation and insertion/search max depths
+	UINT _maxDepth = 3;
+	//int _minHullsToSplit = 4;	// An alternative solution, currently using max subdivision depth to control splitsanity
+
+	// Some statistics 
+	UINT _nodeCount = 1;	// Root node is there by default
+	UINT _hullCount = 0;
 
 	inline UINT nodeCountFromDepth(UINT l)
 	{
-		// size is (N^(L+1)-1) / (N-1) where N = 8, L = depth (I'm using depth 8)
-		return ( (pow(8, l + 1) - 1) / (8 - 1) );
+		return ( (pow(8, l + 1) - 1) / (8 - 1) );	// size is (N^(L+1)-1) / (N-1) where N = 8, L = depth (I'm using depth 8)
 	}
 
 	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent);

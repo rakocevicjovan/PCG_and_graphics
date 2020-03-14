@@ -114,8 +114,6 @@ OctNode* Octree::preallocateNode(SVec3 center, SVec3 size, int stopDepth, OctNod
 		return nullptr;
 
 	OctNode* pNode = new (_octNodePool.allocate()) OctNode(AABB(center, size));
-	//pNode->parent = parent;
-	//pNode->hulls = std::list<SphereHull*>();
 
 	SVec3 offset;
 	SVec3 halfSize = size * 0.5f;	//dimensions of aabb of parent, halved each step
@@ -247,6 +245,7 @@ void Octree::updateAll()
 //Bugged! It works, but they can be possibly reinserted twice, and it's not making use of locality! Very important @TODO!
 void Octree::updateNode(OctNode* node)
 {
+	// @TODO Change this to simply be reinserted from outside the tree...
 	std::list<SphereHull*> wat = std::move(node->_hulls);
 
 	std::list<SphereHull*>::iterator iter;
