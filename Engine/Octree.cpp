@@ -42,14 +42,13 @@ void Octree::deleteNode(OctNode*& pNode)
 			deleteNode(pNode->_children[i]);
 	}
 
-	_nodeCount--;
-	//delete pNode;
+	--_nodeCount;
 	_octNodePool.deallocate(pNode);
 	pNode = nullptr;
 }
 
 
-//once per frame deallocate what's not required... would be faster with a pool allocator for nodes though...
+//once per frame deallocate what's not required... fairly fast with a pool allocator
 void Octree::lazyTrim()
 {
 	trimNode(_rootNode);
@@ -279,9 +278,9 @@ void Octree::testAllCollisions(OctNode *pNode)
 
 	for (int n = 0; n < depth; n++)	//iterate the ancestor stack
 	{
-		for (SphereHull* spA : ancestorStack[n]->_hulls)	//check all hulls in ancestors (inclu
+		for (SphereHull* spA : ancestorStack[n]->_hulls)	// check all hulls in ancestors
 		{
-			for (SphereHull* spL : pNode->_hulls)
+			for (SphereHull* spL : pNode->_hulls)			// against hulls in current node
 			{
 				if (spA == spL)	//not sure if continue or break, book says break but that seems incorrect!
 					continue;
@@ -309,7 +308,7 @@ void Octree::testAllCollisions(OctNode *pNode)
 	}
 
 	// Remove current node from ancestor stack before returning
-	depth--;
+	--depth;
 }
 
 

@@ -3,7 +3,7 @@
 #include "Math.h"
 #include "Model.h"
 #include "Light.h"
-#include "SceneGraph.h"
+#include "Scene.h"
 #include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
@@ -39,8 +39,7 @@ private:
 	//should really be in scene manager
 	void cull(const Camera& cam);
 
-	SceneGraph _sg;
-	Octree _octree;
+	Scene _scene;
 
 	//some enemy specific stuff...
 	UINT NUM_ENEMIES = 100u;

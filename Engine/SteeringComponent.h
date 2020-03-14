@@ -29,8 +29,7 @@ public:
 	template <typename NavAgent>
 	void update(const NavGrid& navGrid, float dTime, const std::vector<NavAgent*>& others, int index, float stopDistance)
 	{
-		if (!_active)
-			return;
+		if (!_active) return;
 
 		SVec3 myPos = _parent->getPosition();
 		int creepsCell = navGrid.posToCellIndex(myPos);
@@ -44,20 +43,19 @@ public:
 		float sqDistToGoal = vecToGoal.LengthSquared();
 
 		//seeking using the flowfield
-		if (sqDistToGoal > stopDistance * stopDistance)
+		if (sqDistToGoal > stopDistance * stopDistance)	//sqDistToGoal > stopDistance * stopDistance
 		{
 			_totalInfluence += flowVector;
-			_totalInfluence += .2f * Steering::separate(static_cast<NavAgent*>(_parent), others);
+			_totalInfluence += .8f * Steering::separate(static_cast<NavAgent*>(_parent), others);
 		}
 		else	//arrival behaviour
 		{
-			SVec3 desiredPos = goalPos + 2.f * SVec3(index % 10, 0, (index / 10) % 10);
+			SVec3 desiredPos = goalPos + 4.f * SVec3(index % 10, 0, (index / 10) % 10);
 			_totalInfluence += Math::getNormalizedVec3(desiredPos - myPos);
 
 			//a bit hacky really... but it allows collision to overtake and sort them out instead of fighting it
 			if ((SVec2(desiredPos.x, desiredPos.z) - SVec2(myPos.x, myPos.z)).LengthSquared() < (2.f * _radius) * (2.f * _radius))
 				_active = false;
-			
 		}
 
 		if (_totalInfluence.LengthSquared() < 0.0001)

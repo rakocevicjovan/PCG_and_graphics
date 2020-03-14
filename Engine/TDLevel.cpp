@@ -12,15 +12,18 @@
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
-TDLevel::TDLevel(Systems& sys) : Level(sys), _octree(AABB(SVec3(), SVec3(_tSize * .5)), 4) {};
+TDLevel::TDLevel(Systems& sys) 
+	: Level(sys), _scene(AABB(SVec3(), SVec3(_tSize * .5)), 4)
+{
+
+};
 
 
 
 ///INIT AND HELPERS
 void TDLevel::init(Systems& sys)
 {
-	//ShaderGenerator shg(_sys._shaderCompiler);
-	//shg.mix();
+	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
 	_csm.init(S_DEVICE, 3u, 1024u, 1024u);
 
@@ -67,10 +70,6 @@ void TDLevel::init(Systems& sys)
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
-
-	// Octree with depth 5 is really big, probably not worth it for my game
-	_octree.preallocateRootOnly();	//_oct.preallocateTree();	
-
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);
 	_navGrid.createAllEdges();
@@ -91,7 +90,7 @@ void TDLevel::init(Systems& sys)
 
 		_creeps[i]._steerComp._mspeed = 40.f;
 		
-		for (Renderable& r : _creeps[i].renderables)
+		for (Renderable& r : _creeps[i]._renderables)
 		{
 			// make the system select these later on... this is a big undertaking, it will take a while
 			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
@@ -99,7 +98,7 @@ void TDLevel::init(Systems& sys)
 			r.mat->pLight = &pLight;
 		}
 
-		_octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
+		_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 	}
 
 	//Add building types... again, could make data driven...
@@ -162,13 +161,7 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {
-
-	//this works well to reduce the number of checked branches with simple if(null) but only profiling
-	//can tell if it's better this way or by just leaving them allocated (which means deeper checks, but less allocations)
-	//Another alternative is having a bool empty; in the octnode...
-	_octree.updateAll();	//@TODO redo this, does redundant work and blows in general
-	_octree.lazyTrim();
-	_octree.collideAll();
+	_scene.update();
 
 	steerEnemies(rc.dTime);
 
@@ -288,7 +281,7 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 
 	Building* b = nullptr;
 
-	_octree.rayCastTree(ray, sps);
+	_scene._octree.rayCastTree(ray, sps);
 
 	float minDist = 9999999.f;
 
@@ -334,7 +327,7 @@ void TDLevel::build()
 			_structures.push_back(&_industry.back());
 		}
 
-		_octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
+		_scene._octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
 
 		_inBuildingMode = false;
 		_templateBuilding = nullptr;
@@ -354,7 +347,7 @@ void TDLevel::demolish()
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 	_navGrid.fillFlowField();
 
-	_octree.removeObject((SphereHull*)_selectedBuilding->_collider.getHull(0));
+	_scene._octree.removeObject((SphereHull*)_selectedBuilding->_collider.getHull(0));
 
 	// @TODO add a == sign... also this sucks big time its gonna compare them all, best not do it this way
 	if (_selectedBuilding->_type == BuildingType::MARTIAL)
@@ -387,7 +380,7 @@ void TDLevel::steerEnemies(float dTime)
 
 		if (_creeps[i]._steerComp._active)
 		{
-			_octree.findWithin(_creeps[i].getPosition(), 5.f, neighbourCreepVec);
+			_scene._octree.findWithin(_creeps[i].getPosition(), 10.f, neighbourCreepVec);
 			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreepVec, i, stopDistance);
 			neighbourCreepVec.clear();
 		}
@@ -431,7 +424,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 		_csm.drawToCurrentShadowPass(S_CONTEXT, floorRenderable);
 
-		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep.renderables[0]);
+		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep._renderables[0]);
 	}
 	//_csm.endShadowPassSequence(S_CONTEXT);
 
@@ -465,8 +458,8 @@ void TDLevel::draw(const RenderContext& rc)
 
 	std::vector<GuiElement> guiElems =
 	{
-		{"Octree",	std::string("OCT node count " + std::to_string(_octree.getNodeCount()))},
-		{"Octree",	std::string("OCT hull count " + std::to_string(_octree.getHullCount()))},
+		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
 	};
@@ -520,12 +513,12 @@ void TDLevel::cull(const Camera& cam)
 
 	for (int i = 0; i < _creeps.size(); ++i)
 	{
-		for (int j = 0; j < _creeps[i].renderables.size(); ++j)
+		for (int j = 0; j < _creeps[i]._renderables.size(); ++j)
 		{
 			if (Col::FrustumSphereIntersection(cam._frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(j))))
 			{
-				_creeps[i].renderables[j].zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
-				S_RANDY.addToRenderQueue(_creeps[i].renderables[j]);
+				_creeps[i]._renderables[j].zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
+				S_RANDY.addToRenderQueue(_creeps[i]._renderables[j]);
 			}
 			else
 			{

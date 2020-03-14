@@ -6,17 +6,18 @@
 class Renderable
 {
 public:
-	int64_t sortKey;
-
-	//a bit memory heavy but... useful for now I guess?
+	// Memory heavy but... useful for now I guess?
 	SMatrix _localTransform;
 	SMatrix _transform;
 
 	Mesh* mesh;
+
 	Material* mat;
+	int64_t sortKey;
 	float zDepth;
 
-	uint8_t* cbufferdata;
+	//uint8_t* _cbufferData;
+
 
 	Renderable() {}
 

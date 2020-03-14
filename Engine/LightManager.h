@@ -86,7 +86,7 @@ public:
 
 
 
-	// Could be better to store pointers to them instead of copying them but its indirection + not contiguous, depends...
+	// Could be better to store pointers to them instead of copying them but it costs an indirection + not contiguous, depends...
 	void cullLights(const Frustum& frustum)
 	{
 		// @TODO redo collision functions to take the bare minimum data instead of SphereHull/cone structs... this is wasteful!

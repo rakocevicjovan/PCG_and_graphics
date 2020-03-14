@@ -6,14 +6,14 @@
 Actor::Actor(Model* model, SMatrix& transform) 
 	: _steerComp(this), transform(transform), _collider(Collider(BoundingVolumeType::BVT_SPHERE, this, true))
 {
-	renderables.reserve(model->meshes.size());
+	_renderables.reserve(model->meshes.size());
 
 	for (Mesh& mesh : model->meshes)
 	{
-		renderables.emplace_back(mesh);
-		renderables.back()._localTransform = mesh._transform;
-		renderables.back()._transform = transform * mesh._transform;
-		renderables.back().mat = &mesh._baseMaterial;
+		_renderables.emplace_back(mesh);
+		_renderables.back()._localTransform = mesh._transform;
+		_renderables.back()._transform = transform * mesh._transform;
+		_renderables.back().mat = &mesh._baseMaterial;
 
 		_collider.addHull(new SphereHull(mesh._transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
 	}
@@ -22,7 +22,7 @@ Actor::Actor(Model* model, SMatrix& transform)
 
 void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
 {
-	for (Renderable& r : renderables)
+	for (Renderable& r : _renderables)
 	{
 		r.mat->setVS(vs);
 		r.mat->setPS(ps);
@@ -39,9 +39,9 @@ Actor::Actor(const Actor& other)
 	for (Hull* sp : other._collider.getHulls())
 		_collider.addHull(new SphereHull(sp->getPosition(), sp->getExtent()));
 
-	renderables.reserve(other.renderables.size());
-	for (const Renderable& r : other.renderables)
-		renderables.push_back(r);
+	_renderables.reserve(other._renderables.size());
+	for (const Renderable& r : other._renderables)
+		_renderables.push_back(r);
 }
 
 
@@ -51,7 +51,7 @@ Actor::~Actor() {}
 
 void Actor::propagate()
 {
-	for (Renderable& r : renderables)
+	for (Renderable& r : _renderables)
 	{
 		r._transform = transform * r._localTransform;
 	}
@@ -63,7 +63,7 @@ void Actor::propagate()
 
 void Actor::render(const Renderer& renderer) const
 {
-	for (const Renderable& r : renderables)
+	for (const Renderable& r : _renderables)
 		renderer.render(r);
 }
 

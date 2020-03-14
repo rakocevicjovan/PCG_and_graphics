@@ -24,19 +24,24 @@ private:
 	//void copyShenanigans(const Actor& other);
 	
 public:
+
+	Actor* parent;
+
+	SMatrix transform;
+	std::vector<Renderable> _renderables;
+	Collider _collider;
+	SteeringComponent<Actor> _steerComp;
+	std::vector<PLight*> _pLights;
+	std::vector<SLight*> _sLights;
+
+
+
 	Actor() : _steerComp(this) {};
 	Actor(Model* model, SMatrix& transform = SMatrix());
 	Actor(const Actor& other);
 	virtual ~Actor();
 
 	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
-
-	Actor* parent;
-
-	SMatrix transform;
-	std::vector<Renderable> renderables;
-	Collider _collider;
-	SteeringComponent<Actor> _steerComp;
 
 	inline SVec3 getPosition() const { return transform.Translation(); }
 
