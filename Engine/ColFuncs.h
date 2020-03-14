@@ -254,18 +254,6 @@ namespace Col
 
 
 
-	static bool FrustumSphereIntersection(const Frustum& frustum, const SphereHull& sphere)
-	{
-		for (int i = 0; i < 6; ++i)
-		{
-			if (!SphereInsidePlane(frustum._planes[i], sphere))
-				return false;
-		}
-		return true;
-	}
-
-
-
 	static bool ConeInsidePlane(const SPlane& plane, const Cone& cone)
 	{
 		float coneTipOnPlaneProjection = cone._tip.Dot(plane.Normal());
@@ -282,6 +270,18 @@ namespace Col
 
 
 
+	static bool FrustumSphereIntersection(const Frustum& frustum, const SphereHull& sphere)
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			if (!SphereInsidePlane(frustum._planes[i], sphere))
+				return false;
+		}
+		return true;
+	}
+
+
+
 	static bool FrustumConeIntersection(const Frustum& frustum, const Cone& cone)
 	{
 		for (int i = 0; i < 6; ++i)
@@ -290,6 +290,35 @@ namespace Col
 				return false;
 		}
 		return true;
+	}
+
+
+	// Conservative... can give false positives
+	static bool FrustumAABBIntersection(const Frustum& f, const AABB& box)
+	{
+		float m;
+		float n; 
+		int result = true;
+
+		for (int i = 0; i < 6; i++)
+		{
+			SPlane p = f._planes[i];
+			SVec3 c = box.getPosition();	//center
+			SVec3 hd = box.maxPoint - c;	//half diagonal
+
+			//m = (c.x * p.x) + (c.y * p.y) + (c.z * p.z) + p.w;
+			m = c.Dot(p.Normal()) + p.w;
+
+			n = (hd.x * fabs(p.x)) + (hd.y * fabs(p.y)) + (hd.z * fabs(p.z));
+			//n = hd.Dot(p.Normal()); // Don't think there's an abs() for vector so just do the other one
+
+			if (m + n < 0)
+				return false;	// Outside a plane, can't possibly be inside the frustum
+
+			//if (m - n < 0)
+				// Intersects one plane, but keep checking regardless as it might intersect one plane but be outside of others
+		}
+		return result;
 	}
 
 }

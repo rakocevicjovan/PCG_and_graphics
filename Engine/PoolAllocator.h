@@ -31,13 +31,13 @@ protected:
 
 public:
 	
-	PoolAllocator(UINT capacity) : _capacity(capacity)
+	PoolAllocator(UINT objCapacity) : _capacity(objCapacity)
 	{
 		//check if we can store the freelist member instead of an object
 		static_assert(sizeof(Object) >= sizeof(void*), "Object size too small.");
 
 		//allocate enough memory for n objects of provided type
-		UINT poolSize = capacity * sizeof(Object);
+		UINT poolSize = objCapacity * sizeof(Object);
 
 		_pool = new BYTE[poolSize];
 		

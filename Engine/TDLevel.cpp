@@ -10,9 +10,9 @@
 //Experimental
 //#include "ShaderGenerator.h"
 
-
-
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
+
+TDLevel::TDLevel(Systems& sys) : Level(sys), _octree(AABB(SVec3(), SVec3(_tSize * .5)), 4) {};
 
 
 
@@ -50,9 +50,8 @@ void TDLevel::init(Systems& sys)
 
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
 
-	float tSize = 500;
-	terrain = Procedural::Terrain(2, 2, SVec3(tSize));
-	terrain.setOffset(-tSize * .5f, -0.f, -tSize * .5f);
+	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
+	terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 	terrain.SetUp(S_DEVICE);
 
 
@@ -69,8 +68,8 @@ void TDLevel::init(Systems& sys)
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
 
-	_octree.init(AABB(SVec3(), SVec3(tSize * .5)), 4);	//with depth 5 it's really big, probably not worth it for my game
-	_octree.prellocateRootOnly();						//_oct.preallocateTree();	
+	// Octree with depth 5 is really big, probably not worth it for my game
+	_octree.preallocateRootOnly();	//_oct.preallocateTree();	
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);

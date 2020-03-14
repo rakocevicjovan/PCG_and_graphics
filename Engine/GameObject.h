@@ -43,6 +43,11 @@ public:
 	void propagate();
 
 	void render(const Renderer& r) const;
+
+	inline Hull* getBoundingHull()
+	{
+		return _collider.getHull(0);
+	}
 };
 
 

@@ -31,12 +31,15 @@ private:
 
 public:
 
-	LightManager(uint16_t maxDirLights, uint16_t maxPointLights, uint16_t maxSpotLights, uint16_t frPLights, uint16_t frSLights)
-		: _dlPool(maxDirLights), _plPool(maxPointLights), _slPool(maxSpotLights)
+	LightManager(uint16_t maxDirLights, uint16_t maxPointLights, uint16_t maxSpotLights, uint16_t frPLights, uint16_t frSLights) :
+		_dlPool(maxDirLights),
+		_plPool(maxPointLights),
+		_slPool(maxSpotLights)
 	{
 		_pfPointPool.init(sizeof(PLight) * frPLights);
 		_pfSpotPool.init(sizeof(SLight) * frSLights);
 	}
+
 
 	~LightManager() {}
 
@@ -93,7 +96,6 @@ public:
 			{
 				memcpy(_pfPointPool.alloc(sizeof(PLight)), p, sizeof(PLight));
 			}
-			
 		}
 
 		for (const SLight* s : _sLights)
@@ -133,7 +135,7 @@ public:
 
 
 
-	inline void resetFramePools()
+	inline void resetPerFramePools()
 	{
 		_pfPointPool.clear();
 		_pfSpotPool.clear();

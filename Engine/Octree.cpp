@@ -4,17 +4,17 @@
 #include "GameObject.h"
 
 
-Octree::~Octree()
+Octree::Octree(const AABB& worldBounds, UINT maxDepth) 
+	: _maxDepth(maxDepth), _worldBounds(worldBounds), _octNodePool(nodeCountFromDepth(maxDepth))
 {
-	deleteNode(_rootNode);		//deletes everything
+
 }
 
 
 
-void Octree::init(const AABB& worldBounds, int maxDepth)
+Octree::~Octree()
 {
-	_worldBounds = worldBounds;
-	_maxDepth = maxDepth;
+	deleteNode(_rootNode);		//deletes everything
 }
 
 
@@ -26,11 +26,9 @@ void Octree::preallocateTree()
 
 
 
-void Octree::prellocateRootOnly()
+void Octree::preallocateRootOnly()
 {
-	_rootNode = new OctNode();
-	//_rootNode->parent = nullptr;
-	_rootNode->bBox = _worldBounds;	//kinda wasteful with copy construction...
+	_rootNode = new (_octNodePool.allocate()) OctNode(_worldBounds);
 }
 
 
@@ -40,12 +38,13 @@ void Octree::deleteNode(OctNode*& pNode)
 	//delete each existing child first, then self, to avoid "orphans" leaking memory
 	for (int i = 0; i < 8; ++i)
 	{
-		if (pNode->children[i])
-			deleteNode(pNode->children[i]);
+		if (pNode->_children[i])
+			deleteNode(pNode->_children[i]);
 	}
 
 	_nodeCount--;
-	delete pNode;
+	//delete pNode;
+	_octNodePool.deallocate(pNode);
 	pNode = nullptr;
 }
 
@@ -61,8 +60,8 @@ void Octree::trimNode(OctNode*& pNode)
 {
 	for (int i = 0; i < 8; ++i)
 	{
-		if (pNode->children[i])
-			trimNode(pNode->children[i]);
+		if (pNode->_children[i])
+			trimNode(pNode->_children[i]);
 	}
 
 	if (isEmpty(pNode))
@@ -74,12 +73,12 @@ void Octree::trimNode(OctNode*& pNode)
 bool Octree::isEmpty(OctNode* pNode) const
 {
 	//hulls not empty, no need to check the children
-	if (!pNode->hulls.empty())
+	if (!pNode->_hulls.empty())
 		return false;
 
 	//hulls are empty, check children
 	for (int i = 0; i < 8; ++i)
-		if (pNode->children[i] != nullptr)
+		if (pNode->_children[i] != nullptr)
 			return false;
 
 	//empy is still true if and only if all children are nullptr and hulls list is empty
@@ -88,7 +87,7 @@ bool Octree::isEmpty(OctNode* pNode) const
 
 
 
-AABB Octree::createBoxByIndex(int i, const AABB& parentBox)
+AABB Octree::createBoxByIndex(int i, const AABB& parentBox) const
 {
 	SVec3 offset;
 	SVec3 step = parentBox.getHalfSize() * 0.5f;
@@ -101,7 +100,7 @@ AABB Octree::createBoxByIndex(int i, const AABB& parentBox)
 
 
 
-int Octree::getIndexByPosition(const AABB& parentBox, const SVec3& pos)
+int Octree::getIndexByPosition(const AABB& parentBox, const SVec3& pos) const
 {
 	SVec3 offset = parentBox.getPosition() - pos;
 	return ((offset.x > 0 ? 1 : 0) + (offset.y > 0 ? 2 : 0) + (offset.z > 0 ? 4 : 0));	//kinda reverse of createBoxByIndex
@@ -109,25 +108,24 @@ int Octree::getIndexByPosition(const AABB& parentBox, const SVec3& pos)
 
 
 
-OctNode* Octree::preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent)
+OctNode* Octree::preallocateNode(SVec3 center, SVec3 size, int stopDepth, OctNode* parent)
 {
 	if (stopDepth < 0)
 		return nullptr;
 
-	OctNode* pNode = new OctNode();
+	OctNode* pNode = new (_octNodePool.allocate()) OctNode(AABB(center, size));
 	//pNode->parent = parent;
-	pNode->bBox = AABB(center, halfSize);	//kinda wasteful with copy construction...
 	//pNode->hulls = std::list<SphereHull*>();
 
 	SVec3 offset;
-	SVec3 step = halfSize * 0.5f;	//dimensions of aabb of parent, halved each step
+	SVec3 halfSize = size * 0.5f;	//dimensions of aabb of parent, halved each step
 
 	for (int i = 0; i < 8; ++i)
 	{
-		offset.x = ((i & 1) ? step.x : -step.x);
-		offset.y = ((i & 2) ? step.y : -step.y);
-		offset.z = ((i & 4) ? step.z : -step.z);
-		pNode->children[i] = preallocateNode(center + offset, step, stopDepth - 1, parent);
+		offset.x = ((i & 1) ? halfSize.x : -halfSize.x);
+		offset.y = ((i & 2) ? halfSize.y : -halfSize.y);
+		offset.z = ((i & 4) ? halfSize.z : -halfSize.z);
+		pNode->_children[i] = preallocateNode(center + offset, halfSize, stopDepth - 1, parent);
 	}
 	return pNode;
 }
@@ -151,7 +149,7 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 	// If straddling any of the dividing x, y, or z planes, exit directly
 	for (int i = 0; i < 3; i++)
 	{
-		float delta = pSpHull->getPosition().at(i) - pNode->bBox.getPosition().at(i);	//distance - node middle to sphere middle
+		float delta = pSpHull->getPosition().at(i) - pNode->_box.getPosition().at(i);	//distance - node middle to sphere middle
 		if (abs(delta) <= pSpHull->r)	//pNode->bBox.getHalfSize().at(i)
 		{
 			straddle = 1;
@@ -165,15 +163,15 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 	if (!straddle && (depth < _maxDepth))	// Fully contained in existing child node; insert in that subtree
 	{
 		//however, it could be empty! so... this, but it's not very good to do this without max depth checking
-		if (pNode->children[index] == nullptr)
+		if (pNode->_children[index] == nullptr)
 		{
-			pNode->children[index] = new OctNode();
+			pNode->_children[index] = new (_octNodePool.allocate()) OctNode();
 			//pNode->children[index]->parent = pNode;
-			pNode->children[index]->bBox = createBoxByIndex(index, pNode->bBox);
+			pNode->_children[index]->_box = createBoxByIndex(index, pNode->_box);
 			_nodeCount++;
 			//pNode->hulls = std::list<SphereHull*>();
 		}
-		insertObjectIntoNode(pNode->children[index], pSpHull, ++depth);
+		insertObjectIntoNode(pNode->_children[index], pSpHull, ++depth);
 	}
 	else
 	{
@@ -183,7 +181,7 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 		//pNode->pObjList = pObject;
 
 		//I did this another way because im using std::list<SphereHull*> instead of my object wrapper for hull
-		pNode->hulls.push_back(pSpHull);
+		pNode->_hulls.push_back(pSpHull);
 	}
 }
 
@@ -210,13 +208,13 @@ void Octree::collideAll()
 
 bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 {
-	int index = getIndexByPosition(pNode->bBox, pSpHull->getPosition());
+	int index = getIndexByPosition(pNode->_box, pSpHull->getPosition());
 
 	bool straddle = 0;
 	for (int i = 0; i < 3; i++)
 	{
-		float delta = pSpHull->getPosition().at(i) - pNode->bBox.getPosition().at(i);	//distance - node middle to sphere middle
-		if (abs(delta) < pNode->bBox.getHalfSize().at(i) + pSpHull->r)
+		float delta = pSpHull->getPosition().at(i) - pNode->_box.getPosition().at(i);	//distance - node middle to sphere middle
+		if (abs(delta) < pNode->_box.getHalfSize().at(i) + pSpHull->r)
 		{
 			straddle = 1;
 			break;
@@ -227,12 +225,12 @@ bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 	//it's straddling, which means it's here and not in children (so far...)
 	if (straddle)
 	{
-		pNode->hulls.remove(pSpHull);//(std::remove(pNode->hulls.begin(), pNode->hulls.end(), pSpHull));
+		pNode->_hulls.remove(pSpHull);//(std::remove(pNode->hulls.begin(), pNode->hulls.end(), pSpHull));
 		return true;
 	}
 
-	if (pNode->children[index])
-		removeObjectFromNode(pNode->children[index], pSpHull);
+	if (pNode->_children[index])
+		removeObjectFromNode(pNode->_children[index], pSpHull);
 	else
 		return false;
 }
@@ -249,7 +247,7 @@ void Octree::updateAll()
 //Bugged! It works, but they can be possibly reinserted twice, and it's not making use of locality! Very important @TODO!
 void Octree::updateNode(OctNode* node)
 {
-	std::list<SphereHull*> wat = std::move(node->hulls);
+	std::list<SphereHull*> wat = std::move(node->_hulls);
 
 	std::list<SphereHull*>::iterator iter;
 	for (iter = wat.begin(); iter != wat.end(); ++iter)
@@ -257,8 +255,9 @@ void Octree::updateNode(OctNode* node)
 		insertObjectIntoNode(_rootNode, (*iter), 0);
 	}
 
-	for (auto& child : node->children)
-		if (child) updateNode(child);
+	for (auto& child : node->_children)
+		if (child != nullptr)
+			updateNode(child);
 }
 
 
@@ -281,9 +280,9 @@ void Octree::testAllCollisions(OctNode *pNode)
 
 	for (int n = 0; n < depth; n++)	//iterate the ancestor stack
 	{
-		for (SphereHull* spA : ancestorStack[n]->hulls)	//check all hulls in ancestors (inclu
+		for (SphereHull* spA : ancestorStack[n]->_hulls)	//check all hulls in ancestors (inclu
 		{
-			for (SphereHull* spL : pNode->hulls)
+			for (SphereHull* spL : pNode->_hulls)
 			{
 				if (spA == spL)	//not sure if continue or break, book says break but that seems incorrect!
 					continue;
@@ -306,8 +305,8 @@ void Octree::testAllCollisions(OctNode *pNode)
 	// Recursively visit all existing children
 	for (int i = 0; i < 8; i++)
 	{
-		if (pNode->children[i])
-			testAllCollisions(pNode->children[i]);
+		if (pNode->_children[i])
+			testAllCollisions(pNode->_children[i]);
 	}
 
 	// Remove current node from ancestor stack before returning
@@ -326,12 +325,12 @@ void Octree::getTreeAsAABBVector(std::vector<AABB>& AABBVector)
 
 void Octree::getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector)
 {
-	if (!pNode->hulls.empty())
-		AABBVector.push_back(pNode->bBox);
+	if (!pNode->_hulls.empty())
+		AABBVector.push_back(pNode->_box);
 
 	for (int i = 0; i < 8; ++i)
-		if (pNode->children[i])
-			getNodeAABB(pNode->children[i], AABBVector);
+		if (pNode->_children[i])
+			getNodeAABB(pNode->_children[i], AABBVector);
 }
 
 
@@ -345,16 +344,16 @@ void Octree::rayCastTree(const SRay& ray, std::list<SphereHull*>& spl) const
 
 void Octree::rayCastNode(const OctNode* pNode, const SRay& lineSeg, const SRay& ray, std::list<SphereHull*>& spl) const
 {
-	if (!Col::LSegmentAABBSimpleIntersection(lineSeg, pNode->bBox))
+	if (!Col::LSegmentAABBSimpleIntersection(lineSeg, pNode->_box))
 		return;
 
-	for (SphereHull* sp : pNode->hulls)
+	for (SphereHull* sp : pNode->_hulls)
 	{
 		if (Col::RaySphereIntersection(ray, *sp))
 			spl.push_back(sp);
 	}
 
 	for (int i = 0; i < 8; ++i)
-		if (pNode->children[i])
-			rayCastNode(pNode->children[i], lineSeg, ray, spl);
+		if (pNode->_children[i])
+			rayCastNode(pNode->_children[i], lineSeg, ray, spl);
 }

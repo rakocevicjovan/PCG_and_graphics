@@ -27,7 +27,7 @@
 class TDLevel : public Level
 {
 public:
-	TDLevel(Systems& sys) : Level(sys) {};
+	TDLevel(Systems& sys);
 
 	void init(Systems& sys) override;
 	void update(const RenderContext& rc) override;
@@ -48,6 +48,7 @@ private:
 
 	//unlike loaded models in the manager, these will be generated
 	Procedural::Terrain terrain;
+	float _tSize = 500.f;
 	Mesh floorMesh;
 	Renderable floorRenderable;
 	NavGrid _navGrid;
