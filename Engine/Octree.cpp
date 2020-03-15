@@ -114,6 +114,8 @@ OctNode* Octree::preallocateNode(SVec3 center, SVec3 size, int stopDepth, OctNod
 
 	OctNode* pNode = new (_octNodePool.allocate()) OctNode(AABB(center, size));
 
+	++_nodeCount;
+
 	SVec3 offset;
 	SVec3 halfSize = size * 0.5f;	//dimensions of aabb of parent, halved each step
 
@@ -162,11 +164,8 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 		//however, it could be empty! so... this, but it's not very good to do this without max depth checking
 		if (pNode->_children[index] == nullptr)
 		{
-			pNode->_children[index] = new (_octNodePool.allocate()) OctNode();
-			//pNode->children[index]->parent = pNode;
-			pNode->_children[index]->_box = createBoxByIndex(index, pNode->_box);
-			_nodeCount++;
-			//pNode->hulls = std::list<SphereHull*>();
+			pNode->_children[index] = new (_octNodePool.allocate()) OctNode(createBoxByIndex(index, pNode->_box));
+			++_nodeCount;
 		}
 		insertObjectIntoNode(pNode->_children[index], pSpHull, ++depth);
 	}

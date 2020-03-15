@@ -2,12 +2,14 @@
 #include "GameObject.h"
 #include "LightManager.h"
 #include "Octree.h"
+#include "Renderer.h"
 
 #define DEFAULT_SUBDIV_LEVELS 4u
 
 class Scene
 {
 private:
+	Renderer& _renderer;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -32,7 +34,13 @@ public:
 
 
 
-	Scene(const AABB& scope, UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) : _octree(scope, subdivLevels)
+	Scene(
+		const AABB& scope, 
+		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS,
+		Renderer& r) 
+		:
+		_octree(scope, subdivLevels),
+		_renderer(r)
 	{
 		_lightManager = new LightManager(4, 256, 256, 128, 128);
 		_litObjectPool.reserve(20);
@@ -66,7 +74,8 @@ public:
 
 	void draw()
 	{
-
+		_renderer.d3d()->ClearColourDepthBuffers();
+		_renderer.d3d()->setRSSolidNoCull();
 	}
 
 

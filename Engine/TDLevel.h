@@ -22,7 +22,7 @@
 //#include "PoolAllocator.h"
 #include "CSM.h"
 
-
+#define DEBUG_OCTREE_NOT
 
 class TDLevel : public Level
 {
@@ -101,6 +101,17 @@ private:
 	std::vector<Enemy> _creeps;
 	
 	Economy _eco;
+
+#ifdef DEBUG_OCTREE
+
+	struct InstanceData { SMatrix transform; };
+
+	//for header
+	Model debugModel;
+	Actor debugActor;
+	std::vector<AABB> tempBoxes;
+	std::vector<SMatrix> octNodeMatrices;
+#endif
 };
 
 

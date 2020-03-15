@@ -13,7 +13,7 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 TDLevel::TDLevel(Systems& sys) 
-	: Level(sys), _scene(AABB(SVec3(), SVec3(_tSize * .5)), 4)
+	: Level(sys), _tSize(500.f), _scene(AABB(SVec3(), SVec3(500.f * .5)), 4)
 {
 
 };
@@ -107,6 +107,20 @@ void TDLevel::init(Systems& sys)
 	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
+
+#ifdef DEBUG_OCTREE
+	Procedural::Geometry g1;
+	g1.GenBox(SVec3(1));
+	debugModel.meshes.push_back(Mesh(g1, S_DEVICE, true, false));
+	debugActor = Actor(&debugModel);
+	debugActor._renderables[0].mat->setVS(sys._shaderCache.getVertShader("basicVS"));
+	debugActor._renderables[0].mat->setPS(sys._shaderCache.getPixShader("phongPS"));
+	debugActor._renderables[0].mat->pLight = &pLight;
+	tempBoxes.reserve(1000);
+	octNodeMatrices.reserve(1000);
+
+	Actor octree;
+#endif
 }
 
 
@@ -197,6 +211,22 @@ void TDLevel::update(const RenderContext& rc)
 	}
 
 	cull(*rc.cam);
+
+#ifdef DEBUG_OCTREE
+	_scene._octree.getTreeAsAABBVector(tempBoxes);
+
+	for (int i = 0; i < tempBoxes.size(); ++i)
+	{
+		octNodeMatrices.push_back(
+			(
+				SMatrix::CreateScale(tempBoxes[i].getHalfSize() * 2.f) *
+				SMatrix::CreateTranslation(tempBoxes[i].getPosition())
+				).Transpose()
+		);
+	}
+
+	tempBoxes.clear();
+#endif
 }
 
 
@@ -438,13 +468,6 @@ void TDLevel::draw(const RenderContext& rc)
 	S_RANDY.flushRenderQueue();
 	S_RANDY.clearRenderQueue();
 
-	//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
-	/*for (int i = 0; i < projMats.size(); ++i)
-	{
-		frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
-		S_RANDY.render(frustumRenderable);
-	}*/
-
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
 	if (_inBuildingMode)
@@ -452,6 +475,18 @@ void TDLevel::draw(const RenderContext& rc)
 
 	for (Building* building : _structures)
 		building->render(S_RANDY);
+
+#ifdef DEBUG_OCTREE
+	//shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
+	//debugModel.DrawInstanced(context, shady.instanced);
+	//shady.instanced.ReleaseShaderParameters(context);
+	for (int i = 0; i < octNodeMatrices.size(); i++)
+	{
+		debugActor._renderables[0]._transform = octNodeMatrices[i].Transpose();
+		S_RANDY.render(debugActor._renderables[0]);
+	}
+	octNodeMatrices.clear();
+#endif
 
 	startGuiFrame();
 
@@ -573,46 +608,9 @@ for (int i = 0; i < 125; ++i)
 */
 
 
-
-
-//#define DEBUG_OCTREE
-
-#ifdef DEBUG_OCTREE
-
-//for header
-Model debugModel;
-std::vector<AABB> tempBoxes;
-std::vector<InstanceData> octNodeMatrices;
-
-
-//for init
-Procedural::Geometry g;
-g.GenBox(SVec3(1));
-debugModel.meshes.push_back(Mesh(g, S_DEVICE));
-tempBoxes.reserve(1000);
-octNodeMatrices.reserve(1000);
-
-
-//for update
-_oct.getTreeAsAABBVector(tempBoxes);
-
-for (int i = 0; i < tempBoxes.size(); ++i)
+//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
+/*for (int i = 0; i < projMats.size(); ++i)
 {
-	octNodeMatrices.push_back(
-		(
-			SMatrix::CreateScale(tempBoxes[i].getHalfSize() * 2.f) *
-			SMatrix::CreateTranslation(tempBoxes[i].getPosition())
-			).Transpose()
-	);
-}
-
-shady.instanced.UpdateInstanceData(octNodeMatrices);
-octNodeMatrices.clear();
-tempBoxes.clear();
-
-
-//for draw
-shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
-debugModel.DrawInstanced(context, shady.instanced);
-shady.instanced.ReleaseShaderParameters(context);
-#endif
+	frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
+	S_RANDY.render(frustumRenderable);
+}*/
