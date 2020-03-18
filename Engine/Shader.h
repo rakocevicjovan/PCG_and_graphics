@@ -69,7 +69,7 @@ public:
 	void setBuffers(ID3D11DeviceContext* cont);
 
 
-	//separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
+	// Separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
 	template <typename RenderItem>
 	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
 	{

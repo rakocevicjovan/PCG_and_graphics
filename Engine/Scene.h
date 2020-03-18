@@ -13,11 +13,8 @@ private:
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
-	std::vector<Actor*> _actors;
 
 	std::vector<Actor*> _visibleActors;
-
-
 
 	std::vector<Actor*> _litObjectPool;
 
@@ -31,16 +28,19 @@ public:
 
 	LightManager* _lightManager;
 	Octree _octree;
+	std::vector<Actor*> _actors;
 
+	UINT _numCulled;
 
 
 	Scene(
+		Renderer& r,
 		const AABB& scope, 
-		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS,
-		Renderer& r) 
+		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:
+		_renderer(r),
 		_octree(scope, subdivLevels),
-		_renderer(r)
+		_numCulled(0u)
 	{
 		_lightManager = new LightManager(4, 256, 256, 128, 128);
 		_litObjectPool.reserve(20);
@@ -123,15 +123,31 @@ public:
 
 	void frustumCull(const Camera& cam)
 	{
+		_numCulled = 0;
+
+		const SMatrix v = cam.GetViewMatrix();
+		const SVec3 viewForward(v._13, v._23, v._33);
+		const SVec3 camPos = cam.GetPosition();
+
 		for (size_t i = 0; i < _actors.size(); ++i)
 		{
 			Actor* a = _actors[i];
-			SphereHull* sph = static_cast<SphereHull*>(a->getBoundingHull());
 
-			if (Col::FrustumSphereIntersection(cam._frustum, *sph))
+			for (size_t j = 0; j < a->_renderables.size(); ++j)
 			{
-				_visibleActors.push_back(a);
+				SphereHull* sph = static_cast<SphereHull*>(a->getBoundingHull(j));
+
+				if (Col::FrustumSphereIntersection(cam._frustum, *sph))
+				{
+					a->_renderables[j].zDepth = (a->transform.Translation() - camPos).Dot(viewForward);	//@TODO
+					_renderer.addToRenderQueue(a->_renderables[j]);
+				}
+				else
+				{
+					++_numCulled;
+				}
 			}
+			
 		}
 	}
 

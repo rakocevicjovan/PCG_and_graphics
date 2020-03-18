@@ -145,14 +145,14 @@ void Renderer::flushRenderQueue()
 
 
 
-//mind all the pointers, this can fail spectacularly if anything relocates...
+// Mind all the pointers, this can fail spectacularly if anything relocates...
 void Renderer::render(const Renderable& r) const
 {
-	//update and set cbuffers
+	// Update and set cbuffers
 	r.updateBuffersAuto(_deviceContext);
 	r.setBuffers(_deviceContext);
 
-	//set shaders and similar geebees
+	// Set shaders and similar geebees
 	_deviceContext->VSSetShader(r.mat->getVS()->_vsPtr, NULL, 0);
 	_deviceContext->PSSetShader(r.mat->getPS()->_psPtr, NULL, 0);
 	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);

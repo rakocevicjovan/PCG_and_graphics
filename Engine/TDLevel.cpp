@@ -13,7 +13,7 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 TDLevel::TDLevel(Systems& sys) 
-	: Level(sys), _tSize(500.f), _scene(AABB(SVec3(), SVec3(500.f * .5)), 4)
+	: Level(sys), _tSize(500.f), _scene(S_RANDY, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
 
 };
@@ -77,6 +77,8 @@ void TDLevel::init(Systems& sys)
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
 
+
+	// Initialize all enemies
 	_creeps.reserve(NUM_ENEMIES);
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
@@ -99,6 +101,7 @@ void TDLevel::init(Systems& sys)
 		}
 
 		_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
+		_scene._actors.push_back(&(_creeps[i]));
 	}
 
 	//Add building types... again, could make data driven...
@@ -210,7 +213,7 @@ void TDLevel::update(const RenderContext& rc)
 		}
 	}
 
-	cull(*rc.cam);
+	_scene.frustumCull(*rc.cam);
 
 #ifdef DEBUG_OCTREE
 	_scene._octree.getTreeAsAABBVector(tempBoxes);
@@ -410,7 +413,7 @@ void TDLevel::steerEnemies(float dTime)
 
 		if (_creeps[i]._steerComp._active)
 		{
-			_scene._octree.findWithin(_creeps[i].getPosition(), 10.f, neighbourCreepVec);
+			_scene._octree.findWithin(_creeps[i].getPosition(), 3.f, neighbourCreepVec);
 			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreepVec, i, stopDistance);
 			neighbourCreepVec.clear();
 		}
@@ -433,19 +436,10 @@ void TDLevel::draw(const RenderContext& rc)
 	rc.d3d->ClearColourDepthBuffers();
 	rc.d3d->setRSSolidNoCull();
 
-	// CSM testing code
-	/*+ SVec3(0, 0, 500) * sin(rc.elapsed)*/
+	// CSM code
 	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-	SMatrix dlCamMatrix = dlViewMatrix.Invert();
+	std::vector<SMatrix> projMats = _csm.calcProjMats(*rc.cam, dlViewMatrix);
 
-	
-	//SMatrix ct = SMatrix::CreateTranslation(SVec3(0, 0, 0));	//sin(rc.elapsed) * 500
-	SMatrix rt = SMatrix::CreateRotationY(.5 * PI);
-	Math::SetTranslation(rt, SVec3(-250, 0., 275.));
-	Camera c = Camera(rt, _sys._renderer._cam.GetProjectionMatrix());
-	
-
-	std::vector<SMatrix> projMats = _csm.calcProjMats(*rc.cam, dlViewMatrix);	//*rc.cam
 	_csm.beginShadowPassSequence(S_CONTEXT, S_SHCACHE.getVertShader("csmVS"));
 
 	for (int i = 0; i < _csm.getNMaps(); ++i)
@@ -456,7 +450,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep._renderables[0]);
 	}
-	//_csm.endShadowPassSequence(S_CONTEXT);
+	
 
 	// Scene rendering code
 	S_RANDY.setDefaultRenderTarget();
@@ -496,7 +490,7 @@ void TDLevel::draw(const RenderContext& rc)
 		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
 		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
-		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}
+		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
 	renderGuiElems(guiElems);
 
@@ -530,38 +524,11 @@ void TDLevel::draw(const RenderContext& rc)
 
 	ImGui::End();
 	
-
 	endGuiFrame();
 
 	rc.d3d->EndScene();
 }
 
-
-//cull and add to render queue
-void TDLevel::cull(const Camera& cam)
-{
-	numCulled = 0;
-	const SMatrix v = cam.GetViewMatrix();
-	const SVec3 v3c(v._13, v._23, v._33);
-	const SVec3 camPos = cam.GetPosition();
-
-
-	for (int i = 0; i < _creeps.size(); ++i)
-	{
-		for (int j = 0; j < _creeps[i]._renderables.size(); ++j)
-		{
-			if (Col::FrustumSphereIntersection(cam._frustum, *static_cast<SphereHull*>(_creeps[i]._collider.getHull(j))))
-			{
-				_creeps[i]._renderables[j].zDepth = (_creeps[i].transform.Translation() - camPos).Dot(v3c);
-				S_RANDY.addToRenderQueue(_creeps[i]._renderables[j]);
-			}
-			else
-			{
-				numCulled++;
-			}
-		}
-	}
-}
 
 
 ///whatever this is... don't need it really

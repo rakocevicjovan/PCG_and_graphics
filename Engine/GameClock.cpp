@@ -1,6 +1,8 @@
 #include <windows.h>
 #include "GameClock.h"
 
+
+
 GameClock::GameClock()
 	: mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0),
 	mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false)
@@ -9,6 +11,8 @@ GameClock::GameClock()
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
 	mSecondsPerCount = 1.0 / (double)countsPerSec;
 }
+
+
 
 // Returns the total time elapsed since Reset() was called, NOT counting any
 // time when the clock is stopped.
@@ -44,10 +48,14 @@ float GameClock::TotalTime()const
 	}
 }
 
+
+
 float GameClock::DeltaTime()const
 {
 	return (float)mDeltaTime;
 }
+
+
 
 void GameClock::Reset()
 {
@@ -59,6 +67,8 @@ void GameClock::Reset()
 	mStopTime = 0;
 	mStopped = false;
 }
+
+
 
 void GameClock::Start()
 {
@@ -82,6 +92,8 @@ void GameClock::Start()
 	}
 }
 
+
+
 void GameClock::Stop()
 {
 	if (!mStopped)
@@ -93,6 +105,8 @@ void GameClock::Stop()
 		mStopped = true;
 	}
 }
+
+
 
 void GameClock::Tick()
 {
@@ -120,4 +134,3 @@ void GameClock::Tick()
 		mDeltaTime = 0.0;
 	}
 }
-

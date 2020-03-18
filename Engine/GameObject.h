@@ -49,9 +49,9 @@ public:
 
 	void render(const Renderer& r) const;
 
-	inline Hull* getBoundingHull()
+	inline Hull* getBoundingHull(UINT index)
 	{
-		return _collider.getHull(0);
+		return _collider.getHull(index);
 	}
 };
 

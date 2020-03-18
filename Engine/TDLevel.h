@@ -36,9 +36,6 @@ public:
 
 private:
 
-	//should really be in scene manager
-	void cull(const Camera& cam);
-
 	Scene _scene;
 
 	//some enemy specific stuff...
@@ -58,8 +55,6 @@ private:
 	
 	//CubeMapper skyboxCubeMapper;
 	Skybox _skybox;
-
-	int numCulled;
 
 	//Model globe;
 	//Renderable globeRenderable;
