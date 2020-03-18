@@ -354,3 +354,11 @@ void Octree::rayCastNode(const OctNode* pNode, const SRay& lineSeg, const SRay& 
 		if (pNode->_children[i])
 			rayCastNode(pNode->_children[i], lineSeg, ray, spl);
 }
+
+
+
+void Octree::clear()
+{
+	_hullCount = 0u;
+	_rootNode->clear();
+}

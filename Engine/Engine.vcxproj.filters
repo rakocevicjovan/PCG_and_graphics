@@ -808,6 +808,9 @@
     <ClInclude Include="SphereHull.h">
       <Filter>Collision\Hulls</Filter>
     </ClInclude>
+    <ClInclude Include="StructBuffer.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

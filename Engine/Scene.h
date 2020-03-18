@@ -61,7 +61,16 @@ public:
 	void update()
 	{
 		//@TODO redo this, does redundant work and blows in general
-		_octree.updateAll();	
+		//_octree.updateAll();	
+
+		// Don't do it from within the tree, clear and reinsert... profile if this is better
+
+		_octree.clear();
+
+		for (Actor*& a : _actors)
+		{
+			_octree.insertObject(static_cast<SphereHull*>(a->_collider.getHull(0)));
+		}
 
 		// Pool allocation speeds this up a lot, also empties are only deallocated once per frame, not bad.
 		_octree.lazyTrim();

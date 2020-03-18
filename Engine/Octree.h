@@ -18,6 +18,15 @@ public:
 
 	OctNode() : _children() {}
 	OctNode(const AABB& aabb) : _box(aabb), _children() { /*sizeof(OctNode);*/ }
+
+	void clear()
+	{
+		_hulls.clear();
+		
+		for (int i = 0; i < 8; ++i)
+			if (_children[i])
+				_children[i]->clear();
+	}
 };
 
 
@@ -71,6 +80,7 @@ public:
 	void lazyTrim();	//once per frame, deallocate nodes that are not required... would be faster with a pool allocator...
 	void updateAll();
 	void rayCastTree(const SRay& ray, std::list<SphereHull*>& spl) const;
+	void clear();
 
 	void getTreeAsAABBVector(std::vector<AABB>& AABBVector);
 
