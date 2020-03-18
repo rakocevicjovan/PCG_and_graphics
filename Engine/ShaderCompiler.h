@@ -14,22 +14,22 @@
 
 namespace ShRef
 {
-	struct CBufferVar
+	struct SRCBufferVar
 	{
 		std::string name;
 		uint16_t length;
 		uint16_t offset;
 	};
 
-	struct CBuffer
+	struct SRCBuffer
 	{
 		std::string name;
 		uint8_t boundAt;
 		uint16_t size;
-		std::vector<CBufferVar> _vars;
+		std::vector<SRCBufferVar> _vars;
 	};
 
-	struct Texture
+	struct SRTexture
 	{
 		std::string name;
 		uint8_t boundAt;
@@ -37,8 +37,8 @@ namespace ShRef
 
 	struct ShaderMetadata
 	{
-		std::vector<CBuffer> _cBuffers;
-		std::vector<Texture> _textures;
+		std::vector<SRCBuffer> _cBuffers;
+		std::vector<SRTexture> _textures;
 	};
 }
 

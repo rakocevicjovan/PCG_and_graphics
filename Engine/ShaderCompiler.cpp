@@ -125,7 +125,7 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 		D3D11_SHADER_BUFFER_DESC bDesc;
 		buffer->GetDesc(&bDesc);
 
-		ShRef::CBuffer cBuffer;
+		ShRef::SRCBuffer cBuffer;
 		cBuffer.name = bDesc.Name;
 		cBuffer.size = bDesc.Size;
 
@@ -138,7 +138,7 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 			D3D11_SHADER_VARIABLE_DESC vdesc;
 			variable->GetDesc(&vdesc);
 
-			ShRef::CBufferVar srcb;
+			ShRef::SRCBufferVar srcb;
 			srcb.name = vdesc.Name;
 			srcb.length = vdesc.Size;
 			srcb.offset = vdesc.StartOffset;
@@ -166,7 +166,7 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 
 		if (ibdesc.Type == D3D_SHADER_INPUT_TYPE::D3D10_SIT_TEXTURE)
 		{
-			ShRef::Texture t;
+			ShRef::SRTexture t;
 			t.name = ibdesc.Name;
 			t.boundAt = ibdesc.BindPoint;
 			shMetaData._textures.push_back(t);

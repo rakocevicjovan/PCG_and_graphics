@@ -4,6 +4,7 @@
 
 class StructBuffer
 {
+public:
 	static ID3D11Buffer* createStructBuffer(ID3D11Device* device, UINT elementSize, UINT numElements)
 	{
 		ID3D11Buffer* structBuffer;

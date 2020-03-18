@@ -48,7 +48,6 @@ public:
 		{
 			_cbuffers[i]._metaData = meta[i];
 		}
-		
 	}
 };
 
