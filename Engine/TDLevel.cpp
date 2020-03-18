@@ -13,7 +13,7 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 TDLevel::TDLevel(Systems& sys) 
-	: Level(sys), _tSize(500.f), _scene(S_RANDY, AABB(SVec3(), SVec3(500.f * .5)), 5)
+	: Level(sys), _tSize(500.f), _scene(S_RANDY, AABB(SVec3(), SVec3(500.f * .5)), S_SHCACHE.getVertShader("csmVS"), 5)
 {
 
 };
@@ -45,7 +45,7 @@ void TDLevel::init(Systems& sys)
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
-	//light setup - old stuff, to be replaced soon with a dynamic system
+	// Light setup - old stuff, to be replaced soon with a dynamic system
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
@@ -69,13 +69,13 @@ void TDLevel::init(Systems& sys)
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));
 
+	// Create the navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);
 	_navGrid.createAllEdges();
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
-
 
 	// Initialize all enemies
 	_creeps.reserve(NUM_ENEMIES);
@@ -212,8 +212,6 @@ void TDLevel::update(const RenderContext& rc)
 			break;	//we managed to shoot, it will be on CD, just break immediately
 		}
 	}
-
-	_scene.frustumCull(*rc.cam);
 
 #ifdef DEBUG_OCTREE
 	_scene._octree.getTreeAsAABBVector(tempBoxes);
@@ -451,6 +449,11 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	_scene.draw();
+
+	// THIS OUGHT TO WORK DIFERENTLY!
+	_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
+
+	_scene._skybox.renderSkybox(S_RANDY._cam, S_RANDY);
 
 
 #ifdef DEBUG_OCTREE

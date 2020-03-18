@@ -28,6 +28,7 @@ class CSM
 
 	std::vector<SMatrix> _lvpMats;
 	std::vector<float> _distances;
+	ID3D11InputLayout* _inLay;
 
 	ID3D11Buffer* _wmBuffer;
 	ID3D11Buffer* _lvpBuffer;
@@ -250,7 +251,7 @@ public:
 	{
 		context->VSSetShader(_vs->_vsPtr, nullptr, 0);
 		context->PSSetShader(NULL, nullptr, 0);
-		context->IASetInputLayout(_vs->_layout);
+		_inLay = _vs->_layout;
 	}
 
 
@@ -282,6 +283,7 @@ public:
 		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
 
 		context->IASetPrimitiveTopology(r.mat->primitiveTopology);
+		context->IASetInputLayout(_inLay);
 
 		UINT stride = r.mesh->getStride();
 		UINT offset = r.mesh->getOffset();

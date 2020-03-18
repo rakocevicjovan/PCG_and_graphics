@@ -13,8 +13,6 @@ class Scene
 {
 private:
 	Renderer& _renderer;
-	CSM _csm;
-	Camera _cam;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -36,6 +34,7 @@ public:
 
 	std::vector<Actor*> _actors;
 	Skybox _skybox;
+	CSM _csm;
 
 	UINT _numCulled;
 
@@ -88,11 +87,13 @@ public:
 	{
 		_renderer.d3d()->ClearColourDepthBuffers();	//_renderer.d3d()->setRSSolidNoCull();
 		
+		frustumCull(_renderer._cam);
+
 		// CSM code
 		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-		std::vector<SMatrix> projMats = _csm.calcProjMats(_cam, dlViewMatrix);
+		std::vector<SMatrix> projMats = _csm.calcProjMats(_renderer._cam, dlViewMatrix);
 
-		_csm.beginShadowPassSequence(_renderer.context());	//S_SHCACHE.getVertShader("csmVS")
+		_csm.beginShadowPassSequence(_renderer.context());
 
 		for (int i = 0; i < _csm.getNMaps(); ++i)
 		{
@@ -106,14 +107,10 @@ public:
 		// Scene rendering code
 		_renderer.setDefaultRenderTarget();
 
-		//S_RANDY.render(floorRenderable);
-		//_csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
-
 		_renderer.sortRenderQueue();
 		_renderer.flushRenderQueue();
 		_renderer.clearRenderQueue();
 
-		_skybox.renderSkybox(_cam, _renderer);
 	}
 
 

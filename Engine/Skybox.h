@@ -32,7 +32,7 @@ public:
 	void renderSkybox(Camera& cam, Renderer& renderer)
 	{
 		D3D* d3d = renderer.d3d();
-		auto* context = renderer.context();
+		ID3D11DeviceContext* context = renderer.context();
 
 		d3d->setRSSolidNoCull();
 		d3d->setDSSLessEquals();
