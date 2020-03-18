@@ -85,9 +85,10 @@ public:
 
 	void draw()
 	{
-		_renderer.d3d()->ClearColourDepthBuffers();	//_renderer.d3d()->setRSSolidNoCull();
-		
 		frustumCull(_renderer._cam);
+
+		_renderer.d3d()->ClearColourDepthBuffers();	//_renderer.d3d()->setRSSolidNoCull();
+		_renderer.d3d()->setRSSolidNoCull();
 
 		// CSM code
 		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
@@ -110,7 +111,6 @@ public:
 		_renderer.sortRenderQueue();
 		_renderer.flushRenderQueue();
 		_renderer.clearRenderQueue();
-
 	}
 
 
