@@ -25,7 +25,8 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-	_csm.init(S_DEVICE, 3u, 1024u, 1024u);
+	// Set scene skybox
+	_scene._skybox = Skybox(S_RANDY.device(), "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
 
 	Procedural::Geometry g;
 	g.GenBox(SVec3(2., 2., 1.));
@@ -41,12 +42,10 @@ void TDLevel::init(Systems& sys)
 
 	S_INMAN.registerController(&_tdController);
 
-	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
-
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
-	//light setup
+	//light setup - old stuff, to be replaced soon with a dynamic system
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
@@ -58,7 +57,7 @@ void TDLevel::init(Systems& sys)
 	terrain.SetUp(S_DEVICE);
 
 
-	//generate the floor gemetry... really simple but a lot of material fuss afterwards
+	// Generate the floor geometry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
@@ -67,8 +66,8 @@ void TDLevel::init(Systems& sys)
 	floorMesh._baseMaterial.pLight = &pLight;
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
-	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));
 
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);
@@ -110,6 +109,7 @@ void TDLevel::init(Systems& sys)
 	//Add resource types, same @TODO as above
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
+
 
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g1;
@@ -191,7 +191,7 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 	
-	//could use octree if that will help it go faster...
+	// Octree can speed this up of course... but for now it's ok
 	for (Tower& tower : _towers)
 	{
 		tower.advanceCooldown(rc.dTime);
@@ -250,7 +250,7 @@ float TDLevel::resolveAttack(const Attack& att, const Armour& arm)
 void TDLevel::rayPickTerrain(const Camera* cam)
 {
 	MCoords mc = _sys._inputManager.getAbsXY();
-	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
+	SRay ray = Picker::generateRay(S_WW, S_WH, mc.x, mc.y, *cam);
 
 	//intersect base plane for now... terrain works using projection + bresenham/superset if gridlike
 	SVec3 POI;
@@ -310,16 +310,13 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
 	ray.direction *= 500.f;
 
+	// Returns all intersected sphere hulls from the octree
 	std::list<SphereHull*> sps;
-
-	Building* b = nullptr;
-
 	_scene._octree.rayCastTree(ray, sps);
 
+	// Find the closest one 
 	float minDist = 9999999.f;
-
 	SphereHull* closest = nullptr;
-
 	for (SphereHull* s : sps)
 	{
 		float dist = (s->ctr - cam->GetPosition()).LengthSquared();
@@ -329,6 +326,9 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 			minDist = dist;
 		}
 	}
+
+	// If it's a building, return it, otherwise nullptr
+	Building* b = nullptr;
 
 	if(closest)
 		b = dynamic_cast<Building*>(closest->_collider->parent);
@@ -372,6 +372,7 @@ void TDLevel::build()
 	//could use traits to infer the type but it's not really an issue with only two types... what better way?
 	//single array idea could make shooting worse with longer iterations...	
 }
+
 
 
 void TDLevel::demolish()
@@ -433,42 +434,24 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
-	rc.d3d->ClearColourDepthBuffers();
-	rc.d3d->setRSSolidNoCull();
-
-	// CSM code
-	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-	std::vector<SMatrix> projMats = _csm.calcProjMats(*rc.cam, dlViewMatrix);
-
-	_csm.beginShadowPassSequence(S_CONTEXT, S_SHCACHE.getVertShader("csmVS"));
-
-	for (int i = 0; i < _csm.getNMaps(); ++i)
-	{
-		_csm.beginShadowPassN(S_CONTEXT, i);
-
-		_csm.drawToCurrentShadowPass(S_CONTEXT, floorRenderable);
-
-		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep._renderables[0]);
-	}
-	
-
-	// Scene rendering code
-	S_RANDY.setDefaultRenderTarget();
-
-	//S_RANDY.render(floorRenderable);
-	_csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
-
-	S_RANDY.sortRenderQueue();
-	S_RANDY.flushRenderQueue();
-	S_RANDY.clearRenderQueue();
-
-	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
 	if (_inBuildingMode)
-		_templateBuilding->render(S_RANDY);
+	{
+		//_templateBuilding->render(S_RANDY);
+		for (Renderable& r : _templateBuilding->_renderables)
+			S_RANDY.addToRenderQueue(r);
+	}
+
 
 	for (Building* building : _structures)
-		building->render(S_RANDY);
+	{
+		//building->render(S_RANDY);
+		for (Renderable& r : building->_renderables)
+			S_RANDY.addToRenderQueue(r);
+	}
+
+	_scene.draw();
+
 
 #ifdef DEBUG_OCTREE
 	//shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);
@@ -482,8 +465,8 @@ void TDLevel::draw(const RenderContext& rc)
 	octNodeMatrices.clear();
 #endif
 
-	startGuiFrame();
 
+	_gui.startGuiFrame();
 
 	std::vector<GuiElement> guiElems =
 	{
@@ -492,7 +475,8 @@ void TDLevel::draw(const RenderContext& rc)
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
-	renderGuiElems(guiElems);
+
+	_gui.renderGuiElems(guiElems);
 
 
 	UINT structureIndex;
@@ -506,25 +490,12 @@ void TDLevel::draw(const RenderContext& rc)
 	if (_selectedBuilding != nullptr)
 	{
 		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
-		{
 			demolish();
-		}
 	}
 
 	_eco.renderEconomyWidget();
-
-	// Debug texture output, wrap this somewhere, it is very, very useful!
 	
-	ImGui::SetNextWindowPos(ImVec2(S_WW - 512, 0), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(512, 512), ImGuiCond_Once);
-
-	ImGui::Begin("Debug csm", false);
-
-	ImGui::Image(_csm.getDebugView(), ImVec2(512, 512));
-
-	ImGui::End();
-	
-	endGuiFrame();
+	_gui.endGuiFrame();
 
 	rc.d3d->EndScene();
 }

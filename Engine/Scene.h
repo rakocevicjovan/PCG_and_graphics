@@ -3,6 +3,9 @@
 #include "LightManager.h"
 #include "Octree.h"
 #include "Renderer.h"
+#include "Skybox.h"
+#include "CSM.h"
+#include <memory>
 
 #define DEFAULT_SUBDIV_LEVELS 4u
 
@@ -10,6 +13,8 @@ class Scene
 {
 private:
 	Renderer& _renderer;
+	CSM _csm;
+	Camera _cam;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -26,9 +31,11 @@ private:
 
 public:
 
-	LightManager* _lightManager;
+	std::unique_ptr<LightManager> _lightManager;
 	Octree _octree;
+
 	std::vector<Actor*> _actors;
+	Skybox _skybox;
 
 	UINT _numCulled;
 
@@ -36,24 +43,20 @@ public:
 	Scene(
 		Renderer& r,
 		const AABB& scope, 
+		VertexShader* csmVs, // ugly workaround, csm shouldn't even own this
 		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:
 		_renderer(r),
 		_octree(scope, subdivLevels),
 		_numCulled(0u)
 	{
-		_lightManager = new LightManager(4, 256, 256, 128, 128);
+		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
+
 		_litObjectPool.reserve(20);
 
-		// Octree with depth 5 is really big, probably not worth it for my game
+		_csm.init(r.device(), 3u, 1024u, 1024u, csmVs);
+
 		_octree.preallocateRootOnly();	//_oct.preallocateTree();	
-	}
-
-
-
-	~Scene()
-	{
-		delete _lightManager;
 	}
 
 
@@ -83,8 +86,34 @@ public:
 
 	void draw()
 	{
-		_renderer.d3d()->ClearColourDepthBuffers();
-		_renderer.d3d()->setRSSolidNoCull();
+		_renderer.d3d()->ClearColourDepthBuffers();	//_renderer.d3d()->setRSSolidNoCull();
+		
+		// CSM code
+		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
+		std::vector<SMatrix> projMats = _csm.calcProjMats(_cam, dlViewMatrix);
+
+		_csm.beginShadowPassSequence(_renderer.context());	//S_SHCACHE.getVertShader("csmVS")
+
+		for (int i = 0; i < _csm.getNMaps(); ++i)
+		{
+			_csm.beginShadowPassN(_renderer.context(), i);
+
+			for (Actor*& a : _actors)
+				_csm.drawToCurrentShadowPass(_renderer.context(), a->_renderables[0]);
+		}
+
+
+		// Scene rendering code
+		_renderer.setDefaultRenderTarget();
+
+		//S_RANDY.render(floorRenderable);
+		//_csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
+
+		_renderer.sortRenderQueue();
+		_renderer.flushRenderQueue();
+		_renderer.clearRenderQueue();
+
+		_skybox.renderSkybox(_cam, _renderer);
 	}
 
 

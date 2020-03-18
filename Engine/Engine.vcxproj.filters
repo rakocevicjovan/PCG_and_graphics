@@ -811,6 +811,9 @@
     <ClInclude Include="StructBuffer.h">
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

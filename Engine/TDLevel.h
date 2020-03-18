@@ -7,7 +7,7 @@
 #include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
-#include "Skybox.h"
+#include "GUI.h"
 
 //game specific
 #include "TDController.h"
@@ -20,7 +20,6 @@
 //tests
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
-#include "CSM.h"
 
 #define DEBUG_OCTREE_NOT
 
@@ -38,32 +37,32 @@ private:
 
 	Scene _scene;
 
-	//some enemy specific stuff...
+	// Level specific
 	UINT NUM_ENEMIES = 100u;
 	float FLYING_HEIGHT = 10.f;
 
-	//unlike loaded models in the manager, these will be generated
-	Procedural::Terrain terrain;
+	// Unlike models loaded using the manager, these will be generated procedurally
+	
 	float _tSize = 500.f;
+	Procedural::Terrain terrain;
 	Mesh floorMesh;
 	Renderable floorRenderable;
+	Renderable frustumRenderable;
+
+	// Navigation
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
 
+	// Lights
 	PointLight pLight;
 	DirectionalLight dirLight;
-	
-	//CubeMapper skyboxCubeMapper;
-	Skybox _skybox;
 
 	//Model globe;
 	//Renderable globeRenderable;
 
-	Renderable frustumRenderable;
 
-	CSM _csm;
 
-	//gameplay
+	// Gameplay functionality, a lot of this should be in TDGame class (that doesn't even exist reeeee)
 	void addBuildables();
 	void fixBuildable(Building* b);
 	void build();
@@ -75,26 +74,28 @@ private:
 	float resolveAttack(const Attack& att, const Armour& arm);
 
 
+	// Gameplay variables
 	TDController _tdController;
+	GUI _gui;
 	TDGUI _tdgui;
 
 	Building* _templateBuilding = nullptr;	//not owning
 	Building* _selectedBuilding = nullptr;	//not owning
 	bool _inBuildingMode = false;
 
-
+	// Types of buildings that can be built
 	std::vector<Building*> _buildable;
-	//@TODO replace all three with SlotVector
-
-	std::list<Tower> _towers;
-	std::list<IndustrialBuilding> _industry;
-	std::list<Building*> _structures;
-	//the master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
 	
-
-	//changes per wave
+	//@TODO replace all three with SlotVector or similar
+	std::list<Tower> _towers;					// List of towers (martial buildings)
+	std::list<IndustrialBuilding> _industry;	// List of industrial buildings
+	std::list<Building*> _structures;			// Master list for easier access (coding-vise) cba writing two loops
+	// The master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
+	
+	// List of enemies in the wave
 	std::vector<Enemy> _creeps;
 	
+	// Class that manages in-game resources, fairly simple
 	Economy _eco;
 
 #ifdef DEBUG_OCTREE
@@ -108,19 +109,3 @@ private:
 	std::vector<SMatrix> octNodeMatrices;
 #endif
 };
-
-
-/*
-
-void Renderer::renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper)
-{
-	_d3d->setRSSolidNoCull();
-	_d3d->SwitchDepthToLessEquals();
-	skyboxShader.SetShaderParameters(_deviceContext, cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(_deviceContext, _shMan.skyboxShader);
-	skyboxShader.ReleaseShaderParameters(_deviceContext);
-	_d3d->SwitchDepthToDefault();
-	_d3d->setRSSolidCull();
-}
-
-*/

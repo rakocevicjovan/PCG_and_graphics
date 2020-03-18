@@ -28,7 +28,6 @@ class CSM
 
 	std::vector<SMatrix> _lvpMats;
 	std::vector<float> _distances;
-	ID3D11InputLayout* _inLay;
 
 	ID3D11Buffer* _wmBuffer;
 	ID3D11Buffer* _lvpBuffer;
@@ -36,12 +35,15 @@ class CSM
 
 	ShadowBufferData _shBuffData;
 
+	VertexShader* _vs;
 	// Alternative... I will want to use the pixel shader later to deal with transparency, for now only the depth stencil buffer.
 
 public:
 
-	bool init(ID3D11Device* device, uint8_t nMaps, UINT width, UINT height)
+	bool init(ID3D11Device* device, uint8_t nMaps, UINT width, UINT height, VertexShader* vs)
 	{
+		_vs = vs;
+
 		// Set the required parameters
 		_width = width;
 		_height = height;
@@ -244,12 +246,11 @@ public:
 
 
 	// All of this below will probably be refactored to just return it's state and not set it directly...
-	void beginShadowPassSequence(ID3D11DeviceContext* context, VertexShader* vs)
+	void beginShadowPassSequence(ID3D11DeviceContext* context)
 	{
-		context->VSSetShader(vs->_vsPtr, nullptr, 0);
+		context->VSSetShader(_vs->_vsPtr, nullptr, 0);
 		context->PSSetShader(NULL, nullptr, 0);
-
-		_inLay = vs->_layout;
+		context->IASetInputLayout(_vs->_layout);
 	}
 
 
@@ -279,8 +280,6 @@ public:
 		SMatrix transformTranspose = r._transform.Transpose();
 		CBuffer::updateWholeBuffer(context, _wmBuffer, &transformTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
-
-		context->IASetInputLayout(_inLay);
 
 		context->IASetPrimitiveTopology(r.mat->primitiveTopology);
 
