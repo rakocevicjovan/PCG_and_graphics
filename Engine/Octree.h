@@ -109,7 +109,7 @@ private:
 
 		for (SphereHull* curHull : pNode->_hulls)
 			if ((curHull->getPosition() - sp.ctr).LengthSquared() < (sq(sp.r + curHull->r)))
-				neighbours.push_back(curHull->_collider->parent);
+				neighbours.push_back(curHull->_collider->_parent);
 
 		for (int i = 0; i < 8; i++)
 			if (pNode->_children[i])

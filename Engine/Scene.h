@@ -3,9 +3,7 @@
 #include "LightManager.h"
 #include "Octree.h"
 #include "Renderer.h"
-#include "Skybox.h"
 #include "CSM.h"
-#include <memory>
 
 #define DEFAULT_SUBDIV_LEVELS 4u
 
@@ -13,6 +11,8 @@ class Scene
 {
 private:
 	Renderer& _renderer;
+	ShaderCache& _shCache;
+	MaterialCache& _matCache;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -29,33 +29,41 @@ private:
 
 public:
 
-	std::unique_ptr<LightManager> _lightManager;
-	Octree _octree;
+	LightManager* _lightManager;
 
-	std::vector<Actor*> _actors;
-	Skybox _skybox;
+	Octree _octree;
+	UINT _numCulled;
+
 	CSM _csm;
 
-	UINT _numCulled;
+	std::vector<Actor*> _actors;
+
 
 
 	Scene(
-		Renderer& r,
+		Renderer& renderer,
+		ShaderCache& shCache,
+		MaterialCache& matCache,
 		const AABB& scope, 
-		VertexShader* csmVs, // ugly workaround, csm shouldn't even own this
 		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:
-		_renderer(r),
+		_renderer(renderer),
+		_shCache(shCache),
+		_matCache(matCache),
 		_octree(scope, subdivLevels),
 		_numCulled(0u)
 	{
-		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
-
+		_lightManager = new LightManager(4, 256, 256, 128, 128);
 		_litObjectPool.reserve(20);
 
-		_csm.init(r.device(), 3u, 1024u, 1024u, csmVs);
-
 		_octree.preallocateRootOnly();	//_oct.preallocateTree();	
+	}
+
+
+
+	~Scene()
+	{
+		delete _lightManager;
 	}
 
 
@@ -71,7 +79,8 @@ public:
 
 		for (Actor*& a : _actors)
 		{
-			_octree.insertObject(static_cast<SphereHull*>(a->_collider.getHull(0)));
+			for(Hull* h : a->_collider.getHulls())
+				_octree.insertObject(static_cast<SphereHull*>(h));
 		}
 
 		// Pool allocation speeds this up a lot, also empties are only deallocated once per frame, not bad.
@@ -85,25 +94,23 @@ public:
 
 	void draw()
 	{
-		frustumCull(_renderer._cam);
-
-		_renderer.d3d()->ClearColourDepthBuffers();	//_renderer.d3d()->setRSSolidNoCull();
-		_renderer.d3d()->setRSSolidNoCull();
-
+		/*
 		// CSM code
 		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-		std::vector<SMatrix> projMats = _csm.calcProjMats(_renderer._cam, dlViewMatrix);
+		_csm.calcProjMats(_renderer._cam, dlViewMatrix);
 
-		_csm.beginShadowPassSequence(_renderer.context());
+		_csm.beginShadowPassSequence(_renderer.context(), _shCache.getVertShader("csmVS"));
 
 		for (int i = 0; i < _csm.getNMaps(); ++i)
 		{
 			_csm.beginShadowPassN(_renderer.context(), i);
 
-			for (Actor*& a : _actors)
-				_csm.drawToCurrentShadowPass(_renderer.context(), a->_renderables[0]);
-		}
+			//_csm.drawToCurrentShadowPass(_renderer.context(), floorRenderable);	just add it to the actor list instead
 
+			for (Actor*& actor : _actors)
+				_csm.drawToCurrentShadowPass(_renderer.context(), actor->_renderables[0]);
+		}
+		*/
 
 		// Scene rendering code
 		_renderer.setDefaultRenderTarget();

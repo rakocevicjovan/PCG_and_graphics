@@ -16,15 +16,15 @@ Model::Model(const std::string& path)
 Model::Model(const Collider & collider, ID3D11Device* device)
 {
 	for each(auto hull in collider.getHulls())
-		meshes.push_back(Mesh(hull, device));
+		_meshes.push_back(Mesh(hull, device));
 }
 
 
 
 Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device)
 {
-	meshes.emplace_back(terrain, device);
-	transform = SMatrix::CreateTranslation(terrain.getOffset());
+	_meshes.emplace_back(terrain, device);
+	_transform = SMatrix::CreateTranslation(terrain.getOffset());
 }
 
 
@@ -59,7 +59,7 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 		return false;
 	}
 
-	meshes.reserve(scene->mNumMeshes);
+	_meshes.reserve(scene->mNumMeshes);
 
 	processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
 
@@ -74,10 +74,10 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		unsigned int ind = meshes.size();
-		meshes.emplace_back();
-		processMesh(device, mesh, meshes.back(), scene, ind, concatenatedTransform, rUVx, rUVy);
-		meshes.back().setupMesh(device);
+		unsigned int ind = _meshes.size();
+		_meshes.emplace_back();
+		processMesh(device, mesh, _meshes.back(), scene, ind, concatenatedTransform, rUVx, rUVy);
+		_meshes.back().setupMesh(device);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)

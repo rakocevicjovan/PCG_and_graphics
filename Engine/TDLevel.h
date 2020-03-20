@@ -4,10 +4,9 @@
 #include "Model.h"
 #include "Light.h"
 #include "Scene.h"
-#include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
-#include "GUI.h"
+#include "Skybox.h"
 
 //game specific
 #include "TDController.h"
@@ -21,7 +20,7 @@
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
 
-#define DEBUG_OCTREE_NOT
+
 
 class TDLevel : public Level
 {
@@ -35,34 +34,32 @@ public:
 
 private:
 
+	// Scene data
 	Scene _scene;
+	Procedural::Terrain terrain;
+	Skybox _skybox;
 
-	// Level specific
+	// Enemy data
 	UINT NUM_ENEMIES = 100u;
 	float FLYING_HEIGHT = 10.f;
-
-	// Unlike models loaded using the manager, these will be generated procedurally
 	
-	float _tSize = 500.f;
-	Procedural::Terrain terrain;
-	Mesh floorMesh;
-	Renderable floorRenderable;
-	Renderable frustumRenderable;
-
-	// Navigation
+	// Level navigation data
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
 
-	// Lights
 	PointLight pLight;
 	DirectionalLight dirLight;
+
+	// Things that need changing
+	Mesh floorMesh;
+	Renderable floorRenderable;
+	Actor terrainActor;
+	Renderable frustumRenderable;
 
 	//Model globe;
 	//Renderable globeRenderable;
 
-
-
-	// Gameplay functionality, a lot of this should be in TDGame class (that doesn't even exist reeeee)
+	// Gameplay functionality - belongs in other classes (such as game class)
 	void addBuildables();
 	void fixBuildable(Building* b);
 	void build();
@@ -74,29 +71,31 @@ private:
 	float resolveAttack(const Attack& att, const Armour& arm);
 
 
-	// Gameplay variables
 	TDController _tdController;
-	GUI _gui;
 	TDGUI _tdgui;
 
 	Building* _templateBuilding = nullptr;	//not owning
 	Building* _selectedBuilding = nullptr;	//not owning
 	bool _inBuildingMode = false;
 
-	// Types of buildings that can be built
+
+	// Palette of possible buildings available to the player
 	std::vector<Building*> _buildable;
-	
-	//@TODO replace all three with SlotVector or similar
-	std::list<Tower> _towers;					// List of towers (martial buildings)
-	std::list<IndustrialBuilding> _industry;	// List of industrial buildings
-	std::list<Building*> _structures;			// Master list for easier access (coding-vise) cba writing two loops
-	// The master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
-	
-	// List of enemies in the wave
+
+	// Use pool allocator/vector? Should improve iteration but neither will ever get too big anyways so not important
+	std::list<Tower> _towers;
+	std::list<IndustrialBuilding> _industry;
+
+	// Master list, type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
+	std::list<Building*> _structures;
+
+	// Vector of enemies in the current wave
 	std::vector<Enemy> _creeps;
 	
-	// Class that manages in-game resources, fairly simple
+	// Simple economy class
 	Economy _eco;
+
+#define DEBUG_OCTREE_NOT
 
 #ifdef DEBUG_OCTREE
 

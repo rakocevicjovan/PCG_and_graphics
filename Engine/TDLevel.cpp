@@ -13,7 +13,7 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 TDLevel::TDLevel(Systems& sys) 
-	: Level(sys), _tSize(500.f), _scene(S_RANDY, AABB(SVec3(), SVec3(500.f * .5)), S_SHCACHE.getVertShader("csmVS"), 5)
+	: Level(sys), _scene(S_RANDY, S_SHCACHE, S_MATCACHE, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
 
 };
@@ -25,57 +25,53 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-	// Set scene skybox
-	_scene._skybox = Skybox(S_RANDY.device(), "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
-
-	Procedural::Geometry g;
-	g.GenBox(SVec3(2., 2., 1.));
-	for (SVec3& gp : g.positions)
-		gp += SVec3(0., 0., 0.5);
-
-	Mesh* boxMesh = new Mesh(g, S_DEVICE, true, false);
-
-	frustumRenderable = Renderable(*boxMesh);
-	frustumRenderable.mat->pLight = &pLight;
-	frustumRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
-	frustumRenderable.mat->setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
+	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u);
 
 	S_INMAN.registerController(&_tdController);
+
+	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
 
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
-	// Light setup - old stuff, to be replaced soon with a dynamic system
+	//light setup
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
 
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
 
+	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
 	terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 	terrain.SetUp(S_DEVICE);
 
 
-	// Generate the floor geometry... really simple but a lot of material fuss afterwards
+	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
+
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
 	floorMesh.textures.push_back(floorTex);
+
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
-	floorMesh._baseMaterial.pLight = &pLight;
+	floorMesh._baseMaterial.pLight = &pLight;	
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
-	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
-	// Create the navigation grid
+	terrainActor.addRenderable(floorRenderable, 500);
+	//_scene._actors.push_back(&terrainActor);
+
+	// Initialize navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);
 	_navGrid.createAllEdges();
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
+
 
 	// Initialize all enemies
 	_creeps.reserve(NUM_ENEMIES);
@@ -99,17 +95,19 @@ void TDLevel::init(Systems& sys)
 			r.mat->pLight = &pLight;
 		}
 
-		_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
+		for (Hull* h : _creeps[i]._collider.getHulls())
+			_scene._octree.insertObject(static_cast<SphereHull*>(h));
+
+		//_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 		_scene._actors.push_back(&(_creeps[i]));
 	}
 
-	//Add building types... again, could make data driven...
+	//Add building types, @TODO make data driven
 	addBuildables();
 
-	//Add resource types, same @TODO as above
+	//Add resource types, @TODO make data driven
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
-
 
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g1;
@@ -167,7 +165,7 @@ void TDLevel::fixBuildable(Building* b)
 	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
 	_buildable.back()->_collider.deleteAndClearHulls();
 	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
-	_buildable.back()->_collider.parent = _buildable.back();
+	_buildable.back()->_collider._parent = _buildable.back();
 
 	//can use pointers but this much data replicated is not really important
 	_tdgui.addBuildingGuiDef(_buildable.back()->_guiDef);
@@ -191,12 +189,12 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 	
-	// Octree can speed this up of course... but for now it's ok
+	// Could use octree if that will help it go faster...
 	for (Tower& tower : _towers)
 	{
 		tower.advanceCooldown(rc.dTime);
 
-		if (!tower.readyToFire())	//exit early per tower, no need to check anything, tower not ready
+		if (!tower.readyToFire())	// Exit early per tower, no need to check anything, tower not ready
 			continue;
 
 		for (Enemy& creep : _creeps)
@@ -248,7 +246,7 @@ float TDLevel::resolveAttack(const Attack& att, const Armour& arm)
 void TDLevel::rayPickTerrain(const Camera* cam)
 {
 	MCoords mc = _sys._inputManager.getAbsXY();
-	SRay ray = Picker::generateRay(S_WW, S_WH, mc.x, mc.y, *cam);
+	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
 
 	//intersect base plane for now... terrain works using projection + bresenham/superset if gridlike
 	SVec3 POI;
@@ -308,13 +306,16 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 	SRay ray = Picker::generateRay(_sys.getWinW(), _sys.getWinH(), mc.x, mc.y, *cam);
 	ray.direction *= 500.f;
 
-	// Returns all intersected sphere hulls from the octree
 	std::list<SphereHull*> sps;
+
+	Building* b = nullptr;
+
 	_scene._octree.rayCastTree(ray, sps);
 
-	// Find the closest one 
 	float minDist = 9999999.f;
+
 	SphereHull* closest = nullptr;
+
 	for (SphereHull* s : sps)
 	{
 		float dist = (s->ctr - cam->GetPosition()).LengthSquared();
@@ -325,11 +326,8 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 		}
 	}
 
-	// If it's a building, return it, otherwise nullptr
-	Building* b = nullptr;
-
 	if(closest)
-		b = dynamic_cast<Building*>(closest->_collider->parent);
+		b = dynamic_cast<Building*>(closest->_collider->_parent);
 
 	return b;
 }
@@ -370,7 +368,6 @@ void TDLevel::build()
 	//could use traits to infer the type but it's not really an issue with only two types... what better way?
 	//single array idea could make shooting worse with longer iterations...	
 }
-
 
 
 void TDLevel::demolish()
@@ -432,14 +429,12 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
-
 	if (_inBuildingMode)
 	{
 		//_templateBuilding->render(S_RANDY);
 		for (Renderable& r : _templateBuilding->_renderables)
 			S_RANDY.addToRenderQueue(r);
 	}
-
 
 	for (Building* building : _structures)
 	{
@@ -448,12 +443,37 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
+	_scene.frustumCull(S_RANDY._cam);
+
+	S_RANDY.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
+
+	// CSM code
+	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
+	_scene._csm.calcProjMats(S_RANDY._cam, dlViewMatrix);
+
+	_scene._csm.beginShadowPassSequence(S_RANDY.context(), S_SHCACHE.getVertShader("csmVS"));
+
+	for (int i = 0; i < _scene._csm.getNMaps(); ++i)
+	{
+		_scene._csm.beginShadowPassN(S_RANDY.context(), i);
+
+		_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), floorRenderable);	//just add it to the actor list instead
+
+		for (Actor*& actor : _scene._actors)
+			_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), actor->_renderables[0]);
+	}
+
+
 	_scene.draw();
 
-	// THIS OUGHT TO WORK DIFERENTLY!
+	//S_RANDY.render(floorRenderable);
 	_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 
-	_scene._skybox.renderSkybox(S_RANDY._cam, S_RANDY);
+	_skybox.renderSkybox(*rc.cam, S_RANDY);
+
+
+
+
 
 
 #ifdef DEBUG_OCTREE
@@ -468,8 +488,8 @@ void TDLevel::draw(const RenderContext& rc)
 	octNodeMatrices.clear();
 #endif
 
+	startGuiFrame();
 
-	_gui.startGuiFrame();
 
 	std::vector<GuiElement> guiElems =
 	{
@@ -478,8 +498,7 @@ void TDLevel::draw(const RenderContext& rc)
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
-
-	_gui.renderGuiElems(guiElems);
+	renderGuiElems(guiElems);
 
 
 	UINT structureIndex;
@@ -493,12 +512,14 @@ void TDLevel::draw(const RenderContext& rc)
 	if (_selectedBuilding != nullptr)
 	{
 		if (_tdgui.renderSelectedWidget(_selectedBuilding->_guiDef))
+		{
 			demolish();
+		}
 	}
 
 	_eco.renderEconomyWidget();
 	
-	_gui.endGuiFrame();
+	endGuiFrame();
 
 	rc.d3d->EndScene();
 }
@@ -555,3 +576,17 @@ for (int i = 0; i < 125; ++i)
 	frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
 	S_RANDY.render(frustumRenderable);
 }*/
+
+/*
+// Create a box mesh for frustum debugging
+Procedural::Geometry g;
+g.GenBox(SVec3(2., 2., 1.));
+for (SVec3& gp : g.positions)
+gp += SVec3(0., 0., 0.5);
+
+Mesh* boxMesh = new Mesh(g, S_DEVICE, true, false);
+frustumRenderable = Renderable(*boxMesh);
+frustumRenderable.mat->pLight = &pLight;
+frustumRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
+frustumRenderable.mat->setPS(S_SHCACHE.getPixShader("phongPS"));
+*/

@@ -23,7 +23,7 @@ void Collider::deleteAndClearHulls()
 //each collider has only one parent so this works I guess... could it simply work by default though???
 bool Collider::operator==(const Collider& other) const
 {
-	return parent == other.parent;
+	return _parent == other._parent;
 }
 
 
@@ -31,7 +31,7 @@ bool Collider::operator==(const Collider& other) const
 void Collider::updateHullPositions()
 {
 	for (auto& hull : _hulls)
-		hull->setPosition(parent->getPosition());
+		hull->setPosition(_parent->getPosition());
 }
 
 

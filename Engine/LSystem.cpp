@@ -208,7 +208,7 @@ namespace Procedural
 				}
 
 				//add sphere
-				tree.meshes.emplace_back(tube, device, false, true);
+				tree._meshes.emplace_back(tube, device, false, true);
 
 				if (!isEnd)
 				{
@@ -217,7 +217,7 @@ namespace Procedural
 						tempSphere.positions[i] = sphere.positions[i] * branchTipRadiusPercent * radius;
 						tempSphere.positions[i] += nextPos;
 					}
-					tree.meshes.emplace_back(tempSphere, device, false, true);
+					tree._meshes.emplace_back(tempSphere, device, false, true);
 				}
 
 				break;
@@ -279,7 +279,7 @@ namespace Procedural
 		finalMesh.textures.emplace_back(device, "../Textures/Bark/normal.jpg");
 		int totalVerts = 0, totalInds = 0;
 
-		for (auto&m : tree.meshes)
+		for (auto&m : tree._meshes)
 		{
 			totalVerts += m.vertices.size();
 			totalInds += m.indices.size();
@@ -288,7 +288,7 @@ namespace Procedural
 		finalMesh.vertices.reserve(totalVerts);
 		finalMesh.indices.reserve(totalInds);
 
-		for (auto&m : tree.meshes)
+		for (auto&m : tree._meshes)
 		{
 			int accIndSize = finalMesh.vertices.size();
 			for (auto& ind : m.indices)
@@ -297,8 +297,8 @@ namespace Procedural
 			finalMesh.vertices.insert(finalMesh.vertices.end(), m.vertices.begin(), m.vertices.end());
 		}
 		//finalMesh.setupMesh(device);
-		tree.meshes.clear();
-		tree.meshes.emplace_back(finalMesh.vertices, finalMesh.indices, finalMesh.textures, device, 0);
+		tree._meshes.clear();
+		tree._meshes.emplace_back(finalMesh.vertices, finalMesh.indices, finalMesh.textures, device, 0);
 		
 		return tree;
 	}
@@ -327,7 +327,7 @@ namespace Procedural
 		Mesh stalkMesh(tube, device);
 		Mesh tempStalkMesh;
 
-		Mesh petalMesh = petalModel->meshes[0];
+		Mesh petalMesh = petalModel->_meshes[0];
 		Mesh tempPetalMesh = petalMesh;
 		
 		Model result;
@@ -356,7 +356,7 @@ namespace Procedural
 					tempStalkMesh.vertices[i].pos += nextPos;
 				}
 
-				result.meshes.push_back(tempStalkMesh);
+				result._meshes.push_back(tempStalkMesh);
 				break;
 
 			case 'P':
@@ -367,7 +367,7 @@ namespace Procedural
 					tempPetalMesh.vertices[i].pos += nextPos;
 				}
 					
-				result.meshes.push_back(tempPetalMesh);
+				result._meshes.push_back(tempPetalMesh);
 				
 				break;
 
@@ -398,7 +398,7 @@ namespace Procedural
 			pos = nextPos;
 		}
 
-		for (Mesh& m : result.meshes)
+		for (Mesh& m : result._meshes)
 			m.setupMesh(device);
 
 		return result;

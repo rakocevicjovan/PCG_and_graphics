@@ -14,17 +14,19 @@ protected:
 
 public:
 	BoundingVolumeType BVT;
-	Actor* parent;
+	Actor* _parent;
 	
 	bool dynamic;
 
 	Collider() {}
 
+	Collider(Actor* a) : _parent(a) {}
+
 	Collider(BoundingVolumeType type, Actor* a, std::vector<Hull*> hullptrs)
-		: BVT(type), parent(a), _hulls(hullptrs) {}
+		: BVT(type), _parent(a), _hulls(hullptrs) {}
 
 	Collider(BoundingVolumeType type, Actor* a, bool dyn)
-		: BVT(type), parent(a), dynamic(dyn) {}
+		: BVT(type), _parent(a), dynamic(dyn) {}
 
 	~Collider()
 	{
@@ -47,6 +49,8 @@ public:
 	inline void clearHulls() { _hulls.clear(); }
 
 	inline Hull* getHull(UINT i) const { return _hulls[i]; }
+
+	inline std::vector<Hull*>& getHulls() { return _hulls; };
 
 	inline const std::vector<Hull*>& getHulls() const { return _hulls; }
 };

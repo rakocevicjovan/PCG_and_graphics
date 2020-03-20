@@ -12,7 +12,7 @@ namespace Strife
 		screenRectangleNode = postProcessor.AddUINODE(S_DEVICE, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
 
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f
-		screenQuad.meshes.push_back(scrQuadMesh);
+		screenQuad._meshes.push_back(scrQuadMesh);
 
 		_sys._renderer._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(0.5 * PI, S_RANDY.getAspectRatio(), 1.f, 1000.f));
 
@@ -25,7 +25,7 @@ namespace Strife
 		terrain.CalculateNormals();
 
 		floor = Model(terrain, S_DEVICE);
-		floor.transform = SMatrix::CreateTranslation(terrain.getOffset());
+		floor._transform = SMatrix::CreateTranslation(terrain.getOffset());
 
 
 		//set up initial cloud definition - most of them can be changed through the gui later

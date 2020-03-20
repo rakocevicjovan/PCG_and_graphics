@@ -277,7 +277,7 @@ public:
 		//r.updateBuffersAuto(context);
 		//r.setBuffers(_deviceContext);
 
-		//this is not flexible, it must use the above somehow in order to work properly //@TODO
+		//this is not flexible, it must use the above somehow in order to work properly @TODO
 		SMatrix transformTranspose = r._transform.Transpose();
 		CBuffer::updateWholeBuffer(context, _wmBuffer, &transformTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(0, 1, &_wmBuffer);

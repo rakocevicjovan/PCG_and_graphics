@@ -33,26 +33,26 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d
 bool Renderer::createGlobalBuffers()
 {
 	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createBufferDesc(sizeof(VSPerCameraBuffer));
-	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &VS_perCamBuffer)))
+	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_VSperCamBuffer)))
 		return false;
 
 	SMatrix pT = _cam.GetProjectionMatrix().Transpose();
 
-	CBuffer::updateWholeBuffer(_deviceContext, VS_perCamBuffer, &pT, sizeof(VSPerCameraBuffer));
+	CBuffer::updateWholeBuffer(_deviceContext, _VSperCamBuffer, &pT, sizeof(VSPerCameraBuffer));
 
-	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &VS_perCamBuffer);
+	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &_VSperCamBuffer);
 
 
 	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(VSPerFrameBuffer));
-	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &VS_perFrameBuffer)))
+	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &_VSperFrameBuffer)))
 		return false;
-	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &VS_perFrameBuffer);
+	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &_VSperFrameBuffer);
 
 
 	D3D11_BUFFER_DESC PS_perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PSPerFrameBuffer));
-	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &PS_perFrameBuffer)))
+	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &_PSperFrameBuffer)))
 		return false;
-	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &PS_perFrameBuffer);
+	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &_PSperFrameBuffer);
 
 	return true;
 }
@@ -80,23 +80,23 @@ bool Renderer::updatePerFrameBuffers(float dTime)
 	SMatrix vT = _cam.GetViewMatrix().Transpose();
 	SVec4 eyePos = Math::fromVec3(_cam.GetPosition(), 1.);
 
-	if (FAILED(_deviceContext->Map(VS_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(_deviceContext->Map(_VSperFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	vsFrameBufferPtr = reinterpret_cast<VSPerFrameBuffer*>(mappedResource.pData);
 	vsFrameBufferPtr->viewMat = vT;
 	vsFrameBufferPtr->delta = dTime;
 	vsFrameBufferPtr->elapsed = _elapsed;
-	_deviceContext->Unmap(VS_perFrameBuffer, 0);
+	_deviceContext->Unmap(_VSperFrameBuffer, 0);
 
 
 	PSPerFrameBuffer* psFrameBufferPtr;
-	if (FAILED(_deviceContext->Map(PS_perFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+	if (FAILED(_deviceContext->Map(_PSperFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	psFrameBufferPtr = reinterpret_cast<PSPerFrameBuffer*>(mappedResource.pData);
 	psFrameBufferPtr->eyePos = eyePos;
 	psFrameBufferPtr->elapsed = _elapsed;
 	psFrameBufferPtr->delta = dTime;
-	_deviceContext->Unmap(PS_perFrameBuffer, 0);
+	_deviceContext->Unmap(_PSperFrameBuffer, 0);
 
 	return true;
 }
@@ -160,10 +160,10 @@ void Renderer::render(const Renderable& r) const
 
 	r.mat->bindTextures(_deviceContext);
 
-	//could sort by this as well... should be fairly uniform though
+	// Could sort by this as well... should be fairly uniform though
 	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);
 
-	//packing vertex buffers together could be a good idea eventually
+	// Packing vertex buffers together could be a good idea eventually
 	UINT stride = r.mesh->getStride();
 	UINT offset = r.mesh->getOffset();
 

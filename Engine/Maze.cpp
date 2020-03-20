@@ -215,7 +215,7 @@ namespace Procedural
 
 		aligned.setupMesh(device);
 
-		model.meshes.push_back(aligned);
+		model._meshes.push_back(aligned);
 	}
 
 
