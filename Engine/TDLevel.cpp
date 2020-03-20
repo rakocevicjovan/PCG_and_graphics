@@ -13,7 +13,7 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 TDLevel::TDLevel(Systems& sys) 
-	: Level(sys), _tSize(500.f), _scene(S_RANDY, AABB(SVec3(), SVec3(500.f * .5)), 5)
+	: Level(sys), _scene(S_RANDY, S_SHCACHE, S_MATCACHE, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
 
 };
@@ -25,19 +25,7 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-	_csm.init(S_DEVICE, 3u, 1024u, 1024u);
-
-	Procedural::Geometry g;
-	g.GenBox(SVec3(2., 2., 1.));
-	for (SVec3& gp : g.positions)
-		gp += SVec3(0., 0., 0.5);
-
-	Mesh* boxMesh = new Mesh(g, S_DEVICE, true, false);
-
-	frustumRenderable = Renderable(*boxMesh);
-	frustumRenderable.mat->pLight = &pLight;
-	frustumRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
-	frustumRenderable.mat->setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
+	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u);
 
 	S_INMAN.registerController(&_tdController);
 
@@ -53,23 +41,30 @@ void TDLevel::init(Systems& sys)
 
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
 
+	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
 	terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 	terrain.SetUp(S_DEVICE);
 
 
-	//generate the floor gemetry... really simple but a lot of material fuss afterwards
-	floorMesh = Mesh(terrain, S_DEVICE);
+	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
+	Mesh floorMesh(terrain, S_DEVICE);
+
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
 	floorMesh.textures.push_back(floorTex);
+
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
-	floorMesh._baseMaterial.pLight = &pLight;
+	floorMesh._baseMaterial.pLight = &pLight;	
 	
-	floorRenderable = Renderable(floorMesh);
+	Renderable floorRenderable = Renderable(floorMesh);
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
+	terrainActor.addRenderable(floorRenderable);
+	_scene._actors.push_back(&terrainActor);
+
+	// Initialize navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);
 	_navGrid.createAllEdges();
@@ -100,14 +95,17 @@ void TDLevel::init(Systems& sys)
 			r.mat->pLight = &pLight;
 		}
 
-		_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
+		for (Hull* h : _creeps[i]._collider.getHulls())
+			_scene._octree.insertObject(static_cast<SphereHull*>(h));
+
+		//_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 		_scene._actors.push_back(&(_creeps[i]));
 	}
 
-	//Add building types... again, could make data driven...
+	//Add building types, @TODO make data driven
 	addBuildables();
 
-	//Add resource types, same @TODO as above
+	//Add resource types, @TODO make data driven
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
 
@@ -191,12 +189,12 @@ void TDLevel::update(const RenderContext& rc)
 
 	handleInput(rc.cam);
 	
-	//could use octree if that will help it go faster...
+	// Could use octree if that will help it go faster...
 	for (Tower& tower : _towers)
 	{
 		tower.advanceCooldown(rc.dTime);
 
-		if (!tower.readyToFire())	//exit early per tower, no need to check anything, tower not ready
+		if (!tower.readyToFire())	// Exit early per tower, no need to check anything, tower not ready
 			continue;
 
 		for (Enemy& creep : _creeps)
@@ -212,8 +210,6 @@ void TDLevel::update(const RenderContext& rc)
 			break;	//we managed to shoot, it will be on CD, just break immediately
 		}
 	}
-
-	_scene.frustumCull(*rc.cam);
 
 #ifdef DEBUG_OCTREE
 	_scene._octree.getTreeAsAABBVector(tempBoxes);
@@ -433,30 +429,12 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
-	rc.d3d->ClearColourDepthBuffers();
-	rc.d3d->setRSSolidNoCull();
+	_scene.draw();
 
-	// CSM code
-	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-	std::vector<SMatrix> projMats = _csm.calcProjMats(*rc.cam, dlViewMatrix);
 
-	_csm.beginShadowPassSequence(S_CONTEXT, S_SHCACHE.getVertShader("csmVS"));
-
-	for (int i = 0; i < _csm.getNMaps(); ++i)
-	{
-		_csm.beginShadowPassN(S_CONTEXT, i);
-
-		_csm.drawToCurrentShadowPass(S_CONTEXT, floorRenderable);
-
-		for (auto& creep : _creeps) _csm.drawToCurrentShadowPass(S_CONTEXT, creep._renderables[0]);
-	}
 	
 
-	// Scene rendering code
-	S_RANDY.setDefaultRenderTarget();
-
-	//S_RANDY.render(floorRenderable);
-	_csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
+	
 
 	S_RANDY.sortRenderQueue();
 	S_RANDY.flushRenderQueue();
@@ -512,17 +490,6 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	_eco.renderEconomyWidget();
-
-	// Debug texture output, wrap this somewhere, it is very, very useful!
-	
-	ImGui::SetNextWindowPos(ImVec2(S_WW - 512, 0), ImGuiCond_Once);
-	ImGui::SetNextWindowSize(ImVec2(512, 512), ImGuiCond_Once);
-
-	ImGui::Begin("Debug csm", false);
-
-	ImGui::Image(_csm.getDebugView(), ImVec2(512, 512));
-
-	ImGui::End();
 	
 	endGuiFrame();
 
@@ -581,3 +548,17 @@ for (int i = 0; i < 125; ++i)
 	frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
 	S_RANDY.render(frustumRenderable);
 }*/
+
+/*
+// Create a box mesh for frustum debugging
+Procedural::Geometry g;
+g.GenBox(SVec3(2., 2., 1.));
+for (SVec3& gp : g.positions)
+gp += SVec3(0., 0., 0.5);
+
+Mesh* boxMesh = new Mesh(g, S_DEVICE, true, false);
+frustumRenderable = Renderable(*boxMesh);
+frustumRenderable.mat->pLight = &pLight;
+frustumRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
+frustumRenderable.mat->setPS(S_SHCACHE.getPixShader("phongPS"));
+*/

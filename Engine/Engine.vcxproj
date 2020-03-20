@@ -265,6 +265,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="Scene.h" />

@@ -3,6 +3,7 @@
 #include "LightManager.h"
 #include "Octree.h"
 #include "Renderer.h"
+#include "CSM.h"
 
 #define DEFAULT_SUBDIV_LEVELS 4u
 
@@ -10,6 +11,8 @@ class Scene
 {
 private:
 	Renderer& _renderer;
+	ShaderCache& _shCache;
+	MaterialCache& _matCache;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -27,25 +30,32 @@ private:
 public:
 
 	LightManager* _lightManager;
+
 	Octree _octree;
+	UINT _numCulled;
+
+	CSM _csm;
+
 	std::vector<Actor*> _actors;
 
-	UINT _numCulled;
 
 
 	Scene(
-		Renderer& r,
+		Renderer& renderer,
+		ShaderCache& shCache,
+		MaterialCache& matCache,
 		const AABB& scope, 
 		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:
-		_renderer(r),
+		_renderer(renderer),
+		_shCache(shCache),
+		_matCache(matCache),
 		_octree(scope, subdivLevels),
 		_numCulled(0u)
 	{
 		_lightManager = new LightManager(4, 256, 256, 128, 128);
 		_litObjectPool.reserve(20);
 
-		// Octree with depth 5 is really big, probably not worth it for my game
 		_octree.preallocateRootOnly();	//_oct.preallocateTree();	
 	}
 
@@ -69,7 +79,8 @@ public:
 
 		for (Actor*& a : _actors)
 		{
-			_octree.insertObject(static_cast<SphereHull*>(a->_collider.getHull(0)));
+			for(Hull* h : a->_collider.getHulls())
+				_octree.insertObject(static_cast<SphereHull*>(h));
 		}
 
 		// Pool allocation speeds this up a lot, also empties are only deallocated once per frame, not bad.
@@ -83,8 +94,31 @@ public:
 
 	void draw()
 	{
-		_renderer.d3d()->ClearColourDepthBuffers();
-		_renderer.d3d()->setRSSolidNoCull();
+		frustumCull(_renderer._cam);
+
+		_renderer.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
+
+		// CSM code
+		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
+		_csm.calcProjMats(_renderer._cam, dlViewMatrix);
+
+		_csm.beginShadowPassSequence(_renderer.context(), _shCache.getVertShader("csmVS"));
+
+		for (int i = 0; i < _csm.getNMaps(); ++i)
+		{
+			_csm.beginShadowPassN(_renderer.context(), i);
+
+			//_csm.drawToCurrentShadowPass(_renderer.context(), floorRenderable);	just add it to the actor list instead
+
+			for (Actor*& actor : _actors)
+				_csm.drawToCurrentShadowPass(_renderer.context(), actor->_renderables[0]);
+		}
+
+		// Scene rendering code
+		_renderer.setDefaultRenderTarget();
+
+		//S_RANDY.render(floorRenderable);
+		//_csm.drawToSceneWithCSM(_renderer.context(), floorRenderable);
 	}
 
 

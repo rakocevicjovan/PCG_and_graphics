@@ -22,7 +22,7 @@ public:
 	Skybox(ID3D11Device* device, std::string path, Model* model, Material* m, UINT resolution = 512u)
 	{
 		CubeMapper::loadCubeMapFromFile(device, path, resolution, _texPtr, _shResView);
-		_r = Renderable(model->meshes[0]);
+		_r = Renderable(model->_meshes[0]);
 		_r.mat->setVS(m->getVS());
 		_r.mat->setPS(m->getPS());
 	}

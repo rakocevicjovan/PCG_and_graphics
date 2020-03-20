@@ -48,5 +48,7 @@ public:
 
 	inline Hull* getHull(UINT i) const { return _hulls[i]; }
 
+	inline std::vector<Hull*>& getHulls() { return _hulls; };
+
 	inline const std::vector<Hull*>& getHulls() const { return _hulls; }
 };

@@ -39,15 +39,14 @@ public:
 	Actor() : _steerComp(this) {};
 	Actor(Model* model, SMatrix& transform = SMatrix());
 	Actor(const Actor& other);
-	virtual ~Actor();
+	virtual ~Actor() {};
 
 	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
+	void addRenderable(const Renderable& renderable);
+	void propagate();
+	void render(const Renderer& r) const;
 
 	inline SVec3 getPosition() const { return transform.Translation(); }
-
-	void propagate();
-
-	void render(const Renderer& r) const;
 
 	inline Hull* getBoundingHull(UINT index)
 	{

@@ -31,9 +31,9 @@ private:
 
 
 public:
-	std::vector<Mesh> meshes;
+	std::vector<Mesh> _meshes;
 
-	SMatrix transform;
+	SMatrix _transform;
 
 	Collider* collider;		//remove this eventually when game object becomes better defined... used model for it so far...
 

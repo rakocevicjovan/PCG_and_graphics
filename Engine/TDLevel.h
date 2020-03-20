@@ -4,7 +4,6 @@
 #include "Model.h"
 #include "Light.h"
 #include "Scene.h"
-#include "Octree.h"
 #include "NavGrid.h"
 #include "AStar.h"
 #include "Skybox.h"
@@ -20,9 +19,8 @@
 //tests
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
-#include "CSM.h"
 
-#define DEBUG_OCTREE_NOT
+
 
 class TDLevel : public Level
 {
@@ -36,24 +34,22 @@ public:
 
 private:
 
+	// Scene data
 	Scene _scene;
+	Procedural::Terrain terrain;
+	Actor terrainActor;
 
-	//some enemy specific stuff...
+	// Enemy data
 	UINT NUM_ENEMIES = 100u;
 	float FLYING_HEIGHT = 10.f;
-
-	//unlike loaded models in the manager, these will be generated
-	Procedural::Terrain terrain;
-	float _tSize = 500.f;
-	Mesh floorMesh;
-	Renderable floorRenderable;
+	
+	// Level navigation data
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
 
 	PointLight pLight;
 	DirectionalLight dirLight;
 	
-	//CubeMapper skyboxCubeMapper;
 	Skybox _skybox;
 
 	//Model globe;
@@ -61,9 +57,7 @@ private:
 
 	Renderable frustumRenderable;
 
-	CSM _csm;
-
-	//gameplay
+	// Gameplay functionality - belongs in other classes (such as game class)
 	void addBuildables();
 	void fixBuildable(Building* b);
 	void build();
@@ -83,19 +77,23 @@ private:
 	bool _inBuildingMode = false;
 
 
+	// Palette of possible buildings available to the player
 	std::vector<Building*> _buildable;
-	//@TODO replace all three with SlotVector
 
+	// Use pool allocator/vector? Should improve iteration but neither will ever get too big anyways so not important
 	std::list<Tower> _towers;
 	std::list<IndustrialBuilding> _industry;
-	std::list<Building*> _structures;
-	//the master list type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
-	
 
-	//changes per wave
+	// Master list, type-slices but it doesn't matter, it's just there to use it AS a base class - example, rendering
+	std::list<Building*> _structures;
+
+	// Vector of enemies in the current wave
 	std::vector<Enemy> _creeps;
 	
+	// Simple economy class
 	Economy _eco;
+
+#define DEBUG_OCTREE_NOT
 
 #ifdef DEBUG_OCTREE
 
@@ -108,19 +106,3 @@ private:
 	std::vector<SMatrix> octNodeMatrices;
 #endif
 };
-
-
-/*
-
-void Renderer::renderSkybox(const Camera& cam, Model& skybox, const CubeMapper& skyboxCubeMapper)
-{
-	_d3d->setRSSolidNoCull();
-	_d3d->SwitchDepthToLessEquals();
-	skyboxShader.SetShaderParameters(_deviceContext, cam, rc.dTime, skyboxCubeMapper.cm_srv);
-	skybox.Draw(_deviceContext, _shMan.skyboxShader);
-	skyboxShader.ReleaseShaderParameters(_deviceContext);
-	_d3d->SwitchDepthToDefault();
-	_d3d->setRSSolidCull();
-}
-
-*/
