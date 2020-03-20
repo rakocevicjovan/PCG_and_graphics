@@ -19,9 +19,7 @@ class GUI
 {
 public:
 
-
-	// This is not supposed to be here, create a GUI class and move all IMGUI utilities and wrappers into it! @TODO
-	void startGuiFrame()
+	static void startGuiFrame()
 	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -30,7 +28,7 @@ public:
 
 
 	//convenience function for fast windows
-	void renderGuiElems(const std::vector<GuiElement>& elements)
+	static void renderGuiElems(const std::vector<GuiElement>& elements)
 	{
 		for (const GuiElement& e : elements)
 		{
@@ -41,7 +39,7 @@ public:
 	}
 
 
-	void endGuiFrame()
+	static void endGuiFrame()
 	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -49,7 +47,7 @@ public:
 
 
 	// Useful for outputting debug textures
-	void drawImagePanel(float pX, float pY, float sX, float sY, std::string& title, ID3D11ShaderResourceView* srv)
+	static void drawImagePanel(float pX, float pY, float sX, float sY, std::string& title, ID3D11ShaderResourceView* srv)
 	{
 		ImGui::SetNextWindowPos(ImVec2(pX, pY), ImGuiCond_Once);
 		//ImGui::SetNextWindowSize(ImVec2(sX, sY), ImGuiCond_Once);

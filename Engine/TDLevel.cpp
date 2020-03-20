@@ -25,7 +25,7 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u);
+	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 	S_INMAN.registerController(&_tdController);
 
@@ -451,7 +451,7 @@ void TDLevel::draw(const RenderContext& rc)
 	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
 	_scene._csm.calcProjMats(S_RANDY._cam, dlViewMatrix);
 
-	_scene._csm.beginShadowPassSequence(S_RANDY.context(), S_SHCACHE.getVertShader("csmVS"));
+	_scene._csm.beginShadowPassSequence(S_RANDY.context());
 
 	for (int i = 0; i < _scene._csm.getNMaps(); ++i)
 	{
@@ -488,8 +488,8 @@ void TDLevel::draw(const RenderContext& rc)
 	octNodeMatrices.clear();
 #endif
 
-	startGuiFrame();
-
+	GUI::startGuiFrame();
+	//S_SHCACHE.getVertShader("csmVS")
 
 	std::vector<GuiElement> guiElems =
 	{
@@ -498,7 +498,7 @@ void TDLevel::draw(const RenderContext& rc)
 		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
-	renderGuiElems(guiElems);
+	GUI::renderGuiElems(guiElems);
 
 
 	UINT structureIndex;
@@ -519,7 +519,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	_eco.renderEconomyWidget();
 	
-	endGuiFrame();
+	GUI::endGuiFrame();
 
 	rc.d3d->EndScene();
 }

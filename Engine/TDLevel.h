@@ -7,6 +7,7 @@
 #include "NavGrid.h"
 #include "AStar.h"
 #include "Skybox.h"
+#include "GUI.h"
 
 //game specific
 #include "TDController.h"
