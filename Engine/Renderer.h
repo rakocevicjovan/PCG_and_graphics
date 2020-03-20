@@ -71,9 +71,9 @@ private:
 	ID3D11DeviceContext* _deviceContext;
 	D3D* _d3d;
 
-	ID3D11Buffer* VS_perCamBuffer;
-	ID3D11Buffer* VS_perFrameBuffer;
-	ID3D11Buffer* PS_perFrameBuffer;
+	ID3D11Buffer* _VSperCamBuffer;
+	ID3D11Buffer* _VSperFrameBuffer;
+	ID3D11Buffer* _PSperFrameBuffer;
 
 	void updateRenderContext(float dTime);
 	bool createGlobalBuffers();

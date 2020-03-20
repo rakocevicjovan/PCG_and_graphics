@@ -94,10 +94,7 @@ public:
 
 	void draw()
 	{
-		frustumCull(_renderer._cam);
-
-		_renderer.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
-
+		/*
 		// CSM code
 		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
 		_csm.calcProjMats(_renderer._cam, dlViewMatrix);
@@ -113,12 +110,14 @@ public:
 			for (Actor*& actor : _actors)
 				_csm.drawToCurrentShadowPass(_renderer.context(), actor->_renderables[0]);
 		}
+		*/
 
 		// Scene rendering code
 		_renderer.setDefaultRenderTarget();
 
-		//S_RANDY.render(floorRenderable);
-		//_csm.drawToSceneWithCSM(_renderer.context(), floorRenderable);
+		_renderer.sortRenderQueue();
+		_renderer.flushRenderQueue();
+		_renderer.clearRenderQueue();
 	}
 
 

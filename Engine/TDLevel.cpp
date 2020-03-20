@@ -48,7 +48,7 @@ void TDLevel::init(Systems& sys)
 
 
 	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
-	Mesh floorMesh(terrain, S_DEVICE);
+	floorMesh = Mesh(terrain, S_DEVICE);
 
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
@@ -57,12 +57,12 @@ void TDLevel::init(Systems& sys)
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
 	floorMesh._baseMaterial.pLight = &pLight;	
 	
-	Renderable floorRenderable = Renderable(floorMesh);
+	floorRenderable = Renderable(floorMesh);
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
-	terrainActor.addRenderable(floorRenderable);
-	_scene._actors.push_back(&terrainActor);
+	terrainActor.addRenderable(floorRenderable, 500);
+	//_scene._actors.push_back(&terrainActor);
 
 	// Initialize navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
@@ -165,7 +165,7 @@ void TDLevel::fixBuildable(Building* b)
 	//hacky workaround but aight for now, replaces default hull(s) with the special one for TD
 	_buildable.back()->_collider.deleteAndClearHulls();
 	_buildable.back()->_collider.addHull(new SphereHull(SVec3(), 25));
-	_buildable.back()->_collider.parent = _buildable.back();
+	_buildable.back()->_collider._parent = _buildable.back();
 
 	//can use pointers but this much data replicated is not really important
 	_tdgui.addBuildingGuiDef(_buildable.back()->_guiDef);
@@ -327,7 +327,7 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 	}
 
 	if(closest)
-		b = dynamic_cast<Building*>(closest->_collider->parent);
+		b = dynamic_cast<Building*>(closest->_collider->_parent);
 
 	return b;
 }
@@ -429,24 +429,52 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
+	if (_inBuildingMode)
+	{
+		//_templateBuilding->render(S_RANDY);
+		for (Renderable& r : _templateBuilding->_renderables)
+			S_RANDY.addToRenderQueue(r);
+	}
+
+	for (Building* building : _structures)
+	{
+		//building->render(S_RANDY);
+		for (Renderable& r : building->_renderables)
+			S_RANDY.addToRenderQueue(r);
+	}
+
+	_scene.frustumCull(S_RANDY._cam);
+
+	S_RANDY.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
+
+	// CSM code
+	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
+	_scene._csm.calcProjMats(S_RANDY._cam, dlViewMatrix);
+
+	_scene._csm.beginShadowPassSequence(S_RANDY.context(), S_SHCACHE.getVertShader("csmVS"));
+
+	for (int i = 0; i < _scene._csm.getNMaps(); ++i)
+	{
+		_scene._csm.beginShadowPassN(S_RANDY.context(), i);
+
+		_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), floorRenderable);	//just add it to the actor list instead
+
+		for (Actor*& actor : _scene._actors)
+			_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), actor->_renderables[0]);
+	}
+
+
 	_scene.draw();
 
-
-	
-
-	
-
-	S_RANDY.sortRenderQueue();
-	S_RANDY.flushRenderQueue();
-	S_RANDY.clearRenderQueue();
+	//S_RANDY.render(floorRenderable);
+	_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
-	if (_inBuildingMode)
-		_templateBuilding->render(S_RANDY);
 
-	for (Building* building : _structures)
-		building->render(S_RANDY);
+
+
+
 
 #ifdef DEBUG_OCTREE
 	//shady.instanced.SetShaderParameters(context, debugModel, *rc.cam, pLight, rc.dTime);

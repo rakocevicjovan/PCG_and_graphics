@@ -37,7 +37,7 @@ private:
 	// Scene data
 	Scene _scene;
 	Procedural::Terrain terrain;
-	Actor terrainActor;
+	Skybox _skybox;
 
 	// Enemy data
 	UINT NUM_ENEMIES = 100u;
@@ -49,13 +49,15 @@ private:
 
 	PointLight pLight;
 	DirectionalLight dirLight;
-	
-	Skybox _skybox;
+
+	// Things that need changing
+	Mesh floorMesh;
+	Renderable floorRenderable;
+	Actor terrainActor;
+	Renderable frustumRenderable;
 
 	//Model globe;
 	//Renderable globeRenderable;
-
-	Renderable frustumRenderable;
 
 	// Gameplay functionality - belongs in other classes (such as game class)
 	void addBuildables();

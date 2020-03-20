@@ -291,9 +291,9 @@ void Octree::testAllCollisions(OctNode *pNode)
 				{
 					//breaks apart if actors relocate... consider between indices and allocators...
 					spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
-					Math::SetTranslation(spA->_collider->parent->transform, spA->getPosition());
+					Math::SetTranslation(spA->_collider->_parent->transform, spA->getPosition());
 					spL->setPosition(spL->getPosition() - hr.resolutionVector * .5);
-					Math::SetTranslation(spL->_collider->parent->transform, spL->getPosition());
+					Math::SetTranslation(spL->_collider->_parent->transform, spL->getPosition());
 				}
 			}
 		}

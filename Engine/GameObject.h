@@ -36,13 +36,13 @@ public:
 
 
 
-	Actor() : _steerComp(this) {};
+	Actor() : _steerComp(this), _collider(this) {};
 	Actor(Model* model, SMatrix& transform = SMatrix());
 	Actor(const Actor& other);
 	virtual ~Actor() {};
 
 	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
-	void addRenderable(const Renderable& renderable);
+	void addRenderable(const Renderable& renderable, float r);
 	void propagate();
 	void render(const Renderer& r) const;
 

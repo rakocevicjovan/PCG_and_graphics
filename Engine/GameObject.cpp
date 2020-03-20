@@ -69,10 +69,10 @@ void Actor::render(const Renderer& renderer) const
 
 
 
-void Actor::addRenderable(const Renderable& renderable)
+void Actor::addRenderable(const Renderable& renderable, float r)
 {
 	_renderables.push_back(renderable);
-	_collider.addHull(new SphereHull(renderable._localTransform.Translation(), 500));
+	_collider.addHull(new SphereHull(renderable._localTransform.Translation(), r));
 }
 
 
