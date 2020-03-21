@@ -335,10 +335,10 @@ public:
 
 
 
-	void uploadCSMBuffer(ID3D11DeviceContext* context)
+	void uploadCSMBuffer(ID3D11DeviceContext* context, UINT slot)
 	{
 		CBuffer::updateWholeBuffer(context, _shadowBuffer, &_shBuffData, sizeof(_shBuffData));
-		context->PSSetConstantBuffers(11, 1, &_shadowBuffer);
+		context->PSSetConstantBuffers(slot, 1, &_shadowBuffer);
 	}
 
 

@@ -463,17 +463,25 @@ void TDLevel::draw(const RenderContext& rc)
 			_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), actor->_renderables[0]);
 	}
 
-	_scene._csm.uploadCSMBuffer(S_CONTEXT);
 
-	_scene.draw();
+	// This will replace all this jazz
+	//_scene.draw();
 
-	S_CONTEXT->PSSetShaderResources(11, 1, _scene._csm.getResView());
+	S_RANDY.setDefaultRenderTarget();
+
+	// After the shadow maps have been rendered to, we bind the global csm buffer and texture array
+	_scene._csm.uploadCSMBuffer(S_CONTEXT, PS_CSM_CBUFFER_REGISTER);
+	S_CONTEXT->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, _scene._csm.getResView());
 
 	//_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 	S_RANDY.render(floorRenderable);
 
+	S_RANDY.sortRenderQueue();
+	S_RANDY.flushRenderQueue();
+	S_RANDY.clearRenderQueue();
+
 	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
-	S_CONTEXT->PSSetShaderResources(11, 1, pSRV);
+	S_CONTEXT->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, pSRV);
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 

@@ -16,12 +16,16 @@ static float NEAR_PLANE = 0.1f;
 
 
 // System-reserved registers.
+
+// For vertex shaders
 #define VS_PER_CAMERA_CBUFFER_REGISTER 10u
 #define VS_PER_FRAME_CBUFFER_REGISTER 11u
 
+// For pixel shaders
 #define PS_PER_FRAME_CBUFFER_REGISTER 10u
-#define PS_CSM_CBUFFER_REGISTER 11u
 
+#define PS_CSM_CBUFFER_REGISTER 11u
+#define PS_CSM_TEXTURE_REGISTER 11u
 
 class Renderable;
 

@@ -110,7 +110,7 @@ public:
 			for (Actor*& actor : _actors)
 				_csm.drawToCurrentShadowPass(_renderer.context(), actor->_renderables[0]);
 		}
-		*/
+		
 
 		// Scene rendering code
 		_renderer.setDefaultRenderTarget();
@@ -118,6 +118,7 @@ public:
 		_renderer.sortRenderQueue();
 		_renderer.flushRenderQueue();
 		_renderer.clearRenderQueue();
+		*/
 	}
 
 
