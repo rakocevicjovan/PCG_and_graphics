@@ -808,11 +808,11 @@
     <ClInclude Include="SphereHull.h">
       <Filter>Collision\Hulls</Filter>
     </ClInclude>
-    <ClInclude Include="StructBuffer.h">
-      <Filter>Rendering\AAA Improved</Filter>
-    </ClInclude>
     <ClInclude Include="GUI.h">
       <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
+    <ClInclude Include="StructBuffer.h">
+      <Filter>Rendering\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

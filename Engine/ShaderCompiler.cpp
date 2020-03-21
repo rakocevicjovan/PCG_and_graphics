@@ -69,7 +69,6 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 	}
 
 	//not used just yet... but tested, works great
-	//ShRef::ShaderMetadata shMetaData;
 	if(shMetaData != nullptr)
 		reflect(shaderBuffer, *shMetaData);
 
@@ -115,8 +114,11 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 	D3D11_SHADER_DESC desc;
 	reflection->GetDesc(&desc);
 
-	//Find all constant buffer metadata
-	//Could be useful to create them from this data dynamically but for now I'll only keep it stored
+	// Find all constant buffer metadata
+	// Could be useful to create them from this data dynamically but for now I'll only keep it stored
+	
+	shMetaData._cBuffers.reserve(desc.ConstantBuffers);
+
 	for (unsigned int i = 0; i < desc.ConstantBuffers; ++i)
 	{
 		ID3D11ShaderReflectionConstantBuffer* buffer = NULL;
@@ -129,7 +131,10 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 		cBuffer.name = bDesc.Name;
 		cBuffer.size = bDesc.Size;
 
-		//get variables out of cbuffer
+		// Get variable descriptions out of cbuffer
+		
+		cBuffer._vars.reserve(bDesc.Variables);
+
 		for (unsigned int j = 0; j < bDesc.Variables; ++j)
 		{
 			ID3D11ShaderReflectionVariable* variable = NULL;
@@ -145,7 +150,7 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 			cBuffer._vars.push_back(srcb);
 		}
 
-		//find the bind point of the shader
+		// Find the bind point of the shader
 		for (unsigned int k = 0; k < desc.BoundResources; ++k)
 		{
 			D3D11_SHADER_INPUT_BIND_DESC IBDesc;
@@ -158,7 +163,7 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 	}
 
 
-	//find all texture metadata
+	// Find all texture metadata
 	for (unsigned int k = 0; k < desc.BoundResources; ++k)
 	{
 		D3D11_SHADER_INPUT_BIND_DESC ibdesc;

@@ -4,7 +4,7 @@
 
 
 enum class CBUFFER_FIELD_TYPE		{ BOOL, FLOAT, FLOAT4, MATRIX4 };
-enum class CBUFFER_FIELD_CONTENT	{ TRANSFORM, P_LIGHT };
+enum class CBUFFER_FIELD_CONTENT	{ TRANSFORM, P_LIGHT, CSM };
 
 struct CBufferFieldDesc
 {

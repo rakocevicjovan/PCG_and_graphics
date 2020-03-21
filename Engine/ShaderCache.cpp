@@ -3,7 +3,7 @@
 #include "Math.h"
 #include <assert.h>
 
-
+#define NUM_CASCADES 3u
 
 void ShaderCache::init(ShaderCompiler* shCompiler)
 {
@@ -92,8 +92,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
 	lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
 
-	D3D11_BUFFER_DESC shadowBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 3 + sizeof(SVec4));
-	//CBufferMeta shadowBufferMeta(0, shadowBufferDesc.ByteWidth);
+	D3D11_BUFFER_DESC shadowBufferDesc = ShaderCompiler::createBufferDesc(NUM_CASCADES * sizeof(SMatrix) + sizeof(SVec4));
+	CBufferMeta shadowBufferMeta(0, shadowBufferDesc.ByteWidth);
+	shadowBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::CSM, 0, sizeof(CSMBuffer<NUM_CASCADES>));
 
 
 	/// VERTEX SHADERS

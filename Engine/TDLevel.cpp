@@ -466,7 +466,6 @@ void TDLevel::draw(const RenderContext& rc)
 
 	_scene.draw();
 
-	//S_RANDY.render(floorRenderable);
 	_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);

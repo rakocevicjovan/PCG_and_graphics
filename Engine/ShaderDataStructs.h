@@ -1,6 +1,7 @@
 #pragma once
-#include "Math.h"
 #include <vector>
+#include <array>
+#include "Math.h"
 #include <d3d11.h>
 #include "Texture.h"
 #include "Light.h"
@@ -53,15 +54,12 @@ struct LightBuffer
 	SVec4 ePos;
 };
 
-struct LightBuffer2
+
+template <uint8_t NUM_CASCADES>
+struct CSMBuffer
 {
-	SVec3 alc;
-	float ali;
-	SVec3  dlc;
-	float dli;
-	SVec3 slc;
-	float sli;
-	SVec4 pos;
+	std::array<SMatrix, NUM_CASCADES> _lvpMatrices;
+	SVec4 _cascadeLimits;
 };
 
 
