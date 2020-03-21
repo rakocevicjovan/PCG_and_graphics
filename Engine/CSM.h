@@ -301,8 +301,8 @@ public:
 		context->VSSetShader(r.mat->getVS()->_vsPtr, nullptr, 0);
 		context->PSSetShader(r.mat->getPS()->_psPtr, nullptr, 0);
 
-		r.mat->getPS()->updateBuffersAuto(context, r);
-		r.mat->getPS()->setBuffers(context);
+		//r.mat->getPS()->updateBuffersAuto(context, r);
+		//r.mat->getPS()->setBuffers(context);
 
 		// Again, bad, needs to be more flexible... but put together the pieces for now
 		SMatrix transformTranspose = r._transform.Transpose();

@@ -92,8 +92,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
 	lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
 
-	D3D11_BUFFER_DESC shadowBufferDesc = ShaderCompiler::createBufferDesc(NUM_CASCADES * sizeof(SMatrix) + sizeof(SVec4));
-	CBufferMeta shadowBufferMeta(0, shadowBufferDesc.ByteWidth);
+	/**/
+	D3D11_BUFFER_DESC shadowBufferDesc = ShaderCompiler::createBufferDesc(sizeof(CSMBuffer<NUM_CASCADES>));
+	CBufferMeta shadowBufferMeta(11, shadowBufferDesc.ByteWidth);
 	shadowBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::CSM, 0, sizeof(CSMBuffer<NUM_CASCADES>));
 
 
@@ -144,8 +145,8 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	//PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});	addPixShader("hudPS", hudPS);
 
 	// CSM Scene shader
-	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", regularSD, { shadowBufferDesc });
-	csmScenePs->describeBuffers({ lightBufferMeta });
+	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", regularSD, { lightBufferDesc, shadowBufferDesc });
+	csmScenePs->describeBuffers({ lightBufferMeta, shadowBufferMeta});
 	addPixShader("csmScenePS", csmScenePs);
 }
 

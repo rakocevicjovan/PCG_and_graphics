@@ -45,10 +45,12 @@ VertexShader::VertexShader(
 
 void VertexShader::setBuffers(ID3D11DeviceContext* cont)
 {
-	//for (int i = 0; i < _cbuffers.size(); ++i)
-		//cont->VSSetConstantBuffers(i, 1, &_cbuffers[i]);
-	if (_cbuffers.size() > 0)
-		cont->VSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
+	for (int i = 0; i < _cbuffers.size(); ++i)
+		cont->VSSetConstantBuffers(_cbuffers[i]._metaData._slot, 1, &_cbuffers[i]._cbPtr);
+
+	// THIS CAN'T WORK UNLESS THEY ARE CONTIGUOUS IN MEMORY BUT IT'S FASTER! @TODO REORGANIZE THAT PART
+	//if (_cbuffers.size() > 0)
+		//cont->VSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
 }
 
 
@@ -69,6 +71,10 @@ PixelShader::PixelShader(
 
 void PixelShader::setBuffers(ID3D11DeviceContext* cont)
 {
-	if(_cbuffers.size() > 0)
-		cont->PSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
+	for (int i = 0; i < _cbuffers.size(); ++i)
+		cont->PSSetConstantBuffers(_cbuffers[i]._metaData._slot, 1, &_cbuffers[i]._cbPtr);
+
+	// THIS CAN'T WORK UNLESS THEY ARE CONTIGUOUS IN MEMORY BUT IT'S FASTER! @TODO REORGANIZE THAT PART
+	//if(_cbuffers.size() > 0)
+		//cont->PSSetConstantBuffers(0, _cbuffers.size(), &_cbuffers[0]._cbPtr);
 }
