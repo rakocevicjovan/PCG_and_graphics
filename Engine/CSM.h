@@ -232,6 +232,7 @@ public:
 		projMats.reserve(_nMaps);
 
 		_distances = cam._frustum.calcSplitDistances(_nMaps);
+		_shBuffData.cascadeLimits = SVec4(_distances.data());	// Unsafe, maybe?
 		std::vector<SMatrix> camFrustumSubdivisionPMs = cam._frustum.createCascadeProjMatrices(_nMaps, _distances);
 
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
@@ -309,11 +310,6 @@ public:
 		CBuffer::updateWholeBuffer(context, r.mat->getVS()->_cbuffers[0]._cbPtr, &transformTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(0, 1, &(r.mat->getVS()->_cbuffers[0]._cbPtr));
 
-		_shBuffData.cascadeLimits = SVec4(_distances.data());	//unsafe...
-		CBuffer::updateWholeBuffer(context, _shadowBuffer, &_shBuffData, sizeof(_shBuffData));
-		context->PSSetConstantBuffers(11, 1, &_shadowBuffer);
-
-
 		// Bind usual textures
 		r.mat->bindTextures(context);
 		context->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
@@ -339,8 +335,16 @@ public:
 
 
 
+	void uploadCSMBuffer(ID3D11DeviceContext* context)
+	{
+		CBuffer::updateWholeBuffer(context, _shadowBuffer, &_shBuffData, sizeof(_shBuffData));
+		context->PSSetConstantBuffers(11, 1, &_shadowBuffer);
+	}
+
+
+
 	uint8_t getNMaps() { return _nMaps; }
-	ID3D11ShaderResourceView* getResView() { return _shadowResView;}
+	ID3D11ShaderResourceView* const* getResView() { return &_shadowResView;}
 	ID3D11ShaderResourceView* getDebugView() { return _debugResView; }
 };
 

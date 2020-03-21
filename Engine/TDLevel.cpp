@@ -463,11 +463,17 @@ void TDLevel::draw(const RenderContext& rc)
 			_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), actor->_renderables[0]);
 	}
 
+	_scene._csm.uploadCSMBuffer(S_CONTEXT);
 
 	_scene.draw();
 
+	S_CONTEXT->PSSetShaderResources(11, 1, _scene._csm.getResView());
+
 	//_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
 	S_RANDY.render(floorRenderable);
+
+	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
+	S_CONTEXT->PSSetShaderResources(11, 1, pSRV);
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
