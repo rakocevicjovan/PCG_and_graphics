@@ -31,7 +31,7 @@ namespace Col
 	}
 
 
-	//resolution vector is the vector from the sphere center to the closest point
+	// Resolution vector is the vector from the sphere center to the closest point on AABB's surface
 	static HitResult AABBSphereIntersection(const AABB& b, const SphereHull& s)
 	{
 		HitResult hr;
@@ -43,7 +43,7 @@ namespace Col
 		hr.hit = sqPenetrationDepth > 0;
 		hr.sqPenetrationDepth = hr.hit ? sqPenetrationDepth : 0.f;
 
-		SVec3 resVec = s.ctr - closestPointOnAABB;	//if sphere is in the object this will be 0...
+		SVec3 resVec = s.ctr - closestPointOnAABB;	// If sphere is in the object this will be 0...
 
 		if (resVec.LengthSquared() < 0.0001f)
 			hr.resolutionVector = Math::getNormalizedVec3(closestPointOnAABB - b.getPosition());
@@ -58,23 +58,35 @@ namespace Col
 	{
 		SVec3 closestPointOnAABB;
 
-		float sqdToClosestPoint = ClosestPointOnAABB(s.ctr, b, closestPointOnAABB);
+		float sqDistToClosestPoint = ClosestPointOnAABB(s.ctr, b, closestPointOnAABB);
 		
-		return (sq(s.r) > sqdToClosestPoint);
+		return (sq(s.r) > sqDistToClosestPoint);
 	}
 
 
 
 	static HitResult SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
 	{
-		float distSquared = SVec3::DistanceSquared(s1.ctr, s2.ctr);
+		float distSq = SVec3::DistanceSquared(s1.ctr, s2.ctr);
+		
+		float minAllowedDist = s1.r + s2.r;
+		
+		// Handle center-overlapping objects when the resolution vector will be ~0 length... simply push up
+		if (distSq < 0.001f)
+			return HitResult(true, SVec3::Up, minAllowedDist);
 
-		if (distSquared < 0.001f)
+		float minAllowedDistSq = sq(minAllowedDist);
+		
+		// Overlaps
+		if (distSq < minAllowedDistSq - 0.01f)	// Prevent tiny vectors and possible errors with eps
 		{
-			return HitResult(true, SVec3(1), s1.r*s2.r);
+			SVec3 resVecDirection = Math::getNormalizedVec3(s1.ctr - s2.ctr);	// Easy enough, push them directly apart
+			float resVecLength = minAllowedDist - sqrt(distSq);					// Can't seem to avoid sqrt...
+
+			return HitResult(true, resVecDirection * resVecLength, sq(resVecLength));
 		}
 
-		return HitResult(distSquared < sq(s1.r + s2.r), s1.ctr - s2.ctr, distSquared);
+		return HitResult();
 	}
 
 
@@ -84,7 +96,7 @@ namespace Col
 		if (a.maxPoint.x < b.minPoint.x || a.minPoint.x > b.maxPoint.x) return HitResult();
 		if (a.maxPoint.y < b.minPoint.y || a.minPoint.y > b.maxPoint.y) return HitResult();
 		if (a.maxPoint.z < b.minPoint.z || a.minPoint.z > b.maxPoint.z) return HitResult();
-		return HitResult(true, a.getPosition() - b.getPosition(), 0.f);
+		return HitResult(true, a.getPosition() - b.getPosition(), 0.f);	// Rudimentary but good enough...
 	}
 
 

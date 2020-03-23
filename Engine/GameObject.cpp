@@ -15,7 +15,7 @@ Actor::Actor(Model* model, SMatrix& transform)
 		_renderables.back()._transform = transform * mesh._transform;
 		_renderables.back().mat = &mesh._baseMaterial;
 
-		_collider.addHull(new SphereHull(mesh._transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
+		_collider.addHull(new SphereHull(_renderables.back()._transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
 	}
 }
 

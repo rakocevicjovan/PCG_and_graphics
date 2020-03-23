@@ -343,6 +343,14 @@ public:
 
 
 
+	void unbindTextureArray(ID3D11DeviceContext* context)
+	{
+		ID3D11ShaderResourceView *const pSRV[1] = { NULL };
+		context->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, pSRV);
+	}
+
+
+
 	uint8_t getNMaps() { return _nMaps; }
 	ID3D11ShaderResourceView* const* getResView() { return &_shadowResView;}
 	ID3D11ShaderResourceView* getDebugView() { return _debugResView; }

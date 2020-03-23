@@ -17,6 +17,7 @@ public:
 	Actor* _parent;
 	
 	bool dynamic;
+	bool collidable = true;
 
 	Collider() {}
 

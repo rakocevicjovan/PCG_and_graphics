@@ -94,31 +94,37 @@ public:
 
 	void draw()
 	{
-		/*
+		frustumCull(_renderer._cam);
+
+		_renderer.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
+
 		// CSM code
 		SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
 		_csm.calcProjMats(_renderer._cam, dlViewMatrix);
 
-		_csm.beginShadowPassSequence(_renderer.context(), _shCache.getVertShader("csmVS"));
+		_csm.beginShadowPassSequence(_renderer.context());
 
 		for (int i = 0; i < _csm.getNMaps(); ++i)
 		{
 			_csm.beginShadowPassN(_renderer.context(), i);
 
-			//_csm.drawToCurrentShadowPass(_renderer.context(), floorRenderable);	just add it to the actor list instead
+			//_csm.drawToCurrentShadowPass(_renderer.context(), floorRenderable);	//just add it to the actor list instead
 
 			for (Actor*& actor : _actors)
 				_csm.drawToCurrentShadowPass(_renderer.context(), actor->_renderables[0]);
 		}
-		
 
-		// Scene rendering code
 		_renderer.setDefaultRenderTarget();
+
+		// After the shadow maps have been rendered to, we bind the global csm buffer and texture array
+		_csm.uploadCSMBuffer(_renderer.context(), PS_CSM_CBUFFER_REGISTER);
+		_renderer.context()->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, _csm.getResView());
 
 		_renderer.sortRenderQueue();
 		_renderer.flushRenderQueue();
 		_renderer.clearRenderQueue();
-		*/
+
+		_csm.unbindTextureArray(_renderer.context());
 	}
 
 

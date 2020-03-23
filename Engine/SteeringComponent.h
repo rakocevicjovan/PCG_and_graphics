@@ -46,7 +46,9 @@ public:
 		if (sqDistToGoal > stopDistance * stopDistance)	//sqDistToGoal > stopDistance * stopDistance
 		{
 			_totalInfluence += flowVector;
-			_totalInfluence += .8f * Steering::separate(static_cast<NavAgent*>(_parent), others);
+
+			SVec3 separation = .2f * Steering::separate(static_cast<NavAgent*>(_parent), others);
+			_totalInfluence += separation;
 		}
 		else	//arrival behaviour
 		{

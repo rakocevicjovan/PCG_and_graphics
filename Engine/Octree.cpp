@@ -262,38 +262,54 @@ void Octree::updateNode(OctNode* node)
 void Octree::testAllCollisions(OctNode *pNode)
 {
 	// Keep track of all ancestor object lists in a stack
-	const int MAX_DEPTH = 40;
+	const int MAX_DEPTH = 10;
 	static OctNode* ancestorStack[MAX_DEPTH];
 	static int depth = 0;
 
 	// Check collision between all objects on this level and all ancestor objects. 
-	// Current node is already included into the ancestory stack.
 
-	//empty nodes have no hulls OR children so we can just cut it off right there
+	// Empty nodes have no hulls OR children so we can just cut it off right there
 	if (isEmpty(pNode))
 		return;
 
+	// Include current node into the ancestry stack.
 	ancestorStack[depth++] = pNode;
 
-	for (int n = 0; n < depth; n++)	//iterate the ancestor stack
+	for (int n = 0; n < depth; n++)	// Iterate the ancestor stack
 	{
-		for (SphereHull* spA : ancestorStack[n]->_hulls)	// check all hulls in ancestors
+		for (SphereHull* spA : ancestorStack[n]->_hulls)	// Check all hulls in ancestors...
 		{
-			for (SphereHull* spL : pNode->_hulls)			// against hulls in current node
+
+			// Exit early if either is not collidable
+			if (!(spA->_collider->collidable))	
+				continue;
+
+			for (SphereHull* spB : pNode->_hulls)			// ...against hulls in the current node
 			{
-				if (spA == spL)	//not sure if continue or break, book says break but that seems incorrect!
+				// Prevent self-collision. Book says break but that is incorrect
+				if (spA == spB)	
+					continue;
+
+				if (!(spB->_collider->collidable))
 					continue;
 
 				//What to do with the hit result now? @TODO Separate response from detection!
 				//collider seems to be a good candidate to hold response logic and definition
-				HitResult hr = Col::SphereSphereIntersection(*spA, *spL);
-				if (hr.hit == true)
+				HitResult hr = Col::SphereSphereIntersection(*spA, *spB);
+				
+				if (hr.hit)
 				{
-					//breaks apart if actors relocate... consider between indices and allocators...
-					spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
-					Math::SetTranslation(spA->_collider->_parent->transform, spA->getPosition());
-					spL->setPosition(spL->getPosition() - hr.resolutionVector * .5);
-					Math::SetTranslation(spL->_collider->_parent->transform, spL->getPosition());
+					// Breaks apart if actors relocate... consider between indices and allocators
+					if (spA->_collider->dynamic)
+					{
+						spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
+						Math::SetTranslation(spA->_collider->_parent->transform, spA->getPosition());
+					}
+					if (spB->_collider->dynamic)
+					{
+						spB->setPosition(spB->getPosition() - hr.resolutionVector * .5);
+						Math::SetTranslation(spB->_collider->_parent->transform, spB->getPosition());
+					}
 				}
 			}
 		}

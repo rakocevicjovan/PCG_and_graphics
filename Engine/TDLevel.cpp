@@ -34,7 +34,7 @@ void TDLevel::init(Systems& sys)
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
 
-	//light setup
+	// Light setup, to be replaced soon
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
@@ -62,7 +62,9 @@ void TDLevel::init(Systems& sys)
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
 
 	terrainActor.addRenderable(floorRenderable, 500);
-	//_scene._actors.push_back(&terrainActor);
+	//terrainActor._collider.dynamic = false;
+	terrainActor._collider.collidable = false;
+	_scene._actors.push_back(&terrainActor);
 
 	// Initialize navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
@@ -88,17 +90,12 @@ void TDLevel::init(Systems& sys)
 		_creeps[i]._steerComp._mspeed = 40.f;
 		
 		for (Renderable& r : _creeps[i]._renderables)
-		{
-			// make the system select these later on... this is a big undertaking, it will take a while
-			r.mat->setVS(sys._shaderCache.getVertShader("basicVS"));
-			r.mat->setPS(sys._shaderCache.getPixShader("phongPS"));
-			r.mat->pLight = &pLight;
-		}
+			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), pLight);
 
+		//_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 		for (Hull* h : _creeps[i]._collider.getHulls())
 			_scene._octree.insertObject(static_cast<SphereHull*>(h));
 
-		//_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 		_scene._actors.push_back(&(_creeps[i]));
 	}
 
@@ -176,9 +173,9 @@ void TDLevel::fixBuildable(Building* b)
 ///UPDATE AND HELPERS
 void TDLevel::update(const RenderContext& rc)
 {
-	_scene.update();
-
 	steerEnemies(rc.dTime);
+
+	_scene.update();
 
 	//moves around the selected building
 	if (_templateBuilding && _inBuildingMode)
@@ -356,6 +353,7 @@ void TDLevel::build()
 			_structures.push_back(&_industry.back());
 		}
 
+		//_scene._actors.push_back(_structures.back());
 		_scene._octree.insertObject((SphereHull*)_structures.back()->_collider.getHull(0));
 
 		_inBuildingMode = false;
@@ -392,13 +390,13 @@ void TDLevel::demolish()
 
 void TDLevel::steerEnemies(float dTime)
 {
-	//not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
+	// Not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
 	SVec2 stopArea(sqrt(_creeps.size()));
 	stopArea *= 9.f;
 	float stopDistance = stopArea.Length();
 
 	std::vector<Actor*> neighbourCreepVec;
-	neighbourCreepVec.reserve(100);			//max neighbours to consider... too big a number for this scene but aight for now
+	neighbourCreepVec.reserve(25);			//max neighbours to consider...
 
 	for (int i = 0; i < _creeps.size(); ++i)
 	{
@@ -409,7 +407,7 @@ void TDLevel::steerEnemies(float dTime)
 
 		if (_creeps[i]._steerComp._active)
 		{
-			_scene._octree.findWithin(_creeps[i].getPosition(), 3.f, neighbourCreepVec);
+			_scene._octree.findWithin(_creeps[i].getPosition(), 5.f, neighbourCreepVec);
 			_creeps[i]._steerComp.update(_navGrid, dTime, neighbourCreepVec, i, stopDistance);
 			neighbourCreepVec.clear();
 		}
@@ -443,6 +441,10 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
+	_scene.draw();
+
+
+	/*
 	_scene.frustumCull(S_RANDY._cam);
 
 	S_RANDY.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
@@ -463,10 +465,6 @@ void TDLevel::draw(const RenderContext& rc)
 			_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), actor->_renderables[0]);
 	}
 
-
-	// This will replace all this jazz
-	//_scene.draw();
-
 	S_RANDY.setDefaultRenderTarget();
 
 	// After the shadow maps have been rendered to, we bind the global csm buffer and texture array
@@ -482,11 +480,9 @@ void TDLevel::draw(const RenderContext& rc)
 
 	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
 	S_CONTEXT->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, pSRV);
+	*/
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
-
-
-
 
 
 
