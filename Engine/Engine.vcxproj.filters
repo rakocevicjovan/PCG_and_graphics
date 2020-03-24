@@ -135,6 +135,9 @@
     <Filter Include="Collision\Spatial partitioning\QuadTree">
       <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\Shader Files\Compute shaders">
+      <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -811,7 +814,10 @@
     <ClInclude Include="GUI.h">
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
-    <ClInclude Include="StructBuffer.h">
+    <ClInclude Include="ComputeShader.h">
+      <Filter>Rendering\AAA Improved\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="SBuffer.h">
       <Filter>Rendering\Buffers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1006,6 +1012,9 @@
     </FxCompile>
     <FxCompile Include="csmSceneVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Cluster.hlsl">
+      <Filter>Rendering\Shader Files\Compute shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
