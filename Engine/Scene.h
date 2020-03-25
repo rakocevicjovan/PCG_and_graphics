@@ -94,7 +94,8 @@ public:
 
 	void draw()
 	{
-		frustumCull(_renderer._cam);
+		frustumCullScene(_renderer._cam);
+		//frustumCull(_renderer._cam._frustum);
 
 		_renderer.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
 
@@ -125,6 +126,8 @@ public:
 		_renderer.clearRenderQueue();
 
 		_csm.unbindTextureArray(_renderer.context());
+
+		frameCleanUp();
 	}
 
 
@@ -170,33 +173,40 @@ public:
 
 
 
-	void frustumCull(const Camera& cam)
+	void frustumCullScene(const Camera& cam)
 	{
-		_numCulled = 0;
-
 		const SMatrix v = cam.GetViewMatrix();
 		const SVec3 viewForward(v._13, v._23, v._33);
 		const SVec3 camPos = cam.GetPosition();
 
-		for (size_t i = 0; i < _actors.size(); ++i)
-		{
-			Actor* a = _actors[i];
+		frustumCull(cam._frustum, _actors, _visibleActors);
 
-			for (size_t j = 0; j < a->_renderables.size(); ++j)
+		for (Actor*& a : _visibleActors)
+		{
+			a->addToRenderQueue(_renderer, camPos, viewForward);
+		}
+
+		_numCulled = _actors.size() - _visibleActors.size();
+	}
+
+
+
+	void frustumCull(const Frustum& frustum, const std::vector<Actor*>& all, std::vector<Actor*>& culled)
+	{
+		for (Actor* a : _actors)
+		{
+			for (size_t j = 0; j < a->_collider.getHulls.size(); ++j)
 			{
 				SphereHull* sph = static_cast<SphereHull*>(a->getBoundingHull(j));
 
-				if (Col::FrustumSphereIntersection(cam._frustum, *sph))
+				if (Col::FrustumSphereIntersection(frustum, *sph))
 				{
-					a->_renderables[j].zDepth = (a->transform.Translation() - camPos).Dot(viewForward);	//@TODO
-					_renderer.addToRenderQueue(a->_renderables[j]);
-				}
-				else
-				{
-					++_numCulled;
+					culled.push_back(a);
+
+					// Don't insert multiple times, if either hull is inside, object counts as inside
+					break;	
 				}
 			}
-			
 		}
 	}
 
@@ -204,6 +214,7 @@ public:
 
 	void frameCleanUp()
 	{
+		_visibleActors.clear();
 		_lightManager->resetPerFramePools();
 		_visibleActors.clear();
 	}

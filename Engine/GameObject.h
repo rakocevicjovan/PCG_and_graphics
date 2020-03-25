@@ -52,6 +52,15 @@ public:
 	{
 		return _collider.getHull(index);
 	}
+
+	inline void addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward)
+	{
+		for (Renderable& r : _renderables)
+		{
+			r.zDepth = (transform.Translation() - camPos).Dot(viewForward);
+			renderer.addToRenderQueue(r);
+		}
+	}
 };
 
 

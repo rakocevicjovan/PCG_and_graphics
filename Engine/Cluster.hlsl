@@ -17,8 +17,9 @@ struct AABB
 };
 
 // Input structured buffer, contains positions of all point lights and spotlights (which will be clustered the same way...)
-StructuredBuffer<LightSBB> : register(b10) lightBuffer;
+StructuredBuffer<LightSBB> lightBuffer : register(t10);
 
+//RWStructuredBuffer<StructNameHere> BufferOut : register(u0);
 
 uint getTilesXCount()
 {
@@ -33,9 +34,35 @@ uint getTilesYCount()
 }
 
 
+/*
+	X axis: 1920px split into 64px blocks	=> 1920 / 64 = 30 (30 blocks of 64 px width)
+	Y axis: 1080px  						=> 1080 / 30 = 36 (30 blocks of 36 px width, to keep consistent with 30 blocks)
+	Z axis: 32 slices 						=> easy, 32
 
-[numthreads(32, 32, 1)]
+
+	// Official docs on compute shaders (very meh tbh)
+	https://docs.microsoft.com/en-us/windows/win32/direct3d11/direct3d-11-advanced-stages-compute-shader
+
+	// Better explanation
+	http://www.codinglabs.net/tutorial_compute_shaders_filters.aspx
+*/
+
+/*
+uint3 groupID : SV_GroupID
+- Index of the group within the dispatch for each dimension
+
+uint3 groupThreadID : SV_GroupThreadID
+- Index of the thread within the group for each dimension
+
+uint groupIndex : SV_GroupIndex
+- A sequential index within the group that starts from 0 top left back and goes on to bottom right front
+
+uint3 dispatchThreadID : SV_DispatchThreadID
+- Global thread index within the whole dispatch
+*/
+
+[numthreads(1, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
-	return 0;
+
 }
