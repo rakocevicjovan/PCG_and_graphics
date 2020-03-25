@@ -28,6 +28,7 @@ class CSM
 
 	std::vector<SMatrix> _lvpMats;
 	std::vector<float> _distances;
+	std::vector<Frustum> _frusta;
 	ID3D11InputLayout* _inLay;
 
 	ID3D11Buffer* _wmBuffer;
@@ -54,6 +55,7 @@ public:
 
 		_lvpMats.resize(nMaps);
 		_viewports.resize(nMaps);
+		_frusta.resize(nMaps);
 
 
 		// Initialize buffers used by the csm shader
@@ -176,12 +178,12 @@ public:
 		float minY, maxY;
 		float minZ, maxZ;
 
-		minX = minY = minZ = 999999.f;	//could use limits instead...
+		minX = minY = minZ = 999999.f;	// Should use limits instead...
 		maxX = maxY = maxZ = -999999.f;
 
 		std::array<SVec3, 8> lViewSpaceCorners;
 
-		// Transform the world space positions of frustum coordinates into light's clip space
+		// Transform the world space positions of frustum coordinates into light's view space
 		for (int i = 0; i < corners.size(); ++i)
 		{
 			SVec3 pos = SVec3::Transform(corners[i], lvMat);
@@ -196,28 +198,8 @@ public:
 			if (pos.z < minZ) minZ = pos.z;
 			if (pos.z > maxZ) maxZ = pos.z;
 		}
-		
-		/*
-		// Calculate the crop matrix, which should limit the orthographic matrix to only encompass the frustum
-		float Sx = 2.f / (maxX - minX);
-		float Sy = 2.f / (maxY - minY);
-
-		float Ox = -0.5 * (maxX + minX) * Sx;
-		float Oy = -0.5 * (minY + minY) * Sy;
-
-		SMatrix cropMatrix(
-			Sx, 0., 0., Ox,
-			0., Sy, 0., Oy,
-			0,  0,  1., 0.,
-			0., 0., 0., 1.);
 
 		// @TODO If done like this, only objects in the camera frustum will cast shadows, need to account for it
-		SMatrix Pz = DirectX::XMMatrixOrthographicLH(128, 128, minZ, maxZ);	// @TODO convert numbers to resolution
-		SMatrix projMatrix = Pz * cropMatrix;	// I think this is reversed...
-		*/
-
-		// @TODO these ended up being all the same... I thought it differed at first, move this to single viewport class member
-		//_viewports[vpIndex] = { (FLOAT)0.f, (FLOAT)0.f, (FLOAT)(abs(maxX - minX)), (FLOAT)(abs(maxZ - minZ)), 0.f, 1.f };
 
 		_viewports[vpIndex] = { (FLOAT)0.f, (FLOAT)0.f, (FLOAT)_width, (FLOAT)_height, 0.f, 1.f };
 
@@ -238,9 +220,10 @@ public:
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
 			// Obtain the corners in world space
-			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.GetViewMatrix() * camFrustumSubdivisionPMs[i]);	//, cam.GetCameraMatrix()
-			projMats.push_back(createLightProjectionMatrix(corners, lightViewMatrix, i));	// Transform them to light space etc...
+			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.GetViewMatrix() * camFrustumSubdivisionPMs[i]);
+			projMats.push_back(createLightProjectionMatrix(corners, lightViewMatrix, i));	// Transform them to light space
 			_lvpMats[i] = lightViewMatrix * projMats.back();
+			_frusta[i]  = Frustum::createFrustumWithPlanesOnly(_lvpMats[i]);	//Used for collision only, needs only planes, faster
 		}
 
 		return projMats;
@@ -266,7 +249,9 @@ public:
 		context->RSSetViewports(1, &(_viewports[n]));
 
 		SMatrix lvpMatTranspose = _lvpMats[n].Transpose();
+
 		_shBuffData.lvpMatrices[n] = lvpMatTranspose;
+
 		CBuffer::updateWholeBuffer(context, _lvpBuffer, &lvpMatTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(1, 1, &_lvpBuffer);
 	}
@@ -351,9 +336,10 @@ public:
 
 
 
-	uint8_t getNMaps() { return _nMaps; }
-	ID3D11ShaderResourceView* const* getResView() { return &_shadowResView;}
-	ID3D11ShaderResourceView* getDebugView() { return _debugResView; }
+	inline uint8_t getNMaps() { return _nMaps; }
+	inline ID3D11ShaderResourceView* const* getResView() { return &_shadowResView;}
+	inline ID3D11ShaderResourceView* getDebugView() { return _debugResView; }
+	inline Frustum& getNthFrustum(uint8_t n) { return _frusta[n]; };
 };
 
 

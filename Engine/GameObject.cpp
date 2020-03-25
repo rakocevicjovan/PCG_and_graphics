@@ -69,6 +69,17 @@ void Actor::render(const Renderer& renderer) const
 
 
 
+void Actor::addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward)
+{
+	for (Renderable& r : _renderables)
+	{
+		r.zDepth = (transform.Translation() - camPos).Dot(viewForward);
+		renderer.addToRenderQueue(r);
+	}
+}
+
+
+
 void Actor::addRenderable(const Renderable& renderable, float r)
 {
 	_renderables.push_back(renderable);

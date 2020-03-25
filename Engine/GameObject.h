@@ -4,8 +4,8 @@
 #include "Camera.h"
 #include "SteeringComponent.h"
 #include "Renderable.h"
-#include <memory>
 #include "Collider.h"
+#include <memory>
 
 class Renderer;
 
@@ -53,14 +53,7 @@ public:
 		return _collider.getHull(index);
 	}
 
-	inline void addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward)
-	{
-		for (Renderable& r : _renderables)
-		{
-			r.zDepth = (transform.Translation() - camPos).Dot(viewForward);
-			renderer.addToRenderQueue(r);
-		}
-	}
+	void addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward);
 };
 
 

@@ -18,6 +18,7 @@ private:
 	std::vector<GameObject*> _objects;
 
 	std::vector<Actor*> _visibleActors;
+	std::vector<Actor*> _shadowVisibleActors;
 
 	std::vector<Actor*> _litObjectPool;
 
@@ -111,8 +112,12 @@ public:
 
 			//_csm.drawToCurrentShadowPass(_renderer.context(), floorRenderable);	//just add it to the actor list instead
 
-			for (Actor*& actor : _actors)
+			frustumCull(_csm.getNthFrustum(i), _visibleActors, _shadowVisibleActors);
+
+			for (Actor*& actor : _shadowVisibleActors)
 				_csm.drawToCurrentShadowPass(_renderer.context(), actor->_renderables[0]);
+
+			_shadowVisibleActors.clear();
 		}
 
 		_renderer.setDefaultRenderTarget();
@@ -128,6 +133,41 @@ public:
 		_csm.unbindTextureArray(_renderer.context());
 
 		frameCleanUp();
+	}
+
+
+
+	void frustumCullScene(const Camera& cam)
+	{
+		const SMatrix v = cam.GetViewMatrix();
+		const SVec3 viewForward(v._13, v._23, v._33);
+		const SVec3 camPos = cam.GetPosition();
+
+		frustumCull(cam._frustum, _actors, _visibleActors);
+
+		for (Actor*& a : _visibleActors)
+		{
+			a->addToRenderQueue(_renderer, camPos, viewForward);
+		}
+
+		_numCulled = _actors.size() - _visibleActors.size();
+	}
+
+
+
+	void frustumCull(const Frustum& frustum, const std::vector<Actor*>& all, std::vector<Actor*>& culled)
+	{
+		for (Actor* a : _actors)
+		{
+			for (Hull* sph : a->_collider.getHulls())
+			{
+				if (Col::FrustumSphereIntersection(frustum, *static_cast<SphereHull*>(sph)))
+				{
+					culled.push_back(a);
+					break;	// Don't insert multiple times, if either hull is inside, object counts as inside
+				}
+			}
+		}
 	}
 
 
@@ -169,45 +209,6 @@ public:
 			_litObjectPool.clear();	// Reset the list
 		}
 
-	}
-
-
-
-	void frustumCullScene(const Camera& cam)
-	{
-		const SMatrix v = cam.GetViewMatrix();
-		const SVec3 viewForward(v._13, v._23, v._33);
-		const SVec3 camPos = cam.GetPosition();
-
-		frustumCull(cam._frustum, _actors, _visibleActors);
-
-		for (Actor*& a : _visibleActors)
-		{
-			a->addToRenderQueue(_renderer, camPos, viewForward);
-		}
-
-		_numCulled = _actors.size() - _visibleActors.size();
-	}
-
-
-
-	void frustumCull(const Frustum& frustum, const std::vector<Actor*>& all, std::vector<Actor*>& culled)
-	{
-		for (Actor* a : _actors)
-		{
-			for (size_t j = 0; j < a->_collider.getHulls.size(); ++j)
-			{
-				SphereHull* sph = static_cast<SphereHull*>(a->getBoundingHull(j));
-
-				if (Col::FrustumSphereIntersection(frustum, *sph))
-				{
-					culled.push_back(a);
-
-					// Don't insert multiple times, if either hull is inside, object counts as inside
-					break;	
-				}
-			}
-		}
 	}
 
 

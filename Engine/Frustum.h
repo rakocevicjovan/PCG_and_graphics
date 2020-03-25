@@ -28,6 +28,13 @@ public:
 	std::vector<float> calcSplitDistances(uint8_t n) const;
 	std::vector<SMatrix> createCascadeProjMatrices(uint8_t n, const std::vector<float>& zees) const;
 
+	inline static Frustum createFrustumWithPlanesOnly(SMatrix& vpMatrix)
+	{
+		Frustum f;
+		f.extractPlanesFromMatrix(vpMatrix);
+		return f;
+	}
+
 private:
 
 	//from the fast extraction paper...
