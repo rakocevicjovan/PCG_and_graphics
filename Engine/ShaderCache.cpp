@@ -3,7 +3,11 @@
 #include "Math.h"
 #include <assert.h>
 
+
+
 #define NUM_CASCADES 3u
+
+
 
 void ShaderCache::init(ShaderCompiler* shCompiler)
 {

@@ -36,7 +36,7 @@ uint getTilesYCount()
 
 /*
 	X axis: 1920px split into 64px blocks	=> 1920 / 64 = 30 (30 blocks of 64 px width)
-	Y axis: 1080px  						=> 1080 / 30 = 36 (30 blocks of 36 px width, to keep consistent with 30 blocks)
+	Y axis: 1080px  						=> 1080 / 36 = 30 (30 blocks of 36 px width, to keep consistent with 30 blocks)
 	Z axis: 32 slices 						=> easy, 32
 
 
@@ -61,7 +61,24 @@ uint3 dispatchThreadID : SV_DispatchThreadID
 - Global thread index within the whole dispatch
 */
 
-[numthreads(1, 1, 1)]
+float sqDistPointAABB(float3 min, float3 max, float3 p)
+{
+	float3 closestPoint;
+	closestPoint.x = clamp(min.x, max.x, p.x);
+	closestPoint.y = clamp(min.y, max.y, p.y);
+	closestPoint.z = clamp(min.z, max.z, p.z);
+
+	float3 delta = p - closestPoint;
+
+	return dot(delta, delta);
+}
+
+bool aabbSphereIntersection(float3 min, float3 max, float4 sphere)
+{
+
+}
+
+[numthreads(32, 32, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
 

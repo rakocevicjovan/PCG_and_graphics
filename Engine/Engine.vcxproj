@@ -263,6 +263,7 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="ClusterManager.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
@@ -652,7 +653,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Cluster.hlsl">
+    <FxCompile Include="Culler.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>

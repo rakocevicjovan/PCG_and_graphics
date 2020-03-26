@@ -4,6 +4,8 @@
 #include "Octree.h"
 #include "Renderer.h"
 #include "CSM.h"
+#include "ComputeShader.h"
+#include <memory>
 
 #define DEFAULT_SUBDIV_LEVELS 4u
 
@@ -30,7 +32,7 @@ private:
 
 public:
 
-	LightManager* _lightManager;
+	std::unique_ptr<LightManager> _lightManager;
 
 	Octree _octree;
 	UINT _numCulled;
@@ -54,17 +56,10 @@ public:
 		_octree(scope, subdivLevels),
 		_numCulled(0u)
 	{
-		_lightManager = new LightManager(4, 256, 256, 128, 128);
+		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
 		_litObjectPool.reserve(20);
 
 		_octree.preallocateRootOnly();	//_oct.preallocateTree();	
-	}
-
-
-
-	~Scene()
-	{
-		delete _lightManager;
 	}
 
 
@@ -96,7 +91,6 @@ public:
 	void draw()
 	{
 		frustumCullScene(_renderer._cam);
-		//frustumCull(_renderer._cam._frustum);
 
 		_renderer.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
 
@@ -174,7 +168,7 @@ public:
 
 	void illuminate(Camera& c)
 	{
-		// Obtain a list of visible lights, store it in the light manager
+		// Obtain a list of visible lights, which will remain stored in the light manager
 		_lightManager->cullLights(c._frustum);
 
 		// For every point light
@@ -213,11 +207,17 @@ public:
 
 
 
+	void Scene::cluster(ComputeShader& cs)
+	{
+
+	}
+
+
+
 	void frameCleanUp()
 	{
 		_visibleActors.clear();
 		_lightManager->resetPerFramePools();
-		_visibleActors.clear();
 	}
 
 };

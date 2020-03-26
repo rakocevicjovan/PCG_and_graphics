@@ -14,7 +14,7 @@ public:
 	ComputeShader() : _shaderPtr(nullptr) {}
 
 
-	bool ComputeShader::createFromFile(ShaderCompiler& shc, const std::wstring& path)
+	bool ComputeShader::createFromFile(ID3D11Device* device, const std::wstring& path)
 	{
 		UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
@@ -40,7 +40,7 @@ public:
 			OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 
 
-		hr = shc.getDevice()->CreateComputeShader(shaderBlob->GetBufferPointer(),
+		hr = device->CreateComputeShader(shaderBlob->GetBufferPointer(),
 			shaderBlob->GetBufferSize(),
 			NULL, &_shaderPtr);
 
@@ -80,7 +80,6 @@ public:
 		context->CSSetShader(NULL, NULL, 0);
 		context->CSSetShaderResources(0, srvNulls.size(), srvNulls.data());
 		context->CSSetUnorderedAccessViews(0, uavNulls.size(), uavNulls.data(), NULL);
-
 	}
 
 };

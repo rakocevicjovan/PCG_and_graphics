@@ -7,27 +7,44 @@
 #include <list>
 
 
+struct PlPoolStruct
+{
+	PLight _pl;
+	PLight* _next;
+};
+
+struct SlPoolStruct
+{
+	SLight _sl;
+	SLight* _next;
+};
+
+
 // This class assumes that there won't be too many lights added and removed often - it stores data optimized for iteration
 // Probably should eliminate list inserts if we need those operations often
 class LightManager
 {
 private:
 
-	// For fast iteration every frame, we want them contiguous... this usually won't be that many lights, especially directional
-	// but it should be able to handle a lot of point/spot lights in the scene regardless and keep stable references (so list+pool)
+	// @TODO replace these with the above structs so that list is baked into the pool allocator
+	// because this way we still need dynamic allocations, and avoiding them was the whole point of using pool allocators
 	std::list<DLight*> _dirLights;
-	PoolAllocator<DLight> _dlPool;
-
 	std::list<PLight*> _pLights;
-	PoolAllocator<PLight> _plPool;
-
 	std::list<SLight*> _sLights;
+
+	// For fast iteration every frame, we want them contiguous... this usually won't be that many lights, especially directional
+	// but it should be able to handle a lot of point/spot lights in the scene regardless and keep stable references
+
+	PoolAllocator<DLight> _dlPool;
+	PoolAllocator<PLight> _plPool;
 	PoolAllocator<SLight> _slPool;
 
 	// For per frame allocations, we use a stack allocator - there will be no random deletions so it's the fastest option
-	// Not quite sure if this is the best way to do it, I could avoid copying them alltogether as well...
+	// Not quite sure if this is the best way to do it, I could avoid copying them as well...
 	StackAllocator _pfPointPool;
 	StackAllocator _pfSpotPool;
+
+
 
 public:
 
@@ -38,6 +55,9 @@ public:
 	{
 		_pfPointPool.init(sizeof(PLight) * frPLights);
 		_pfSpotPool.init(sizeof(SLight) * frSLights);
+
+		sizeof(PlPoolStruct);
+		sizeof(SlPoolStruct);
 	}
 
 

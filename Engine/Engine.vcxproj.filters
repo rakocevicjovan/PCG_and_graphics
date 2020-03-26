@@ -820,6 +820,9 @@
     <ClInclude Include="SBuffer.h">
       <Filter>Rendering\Buffers</Filter>
     </ClInclude>
+    <ClInclude Include="ClusterManager.h">
+      <Filter>Rendering\AAA Improved</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1013,7 +1016,7 @@
     <FxCompile Include="csmSceneVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Cluster.hlsl">
+    <FxCompile Include="Culler.hlsl">
       <Filter>Rendering\Shader Files\Compute shaders</Filter>
     </FxCompile>
   </ItemGroup>

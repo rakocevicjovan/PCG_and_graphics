@@ -8,6 +8,17 @@ class SBuffer
 
 public:
 
+	SBuffer::SBuffer() : _sbPtr(nullptr) {}
+
+
+
+	SBuffer::SBuffer(ID3D11Device* device, UINT elementSize, UINT numElements)
+	{
+		_sbPtr = createSBuffer(device, elementSize, numElements);
+	}
+
+
+
 	static ID3D11Buffer* createSBuffer(ID3D11Device* device, UINT elementSize, UINT numElements)
 	{
 		ID3D11Buffer* structBuffer;
@@ -59,4 +70,5 @@ public:
 		return device->CreateUnorderedAccessView(pBuffer, &desc, &sbuav);
 	}
 
+	inline ID3D11Buffer* getPtr() { return _sbPtr; }
 };
