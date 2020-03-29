@@ -194,6 +194,24 @@ namespace Col
 
 
 
+	static bool RayPlaneIntersection(const SRay& ray, const SPlane plane, SVec3& intersectionPoint)
+	{
+		SVec3 normal(&plane.x);
+
+		SVec3 c = -plane.w * plane.Normal();
+
+		float t = (c - ray.position).Dot(normal) / ray.direction.Dot(normal);
+
+		if (t > 0 && t < 1)
+		{
+			intersectionPoint = ray.position + t * ray.direction;
+			return true;
+		}
+		return false;
+	}
+
+
+
 	static bool RayTriangleIntersection(const SRay& ray, const SVec3& a, const SVec3& b, const SVec3& c)
 	{
 		SVec3 i;

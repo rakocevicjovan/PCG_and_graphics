@@ -13,7 +13,8 @@ using SPlane	= DirectX::SimpleMath::Plane;
 static const float PI = 3.1415926f;
 
 
-class Math{
+class Math
+{
 
 public:
 	
@@ -74,7 +75,23 @@ public:
 	}
 
 
-	//@WARNING just use taylor not sure if I got this right...
+	// This could all be wrong, I'm a bit rusty on space transitions since I haven't touched them in a while
+	inline static SVec4 clipSpaceToViewSpace(const SVec4& clipSpace, const SMatrix& invProjMatrix)
+	{
+		return SVec4::Transform(clipSpace, invProjMatrix);
+	}
+
+	// Taken from a tutorial, seems fishy to me that w divide seems wrong!
+	static SVec4 screenToViewSpace(const SVec4& ssCoords, const SVec2& sSize, const SMatrix& invProj)
+	{
+		SVec2 NDCoords = SVec2(ssCoords) / sSize;
+		SVec4 clipSpace = SVec4(NDCoords.x * 2.f - 1.f, NDCoords.y * 2.f - 1.f, ssCoords.z, ssCoords.w);
+		SVec4 viewSpace = clipSpaceToViewSpace(clipSpace, invProj);
+		return (viewSpace / viewSpace.w);
+	}
+
+
+	// @WARNING just use taylor not sure if I got this right...
 	inline static float sinBhaskara(float x)
 	{
 		return (16.f * x * (PI - x)) / (5.f * PI * PI - 4.f * x * (PI - x));
@@ -86,4 +103,3 @@ public:
 		return (1 - t) * a + t * b;
 	}
 };
-

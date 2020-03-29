@@ -35,10 +35,16 @@ public:
 	AABB() {}
 
 
-	AABB(SVec3 center, SVec3 halfSize)
+	AABB::AABB(SVec3 center, SVec3 halfSize)
 	{
 		minPoint = center - halfSize;
 		maxPoint = center + halfSize;
+	}
+
+
+	static AABB fromMinMax (const SVec3& min, const SVec3& max)
+	{
+		return { min, max };
 	}
 
 
