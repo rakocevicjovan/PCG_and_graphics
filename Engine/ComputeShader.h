@@ -27,8 +27,9 @@ public:
 		LPCSTR profile = "cs_5_0";
 
 		/*
-		// also add defines to D3DCompileFromFile (path, defines, ...)
-		const D3D_SHADER_MACRO defines[] = { "EXAMPLE_DEFINE", "1", NULL, NULL };*/
+		// To add defines to D3DCompileFromFile (path, defines, ...)
+		const D3D_SHADER_MACRO defines[] = { "EXAMPLE_DEFINE", "1", NULL, NULL };
+		*/
 
 		ID3DBlob* shaderBlob = nullptr;
 		ID3DBlob* errorBlob = nullptr;

@@ -44,9 +44,6 @@
     <Filter Include="AI\Pathfinding">
       <UniqueIdentifier>{188558f1-d5c9-4299-9204-18c36ead3c33}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Lights">
-      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene management">
       <UniqueIdentifier>{deaffbae-fd9b-41f2-9865-8526d175967c}</UniqueIdentifier>
     </Filter>
@@ -137,6 +134,9 @@
     </Filter>
     <Filter Include="Rendering\Shader Files\Compute shaders">
       <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\AAA Improved\Lights">
+      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -262,9 +262,6 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Rendering\AAA Improved</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Rendering\Lights</Filter>
     </ClCompile>
     <ClCompile Include="Renderable.cpp">
       <Filter>Rendering\AAA Improved</Filter>
@@ -566,7 +563,7 @@
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>Rendering\Lights</Filter>
+      <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
     <ClInclude Include="Renderable.h">
       <Filter>Rendering\AAA Improved</Filter>
@@ -794,7 +791,7 @@
       <Filter>Scene management</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
-      <Filter>Rendering\Lights</Filter>
+      <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
     <ClInclude Include="SlotVector.h">
       <Filter>MemoryAllocators</Filter>
@@ -821,7 +818,7 @@
       <Filter>Rendering\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="ClusterManager.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

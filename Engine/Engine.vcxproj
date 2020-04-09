@@ -231,7 +231,6 @@
     <ClCompile Include="ScreenSpaceDrawer.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Math.cpp" />
     <ClCompile Include="ShaderHUD.cpp" />

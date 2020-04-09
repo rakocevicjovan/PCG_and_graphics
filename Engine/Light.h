@@ -25,8 +25,6 @@ public:
 
 	SVec3 getChroma() { return SVec3(_chromaIntensity); }
 	void setChroma(const SVec3& chroma) { _chromaIntensity = Math::fromVec3(chroma, _chromaIntensity.w); }
-
-
 };
 
 
@@ -49,6 +47,7 @@ public:
 	SVec4 _posRange;
 
 	PLight() { sizeof(PLight); }
+
 	PLight(const SVec3& rgb, float intensity, const SVec3& pos) 
 		: SceneLight(rgb, intensity), _posRange(Math::fromVec3(pos, INTENSITY_TO_RANGE(intensity))) {}
 
