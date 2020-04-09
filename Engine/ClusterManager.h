@@ -59,8 +59,10 @@ public:
 		_lightIndexList = SBuffer(device, sizeof(float) * 2u, _gridSize);
 		*/
 
-		_grid.resize(_gridSize);
+		_grid.reserve(_gridSize);
+
 		_offsetList.resize(_gridSize);
+
 		_lightList.resize(MAX_LIGHTS_PER_CLUSTER * _gridSize);
 	}
 
@@ -72,9 +74,6 @@ public:
 		float w = 2. / _gridDims[0];
 		float h = 2. / _gridDims[1];
 		float sliceThickness = 1. / _gridDims[2];
-
-		std::vector<ClusterNode> _nodes;
-		_nodes.resize(_gridSize);
 
 		SRay viewRay;
 		viewRay.position = SVec3(0, 0, -zNear);
@@ -94,7 +93,6 @@ public:
 			min.z = localNear.w;
 			max.z = localFar.w;
 
-
 			for (int i = 0; i < _gridDims[0]; ++i)
 			{
 				xL = i * w - 1.f;
@@ -105,7 +103,7 @@ public:
 					yB = j * h - 1.f;
 					yT = yB + h;
 
-					// Ray pointing to and intersecting:
+					// Ray direction and intersecting plane:
 
 					// bottom left
 					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, zNear));
@@ -127,11 +125,11 @@ public:
 					max.x = max(temp1.x, temp2.x);
 					max.y = max(temp1.y, temp2.y);
 
-					// AABBs to view space
-					_nodes.emplace_back(min, max);
+					_grid.emplace_back(min, max);
 
-					SVec4::Transform(_nodes.back._min, invProj);
-					SVec4::Transform(_nodes.back._max, invProj);
+					// AABBs to view space
+					SVec4::Transform(_grid.back._min, invProj);
+					SVec4::Transform(_grid.back._max, invProj);
 				}
 			}
 		}
