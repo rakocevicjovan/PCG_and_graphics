@@ -45,9 +45,10 @@ public:
 	// Not sure about any of this yet, work in progress...
 	ClusterManager(
 		ID3D11Device* device, 
-		std::array<UINT, 3> gridDims, 
-		uint16_t maxLights, 
-		uint8_t lightSize) 
+		std::array<UINT, 3> gridDims
+		//uint16_t maxLights, 
+		//uint8_t lightSize
+	) 
 		: _gridDims(gridDims)
 	{
 		_gridSize = gridDims[0] * gridDims[1] * gridDims[2];
@@ -70,16 +71,17 @@ public:
 
 	void buildClusterGrid(float zNear, float zFar, const SMatrix& invProj)
 	{
+		_gridDims = {4, 4, 4};
+
 		// Dimensions of a single cell in a [-1, 1] span for x and y axes, and [0, 1] span for z axis (like DX NDC)
 		float w = 2. / _gridDims[0];
 		float h = 2. / _gridDims[1];
-		float sliceThickness = 1. / _gridDims[2];
 
 		SRay viewRay;
-		viewRay.position = SVec3(0, 0, -zNear);
+		viewRay.position = SVec3(0, 0, 0);
 
-		SPlane localNear(SVec3(0, 0, 1), 0.f);
-		SPlane localFar(SVec3(0, 0, 1), 0.f);	// This is adjusted in the loop, d = 0.f is intentional
+		SPlane localNear(SVec3(0, 0, 1), -zNear);
+		SPlane localFar(SVec3(0, 0, 1), -zNear);	// This is adjusted in the loop, d = -zNear is intentional
 
 		SVec3 min, max, temp1, temp2;
 		float xL, xR, yB, yT;
@@ -88,10 +90,10 @@ public:
 		{
 			// Depth, d is negative I think? Negate if so!
 			localNear.w = localFar.w;
-			localFar.w = getZSliceDepth(zNear, zFar, zSlice + 1u, _gridDims[2]);
+			localFar.w = -getZSliceDepth(zNear, zFar, zSlice + 1u, _gridDims[2]);
 
-			min.z = localNear.w;
-			max.z = localFar.w;
+			min.z = -localNear.w;
+			max.z = -localFar.w;
 
 			for (int i = 0; i < _gridDims[0]; ++i)
 			{
@@ -106,7 +108,7 @@ public:
 					// Ray direction and intersecting plane:
 
 					// bottom left
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, zNear));
+					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, min.z));
 					// close plane
 					Col::RayPlaneIntersection(viewRay, localNear, temp1);
 					// far plane
@@ -116,7 +118,7 @@ public:
 					min.y = min(temp1.y, temp2.y);
 
 					// top right
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xR, yT, zNear));
+					viewRay.direction = Math::getNormalizedVec3(SVec3(xR, yT, max.z));
 					// close plane
 					Col::RayPlaneIntersection(viewRay, localNear, temp1);
 					// far plane
@@ -128,8 +130,8 @@ public:
 					_grid.emplace_back(min, max);
 
 					// AABBs to view space
-					SVec4::Transform(_grid.back._min, invProj);
-					SVec4::Transform(_grid.back._max, invProj);
+					SVec4::Transform(_grid.back()._min, invProj);
+					SVec4::Transform(_grid.back()._max, invProj);
 				}
 			}
 		}
@@ -148,6 +150,7 @@ public:
 	
 	inline float getZSliceDepth(float zNear, float zFar, uint8_t slice, uint8_t numSlices)
 	{
-		return zNear * pow((zFar / zNear), (slice / numSlices));
+		float exponent = static_cast<float>(slice) / numSlices;
+		return zNear * pow((zFar / zNear), exponent);
 	}
 };

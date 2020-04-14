@@ -200,9 +200,14 @@ namespace Col
 
 		SVec3 c = -plane.w * plane.Normal();
 
-		float t = (c - ray.position).Dot(normal) / ray.direction.Dot(normal);
+		float denom = normal.Dot(ray.direction);
 
-		if (t > 0 && t < 1)
+		if (fabs(denom) < 0.00001f)
+			return false;
+
+		float t = (c - ray.position).Dot(normal) / denom;
+
+		if (t > 0 /*&& t < 1*/)		//make two versions, bounded and non bounded
 		{
 			intersectionPoint = ray.position + t * ray.direction;
 			return true;
