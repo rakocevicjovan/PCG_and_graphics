@@ -71,24 +71,13 @@ float4 main(PixelInputType input) : SV_TARGET
 	float dFactor = 0;
 	float4 diffuse = calcDiffuse(invLightDir, input.normal, dlc, dli, dFactor);
 
-	//calculate specular light
-	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, sli, viewDir, dFactor, SpecularPower);
-
 	colour = (ambient + diffuse) * texColour;
 
-	//apply fog
-	colour.xyz = applyFog(colour.xyz, distance, viewDir, lightDir);
-
-	//apply gamma correction
-	colour.xyz = gammaCorrect(colour.xyz, 1.0f / 2.2f);
-
-
-    if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y)){
-
+    if((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+	{
         closestDepth = depthMapTexture.Sample(SampleTypeClamp, projectTexCoord).r;
-        //lightDepthValue = ( (2.f * input.fragPosLightSpace.z - 500.01f ) / 499.99f ) / input.fragPosLightSpace.w;
 		lightDepthValue = input.fragPosLightSpace.z / input.fragPosLightSpace.w;
-        lightDepthValue -= 0.001f;
+        lightDepthValue -= 0.0001f;	// bias
 
 		if (lightDepthValue > closestDepth)
 		{
@@ -98,8 +87,17 @@ float4 main(PixelInputType input) : SV_TARGET
 		}
 	}
 
+	//calculate specular light
+	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, sli, viewDir, dFactor, SpecularPower);
 
 	colour = colour + specular;
+
+	//apply fog
+	colour.xyz = applyFog(colour.xyz, distance, viewDir, lightDir);
+
+	//apply gamma correction
+	colour.xyz = gammaCorrect(colour.xyz, 1.0f / 2.2f);
+
 	colour.w = 1.0f;
 	return colour;
 }
