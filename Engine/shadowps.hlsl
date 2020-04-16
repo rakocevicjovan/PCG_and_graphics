@@ -52,8 +52,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float4 texColour = shaderTexture.Sample(SampleTypeWrap, input.tex);
 	float4 colour;
 
-	//fragPosLightSpace is actually the screen position of pixels relative to the light source
-	///and we just replicate the same procedure that the usual position would go through when being prepared for the fragment shader
+	//fragPosLightSpace is perspective divided and transformed from [-1, 1] to [0, 1] range in light space
     projectTexCoord.x =  input.fragPosLightSpace.x / input.fragPosLightSpace.w / 2.0f + 0.5f;
     projectTexCoord.y = -input.fragPosLightSpace.y / input.fragPosLightSpace.w / 2.0f + 0.5f;
 

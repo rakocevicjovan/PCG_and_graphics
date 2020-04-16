@@ -71,7 +71,7 @@ public:
 
 	void buildClusterGrid(float zNear, float zFar, const SMatrix& invProj)
 	{
-		_gridDims = {4, 4, 4};
+		//_gridDims = {4, 4, 4};
 
 		// Dimensions of a single cell in a [-1, 1] span for x and y axes, and [0, 1] span for z axis (like DX NDC)
 		float w = 2. / _gridDims[0];
@@ -108,7 +108,7 @@ public:
 					// Ray direction and intersecting plane:
 
 					// bottom left
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, min.z));
+					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, zNear));
 					// close plane
 					Col::RayPlaneIntersection(viewRay, localNear, temp1);
 					// far plane
@@ -118,7 +118,7 @@ public:
 					min.y = min(temp1.y, temp2.y);
 
 					// top right
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xR, yT, max.z));
+					viewRay.direction = Math::getNormalizedVec3(SVec3(xR, yT, zNear));
 					// close plane
 					Col::RayPlaneIntersection(viewRay, localNear, temp1);
 					// far plane

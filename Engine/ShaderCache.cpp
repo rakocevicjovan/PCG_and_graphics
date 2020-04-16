@@ -152,6 +152,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", regularSD, { lightBufferDesc });
 	csmScenePs->describeBuffers({ lightBufferMeta });
 	addPixShader("csmScenePS", csmScenePs);
+
+	PixelShader* clusterDebugPs = new PixelShader(*_shc, L"clusterDebug.hlsl", regularSD, {});
+	addPixShader("clusterDebugPS", clusterDebugPs);
 }
 
 

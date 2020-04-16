@@ -65,8 +65,8 @@ void TDLevel::init(Systems& sys)
 	floorMesh._baseMaterial.pLight = &pLight;	
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//basicVS
-	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));		//phongPS
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("clusterDebugPS"));	//csmScenePS
 
 	terrainActor.addRenderable(floorRenderable, 500);
 	//terrainActor._collider.dynamic = false;
@@ -553,7 +553,7 @@ void TDLevel::freeLevelMemory()
 
 
 
-///Currently unused, yet useful, code
+/// Currently unused, yet useful, code
 /* old sphere placement, it's here because it's rad
 for (int i = 0; i < 125; ++i)
 {
