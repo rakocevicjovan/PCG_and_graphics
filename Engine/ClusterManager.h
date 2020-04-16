@@ -105,6 +105,7 @@ public:
 					yB = j * h - 1.f;
 					yT = yB + h;
 
+					/*
 					// Ray direction and intersecting plane:
 
 					// bottom left
@@ -126,12 +127,11 @@ public:
 
 					max.x = max(temp1.x, temp2.x);
 					max.y = max(temp1.y, temp2.y);
+					*/
+
+
 
 					_grid.emplace_back(min, max);
-
-					// AABBs to view space
-					SVec4::Transform(_grid.back()._min, invProj);
-					SVec4::Transform(_grid.back()._max, invProj);
 				}
 			}
 		}
@@ -139,9 +139,81 @@ public:
 
 
 
-	void populateClusterGrid()
+	void buildGrid(float zNear, float zFar, const SMatrix& invProj)
 	{
+		float w = 2. / _gridDims[0];
+		float h = 2. / _gridDims[1];
 
+
+		SVec3 min, max;
+		float xL, xR, yB, yT;
+		float n, nV, f, fV;
+
+		for (int zSlice = 0; zSlice < _gridDims[2]; ++zSlice)
+		{
+			nV = getZSliceDepth(zNear, zFar, zSlice, _gridDims[2]);
+			n = getProjectedDepth(zNear, zFar, nV);
+
+			fV = getZSliceDepth(zNear, zFar, zSlice + 1u, _gridDims[2]);	// Get required linear depth according to slice
+			f = getProjectedDepth(zNear, zFar, fV);				// Transform it into projected Z
+
+			min.z = n;
+			max.z = f;
+
+			for (int i = 0; i < _gridDims[0]; ++i)
+			{
+				xL = i * w - 1.f;
+				xR = xL + w;
+
+				for (int j = 0; j < _gridDims[1]; ++j)
+				{
+					yB = j * h - 1.f;
+					yT = yB + h;
+
+					// My method, z project and unproject
+					SVec4 lbn(xL, yB, n, nV);	
+					lbn.x *= lbn.w;
+					lbn.y *= lbn.w;
+					//lbn.z *= lbn.w;	//z is calculated already in view space
+					SVec4 viewSpaceLbn = SVec4::Transform(lbn, invProj);
+
+
+					SVec4 trf(xR, yT, f, fV);
+					trf.x *= trf.w;
+					trf.y *= trf.w;
+					SVec4 viewSpaceTrf = SVec4::Transform(trf, invProj);
+
+
+					// Testing against this method
+					SRay viewRay;
+					viewRay.position = SVec3(0.f, 0.f, 0.f);
+
+					SPlane localNear(SVec3(0, 0, 1), -nV);
+					SPlane localFar(SVec3(0, 0, 1), -fV);
+
+					SVec3 temp;
+
+					// With normalization
+					viewRay.direction = SVec3(xL, yB, zNear);
+					viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
+					Col::RayPlaneIntersection(viewRay, localNear, temp);
+
+					viewRay.direction = SVec3(xR, yT, zNear);
+					viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
+					Col::RayPlaneIntersection(viewRay, localFar, temp);
+
+					// Without normalization
+					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, zNear));
+					viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
+					Col::RayPlaneIntersection(viewRay, localNear, temp);	
+
+					min.x = min(viewSpaceLbn.x, viewSpaceTrf.x);
+					min.y = min(viewSpaceLbn.y, viewSpaceTrf.y);
+
+					_grid.emplace_back(min, max);
+				}
+			}
+		}
 	}
 
 
@@ -152,5 +224,10 @@ public:
 	{
 		float exponent = static_cast<float>(slice) / numSlices;
 		return zNear * pow((zFar / zNear), exponent);
+	}
+
+	inline float getProjectedDepth(float zNear, float zFar, float fV)
+	{
+		return (zFar * (fV - zNear)) / ((zFar - zNear) * fV);
 	}
 };

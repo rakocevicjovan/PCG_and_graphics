@@ -29,7 +29,7 @@ void TDLevel::init(Systems& sys)
 
 	ClusterManager clsMan = ClusterManager(S_DEVICE, { 30, 17, 16 });
 
-	clsMan.buildClusterGrid(S_RANDY._cam._frustum._zn, S_RANDY._cam._frustum._zf, S_RANDY._cam.GetProjectionMatrix().Invert());
+	clsMan.buildGrid(S_RANDY._cam._frustum._zn, S_RANDY._cam._frustum._zf, S_RANDY._cam.GetProjectionMatrix().Invert());
 
 
 	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));

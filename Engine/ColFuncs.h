@@ -273,8 +273,8 @@ namespace Col
 
 	static bool PlaneSphereIntersection(const SPlane& plane, const SphereHull& sphere)
 	{
-		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());
-		float spherePlaneDist = spCenterToNormalProjection + plane.D();
+		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());	// Same as dot(sphere, plane) with SVec4s
+		float spherePlaneDist = spCenterToNormalProjection + plane.D();					// if sphere .w is 1
 		return (spherePlaneDist < sphere.r);
 	}
 
