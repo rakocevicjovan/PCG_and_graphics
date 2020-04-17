@@ -69,87 +69,14 @@ public:
 
 
 
-	void buildClusterGrid(float zNear, float zFar, const SMatrix& invProj)
-	{
-		//_gridDims = {4, 4, 4};
-
-		// Dimensions of a single cell in a [-1, 1] span for x and y axes, and [0, 1] span for z axis (like DX NDC)
-		float w = 2. / _gridDims[0];
-		float h = 2. / _gridDims[1];
-
-		SRay viewRay;
-		viewRay.position = SVec3(0, 0, 0);
-
-		SPlane localNear(SVec3(0, 0, 1), -zNear);
-		SPlane localFar(SVec3(0, 0, 1), -zNear);	// This is adjusted in the loop, d = -zNear is intentional
-
-		SVec3 min, max, temp1, temp2;
-		float xL, xR, yB, yT;
-
-		for (int zSlice = 0; zSlice < _gridDims[2]; ++zSlice)
-		{
-			// Depth, d is negative I think? Negate if so!
-			localNear.w = localFar.w;
-			localFar.w = -getZSliceDepth(zNear, zFar, zSlice + 1u, _gridDims[2]);
-
-			min.z = -localNear.w;
-			max.z = -localFar.w;
-
-			for (int i = 0; i < _gridDims[0]; ++i)
-			{
-				xL = i * w - 1.f;
-				xR = xL + w;
-
-				for (int j = 0; j < _gridDims[1]; ++j)
-				{
-					yB = j * h - 1.f;
-					yT = yB + h;
-
-					/*
-					// Ray direction and intersecting plane:
-
-					// bottom left
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, zNear));
-					// close plane
-					Col::RayPlaneIntersection(viewRay, localNear, temp1);
-					// far plane
-					Col::RayPlaneIntersection(viewRay, localFar, temp2);
-
-					min.x = min(temp1.x, temp2.x);
-					min.y = min(temp1.y, temp2.y);
-
-					// top right
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xR, yT, zNear));
-					// close plane
-					Col::RayPlaneIntersection(viewRay, localNear, temp1);
-					// far plane
-					Col::RayPlaneIntersection(viewRay, localFar, temp2);
-
-					max.x = max(temp1.x, temp2.x);
-					max.y = max(temp1.y, temp2.y);
-					*/
-
-
-
-					_grid.emplace_back(min, max);
-				}
-			}
-		}
-	}
-
-
-
 	void buildGrid(Camera cam)
 	{
 		float zNear = cam._frustum._zn;
 		float zFar = cam._frustum._zf;
 		SMatrix invProj = cam.GetProjectionMatrix().Invert();
 
-		cam._frustum.extractCorners(cam.GetProjectionMatrix());
-
 		float w = 2. / _gridDims[0];
 		float h = 2. / _gridDims[1];
-
 
 		SVec3 min, max;
 		float xL, xR, yB, yT;
@@ -161,7 +88,7 @@ public:
 			n = getProjectedDepth(zNear, zFar, nV);
 
 			fV = getZSliceDepth(zNear, zFar, zSlice + 1u, _gridDims[2]);	// Get required linear depth according to slice
-			f = getProjectedDepth(zNear, zFar, fV);				// Transform it into projected Z
+			f = getProjectedDepth(zNear, zFar, fV);							// Transform it into projected Z
 
 			min.z = nV;
 			max.z = fV;
@@ -217,12 +144,11 @@ public:
 	inline SVec4 viewRayDepthSliceIntersection(SVec3 rayDir, float vs_planeZ, const SMatrix& invProj)
 	{
 		SPlane zPlane(SVec3(0, 0, 1), -vs_planeZ);
-		SRay viewRay(SVec3(0.f), rayDir);	// No normalization, just shoot the ray
+		SRay viewRay(SVec3(0.f), rayDir);	// No normalization, just shoot the ray, seems to be working well
 		viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
 
 		SVec3 temp;
 		Col::RayPlaneIntersection(viewRay, zPlane, temp);
-
 		return temp;
 	}
 
@@ -236,7 +162,6 @@ public:
 
 		SVec3 temp;
 		Col::RayPlaneIntersection(viewRay, zPlane, temp);
-		
 		return temp;
 	}
 
