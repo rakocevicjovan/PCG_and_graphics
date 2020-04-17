@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "Steering.h"
 
-#include "ClusterManager.h"
+
 
 //Experimental
 //#include "ShaderGenerator.h"
@@ -26,10 +26,6 @@ TDLevel::TDLevel(Systems& sys)
 void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
-
-	ClusterManager clsMan = ClusterManager(S_DEVICE, { 30, 17, 16 });
-
-	clsMan.buildGrid(S_RANDY._cam._frustum._zn, S_RANDY._cam._frustum._zf, S_RANDY._cam.GetProjectionMatrix().Invert());
 
 
 	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));

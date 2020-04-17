@@ -139,8 +139,14 @@ public:
 
 
 
-	void buildGrid(float zNear, float zFar, const SMatrix& invProj)
+	void buildGrid(Camera cam)
 	{
+		float zNear = cam._frustum._zn;
+		float zFar = cam._frustum._zf;
+		SMatrix invProj = cam.GetProjectionMatrix().Invert();
+
+		cam._frustum.extractCorners(cam.GetProjectionMatrix());
+
 		float w = 2. / _gridDims[0];
 		float h = 2. / _gridDims[1];
 
@@ -157,8 +163,8 @@ public:
 			fV = getZSliceDepth(zNear, zFar, zSlice + 1u, _gridDims[2]);	// Get required linear depth according to slice
 			f = getProjectedDepth(zNear, zFar, fV);				// Transform it into projected Z
 
-			min.z = n;
-			max.z = f;
+			min.z = nV;
+			max.z = fV;
 
 			for (int i = 0; i < _gridDims[0]; ++i)
 			{
@@ -170,47 +176,26 @@ public:
 					yB = j * h - 1.f;
 					yT = yB + h;
 
-					// My method, z project and unproject
-					SVec4 lbn(xL, yB, n, nV);	
-					lbn.x *= lbn.w;
-					lbn.y *= lbn.w;
-					//lbn.z *= lbn.w;	//z is calculated already in view space
-					SVec4 viewSpaceLbn = SVec4::Transform(lbn, invProj);
+					SVec4 lbnView = unprojectPoint(SVec4(xL, yB, n, nV), invProj);
+					SVec4 lbfView = unprojectPoint(SVec4(xL, yB, f, fV), invProj);
 
+					min.x = min(lbnView.x, lbfView.x);
+					min.y = min(lbnView.y, lbfView.y);
 
-					SVec4 trf(xR, yT, f, fV);
-					trf.x *= trf.w;
-					trf.y *= trf.w;
-					SVec4 viewSpaceTrf = SVec4::Transform(trf, invProj);
+					SVec4 trnView = unprojectPoint(SVec4(xR, yT, n, nV), invProj);
+					SVec4 trfView = unprojectPoint(SVec4(xR, yT, f, fV), invProj);
 
-
-					// Testing against this method
-					SRay viewRay;
-					viewRay.position = SVec3(0.f, 0.f, 0.f);
-
-					SPlane localNear(SVec3(0, 0, 1), -nV);
-					SPlane localFar(SVec3(0, 0, 1), -fV);
-
-					SVec3 temp;
-
-					// With normalization
-					viewRay.direction = SVec3(xL, yB, zNear);
-					viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
-					Col::RayPlaneIntersection(viewRay, localNear, temp);
-
-					viewRay.direction = SVec3(xR, yT, zNear);
-					viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
-					Col::RayPlaneIntersection(viewRay, localFar, temp);
-
-					// Without normalization
-					viewRay.direction = Math::getNormalizedVec3(SVec3(xL, yB, zNear));
-					viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
-					Col::RayPlaneIntersection(viewRay, localNear, temp);	
-
-					min.x = min(viewSpaceLbn.x, viewSpaceTrf.x);
-					min.y = min(viewSpaceLbn.y, viewSpaceTrf.y);
+					max.x = max(trnView.x, trfView.x);
+					max.y = max(trnView.y, trfView.y);
 
 					_grid.emplace_back(min, max);
+
+					// Alternative method examples, both cases ray points to zNear! But it intersects with further plane
+					// lbnView = viewRayDepthSliceIntersection(SVec3(xL, yB, zNear), nV, invProj);
+					// trfView = viewRayDepthSliceIntersection(SVec3(xR, yT, zNear), fV, invProj);
+
+					// Tutorial author's method, same result as above, and same as mine (no intersection method)
+					//lbnView = viewRayDepthSliceIntersection(xL, yB, nV, invProj);
 				}
 			}
 		}
@@ -218,13 +203,61 @@ public:
 
 
 
+	// My method, z project and unproject
+	inline SVec4 unprojectPoint(SVec4 clipSpace, const SMatrix& invProj)
+	{
+		clipSpace.x *= clipSpace.w;
+		clipSpace.y *= clipSpace.w;
+		clipSpace.z *= clipSpace.w;
+		return SVec4::Transform(clipSpace, invProj);
+	}
+
+
+
+	inline SVec4 viewRayDepthSliceIntersection(SVec3 rayDir, float vs_planeZ, const SMatrix& invProj)
+	{
+		SPlane zPlane(SVec3(0, 0, 1), -vs_planeZ);
+		SRay viewRay(SVec3(0.f), rayDir);	// No normalization, just shoot the ray
+		viewRay.direction = SVec3::Transform(viewRay.direction, invProj);
+
+		SVec3 temp;
+		Col::RayPlaneIntersection(viewRay, zPlane, temp);
+
+		return temp;
+	}
+
+
+
+	inline SVec4 viewRayDepthSliceIntersection(float dirX, float dirY, float vs_planeZ, const SMatrix& invProj)
+	{
+		SPlane zPlane(SVec3(0, 0, 1), -vs_planeZ);
+		SVec4 test = clip2view(SVec4(dirX, dirY, 0.f, 1.f), invProj);
+		SRay viewRay(SVec3(0.f), SVec3(&test.x));
+
+		SVec3 temp;
+		Col::RayPlaneIntersection(viewRay, zPlane, temp);
+		
+		return temp;
+	}
+
+
+
+	inline SVec4 clip2view(SVec4 clip, SMatrix invProj)
+	{
+		SVec4 view = SVec4::Transform(clip, invProj);	// View space transform
+		return (view / view.w);							// Perspective projection
+	}
+
+
+
 	/* Taken from Doom presentation http://advances.realtimerendering.com/s2016/Siggraph2016_idTech6.pdf page 5/58 */
-	
 	inline float getZSliceDepth(float zNear, float zFar, uint8_t slice, uint8_t numSlices)
 	{
 		float exponent = static_cast<float>(slice) / numSlices;
 		return zNear * pow((zFar / zNear), exponent);
 	}
+
+
 
 	inline float getProjectedDepth(float zNear, float zFar, float fV)
 	{

@@ -1,7 +1,7 @@
 #include "Systems.h"
 #include <string>
 #include <Mouse.h>
-
+#include "ClusterManager.h"
 
 
 Systems::Systems() : screenWidth(0), screenHeight(0) {}
@@ -36,6 +36,10 @@ bool Systems::Initialize()
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
 	}
+
+	//@Todo remove after testing
+	ClusterManager clsMan = ClusterManager(_renderer.device(), { 30, 17, 16 });
+	clsMan.buildGrid(_renderer._cam);
 
 	//loads in the td game and first level for now... cba going through the selection each time
 	_resMan.init(_device);
