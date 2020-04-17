@@ -69,7 +69,26 @@ public:
 
 
 
-	void buildGrid(Camera cam)
+	void assignLights(const std::vector<PLight>& pLights)
+	{
+		// buildGrid() exists to create explicitly defined bounds of each froxel approximated as a bounding AABB
+		// However, culling one by one like that seems ridiculously expensive! We can do better!
+		// Cull once for each plane subdividing the frustum, reducing the cull count from x * y * z to x + y + z
+		// Store min and max intersected plane indices, and compare indices when assigning lights per cluster!
+
+
+	}
+
+
+
+	void buildPlanes(const Camera& cam)
+	{
+
+	}
+
+
+
+	void buildGrid(const Camera& cam)
 	{
 		float zNear = cam._frustum._zn;
 		float zFar = cam._frustum._zf;
