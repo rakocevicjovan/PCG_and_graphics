@@ -69,12 +69,26 @@ public:
 
 
 
-	void assignLights(const std::vector<PLight>& pLights)
+	void assignLights(const std::vector<PLight>& pLights, const Camera& cam)
 	{
 		// buildGrid() exists to create explicitly defined bounds of each froxel approximated as a bounding AABB
 		// However, culling one by one like that seems ridiculously expensive! We can do better!
 		// Cull once for each plane subdividing the frustum, reducing the cull count from x * y * z to x + y + z
 		// Store min and max intersected plane indices, and compare indices when assigning lights per cluster!
+
+		SMatrix v = cam.GetViewMatrix();
+		SMatrix p = cam.GetProjectionMatrix();
+
+		// I wonder how much these conversions from vec3 to vec4 and back cost me all over the engine...
+		for (int i = 0; i < pLights.size(); ++i)
+		{
+			SVec3 ws_lightPos(pLights[i]._posRange);
+			float lightRadius = pLights[i]._posRange.w;
+
+			SVec4 vs_lightPosRange = Math::fromVec3(SVec3::TransformNormal(ws_lightPos, v), lightRadius);
+			
+			SVec4 rect = getProjectedRectangle(vs_lightPosRange, cam._frustum._zn, cam._frustum._zf, p);
+		}
 
 
 	}
@@ -215,7 +229,7 @@ public:
 	// 2. Is tangential to the sphere that we are testing (mathematically, d = r where d = pNormal.Dot(sphereCenter))
 	// By solving these equations, we get the planes that project to an axis aligned rectangle in clip space
 
-	void UpdateClipRegionRoot(
+	void updateClipRegionRoot(
 		float nc,          // Tangent plane x or y normal coordinate (view space)
 		float lc,          // Light x or y coordinate (view space)
 		float lz,          // Light z coordinate (view space)
@@ -239,7 +253,7 @@ public:
 
 
 
-	void UpdateClipRegion(
+	void updateClipRegion(
 		float lc,				// Light x or y coordinate (view space)
 		float lz,				// Light z coordinate (view space)
 		float lightRadius,
@@ -262,8 +276,8 @@ public:
 			float nx0 = (a + b) * invDenom;
 			float nx1 = (a - b) * invDenom;
 
-			UpdateClipRegionRoot(nx0, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
-			UpdateClipRegionRoot(nx1, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
+			updateClipRegionRoot(nx0, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
+			updateClipRegionRoot(nx1, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
 		}
 	}
 
@@ -280,8 +294,8 @@ public:
 			SVec2 clipMin(-1.0f);
 			SVec2 clipMax(1.0f);
 
-			UpdateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
-			UpdateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
+			updateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
+			updateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
 
 			clipRegion = SVec4(clipMin.x, clipMin.y, clipMax.x, clipMax.y);
 		}
@@ -291,7 +305,7 @@ public:
 };
 
 
-// Added so I don't get sued by intel when my engine inevitably becomes the ultimate engine in the eternity of the universe...
+// Added so I don't get sued by intel when my engine inevitably becomes the ultimate engine in the eternity of the universe... /s
 
 // Copyright 2010 Intel Corporation
 // All Rights Reserved

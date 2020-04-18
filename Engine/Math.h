@@ -52,8 +52,6 @@ public:
 
 	static SVec3 projectVecOntoVec(const SVec3& toProject, const SVec3& onto);
 
-	static SVec4 fromVec3(SVec3 v, float w);
-
 	static float clamp(float minX, float maxX, float x);
 
 	static float smoothstep(float edge0, float edge1, float x);
@@ -72,6 +70,11 @@ public:
 	inline static void setHeight(SMatrix& mat, float h)
 	{
 		mat._42 = h;
+	}
+
+	inline static SVec4 fromVec3(SVec3 v, float w)
+	{
+		return SVec4(v.x, v.y, v.z, w);
 	}
 
 

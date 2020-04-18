@@ -99,11 +99,6 @@ SVec3 Math::projectVecOntoVec(const SVec3& toProject, const SVec3& onto)
 	return (onto.Dot(toProject) / onto.Dot(onto)) * onto;
 }
 
-SVec4 Math::fromVec3(SVec3 v, float w)
-{
-	return SVec4(v.x, v.y, v.z, w);
-}
-
 float Math::clamp(float minX, float maxX, float x)
 {
 	return min(max(minX, x), maxX);
