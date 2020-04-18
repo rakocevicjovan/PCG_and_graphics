@@ -207,4 +207,102 @@ public:
 	{
 		return (zFar * (fV - zNear)) / ((zFar - zNear) * fV);
 	}
+
+
+	// Functions below are from intel's demo, but I derived the math to understand how it works. (29th june page, green notebook)
+	// Four planes are created so that that each plane plane:
+	// 1. Contains either x or y axes, passing through the view space origin (x = 0 or y = 0 in plane normal)
+	// 2. Is tangential to the sphere that we are testing (mathematically, d = r where d = pNormal.Dot(sphereCenter))
+	// By solving these equations, we get the planes that project to an axis aligned rectangle in clip space
+
+	void UpdateClipRegionRoot(
+		float nc,          // Tangent plane x or y normal coordinate (view space)
+		float lc,          // Light x or y coordinate (view space)
+		float lz,          // Light z coordinate (view space)
+		float lightRadius,
+		float cameraScale, // Project scale for coordinate (_11 or _22 for x/y respectively)
+		float& clipMin,
+		float& clipMax)
+	{
+		float nz = (lightRadius - nc * lc) / lz;
+		float pz = (lc * lc + lz * lz - lightRadius * lightRadius) / (lz - (nz / nc) * lc);
+
+		if (pz > 0.0f)
+		{
+			float c = -nz * cameraScale / nc;
+			if (nc > 0.0f)       
+				clipMin = max(clipMin, c);		// Left side boundary, (x or y >= -1.)
+			else
+				clipMax = min(clipMax, c);		// Right side boundary, (x or y <= 1.)
+		}
+	}
+
+
+
+	void UpdateClipRegion(
+		float lc,				// Light x or y coordinate (view space)
+		float lz,				// Light z coordinate (view space)
+		float lightRadius,
+		float cameraScale,		// Projection scale for coordinate (_11 for x, or _22 for y)
+		float& clipMin,
+		float& clipMax)
+	{
+		float rSq = lightRadius * lightRadius;
+		float lcSqPluslzSq = lc * lc + lz * lz;
+
+		// Determinant, if det <= 0 light covers the entire screen this we leave the default values (-1, 1) for the rectangle
+		float det = rSq * lc * lc - lcSqPluslzSq * (rSq - lz * lz);
+
+		// Light does not cover the entire screen, solve the quadratic equation, update root (aka project)
+		if (det > 0)
+		{
+			float a = lightRadius * lc;
+			float b = sqrt(det);
+			float invDenom = 1.f / lcSqPluslzSq;	//hopefully this saves us a division? maybe? probably optimized out anyways
+			float nx0 = (a + b) * invDenom;
+			float nx1 = (a - b) * invDenom;
+
+			UpdateClipRegionRoot(nx0, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
+			UpdateClipRegionRoot(nx1, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
+		}
+	}
+
+
+
+	SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj)
+	{
+		float lightRadius = lightPosView.w;
+		SVec4 clipRegion = SVec4(1, 1, 0, 0);
+
+		// Fast way to cull lights that are far enough behind the camera to not reach the near plane
+		if (lightPosView.z + lightRadius >= zNear)
+		{
+			SVec2 clipMin(-1.0f);
+			SVec2 clipMax(1.0f);
+
+			UpdateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
+			UpdateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
+
+			clipRegion = SVec4(clipMin.x, clipMin.y, clipMax.x, clipMax.y);
+		}
+
+		return clipRegion;
+	}
 };
+
+
+// Added so I don't get sued by intel when my engine inevitably becomes the ultimate engine in the eternity of the universe...
+
+// Copyright 2010 Intel Corporation
+// All Rights Reserved
+//
+// Permission is granted to use, copy, distribute and prepare derivative works of this
+// software for any purpose and without fee, provided, that the above copyright notice
+// and this statement appear in all copies.  Intel makes no representations about the
+// suitability of this software for any purpose.  THIS SOFTWARE IS PROVIDED "AS IS."
+// INTEL SPECIFICALLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, AND ALL LIABILITY,
+// INCLUDING CONSEQUENTIAL AND OTHER INDIRECT DAMAGES, FOR THE USE OF THIS SOFTWARE,
+// INCLUDING LIABILITY FOR INFRINGEMENT OF ANY PROPRIETARY RIGHTS, AND INCLUDING THE
+// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  Intel does not
+// assume any responsibility for any errors which may appear in this software nor any
+// responsibility to update it.

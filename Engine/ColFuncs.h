@@ -274,7 +274,7 @@ namespace Col
 	static bool PlaneSphereIntersection(const SPlane& plane, const SphereHull& sphere)
 	{
 		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());	// Same as dot(sphere, plane) with SVec4s
-		float spherePlaneDist = spCenterToNormalProjection + plane.D();					// if sphere .w is 1
+		float spherePlaneDist = spCenterToNormalProjection + plane.D();					// for unit spheres
 		return (spherePlaneDist < sphere.r);
 	}
 
@@ -297,7 +297,7 @@ namespace Col
 		if (coneTipPlaneDist < 0.f)
 			return false;
 
-		SVec3 m = (plane.Normal().Cross(cone._dir)).Cross(cone._dir);	//"downwards" vector along the cone's rim surface
+		SVec3 m = (plane.Normal().Cross(cone._dir)).Cross(cone._dir);		//"downwards" vector along the cone's rim surface
 		SVec3 Q = cone._tip + cone._d * cone._dir + cone._radius * m;		//closest point on the cone's rim towards the plane
 
 		return (Q.Dot(plane.Normal()) + plane.w > 0.f);
