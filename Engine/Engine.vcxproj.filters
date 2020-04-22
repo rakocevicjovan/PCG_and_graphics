@@ -820,6 +820,9 @@
     <ClInclude Include="ClusterManager.h">
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -393,6 +393,7 @@
     <ClInclude Include="ShaderWater.h" />
     <ClInclude Include="TextureGen.h" />
     <ClInclude Include="TextureRole.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="ToolGUI.h" />
     <ClInclude Include="Tower.h" />
     <ClInclude Include="VBuffer.h" />

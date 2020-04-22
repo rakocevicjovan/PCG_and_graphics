@@ -5,7 +5,11 @@
 #include "ColFuncs.h"
 #include <array>
 
+#include "ThreadPool.h"
+
 #define MAX_LIGHTS_PER_CLUSTER (128u)
+
+
 
 struct ClusterNode
 {
@@ -19,11 +23,14 @@ struct ClusterNode
 	}
 };
 
+
+
 class ClusterManager
 {
 private:
 
 	std::array<UINT, 3> _gridDims;
+	std::array<UINT, 3> _invGrid;
 	UINT _gridSize;
 	
 	/*
@@ -39,6 +46,8 @@ private:
 	std::vector<uint16_t> _lightList;
 	std::vector<ClusterNode> _grid;
 
+	//ThreadPool<const PLight&, SMatrix, SMatrix, float, float, float, float, SVec4> _threadPool;
+
 public:
 
 
@@ -52,6 +61,10 @@ public:
 		: _gridDims(gridDims)
 	{
 		_gridSize = gridDims[0] * gridDims[1] * gridDims[2];
+
+		_invGrid[0] = 1.f / gridDims[0];
+		_invGrid[1] = 1.f / gridDims[1];
+		_invGrid[2] = 1.f / gridDims[2];
 
 		/*
 		// For GPU based implementation
@@ -72,25 +85,66 @@ public:
 	void assignLights(const std::vector<PLight>& pLights, const Camera& cam)
 	{
 		// buildGrid() exists to create explicitly defined bounds of each froxel approximated as a bounding AABB
-		// However, culling one by one like that seems ridiculously expensive! We can do better!
-		// Cull once for each plane subdividing the frustum, reducing the cull count from x * y * z to x + y + z
+		// However, culling one by one like that seems unnecessarily expensive! We can do better!
+		// Cull once for each plane subdividing the frustum, reducing the cull count from (x * y * z) to (x + y + z)
 		// Store min and max intersected plane indices, and compare indices when assigning lights per cluster!
 
 		SMatrix v = cam.GetViewMatrix();
 		SMatrix p = cam.GetProjectionMatrix();
 
-		// I wonder how much these conversions from vec3 to vec4 and back cost me all over the engine...
+		float p33 = p._33;
+		float p34 = p._34;
+
+		float zn = cam._frustum._zn;
+		float zf = cam._frustum._zf;
+
+		SVec4 invGridVec4(_invGrid[0], _invGrid[1], _invGrid[0], _invGrid[1]);
+
 		for (int i = 0; i < pLights.size(); ++i)
 		{
-			SVec3 ws_lightPos(pLights[i]._posRange);
-			float lightRadius = pLights[i]._posRange.w;
+			const PLight& pl = pLights[i];
 
-			SVec4 vs_lightPosRange = Math::fromVec3(SVec3::TransformNormal(ws_lightPos, v), lightRadius);
-			
-			SVec4 rect = getProjectedRectangle(vs_lightPosRange, cam._frustum._zn, cam._frustum._zf, p);
+			SVec3 ws_lightPos(pLights[i]._posRange);
+			float lightRadius = pl._posRange.w;
+
+			// Get light bounds in view space, radius stays the same
+			SVec4 vs_lightPosRange = Math::fromVec3(SVec3::TransformNormal(ws_lightPos, v), lightRadius);	// x, y
+			SVec2 minMax = SVec2(vs_lightPosRange.z) + SVec2(-lightRadius, lightRadius);					// z
+
+			// Get light bounds in clip space
+			SVec4 rect = getProjectedRectangle(vs_lightPosRange, zn, zf, p);	// x, y
+			SVec2 clipZMinMax((minMax.x * p33 + p34) / minMax.x, (minMax.y * p33 + p34) / minMax.y);			// z
+
 		}
 
+		/* Multithreaded version, should get to it eventually
 
+		// Use this at one point, for now it's ok without
+		 _threadPool.addJob(std::bind(&ClusterManager::getLightBoundsInClipSpace, ...));
+		 getLightBoundsInClipSpace(pLights[i], v, p, cam._frustum._zn, cam._frustum._zf, p33, p34, invGridVec4);
+
+		// Pass most of it by value (array in chunks!) or threads will slow down a lot!
+		void getLightBoundsInClipSpace(const PLight& pl, SMatrix v, SMatrix p, float zn, float zf, float p33, float p34, SVec4 invGridVec4) {}
+		*/
+	}
+
+
+
+	inline std::array<uint16_t, 6> getLightMinMaxIndices(const SVec4& rect, const SVec4& invGridVec4, const SVec4& clipZMinMax)
+	{
+		// Get min/max indices of grid clusters
+		SVec4 xyi = rect * invGridVec4;
+		SVec2 zi = clipZMinMax * _invGrid[2];
+
+		return {xyi.x, xyi.y, xyi.z, xyi.w, zi.x, zi.y};
+
+		// If the above really vectorizes then it should be faster than this
+		//int minIndX = rect.x * _invGrid[0];
+		//int minIndY = rect.y * _invGrid[1];
+		//int maxIndX = rect.z * _invGrid[0];
+		//int maxIndY = rect.w * _invGrid[1];
+		//int minIndZ = clipMinMax.x * _invGrid[2];
+		//int maxIndZ = clipMinMax.y * _invGrid[2];
 	}
 
 
@@ -136,14 +190,14 @@ public:
 					yB = j * h - 1.f;
 					yT = yB + h;
 
-					SVec4 lbnView = unprojectPoint(SVec4(xL, yB, n, nV), invProj);
-					SVec4 lbfView = unprojectPoint(SVec4(xL, yB, f, fV), invProj);
+					SVec4 lbnView = unprojectPoint(SVec4(xL, yB, n, 1.) * nV, invProj);
+					SVec4 lbfView = unprojectPoint(SVec4(xL, yB, f, 1.) * fV, invProj);
+
+					SVec4 trnView = unprojectPoint(SVec4(xR, yT, n, 1.) * nV, invProj);
+					SVec4 trfView = unprojectPoint(SVec4(xR, yT, f, 1.) * fV, invProj);
 
 					min.x = min(lbnView.x, lbfView.x);
 					min.y = min(lbnView.y, lbfView.y);
-
-					SVec4 trnView = unprojectPoint(SVec4(xR, yT, n, nV), invProj);
-					SVec4 trfView = unprojectPoint(SVec4(xR, yT, f, fV), invProj);
 
 					max.x = max(trnView.x, trfView.x);
 					max.y = max(trnView.y, trfView.y);
@@ -166,15 +220,13 @@ public:
 	// My method, z project and unproject
 	inline SVec4 unprojectPoint(SVec4 clipSpace, const SMatrix& invProj)
 	{
-		clipSpace.x *= clipSpace.w;
-		clipSpace.y *= clipSpace.w;
-		clipSpace.z *= clipSpace.w;
+		//clipSpace.x *= clipSpace.w; //clipSpace.y *= clipSpace.w; //clipSpace.z *= clipSpace.w; replace with * 
 		return SVec4::Transform(clipSpace, invProj);
 	}
 
 
 
-	inline SVec4 viewRayDepthSliceIntersection(SVec3 rayDir, float vs_planeZ, const SMatrix& invProj)
+	inline SVec3 viewRayDepthSliceIntersection(SVec3 rayDir, float vs_planeZ, const SMatrix& invProj)
 	{
 		SPlane zPlane(SVec3(0, 0, 1), -vs_planeZ);
 		SRay viewRay(SVec3(0.f), rayDir);	// No normalization, just shoot the ray, seems to be working well
@@ -187,7 +239,7 @@ public:
 
 
 
-	inline SVec4 viewRayDepthSliceIntersection(float dirX, float dirY, float vs_planeZ, const SMatrix& invProj)
+	inline SVec3 viewRayDepthSliceIntersection(float dirX, float dirY, float vs_planeZ, const SMatrix& invProj)
 	{
 		SPlane zPlane(SVec3(0, 0, 1), -vs_planeZ);
 		SVec4 test = clip2view(SVec4(dirX, dirY, 0.f, 1.f), invProj);
