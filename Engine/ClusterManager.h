@@ -8,8 +8,8 @@
 
 #include "ThreadPool.h"
 
-#define AVG_MAX_LIGHTS_PER_CLUSTER (128u)
-
+//#define AVG_MAX_LIGHTS_PER_CLUSTER (128u)
+#define MAX_LIGHTS (1u << 16)
 
 
 struct ClusterNode
@@ -35,14 +35,26 @@ struct LightIndexListItem
 
 
 
+typedef std::array<uint8_t, 4> LightBounds;
+
+
+
 class ClusterManager
 {
 private:
 
 	std::array<UINT, 3> _gridDims;
-	std::array<UINT, 3> _invGrid;
+	std::array<UINT, 2> _invGridXY;
 	UINT _gridSize;
 	
+	// CPU version, separate to a different class later and make both
+	std::vector<uint16_t> _lightList;
+	std::vector<LightIndexListItem> _offsetList;	// Contains offsets AND counts!
+	std::vector<ClusterNode> _grid;
+
+	std::vector<SVec4> _planes;
+	std::vector<LightBounds> _lightBounds;
+
 	/*
 	// For GPU based implementation
 	ComputeShader _csCuller;
@@ -51,12 +63,7 @@ private:
 	SBuffer _clusterGrid;
 	*/
 
-	// CPU version, separate to a different class later and make both
-	std::vector<uint16_t> _lightList;
-	std::vector<LightIndexListItem> _offsetList;	// Contains offsets AND counts!
-	std::vector<ClusterNode> _grid;
 
-	std::vector<SVec4> _planes;
 
 	//ThreadPool<const PLight&, SMatrix, SMatrix, float, float, float, float, SVec4> _threadPool;
 
@@ -74,9 +81,8 @@ public:
 	{
 		_gridSize = gridDims[0] * gridDims[1] * gridDims[2];
 
-		_invGrid[0] = 1.f / gridDims[0];
-		_invGrid[1] = 1.f / gridDims[1];
-		_invGrid[2] = 1.f / gridDims[2];
+		_invGridXY[0] = 1.f / gridDims[0];
+		_invGridXY[1] = 1.f / gridDims[1];
 
 		/*
 		// For GPU based implementation
@@ -89,7 +95,8 @@ public:
 
 		_offsetList.resize(_gridSize);
 
-		_lightList.resize(AVG_MAX_LIGHTS_PER_CLUSTER * _gridSize);
+		//_lightList.resize(AVG_MAX_LIGHTS_PER_CLUSTER * _gridSize);
+		_lightList.resize(MAX_LIGHTS);
 	}
 
 
@@ -110,8 +117,6 @@ public:
 		float zn = cam._frustum._zn;
 		float zf = cam._frustum._zf;
 
-		SVec4 invGridVec4(_invGrid[0], _invGrid[1], _invGrid[0], _invGrid[1]);
-
 		// Convert all lights into clip space
 		for (int i = 0; i < pLights.size(); ++i)
 		{
@@ -122,14 +127,15 @@ public:
 
 			// Get light bounds in view space, radius stays the same
 			SVec4 vs_lightPosRange = Math::fromVec3(SVec3::TransformNormal(ws_lightPos, v), lightRadius);	// x, y
-			SVec2 minMax = SVec2(vs_lightPosRange.z) + SVec2(-lightRadius, lightRadius);					// z
+			SVec2 viewZMinMax = SVec2(vs_lightPosRange.z) + SVec2(-lightRadius, lightRadius);				// z
 
 			// Get light bounds in clip space
-			SVec4 rect = getProjectedRectangle(vs_lightPosRange, zn, zf, p);								// x, y
-			SVec2 clipZMinMax((minMax.x * p33 + p34) / minMax.x, (minMax.y * p33 + p34) / minMax.y);		// z
+			SVec4 rect = getProjectedRectangle(vs_lightPosRange, zn, zf, p);
+			SVec2 clipZMinMax((viewZMinMax.x * p33 + p34) / viewZMinMax.x, (viewZMinMax.y * p33 + p34) / viewZMinMax.y);
 
-			std::array<uint16_t, 6> indices = getLightMinMaxIndices(rect, invGridVec4, clipZMinMax);
+			LightBounds indicesXY = getLightMinMaxIndices(rect);
 
+			/*
 			for (int x = indices[0]; x < indices[2]; ++x)
 			{
 				for (int y = indices[1]; y < indices[3]; ++y)
@@ -139,7 +145,7 @@ public:
 
 					}
 				}
-			}
+			}*/
 		}
 
 		/* Multithreaded version, should get to it eventually
@@ -155,30 +161,28 @@ public:
 
 
 	// Get min/max indices of grid clusters
-	inline std::array<uint16_t, 6> getLightMinMaxIndices(const SVec4& rect, const SVec4& invGridVec4, const SVec2& clipZMinMax)
+	inline LightBounds getLightMinMaxIndices(const SVec4& rect)
 	{
-		// This is more to learn SSE a bit than a real speed up because its just a few muls anyways...
+		// This is more to learn SSE a bit than a real speed up, its just a few muls anyways...
 		__m128 rectSSE = _mm_set_ps(rect.x, rect.y, rect.z, rect.w);
-		__m128 invGridSSE = _mm_set_ps(invGridVec4.x, invGridVec4.y, invGridVec4.z, invGridVec4.w);
-
+		__m128 invGridSSE = _mm_set_ps(_invGridXY[0], _invGridXY[1], _invGridXY[0], _invGridXY[1]);
 		__m128 res = _mm_mul_ps(rectSSE, invGridSSE);
-
-		SVec2 zi = clipZMinMax * _invGrid[2];
 		
-		return { res.m128_u32[0], res.m128_u32[1], res.m128_u32[2], res.m128_u32[3], zi.x, zi.y };
+		return 
+		{ 
+			res.m128_u32[0], res.m128_u32[1],	// min indices
+			res.m128_u32[2], res.m128_u32[3]	// max indices
+		};
 		
 		// This returns floats so I'll rather try to use SSE at least for the SVec4
 		//SVec4 xyi = rect * invGridVec4;
-		//SVec2 zi = clipZMinMax * _invGrid[2];
 		// return { xyi.x, xyi.y, xyi.z, xyi.w, zi.x, zi.y };
 
 		// If the above really vectorizes (the SimpleMath part) then it should be faster than this
-		//int uint16_t = rect.x * _invGrid[0];
-		//int uint16_t = rect.y * _invGrid[1];
-		//int uint16_t = rect.z * _invGrid[0];
-		//int uint16_t = rect.w * _invGrid[1];
-		//int uint16_t = clipMinMax.x * _invGrid[2];
-		//int uint16_t = clipMinMax.y * _invGrid[2];
+		//int uint8_t = rect.x * _invGrid[0];
+		//int uint8_t = rect.y * _invGrid[1];
+		//int uint8_t = rect.z * _invGrid[0];
+		//int uint8_t = rect.w * _invGrid[1];
 	}
 
 
@@ -375,7 +379,7 @@ public:
 		if (pz > 0.0f)
 		{
 			float c = -nz * cameraScale / nc;
-			if (nc > 0.0f)       
+			if (nc > 0.0f)
 				clipMin = max(clipMin, c);		// Left side boundary, (x or y >= -1.)
 			else
 				clipMax = min(clipMax, c);		// Right side boundary, (x or y <= 1.)
