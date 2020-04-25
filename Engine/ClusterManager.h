@@ -149,16 +149,13 @@ public:
 			LightBounds indexSpan = getLightMinMaxIndices(rect, viewZMinMax, zn, zf);
 			_lightBounds.emplace_back(indexSpan);
 
-			
-			/*
-			bool outsideFrustum =
-				indexSpan[0] >= _gridDims[0] && indexSpan[1] < 0 &&
-				indexSpan[2] >= _gridDims[1] && indexSpan[3] < 0 &&
-				indexSpan[4] >= _gridDims[2] && indexSpan[5] < 0;
+			/*bool outsideFrustum =
+				indexSpan[0] >= _gridDims[0] || indexSpan[1] < 0 ||
+				indexSpan[2] >= _gridDims[1] || indexSpan[3] < 0 ||
+				indexSpan[4] >= _gridDims[2] || indexSpan[5] < 0;
 
 			if (outsideFrustum)
-				continue;
-			*/
+				continue;*/
 
 			// First step of binning, increase counts per cluster
 			for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
@@ -190,13 +187,12 @@ public:
 		listStart += _offsetGrid.back()._count;
 
 
-		if (_lightIndexList.size() < listStart)
+		/*if (_lightIndexList.size() < listStart)
 		{
 			_lightIndexList.reserve(listStart);
-			_lightIndexList.resize(listStart);
-		}
 			
-
+		}*/
+		_lightIndexList.resize(listStart);
 
 		// Third step of binning, insert lights to the contiguous list
 		for (int i = 0; i < pLights.size(); i++)
@@ -213,9 +209,10 @@ public:
 					{
 						UINT cellIndex = zOffset + yOffset + x;
 
+						// @TODO fix the error, skips first
 						int cellListStart = _offsetGrid[cellIndex]._index;
-						int listOffset = _offsetGrid[cellIndex]._count--; // atomic on GPU
-						_lightIndexList[cellListStart + listOffset - 1] = i;
+						int listOffset = --(_offsetGrid[cellIndex]._count); // atomic on GPU
+						_lightIndexList[cellListStart + listOffset] = i;
 					}
 				}
 			}
@@ -233,8 +230,11 @@ public:
 		// This returns floats so I'll rather try to use SSE at least for the SVec4
 		SVec4 xyi = (rect + SVec4(1.f)) * SVec4(30., 17., 30., 17.) * 0.5f;
 
-		uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, _gridDims[2]);
-		uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, _gridDims[2]);
+		//uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, _gridDims[2]);
+		//uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, _gridDims[2]);
+
+		uint8_t zMin = viewDepthToZSliceOpt(zMinMax.x, 16);
+		uint8_t zMax = viewDepthToZSliceOpt(zMinMax.y, 16);
 
 		return {
 			static_cast<uint8_t>(xyi.x), static_cast<uint8_t>(xyi.y),
@@ -426,6 +426,12 @@ public:
 	inline uint8_t viewDepthToZSlice(float n, float f, float viewDepth, float Sz)
 	{
 		return log(viewDepth) * Sz / log(f / n) - Sz * log(n) / log(f / n);
+	}
+
+
+	inline uint8_t viewDepthToZSliceOpt(float viewDepth, float Sz)
+	{
+		return log(viewDepth) * Sz / log(1000.f / 1.f) - Sz * log(1.f) / log(1000.f / 1.f);
 	}
 
 
