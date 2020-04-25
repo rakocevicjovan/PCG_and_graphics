@@ -12,7 +12,7 @@
 static bool FULL_SCREEN = false;
 static bool VSYNC_ENABLED = true;
 static float FAR_PLANE = 1000.0f;
-static float NEAR_PLANE = 0.1f;
+static float NEAR_PLANE = 1.0f;
 
 
 // System-reserved registers.

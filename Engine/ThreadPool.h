@@ -7,7 +7,7 @@
 
 typedef unsigned int UINT;
 
-
+/*
 template <typename ...JobFuncArgs> class ThreadPool
 {
 private:
@@ -104,5 +104,5 @@ public:
 	}
 
 
-
 };
+*/

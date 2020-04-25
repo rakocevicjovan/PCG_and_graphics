@@ -96,7 +96,7 @@ void CubeMapper::init(ID3D11Device* device)
 	_viewport.TopLeftX = 0;
 	_viewport.TopLeftY = 0;
 
-	_projMatrix = DirectX::XMMatrixPerspectiveFovLH(PI * 0.5f, 1.0f, 0.1f, 500.0f);	//2.0 * atan(edgeLength / (edgeLength - 0.5))	
+	_projMatrix = DirectX::XMMatrixPerspectiveFovLH(PI * 0.5f, 1.0f, 0.1f, 500.0f); //@TODO n and f should be params!
 }
 
 

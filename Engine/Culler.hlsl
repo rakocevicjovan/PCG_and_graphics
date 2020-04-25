@@ -1,9 +1,3 @@
-#define MAX_LIGHTS  (1024.f)
-#define TILE_SIZE   (32.f)
-#define INV_SIZE    (1.f / TILE_SIZE)
-#define RX			(1280.f)
-#define RY			(720.f)
-
 
 struct LightSBB
 {
@@ -21,23 +15,11 @@ StructuredBuffer<LightSBB> lightBuffer : register(t10);
 
 //RWStructuredBuffer<StructNameHere> BufferOut : register(u0);
 
-uint getTilesXCount()
-{
-	return uint((RX + TILE_SIZE - 1) * INV_SIZE);
-}
-
-
-
-uint getTilesYCount()
-{
-	return uint((RY + TILE_SIZE - 1) * INV_SIZE);
-}
-
 
 /*
 	X axis: 1920px split into 64px blocks	=> 1920 / 64 = 30 (30 blocks of 64 px width)
-	Y axis: 1080px  						=> 1080 / 36 = 30 (30 blocks of 36 px width, to keep consistent with 30 blocks)
-	Z axis: 32 slices 						=> easy, 32
+	Y axis: 1080px  						=> 1080 / 64 ~ 17 (17 blocks of 64 px width)
+	Z axis: 16 slices 						=> Because I said so.
 
 
 	// Official docs on compute shaders (very meh tbh)
