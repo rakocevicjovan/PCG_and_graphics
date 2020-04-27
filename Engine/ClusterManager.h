@@ -1,9 +1,13 @@
 #pragma once
+#include "Light.h"
+#include "Camera.h"
 #include "ClusteringMath.h"
 #include "PoolAllocator.h"
 #include "ThreadPool.h"
 #include <array>
 #include <immintrin.h>
+#include <thread>
+#include <future>
 
 #define AVG_MAX_LIGHTS_PER_CLUSTER (128u)
 
@@ -46,135 +50,19 @@ private:
 
 public:
 
-	ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights) 
-		: _gridDims(gridDims), _gridSize(gridDims[0] * gridDims[1] * gridDims[2])
-	{
-		_offsetGrid.resize(_gridSize);
-		_lightIndexList.reserve(AVG_MAX_LIGHTS_PER_CLUSTER * _gridSize);
-	}
+	ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights);
 
 
 
-	void assignLights(const std::vector<PLight>& pLights, const Camera& cam)
-	{
-		// Lights passed in here should already be frustum culled
-		// Functions used here could be used for culling too but they are slower.
-		// It's simpler than changing binning or dealing with uint8s over/underflowing (and I want indices small)
+	void assignLights(const std::vector<PLight>& pLights, const Camera& cam);
 
-		_lightIndexList.clear();	// Reset from previous frame
-
-		SMatrix v = cam.GetViewMatrix();
-		SMatrix p = cam.GetProjectionMatrix();
-
-		float p33 = p._33;
-		float p43 = p._43;
-
-		float zn = cam._frustum._zn;
-		float zf = cam._frustum._zf;
-
-		// Not in the constructor because I don't want it to require the camera, still calculated 1/frame instead of 1/light
-		_sz_div_log_fdn = static_cast<float>(_gridDims[2]) / log(zf / zn);
-		_log_n = log(zn);
-
-
-		// Used for binning
-		UINT zOffset = 0u;
-		UINT yOffset = 0u;
-
-		UINT sliceSize = _gridDims[0] * _gridDims[1];
-		UINT rowSize = _gridDims[0];
-
-		// Convert all lights into clip space and obtain their min/max cluster indices
-		for (int i = 0; i < pLights.size(); ++i)
-		{
-			const PLight& pl = pLights[i];
-
-			SVec3 ws_lightPos(pLights[i]._posRange);
-			float lightRadius = pl._posRange.w;
-
-			// Get light bounds in view space, radius stays the same
-			SVec4 vs_lightPosRange = Math::fromVec3(SVec3::TransformNormal(ws_lightPos, v), lightRadius);
-			SVec2 viewZMinMax = SVec2(vs_lightPosRange.z) + SVec2(-lightRadius, lightRadius);
-
-			// Convert XY light bounds to clip space, clamps to [-1, 1] Z is calculated from view
-			SVec4 rect = getProjectedRectangle(vs_lightPosRange, zn, zf, p);
-
-			LightBounds indexSpan = getLightMinMaxIndices(rect, viewZMinMax, zn, zf);
-			_lightBounds.emplace_back(indexSpan);
-
-			// First step of binning, increase counts per cluster
-			for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
-			{
-				zOffset = z * sliceSize;
-
-				for (uint8_t y = indexSpan[1]; y < indexSpan[3]; ++y)
-				{
-					yOffset = y * rowSize;
-
-					for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)
-					{
-						_offsetGrid[zOffset + yOffset + x]._count++;	// Cell index in frustum's cluster grid, nbl to ftr
-					}
-				}
-			}
-		}
-
-
-		// Second step of binning, determine offsets per cluster according to counts.
-		UINT listStart = 0u;
-		for (UINT i = 0u; i < _gridSize - 1u; i++)
-		{
-			listStart += _offsetGrid[i]._count;
-			_offsetGrid[i + 1]._index = listStart;
-		}
-		listStart += _offsetGrid.back()._count;
-
-
-		if (_lightIndexList.size() < listStart)
-		{
-			//_lightIndexList.reserve(listStart);
-			_lightIndexList.resize(listStart);
-		}
-		
-
-		// Third step of binning, insert lights to the contiguous list
-		for (int i = 0; i < pLights.size(); i++)
-		{
-			for (int z = _lightBounds[i][4]; z < _lightBounds[i][5]; ++z)
-			{
-				zOffset = z * sliceSize;
-
-				for (uint8_t y = _lightBounds[i][1]; y < _lightBounds[i][3]; ++y)
-				{
-					yOffset = y * rowSize;
-
-					for (uint8_t x = _lightBounds[i][0]; x < _lightBounds[i][2]; ++x)
-					{
-						UINT cellIndex = zOffset + yOffset + x;
-
-						// @TODO fix the error, skips first
-						int cellListStart = _offsetGrid[cellIndex]._index;
-						int listOffset = --(_offsetGrid[cellIndex]._count); // atomic on GPU
-						_lightIndexList[cellListStart + listOffset] = i;
-					}
-				}
-			}
-		}
-
-		// Binning finished. A lot faster than my old version.
-
-		/* Multithreaded version planned, should get to it eventually */
-	}
 
 
 	// Get min/max indices of grid clusters
 	inline LightBounds getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar)
 	{
 		// This returns floats so I'll rather try to use SSE at least for the SVec4
-		SVec4 xyi = (rect + SVec4(1.f)) * SVec4(30., 17., 30., 17.) * 0.5f;
-
-		//uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, _gridDims[2]);
-		//uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, _gridDims[2]);
+		SVec4 xyi = ((rect + SVec4(1.f)) * 0.5f) * SVec4(_gridDims[0], _gridDims[1], _gridDims[0], _gridDims[1]);
 
 		uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
 		uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
@@ -198,6 +86,47 @@ public:
 			zMin, zMax
 		};
 		*/
+	}
+
+
+
+	void multiTester()
+	{
+		// Obviously this will use a pool when testing is done, not spawn every frame!
+		auto nThreads = std::thread::hardware_concurrency();
+
+		UINT chunk = _gridSize / nThreads;
+
+		std::vector<std::thread*> _threads;
+		std::vector<std::promise<UINT>> _promises;
+		std::vector<std::future<UINT>> _futures;
+
+		_threads.resize(nThreads);
+		_promises.resize(nThreads);
+		_futures.reserve(nThreads);
+
+		for (int i = 0; i < nThreads; i++)
+		{
+			UINT start = i * chunk;
+			UINT end = start + chunk;	//min((i + 1u) * chunk, _gridSize - 1);
+
+			_futures.push_back(_promises[i].get_future());
+			//_threads[i] = new std::thread(&ClusterManager::prefixSum, this, start, end, std::move(_promises[i]));
+			//_threads.emplace_back(&ClusterManager::prefixSum, i * chunk, (i + 1u) * chunk, _promises[i]);
+
+		}
+
+		for (int i = 0; i < nThreads; i++)
+		{
+			_threads[i]->join();
+			UINT wat = _futures[i].get();
+
+			char buffer[50];
+			sprintf(buffer, "Result is: %d \n", wat);
+
+			OutputDebugStringA(buffer);
+		}
+		
 	}
 
 
@@ -232,20 +161,7 @@ public:
 		float lightRadius,
 		float cameraScale, // Project scale for coordinate (_11 or _22 for x/y respectively)
 		float& clipMin,
-		float& clipMax)
-	{
-		float nz = (lightRadius - nc * lc) / lz;
-		float pz = (lc * lc + lz * lz - lightRadius * lightRadius) / (lz - (nz / nc) * lc);
-
-		if (pz > 0.0f)
-		{
-			float c = -nz * cameraScale / nc;
-			if (nc > 0.0f)
-				clipMin = max(clipMin, c);		// Left side boundary, (x or y >= -1.)
-			else
-				clipMax = min(clipMax, c);		// Right side boundary, (x or y <= 1.)
-		}
-	}
+		float& clipMax);
 
 
 
@@ -255,47 +171,9 @@ public:
 		float lightRadius,
 		float cameraScale,		// Projection scale for coordinate (_11 for x, or _22 for y)
 		float& clipMin,
-		float& clipMax)
-	{
-		float rSq = lightRadius * lightRadius;
-		float lcSqPluslzSq = lc * lc + lz * lz;
-
-		// Determinant, if det <= 0 light covers the entire screen this we leave the default values (-1, 1) for the rectangle
-		float det = rSq * lc * lc - lcSqPluslzSq * (rSq - lz * lz);
-
-		// Light does not cover the entire screen, solve the quadratic equation, update root (aka project)
-		if (det > 0)
-		{
-			float a = lightRadius * lc;
-			float b = sqrt(det);
-			float invDenom = 1.f / lcSqPluslzSq;	//hopefully this saves us a division? maybe? probably optimized out anyways
-			float nx0 = (a + b) * invDenom;
-			float nx1 = (a - b) * invDenom;
-
-			updateClipRegionRoot(nx0, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
-			updateClipRegionRoot(nx1, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
-		}
-	}
+		float& clipMax);
 
 
 
-	SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj)
-	{
-		float lightRadius = lightPosView.w;
-		SVec4 clipRegion = SVec4(1, 1, 0, 0);
-
-		// Fast way to cull lights that are far enough behind the camera to not reach the near plane
-		if (lightPosView.z + lightRadius >= zNear)
-		{
-			SVec2 clipMin(-1.0f);
-			SVec2 clipMax(1.0f);
-
-			updateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
-			updateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
-
-			clipRegion = SVec4(clipMin.x, clipMin.y, clipMax.x, clipMax.y);
-		}
-
-		return clipRegion;
-	}
+	SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj);
 };

@@ -392,6 +392,9 @@
     <ClCompile Include="AABB.cpp">
       <Filter>Collision\Hulls</Filter>
     </ClCompile>
+    <ClCompile Include="ClusterManager.cpp">
+      <Filter>Rendering\AAA Improved\Lights</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems.h">
@@ -831,6 +834,9 @@
     </ClInclude>
     <ClInclude Include="ClusteringMath.h">
       <Filter>Rendering\AAA Improved\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="ParallelPrefixSum.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

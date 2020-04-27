@@ -39,23 +39,18 @@ bool Systems::Initialize()
 
 	//@Todo remove after testing
 	ClusterManager clsMan({ 30, 17, 16 }, (1 << 16));	//30 * 17 * 16 = 8160 nodes
-	//clsMan.buildGrid(_renderer._cam);
 	
 	std::vector<PLight> lightList(125);
-
 	for (int i = 0; i < lightList.size(); ++i)
 	{
 		lightList[i]._posRange = SVec4(i % 5, (i / 5) % 5, (i / 25) % 5, 1.f) * 10.f + SVec4(0., 0., 20., 0.);
 	}
 
-	for (int i = 0; i < 100; i++)
-	{
-		clsMan.assignLights(lightList, _renderer._cam);
-	}
+	clsMan.prefixSumTester();
+
+	//for (int i = 0; i < 3; i++)
+		//clsMan.assignLights(lightList, _renderer._cam);
 	
-
-
-
 
 
 	//loads in the td game and first level for now... cba going through the selection each time

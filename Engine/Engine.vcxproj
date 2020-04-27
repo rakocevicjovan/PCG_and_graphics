@@ -171,6 +171,7 @@
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="ClusterManager.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp" />
     <ClCompile Include="ColFuncs.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="LightManager.h" />
+    <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h" />
