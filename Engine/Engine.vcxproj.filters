@@ -823,6 +823,15 @@
     <ClInclude Include="ThreadPool.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="ClusterManagerGPU.h">
+      <Filter>Rendering\AAA Improved\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="ClusteringUnusedCode.h">
+      <Filter>Rendering\AAA Improved\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="ClusteringMath.h">
+      <Filter>Rendering\AAA Improved\Lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

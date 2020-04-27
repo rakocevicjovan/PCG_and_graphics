@@ -263,7 +263,10 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="ClusteringMath.h" />
+    <ClInclude Include="ClusteringUnusedCode.h" />
     <ClInclude Include="ClusterManager.h" />
+    <ClInclude Include="ClusterManagerGPU.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
