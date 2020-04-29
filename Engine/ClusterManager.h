@@ -3,11 +3,10 @@
 #include "Camera.h"
 #include "ClusteringMath.h"
 #include "PoolAllocator.h"
-#include "ThreadPool.h"
 #include <array>
 #include <immintrin.h>
-#include <thread>
-#include <future>
+
+
 
 #define AVG_MAX_LIGHTS_PER_CLUSTER (128u)
 
@@ -17,20 +16,23 @@ typedef std::array<uint8_t, 6> LightBounds;
 
 
 
-struct LightIndexListItem
+struct OffsetListItem
 {
 	uint16_t _index;
 	uint16_t _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
 
-	LightIndexListItem(uint16_t index, uint16_t count) : _index(index), _count(count) { sizeof(LightIndexListItem); }
+	OffsetListItem(uint16_t index, uint16_t count) : _index(index), _count(count) { sizeof(OffsetListItem); }
 
-	LightIndexListItem() : _index(0u), _count(0u) {}
+	OffsetListItem() : _index(0u), _count(0u) {}
 };
 
 
 
 class ClusterManager
 {
+	// @TODO remove after testing!
+	friend class ThreadPoolTest;
+
 private:
 
 	const std::array<UINT, 3> _gridDims;
@@ -39,7 +41,7 @@ private:
 	
 	// CPU version, separate to a different class later and make both
 	std::vector<uint16_t> _lightIndexList;
-	std::vector<LightIndexListItem> _offsetGrid;	// Contains offsets and counts
+	std::vector<OffsetListItem> _offsetGrid;	// Contains offsets and counts
 	std::vector<LightBounds> _lightBounds;			// Intermediate data for binning
 	//ThreadPool<const PLight&, SMatrix, SMatrix, float, float, float, float, SVec4> _threadPool;
 
@@ -90,43 +92,20 @@ public:
 
 
 
-	void multiTester()
+	static inline LightBounds getLightMinMaxIndices
+	(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, UINT gDims[3], float _sz_div_log_fdn, float _log_n)
 	{
-		// Obviously this will use a pool when testing is done, not spawn every frame!
-		auto nThreads = std::thread::hardware_concurrency();
+		// This returns floats so I'll rather try to use SSE at least for the SVec4
+		SVec4 xyi = ((rect + SVec4(1.f)) * 0.5f) * SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);
 
-		UINT chunk = _gridSize / nThreads;
+		uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
+		uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
 
-		std::vector<std::thread*> _threads;
-		std::vector<std::promise<UINT>> _promises;
-		std::vector<std::future<UINT>> _futures;
-
-		_threads.resize(nThreads);
-		_promises.resize(nThreads);
-		_futures.reserve(nThreads);
-
-		for (int i = 0; i < nThreads; i++)
-		{
-			UINT start = i * chunk;
-			UINT end = start + chunk;	//min((i + 1u) * chunk, _gridSize - 1);
-
-			_futures.push_back(_promises[i].get_future());
-			//_threads[i] = new std::thread(&ClusterManager::prefixSum, this, start, end, std::move(_promises[i]));
-			//_threads.emplace_back(&ClusterManager::prefixSum, i * chunk, (i + 1u) * chunk, _promises[i]);
-
-		}
-
-		for (int i = 0; i < nThreads; i++)
-		{
-			_threads[i]->join();
-			UINT wat = _futures[i].get();
-
-			char buffer[50];
-			sprintf(buffer, "Result is: %d \n", wat);
-
-			OutputDebugStringA(buffer);
-		}
-		
+		return {
+			static_cast<uint8_t>(xyi.x), static_cast<uint8_t>(xyi.y),
+			static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(xyi.w),
+			zMin, zMax
+		};
 	}
 
 
@@ -154,7 +133,7 @@ public:
 	// 2. Is tangential to the sphere that we are testing (mathematically, d = r where d = pNormal.Dot(sphereCenter))
 	// By solving these equations, we get the planes that project to an axis aligned rectangle in clip space
 
-	void updateClipRegionRoot(
+	static void updateClipRegionRoot(
 		float nc,          // Tangent plane x or y normal coordinate (view space)
 		float lc,          // Light x or y coordinate (view space)
 		float lz,          // Light z coordinate (view space)
@@ -165,7 +144,7 @@ public:
 
 
 
-	void updateClipRegion(
+	static void updateClipRegion(
 		float lc,				// Light x or y coordinate (view space)
 		float lz,				// Light z coordinate (view space)
 		float lightRadius,
@@ -175,5 +154,5 @@ public:
 
 
 
-	SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj);
+	static SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj);
 };

@@ -5,6 +5,7 @@
 typedef unsigned int UINT;
 
 
+// Just an outline of algorithm flow, not real code
 static void prefixSumParallel(std::vector<UINT>& dataset)
 {
 	// d is num threads in use at any one time...

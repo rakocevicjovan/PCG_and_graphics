@@ -22,9 +22,6 @@
     <Filter Include="Rendering\SkelAnim">
       <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MemoryAllocators">
-      <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision\Spatial partitioning">
       <UniqueIdentifier>{8f9f92cc-7b19-41f2-9964-cdf2ff740ee8}</UniqueIdentifier>
     </Filter>
@@ -137,6 +134,12 @@
     </Filter>
     <Filter Include="Rendering\AAA Improved\Shader Files\Compute shaders">
       <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Multi Threading">
+      <UniqueIdentifier>{2e139f82-818b-4c4a-981b-f982b291df3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Memory Allocators">
+      <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -521,7 +524,7 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="StackAllocator.h">
-      <Filter>MemoryAllocators</Filter>
+      <Filter>Memory Allocators</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Resources\Resource classes</Filter>
@@ -668,7 +671,7 @@
       <Filter>TowerDefense\Buildings</Filter>
     </ClInclude>
     <ClInclude Include="PoolAllocator.h">
-      <Filter>MemoryAllocators</Filter>
+      <Filter>Memory Allocators</Filter>
     </ClInclude>
     <ClInclude Include="Bits.h">
       <Filter>Utils</Filter>
@@ -797,7 +800,7 @@
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
     <ClInclude Include="SlotVector.h">
-      <Filter>MemoryAllocators</Filter>
+      <Filter>Memory Allocators</Filter>
     </ClInclude>
     <ClInclude Include="Cone.h">
       <Filter>Collision\Hulls</Filter>
@@ -823,9 +826,6 @@
     <ClInclude Include="ClusterManager.h">
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="ClusterManagerGPU.h">
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
@@ -836,7 +836,19 @@
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClInclude>
     <ClInclude Include="ParallelPrefixSum.h">
-      <Filter>Utils</Filter>
+      <Filter>Multi Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool.h">
+      <Filter>Multi Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Callable.h">
+      <Filter>Multi Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPoolTest.h">
+      <Filter>Multi Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="VitThreadPool.h">
+      <Filter>Multi Threading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

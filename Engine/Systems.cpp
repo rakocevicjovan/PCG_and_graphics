@@ -3,6 +3,8 @@
 #include <Mouse.h>
 #include "ClusterManager.h"
 
+#include "ThreadPoolTest.h"
+
 
 Systems::Systems() : screenWidth(0), screenHeight(0) {}
 
@@ -46,7 +48,7 @@ bool Systems::Initialize()
 		lightList[i]._posRange = SVec4(i % 5, (i / 5) % 5, (i / 25) % 5, 1.f) * 10.f + SVec4(0., 0., 20., 0.);
 	}
 
-	clsMan.prefixSumTester();
+	ThreadPoolTest tpt(clsMan, lightList, _renderer._cam);
 
 	//for (int i = 0; i < 3; i++)
 		//clsMan.assignLights(lightList, _renderer._cam);
