@@ -42,7 +42,7 @@ bool Systems::Initialize()
 	//@Todo remove after testing
 	ClusterManager clsMan({ 30, 17, 16 }, (1 << 16));	//30 * 17 * 16 = 8160 nodes
 	
-	std::vector<PLight> lightList(125);
+	std::vector<PLight> lightList(125 * 5);		//125
 	for (int i = 0; i < lightList.size(); ++i)
 	{
 		lightList[i]._posRange = SVec4(i % 5, (i / 5) % 5, (i / 25) % 5, 1.f) * 10.f + SVec4(0., 0., 20., 0.);
@@ -51,7 +51,7 @@ bool Systems::Initialize()
 	ThreadPoolTest tpt(clsMan, lightList, _renderer._cam);
 
 	//for (int i = 0; i < 3; i++)
-		//clsMan.assignLights(lightList, _renderer._cam);
+	clsMan.assignLights(lightList, _renderer._cam);
 	
 
 

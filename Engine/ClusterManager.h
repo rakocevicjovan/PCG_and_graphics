@@ -5,6 +5,7 @@
 #include "PoolAllocator.h"
 #include <array>
 #include <immintrin.h>
+#include <atomic>
 
 
 
@@ -18,12 +19,15 @@ typedef std::array<uint8_t, 6> LightBounds;
 
 struct OffsetListItem
 {
-	uint16_t _index;
-	uint16_t _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
-
-	OffsetListItem(uint16_t index, uint16_t count) : _index(index), _count(count) { sizeof(OffsetListItem); }
-
 	OffsetListItem() : _index(0u), _count(0u) {}
+	//OffsetListItem(uint16_t index, uint16_t count) : _index(index), _count(std::move(count)) { sizeof(OffsetListItem); }
+	OffsetListItem(const OffsetListItem&) = delete;
+	OffsetListItem(const OffsetListItem&& other) : _index(std::move(other._index)), _count(other._count.load()) {}
+
+	OffsetListItem& operator=(const OffsetListItem&) = delete;
+
+	uint16_t _index;
+	std::atomic<uint16_t> _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
 };
 
 

@@ -62,7 +62,7 @@ class ThreadPoolTest
 		const std::vector<PLight>& pLights, std::vector<LightBounds>& lightBounds, std::vector<OffsetListItem>& _offsetGrid, 
 		float zn, float zf, float szdlfdn, float ln,
 		SMatrix v, SMatrix p,
-		UINT plFirst, UINT plLast)
+		UINT plFirst, UINT plLast, CRITICAL_SECTION& critSec1)
 	{
 		UINT zOffset;
 		UINT yOffset;
@@ -88,7 +88,9 @@ class ThreadPoolTest
 
 			LightBounds indexSpan = ClusterManager::getLightMinMaxIndices(rect, viewZMinMax, zn, zf, gDims, szdlfdn, ln);
 
-			lightBounds.emplace_back(indexSpan);
+			EnterCriticalSection(&critSec1);
+			lightBounds[i] = indexSpan;
+			LeaveCriticalSection(&critSec1);
 
 			// First step of binning, increase counts per cluster
 			for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
@@ -101,7 +103,9 @@ class ThreadPoolTest
 
 					for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)
 					{
-						_offsetGrid[zOffset + yOffset + x]._count++;	// Cell index in frustum's cluster grid, nbl to ftr
+						//EnterCriticalSection(&critSec2); //lbMutex.lock();
+						_offsetGrid[zOffset + yOffset + x]._count.fetch_add(1, std::memory_order_relaxed);
+						//LeaveCriticalSection(&critSec2); //lbMutex.unlock();
 					}
 				}
 			}
@@ -134,7 +138,13 @@ public:
 		ctpl::thread_pool tp(4);
 		std::future<void> results[4];
 
+		std::mutex lbMutex;
+		CRITICAL_SECTION critSec1;
+		InitializeCriticalSection(&critSec1);
+
 		UINT chunkSize = pLights.size() / 4;
+
+		cm._lightBounds.resize(pLights.size());
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -144,11 +154,17 @@ public:
 			if (i == 3)
 				maxOff = pLights.size();
 
+
+
 			// Needs locks... will implement another day.
-			results[i] = tp.push(std::bind(ree, pLights, std::ref(cm._lightBounds), std::ref(cm._offsetGrid),
-				zn, zf, _sz_div_log_fdn, _log_n,
-				v, p,
-				minOff, maxOff));
+			results[i] = 
+			tp.push(
+				std::bind(	ree, std::ref(pLights), std::ref(cm._lightBounds), std::ref(cm._offsetGrid),
+							zn, zf, _sz_div_log_fdn, _log_n,
+							v, p,
+							minOff, maxOff, std::ref(critSec1)
+				)
+			);
 		}
 		
 		for (int i = 0; i < 4; i++)
@@ -157,7 +173,7 @@ public:
 		}
 
 		tp.clear_queue();
-
+		DeleteCriticalSection(&critSec1);
 	}
 
 };

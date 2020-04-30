@@ -41,8 +41,12 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	UINT sliceSize = _gridDims[0] * _gridDims[1];
 	UINT rowSize = _gridDims[0];
 
+	UINT nLights = pLights.size();
+
+	_lightBounds.reserve(nLights);
+
 	// Convert all lights into clip space and obtain their min/max cluster indices
-	for (int i = 0; i < pLights.size(); ++i)
+	for (int i = 0; i < nLights; ++i)
 	{
 		const PLight& pl = pLights[i];
 
@@ -70,13 +74,14 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 				for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)
 				{
-					_offsetGrid[zOffset + yOffset + x]._count++;	// Cell index in frustum's cluster grid, nbl to ftr
+					//_offsetGrid[zOffset + yOffset + x]._count++;	// Cell index in frustum's cluster grid, nbl to ftr
+					//_offsetGrid[zOffset + yOffset + x]._count.fetch_add(1, std::memory_order_relaxed);
 				}
 			}
 		}
 	}
 
-
+	/**/
 	// Second step of binning, determine offsets per cluster according to counts.
 	UINT listStart = 0u;
 	for (UINT i = 0u; i < _gridSize - 1u; i++)
@@ -111,7 +116,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 					// @TODO fix the error, skips first
 					int cellListStart = _offsetGrid[cellIndex]._index;
-					int listOffset = --(_offsetGrid[cellIndex]._count); // atomic on GPU
+					int listOffset = --(_offsetGrid[cellIndex]._count); // use atomic on GPU
 					_lightIndexList[cellListStart + listOffset] = i;
 				}
 			}
