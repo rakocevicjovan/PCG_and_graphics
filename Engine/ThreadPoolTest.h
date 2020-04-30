@@ -88,9 +88,9 @@ class ThreadPoolTest
 
 			LightBounds indexSpan = ClusterManager::getLightMinMaxIndices(rect, viewZMinMax, zn, zf, gDims, szdlfdn, ln);
 
-			EnterCriticalSection(&critSec1);
+			//EnterCriticalSection(&critSec1);
 			lightBounds[i] = indexSpan;
-			LeaveCriticalSection(&critSec1);
+			//LeaveCriticalSection(&critSec1);
 
 			// First step of binning, increase counts per cluster
 			for (int z = indexSpan[4]; z < indexSpan[5]; ++z)

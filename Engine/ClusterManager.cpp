@@ -74,7 +74,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 				for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)
 				{
-					//_offsetGrid[zOffset + yOffset + x]._count++;	// Cell index in frustum's cluster grid, nbl to ftr
+					_offsetGrid[zOffset + yOffset + x]._count++;	// Cell index in frustum's cluster grid, nbl to ftr
 					//_offsetGrid[zOffset + yOffset + x]._count.fetch_add(1, std::memory_order_relaxed);
 				}
 			}
