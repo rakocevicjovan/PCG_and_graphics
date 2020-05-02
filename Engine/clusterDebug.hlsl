@@ -1,4 +1,5 @@
 #include "Constants.hlsli"
+#include "Clustering.hlsli"
 
 cbuffer PSPerFrameBuffer : register(b10)
 {
@@ -17,11 +18,6 @@ struct PixelInputType
 	float4 worldPos : WPOS;
 	float depth : ZDEPTH;	// 0-1 range, projected, no perspective divide
 };
-
-float zToViewSpace(float z, float n, float f)
-{
-	return (n * f) / (f + (n - f) * z);
-}
 
 
 //#define Z_VS_LINEAR

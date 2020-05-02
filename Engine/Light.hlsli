@@ -33,7 +33,7 @@ float3 gammaCorrect(in float3 colour, in float3 gammaFactor)
 
 float3 gammaCorrect(in float3 colour, in float gammaFactor)	//convenient overload nothing more
 {
-	return pow(colour.xyz, float3(gammaFactor, gammaFactor, gammaFactor));
+	return pow(colour.xyz, (float3)(gammaFactor));
 }
 
 

@@ -910,6 +910,9 @@
     <None Include="hudPS.hlsl">
       <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
     </None>
+    <None Include="Clustering.hlsli">
+      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
@@ -1047,6 +1050,9 @@
       <Filter>Rendering\AAA Improved\Shader Files\Compute shaders</Filter>
     </FxCompile>
     <FxCompile Include="clusterDebug.hlsl">
+      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ClusteredPS.hlsl">
       <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
     </FxCompile>
   </ItemGroup>

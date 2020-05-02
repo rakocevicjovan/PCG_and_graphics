@@ -3,11 +3,16 @@
 
 
 
-ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights)
+ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights, ID3D11Device* device)
 	: _gridDims(gridDims), _gridSize(gridDims[0] * gridDims[1] * gridDims[2])
 {
 	_offsetGrid.resize(_gridSize);
 	_lightIndexList.reserve(AVG_MAX_LIGHTS_PER_CLUSTER * _gridSize);
+
+	// For now only deal with point lights
+	_lightSB = SBuffer(device, sizeof(PLight), 1024);							// max 32 kb on point lights
+	_indexSB = SBuffer(device, sizeof(uint32_t), _lightIndexList.capacity());	// 1020 kb max for indices, but 32 bit packed
+	_gridSB  = SBuffer(device, sizeof(OffsetListItem), _gridSize);				// ~32 kb for grid offset list
 }
 
 
@@ -146,6 +151,16 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 	// Binning finished. A lot faster than my old version.
 	// Multithreaded version in the works, not that much of an improvement so far with binning being basically random access...
+}
+
+
+
+void ClusterManager::upload(ID3D11DeviceContext* context)
+{
+
+	_lightSB.upload(context);
+	_indexSB.upload(context);
+	_gridSB.upload(context);
 }
 
 

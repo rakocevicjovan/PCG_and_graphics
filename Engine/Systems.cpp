@@ -43,7 +43,7 @@ bool Systems::Initialize()
 
 
 	// @TODO remove after testing
-	ClusterManager clsMan({ 30, 17, 16 }, (1 << 16));	//30 * 17 * 16 = 8160 nodes
+	ClusterManager clsMan({ 30, 17, 16 }, (1 << 16), _device);	//30 * 17 * 16 = 8160 nodes
 	
 	std::vector<PLight> lightList(1000);
 	for (int i = 0; i < lightList.size(); ++i)

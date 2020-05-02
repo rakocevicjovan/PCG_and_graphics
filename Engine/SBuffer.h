@@ -24,7 +24,7 @@ public:
 		ID3D11Buffer* structBuffer;
 
 		D3D11_BUFFER_DESC sbDesc = {};
-		sbDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+		sbDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		sbDesc.ByteWidth = elementSize * numElements;
 		sbDesc.Usage = D3D11_USAGE_DYNAMIC;
 		sbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -43,8 +43,7 @@ public:
 
 	static HRESULT createSBufferSRV(ID3D11Device* device, ID3D11Buffer* pBuffer, UINT numElements, ID3D11ShaderResourceView*& ppSRVOut)
 	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};	//ZeroMemory(&desc, sizeof(desc));
 
 		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
 		desc.BufferEx.FirstElement = 0;
@@ -59,8 +58,7 @@ public:
 	/* https://docs.microsoft.com/en-us/windows/win32/direct3d12/typed-unordered-access-view-loads */
 	static HRESULT createSBufferUAV(ID3D11Device* device, ID3D11Buffer* pBuffer, UINT numElements, ID3D11UnorderedAccessView*& sbuav)
 	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
+		D3D11_UNORDERED_ACCESS_VIEW_DESC desc = {};	ZeroMemory(&desc, sizeof(desc));
 
 		desc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
 		desc.Buffer.FirstElement = 0;
@@ -69,6 +67,14 @@ public:
 
 		return device->CreateUnorderedAccessView(pBuffer, &desc, &sbuav);
 	}
+
+
+
+	static void upload(ID3D11DeviceContext* context)
+	{
+	}
+
+
 
 	inline ID3D11Buffer* getPtr() { return _sbPtr; }
 };

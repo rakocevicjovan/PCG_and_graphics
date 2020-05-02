@@ -3,13 +3,14 @@
 #include "Camera.h"
 #include "ClusteringMath.h"
 #include "VitThreadPool.h"
+#include "SBuffer.h"
 #include <array>
 #include <immintrin.h>
 #include <atomic>
 
 
 
-#define AVG_MAX_LIGHTS_PER_CLUSTER (128u)
+#define AVG_MAX_LIGHTS_PER_CLUSTER (64u)
 
 
 
@@ -20,7 +21,6 @@ typedef std::array<uint8_t, 6> LightBounds;
 struct OffsetListItem
 {
 	OffsetListItem() : _index(0u), _count(0u) {}
-	//OffsetListItem(uint16_t index, uint16_t count) : _index(index), _count(std::move(count)) { sizeof(OffsetListItem); }
 	OffsetListItem(const OffsetListItem&) = delete;
 	OffsetListItem(const OffsetListItem&& other) : _index(std::move(other._index)), _count(other._count.load()) {}
 
@@ -34,29 +34,29 @@ struct OffsetListItem
 
 class ClusterManager
 {
-	// @TODO remove after testing!
-	friend class ThreadPoolTest;
+
+public:
+
+	ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights, ID3D11Device* device);
+
+	void assignLights(const std::vector<PLight>& pLights, const Camera& cam, ctpl::thread_pool& threadPool);
+	void upload(ID3D11DeviceContext* context);
+
 
 private:
 
 	const std::array<UINT, 3> _gridDims;
 	const UINT _gridSize;
 
-	
-	// CPU version, separate to a different class later and make both
 	std::vector<uint16_t> _lightIndexList;
 	std::vector<OffsetListItem> _offsetGrid;	// Contains offsets and counts
 	std::vector<LightBounds> _lightBounds;		// Intermediate data for binning
 
-
-public:
-
-	ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights);
-
-	void assignLights(const std::vector<PLight>& pLights, const Camera& cam, ctpl::thread_pool& threadPool);
+	SBuffer _lightSB;
+	SBuffer _indexSB;
+	SBuffer _gridSB;
 
 
-private:
 
 	static LightBounds getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p,
 		std::array<UINT, 3u> gridDims, float _sz_div_log_fdn, float log_n);
@@ -100,8 +100,6 @@ private:
 	}
 
 
-
-	// Added so I don't get sued by intel when my engine inevitably becomes the ultimate engine in the eternity of the universe... /s
 
 	// Copyright 2010 Intel Corporation
 	// All Rights Reserved
