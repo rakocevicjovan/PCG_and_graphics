@@ -19,7 +19,7 @@
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 #include "MaterialCache.h"
-
+#include "VitThreadPool.h"
 
 
 //centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
@@ -52,7 +52,9 @@ public:
 	CollisionEngine _colEngine;
 	Audio _audio;
 	GameClock _clock;
-	Controller _defController;
+	ctpl::thread_pool _threadPool;
+
+	Controller _defController;	// Here so we have something for camera controls in every level, move out eventually
 
 	//rendering
 	Renderer _renderer;

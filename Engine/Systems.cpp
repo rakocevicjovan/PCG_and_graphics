@@ -6,7 +6,7 @@
 #include "ThreadPoolTest.h"
 
 
-Systems::Systems() : screenWidth(0), screenHeight(0) {}
+Systems::Systems() : screenWidth(0), screenHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
 
 Systems::~Systems(){}
 
@@ -17,9 +17,10 @@ bool Systems::Initialize()
 	//screenWidth = 0;
 	//screenHeight = 0;
 	//FULL_SCREEN = false;
+
 	InitializeWindows(screenWidth, screenHeight);
-	
-	if (!_D3D.Initialize(windowWidth, windowHeight, false, _hwnd, FULL_SCREEN, FAR_PLANE, NEAR_PLANE))
+
+	if (!_D3D.Initialize(windowWidth, windowHeight, false, _hwnd, FULL_SCREEN))
 	{
 		MessageBox(_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
@@ -39,20 +40,22 @@ bool Systems::Initialize()
 		return false;
 	}
 
-	//@Todo remove after testing
+
+
+	// @TODO remove after testing
 	ClusterManager clsMan({ 30, 17, 16 }, (1 << 16));	//30 * 17 * 16 = 8160 nodes
 	
-	std::vector<PLight> lightList(125 * 5);		//125
+	std::vector<PLight> lightList(1000);
 	for (int i = 0; i < lightList.size(); ++i)
 	{
-		lightList[i]._posRange = SVec4(i % 5, (i / 5) % 5, (i / 25) % 5, 1.f) * 10.f + SVec4(0., 0., 20., 0.);
+		// x increases 0-10 over and over, y increases once every 10
+		lightList[i]._posRange = SVec4(i % 10, (i / 10), (i / 100) , .9f) * 10.f + SVec4(0., 0., 100., 0.);
 	}
 
-	ThreadPoolTest tpt(clsMan, lightList, _renderer._cam);
 
-	//for (int i = 0; i < 3; i++)
-	clsMan.assignLights(lightList, _renderer._cam);
+	clsMan.assignLights(lightList, _renderer._cam, _threadPool);
 	
+	// @TODO remove after testing
 
 
 	//loads in the td game and first level for now... cba going through the selection each time

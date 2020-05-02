@@ -19,8 +19,7 @@ D3D::~D3D()
 }
 
 
-bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen, 
-						  float screenDepth, float screenNear)
+bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	HRESULT result;
 	IDXGIFactory* factory;

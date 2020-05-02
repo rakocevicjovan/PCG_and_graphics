@@ -2,7 +2,7 @@
 #include "Light.h"
 #include "Camera.h"
 #include "ClusteringMath.h"
-#include "PoolAllocator.h"
+#include "VitThreadPool.h"
 #include <array>
 #include <immintrin.h>
 #include <atomic>
@@ -60,15 +60,22 @@ public:
 
 
 
-	void assignLights(const std::vector<PLight>& pLights, const Camera& cam);
+	void assignLights(const std::vector<PLight>& pLights, const Camera& cam, ctpl::thread_pool& threadPool);
 
 
 
-	// Get min/max indices of grid clusters
-	inline LightBounds getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar)
+private:
+
+	LightBounds getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p);
+
+
+
+	// Get min/max indices of grid clusters, slightly optimized to use precalculated log(x), supposedly SVec is SIMD already?
+	static inline LightBounds getLightMinMaxIndices
+	(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n)
 	{
 		// This returns floats so I'll rather try to use SSE at least for the SVec4
-		SVec4 xyi = ((rect + SVec4(1.f)) * 0.5f) * SVec4(_gridDims[0], _gridDims[1], _gridDims[0], _gridDims[1]);
+		SVec4 xyi = ((rect + SVec4(1.f)) * 0.5f) * SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);
 
 		uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
 		uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
@@ -92,24 +99,6 @@ public:
 			zMin, zMax
 		};
 		*/
-	}
-
-
-
-	static inline LightBounds getLightMinMaxIndices
-	(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, UINT gDims[3], float _sz_div_log_fdn, float _log_n)
-	{
-		// This returns floats so I'll rather try to use SSE at least for the SVec4
-		SVec4 xyi = ((rect + SVec4(1.f)) * 0.5f) * SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);
-
-		uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
-		uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
-
-		return {
-			static_cast<uint8_t>(xyi.x), static_cast<uint8_t>(xyi.y),
-			static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(xyi.w),
-			zMin, zMax
-		};
 	}
 
 

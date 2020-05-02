@@ -58,16 +58,22 @@ class ThreadPoolTest
 	}
 	*/
 
+
+
+
+
+
+
 	static void ree(
 		const std::vector<PLight>& pLights, std::vector<LightBounds>& lightBounds, std::vector<OffsetListItem>& _offsetGrid, 
 		float zn, float zf, float szdlfdn, float ln,
 		SMatrix v, SMatrix p,
-		UINT plFirst, UINT plLast, CRITICAL_SECTION& critSec1)
+		UINT plFirst, UINT plLast)
 	{
 		UINT zOffset;
 		UINT yOffset;
 
-		UINT gDims[3] = { 30, 17, 16 };
+		std::array<UINT, 3> gDims = { 30, 17, 16 };
 
 		UINT sliceSize = gDims[0] * gDims[1];
 		UINT rowSize = gDims[0];
@@ -88,9 +94,7 @@ class ThreadPoolTest
 
 			LightBounds indexSpan = ClusterManager::getLightMinMaxIndices(rect, viewZMinMax, zn, zf, gDims, szdlfdn, ln);
 
-			//EnterCriticalSection(&critSec1);
 			lightBounds[i] = indexSpan;
-			//LeaveCriticalSection(&critSec1);
 
 			// First step of binning, increase counts per cluster
 			for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
@@ -103,9 +107,7 @@ class ThreadPoolTest
 
 					for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)
 					{
-						//EnterCriticalSection(&critSec2); //lbMutex.lock();
 						_offsetGrid[zOffset + yOffset + x]._count.fetch_add(1, std::memory_order_relaxed);
-						//LeaveCriticalSection(&critSec2); //lbMutex.unlock();
 					}
 				}
 			}
@@ -115,9 +117,21 @@ class ThreadPoolTest
 
 public:
 
-	ThreadPoolTest(ClusterManager& cm, const std::vector<PLight>& pLights, Camera& cam)
+	ctpl::thread_pool _tp;
+	static const UINT _nThreads = 4u;
+	std::vector<std::future<void>> _results;
+
+	ThreadPoolTest() : _tp(_nThreads)
 	{
-		cm._lightIndexList.clear();	// Reset from previous frame
+		_results.resize(_nThreads);
+	}
+
+
+
+	void assignLightsMT(ClusterManager& cm, const std::vector<PLight>& pLights, Camera& cam)
+	{
+		// Reset data from previous frame. Consider assigning 0's instead but it's probably negiligible difference
+		cm._lightIndexList.clear();
 
 		SMatrix v = cam.GetViewMatrix();
 		SMatrix p = cam.GetProjectionMatrix();
@@ -129,51 +143,39 @@ public:
 		float zf = cam._frustum._zf;
 
 		// Not in the constructor because I don't want it to require the camera, still calculated 1/frame instead of 1/light
-		float _sz_div_log_fdn = static_cast<float>(16u) / log(zf / zn);
+		float _sz_div_log_fdn = static_cast<float>(cm._gridDims[2]) / log(zf / zn);
 		float _log_n = log(zn);
 
-		
-		//ThreadPool threadPool;
-		//threadPool.addJob(std::move(wat));
-		ctpl::thread_pool tp(4);
-		std::future<void> results[4];
-
-		std::mutex lbMutex;
-		CRITICAL_SECTION critSec1;
-		InitializeCriticalSection(&critSec1);
-
-		UINT chunkSize = pLights.size() / 4;
+		UINT chunkSize = pLights.size() / _nThreads;
 
 		cm._lightBounds.resize(pLights.size());
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < _nThreads; i++)
 		{
 			UINT minOff = i * chunkSize;
 			UINT maxOff = (i + 1) * chunkSize;
 
-			if (i == 3)
+			if (i == _nThreads - 1)
 				maxOff = pLights.size();
 
-
-
-			// Needs locks... will implement another day.
-			results[i] = 
-			tp.push(
+			// Lockless, uses atomic to count and threads do not touch same _lightBounds indices...
+			_results[i] = 
+			_tp.push(
 				std::bind(	ree, std::ref(pLights), std::ref(cm._lightBounds), std::ref(cm._offsetGrid),
 							zn, zf, _sz_div_log_fdn, _log_n,
 							v, p,
-							minOff, maxOff, std::ref(critSec1)
+							minOff, maxOff
 				)
 			);
 		}
 		
-		for (int i = 0; i < 4; i++)
-		{
-			results[i].wait();
-		}
+		// Use the main thread for the same thing, just fiddle with load distribution a bit (min/max offsets etc)
 
-		tp.clear_queue();
-		DeleteCriticalSection(&critSec1);
+		/*
+		int cellListStart = cm._offsetGrid[cellIndex]._index;
+		int listOffset = cm._offsetGrid[cellIndex]._count.fetch_sub(1, std::memory_order_relaxed); // use atomic on GPU
+		cm._lightIndexList[cellListStart + listOffset - 1] = i;
+		*/
 	}
 
 };

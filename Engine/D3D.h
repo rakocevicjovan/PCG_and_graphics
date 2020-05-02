@@ -14,7 +14,7 @@ public:
 	D3D();
 	~D3D();
 
-	bool Initialize(int, int, bool, HWND, bool, float, float);
+	bool Initialize(int, int, bool, HWND, bool);
 	void Shutdown();
 	
 	void ClearColourDepthBuffers();
