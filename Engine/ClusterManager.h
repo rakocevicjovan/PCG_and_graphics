@@ -46,27 +46,25 @@ private:
 	// CPU version, separate to a different class later and make both
 	std::vector<uint16_t> _lightIndexList;
 	std::vector<OffsetListItem> _offsetGrid;	// Contains offsets and counts
-	std::vector<LightBounds> _lightBounds;			// Intermediate data for binning
-	//ThreadPool<const PLight&, SMatrix, SMatrix, float, float, float, float, SVec4> _threadPool;
+	std::vector<LightBounds> _lightBounds;		// Intermediate data for binning
 
-
-	// Optimization (not that impactful tbh)
-	float _sz_div_log_fdn;
-	float _log_n;
 
 public:
 
 	ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights);
 
-
-
 	void assignLights(const std::vector<PLight>& pLights, const Camera& cam, ctpl::thread_pool& threadPool);
-
 
 
 private:
 
-	LightBounds getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p);
+	static LightBounds getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p,
+		std::array<UINT, 3u> gridDims, float _sz_div_log_fdn, float log_n);
+	
+	static void processLightsMT(
+		const std::vector<PLight>& pLights, std::vector<LightBounds>& lightBounds, std::vector<OffsetListItem>& grid, 
+		UINT min, UINT max, std::array<UINT, 3u> gridDims, float zn, float zf, float sz_div_log_fdn, float log_n, 
+		const SMatrix& v, const SMatrix& p);
 
 
 

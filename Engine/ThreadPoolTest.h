@@ -171,11 +171,10 @@ public:
 		
 		// Use the main thread for the same thing, just fiddle with load distribution a bit (min/max offsets etc)
 
-		/*
-		int cellListStart = cm._offsetGrid[cellIndex]._index;
-		int listOffset = cm._offsetGrid[cellIndex]._count.fetch_sub(1, std::memory_order_relaxed); // use atomic on GPU
-		cm._lightIndexList[cellListStart + listOffset - 1] = i;
-		*/
+		for (int i = 0; i < _nThreads; i++)
+		{
+			_results[i].wait();
+		}
 	}
 
 };

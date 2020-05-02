@@ -22,7 +22,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	_lightIndexList.clear();	
 	
 	UINT nLights = pLights.size();
-	_lightBounds.reserve(nLights);
+	_lightBounds.resize(nLights);	//as opposed to reserve
 
 	// Get some data out for easier access/naming
 	SMatrix v = cam.GetViewMatrix();
@@ -34,9 +34,10 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	float zn = cam._frustum._zn;
 	float zf = cam._frustum._zf;
 
-	// Not in the constructor because I don't want it to require the camera, still calculated 1/frame instead of 1/light
-	_sz_div_log_fdn = static_cast<float>(_gridDims[2]) / log(zf / zn);
-	_log_n = log(zn);
+	// Do this once rather than per every light
+	float sz_div_log_fdn = static_cast<float>(_gridDims[2]) / log(zf / zn);
+	float log_n = log(zn);
+
 
 	// Used for binning
 	UINT zOffset = 0u;
@@ -45,16 +46,38 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	UINT sliceSize = _gridDims[0] * _gridDims[1];
 	UINT rowSize = _gridDims[0];
 
+	
+	// Threading setup, distribute work to other threads ( 3 in my case, +1 main thread)
+	UINT nThreads = threadPool.n_idle();
+	std::vector<std::future<void>> futures(nThreads);
+	UINT chunkSize = pLights.size() / (nThreads + 1u);
 
+	// Launch nThreads 
+	for (int i = 0; i < nThreads; i++)
+	{
+		UINT minOff = i * chunkSize;
+		UINT maxOff = (i + 1) * chunkSize;
+
+		// Lockless, uses atomic to count and threads do not touch same _lightBounds indices...
+		futures[i] =
+			threadPool.push(
+				std::bind(processLightsMT, std::ref(pLights), std::ref(_lightBounds), std::ref(_offsetGrid),
+					minOff, maxOff, _gridDims, zn, zf, sz_div_log_fdn, log_n,
+					std::ref(v), std::ref(p))
+			);
+	}
+
+
+	// Do the exact same thing but on the main thread as well
 
 	// Convert all lights into clip space and obtain their min/max cluster indices
-	for (int i = 0; i < nLights; ++i)
+	for (int i = nThreads * chunkSize; i < nLights; ++i)
 	{
 		const PLight& pl = pLights[i];
 
-		LightBounds indexSpan = getLightBounds(pl, zn, zf, v, p);
+		LightBounds indexSpan = getLightBounds(pl, zn, zf, v, p, _gridDims, sz_div_log_fdn, log_n);
 
-		_lightBounds.emplace_back(indexSpan);
+		_lightBounds[i] = indexSpan;	// do not push or emplace here, use assignment
 
 		// First step of binning, increase counts per cluster
 		for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
@@ -67,12 +90,17 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 				for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
 				{
-					_offsetGrid[zOffset + yOffset + x]._count++;		//.fetch_add(1, std::memory_order_relaxed);
+					_offsetGrid[zOffset + yOffset + x]._count++;
 				}
 			}
 		}
 	}
 
+	// Make sure all threads have finished. The rest of the algorithm is not yet multithreaded so it's the same as it was
+	for (int i = 0; i < nThreads; i++)
+	{
+		futures[i].wait();
+	}
 
 	// Second step of binning, determine offsets per cluster according to counts, as well as the lightIndexList size.
 	// Slow in debug mode because of bounds checking but fast as items are only 4 bytes and contiguous
@@ -81,23 +109,19 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	{
 		listStart += _offsetGrid[i]._count;
 		_offsetGrid[i + 1]._index = listStart;
-		sizeof(OffsetListItem);
 	}
 	listStart += _offsetGrid.back()._count;
 
 
 	if (_lightIndexList.size() < listStart)
-	{
-		//_lightIndexList.reserve(listStart);
 		_lightIndexList.resize(listStart);
-	}
-
 
 	// Third step of binning, insert light indices to the contiguous list... 
 	// This looks like a bunch of random memory access, however contention can be greatly reduced: 
 	// 1. Split _lightBounds into nLights/nThreads chunks (each iterates minOffset to maxOffset)
-	// 2. Use atomic decrement on ._count (fetch_sub 1), this can't be avoided
+	// 2. Use atomic decrement on ._count (operators ++ and -- are already overloaded on atomic)
 	// 3. This makes _lightIndexList[cellListStart + listOffset] unique every time, but cache thrashing might cause issues
+	
 	for (int i = 0; i < nLights; i++)
 	{
 		for (int z = _lightBounds[i][4]; z < _lightBounds[i][5]; ++z)
@@ -113,8 +137,8 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 					UINT cellIndex = zOffset + yOffset + x;
 
 					int cellListStart = _offsetGrid[cellIndex]._index;
-					int listOffset = --(_offsetGrid[cellIndex]._count); // use atomic on GPU
-					_lightIndexList[cellListStart + listOffset] = i;
+					int listOffset = _offsetGrid[cellIndex]._count--;
+					_lightIndexList[cellListStart + listOffset - 1] = i;
 				}
 			}
 		}
@@ -126,7 +150,45 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 
 
-LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p)
+// This function purely reads the matrices so I can pass them by ref, copying big data structures is a no-no
+void ClusterManager::processLightsMT(
+	const std::vector<PLight>& pLights, std::vector<LightBounds>& lightBounds, std::vector<OffsetListItem>& grid,
+	UINT min, UINT max, std::array<UINT, 3u> gridDims, float zn, float zf, float sz_div_log_fdn, float log_n,
+	const SMatrix& v, const SMatrix& p)
+{
+	UINT sliceSize = gridDims[0] * gridDims[1];
+	UINT rowSize = gridDims[0];
+
+	for (int i = min; i < max; ++i)
+	{
+		const PLight& pl = pLights[i];
+
+		LightBounds indexSpan = getLightBounds(pl, zn, zf, v, p, gridDims, sz_div_log_fdn, log_n);
+
+		lightBounds[i] = indexSpan;
+
+		// First step of binning, increase counts per cluster
+		for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
+		{
+			UINT zOffset = z * sliceSize;
+
+			for (uint8_t y = indexSpan[1]; y < indexSpan[3]; ++y)
+			{
+				UINT yOffset = y * rowSize;
+
+				for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
+				{
+					grid[zOffset + yOffset + x]._count++;	//fetch_add(1, std::memory_order_relaxed);
+				}
+			}
+		}
+	}
+}
+
+
+
+LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p,
+	std::array<UINT, 3u> gridDims, float sz_div_log_fdn, float log_n)
 {
 	SVec3 ws_lightPos(pLight._posRange);
 	float lightRadius = pLight._posRange.w;
@@ -138,7 +200,7 @@ LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float
 	// Convert XY light bounds to clip space, clamps to [-1, 1] Z is calculated from view
 	SVec4 rect = getProjectedRectangle(vs_lightPosRange, zn, zf, p);
 
-	return getLightMinMaxIndices(rect, viewZMinMax, zn, zf, _gridDims, _sz_div_log_fdn, _log_n);
+	return getLightMinMaxIndices(rect, viewZMinMax, zn, zf, gridDims, sz_div_log_fdn, log_n);
 }
 
 

@@ -49,7 +49,7 @@ bool Systems::Initialize()
 	for (int i = 0; i < lightList.size(); ++i)
 	{
 		// x increases 0-10 over and over, y increases once every 10
-		lightList[i]._posRange = SVec4(i % 10, (i / 10), (i / 100) , .9f) * 10.f + SVec4(0., 0., 100., 0.);
+		lightList[i]._posRange = SVec4(i % 10, (i / 10) * .1f, (i / 100) , .9f) * 10.f + SVec4(0., 0., 100., 0.);
 	}
 
 

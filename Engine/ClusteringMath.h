@@ -28,7 +28,7 @@ inline static SVec3 viewRayDepthSliceIntersection(SVec3 rayDir, float vs_planeZ,
 
 
 // From the tutorial
-inline static  SVec4 clipToView(SVec4 clip, SMatrix invProj)
+inline static SVec4 clipToView(SVec4 clip, SMatrix invProj)
 {
 	SVec4 view = SVec4::Transform(clip, invProj);	// View space transform
 	return (view / view.w);							// Perspective division
@@ -52,7 +52,7 @@ inline static SVec3 viewRayDepthSliceIntersection(float dirX, float dirY, float 
 
 
 /* Taken from Doom presentation http://advances.realtimerendering.com/s2016/Siggraph2016_idTech6.pdf page 5/58 */
-inline static  float zSliceToViewDepth(float zNear, float zFar, uint8_t slice, uint8_t numSlices)
+inline static float zSliceToViewDepth(float zNear, float zFar, uint8_t slice, uint8_t numSlices)
 {
 	float exponent = static_cast<float>(slice) / numSlices;
 	return zNear * pow((zFar / zNear), exponent);
@@ -60,14 +60,14 @@ inline static  float zSliceToViewDepth(float zNear, float zFar, uint8_t slice, u
 
 
 
-inline static  uint8_t viewDepthToZSlice(float n, float f, float viewDepth, float Sz)
+inline static uint8_t viewDepthToZSlice(float n, float f, float viewDepth, float Sz)
 {
 	return log(viewDepth) * Sz / log(f / n) - Sz * log(n) / log(f / n);
 }
 
 
 
-inline static  uint8_t viewDepthToZSliceOpt(float sz_div_log_fdn, float log_n, float viewDepth)
+inline static uint8_t viewDepthToZSliceOpt(float sz_div_log_fdn, float log_n, float viewDepth)
 {
 	//log(viewDepth) * Sz / log(f / n)  - Sz * log(n) / log(f / n);		// Original
 	//log(viewDepth) * Sz / log_fdn		- Sz * log_n / log_fdn;			// Remove constant logs
