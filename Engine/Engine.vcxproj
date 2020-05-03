@@ -171,7 +171,9 @@
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Animation.cpp" />
-    <ClCompile Include="ClusterManager.cpp" />
+    <ClCompile Include="ClusterManager.cpp">
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
+    </ClCompile>
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp" />
     <ClCompile Include="ColFuncs.cpp" />

@@ -1,9 +1,6 @@
 #include "Systems.h"
 #include <string>
 #include <Mouse.h>
-#include "ClusterManager.h"
-
-#include "ThreadPoolTest.h"
 
 
 Systems::Systems() : screenWidth(0), screenHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
@@ -39,23 +36,6 @@ bool Systems::Initialize()
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
 	}
-
-
-
-	// @TODO remove after testing
-	ClusterManager clsMan({ 30, 17, 16 }, (1 << 16), _device);	//30 * 17 * 16 = 8160 nodes
-	
-	std::vector<PLight> lightList(1000);
-	for (int i = 0; i < lightList.size(); ++i)
-	{
-		// x increases 0-10 over and over, y increases once every 10
-		lightList[i]._posRange = SVec4(i % 10, (i / 10) * .1f, (i / 100) , .9f) * 10.f + SVec4(0., 0., 100., 0.);
-	}
-
-
-	clsMan.assignLights(lightList, _renderer._cam, _threadPool);
-	
-	// @TODO remove after testing
 
 
 	//loads in the td game and first level for now... cba going through the selection each time

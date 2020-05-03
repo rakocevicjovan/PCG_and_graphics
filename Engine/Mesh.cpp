@@ -131,6 +131,7 @@ Mesh::~Mesh()
 }
 
 
+
 bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
 {
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
@@ -143,8 +144,8 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 	vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
+	
 	vertexData.pSysMem = vertices.data();
-
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 

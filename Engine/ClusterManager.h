@@ -40,7 +40,7 @@ public:
 	ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights, ID3D11Device* device);
 
 	void assignLights(const std::vector<PLight>& pLights, const Camera& cam, ctpl::thread_pool& threadPool);
-	void upload(ID3D11DeviceContext* context);
+	void upload(ID3D11DeviceContext* context, const std::vector<PLight>& lights);
 
 
 private:
@@ -56,7 +56,9 @@ private:
 	SBuffer _indexSB;
 	SBuffer _gridSB;
 
-
+	ID3D11ShaderResourceView* _lightSRV;
+	ID3D11ShaderResourceView* _indexSRV;
+	ID3D11ShaderResourceView* _gridSRV;
 
 	static LightBounds getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p,
 		std::array<UINT, 3u> gridDims, float _sz_div_log_fdn, float log_n);

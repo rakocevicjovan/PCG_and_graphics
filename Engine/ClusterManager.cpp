@@ -10,9 +10,18 @@ ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights,
 	_lightIndexList.reserve(AVG_MAX_LIGHTS_PER_CLUSTER * _gridSize);
 
 	// For now only deal with point lights
-	_lightSB = SBuffer(device, sizeof(PLight), 1024);							// max 32 kb on point lights
-	_indexSB = SBuffer(device, sizeof(uint32_t), _lightIndexList.capacity());	// 1020 kb max for indices, but 32 bit packed
-	_gridSB  = SBuffer(device, sizeof(OffsetListItem), _gridSize);				// ~32 kb for grid offset list
+
+	// max 32 kb on point lights
+	_lightSB = SBuffer(device, sizeof(PLight), 1024);
+	SBuffer::createSBufferSRV(device, _lightSB.getPtr(), 1024, _lightSRV);
+
+	// 1020 kb max for indices, but 32 bit packed
+	_indexSB = SBuffer(device, sizeof(uint32_t), _lightIndexList.capacity());
+	SBuffer::createSBufferSRV(device, _indexSB.getPtr(), _lightIndexList.capacity(), _indexSRV);
+
+	// ~32 kb for grid offset list
+	_gridSB  = SBuffer(device, sizeof(OffsetListItem), _gridSize);
+	SBuffer::createSBufferSRV(device, _gridSB.getPtr(), _gridSize, _gridSRV);
 }
 
 
@@ -151,16 +160,20 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 
 	// Binning finished. A lot faster than my old version.
 	// Multithreaded version in the works, not that much of an improvement so far with binning being basically random access...
+
 }
 
 
 
-void ClusterManager::upload(ID3D11DeviceContext* context)
+void ClusterManager::upload(ID3D11DeviceContext* context, const std::vector<PLight>& lights)
 {
+	_lightSB.upload(context, lights.data(), lights.size() * sizeof(PLight));
+	_indexSB.upload(context, _lightIndexList.data(), _lightIndexList.size() * sizeof(uint16_t));
+	_gridSB.upload(context, _offsetGrid.data(), _offsetGrid.size() * sizeof(OffsetListItem));
 
-	_lightSB.upload(context);
-	_indexSB.upload(context);
-	_gridSB.upload(context);
+	context->PSSetShaderResources(15, 1, &_lightSRV);
+	context->PSSetShaderResources(16, 1, &_indexSRV);
+	context->PSSetShaderResources(17, 1, &_gridSRV);
 }
 
 

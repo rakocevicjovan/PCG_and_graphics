@@ -44,11 +44,14 @@ public:
 	static HRESULT createSBufferSRV(ID3D11Device* device, ID3D11Buffer* pBuffer, UINT numElements, ID3D11ShaderResourceView*& ppSRVOut)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};	//ZeroMemory(&desc, sizeof(desc));
-
-		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
-		desc.BufferEx.FirstElement = 0;
 		desc.Format = DXGI_FORMAT_UNKNOWN;
-		desc.BufferEx.NumElements = numElements;
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;	
+		desc.Buffer.ElementOffset = 0;
+		desc.Buffer.ElementWidth = numElements;
+
+		//D3D11_SRV_DIMENSION_BUFFEREX for raw buffers?
+		//desc.BufferEx.FirstElement = 0;
+		//desc.BufferEx.NumElements = numElements;
 
 		return device->CreateShaderResourceView(pBuffer, &desc, &ppSRVOut);
 	}
@@ -70,8 +73,12 @@ public:
 
 
 
-	static void upload(ID3D11DeviceContext* context)
+	inline void upload(ID3D11DeviceContext* context, const void* data, UINT byteWidth)
 	{
+		D3D11_MAPPED_SUBRESOURCE resource;
+		context->Map(_sbPtr, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		memcpy(resource.pData, data, byteWidth);
+		context->Unmap(_sbPtr, 0);
 	}
 
 

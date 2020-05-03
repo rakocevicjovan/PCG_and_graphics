@@ -27,6 +27,15 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
+	_lightList.resize(10);
+	for (int i = 0; i < _lightList.size(); ++i)
+	{
+		// x increases 0-10 over and over, y increases once every 10
+		//SVec4 pos = SVec4(i % 10, .1f, (i / 10), .9f) * 10.f; //+ SVec4(0., 0., 0., 0.);
+		SVec3 pos = SVec3(i, .1f, i % 10) * 10.f;
+		_lightList[i] = PLight(SVec3(1., 0., 0.), 1., SVec3(&pos.x));
+	}
+
 
 	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
@@ -61,8 +70,8 @@ void TDLevel::init(Systems& sys)
 	floorMesh._baseMaterial.pLight = &pLight;	
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));		//
-	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("clusterDebugPS"));	//csmScenePS
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("clusterPS"));	//clusterDebugPS
 
 	terrainActor.addRenderable(floorRenderable, 500);
 	//terrainActor._collider.dynamic = false;
@@ -430,6 +439,16 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
+	_culledList.clear();
+	for (int i = 0; i < _lightList.size(); ++i)
+	{
+		if (Col::FrustumSphereIntersection(rc.cam->_frustum, SphereHull(_lightList[i]._posRange)))
+			_culledList.push_back(_lightList[i]);
+	}
+
+	S_RANDY._clusterManager->assignLights(_culledList, *(rc.cam), _sys._threadPool);
+	S_RANDY._clusterManager->upload(S_CONTEXT, _culledList);
+
 	if (_inBuildingMode)
 	{
 		//_templateBuilding->render(S_RANDY);

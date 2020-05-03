@@ -35,6 +35,9 @@ public:
 
 private:
 
+	std::vector<PLight> _lightList;
+	std::vector<PLight> _culledList;
+
 	// Scene data
 	Scene _scene;
 	Procedural::Terrain terrain;

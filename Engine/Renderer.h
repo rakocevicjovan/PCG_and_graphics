@@ -6,6 +6,8 @@
 #include "OST.h"
 #include "ScreenSpaceDrawer.h"
 #include "StackAllocator.h"
+#include "ClusterManager.h"
+#include <memory>
 
 
 // @TODO make data driven and add a menu to set them...
@@ -13,6 +15,9 @@ static bool FULL_SCREEN = false;
 static bool VSYNC_ENABLED = true;
 static float FAR_PLANE = 1000.0f;
 static float NEAR_PLANE = 1.0f;
+
+// This can be smarter, vary based on needs, but that's a story for another day
+static std::array<UINT, 3> CLUSTER_GRID_DIMS = { 30, 17, 16 };
 
 
 // System-reserved registers.
@@ -87,6 +92,8 @@ public:
 	RenderContext rc;
 	Camera _cam;
 	RenderQueue _rQue;
+
+	std::unique_ptr<ClusterManager> _clusterManager;
 
 	Renderer();
 	~Renderer();

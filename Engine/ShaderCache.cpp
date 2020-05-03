@@ -155,6 +155,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	PixelShader* clusterDebugPs = new PixelShader(*_shc, L"clusterDebug.hlsl", regularSD, {});
 	addPixShader("clusterDebugPS", clusterDebugPs);
+
+	PixelShader* clusterPs = new PixelShader(*_shc, L"ClusteredPS.hlsl", regularSD, {});
+	addPixShader("clusterPS", clusterPs);
 }
 
 

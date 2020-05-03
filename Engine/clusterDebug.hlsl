@@ -56,7 +56,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	int slice = log(linearDepth) * Sz / log(f / n) - Sz * log(n) / log(f / n);	// Tiago Sousa, DOOM 2016
 #endif
 
-
 	output.r = ((int)input.position.x >> 6) / 30.f;			// divide into 30 slices of 64 pixels
 	output.g = ((int)input.position.y / 60) / 18.f;			// divide into 18 slices of 60 pixels
 	output.b = slice / 16.f;

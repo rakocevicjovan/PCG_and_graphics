@@ -27,7 +27,7 @@ class LightManager
 private:
 
 	// @TODO replace these with the above structs so that list is baked into the pool allocator
-	// because this way we still need dynamic allocations, and avoiding them was the whole point of using pool allocators
+	// because this way we still cause dynamic allocations, and avoiding them was the whole point of using pool allocators
 	std::list<DLight*> _dirLights;
 	std::list<PLight*> _pLights;
 	std::list<SLight*> _sLights;

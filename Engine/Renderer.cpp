@@ -25,6 +25,8 @@ bool Renderer::initialize(int windowWidth, int windowHeight, HWND hwnd, D3D& d3d
 
 	_cam = Camera(SMatrix::Identity, _fieldOfView, _aspectRatio, NEAR_PLANE, FAR_PLANE);
 
+	_clusterManager = std::make_unique<ClusterManager>(CLUSTER_GRID_DIMS, (1 << 16), _device);	//30 * 17 * 16 = 8160 nodes
+
 	return createGlobalBuffers();
 }
 
@@ -64,6 +66,9 @@ bool Renderer::frame(float dTime)
 	_elapsed += dTime;
 	
 	_cam.Update(dTime);
+
+	//_clusterManager->assignLights(lightList, _renderer._cam, _threadPool);
+	//clsMan.upload(_deviceContext, lightList);
 
 	updateRenderContext(dTime);
 
