@@ -850,6 +850,9 @@
     <ClInclude Include="VitThreadPool.h">
       <Filter>Multi Threading</Filter>
     </ClInclude>
+    <ClInclude Include="BOBuffer.h">
+      <Filter>Rendering\Buffers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

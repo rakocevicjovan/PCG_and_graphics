@@ -72,8 +72,8 @@ inline static uint8_t viewDepthToZSliceOpt(float sz_div_log_fdn, float log_n, fl
 	//log(viewDepth) * Sz / log(f / n)  - Sz * log(n) / log(f / n);		// Original
 	//log(viewDepth) * Sz / log_fdn		- Sz * log_n / log_fdn;			// Remove constant logs
 	//log(viewDepth) * Sz * inv_log_fdn - Sz * log_n * inv_log_fdn;		// Remove constant divisions
-	//log(viewDepth) * sz_div_log_fdn	- sz_div_log_fdn * log_n;		// Sz * _inv_log_fdn can be precalculated					
-	return sz_div_log_fdn * (log(viewDepth) - log_n);					// Extract sz_div_log_fdn from both sides
+	return log(viewDepth) * sz_div_log_fdn	- sz_div_log_fdn * log_n;	// Sz * _inv_log_fdn can be precalculated					
+	//return sz_div_log_fdn * (log(viewDepth) - log_n);					// Extract sz_div_log_fdn from both sides
 }
 
 

@@ -71,35 +71,7 @@ private:
 
 
 	// Get min/max indices of grid clusters, slightly optimized to use precalculated log(x), supposedly SVec is SIMD already?
-	static inline LightBounds getLightMinMaxIndices
-	(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n)
-	{
-		// This returns floats so I'll rather try to use SSE at least for the SVec4
-		SVec4 xyi = ((rect + SVec4(1.f)) * 0.5f) * SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);
-
-		uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
-		uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
-
-		return {
-			static_cast<uint8_t>(xyi.x), static_cast<uint8_t>(xyi.y),
-			static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(xyi.w),
-			zMin, zMax
-		};
-
-		// Learn SSE one day... THIS REVERSES THE ORDER OF STORED ELEMENTS BE CAREFUL!
-		//__m128 rectSSE = _mm_load_ps(&rect.x);	// rect.y, rect.z, rect.w
-		//__m128 invGridSSE = _mm_set_ps(30.f, 17.f, 30.f, 17.f);
-		//__m128 res = _mm_mul_ps(rectSSE, invGridSSE);
-		//__m128i intRes = _mm_cvttps_epi32(res);
-		/*
-		return
-		{
-			intRes.m128_u32[0], intRes.m128_u32[1],	// min indices
-			intRes.m128_u32[2], intRes.m128_u32[3],	// max indices
-			zMin, zMax
-		};
-		*/
-	}
+	static LightBounds getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n);
 
 
 
@@ -144,6 +116,6 @@ private:
 		float& clipMax);
 
 
-
+public:
 	static SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj);
 };

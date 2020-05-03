@@ -58,6 +58,7 @@ private:
 	Mesh floorMesh;
 	Renderable floorRenderable;
 	Actor terrainActor;
+	Actor debugSphereActor;
 	Renderable frustumRenderable;
 
 	//Model globe;

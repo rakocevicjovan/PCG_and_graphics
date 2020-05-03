@@ -27,16 +27,6 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-	_lightList.resize(10);
-	for (int i = 0; i < _lightList.size(); ++i)
-	{
-		// x increases 0-10 over and over, y increases once every 10
-		//SVec4 pos = SVec4(i % 10, .1f, (i / 10), .9f) * 10.f; //+ SVec4(0., 0., 0., 0.);
-		SVec3 pos = SVec3(i, .1f, i % 10) * 10.f;
-		_lightList[i] = PLight(SVec3(1., 0., 0.), 1., SVec3(&pos.x));
-	}
-
-
 	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 	S_INMAN.registerController(&_tdController);
@@ -48,10 +38,10 @@ void TDLevel::init(Systems& sys)
 
 	// Light setup, to be replaced soon
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
-	
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
-
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
+
+
 
 	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
@@ -77,6 +67,39 @@ void TDLevel::init(Systems& sys)
 	//terrainActor._collider.dynamic = false;
 	terrainActor._collider.collidable = false;
 	_scene._actors.push_back(&terrainActor);
+
+
+
+	/// DEBUG
+
+	_lightList.resize(16);	//10, 100... do tests
+	for (int i = 0; i < _lightList.size(); ++i)
+	{
+		// x increases 0-10 over and over, y increases once every 10
+		//SVec4 pos = SVec4(i % 10, .1f, (i / 10), .9f) * 10.f; //+ SVec4(0., 0., 0., 0.);
+		SVec3 pos = SVec3(i % 4, .02f, i / 4) * 50.f;
+		_lightList[i] = PLight(SVec3(1., 1., 1.), 10., SVec3(&pos.x));
+	}
+
+	
+	SMatrix dbgSphMat = SMatrix::CreateScale(_lightList[0]._posRange.w);
+	Math::SetTranslation(dbgSphMat, SVec3(&_lightList[0]._posRange.x));
+
+	Renderable dbgRenderable(S_RESMAN.getByName<Model>("Skysphere")->_meshes[0]);	//, _lightList[0]._posRange.w
+	dbgRenderable.mat = new Material(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), true);
+	dbgRenderable.mat->pLight = &pLight;
+
+	debugSphereActor.addRenderable(dbgRenderable, _lightList[0]._posRange.w);
+	debugSphereActor._renderables.back()._transform = dbgSphMat;
+
+
+	debugSphereActor._renderables[0].mat->_texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
+	
+	///
+
+
+
+
 
 	// Initialize navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
@@ -463,6 +486,10 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
+	/// DEBUG
+	for (Renderable& r : debugSphereActor._renderables)
+		S_RANDY.addToRenderQueue(r);
+
 	_scene.draw();
 
 
@@ -520,6 +547,7 @@ void TDLevel::draw(const RenderContext& rc)
 	octNodeMatrices.clear();
 #endif
 
+
 	GUI::startGuiFrame();
 	//S_SHCACHE.getVertShader("csmVS")
 
@@ -531,6 +559,42 @@ void TDLevel::draw(const RenderContext& rc)
 		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
 	GUI::renderGuiElems(guiElems);
+
+	char windowName[20];
+
+	/*
+	for (int i = 0; i < _culledList.size(); i++)
+	{
+		sprintf(windowName, "SPHERE_DEBUG %d", i);
+
+		SVec3 ws_lightPos(_culledList[i]._posRange);																				// OK
+		SVec4 viewPosRange = Math::fromVec3(SVec3::Transform(ws_lightPos, rc.cam->GetViewMatrix()), _culledList[i]._posRange.w);	// OK
+		SVec4 mm = ClusterManager::getProjectedRectangle(viewPosRange, 1., 1000., rc.cam->GetProjectionMatrix());
+		// minX, minY, maxX, maxY in mm
+
+		SVec2 p = SVec2(mm.x, mm.w) + SVec2(1.f);	//-1, 1 to 0, 2
+		p *= 0.5f;		//0, 2 to 0, 1
+		p.y = 1. - p.y;	// flip y
+		p *= SVec2(1920., 1080.);
+
+		SVec2 s = SVec2(abs(mm.z - mm.x), abs(mm.w - mm.y)) * SVec2(1920., 1080.) * 0.5f;
+
+		ImVec2 pos(p.x, p.y);	//needs max y actually, so mm.z
+		ImVec2 size(s.x, s.y);
+
+		ImGui::PushID(i);
+
+		ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+		ImGui::SetNextWindowSize(size, ImGuiCond_Always);
+
+		ImGui::Begin(windowName, false);
+		ImGui::End();
+
+		ImGui::PopID();
+	}
+	*/
+	
+	
 
 
 	UINT structureIndex;

@@ -16,8 +16,8 @@ ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights,
 	SBuffer::createSBufferSRV(device, _lightSB.getPtr(), 1024, _lightSRV);
 
 	// 1020 kb max for indices, but 32 bit packed
-	_indexSB = SBuffer(device, sizeof(uint32_t), _lightIndexList.capacity());
-	SBuffer::createSBufferSRV(device, _indexSB.getPtr(), _lightIndexList.capacity(), _indexSRV);
+	_indexSB = SBuffer(device, sizeof(uint32_t), _lightIndexList.capacity() / 2u);
+	SBuffer::createSBufferSRV(device, _indexSB.getPtr(), _lightIndexList.capacity() / 2u, _indexSRV);
 
 	// ~32 kb for grid offset list
 	_gridSB  = SBuffer(device, sizeof(OffsetListItem), _gridSize);
@@ -60,7 +60,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	UINT sliceSize = _gridDims[0] * _gridDims[1];
 	UINT rowSize = _gridDims[0];
 
-	
+	/*
 	// Threading setup, distribute work to other threads ( 3 in my case, +1 main thread)
 	UINT nThreads = threadPool.n_idle();
 	std::vector<std::future<void>> futures(nThreads);
@@ -80,12 +80,12 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 					std::ref(v), std::ref(p))
 			);
 	}
-
+	*/
 
 	// Do the exact same thing but on the main thread as well
 
 	// Convert all lights into clip space and obtain their min/max cluster indices
-	for (int i = nThreads * chunkSize; i < nLights; ++i)
+	for (int i = 0; i < nLights; ++i)	// nThreads * chunkSize
 	{
 		const PLight& pl = pLights[i];
 
@@ -94,15 +94,15 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 		_lightBounds[i] = indexSpan;	// do not push or emplace here, use assignment
 
 		// First step of binning, increase counts per cluster
-		for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
+		for (int z = indexSpan[4]; z <= indexSpan[5]; ++z)
 		{
 			zOffset = z * sliceSize;
 
-			for (uint8_t y = indexSpan[1]; y < indexSpan[3]; ++y)
+			for (uint8_t y = indexSpan[1]; y <= indexSpan[3]; ++y)
 			{
 				yOffset = y * rowSize;
 
-				for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
+				for (uint8_t x = indexSpan[0]; x <= indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
 				{
 					_offsetGrid[zOffset + yOffset + x]._count++;
 				}
@@ -111,10 +111,8 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	}
 
 	// Make sure all threads have finished. The rest of the algorithm is not yet multithreaded so it's the same as it was
-	for (int i = 0; i < nThreads; i++)
-	{
-		futures[i].wait();
-	}
+	//for (int i = 0; i < nThreads; i++)
+		//futures[i].wait();
 
 	// Second step of binning, determine offsets per cluster according to counts, as well as the lightIndexList size.
 	// Slow in debug mode because of bounds checking but fast as items are only 4 bytes and contiguous
@@ -138,15 +136,15 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	
 	for (int i = 0; i < nLights; i++)
 	{
-		for (int z = _lightBounds[i][4]; z < _lightBounds[i][5]; ++z)
+		for (int z = _lightBounds[i][4]; z <= _lightBounds[i][5]; ++z)
 		{
 			zOffset = z * sliceSize;
 
-			for (uint8_t y = _lightBounds[i][1]; y < _lightBounds[i][3]; ++y)
+			for (uint8_t y = _lightBounds[i][1]; y <= _lightBounds[i][3]; ++y)
 			{
 				yOffset = y * rowSize;
 
-				for (uint8_t x = _lightBounds[i][0]; x < _lightBounds[i][2]; ++x)
+				for (uint8_t x = _lightBounds[i][0]; x <= _lightBounds[i][2]; ++x)
 				{
 					UINT cellIndex = zOffset + yOffset + x;
 
@@ -196,15 +194,15 @@ void ClusterManager::processLightsMT(
 		lightBounds[i] = indexSpan;
 
 		// First step of binning, increase counts per cluster
-		for (int z = indexSpan[4]; z < indexSpan[5]; ++z)
+		for (int z = indexSpan[4]; z <= indexSpan[5]; ++z)
 		{
 			UINT zOffset = z * sliceSize;
 
-			for (uint8_t y = indexSpan[1]; y < indexSpan[3]; ++y)
+			for (uint8_t y = indexSpan[1]; y <= indexSpan[3]; ++y)
 			{
 				UINT yOffset = y * rowSize;
 
-				for (uint8_t x = indexSpan[0]; x < indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
+				for (uint8_t x = indexSpan[0]; x <= indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
 				{
 					grid[zOffset + yOffset + x]._count++;	//fetch_add(1, std::memory_order_relaxed);
 				}
@@ -222,13 +220,52 @@ LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float
 	float lightRadius = pLight._posRange.w;
 
 	// Get light bounds in view space, radius stays the same
-	SVec4 vs_lightPosRange = Math::fromVec3(SVec3::TransformNormal(ws_lightPos, v), lightRadius);
+	SVec4 vs_lightPosRange = Math::fromVec3(SVec3::Transform(ws_lightPos, v), lightRadius);
 	SVec2 viewZMinMax = SVec2(vs_lightPosRange.z) + SVec2(-lightRadius, lightRadius);
 
 	// Convert XY light bounds to clip space, clamps to [-1, 1] Z is calculated from view
 	SVec4 rect = getProjectedRectangle(vs_lightPosRange, zn, zf, p);
 
 	return getLightMinMaxIndices(rect, viewZMinMax, zn, zf, gridDims, sz_div_log_fdn, log_n);
+}
+
+
+
+LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n)
+{
+	// This returns floats so I'll rather try to use SSE at least for the SVec4
+	SVec4 xyi = rect + SVec4(1.f);	// -1, 1 to 0, 2
+	xyi *= 0.5f;	//0, 2 to 0, 1
+	xyi *= SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);	//0, 1 to 0, maxX/Y
+
+	uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
+	uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
+
+	if (xyi.w > gDims[1] || xyi.w < 0)
+	{
+		xyi.w = gDims[1];
+	}
+
+	return
+	{
+		static_cast<uint8_t>(xyi.x), static_cast<uint8_t>(xyi.y),
+		static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(xyi.w),
+		static_cast<uint8_t>(zMin),  static_cast<uint8_t>(zMax)
+	};
+
+	// Learn SSE one day... THIS REVERSES THE ORDER OF STORED ELEMENTS BE CAREFUL!
+	//__m128 rectSSE = _mm_load_ps(&rect.x);	// rect.y, rect.z, rect.w
+	//__m128 invGridSSE = _mm_set_ps(30.f, 17.f, 30.f, 17.f);
+	//__m128 res = _mm_mul_ps(rectSSE, invGridSSE);
+	//__m128i intRes = _mm_cvttps_epi32(res);
+	/*
+	return
+	{
+		intRes.m128_u32[0], intRes.m128_u32[1],	// min indices
+		intRes.m128_u32[2], intRes.m128_u32[3],	// max indices
+		zMin, zMax
+	};
+	*/
 }
 
 
@@ -245,13 +282,25 @@ void ClusterManager::updateClipRegionRoot(
 	float nz = (lightRadius - nc * lc) / lz;
 	float pz = (lc * lc + lz * lz - lightRadius * lightRadius) / (lz - (nz / nc) * lc);
 
-	if (pz > 0.0f)
+	if (pz > 0.)
 	{
 		float c = -nz * cameraScale / nc;
-		if (nc > 0.0f)
-			clipMin = max(clipMin, c);		// Left side boundary, (x or y >= -1.)
+		if (nc > 0.)
+		{
+#pragma push_macro("max")
+#undef max
+			clipMin = std::fmaxf(clipMin, c);		// Left side boundary, (x or y >= -1.)
+#pragma pop_macro("max")
+		}	
 		else
-			clipMax = min(clipMax, c);		// Right side boundary, (x or y <= 1.)
+		{
+#pragma push_macro("min")
+#undef min
+
+			clipMax = std::fminf(clipMax, c);		// Right side boundary, (x or y <= 1.)
+#pragma pop_macro("min")
+		}
+			
 	}
 }
 
@@ -272,13 +321,12 @@ void ClusterManager::updateClipRegion(
 	float det = rSq * lc * lc - lcSqPluslzSq * (rSq - lz * lz);
 
 	// Light does not cover the entire screen, solve the quadratic equation, update root (aka project)
-	if (det > 0)
+	if (det > 0.0001)
 	{
 		float a = lightRadius * lc;
 		float b = sqrt(det);
-		float invDenom = 1.f / lcSqPluslzSq;	//hopefully this saves us a division? maybe? probably optimized out anyways
-		float nx0 = (a + b) * invDenom;
-		float nx1 = (a - b) * invDenom;
+		float nx0 = (a + b) / lcSqPluslzSq;
+		float nx1 = (a - b) / lcSqPluslzSq;
 
 		updateClipRegionRoot(nx0, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
 		updateClipRegionRoot(nx1, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
@@ -295,8 +343,8 @@ SVec4 ClusterManager::getProjectedRectangle(SVec4 lightPosView, float zNear, flo
 	// Fast way to cull lights that are far enough behind the camera to not reach the near plane
 	if (lightPosView.z + lightRadius >= zNear)
 	{
-		SVec2 clipMin(-1.0f);
-		SVec2 clipMax(1.0f);
+		SVec2 clipMin(-0.999999f, -0.999999f);
+		SVec2 clipMax(+0.999999f, +0.999999f);
 
 		updateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
 		updateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
