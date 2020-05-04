@@ -27,7 +27,7 @@ struct OffsetListItem
 	OffsetListItem& operator=(const OffsetListItem&) = delete;
 
 	uint32_t _index;	//uint16_t _index;
-	std::atomic<uint16_t> _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
+	std::atomic<uint32_t> _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
 };
 
 

@@ -79,7 +79,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float viewDepth = zToViewSpace(input.position.z, n, f);
 	//float viewDepth = zToViewSpace(input.depth, n, f);
 	uint clusterIndex = getClusterIndex(input.position.xy, viewDepth, n, f);
-	uint3 xyz = getClusterIndexTriplet(input.position.xy, viewDepth, n, f);
+	//uint3 xyz = getClusterIndexTriplet(input.position.xy, viewDepth, n, f);
 
 	// Independent of lights, determined once
 	float4 colour = shaderTexture.Sample(SampleType, input.tex);	// texture colour
@@ -114,9 +114,12 @@ float4 main(PixelInputType input) : SV_TARGET
 		//lightContrib = (float3)(span);
 	}
 
-	colour.xyz = (lightContrib + float3(1., 1., 1.) * 0.1) * colour.xyz;	// fake ambient/directional
+	//colour.xyz = (float3)((maxOffset - minOffset) / 3.);
 
-	colour.rgb = gammaCorrect(colour.xyz, 1.0f / 2.2f);
+	colour.xyz = max(lightContrib, float3(1., 1., 1.) * 0.1);	//* colour.xyz;
+	//colour.xyz = (lightContrib + float3(1., 1., 1.) * 0.1);	//* colour.xyz;	// fake ambient/directional
+
+	//colour.rgb = gammaCorrect(colour.xyz, 1.0f / 2.2f);
 
 	return colour;
 }

@@ -114,6 +114,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	for (int i = 0; i < nThreads; i++)
 		futures[i].wait();
 
+
 	// Second step of binning, determine offsets per cluster according to counts, as well as the lightIndexList size.
 	// Slow in debug mode because of bounds checking but fast as items are only 4 bytes and contiguous
 	UINT listStart = 0u;
@@ -168,16 +169,6 @@ void ClusterManager::upload(ID3D11DeviceContext* context, const std::vector<PLig
 	_lightSB.upload(context, lights.data(), lights.size() * sizeof(PLight));
 	_indexSB.upload(context, _lightIndexList.data(), _lightIndexList.size() * sizeof(uint32_t));
 	_gridSB.upload(context, _offsetGrid.data(), _offsetGrid.size() * sizeof(OffsetListItem));
-
-	/*
-	std::vector<uint16_t> wat(100);
-	for (int i = 0; i < wat.size(); i+= 2)
-	{
-		wat[i] = i / 2u;
-		wat[i + 1] = 0u;
-	}
-	_indexSB.upload(context, wat.data(), wat.size() * sizeof(uint16_t));
-	*/
 
 	context->PSSetShaderResources(15, 1, &_lightSRV);
 	context->PSSetShaderResources(16, 1, &_indexSRV);
@@ -300,14 +291,15 @@ void ClusterManager::updateClipRegionRoot(
 		{
 #pragma push_macro("max")
 #undef max
-			clipMin = std::max(clipMin, c);		// Left side boundary, (x or y >= -1.)
+			//clipMin = std::max(clipMin, c);		// Left side boundary, (x or y >= -1.)
+			clipMin = Math::clamp(-1., 1., c);
 #pragma pop_macro("max")
 		}	
 		else
 		{
 #pragma push_macro("min")
 #undef min
-			//clipMax = std::min(clipMax, c);		// Right side boundary, (x or y <= 1.)
+			//clipMax = std::min(clipMax, c);		// Right side boundary, (x or y less than 1.)
 			clipMax = Math::clamp(-1., 1., c);		// I suspect I need this because of false positives on frustum culling
 #pragma pop_macro("min")
 		}
@@ -328,7 +320,7 @@ void ClusterManager::updateClipRegion(
 	float rSq = lightRadius * lightRadius;
 	float lcSqPluslzSq = lc * lc + lz * lz;
 
-	// Determinant, if det <= 0 light covers the entire screen this we leave the default values (-1, 1) for the rectangle
+	// Determinant, if det less than 0 light covers the entire screen this we leave the default values (-1, 1) for the rectangle
 	float det = rSq * lc * lc - lcSqPluslzSq * (rSq - lz * lz);
 
 	// Light does not cover the entire screen, solve the quadratic equation, update root (aka project)
@@ -360,12 +352,9 @@ SVec4 ClusterManager::getProjectedRectangle(SVec4 lightPosView, float zNear, flo
 		updateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
 		updateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
 
-		// TODO remove for perf later
-		if (clipMax.x > 1. || clipMax.x < -1.)
-			exit(360);
-
-		if (clipMax.y > 1. || clipMax.y < -1.)
-			exit(360);
+		//if (clipMax.x > 1. || clipMax.x < -1.)	exit(360);
+		//if (clipMax.y > 1. || clipMax.y < -1.)	exit(360);
+			
 
 		clipRegion = SVec4(clipMin.x, clipMin.y, clipMax.x, clipMax.y);
 	}

@@ -56,12 +56,20 @@ float zToViewSpace(float z, float n, float f)
 
 
 
-int3 getClusterIndexTriplet(int2 ss_xy, float linearDepth, float n, float f)	//Useful for debug
+int3 getClusterIndexTriplet(float2 ss_xy, float linearDepth, float n, float f)	//Useful for debug
 {
-	int x = (ss_xy.x / 64);
-	//int y = GY - (ss_xy.y >> 6);	// Not quite correct I think?
-	int y = ((1080. - ss_xy.y) / 1080.) * GY;
-	int z = log(linearDepth) * GZ / log(f / n) - GZ * log(n) / log(f / n);
+	//int x = (ss_xy.x / 1920.f) * GX;
+	//int y = GY - (ss_xy.y >> 6);	// Not correct as I use 17 slices, not 16.875 (would be better for wave coherency...)
+
+	int x = ((int)ss_xy.x >> 6);
+	int y = ((1080.f - ss_xy.y) / 1080.) * GY;
+	int z = (log(linearDepth) * GZ / log(f / n)) - (GZ * log(n) / log(f / n));
+	
+	/* This does NOT fix the wrap around the right to the left edge of the screen
+	x = clamp(x, 0, 29);
+	y = clamp(y, 0, 16);
+	z = clamp(z, 0, 15);
+	*/
 
 	return int3(x, y, z);
 }
