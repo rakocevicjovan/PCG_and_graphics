@@ -24,9 +24,9 @@ public:
 		ID3D11Buffer* structBuffer;
 
 		D3D11_BUFFER_DESC sbDesc = {};
-		sbDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		sbDesc.ByteWidth = elementSize * numElements;
 		sbDesc.Usage = D3D11_USAGE_DYNAMIC;
+		sbDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		sbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		sbDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 		sbDesc.StructureByteStride = elementSize;
@@ -41,13 +41,15 @@ public:
 
 
 
-	static HRESULT createSBufferSRV(ID3D11Device* device, ID3D11Buffer* pBuffer, UINT numElements, ID3D11ShaderResourceView*& ppSRVOut)
+	static HRESULT createSBufferSRV(ID3D11Device* device, ID3D11Buffer* pBuffer, UINT elemWidth, UINT numElements, ID3D11ShaderResourceView*& ppSRVOut)
 	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};	//ZeroMemory(&desc, sizeof(desc));
+		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 		desc.Format = DXGI_FORMAT_UNKNOWN;
-		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;	
-		desc.Buffer.ElementOffset = 0;
-		desc.Buffer.ElementWidth = numElements;
+		desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+		desc.Buffer.FirstElement = 0u;
+		desc.Buffer.ElementOffset = 0u;
+		desc.Buffer.ElementWidth = elemWidth;
+		desc.Buffer.NumElements = numElements;
 
 		//D3D11_SRV_DIMENSION_BUFFEREX for raw buffers?
 		//desc.BufferEx.FirstElement = 0;

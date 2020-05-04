@@ -3,8 +3,7 @@
 #include "Cone.h"
 #include <cmath>
 
-#define MIN_LIGHT 0.01
-#define INTENSITY_TO_RANGE(i) (sqrt(i / MIN_LIGHT))
+//#define INTENSITY_TO_RANGE(i) (sqrt(i / MIN_LIGHT))
 
 // i / (r * r) = MIN_LIGHT; // multiply both sides by (r*r)
 // i = MIN_LIGHT * (r * r);
@@ -17,6 +16,13 @@ class SceneLight
 {
 protected:
 	SVec4 _chromaIntensity;
+
+	//const float MIN_LIGHT = 0.05f;
+
+	float INTENSITY_TO_RANGE(float i)
+	{
+		return  (sqrt(i / 0.03f));
+	}
 
 public:
 	SceneLight() {}

@@ -26,7 +26,7 @@ struct OffsetListItem
 
 	OffsetListItem& operator=(const OffsetListItem&) = delete;
 
-	uint16_t _index;
+	uint32_t _index;	//uint16_t _index;
 	std::atomic<uint16_t> _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
 };
 
@@ -48,7 +48,7 @@ private:
 	const std::array<UINT, 3> _gridDims;
 	const UINT _gridSize;
 
-	std::vector<uint16_t> _lightIndexList;
+	std::vector<uint32_t> _lightIndexList;		// Could end up using uint because unpacking per pixel seems too slow...
 	std::vector<OffsetListItem> _offsetGrid;	// Contains offsets and counts
 	std::vector<LightBounds> _lightBounds;		// Intermediate data for binning
 

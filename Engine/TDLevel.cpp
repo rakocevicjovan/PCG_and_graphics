@@ -77,8 +77,8 @@ void TDLevel::init(Systems& sys)
 	{
 		// x increases 0-10 over and over, y increases once every 10
 		//SVec4 pos = SVec4(i % 10, .1f, (i / 10), .9f) * 10.f; //+ SVec4(0., 0., 0., 0.);
-		SVec3 pos = SVec3(i % 4, .02f, i / 4) * 50.f;
-		_lightList[i] = PLight(SVec3(1., 1., 1.), 10., SVec3(&pos.x));
+		SVec3 pos = SVec3(i % 4, .0f, i / 4) * 50.f + SVec3(0, 20., 0.f);
+		_lightList[i] = PLight(SVec3(1., 1., 1.), 100., SVec3(&pos.x));
 	}
 
 	
@@ -487,8 +487,8 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	/// DEBUG
-	for (Renderable& r : debugSphereActor._renderables)
-		S_RANDY.addToRenderQueue(r);
+	//for (Renderable& r : debugSphereActor._renderables)
+		//S_RANDY.addToRenderQueue(r);
 
 	_scene.draw();
 
@@ -560,10 +560,12 @@ void TDLevel::draw(const RenderContext& rc)
 	};
 	GUI::renderGuiElems(guiElems);
 
-	char windowName[20];
+#define SPH_DEBUG
 
-	/*
-	for (int i = 0; i < _culledList.size(); i++)
+#ifdef SPH_DEBUG_WAT
+	char windowName[20];
+	
+	for (int i = 0; i < _culledList.size(); i++)	//_culledList.size()
 	{
 		sprintf(windowName, "SPHERE_DEBUG %d", i);
 
@@ -592,7 +594,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 		ImGui::PopID();
 	}
-	*/
+#endif
 	
 	
 
