@@ -241,18 +241,21 @@ LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2
 	xyi *= SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);	//0, 1 to 0, maxX/Y
 
 
-	uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, gDims[2]);
-	uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, gDims[2]);
+	//uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, gDims[2]);
+	//uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, gDims[2]);
 
-	//uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
-	//uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
+	uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
+	uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
 
 
 	return
 	{
-		static_cast<uint8_t>(xyi.x), min(static_cast<uint8_t>(xyi.y), static_cast<uint8_t>(29)),
-		static_cast<uint8_t>(xyi.z), min(static_cast<uint8_t>(xyi.w), static_cast<uint8_t>(16)),
-		max(zMin, static_cast < uint8_t>(0)),  min(zMax, static_cast<uint8_t>(15))
+		static_cast<uint8_t>(xyi.x),											// min x
+		static_cast<uint8_t>(xyi.y),											// min y
+		min(static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(gDims[0] - 1u)),	// max x
+		min(static_cast<uint8_t>(xyi.w), static_cast<uint8_t>(gDims[1] - 1u)),	// max y
+		max(zMin, static_cast <uint8_t>(0)),									// min z
+		min(zMax, static_cast<uint8_t>(gDims[2] - 1))							// max z
 	};
 
 	// Learn SSE one day... THIS REVERSES THE ORDER OF STORED ELEMENTS BE CAREFUL!
@@ -284,10 +287,10 @@ void ClusterManager::updateClipRegionRoot(
 	float nz = (lightRadius - nc * lc) / lz;
 	float pz = (lc * lc + lz * lz - lightRadius * lightRadius) / (lz - (nz / nc) * lc);
 
-	if (pz > 0.0f)
+	if (pz > 0.0)
 	{
 		float c = -nz * cameraScale / nc;
-		if (nc > 0.0f)
+		if (nc > 0.0)
 		{
 #pragma push_macro("max")
 #undef max
@@ -324,7 +327,7 @@ void ClusterManager::updateClipRegion(
 	float det = rSq * lc * lc - lcSqPluslzSq * (rSq - lz * lz);
 
 	// Light does not cover the entire screen, solve the quadratic equation, update root (aka project)
-	if (det > 0.0001)
+	if (det > 0.0)
 	{
 		float a = lightRadius * lc;
 		float b = sqrt(det);
@@ -346,8 +349,8 @@ SVec4 ClusterManager::getProjectedRectangle(SVec4 lightPosView, float zNear, flo
 	// Fast way to cull lights that are far enough behind the camera to not reach the near plane
 	if (lightPosView.z + lightRadius >= zNear)
 	{
-		SVec2 clipMin(-0.999999f, -0.999999f);
-		SVec2 clipMax(+0.999999f, +0.999999f);
+		SVec2 clipMin(-1.);	//(-0.999999f, -0.999999f);
+		SVec2 clipMax(1.);	//(+0.999999f, +0.999999f);
 
 		updateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
 		updateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);

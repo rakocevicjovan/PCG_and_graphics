@@ -1,7 +1,6 @@
 #include "Light.hlsli"
 #include "Clustering.hlsli"
 
-
 cbuffer PSPerFrameBuffer : register(b10)
 {
 	float4 eyePos;
@@ -9,7 +8,6 @@ cbuffer PSPerFrameBuffer : register(b10)
 	float delta;
 	float2 padding;
 }
-
 
 struct PixelInputType
 {
@@ -20,12 +18,9 @@ struct PixelInputType
 	float depth : ZDEPTH;
 };
 
-
 Texture2D shaderTexture : register(t0);
 SamplerState SampleType;
 static const float SpecularPower = 8.f;
-
-
 
 struct PLight
 {
@@ -34,33 +29,25 @@ struct PLight
 };
 
 StructuredBuffer<PLight> lightBuffer : register(t15);
-StructuredBuffer<uint> lightIndexBuffer : register(t16);		// must be decomposed to two uint16_t per each
-StructuredBuffer<uint2> offsetGrid : register(t17);				// can be viewed as uint
-
-
-
-
+StructuredBuffer<uint> lightIndexBuffer : register(t16);
+StructuredBuffer<uint2> offsetGrid : register(t17);		
 
 void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout float3 lightContrib)
 {
 	float3 lightColour = pl.rgbi.rgb;
 
 	float3 lightDir = input.worldPos.xyz - pl.posRange.xyz;
-	float dist = length(lightDir) + 0.05f;
+	float dist = length(lightDir);
 	lightDir /= dist;
 
-	float intensity = pl.rgbi.w / (dist * dist);
-
-	float3 invLightDir = -lightDir;
-
-	// No need for them to cast ambient light at all float4 ambient(lightColour * 0.05); 	 ambient.xyz
+	float intensity = pl.rgbi.w / (dist * dist);	// Square fallof, apparently correct but a bit aggressive maybe?
 
 	//calculate diffuse light
-	float diffIntensity = max(dot(input.normal, invLightDir), 0.0f);
+	float diffIntensity = max(dot(input.normal, -lightDir), 0.0f);
 	float3 diffuse = lightColour * diffIntensity;
 
 	//calculate specular light
-	float3 reflection = normalize(reflect(invLightDir, input.normal));
+	float3 reflection = normalize(reflect(-lightDir, input.normal));
 	float specIntensity = pow(saturate(dot(reflection, viewDir)), SpecularPower);
 	float3 specular = lightColour * specIntensity * diffIntensity;
 
@@ -77,8 +64,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float n = 1.;
 	float f = 1000.;
 	float viewDepth = zToViewSpace(input.position.z, n, f);
-	//float viewDepth = zToViewSpace(input.depth, n, f);
-	uint clusterIndex = getClusterIndex(input.position.xy, viewDepth, n, f);
+	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, n, f);
 	//uint3 xyz = getClusterIndexTriplet(input.position.xy, viewDepth, n, f);
 
 	// Independent of lights, determined once
@@ -103,7 +89,8 @@ float4 main(PixelInputType input) : SV_TARGET
 		pl = lightBuffer[indices];
 		calcColour(pl, input, viewDir, lightContrib);
 
-		//uint firstIndex  = indices >> 16;			// get top half, shift bottom half to oblivion
+		// When I fix the artefact and get back to this, try using 16 bit indices
+		//uint firstIndex  = indices >> 16;				// get top half, shift bottom half to oblivion
 		//pl = lightBuffer[firstIndex];
 		//calcColour(pl, input, viewDir, lightContrib);
 
@@ -116,8 +103,8 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	//colour.xyz = (float3)((maxOffset - minOffset) / 3.);
 
-	colour.xyz = max(lightContrib, float3(1., 1., 1.) * 0.1);	//* colour.xyz;
-	//colour.xyz = (lightContrib + float3(1., 1., 1.) * 0.1);	//* colour.xyz;	// fake ambient/directional
+	colour.xyz = max(lightContrib, float3(1., 1., 1.) * 0.1);	// fake ambient/directional		//  * colour.xyz
+	//colour.xyz = (lightContrib + float3(1., 1., 1.) * 0.1);
 
 	//colour.rgb = gammaCorrect(colour.xyz, 1.0f / 2.2f);
 
