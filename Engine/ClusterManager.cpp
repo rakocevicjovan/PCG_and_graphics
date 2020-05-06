@@ -355,10 +355,6 @@ SVec4 ClusterManager::getProjectedRectangle(SVec4 lightPosView, float zNear, flo
 		updateClipRegion(lightPosView.x, lightPosView.z, lightRadius, proj._11, clipMin.x, clipMax.x);
 		updateClipRegion(lightPosView.y, lightPosView.z, lightRadius, proj._22, clipMin.y, clipMax.y);
 
-		//if (clipMax.x > 1. || clipMax.x < -1.)	exit(360);
-		//if (clipMax.y > 1. || clipMax.y < -1.)	exit(360);
-			
-
 		clipRegion = SVec4(clipMin.x, clipMin.y, clipMax.x, clipMax.y);
 	}
 

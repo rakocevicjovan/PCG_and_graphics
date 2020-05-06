@@ -78,7 +78,7 @@ void TDLevel::init(Systems& sys)
 		// x increases 0-10 over and over, y increases once every 10
 		//SVec4 pos = SVec4(i % 10, .1f, (i / 10), .9f) * 10.f; //+ SVec4(0., 0., 0., 0.);
 		SVec3 pos = SVec3(i % 4, .0f, i / 4) * 50.f + SVec3(0, 10., 0.f);
-		_lightList[i] = PLight(SVec3(i % 2, (i / 2) % 2, ((16 - i) / 4)), 100., SVec3(&pos.x));
+		_lightList[i] = PLight(Math::getNormalizedVec3(SVec3(i % 2, (i / 2) % 2, ((16 - i) / 4))), 100., SVec3(&pos.x));
 	}
 
 	
@@ -560,12 +560,12 @@ void TDLevel::draw(const RenderContext& rc)
 	};
 	GUI::renderGuiElems(guiElems);
 
-#define SPH_DEBUG
+#define SPH_DEBUG_WAT
 
 #ifdef SPH_DEBUG_WAT
 	char windowName[20];
 	
-	for (int i = 0; i < _culledList.size(); i++)	//_culledList.size()
+	for (int i = 0; i < min(_culledList.size(), 1); i++)	//_culledList.size()
 	{
 		sprintf(windowName, "SPHERE_DEBUG %d", i);
 
