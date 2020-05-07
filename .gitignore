@@ -27,6 +27,7 @@ Models/
 Textures/
 Sounds/
 Tower Defense/Assets
+Deps/Assimp_build_2017
 
 # Visual Studio 2015 cache/options directory
 .vs/

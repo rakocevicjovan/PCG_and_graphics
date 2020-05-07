@@ -3,7 +3,9 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2016, assimp team
+Copyright (c) 2006-2020, assimp team
+
+
 
 All rights reserved.
 
@@ -42,14 +44,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /** @file importerdesc.h
  *  @brief #aiImporterFlags, aiImporterDesc implementation.
  */
-#ifndef INCLUDED_AI_IMPORTER_DESC_H
-#define INCLUDED_AI_IMPORTER_DESC_H
+#pragma once
+#ifndef AI_IMPORTER_DESC_H_INC
+#define AI_IMPORTER_DESC_H_INC
+
+#ifdef __GNUC__
+#   pragma GCC system_header
+#endif
 
 
 /** Mixed set of flags for #aiImporterDesc, indicating some features
   *  common to many importers*/
-enum aiImporterFlags
-{
+enum aiImporterFlags {
     /** Indicates that there is a textual encoding of the
      *  file format; and that it is supported.*/
     aiImporterFlags_SupportTextFlavour = 0x1,
@@ -84,8 +90,7 @@ enum aiImporterFlags
  *  as importers/exporters are added to Assimp, so it might be useful
  *  to have a common mechanism to query some rough importer
  *  characteristics. */
-struct aiImporterDesc
-{
+struct aiImporterDesc {
     /** Full name of the importer (i.e. Blender3D importer)*/
     const char* mName;
 
@@ -140,4 +145,4 @@ Will return a NULL-pointer if no assigned importer desc. was found for the given
 */
 ASSIMP_API const C_STRUCT aiImporterDesc* aiGetImporterDesc( const char *extension );
 
-#endif
+#endif // AI_IMPORTER_DESC_H_INC
