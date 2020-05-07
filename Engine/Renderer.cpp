@@ -175,5 +175,5 @@ void Renderer::render(const Renderable& r) const
 	_deviceContext->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
 	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-	_deviceContext->DrawIndexed(r.mesh->indexCount, 0, 0);
+	_deviceContext->DrawIndexed(r.mesh->_indexCount, 0, 0);
 }

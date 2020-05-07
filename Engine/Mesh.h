@@ -13,17 +13,22 @@
 #include "Geometry.h"
 
 
+typedef unsigned int UINT;
+
+
 namespace Procedural { class Terrain; }
+
 
 class Mesh : public Resource
 {
+	friend class Model;
 protected:
 
 public:
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
-	std::vector<Vert3D>	vertices;
-	std::vector<unsigned int> indices;
-	int indexCount;
+	std::vector<Vert3D>	_vertices;
+	std::vector<UINT> _indices;
+	UINT _indexCount;
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
@@ -78,7 +83,7 @@ public:
 		dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);
 		dc->IASetIndexBuffer(_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-		dc->DrawIndexed(indexCount, 0, 0);
+		dc->DrawIndexed(_indexCount, 0, 0);
 	}
 
 

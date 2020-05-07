@@ -560,44 +560,6 @@ void TDLevel::draw(const RenderContext& rc)
 	};
 	GUI::renderGuiElems(guiElems);
 
-#define SPH_DEBUG_WAT
-
-#ifdef SPH_DEBUG_WAT
-	char windowName[20];
-	
-	for (int i = 0; i < min(_culledList.size(), 1); i++)	//_culledList.size()
-	{
-		sprintf(windowName, "SPHERE_DEBUG %d", i);
-
-		SVec3 ws_lightPos(_culledList[i]._posRange);																				// OK
-		SVec4 viewPosRange = Math::fromVec3(SVec3::Transform(ws_lightPos, rc.cam->GetViewMatrix()), _culledList[i]._posRange.w);	// OK
-		SVec4 mm = ClusterManager::getProjectedRectangle(viewPosRange, 1., 1000., rc.cam->GetProjectionMatrix());
-		// minX, minY, maxX, maxY in mm
-
-		SVec2 p = SVec2(mm.x, mm.w) + SVec2(1.f);	//-1, 1 to 0, 2
-		p *= 0.5f;		//0, 2 to 0, 1
-		p.y = 1. - p.y;	// flip y
-		p *= SVec2(1920., 1080.);
-
-		SVec2 s = SVec2(abs(mm.z - mm.x), abs(mm.w - mm.y)) * SVec2(1920., 1080.) * 0.5f;
-
-		ImVec2 pos(p.x, p.y);	//needs max y actually, so mm.z
-		ImVec2 size(s.x, s.y);
-
-		ImGui::PushID(i);
-
-		ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
-		ImGui::SetNextWindowSize(size, ImGuiCond_Always);
-
-		ImGui::Begin(windowName, false);
-		ImGui::End();
-
-		ImGui::PopID();
-	}
-#endif
-	
-	
-
 
 	UINT structureIndex;
 	if (_tdgui.renderBuildingPalette(structureIndex))

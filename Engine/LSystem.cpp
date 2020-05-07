@@ -281,24 +281,24 @@ namespace Procedural
 
 		for (auto&m : tree._meshes)
 		{
-			totalVerts += m.vertices.size();
-			totalInds += m.indices.size();
+			totalVerts += m._vertices.size();
+			totalInds += m._indices.size();
 		}
 			
-		finalMesh.vertices.reserve(totalVerts);
-		finalMesh.indices.reserve(totalInds);
+		finalMesh._vertices.reserve(totalVerts);
+		finalMesh._indices.reserve(totalInds);
 
 		for (auto&m : tree._meshes)
 		{
-			int accIndSize = finalMesh.vertices.size();
-			for (auto& ind : m.indices)
+			int accIndSize = finalMesh._vertices.size();
+			for (auto& ind : m._indices)
 				ind += accIndSize;
-			finalMesh.indices.insert(finalMesh.indices.end(), m.indices.begin(), m.indices.end());
-			finalMesh.vertices.insert(finalMesh.vertices.end(), m.vertices.begin(), m.vertices.end());
+			finalMesh._indices.insert(finalMesh._indices.end(), m._indices.begin(), m._indices.end());
+			finalMesh._vertices.insert(finalMesh._vertices.end(), m._vertices.begin(), m._vertices.end());
 		}
 		//finalMesh.setupMesh(device);
 		tree._meshes.clear();
-		tree._meshes.emplace_back(finalMesh.vertices, finalMesh.indices, finalMesh.textures, device, 0);
+		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh.textures, device, 0);
 		
 		return tree;
 	}
@@ -350,10 +350,10 @@ namespace Procedural
 			case 'S':	//create stalk
 
 				tempStalkMesh = stalkMesh;
-				for (int i = 0; i < stalkMesh.vertices.size(); ++i)
+				for (int i = 0; i < stalkMesh._vertices.size(); ++i)
 				{
-					tempStalkMesh.vertices[i].pos = SVec3::Transform(stalkMesh.vertices[i].pos, orientation);
-					tempStalkMesh.vertices[i].pos += nextPos;
+					tempStalkMesh._vertices[i].pos = SVec3::Transform(stalkMesh._vertices[i].pos, orientation);
+					tempStalkMesh._vertices[i].pos += nextPos;
 				}
 
 				result._meshes.push_back(tempStalkMesh);
@@ -361,10 +361,10 @@ namespace Procedural
 
 			case 'P':
 
-				for (int i = 0; i < petalMesh.vertices.size(); ++i)
+				for (int i = 0; i < petalMesh._vertices.size(); ++i)
 				{
-					tempPetalMesh.vertices[i].pos = SVec3::Transform(petalMesh.vertices[i].pos, orientation);
-					tempPetalMesh.vertices[i].pos += nextPos;
+					tempPetalMesh._vertices[i].pos = SVec3::Transform(petalMesh._vertices[i].pos, orientation);
+					tempPetalMesh._vertices[i].pos += nextPos;
 				}
 					
 				result._meshes.push_back(tempPetalMesh);

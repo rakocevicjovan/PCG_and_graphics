@@ -207,7 +207,7 @@ namespace Procedural
 	{
 		Mesh aligned = m;
 
-		for (auto& v : aligned.vertices)
+		for (auto& v : aligned._vertices)
 		{
 			v.pos.x += mc.x * _cellSize;
 			v.pos.z += mc.z * _cellSize;

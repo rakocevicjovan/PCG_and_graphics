@@ -174,13 +174,13 @@ HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform
 Hull* CollisionEngine::genBoxHull(Mesh* mesh, const SMatrix& transform, Collider* c)
 {
 	float minX, minY, minZ, maxX, maxY, maxZ;
-	auto pos = mesh->vertices[0].pos;
+	auto pos = mesh->_vertices[0].pos;
 
 	minX = maxX = pos.x;
 	minY = maxY = pos.y;
 	minZ = maxZ = pos.z;
 
-	for (const Vert3D& vert : mesh->vertices) 
+	for (const Vert3D& vert : mesh->_vertices) 
 	{
 		SVec3 pos = SVec3::Transform(vert.pos, transform);
 
@@ -209,13 +209,13 @@ Hull* CollisionEngine::genSphereHull(Mesh* mesh, const SMatrix& transform, Colli
 {
 	SVec3 center;
 	float radius = 0.f;
-	for (const Vert3D& v : mesh->vertices)
+	for (const Vert3D& v : mesh->_vertices)
 	{
 		center += v.pos;
 		radius = max(radius, v.pos.LengthSquared());
 	}
 
-	center /= (float)(mesh->vertices.size());
+	center /= (float)(mesh->_vertices.size());
 	radius = sqrt(radius);
 
 	SphereHull* sh = new SphereHull;

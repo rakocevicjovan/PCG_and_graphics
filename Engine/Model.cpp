@@ -94,8 +94,8 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 {
 	std::vector<SVec3> faceTangents;
 
-	mesh.vertices.reserve(aiMesh->mNumVertices);
-	mesh.indices.reserve(aiMesh->mNumFaces * 3);
+	mesh._vertices.reserve(aiMesh->mNumVertices);
+	mesh._indices.reserve(aiMesh->mNumFaces * 3);
 	faceTangents.reserve(aiMesh->mNumFaces);
 
 	bool hasTexCoords = aiMesh->mTextureCoords[0];
@@ -116,7 +116,7 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 		vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x * rUVx, aiMesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
 
-		mesh.vertices.push_back(vertex);
+		mesh._vertices.push_back(vertex);
 	}
 
 	maxDist = sqrt(maxDist);
@@ -129,10 +129,10 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 		//populate indices from faces
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			mesh.indices.push_back(face.mIndices[j]);
+			mesh._indices.push_back(face.mIndices[j]);
 
 		//calculate tangents for faces
-		faceTangents.push_back(calculateTangent(mesh.vertices, face));
+		faceTangents.push_back(calculateTangent(mesh._vertices, face));
 	}
 
 
@@ -143,11 +143,11 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 		
 		//assign face tangents to vertex tangents
 		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			mesh.vertices[face.mIndices[j]].tangent += faceTangents[i];
+			mesh._vertices[face.mIndices[j]].tangent += faceTangents[i];
 	}
 
 	//after the normalization step we have all the tangents properly calculated
-	for (Vert3D& vert : mesh.vertices)
+	for (Vert3D& vert : mesh._vertices)
 		vert.tangent.Normalize();
 
 	if (aiMesh->mMaterialIndex >= 0)
