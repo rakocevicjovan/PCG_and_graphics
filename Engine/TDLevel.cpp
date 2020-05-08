@@ -7,6 +7,8 @@
 #include "Shader.h"
 #include "Steering.h"
 
+#include "MeshDisplay.h"
+
 
 
 //Experimental
@@ -578,6 +580,8 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	_eco.renderEconomyWidget();
+
+	displayMesh(*(_creeps[0]._renderables[0].mesh), 0, 1);
 	
 	GUI::endGuiFrame();
 

@@ -853,6 +853,9 @@
     <ClInclude Include="BOBuffer.h">
       <Filter>Rendering\Buffers</Filter>
     </ClInclude>
+    <ClInclude Include="MeshDisplay.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

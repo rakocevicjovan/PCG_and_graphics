@@ -29,7 +29,6 @@ private:
 	
 	SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
 
-
 public:
 	std::vector<Mesh> _meshes;
 
@@ -40,35 +39,13 @@ public:
 	Model() {}
 	Model(const std::string& path);
 	Model(const Collider& collider, ID3D11Device* device);
-	Model(const Procedural::Terrain& terrain, ID3D11Device* device);
 	~Model();
+
+	// This should be inversed, model should not know about terrain
+	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1);
 
-	/*
-	template <class FlexibleShaderType>
-	void Draw(ID3D11DeviceContext* dc, FlexibleShaderType& shader)
-	{
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-
-	void DrawInstanced(ID3D11DeviceContext* dc, InstancedShader& shader)
-	{
-		for (unsigned int i = 0; i < this->meshes.size(); i++)
-			this->meshes[i].draw(dc, shader);
-	}
-	*/
-
-	/* 
-	//it seems that this is not compatible with the placement new... or at least not the way I tried it
-	//because placement new expects this same signature... so it's either or
-	void* operator new(size_t size)
-	{
-		std::cout << "MODEL NEW OVERRIDE!" << std::endl;
-		void* p = ::new Model();
-		return p;
-	}*/
 };
 
 

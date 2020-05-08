@@ -360,6 +360,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="LightManager.h" />
+    <ClInclude Include="MeshDisplay.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderGenerator.h" />

@@ -301,35 +301,3 @@ SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace&
 
 	return tangent;
 }
-
-
-
-//this is ~ O(n^2) where n = mesh->mNumVertices!!! Horrible way to do tangents!
-/*for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
-{
-	SVec3 vertTangent(0.f);
-	float found = 0.f;
-
-	for (unsigned int j = 0; j < mesh->mNumFaces; ++j)
-	{
-		//if face contains the vertex, add the tangent of the face to the vertex
-		if (mesh->mFaces[j].mIndices[0] == i || mesh->mFaces[j].mIndices[1] == i || mesh->mFaces[j].mIndices[2] == i)
-		{
-			vertTangent += faceTangents[j];
-			found += 1.0f;
-		}
-	}
-
-	if (found > 0.0001f)
-		vertices[i].tangent = found > 0.0f ? vertTangent /= found : vertTangent;
-}*/
-
-/*	part of resource now
-	//directory = path.substr(0, path.find_last_of('/'));
-	//name = path.substr(path.find_last_of('/') + 1, path.size());
-*/
-
-//aiVector3D temp = parentTransform * aiVector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-//vertex.pos = SVec3(temp.x, temp.y, temp.z);
-//aiVector3D tempNormals = parentTransform * aiVector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-//vertex.normal = SVec3(tempNormals.x, tempNormals.y, tempNormals.z);
