@@ -1,8 +1,14 @@
 #pragma once
 #include <fstream>
 #include <sstream>
-#include <dirent.h>
+#include <iostream>
+
 #include <string>
+
+#include <filesystem>
+#include <dirent.h>	// Using 17 now so not necessary?
+
+
 
 namespace FileUtils
 {
@@ -15,11 +21,15 @@ namespace FileUtils
 		return buffer.str();
 	}
 
+
+
 	inline static bool fileExists(const std::string& name)
 	{
 		std::ifstream f(name.c_str());
 		return f.good();
 	}
+
+
 
 	static void writeToFile(const std::string& fileName, void* data, size_t size)
 	{
@@ -27,5 +37,30 @@ namespace FileUtils
 		fout.open(fileName, std::ios::binary | std::ios::out);
 		fout.write(reinterpret_cast<char*>(data), size);
 		fout.close();
+	}
+
+
+
+	static void printFolderContents(const std::string& path)
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+		{
+			std::cout << entry.path().string() << std::endl;
+		}
+	}
+
+
+
+	static bool getFolderContents(const std::string& path, std::vector<std::string>& contents)
+	{
+		if (!std::filesystem::is_directory(path))
+			return false;
+
+		for (const auto& entry : std::filesystem::directory_iterator(path))
+		{
+			contents.push_back(entry.path().filename().string());
+		}
+
+		return true;
 	}
 }

@@ -856,6 +856,12 @@
     <ClInclude Include="MeshDisplay.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Editor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorLayout.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

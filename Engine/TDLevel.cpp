@@ -7,8 +7,6 @@
 #include "Shader.h"
 #include "Steering.h"
 
-#include "MeshDisplay.h"
-
 
 
 //Experimental
@@ -19,7 +17,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 TDLevel::TDLevel(Systems& sys) 
 	: Level(sys), _scene(S_RANDY, S_SHCACHE, S_MATCACHE, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
-
+	_editor = Editor(S_WW, S_WH, S_RESMAN.getProjectLoader().getProjDir());
 };
 
 
@@ -129,7 +127,6 @@ void TDLevel::init(Systems& sys)
 		for (Renderable& r : _creeps[i]._renderables)
 			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), pLight);
 
-		//_scene._octree.insertObject(static_cast<SphereHull*>(_creeps[i]._collider.getHull(0)));
 		for (Hull* h : _creeps[i]._collider.getHulls())
 			_scene._octree.insertObject(static_cast<SphereHull*>(h));
 
@@ -314,7 +311,6 @@ void TDLevel::handleInput(const Camera* cam)
 				_selectedBuilding = rayPickBuildings(cam);
 			}
 			break;
-		
 
 		case InputEventTD::STOP_BUILDING:
 			_inBuildingMode = false;
@@ -581,7 +577,11 @@ void TDLevel::draw(const RenderContext& rc)
 
 	_eco.renderEconomyWidget();
 
-	displayMesh(*(_creeps[0]._renderables[0].mesh), 0, 1);
+
+	// Editor code
+	displayMesh(*(_creeps[0]._renderables[0].mesh));
+
+	_editor.display();
 	
 	GUI::endGuiFrame();
 

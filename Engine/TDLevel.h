@@ -21,6 +21,8 @@
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
 
+#include "Editor.h"
+
 
 
 class TDLevel : public Level
@@ -99,6 +101,8 @@ private:
 	
 	// Simple economy class
 	Economy _eco;
+
+	Editor _editor;
 
 #define DEBUG_OCTREE_NOT
 
