@@ -1,4 +1,5 @@
 #pragma once
+#include <deque>
 #include "MeshDisplay.h"
 #include "EditorLayout.h"
 #include "Math.h"
@@ -8,10 +9,15 @@ class Editor
 {
 private:
 
-	std::string _projRoot;
+	uint8_t MAX_UNDOS = 8u;
 
-	std::string _curDirPath;
-	std::vector<std::string> _contents;
+	std::string _projRoot;
+	std::string _searchedString;
+
+	std::filesystem::path _curDirPath;
+
+	std::deque<std::filesystem::path> _pathHistory;
+	std::vector<std::string> _autocomplete;
 
 	EditorLayout _layout;
 	float _w, _h;
@@ -21,8 +27,14 @@ public:
 	Editor() {}
 
 	Editor(float w, float h, const std::string& projRoot) 
-		: _w(w), _h(h), _layout(w, h), _curDirPath(projRoot), _projRoot(projRoot)
-	{}
+		: _w(w), _h(h), _layout(w, h), _searchedString(projRoot), _projRoot(projRoot)
+	{
+		_curDirPath = std::filesystem::path(projRoot);
+
+		_pathHistory.push_front(_curDirPath);
+
+		openDir(_curDirPath);
+	}
 
 
 
@@ -31,70 +43,138 @@ public:
 		ImGui::SetNextWindowPos(_layout._assetListPos);
 		ImGui::SetNextWindowSize(_layout._assetListSize);
 
-		ImGui::Begin("Asset list");
-
-		
-		ImGui::InputTextWithHint("Folder", "ayy lmao", _curDirPath.data(), _curDirPath.capacity() + 1, 
-			ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
-			[](ImGuiInputTextCallbackData* data)->int
-				{
-					std::string* str = static_cast<std::string*>(data->UserData);
-					IM_ASSERT(data->Buf == str->data());
-					str->resize(data->BufTextLen);
-					data->Buf = str->data();	
-					return 0; 
-				},
-			&_curDirPath
-		);
-
-		if (ImGui::Button("Seek"))
+		if (ImGui::Begin("Asset list"))
 		{
-			_contents.clear();
-			FileUtils::getFolderContents(_curDirPath, _contents);
-		}
 
-		ImGui::SameLine();
+			//for (auto& acpl : _autocomplete)
+				//ImGui::Text(acpl.c_str());
 
-		if (ImGui::Button("Back"))
-		{
-			_curDirPath = _curDirPath.substr(0., _curDirPath.find_last_of("\\/") + 1);
-			_contents.clear();
-			FileUtils::getFolderContents(_curDirPath, _contents);
-		}
+			//ImGui::BeginChild("Search");
 
-
-		ImGui::ListBoxHeader("Contents");
-
-		for (int i = 0; i < _contents.size(); i++)
-		{
-			//ImGui::Text(_contents[i].c_str());
-			if (ImGui::Button(_contents[i].c_str()))
+			if (ImGui::InputTextWithHint("Folder", "Search for assets", _searchedString.data(), _searchedString.capacity() + 1,
+				ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
+				[](ImGuiInputTextCallbackData* data)->int
 			{
-				_curDirPath.append(_contents[i]);
-				_contents.clear();
-				FileUtils::getFolderContents(_curDirPath, _contents);
+				std::string* str = static_cast<std::string*>(data->UserData);
+				IM_ASSERT(data->Buf == str->data());
+				str->resize(data->BufTextLen);
+				data->Buf = str->data();
+				return 0;
+			}, &_searchedString))
+			{
+				seek();
 			}
+
+
+			if (ImGui::Button("Seek"))
+			{
+				seek();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Up"))
+			{
+				openDir(_curDirPath.parent_path());
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Back"))
+			{
+				stepBack();
+			}
+
+			//ImGui::EndChild();
+
+
+			ImGui::ListBoxHeader("Contents");
+
+			std::filesystem::directory_iterator dirIter(_curDirPath);
+
+			for (const std::filesystem::directory_entry& de : dirIter)	//for (int i = 0; i < _contents.size(); i++)
+			{
+				if (ImGui::Button(de.path().filename().string().data()))	//ImGui::Button(_contents[i].c_str())
+				{
+					if (de.is_directory())
+						openDir(de.path());
+				}
+			}
+			ImGui::ListBoxFooter();
+
 		}
-
-		ImGui::ListBoxFooter();
-
 		ImGui::End();
 
 
+		// List of objects in a level
 		ImGui::SetNextWindowPos(_layout._objListPos);
 		ImGui::SetNextWindowSize(_layout._objListSize);
 
-		ImGui::Begin("Object list");
-		ImGui::ListBoxHeader("Objeccs");
-		ImGui::ListBoxFooter();
+		if (ImGui::Begin("Object list"))
+		{
+			ImGui::ListBoxHeader("Objeccs");
+			ImGui::ListBoxFooter();
+		}
 		ImGui::End();
 
 
+		// Selected item preview 
 		ImGui::SetNextWindowPos(_layout._previewPos);
 		ImGui::SetNextWindowSize(_layout._previewSize);
 
-		ImGui::Begin("Preview selected");
-		ImGui::End();
+		//if (ImGui::Begin("Selected")){}ImGui::End();
+	}
+
+
+	void seek()
+	{
+		std::filesystem::path newPath(_searchedString);
+
+		if (std::filesystem::is_directory(newPath))
+		{
+			openDir(newPath);
+		}
+		else
+		{
+			// Do what? Popups are clunky and I don't like them!
+			ImGui::BeginTooltip();
+			ImGui::Text("Invalid path");
+			ImGui::EndTooltip();
+		}
+	}
+
+
+
+	void openDir(const std::filesystem::path& newPath)
+	{
+		if (_pathHistory.size() == MAX_UNDOS)
+			_pathHistory.pop_front();
+
+		_pathHistory.push_back(_curDirPath);
+		_curDirPath = newPath;
+
+		_searchedString = _curDirPath.string();
+
+		_autocomplete.clear();
+		FileUtils::getDirContentsAsStrings(newPath.string(), _autocomplete);
+	}
+
+
+
+	bool stepBack()
+	{
+		if (_pathHistory.empty())
+			return false;
+
+		_curDirPath = _pathHistory.back();
+		_pathHistory.pop_back();
+
+		_searchedString = _curDirPath.string();
+
+		_autocomplete.clear();
+		FileUtils::getDirContentsAsStrings(_curDirPath.string(), _autocomplete);
+
+		return true;
 	}
 
 };

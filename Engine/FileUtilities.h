@@ -41,7 +41,7 @@ namespace FileUtils
 
 
 
-	static void printFolderContents(const std::string& path)
+	static void printDirContents(const std::string& path)
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(path))
 		{
@@ -51,7 +51,7 @@ namespace FileUtils
 
 
 
-	static bool getFolderContents(const std::string& path, std::vector<std::string>& contents)
+	static bool getDirContentsAsStrings(const std::string& path, std::vector<std::string>& contents)
 	{
 		if (!std::filesystem::is_directory(path))
 			return false;
@@ -62,5 +62,12 @@ namespace FileUtils
 		}
 
 		return true;
+	}
+
+
+
+	static std::filesystem::directory_iterator getDirIterator(const std::string& path)
+	{
+		return std::filesystem::directory_iterator(path);
 	}
 }
