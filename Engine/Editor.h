@@ -1,6 +1,6 @@
 #pragma once
 #include <deque>
-#include "MeshDisplay.h"
+#include "ActorDisplay.h"
 #include "EditorLayout.h"
 #include "Math.h"
 #include "FileUtilities.h"
@@ -118,12 +118,17 @@ public:
 		ImGui::SetNextWindowPos(_layout._objListPos);
 		ImGui::SetNextWindowSize(_layout._objListSize);
 
-		if (ImGui::Begin("Object list"))
+		if (ImGui::Begin("Actor list"))
 		{
 			ImGui::ListBoxHeader("Objeccs");
 
-			// this won't be possible until level structure is well defined
-			//for (int i = 0; i < objects.size(); i++) objects[i].display();	
+			for (int i = 0; i < actors.size(); i++)
+			{
+				ImGui::PushID(i);
+				displayActor(*actors[i]);
+				ImGui::PopID();
+			}
+				
 
 			ImGui::ListBoxFooter();
 		}

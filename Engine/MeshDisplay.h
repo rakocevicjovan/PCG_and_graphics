@@ -7,7 +7,6 @@
 
 static void displayVertex(Vert3D& v)
 {
-	//ImGui::Text("P: %.2f, %.2f, %.2f; T: %.2f, %.2f; N: %.2f, %.2f, %.2f", v.pos.x, v.pos.y, v.pos.z, v.texCoords.x, v.texCoords.y, v.normal.x, v.normal.y, v.normal.z);
 	ImGui::Text("P: %.2f, %.2f, %.2f", v.pos.x, v.pos.y, v.pos.z);
 	ImGui::SameLine();
 	ImGui::Text("T: %.2f, %.2f", v.texCoords.x, v.texCoords.y);
@@ -30,9 +29,32 @@ static void displayTransform(SMatrix& m)
 }
 
 
+
+static void displayMaterial(Material& mat)
+{
+	ImGui::Text("Shaders: ");
+	std::string vsName(mat.getVS()->_path.begin(), mat.getVS()->_path.end());
+	ImGui::Text(vsName.c_str());
+
+	std::string psName(mat.getPS()->_path.begin(), mat.getPS()->_path.end());
+	ImGui::Text(psName.c_str());
+
+	ImGui::Text("Textures");
+	for (int i = 0; i < mat._texDescription.size(); i++)
+	{
+		ImGui::Text(TEX_ROLE_MAP.at(mat._texDescription[i]._role));
+		ImGui::SameLine();
+		ImGui::Text(mat._texDescription[i]._tex->getName().c_str());
+	}
+
+	ImGui::Text("Opaque: " + mat._opaque);
+}
+
+
+
 static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 {
-	ImGui::Begin("Mesh");
+	ImGui::Text("Mesh");
 
 	// Vertices
 	if (dVerts)
@@ -62,5 +84,5 @@ static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 
 	displayTransform(mesh._transform);
 
-	ImGui::End();
+	ImGui::Separator();
 }

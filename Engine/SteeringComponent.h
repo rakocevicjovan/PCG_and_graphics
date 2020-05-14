@@ -65,7 +65,7 @@ public:
 
 		_totalInfluence.Normalize();
 
-		Math::Translate(_parent->transform, _totalInfluence * _mspeed * dTime);
+		Math::Translate(_parent->_transform, _totalInfluence * _mspeed * dTime);
 		_totalInfluence = SVec3::Zero;
 	}
 };
