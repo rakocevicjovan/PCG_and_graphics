@@ -1,7 +1,6 @@
 #pragma once
 #include "Light.h"
 #include "PoolAllocator.h"
-#include "StackAllocator.h"
 #include "Frustum.h"
 #include "ColFuncs.h"
 #include <list>
@@ -39,22 +38,22 @@ private:
 	PoolAllocator<PLight> _plPool;
 	PoolAllocator<SLight> _slPool;
 
-	// For per frame allocations, we use a stack allocator - there will be no random deletions so it's the fastest option
-	// Not quite sure if this is the best way to do it, I could avoid copying them as well...
-	StackAllocator _pfPointPool;
-	StackAllocator _pfSpotPool;
+	std::vector<PLight> _culledPLs;
+	std::vector<SLight> _culledSLs;
 
 
 
 public:
 
+	// Last two values are not too important, light manager will reserve that many slots for culled point/spot lights per frame
+	// and the implementation lets that grow
 	LightManager(uint16_t maxDirLights, uint16_t maxPointLights, uint16_t maxSpotLights, uint16_t frPLights, uint16_t frSLights) :
 		_dlPool(maxDirLights),
 		_plPool(maxPointLights),
 		_slPool(maxSpotLights)
 	{
-		_pfPointPool.init(sizeof(PLight) * frPLights);
-		_pfSpotPool.init(sizeof(SLight) * frSLights);
+		_culledPLs.reserve(frPLights);
+		_culledSLs.reserve(frPLights);
 
 		sizeof(PlPoolStruct);
 		sizeof(SlPoolStruct);
@@ -114,7 +113,8 @@ public:
 		{
 			if (Col::FrustumSphereIntersection(frustum, SphereHull(p->_posRange)))
 			{
-				memcpy(_pfPointPool.alloc(sizeof(PLight)), p, sizeof(PLight));
+				//memcpy(_culledPLs.alloc(sizeof(PLight)), p, sizeof(PLight));	No need for a stack allocator, complicates things
+				_culledPLs.push_back(*p);
 			}
 		}
 
@@ -122,43 +122,31 @@ public:
 		{
 			if(Col::FrustumConeIntersection(frustum, Cone(s->_posRange, SVec3(s->_dirCosTheta), s->_radius)))
 			{
-				memcpy(_pfSpotPool.alloc(sizeof(SLight)), s, sizeof(SLight));
+				//memcpy(_culledSLs.alloc(sizeof(SLight)), s, sizeof(SLight));
+				_culledSLs.push_back(*s);
 			}
 		}
 	}
 
 
 
-	inline PLight* getVisiblePointLightArray() const
+	inline const std::vector<PLight>& getCulledPointLights() const
 	{
-		return reinterpret_cast<PLight*>(_pfPointPool.getStackPtr());
-	}
-
-	inline UINT getVisiblePointLightCount() const
-	{
-		//for (auto i = _pfPointPool.getStackPtr(); i < _pfPointPool.getHeadPtr(); i += sizeof(PLight))
-		return (_pfPointPool.getHeadPtr() - _pfPointPool.getStackPtr()) / sizeof(PLight);
+		return _culledPLs;		//return reinterpret_cast<PLight*>(_culledPLs.getStackPtr());
 	}
 
 
 
-	inline SLight* getVisibleSpotLightArray() const
+	inline const std::vector<SLight>& getCulledSpotLights() const
 	{
-		return reinterpret_cast<SLight*>(_pfSpotPool.getStackPtr());
-	}
-
-	inline UINT getVisibleSpotLightCount() const
-	{
-		//for (auto i = _pfSpotPool.getStackPtr(); i < _pfSpotPool.getHeadPtr(); i += sizeof(SLight))
-		return (_pfSpotPool.getHeadPtr() - _pfSpotPool.getStackPtr()) / sizeof(SLight);
+		return _culledSLs;
 	}
 
 
 
 	inline void resetPerFramePools()
 	{
-		_pfPointPool.clear();
-		_pfSpotPool.clear();
+		_culledPLs.clear();
+		_culledSLs.clear();
 	}
-
 };

@@ -9,13 +9,12 @@
 
 
 
-//Experimental
-//#include "ShaderGenerator.h"
-
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
+
+
 TDLevel::TDLevel(Systems& sys) 
-	: Level(sys), _scene(S_RANDY, S_SHCACHE, S_MATCACHE, AABB(SVec3(), SVec3(500.f * .5)), 5)
+	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
 	_editor = Editor(S_WW, S_WH, S_RESMAN.getProjectLoader().getProjDir());
 };
@@ -40,8 +39,6 @@ void TDLevel::init(Systems& sys)
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
 	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
-
-
 
 	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
@@ -72,33 +69,29 @@ void TDLevel::init(Systems& sys)
 
 	/// DEBUG
 
-	_lightList.resize(16);	//10, 100... do tests
-	for (int i = 0; i < _lightList.size(); ++i)
+	std::vector<PLight> lightList(16);
+
+	for (int i = 0; i < lightList.size(); ++i)
 	{
-		// x increases 0-10 over and over, y increases once every 10
-		//SVec4 pos = SVec4(i % 10, .1f, (i / 10), .9f) * 10.f; //+ SVec4(0., 0., 0., 0.);
 		SVec3 pos = SVec3(i % 4, .0f, i / 4) * 50.f + SVec3(0, 10., 0.f);
-		_lightList[i] = PLight(Math::getNormalizedVec3(SVec3(i % 2, (i / 2) % 2, ((16 - i) / 4))), 100., SVec3(&pos.x));
+		lightList[i] = PLight(Math::getNormalizedVec3(SVec3(i % 2, (i / 2) % 2, ((16 - i) / 4))), 100., SVec3(&pos.x));
+		_scene._lightManager.get()->addPointLight(lightList[i]);
 	}
 
-	
-	SMatrix dbgSphMat = SMatrix::CreateScale(_lightList[0]._posRange.w);
-	Math::SetTranslation(dbgSphMat, SVec3(&_lightList[0]._posRange.x));
+	// Dissect this and similar init-s for assets, it's not tolerable, all needs to go data driven!
+	SMatrix dbgSphMat = SMatrix::CreateScale(lightList[0]._posRange.w);
+	Math::SetTranslation(dbgSphMat, SVec3(&lightList[0]._posRange.x));
 
 	Renderable dbgRenderable(S_RESMAN.getByName<Model>("Skysphere")->_meshes[0]);	//, _lightList[0]._posRange.w
 	dbgRenderable.mat = new Material(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), true);
 	dbgRenderable.mat->pLight = &pLight;
 
-	debugSphereActor.addRenderable(dbgRenderable, _lightList[0]._posRange.w);
+	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
 	debugSphereActor._renderables.back()._transform = dbgSphMat;
-
 
 	debugSphereActor._renderables[0].mat->_texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
 	
 	///
-
-
-
 
 
 	// Initialize navigation grid
@@ -460,33 +453,18 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
-	_culledList.clear();
-	for (int i = 0; i < _lightList.size(); ++i)
-	{
-		if (Col::FrustumSphereIntersection(rc.cam->_frustum, SphereHull(_lightList[i]._posRange)))
-			_culledList.push_back(_lightList[i]);
-	}
-
-	S_RANDY._clusterManager->assignLights(_culledList, *(rc.cam), _sys._threadPool);
-	S_RANDY._clusterManager->upload(S_CONTEXT, _culledList);
 
 	if (_inBuildingMode)
 	{
-		//_templateBuilding->render(S_RANDY);
 		for (Renderable& r : _templateBuilding->_renderables)
 			S_RANDY.addToRenderQueue(r);
 	}
 
 	for (Building* building : _structures)
 	{
-		//building->render(S_RANDY);
 		for (Renderable& r : building->_renderables)
 			S_RANDY.addToRenderQueue(r);
 	}
-
-	/// DEBUG
-	//for (Renderable& r : debugSphereActor._renderables)
-		//S_RANDY.addToRenderQueue(r);
 
 	_scene.draw();
 

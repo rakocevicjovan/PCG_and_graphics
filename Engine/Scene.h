@@ -15,6 +15,7 @@ private:
 	Renderer& _renderer;
 	ShaderCache& _shCache;
 	MaterialCache& _matCache;
+	Systems& _sys;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -41,25 +42,23 @@ public:
 
 	std::vector<Actor*> _actors;
 
-
-
 	Scene(
-		Renderer& renderer,
-		ShaderCache& shCache,
-		MaterialCache& matCache,
+		Systems& sys,
 		const AABB& scope, 
 		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:
-		_renderer(renderer),
-		_shCache(shCache),
-		_matCache(matCache),
+		_renderer(sys._renderer),
+		_shCache(sys._shaderCache),
+		_matCache(sys._matCache),
+		_sys(sys),
 		_octree(scope, subdivLevels),
 		_numCulled(0u)
 	{
+		
 		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
 		_litObjectPool.reserve(20);
 
-		_octree.preallocateRootOnly();	//_oct.preallocateTree();	
+		_octree.preallocateRootOnly();
 	}
 
 
@@ -92,6 +91,8 @@ public:
 	{
 		frustumCullScene(_renderer._cam);
 
+		illuminate(_renderer._cam);
+
 		_renderer.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
 
 		// CSM code
@@ -104,7 +105,7 @@ public:
 		{
 			_csm.beginShadowPassN(_renderer.context(), i);
 
-			//_csm.drawToCurrentShadowPass(_renderer.context(), floorRenderable);	//just add it to the actor list instead
+			// add floor renderable to the actor list instead
 
 			frustumCull(_csm.getNthFrustum(i), _visibleActors, _shadowVisibleActors);
 
@@ -172,36 +173,14 @@ public:
 		_lightManager->cullLights(c._frustum);
 
 		// For every point light
-		PLight* p = _lightManager->getVisiblePointLightArray();
-		for (int i = 0; i < _lightManager->getVisiblePointLightCount(); i++)
-		{
-			PLight cpl = p[i];
+		auto culledPLs = _lightManager->getCulledPointLights();
 
-			// Obtain the list of actors lit by this point light
-			_octree.findWithin(SVec3(cpl._posRange), cpl._posRange.w, _litObjectPool);	// Searches the whole tree... seems unnecessary!
+		_renderer._clusterManager->assignLights(culledPLs, c, _sys._threadPool);
+		_renderer._clusterManager->upload(S_CONTEXT, culledPLs);
 
-			for (Actor*& a : _litObjectPool)
-				a->_pLights.push_back(&cpl);	// Seems bad but it will resize to practical max soon, plus usually should be small
 
-			_litObjectPool.clear();	// Reset the list
-		}
-
-		
 		// For every spot light
-		SLight* s = _lightManager->getVisibleSpotLightArray();
-		for (int i = 0; i < _lightManager->getVisiblePointLightCount(); i++)
-		{
-			SLight csl = s[i];
-
-			// Obtain the list of actors lit by this spot light
-			// @TODO MAKE IT USE THE CONE TEST NOT SPHERE THIS GIVES FALSE POSITIVES
-			_octree.findWithin(SVec3(csl._posRange), csl._posRange.w, _litObjectPool);
-
-			for (Actor*& a : _litObjectPool)
-				a->_sLights.push_back(&csl);
-
-			_litObjectPool.clear();	// Reset the list
-		}
+		// Well, implement spot light culling eventually...
 
 	}
 

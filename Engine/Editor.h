@@ -22,9 +22,14 @@ private:
 	EditorLayout _layout;
 	float _w, _h;
 
+
 public:
 
+
+
 	Editor() {}
+
+
 
 	Editor(float w, float h, const std::string& projRoot) 
 		: _w(w), _h(h), _layout(w, h), _searchedString(projRoot), _projRoot(projRoot)
@@ -38,7 +43,7 @@ public:
 
 
 
-	void display()
+	void display()	//std::vector<GameObject>& objects
 	{
 		ImGui::SetNextWindowPos(_layout._assetListPos);
 		ImGui::SetNextWindowSize(_layout._assetListSize);
@@ -113,6 +118,10 @@ public:
 		if (ImGui::Begin("Object list"))
 		{
 			ImGui::ListBoxHeader("Objeccs");
+
+			// this won't be possible until level structure is well defined
+			//for (int i = 0; i < objects.size(); i++) objects[i].display();	
+
 			ImGui::ListBoxFooter();
 		}
 		ImGui::End();
@@ -122,7 +131,11 @@ public:
 		ImGui::SetNextWindowPos(_layout._previewPos);
 		ImGui::SetNextWindowSize(_layout._previewSize);
 
-		//if (ImGui::Begin("Selected")){}ImGui::End();
+		if (ImGui::Begin("Selected"))
+		{
+		
+		}
+		ImGui::End();
 	}
 
 
