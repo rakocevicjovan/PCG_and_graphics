@@ -17,6 +17,19 @@ static void displayVertex(Vert3D& v)
 
 
 
+static void displayTransform(SMatrix& m)
+{
+	ImGui::Text("Transform");
+
+	ImGui::InputFloat4("X", &m.m[0][0], 2);
+	ImGui::InputFloat4("Y", &m.m[1][0], 2);
+	ImGui::InputFloat4("Z", &m.m[2][0], 2);
+	ImGui::InputFloat4("T", &m.m[3][0], 2);
+
+	ImGui::Separator();
+}
+
+
 static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 {
 	ImGui::Begin("Mesh");
@@ -47,16 +60,7 @@ static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 		ImGui::Separator();
 	}
 
-
-	// Transform
-	ImGui::Text("Transform");
-
-	ImGui::InputFloat4("X", &mesh._transform.m[0][0], 2);
-	ImGui::InputFloat4("Y", &mesh._transform.m[1][0], 2);
-	ImGui::InputFloat4("Z", &mesh._transform.m[2][0], 2);
-	ImGui::InputFloat4("T", &mesh._transform.m[3][0], 2);
-
-	ImGui::Separator();
+	displayTransform(mesh._transform);
 
 	ImGui::End();
 }

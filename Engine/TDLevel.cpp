@@ -278,7 +278,7 @@ void TDLevel::rayPickTerrain(const Camera* cam)
 	Col::RayPlaneIntersection(ray, SVec3(0, 0, 0), SVec3(1, 0, 0), SVec3(0, 0, 1), POI);
 
 	SVec3 snappedPos = _navGrid.snapToCell(POI);
-	Math::SetTranslation(_templateBuilding->transform, snappedPos);
+	Math::SetTranslation(_templateBuilding->_transform, snappedPos);
 }
 
 
@@ -312,7 +312,7 @@ void TDLevel::handleInput(const Camera* cam)
 		case InputEventTD::RESET_CREEPS:
 			for (int i = 0; i < _creeps.size(); ++i)
 			{
-				Math::SetTranslation(_creeps[i].transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
+				Math::SetTranslation(_creeps[i]._transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
 				_creeps[i]._steerComp._active = true;
 				_creeps[i].revive();
 			}
@@ -442,7 +442,7 @@ void TDLevel::steerEnemies(float dTime)
 		float h = terrain.getHeightAtPosition(_creeps[i].getPosition());
 		float intervalPassed = fmod(_sys._clock.TotalTime() * 5.f + i * 2.f, 10.f);
 		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
-		Math::setHeight(_creeps[i].transform, h + 2 * sway + FLYING_HEIGHT);
+		Math::setHeight(_creeps[i]._transform, h + 2 * sway + FLYING_HEIGHT);
 
 		//propagate transforms to children
 		_creeps[i].propagate();
@@ -525,7 +525,6 @@ void TDLevel::draw(const RenderContext& rc)
 
 
 	GUI::startGuiFrame();
-	//S_SHCACHE.getVertShader("csmVS")
 
 	std::vector<GuiElement> guiElems =
 	{
@@ -555,11 +554,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	_eco.renderEconomyWidget();
 
-
-	// Editor code
-	displayMesh(*(_creeps[0]._renderables[0].mesh));
-
-	_editor.display();
+	_editor.display(_scene._actors);
 	
 	GUI::endGuiFrame();
 

@@ -1,8 +1,11 @@
 #include "ResourceManager.h"
 
+
+
 ResourceManager::ResourceManager()// : _stackAllocator(1024 * 1024 * 100)
 {
 }
+
 
 
 ResourceManager::~ResourceManager()
@@ -24,16 +27,12 @@ void ResourceManager::init(ID3D11Device* device)
 
 
 
-void ResourceManager::pushLevel(int i)
+void ResourceManager::loadLevel(int i)
 {
 	_levelReader.loadLevel(_projLoader.getLevelList()[i]);
 
 	const std::vector<ResourceDef>& resDefs = _levelReader.getLevelResourceDefs();
 	_resourceMap.reserve(resDefs.size());
-
-	//@TODO check if already loaded by path... all of this is very confusing for now but basically 
-	//there is a need to separate ref counting and actual allocation...
-
 
 	for (int i = 0; i < resDefs.size(); ++i)
 	{
@@ -48,23 +47,19 @@ void ResourceManager::pushLevel(int i)
 
 		if (resDefs[i].type == ResType::MESH)
 		{
-			Resource* temp = new (_stackAllocator.getHeadPtr()) Model();
+			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
 			temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Model*>(temp)->LoadModel(_device, _projLoader.getProjDir() + resDefs[i].path);
-
 			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
-			_stackAllocator.alloc(sizeof(Model));
 		}
 		else if (resDefs[i].type == ResType::TEXTURE)
 		{
-			Resource *temp = new (_stackAllocator.getHeadPtr()) Texture(_projLoader.getProjDir() + resDefs[i].path);
+			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(_projLoader.getProjDir() + resDefs[i].path);
 			temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Texture*>(temp)->SetUpAsResource(_device);
-
 			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
-			_stackAllocator.alloc(sizeof(Texture));
 		}
 		
 	}

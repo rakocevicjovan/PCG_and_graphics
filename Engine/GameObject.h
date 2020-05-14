@@ -21,39 +21,38 @@ public:
 class Actor : public GameObject
 {
 private:
-	//void copyShenanigans(const Actor& other);
 	
 public:
 
+	SMatrix _transform;
+	Collider _collider;
+	std::vector<Renderable> _renderables;
+	SteeringComponent<Actor> _steerComp;
+
 	Actor* parent;
 
-	SMatrix transform;
-	std::vector<Renderable> _renderables;
-	Collider _collider;
-	SteeringComponent<Actor> _steerComp;
-	std::vector<PLight*> _pLights;
-	std::vector<SLight*> _sLights;
-
-
-
 	Actor() : _steerComp(this), _collider(this) {};
+
 	Actor(Model* model, SMatrix& transform = SMatrix());
 	Actor(const Actor& other);
 	virtual ~Actor() {};
 
+	void propagate();
+
 	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
 	void addRenderable(const Renderable& renderable, float r);
-	void propagate();
+	void addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward);
 	void render(const Renderer& r) const;
+	
 
-	inline SVec3 getPosition() const { return transform.Translation(); }
+	inline SVec3 getPosition() const { return _transform.Translation(); }
 
 	inline Hull* getBoundingHull(UINT index)
 	{
 		return _collider.getHull(index);
 	}
 
-	void addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward);
+	
 };
 
 
@@ -76,11 +75,11 @@ public:
 	void UpdateCamTP(float dTime)
 	{
 		SMatrix camMat = cam.GetCameraMatrix();
-		con.processTransformationTP(dTime, a.transform, camMat);
+		con.processTransformationTP(dTime, a._transform, camMat);
 		cam.SetCameraMatrix(camMat);
 	}
 
-	inline SVec3 getPosition() { return a.transform.Translation(); }
+	inline SVec3 getPosition() { return a._transform.Translation(); }
 
 	void setCamera(Camera& camera) { cam = camera; }
 };

@@ -25,7 +25,7 @@ public:
 	~ResourceManager();
 
 	void init(ID3D11Device*);
-	void pushLevel(int i);
+	void loadLevel(int i);
 	void popLevel(int i);
 
 	ProjectLoader& getProjectLoader() { return _projLoader; }

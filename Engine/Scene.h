@@ -4,7 +4,6 @@
 #include "Octree.h"
 #include "Renderer.h"
 #include "CSM.h"
-#include "ComputeShader.h"
 #include <memory>
 
 #define DEFAULT_SUBDIV_LEVELS 4u
@@ -20,10 +19,9 @@ private:
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
 
+	// Temporary data created and discarded per frame
 	std::vector<Actor*> _visibleActors;
 	std::vector<Actor*> _shadowVisibleActors;
-
-	std::vector<Actor*> _litObjectPool;
 
 	// Acceleration structures (octrees/quadtrees)
 
@@ -56,7 +54,6 @@ public:
 	{
 		
 		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
-		_litObjectPool.reserve(20);
 
 		_octree.preallocateRootOnly();
 	}
@@ -181,13 +178,6 @@ public:
 
 		// For every spot light
 		// Well, implement spot light culling eventually...
-
-	}
-
-
-
-	void Scene::cluster(ComputeShader& cs)
-	{
 
 	}
 

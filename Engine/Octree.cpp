@@ -303,12 +303,12 @@ void Octree::testAllCollisions(OctNode *pNode)
 					if (spA->_collider->dynamic)
 					{
 						spA->setPosition(spA->getPosition() + hr.resolutionVector * .5);
-						Math::SetTranslation(spA->_collider->_parent->transform, spA->getPosition());
+						Math::SetTranslation(spA->_collider->_parent->_transform, spA->getPosition());
 					}
 					if (spB->_collider->dynamic)
 					{
 						spB->setPosition(spB->getPosition() - hr.resolutionVector * .5);
-						Math::SetTranslation(spB->_collider->_parent->transform, spB->getPosition());
+						Math::SetTranslation(spB->_collider->_parent->_transform, spB->getPosition());
 					}
 				}
 			}

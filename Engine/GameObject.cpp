@@ -4,7 +4,7 @@
 
 
 Actor::Actor(Model* model, SMatrix& transform) 
-	: _steerComp(this), transform(transform), _collider(Collider(BoundingVolumeType::BVT_SPHERE, this, true))
+	: _steerComp(this), _transform(transform), _collider(Collider(BoundingVolumeType::BVT_SPHERE, this, true))
 {
 	_renderables.reserve(model->_meshes.size());
 
@@ -24,7 +24,7 @@ Actor::Actor(Model* model, SMatrix& transform)
 Actor::Actor(const Actor& other) 
 	: _steerComp(other._steerComp), _collider(Collider(other._collider.BVT, this, other._collider.dynamic))
 {
-	transform = other.transform;
+	_transform = other._transform;
 
 	for (Hull* sp : other._collider.getHulls())
 		_collider.addHull(new SphereHull(sp->getPosition(), sp->getExtent()));
@@ -52,7 +52,7 @@ void Actor::propagate()
 {
 	for (Renderable& r : _renderables)
 	{
-		r._transform = transform * r._localTransform;
+		r._transform = _transform * r._localTransform;
 	}
 
 	//@TODO consider changing to per-mesh collider... could be cleaner tbh
@@ -73,7 +73,7 @@ void Actor::addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec
 {
 	for (Renderable& r : _renderables)
 	{
-		r.zDepth = (transform.Translation() - camPos).Dot(viewForward);
+		r.zDepth = (_transform.Translation() - camPos).Dot(viewForward);
 		renderer.addToRenderQueue(r);
 	}
 }

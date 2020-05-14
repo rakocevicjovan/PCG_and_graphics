@@ -4,6 +4,9 @@
 #include "EditorLayout.h"
 #include "Math.h"
 #include "FileUtilities.h"
+#include "GameObject.h"
+
+
 
 class Editor
 {
@@ -43,7 +46,7 @@ public:
 
 
 
-	void display()	//std::vector<GameObject>& objects
+	void display(std::vector<Actor*>& actors)	//std::vector<GameObject>& objects	//std::vector<Actor*>& actors;
 	{
 		ImGui::SetNextWindowPos(_layout._assetListPos);
 		ImGui::SetNextWindowSize(_layout._assetListSize);
