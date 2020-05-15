@@ -5,16 +5,20 @@
 
 static void displayRenderable(Renderable& r)
 {
-	ImGui::Text("Renderable");
-
-	ImGui::Text("Local transform");
+	ImGui::Text("Local transform: ");
+	ImGui::PushID("lt");
 	displayTransform(r._localTransform);
+	ImGui::PopID();
 
-	ImGui::Text("Global transform");
+	ImGui::Text("Transform: ");
+	ImGui::PushID("gt");
 	displayTransform(r._transform);
+	ImGui::PopID();
 
-	ImGui::Text("Mesh");
+	ImGui::Text("Mesh: ");
+	ImGui::PushID("mesh");
 	displayMesh(*r.mesh);
+	ImGui::PopID();
 
 	ImGui::Text("Material");
 	displayMaterial(*r.mat);
@@ -25,17 +29,29 @@ static void displayRenderable(Renderable& r)
 
 static void displayActor(Actor& a)
 {
-	ImGui::BeginChild("Actor##");
+	//std::string actName("Actor nr. ");
+	//actName += std::to_string(i);
 
-	ImGui::Text("Actor: ");
 
-	displayTransform(a._transform);
-
-	for (int i = 0; i < a._renderables.size(); i++)
+	if (ImGui::BeginChild("Actor"))
 	{
-		displayRenderable(a._renderables[i]);
-	}
+		ImGui::BeginGroup();
 
-	ImGui::Separator();
+		ImGui::Text("Actor: ");
+
+		ImGui::Text("Transform: ");
+		displayTransform(a._transform);
+
+		for (int i = 0; i < a._renderables.size(); i++)
+		{
+			ImGui::PushID(i);
+			ImGui::Text("Renderable: ");
+			displayRenderable(a._renderables[i]);
+			ImGui::PopID();
+		}
+
+		ImGui::Separator();
+		ImGui::EndGroup();
+	}
 	ImGui::EndChild();
 }

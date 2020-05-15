@@ -18,12 +18,10 @@ static void displayVertex(Vert3D& v)
 
 static void displayTransform(SMatrix& m)
 {
-	ImGui::Text("Transform");
-
-	ImGui::InputFloat4("X", &m.m[0][0], 2);
-	ImGui::InputFloat4("Y", &m.m[1][0], 2);
-	ImGui::InputFloat4("Z", &m.m[2][0], 2);
-	ImGui::InputFloat4("T", &m.m[3][0], 2);
+	ImGui::InputFloat4("X##", &m.m[0][0], 2);
+	ImGui::InputFloat4("Y##", &m.m[1][0], 2);
+	ImGui::InputFloat4("Z##", &m.m[2][0], 2);
+	ImGui::InputFloat4("T##", &m.m[3][0], 2);
 
 	ImGui::Separator();
 }
@@ -47,15 +45,13 @@ static void displayMaterial(Material& mat)
 		ImGui::Text(mat._texDescription[i]._tex->getName().c_str());
 	}
 
-	ImGui::Text("Opaque: " + mat._opaque);
+	ImGui::Text(std::string("Opaque: " + std::to_string(mat._opaque)).c_str());
 }
 
 
 
 static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 {
-	ImGui::Text("Mesh");
-
 	// Vertices
 	if (dVerts)
 	{
@@ -82,6 +78,7 @@ static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 		ImGui::Separator();
 	}
 
+	ImGui::Text("Offset: ");
 	displayTransform(mesh._transform);
 
 	ImGui::Separator();

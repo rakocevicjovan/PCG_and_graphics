@@ -5,5 +5,5 @@
 
 class InputMapper
 {
-	std::stack<
+	//std::stack<
 };

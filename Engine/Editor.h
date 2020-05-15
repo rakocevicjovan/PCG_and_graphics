@@ -22,6 +22,8 @@ private:
 	std::deque<std::filesystem::path> _pathHistory;
 	std::vector<std::string> _autocomplete;
 
+	Actor* _selectedActor;
+
 	EditorLayout _layout;
 	float _w, _h;
 
@@ -35,7 +37,7 @@ public:
 
 
 	Editor(float w, float h, const std::string& projRoot) 
-		: _w(w), _h(h), _layout(w, h), _searchedString(projRoot), _projRoot(projRoot)
+		: _w(w), _h(h), _layout(w, h), _searchedString(projRoot), _projRoot(projRoot), _selectedActor(nullptr)
 	{
 		_curDirPath = std::filesystem::path(projRoot);
 
@@ -48,16 +50,12 @@ public:
 
 	void display(std::vector<Actor*>& actors)	//std::vector<GameObject>& objects	//std::vector<Actor*>& actors;
 	{
+		
 		ImGui::SetNextWindowPos(_layout._assetListPos);
 		ImGui::SetNextWindowSize(_layout._assetListSize);
 
 		if (ImGui::Begin("Asset list"))
 		{
-
-			//for (auto& acpl : _autocomplete)
-				//ImGui::Text(acpl.c_str());
-
-			//ImGui::BeginChild("Search");
 
 			if (ImGui::InputTextWithHint("Folder", "Search for assets", _searchedString.data(), _searchedString.capacity() + 1,
 				ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
@@ -93,9 +91,6 @@ public:
 				stepBack();
 			}
 
-			//ImGui::EndChild();
-
-
 			ImGui::ListBoxHeader("Contents");
 
 			std::filesystem::directory_iterator dirIter(_curDirPath);
@@ -112,7 +107,7 @@ public:
 
 		}
 		ImGui::End();
-
+		
 
 		// List of objects in a level
 		ImGui::SetNextWindowPos(_layout._objListPos);
@@ -120,30 +115,35 @@ public:
 
 		if (ImGui::Begin("Actor list"))
 		{
-			ImGui::ListBoxHeader("Objeccs");
-
-			for (int i = 0; i < actors.size(); i++)
+			if (ImGui::BeginCombo("List", "Nothing selected"))
 			{
-				ImGui::PushID(i);
-				displayActor(*actors[i]);
-				ImGui::PopID();
+				for (int i = 0; i < actors.size(); i++)
+				{
+					std::string actName("Actor nr. " + std::to_string(i));	//actName += std::to_string(i);
+					if (ImGui::Selectable(actName.c_str()))	// These guys really need names or something...
+					{
+						_selectedActor = actors[i];
+					}
+				}
+				ImGui::EndCombo();
 			}
-				
-
-			ImGui::ListBoxFooter();
 		}
 		ImGui::End();
 
-
+		
 		// Selected item preview 
 		ImGui::SetNextWindowPos(_layout._previewPos);
 		ImGui::SetNextWindowSize(_layout._previewSize);
 
 		if (ImGui::Begin("Selected"))
 		{
-		
+			if (_selectedActor)
+			{
+				displayActor(*_selectedActor);
+			}
 		}
 		ImGui::End();
+		
 	}
 
 
