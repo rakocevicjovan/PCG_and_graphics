@@ -11,9 +11,10 @@
 LevelManager::LevelManager(Systems& systems)
 {	
 	//new ProjectPickerLevel(systems); boring to click through...
-	//current = new TDLevel(systems);		
+	
+	current = new TDLevel(systems);		
 
-	current = new AssimpLoader(systems);
+	//current = new AssimpLoader(systems);
 
 	current->init(systems);
 	_levels.push_back(current);

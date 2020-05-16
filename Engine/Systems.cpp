@@ -193,7 +193,7 @@ bool Systems::Frame(float dTime)
 
 	_levelMan->updateAndDrawCurrent(_renderer.rc);
 
-	//_colEngine.update(); Old stuff, has some useful code in there though, need to pull it out and refactor it into something useful
+	//_colEngine.update(); Old stuff, has some nice code in there though, need to pull it out and refactor it into something useful
 
 	_inputManager.update();
 

@@ -3,6 +3,7 @@
 #include "AssimpPreview.h"
 #include "Systems.h"
 #include "Scene.h"
+#include "GUI.h"
 
 class AssimpLoader : public Level
 {
@@ -15,13 +16,13 @@ public:
 
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 	{
-
+		_assimpPreview.loadAiScene("C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
 	}
 
 
 	void init(Systems& sys) override
 	{
-		_assimpPreview.loadAiScene("C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
+		
 	}
 
 

@@ -18,11 +18,11 @@
 #include "Perlin.h"
 
 
-Texture::Texture() {}
+Texture::Texture() : _dxID(nullptr), _srv(nullptr) {}
 
 
 
-Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName)
+Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _srv(nullptr)
 {
 	if (!LoadFromStoredPath())
 	{
@@ -35,12 +35,76 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 
 
 
-Texture::Texture(const std::string& fileName) : _fileName(fileName)
+Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _srv(nullptr)
 {
 	if (!LoadFromStoredPath())
 	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 	}
+}
+
+
+
+Texture::Texture(const Texture& other)
+	: w(other.w), h(other.h), n(other.n), _data(other._data),
+	_fileName(other._fileName), _role(other._role), _typeName(other._typeName),
+	_dxID(other._dxID), _srv(other._srv)
+{
+	if(_dxID)
+		_dxID->AddRef();
+
+	if(_srv)
+		_srv->AddRef();
+}
+
+
+
+Texture::Texture(Texture&& other)
+	: w(other.w), h(other.h), n(other.n), _data(std::move(other._data)),
+	_fileName(std::move(other._fileName)), _role(other._role), _typeName(std::move(other._typeName)),
+	_dxID(std::move(other._dxID)), _srv(std::move(other._srv))
+{
+	// do not add refs because it's moved as opposed to copied
+	// Damage control :\ I'm not sure if this is well implemented so I need to know when I start using it
+	assert(false);	
+	
+}
+
+
+
+Texture& Texture::operator=(const Texture& other)
+{
+	if (this != &other)
+	{
+		w = other.w;
+		h = other.h;
+		n = other.n;
+
+		if (_data) delete _data;
+		_data = other._data;
+
+		_fileName = other._fileName;
+		_role = other._role;
+		_typeName = other._typeName;
+
+		_dxID->AddRef();
+		_srv->AddRef();
+
+	}
+
+	return *this;
+}
+
+
+
+Texture::~Texture()
+{
+	//if (_data) delete _data;
+	if(_dxID)
+		_dxID->Release();
+
+	if(_srv)
+		_srv->Release();
 }
 
 
@@ -86,7 +150,7 @@ std::vector<float> Texture::LoadAsFloatVec(const std::string& path)
 	{
 		int tw, th, tn;
 
-		//alas...//can't think of a way to avoid a copy if I want a vector, but this is rarely used so it's ok I guess
+		//alas... can't think of a way to avoid a copy if I want a vector, but this is rarely used so it's ok I guess
 		temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
 		std::vector<float> result(temp, temp + tw * th * tn);
 
@@ -139,7 +203,7 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 	std::wstring temp(path.begin(), path.end());
 	const wchar_t* widecstr = temp.c_str();
 
-	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &srv, 0);
+	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &_srv, 0);
 
 	if (FAILED(result))
 	{
@@ -173,7 +237,7 @@ bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format)
 	texData.SysMemPitch = desc.Width * pixelWidth;
 	texData.SysMemSlicePitch = 0;
 
-	if (FAILED(device->CreateTexture2D(&desc, &texData, &texId)))
+	if (FAILED(device->CreateTexture2D(&desc, &texData, &_dxID)))
 	{
 		OutputDebugStringA("Can't create texture2d. \n");
 		exit(42);
@@ -186,13 +250,11 @@ bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format)
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-	if (FAILED(device->CreateShaderResourceView(texId, &shaderResourceViewDesc, &srv)))
+	if (FAILED(device->CreateShaderResourceView(_dxID, &shaderResourceViewDesc, &_srv)))
 	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(43);
 	}
-
-	//delete data;
 
 	return true;
 }

@@ -2,6 +2,7 @@
 #include <string>
 #include <d3d11.h>
 #include <vector>
+#include <memory>
 #include "Resource.h"
 #include "TextureRole.h"
 
@@ -21,12 +22,12 @@ protected:
 	//width, height, channels and actual image data
 	//doesn't have to be retained after loading unless we need to operate on the texture on the CPU side
 	int w, h, n;
-	unsigned char *_data;
+	unsigned char *_data;	// should be shared ptr or something, it's gonna do my head in...
 
 public:
 	//needs to be retained for GPU use
-	ID3D11Texture2D* texId;
-	ID3D11ShaderResourceView* srv;
+	ID3D11Texture2D* _dxID;
+	ID3D11ShaderResourceView* _srv;
 
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
 	
@@ -34,10 +35,13 @@ public:
 	TextureRole _role;
 	std::string _typeName;	//type should be a part of Material definition when that's working (I think...)
 
-
+	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
-	Texture();
+	~Texture();
+	Texture(const Texture& other);
+	Texture(Texture&& other);
+	Texture& Texture::operator=(const Texture& rhs);
 
 	bool LoadFromStoredPath();
 	bool LoadFromFile(std::string path);
@@ -49,7 +53,7 @@ public:
 
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
 	
-	ID3D11ShaderResourceView* getTextureResourceView() { return srv; }
+	ID3D11ShaderResourceView* getTextureResourceView() { return _srv; }
 
 	inline int getW() const { return w; } 
 	inline int getH() const { return h; }

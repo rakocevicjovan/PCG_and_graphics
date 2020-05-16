@@ -77,7 +77,7 @@ private:
 
 
 
-	// Printing code, pretty useless for anything but tedious debugging but meh
+	// Printing code, pretty useless for anything except tedious debugging but meh
 
 	void PrintNode(FbxNode* pNode)
 	{

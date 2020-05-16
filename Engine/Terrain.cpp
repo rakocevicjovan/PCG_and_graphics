@@ -469,7 +469,7 @@ namespace Procedural
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 
 		for (int i = 0; i < textures.size(); ++i)
-			dc->PSSetShaderResources(i, 1, &(textures[i].srv));
+			dc->PSSetShaderResources(i, 1, &(textures[i]._srv));
 			
 		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
 		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);

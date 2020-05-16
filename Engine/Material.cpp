@@ -40,6 +40,6 @@ void Material::bindTextures(ID3D11DeviceContext* context)
 	{
 		//PixelShader* p = _pixelShader;
 
-		context->PSSetShaderResources(i, 1, &(_texDescription[i]._tex->srv));	//texturesAdded + i was used before, deprecated
+		context->PSSetShaderResources(i, 1, &(_texDescription[i]._tex->_srv));	//texturesAdded + i was used before, deprecated
 	}
 }

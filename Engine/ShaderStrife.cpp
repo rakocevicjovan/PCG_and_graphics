@@ -103,8 +103,8 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(csDef.weather.srv));
-	deviceContext->PSSetShaderResources(1, 1, &(csDef.blue_noise.srv));
+	deviceContext->PSSetShaderResources(0, 1, &(csDef.weather._srv));
+	deviceContext->PSSetShaderResources(1, 1, &(csDef.blue_noise._srv));
 	deviceContext->PSSetShaderResources(2, 1, &(csDef.baseVolume));
 	deviceContext->PSSetShaderResources(3, 1, &(csDef.fineVolume));
 

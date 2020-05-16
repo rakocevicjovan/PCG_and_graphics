@@ -104,8 +104,8 @@ bool ShaderMaze::SetShaderParameters(ID3D11DeviceContext* deviceContext, const S
 	deviceContext->IASetInputLayout(_layout);
 	deviceContext->PSSetSamplers(0, 1, &_sampleState);
 
-	deviceContext->PSSetShaderResources(0, 1, &(diff.srv));
-	deviceContext->PSSetShaderResources(1, 1, &(n.srv));
+	deviceContext->PSSetShaderResources(0, 1, &(diff._srv));
+	deviceContext->PSSetShaderResources(1, 1, &(n._srv));
 
 	return true;
 }

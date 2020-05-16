@@ -27,7 +27,7 @@ void TDLevel::init(Systems& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
 	/* Load everything up for the level. Preserve order of these functions three */
-	_sys._resMan.loadLevel(0);
+	_sys._resMan.loadLevel(0);	// This actually is data driven :)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 	_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
@@ -167,7 +167,7 @@ void TDLevel::addBuildables()
 		BuildingGuiDef(
 			"Guard tower is a common, yet powerful defensive building.",
 			"Guard tower",
-			S_RESMAN.getByName<Texture>("guard_tower")->srv),
+			S_RESMAN.getByName<Texture>("guard_tower")->_srv),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), pLight);
@@ -180,7 +180,7 @@ void TDLevel::addBuildables()
 		BuildingGuiDef(
 			"Produces 10 wood per minute. Time to get lumber-jacked.",
 			"Lumberyard",
-			S_RESMAN.getByName<Texture>("lumber_yard")->srv),
+			S_RESMAN.getByName<Texture>("lumber_yard")->_srv),
 		Income(10.f, "Coin", 10.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), pLight);
