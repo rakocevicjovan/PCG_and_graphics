@@ -258,7 +258,6 @@ bool Model::loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT ind
 	if (!aiTex)
 		return false;
 
-
 	size_t texSize = aiTex->mWidth;
 
 	//compressed textures could have height value of 0

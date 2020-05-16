@@ -17,6 +17,6 @@ public:
 
 	void advanceLevel(Systems& systems);
 	void updateAndDrawCurrent(RenderContext& renderContext);
-	void update(Systems& systems, float dTime);
+	void handleInput(Systems& systems, float dTime);
 	Level* getCurrentLevel() { return current; }
 };

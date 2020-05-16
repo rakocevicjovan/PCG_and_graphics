@@ -18,11 +18,11 @@ public:
 	{
 		if (promptForPath(_assetPath))
 		{
-			std::filesystem::path realPath(_assetPath);	//C:\Program Files\Autodesk\FBX\FBX Converter\2013.3\samples\Pepe_Mocap.FBX
-			std::filesystem::directory_entry file(realPath);
+			std::filesystem::path realPath(_assetPath);	//C:\Users\Senpai\source\repos\PCG_and_graphics_stale_memes\Models\flintlock_rifle\flintlock.fbx
 
-			if (file.exists())
+			if (FileUtils::fileExists(_assetPath))
 			{
+				std::filesystem::directory_entry file(realPath);
 				_curModel.LoadModel(device, _assetPath);
 			}	// else { pepehands(); }
 
@@ -30,14 +30,23 @@ public:
 			_curTex = nullptr;
 		}
 
+
+
 		if (_curModel._meshes.size() > 0)
 		{
-			metaDataWindow(_assetPath);
-
 			meshListWindow(_curModel._meshes);
 
-			if(_curMesh)
+			if (_curMesh)
+			{
 				textureListWindow(_curMesh->_textures);
+
+				displaySelectedMesh();
+
+				if(_curTex)
+				{
+					displaySelectedTexture();
+				}
+			}
 		}
 
 	}
@@ -48,36 +57,32 @@ private:
 
 	bool promptForPath(std::string& path)
 	{
-		return inTextStdStringHint("Path", "Input absolute path to model (todo make rel to project)", path);
-	}
+		bool res = false;
 
+		ImGui::SetNextWindowPos(ImVec2(0., 0.), ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(ImGui::GetWindowSize().x, 256), ImGuiCond_FirstUseEver);
 
-
-	void metaDataWindow(const std::string& modelPath)
-	{
-		ImGui::SetNextWindowPos(ImVec2(0., 0.));
-		//ImGui::SetNextWindowSize(ImVec2());
-		
 		if (ImGui::Begin("Meta data", NULL, ImGuiWindowFlags_NoMove))
 		{
-			ImGui::Text("Path: ");
-			ImGui::SameLine();
-			ImGui::Text(modelPath.c_str());
-		}
+			//ImGui::Text("Path: ");	ImGui::SameLine();	ImGui::Text(path.c_str());
 
+			res = inTextStdStringHint("Path", "Input absolute path to model (todo make rel to project)", path);
+		}
 		ImGui::End();
+
+		return res;
 	}
 
 
 
 	void meshListWindow(std::vector<Mesh>& meshes)
 	{
-		//ImGui::SetNextWindowPos(ImVec2(0., 0.));
-		//ImGui::SetNextWindowSize(ImVec2());
+		//ImGui::SetNextWindowPos(ImVec2(0., 256.));
+		//ImGui::SetNextWindowSize(ImVec2(512, 512));
 
-		if (ImGui::Begin("Mesh list", NULL, ImGuiWindowFlags_NoTitleBar))
+		if (ImGui::Begin("Mesh list", NULL))
 		{
-			if (ImGui::ListBoxHeader("Mesh list"))
+			if (ImGui::ListBoxHeader("###Mesh list"))
 			{
 				for (int i = 0; i < meshes.size(); i++)
 				{
@@ -99,9 +104,9 @@ private:
 
 	void textureListWindow(std::vector<Texture>& textures)
 	{
-		if (ImGui::Begin("Texture list", NULL, ImGuiWindowFlags_NoTitleBar))
+		if (ImGui::Begin("Texture list", NULL))	//ImGuiWindowFlags_NoTitleBar
 		{
-			if (ImGui::ListBoxHeader("Texture list"))
+			if (ImGui::ListBoxHeader("###Texture list"))
 			{
 				for (int i = 0; i < textures.size(); i++)
 				{

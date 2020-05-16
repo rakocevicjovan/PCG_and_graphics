@@ -67,9 +67,6 @@ bool Renderer::frame(float dTime)
 	
 	_cam.Update(dTime);
 
-	//_clusterManager->assignLights(lightList, _renderer._cam, _threadPool);
-	//clsMan.upload(_deviceContext, lightList);
-
 	updateRenderContext(dTime);
 
 	return updatePerFrameBuffers(dTime);

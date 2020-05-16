@@ -357,6 +357,8 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AssimpLoader.h" />
+    <ClInclude Include="AssimpPreview.h" />
     <ClInclude Include="Callable.h" />
     <ClInclude Include="ClusteringMath.h" />
     <ClInclude Include="ClusteringUnusedCode.h" />

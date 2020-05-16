@@ -26,6 +26,13 @@ void TDLevel::init(Systems& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
+	/* Load everything up for the level. Preserve order of these functions three */
+	_sys._resMan.loadLevel(0);
+	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
+	_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
+
+
+
 	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 	S_INMAN.registerController(&_tdController);

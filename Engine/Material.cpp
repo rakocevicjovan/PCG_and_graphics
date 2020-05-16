@@ -2,7 +2,7 @@
 
 
 
-Material::Material()
+Material::Material() : _vertexShader(nullptr), _pixelShader(nullptr)
 {
 }
 

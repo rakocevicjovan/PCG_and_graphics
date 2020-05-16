@@ -2,9 +2,6 @@
 #include <string>
 #include <Mouse.h>
 
-#include "FBXLoader.h"
-#include "FileUtilities.h"
-
 Systems::Systems() : screenWidth(0), screenHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
 
 Systems::~Systems(){}
@@ -29,18 +26,8 @@ bool Systems::Initialize()
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-
 	/* Test begin */
-	/*
-	std::filesystem::directory_entry file;
-	if (FileUtils::findFile("C:\\Users\\Senpai\\Desktop\\New folder", "head01.png", file))
-	{
-		auto tfPath = file.path();
-	}
 
-	Model m;
-	m.LoadModel(_device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx");
-	*/
 	/* Test end */
 
 	_inputManager.initialize(_hwnd);
@@ -202,11 +189,11 @@ bool Systems::Frame(float dTime)
 	if (!_renderer.frame(dTime))
 		return false;
 
-	_levelMan->update(*this, dTime);
+	_levelMan->handleInput(*this, dTime);
 
 	_levelMan->updateAndDrawCurrent(_renderer.rc);
 
-	_colEngine.update();
+	//_colEngine.update(); Old stuff, has some useful code in there though, need to pull it out and refactor it into something useful
 
 	_inputManager.update();
 

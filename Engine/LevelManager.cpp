@@ -4,28 +4,19 @@
 #include "TestLevel.h"
 #include "TDLevel.h"
 #include "ProjectPickerLevel.h"
+#include "AssimpLoader.h"
 
 
 
 LevelManager::LevelManager(Systems& systems)
-{
-	
-	systems._resMan.loadLevel(0);
+{	
+	//new ProjectPickerLevel(systems); boring to click through...
+	//current = new TDLevel(systems);		
 
-	//relies on resources from the level... needs to happen afterwards
-	systems._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
-	systems._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
-	
-	current = new TDLevel(systems);		//new ProjectPickerLevel(systems); boring to click through...
+	current = new AssimpLoader(systems);
+
 	current->init(systems);
 	_levels.push_back(current);
-
-
-	//_levels.push_back(new EarthLevel(systems));
-	//_levels.push_back(new FireLevel(systems));
-	//_levels.push_back(new WaterLevel(systems));
-	//_levels.push_back(new AirLevel(systems));
-	//_levels.push_back(new Strife::StrifeLevel(systems));
 }
 
 
@@ -43,12 +34,11 @@ void LevelManager::advanceLevel(Systems& systems)
 	_levels.erase(_levels.begin());
 	_levels[0]->init(systems);
 	current = _levels[0];
-	return;
 }
 
 
 
-void LevelManager::update(Systems& systems, float dTime)
+void LevelManager::handleInput(Systems& systems, float dTime)
 {
 	sinceLastInput += dTime;
 

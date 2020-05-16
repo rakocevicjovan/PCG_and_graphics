@@ -38,13 +38,14 @@ static void displayTexture(ID3D11ShaderResourceView* texSrv, const std::string& 
 	ImGui::Text(path.c_str());
 
 	char buff[50];
-	sprintf(buff, "Width: %i, \n Height: %i, \n Channels: %i", w, h, n);
+	sprintf(buff, "Width: %i \nHeight: %i \nChannels: %i", 
+		static_cast<int>(w), static_cast<int>(h), static_cast<int>(n));
 
 	ImGui::Text(buff);
 
 	if (texSrv != nullptr)
 	{
-		ImGui::Image(texSrv, ImVec2(w, h));
+		ImGui::Image(texSrv, ImVec2(512., 512.));
 	}
 }
 
@@ -52,12 +53,33 @@ static void displayTexture(ID3D11ShaderResourceView* texSrv, const std::string& 
 
 static void displayMaterial(Material& mat)
 {
-	ImGui::Text("Shaders: ");
-	std::string vsName(mat.getVS()->_path.begin(), mat.getVS()->_path.end());
-	ImGui::Text(vsName.c_str());
+	ImGui::BeginGroup();
 
-	std::string psName(mat.getPS()->_path.begin(), mat.getPS()->_path.end());
-	ImGui::Text(psName.c_str());
+	ImGui::Text("Shaders: ");
+
+	VertexShader* vs = mat.getVS();
+	if (vs)
+	{
+		std::string vsName(vs->_path.begin(), vs->_path.end());
+		ImGui::Text(vsName.c_str());
+	}
+	else
+	{
+		ImGui::Text("None loaded");
+	}
+
+	PixelShader* ps = mat.getPS();
+	if (ps)
+	{
+		std::string psName(ps->_path.begin(), ps->_path.end());
+		ImGui::Text(psName.c_str());
+	}
+	else
+	{
+		ImGui::Text("None loaded");
+	}
+
+	ImGui::Separator();
 
 	ImGui::Text("Textures");
 	for (int i = 0; i < mat._texDescription.size(); i++)
@@ -67,14 +89,32 @@ static void displayMaterial(Material& mat)
 		ImGui::Text(mat._texDescription[i]._tex->getName().c_str());
 	}
 
+	ImGui::Separator();
+
 	ImGui::Text(std::string("Opaque: " + std::to_string(mat._opaque)).c_str());
+
+	ImGui::EndGroup();
 }
 
 
 
-static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
+static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool dInds = false)
 {
-	// Vertices
+	ImGui::Text("Offset: ");
+	displayTransform(mesh._transform);
+
+	ImGui::Separator();
+
+	if (dMat)
+	{
+		ImGui::Text("Material: ");
+		displayMaterial(mesh._baseMaterial);
+		
+
+		ImGui::Separator();
+	}
+	
+
 	if (dVerts)
 	{
 		ImGui::ListBoxHeader("Vertices");
@@ -90,7 +130,6 @@ static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 	}
 
 
-	// Indices
 	if (dInds)
 	{
 		ImGui::Text("Indices: ");
@@ -99,11 +138,6 @@ static void displayMesh(Mesh& mesh, bool dVerts = 0, bool dInds = 0)
 		ImGui::TextWrapped(result.str().c_str());
 		ImGui::Separator();
 	}
-
-	ImGui::Text("Offset: ");
-	displayTransform(mesh._transform);
-
-	ImGui::Separator();
 }
 
 

@@ -868,6 +868,10 @@
     <ClInclude Include="LoaderGUI.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="AssimpPreview.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

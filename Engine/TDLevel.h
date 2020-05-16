@@ -20,9 +20,9 @@
 //tests
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
-
 #include "Editor.h"
 #include "LoaderGUI.h"
+
 
 
 class TDLevel : public Level
@@ -103,6 +103,7 @@ private:
 
 	Editor _editor;
 	LoaderGUI _loaderGui;
+	//AssimpPreview _loader;
 
 #define DEBUG_OCTREE_NOT
 
