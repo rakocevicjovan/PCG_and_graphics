@@ -853,16 +853,19 @@
     <ClInclude Include="BOBuffer.h">
       <Filter>Rendering\Buffers</Filter>
     </ClInclude>
-    <ClInclude Include="MeshDisplay.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="Editor.h">
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="EditorLayout.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="ActorDisplay.h">
+    <ClInclude Include="FBXLoader.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiBlocks.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="LoaderGUI.h">
       <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>

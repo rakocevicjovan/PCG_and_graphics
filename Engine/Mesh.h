@@ -37,7 +37,7 @@ public:
 	SMatrix _transform;
 	Material _baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
 
-	std::vector<Texture> textures;	//@TODO not sure what to do with this... who should own them?
+	std::vector<Texture> _textures;	//@TODO not sure what to do with this... who should own them?
 	unsigned int indexIntoModelMeshArray;
 
 	//valid, useful constructors... but @TODO make a material instead of textures!

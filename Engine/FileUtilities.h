@@ -2,7 +2,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
 #include <string>
 
 #include <filesystem>
@@ -66,8 +65,16 @@ namespace FileUtils
 
 
 
-	static std::filesystem::directory_iterator getDirIterator(const std::string& path)
+	static bool findFile(const std::string& baseFolder, const std::string& fileName, std::filesystem::directory_entry& out)
 	{
-		return std::filesystem::directory_iterator(path);
+		for (std::filesystem::directory_entry dirEntry : std::filesystem::recursive_directory_iterator(baseFolder))
+		{
+			if (dirEntry.path().filename() == fileName && dirEntry.is_regular_file())
+			{
+				out = dirEntry;
+				return true;
+			}
+		}
+		return false;
 	}
 }

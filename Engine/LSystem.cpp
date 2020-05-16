@@ -275,8 +275,8 @@ namespace Procedural
 
 		//@TODO this probably shouldn't bere here...
 		Mesh finalMesh;
-		finalMesh.textures.emplace_back(device, "../Textures/Bark/diffuse.jpg");
-		finalMesh.textures.emplace_back(device, "../Textures/Bark/normal.jpg");
+		finalMesh._textures.emplace_back(device, "../Textures/Bark/diffuse.jpg");
+		finalMesh._textures.emplace_back(device, "../Textures/Bark/normal.jpg");
 		int totalVerts = 0, totalInds = 0;
 
 		for (auto&m : tree._meshes)
@@ -298,7 +298,7 @@ namespace Procedural
 		}
 		//finalMesh.setupMesh(device);
 		tree._meshes.clear();
-		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh.textures, device, 0);
+		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh._textures, device, 0);
 		
 		return tree;
 	}

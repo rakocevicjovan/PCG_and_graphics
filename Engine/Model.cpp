@@ -31,6 +31,7 @@ Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device)
 
 Model::~Model()
 {
+	if(collider) delete collider;
 }
 
 
@@ -155,28 +156,28 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
 
 		// Diffuse maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
 
 		//  Normal maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
 
 		// Specular maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
 
 		// Shininess maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
 
 		// Opacity maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
 
 		// Displacement maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
 
 		// Ambient occlusion maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
 
 		// Other maps
-		loadMaterialTextures(mesh.textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
+		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
 
 		// Weird properties... that I never really saw trigger
 		//loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NONE, "texture_property", OTHER);
@@ -190,7 +191,7 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 	//and randomized sampling is not reliable, so for now... we have this
 	mesh._baseMaterial._opaque = true;
 
-	for (Texture& t : mesh.textures)
+	for (Texture& t : mesh._textures)
 	{
 		t.SetUpAsResource(device);
 		mesh._baseMaterial._texDescription.push_back({ t._role, &t });

@@ -267,3 +267,4 @@ paket-files/
 __pycache__/
 *.pyc
 /Engine/ShGen/GeneratedVS
+/Deps/libfbxsdk.dll

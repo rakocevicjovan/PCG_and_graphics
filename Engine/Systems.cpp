@@ -2,6 +2,8 @@
 #include <string>
 #include <Mouse.h>
 
+#include "FBXLoader.h"
+#include "FileUtilities.h"
 
 Systems::Systems() : screenWidth(0), screenHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
 
@@ -11,9 +13,10 @@ Systems::~Systems(){}
 
 bool Systems::Initialize()
 {
-	//screenWidth = 0;
-	//screenHeight = 0;
-	//FULL_SCREEN = false;
+
+	//FBXLoader loader;
+	//loader.init();
+	//loader.parse("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\ArmyPilot\\ArmyPilot.fbx");
 
 	InitializeWindows(screenWidth, screenHeight);
 
@@ -25,6 +28,20 @@ bool Systems::Initialize()
 
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
+
+
+	/* Test begin */
+	/*
+	std::filesystem::directory_entry file;
+	if (FileUtils::findFile("C:\\Users\\Senpai\\Desktop\\New folder", "head01.png", file))
+	{
+		auto tfPath = file.path();
+	}
+
+	Model m;
+	m.LoadModel(_device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx");
+	*/
+	/* Test end */
 
 	_inputManager.initialize(_hwnd);
 	_defController = Controller(&_inputManager);

@@ -1,10 +1,9 @@
 #pragma once
 #include <deque>
-#include "ActorDisplay.h"
+#include "GuiBlocks.h"
 #include "EditorLayout.h"
 #include "Math.h"
 #include "FileUtilities.h"
-#include "GameObject.h"
 
 
 
@@ -57,16 +56,7 @@ public:
 		if (ImGui::Begin("Asset list"))
 		{
 
-			if (ImGui::InputTextWithHint("Folder", "Search for assets", _searchedString.data(), _searchedString.capacity() + 1,
-				ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
-				[](ImGuiInputTextCallbackData* data)->int
-			{
-				std::string* str = static_cast<std::string*>(data->UserData);
-				IM_ASSERT(data->Buf == str->data());
-				str->resize(data->BufTextLen);
-				data->Buf = str->data();
-				return 0;
-			}, &_searchedString))
+			if (inTextStdStringHint("Path", "Search for assets", _searchedString))
 			{
 				seek();
 			}
@@ -115,7 +105,7 @@ public:
 
 		if (ImGui::Begin("Actor list"))
 		{
-			if (ImGui::BeginCombo("List", "Nothing selected"))
+			if (ImGui::BeginCombo("List", "Selected mesh details are shown to the left"))
 			{
 				for (int i = 0; i < actors.size(); i++)
 				{

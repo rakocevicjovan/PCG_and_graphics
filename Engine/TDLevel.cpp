@@ -51,9 +51,9 @@ void TDLevel::init(Systems& sys)
 
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
-	floorMesh.textures.push_back(floorTex);
+	floorMesh._textures.push_back(floorTex);
 
-	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
+	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
 	floorMesh._baseMaterial.pLight = &pLight;	
 	
 	floorRenderable = Renderable(floorMesh);
@@ -89,7 +89,7 @@ void TDLevel::init(Systems& sys)
 	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
 	debugSphereActor._renderables.back()._transform = dbgSphMat;
 
-	debugSphereActor._renderables[0].mat->_texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh.textures.back() });
+	debugSphereActor._renderables[0].mat->_texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
 	
 	///
 
@@ -554,7 +554,10 @@ void TDLevel::draw(const RenderContext& rc)
 
 	_eco.renderEconomyWidget();
 
-	_editor.display(_scene._actors);
+	// AAAAAA
+	//_editor.display(_scene._actors);
+	_loaderGui.displayModel(S_DEVICE);
+
 	
 	GUI::endGuiFrame();
 

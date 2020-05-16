@@ -22,7 +22,7 @@
 //#include "PoolAllocator.h"
 
 #include "Editor.h"
-
+#include "LoaderGUI.h"
 
 
 class TDLevel : public Level
@@ -59,6 +59,8 @@ private:
 	Actor terrainActor;
 	Actor debugSphereActor;
 	Renderable frustumRenderable;
+
+	Model testModel;
 
 	//Model globe;
 	//Renderable globeRenderable;
@@ -100,6 +102,7 @@ private:
 	Economy _eco;
 
 	Editor _editor;
+	LoaderGUI _loaderGui;
 
 #define DEBUG_OCTREE_NOT
 
