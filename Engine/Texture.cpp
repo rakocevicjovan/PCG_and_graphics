@@ -46,7 +46,7 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 
 Texture::Texture(const Texture& other)
-	: w(other.w), h(other.h), n(other.n), _data(other._data),
+	: w(other.w), h(other.h), n(other.n), _mdata(other._mdata),
 	_fileName(other._fileName), _role(other._role), _typeName(other._typeName),
 	_dxID(other._dxID), _srv(other._srv)
 {
@@ -61,7 +61,7 @@ Texture::Texture(const Texture& other)
 
 
 Texture::Texture(Texture&& other)
-	: w(other.w), h(other.h), n(other.n), _data(std::move(other._data)),
+	: w(other.w), h(other.h), n(other.n), _mdata(std::move(other._mdata)),
 	_fileName(std::move(other._fileName)), _role(other._role), _typeName(std::move(other._typeName)),
 	_dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
@@ -83,7 +83,7 @@ Texture& Texture::operator=(const Texture& other)
 		h = other.h;
 		n = other.n;
 
-		_data = other._data;
+		_mdata = other._mdata;
 
 		_fileName = other._fileName;
 		_role = other._role;
@@ -116,8 +116,9 @@ bool Texture::LoadFromStoredPath()
 {
 	try
 	{
-		_data = stbi_load(_fileName.c_str(), &w, &h, &n, 4);	// careful with 4
-		return (_data != nullptr);
+		_mdata = std::shared_ptr<unsigned char>(stbi_load(_fileName.c_str(), &w, &h, &n, 4));
+		//_data = stbi_load(_fileName.c_str(), &w, &h, &n, 4);	// careful with 4
+		return (_mdata.get() != nullptr);
 	}
 	catch (...)
 	{
@@ -134,8 +135,9 @@ bool Texture::LoadFromFile(std::string path)
 
 	try
 	{
-		_data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
-		return (_data != nullptr);
+		_mdata = std::shared_ptr<unsigned char>(stbi_load(path.c_str(), &w, &h, &n, 4));
+		//_data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
+		return (_mdata.get() != nullptr);
 	}
 	catch (...)
 	{
@@ -177,8 +179,10 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 {
 	try
 	{
-		_data = stbi_load_from_memory(data, size, &w, &h, &n, 4);
-		return (_data != nullptr);
+		_mdata = std::shared_ptr<unsigned char>(stbi_load_from_memory(data, size, &w, &h, &n, 4));
+		//_data = stbi_load_from_memory(data, size, &w, &h, &n, 4);
+
+		return (_mdata.get() != nullptr);
 	}
 	catch (...)
 	{
@@ -193,7 +197,9 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 {
 	w = perlin._w;
 	h = perlin._h;
-	_data = perlin.getUCharVector().data();
+	
+	_mdata = std::shared_ptr<unsigned char>(perlin.getUCharVector().data());
+	//_data = perlin.getUCharVector().data();
 
 	return SetUpAsResource(device, DXGI_FORMAT::DXGI_FORMAT_R8_UNORM);
 }
@@ -235,7 +241,7 @@ bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format)
 	UINT pixelWidth = format == DXGI_FORMAT::DXGI_FORMAT_R8_UNORM ? 1 : 4;
 
 	D3D11_SUBRESOURCE_DATA texData;
-	texData.pSysMem = (void *)(_data);
+	texData.pSysMem = (void *)(_mdata.get());
 	texData.SysMemPitch = desc.Width * pixelWidth;
 	texData.SysMemSlicePitch = 0;
 

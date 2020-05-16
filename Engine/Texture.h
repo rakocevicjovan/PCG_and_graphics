@@ -22,7 +22,9 @@ protected:
 	//width, height, channels and actual image data
 	//doesn't have to be retained after loading unless we need to operate on the texture on the CPU side
 	int w, h, n;
-	unsigned char* _data; 
+	
+	//unsigned char* _data;
+	std::shared_ptr<unsigned char> _mdata;
 
 public:
 	//needs to be retained for GPU use
@@ -58,8 +60,8 @@ public:
 	inline int getW() const { return w; } 
 	inline int getH() const { return h; }
 	inline int getN() const { return n; }
-	inline const unsigned char* getData() const { return _data; }	//data can't be modified, only read
-	inline void freeMemory() { if (_data) delete _data; }
+	inline const unsigned char* getData() const { return _mdata.get(); }	//data can't be modified, only read
+	inline void freeMemory() { if (_mdata.get()) _mdata.reset(); }
 
 
 	//weird...
