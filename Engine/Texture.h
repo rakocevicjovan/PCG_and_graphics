@@ -22,7 +22,7 @@ protected:
 	//width, height, channels and actual image data
 	//doesn't have to be retained after loading unless we need to operate on the texture on the CPU side
 	int w, h, n;
-	unsigned char *_data;	// should be shared ptr or something, it's gonna do my head in...
+	unsigned char* _data; 
 
 public:
 	//needs to be retained for GPU use
@@ -38,10 +38,10 @@ public:
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
-	~Texture();
 	Texture(const Texture& other);
 	Texture(Texture&& other);
 	Texture& Texture::operator=(const Texture& rhs);
+	~Texture();
 
 	bool LoadFromStoredPath();
 	bool LoadFromFile(std::string path);
@@ -59,25 +59,12 @@ public:
 	inline int getH() const { return h; }
 	inline int getN() const { return n; }
 	inline const unsigned char* getData() const { return _data; }	//data can't be modified, only read
+	inline void freeMemory() { if (_data) delete _data; }
+
 
 	//weird...
 	static std::vector<float> Texture::LoadAsFloatVec(const std::string& path);
 
-	
-	//delegated procedural generation interface to friend class
-protected:	
-	
-	inline static float Perlin3D(float x, float  y, float z, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	inline static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	inline static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	inline static float Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-
-	static std::vector<float> generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
-	
-
-	//utility functions for texture creation
-public:
 
 	//easier desc creation (hopefully... textures aren't quite so uniformly created in general)
 	static inline D3D11_TEXTURE2D_DESC create2DTexDesc(
@@ -95,4 +82,14 @@ public:
 		//might want to ZeroMemory(&texDesc, sizeof(texDesc)), D3D11_RESOURCE_MISC_FLAG enum for reference
 		return D3D11_TEXTURE2D_DESC{ w, h, mipLevels, arraySize, format, sdcq, usage, bindFlags, cpuAccessFlags, miscFlags };
 	}
+	
+protected:	//delegated procedural generation interface to friend class
+	
+	inline static float Perlin3D(float x, float  y, float z, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	inline static float Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	inline static float Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	inline static float Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+
+	static std::vector<float> generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
+	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 };

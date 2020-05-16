@@ -50,6 +50,7 @@ Texture::Texture(const Texture& other)
 	_fileName(other._fileName), _role(other._role), _typeName(other._typeName),
 	_dxID(other._dxID), _srv(other._srv)
 {
+
 	if(_dxID)
 		_dxID->AddRef();
 
@@ -64,6 +65,8 @@ Texture::Texture(Texture&& other)
 	_fileName(std::move(other._fileName)), _role(other._role), _typeName(std::move(other._typeName)),
 	_dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
+	//other._data.reset();	// Shouldn't even be necessary I guess?
+
 	// do not add refs because it's moved as opposed to copied
 	// Damage control :\ I'm not sure if this is well implemented so I need to know when I start using it
 	assert(false);	
@@ -80,7 +83,6 @@ Texture& Texture::operator=(const Texture& other)
 		h = other.h;
 		n = other.n;
 
-		if (_data) delete _data;
 		_data = other._data;
 
 		_fileName = other._fileName;
@@ -99,7 +101,8 @@ Texture& Texture::operator=(const Texture& other)
 
 Texture::~Texture()
 {
-	//if (_data) delete _data;
+	// data should not be deleted unless explicitly, sometimes useful to keep it for procgen
+
 	if(_dxID)
 		_dxID->Release();
 
@@ -113,7 +116,7 @@ bool Texture::LoadFromStoredPath()
 {
 	try
 	{
-		_data = stbi_load(_fileName.c_str(), &w, &h, &n, 4);	//4?
+		_data = stbi_load(_fileName.c_str(), &w, &h, &n, 4);	// careful with 4
 		return (_data != nullptr);
 	}
 	catch (...)
@@ -175,7 +178,6 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 	try
 	{
 		_data = stbi_load_from_memory(data, size, &w, &h, &n, 4);
-
 		return (_data != nullptr);
 	}
 	catch (...)
@@ -233,7 +235,7 @@ bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format)
 	UINT pixelWidth = format == DXGI_FORMAT::DXGI_FORMAT_R8_UNORM ? 1 : 4;
 
 	D3D11_SUBRESOURCE_DATA texData;
-	texData.pSysMem = (void *)_data;
+	texData.pSysMem = (void *)(_data);
 	texData.SysMemPitch = desc.Width * pixelWidth;
 	texData.SysMemSlicePitch = 0;
 
