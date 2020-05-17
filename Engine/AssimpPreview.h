@@ -51,27 +51,97 @@ public:
 
 	void displayAiScene()
 	{
-		printaiNode(_scene->mRootNode, _scene, _scene->mRootNode->mTransformation);
+		_meshIndex = 0;
+
+		ImGui::Begin("Scene");
+
+		if (ImGui::TreeNode("Node tree"))
+		{
+			printaiNode(_scene->mRootNode, _scene, _scene->mRootNode->mTransformation);
+
+			ImGui::TreePop();
+		}
+
+		ImGui::End();
 	}
 
 
 
 	bool printaiNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform)
 	{
-		aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;
-		
+		std::string nodeName("Node: ");
+		nodeName += node->mName.C_Str();
 
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
+		if (ImGui::TreeNode(nodeName.c_str()))
 		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			++_meshIndex;
-			printAiMesh(mesh, concatenatedTransform);
-		}
+			aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-		{
-			printaiNode(node->mChildren[i], scene, concatenatedTransform);
+			if (ImGui::TreeNode("Concatenated transform: "))
+			{
+				displayTransform(SMatrix(&concatenatedTransform.a1));
+				ImGui::TreePop();
+			}
+			
+
+			ImGui::Text("Mesh count: ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(node->mNumMeshes).c_str());
+
+			if (node->mNumMeshes > 0)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0., 1., 0., 1.));
+				if (ImGui::TreeNode("Meshes"))
+				{
+					for (unsigned int i = 0; i < node->mNumMeshes; i++)
+					{
+						aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+						++_meshIndex;
+
+						std::string meshName("Mesh name and index: ");
+						meshName += mesh->mName.C_Str();
+						meshName += " ";
+						meshName += std::to_string(_meshIndex);
+
+						if (ImGui::TreeNode(meshName.c_str()))
+						{
+							ImGui::PushID(i);
+							printAiMesh(mesh, concatenatedTransform);
+							ImGui::PopID();
+							ImGui::TreePop();
+						}
+
+					}
+					ImGui::TreePop();
+				}
+				ImGui::PopStyleColor();
+			}
+
+			
+
+			ImGui::Separator();
+
+			ImGui::Text("Children count: ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(node->mNumChildren).c_str());
+
+			if (node->mNumChildren > 0)
+			{
+				if (ImGui::TreeNode("Children"))
+				{
+					for (unsigned int i = 0; i < node->mNumChildren; i++)
+					{
+						ImGui::PushID(i);
+						printaiNode(node->mChildren[i], scene, concatenatedTransform);
+						ImGui::PopID();
+					}
+					ImGui::TreePop();
+				}	
+			}
+
+			ImGui::TreePop();
 		}
+		ImGui::PopStyleColor();
 
 		return true;
 	}
@@ -81,10 +151,31 @@ public:
 	void printAiMesh(aiMesh* mesh, aiMatrix4x4 parentGlobal)
 	{
 		UINT numUVChannels = mesh->GetNumUVChannels();
-		auto numUVComponents = mesh->mNumUVComponents;
+		UINT* numUVComponents = mesh->mNumUVComponents;
 
 		bool hasTexCoords = mesh->mTextureCoords[0];
-		
+
+		ImGui::BeginGroup();
+
+			ImGui::Text("UVs");
+
+			ImGui::Text("Nr. of UV channels: ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(numUVChannels).c_str());
+
+			ImGui::Text("Nr. of UV components per channel: ");
+
+			ImGui::Indent();
+			for (int i = 0; i < numUVChannels; i++)
+			{
+				ImGui::Text(std::to_string(numUVComponents[i]).c_str());
+			}
+			ImGui::Unindent();
+
+		ImGui::EndGroup();
+
+		ImGui::Separator();
+
 		//float maxDist = 0.f;
 		//Vert3D vertex;
 
@@ -108,6 +199,7 @@ public:
 
 		//maxDist = sqrt(maxDist);
 
+		UINT indexCount = 0u;
 
 		aiFace face;
 		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
@@ -115,9 +207,9 @@ public:
 			face = mesh->mFaces[i];
 
 			//populate indices from faces
-			//for (unsigned int j = 0; j < face.mNumIndices; ++j) mesh._indices.push_back(face.mIndices[j]);
+			for (unsigned int j = 0; j < face.mNumIndices; ++j)
+				++indexCount;	//_indices.push_back(face.mIndices[j]);
 		}
-
 
 		//even if it's not too fast, this is still a better solution to the previous one (bottom)
 		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
@@ -127,6 +219,29 @@ public:
 			//assign face tangents to vertex tangents
 			//for (unsigned int j = 0; j < face.mNumIndices; ++j) mesh._vertices[face.mIndices[j]].tangent += faceTangents[i];
 		}
+
+
+		ImGui::BeginGroup();
+
+		ImGui::Text("Vertex count: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(mesh->mNumVertices).c_str());
+
+		ImGui::Text("Index count: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(indexCount).c_str());
+
+		ImGui::Text("Face count: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(mesh->mNumFaces).c_str());
+	
+		ImGui::Text("Has tangents and bitangents: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(mesh->HasTangentsAndBitangents()).c_str());
+
+		ImGui::EndGroup();
+
+		ImGui::Separator();
 
 		if (mesh->mMaterialIndex >= 0)
 		{
@@ -159,6 +274,12 @@ public:
 			// Weird properties... that I never really saw trigger
 			loadMaterialTextures(material, aiTextureType_NONE, "texture_property", OTHER);
 		}
+
+		ImGui::BeginGroup();
+		ImGui::Text("Materials");
+
+
+		ImGui::EndGroup();
 	}
 
 
