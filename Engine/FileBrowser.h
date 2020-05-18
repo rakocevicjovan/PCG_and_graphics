@@ -16,6 +16,8 @@ private:
 
 	std::filesystem::path _selectedItemPath;
 
+	bool _badPath;
+
 public:
 
 	FileBrowser() {}
@@ -26,9 +28,13 @@ public:
 	{
 		_curDirPath = std::filesystem::path(rootFolder);
 
+		openDir(_curDirPath);
+
+		_searchedString = _curDirPath.string();
+
 		_pathHistory.push_front(_curDirPath);
 
-		openDir(_curDirPath);
+		_badPath = false;
 	}
 
 
@@ -37,8 +43,15 @@ public:
 	{
 		if (ImGui::Begin("Asset list"))
 		{
+			bool tempBadPath = _badPath;	//Since it can change with seek
+
+			if(tempBadPath) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
+			
 			if (inTextStdStringHint("Path", "Search for assets", _searchedString))
 				seek();
+
+			if (tempBadPath) ImGui::PopStyleColor();
+
 
 			if (ImGui::Button("Seek"))
 				seek();
@@ -46,7 +59,7 @@ public:
 			ImGui::SameLine();
 
 			if (ImGui::Button("Up"))
-				openDir(_curDirPath.parent_path());
+				stepUp();
 
 			ImGui::SameLine();
 
@@ -68,7 +81,8 @@ public:
 					{
 						if (de.is_directory())
 						{
-							openDir(de.path());
+							_searchedString = de.path().string();
+							seek();
 						}
 						else
 						{
@@ -76,7 +90,6 @@ public:
 						}
 					}
 				}
-				
 			}
 
 			ImGui::ListBoxFooter();
@@ -89,29 +102,16 @@ public:
 
 	void seek()
 	{
-		std::filesystem::path newPath(_searchedString);
-
-		if (std::filesystem::is_directory(newPath))
-		{
-			openDir(newPath);
-		}
-		else
-		{
-			// Do what? Popups are clunky and I don't like them!
-		}
+		_pathHistory.push_back(_curDirPath);
+		openDir(std::filesystem::path(_searchedString));
 	}
 
 
 
-	void openDir(const std::filesystem::path& newPath)
+	void stepUp()
 	{
-		if (_pathHistory.size() == MAX_UNDOS)
-			_pathHistory.pop_front();
-
 		_pathHistory.push_back(_curDirPath);
-		_curDirPath = newPath;
-
-		_searchedString = _curDirPath.string();
+		openDir(_curDirPath.parent_path());
 	}
 
 
@@ -121,12 +121,31 @@ public:
 		if (_pathHistory.empty())
 			return false;
 
-		_curDirPath = _pathHistory.back();
+		auto mostRecent = _pathHistory.back();
 		_pathHistory.pop_back();
-
-		_searchedString = _curDirPath.string();
+		openDir(mostRecent);
 
 		return true;
 	}
-	
+
+
+
+	void openDir(const std::filesystem::path& newPath)
+	{
+		if (_pathHistory.size() >= MAX_UNDOS)
+			_pathHistory.pop_front();
+
+		if (std::filesystem::is_directory(newPath))
+		{
+			_curDirPath = newPath;
+
+			_searchedString = _curDirPath.string();
+
+			_badPath = false;
+		}
+		else
+		{
+			_badPath = true;
+		}
+	}
 };
