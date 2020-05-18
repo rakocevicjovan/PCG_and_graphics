@@ -26,7 +26,8 @@ struct AnimChannel
 
 class Animation
 {
-	
+private:
+
 	std::string _name;
 	double _ticks, _ticksPerSecond, _duration, _tickDuration, _invTickDuration;
 	std::map<std::string, AnimChannel> _channels;
@@ -83,4 +84,7 @@ public:
 		}
 		return false;
 	}
+
+
+	std::string getName() { return _name; }
 };

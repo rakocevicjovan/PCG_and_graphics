@@ -360,11 +360,9 @@ public:
 					ac.posVec.emplace_back(time, pos);
 				}
 
-				//add channel to animation
 				anim.addChannel(ac);
 			}
 
-			//store animation for later use
 			anims.push_back(anim);
 		}
 	}

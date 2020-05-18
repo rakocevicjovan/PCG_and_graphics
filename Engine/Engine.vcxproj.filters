@@ -872,6 +872,9 @@
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="AssimpLoader.h" />
+    <ClInclude Include="FileBrowser.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -3,6 +3,7 @@
 #include "FileUtilities.h"
 #include "GuiBlocks.h"
 #include "Texture.h"
+#include "FileBrowser.h"
 
 class AssimpPreview
 {
@@ -15,14 +16,18 @@ private:
 
 	UINT _meshIndex;
 
+	FileBrowser _browser;
+
 public:
 
-	Model _model;
+	Model _model;	// To modify and export eventually...
 
-
+	std::vector<Animation> _anims;
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
 	{
+		_browser = FileBrowser(path);
+
 		_path = path;
 		_meshIndex = 0;
 
@@ -33,7 +38,6 @@ public:
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
 			aiProcess_FlipUVs |
-			aiProcess_PreTransformVertices |
 			aiProcess_ConvertToLeftHanded;
 
 		_scene = _importer.ReadFile(path, pFlags);
@@ -56,6 +60,7 @@ public:
 	{
 		_meshIndex = 0;
 
+		
 		ImGui::Begin("Scene");
 
 		if (ImGui::TreeNode("Node tree"))
@@ -65,7 +70,11 @@ public:
 			ImGui::TreePop();
 		}
 
+		printSceneAnimations();
+		
 		ImGui::End();
+		
+		_browser.display();
 	}
 
 
@@ -245,8 +254,6 @@ public:
 
 	void printAiMaterial(aiMesh* mesh)
 	{
-		ImGui::BeginGroup();
-
 		ImGui::Text("Material: ");
 		ImGui::Indent();
 
@@ -283,7 +290,6 @@ public:
 		}
 
 		ImGui::Unindent();
-		ImGui::EndGroup();
 	}
 
 
@@ -368,13 +374,88 @@ public:
 
 
 
-	void printAnimations(aiScene* scene)
+	void printSceneAnimations()
 	{
-		ImGui::Begin("Animation data");
+		if (!_scene->HasAnimations())
+			return;
 
-
-
-		ImGui::End();
+		if(ImGui::TreeNode("Animation list"))
+		{
+			for (int i = 0; i < _scene->mNumAnimations; ++i)
+			{
+				printAnimation(_scene->mAnimations[i]);
+			}
+			ImGui::TreePop();
+		}
 	}
 
+
+
+	void printAnimation(aiAnimation* sceneAnimation)
+	{
+		int numChannels = sceneAnimation->mNumChannels;
+
+		Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
+
+		if (ImGui::TreeNode(anim.getName().c_str()))
+		{
+			ImGui::Text("Num channels: ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(numChannels).c_str());
+
+			for (int j = 0; j < numChannels; ++j)
+			{
+				aiNodeAnim* channel = sceneAnimation->mChannels[j];
+
+				if (ImGui::TreeNode(channel->mNodeName.C_Str()))
+				{
+					printAiNodeAnim(channel);
+					ImGui::TreePop();
+				}
+
+			}
+			ImGui::TreePop();
+		}
+
+	}
+
+
+
+	void printAiNodeAnim(aiNodeAnim* channel)
+	{
+		ImGui::Text("Num scaling keys: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(channel->mNumScalingKeys).c_str());
+
+		ImGui::Text("Num rotation keys: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(channel->mNumRotationKeys).c_str());
+
+		ImGui::Text("Num position keys: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(channel->mNumPositionKeys).c_str());
+
+		/*
+		for (int c = 0; c < channel->mNumScalingKeys; c++)
+		{
+			double time = channel->mScalingKeys[c].mTime;
+			aiVector3D chScale = channel->mScalingKeys[c].mValue;
+			SVec3 scale = SVec3(chScale.x, chScale.y, chScale.z);
+		}
+
+		for (int b = 0; b < channel->mNumRotationKeys; b++)
+		{
+			double time = channel->mRotationKeys[b].mTime;
+			aiQuaternion chRot = channel->mRotationKeys[b].mValue;
+			SQuat rot = SQuat(chRot.x, chRot.y, chRot.z, chRot.w);
+		}
+
+		for (int a = 0; a < channel->mNumPositionKeys; a++)
+		{
+			double time = channel->mPositionKeys[a].mTime;
+			aiVector3D chPos = channel->mPositionKeys[a].mValue;
+			SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
+		}
+		*/
+	}
 };

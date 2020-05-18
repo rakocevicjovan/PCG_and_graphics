@@ -371,6 +371,7 @@
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
     <ClInclude Include="FBXLoader.h" />
+    <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="LightManager.h" />
