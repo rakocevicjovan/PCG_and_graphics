@@ -62,8 +62,15 @@ public:
 		_elapsed = fmod(_elapsed, _duration);
 	}
 
+
+
 	float getTickDuration() const { return _tickDuration; }
+
+
+
 	float getElapsed()		const { return _elapsed; }
+
+
 
 	bool getAnimChannel(std::string name, AnimChannel& ac) const 
 	{ 

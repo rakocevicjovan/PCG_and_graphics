@@ -59,7 +59,7 @@ public:
 
 	int index;
 	std::string name;
-	SMatrix meshToLocalBoneSpaceTransform, aiNodeTransform, globalTransform;
+	SMatrix meshToLocalBoneSpaceTransform, locNodeTransform, globalTransform;
 	Joint* parent = nullptr;
 	std::vector<Joint*> offspring;
 

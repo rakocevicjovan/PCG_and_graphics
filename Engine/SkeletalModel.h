@@ -55,10 +55,6 @@ public:
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(path, pFlags);
 
-		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
-		_globalInverseTransform = SMatrix(&globInvTrans.a1);
-		_globalInverseTransform = _globalInverseTransform.Transpose().Invert();
-
 		// Check for errors
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || scene->mRootNode == nullptr)
 		{
@@ -69,6 +65,11 @@ public:
 
 		directory = path.substr(0, path.find_last_of('/'));
 		name = path.substr(path.find_last_of('/') + 1, path.size());
+
+
+		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
+		_globalInverseTransform = SMatrix(&globInvTrans.a1);
+		_globalInverseTransform = _globalInverseTransform.Transpose().Invert();
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);	/*scene->mRootNode->mTransformation*/
 
@@ -95,13 +96,13 @@ public:
 		if (it != _boneMap.end())
 		{
 			Joint& currentJoint = it->second;
-			currentJoint.aiNodeTransform = (SMatrix(&node->mTransformation.a1).Transpose());
+			currentJoint.locNodeTransform = (SMatrix(&node->mTransformation.a1).Transpose());
 
 			if (node->mParent != nullptr)
 			{
 				auto it2 = _boneMap.find(std::string(node->mParent->mName.data));
 
-				//currentJoint.aiNodeTransform *= (SMatrix(&node->mParent->mTransformation.a1).Transpose());
+				//currentJoint.locNodeTransform *= (SMatrix(&node->mParent->mTransformation.a1).Transpose());
 				
 				if(it2 != _boneMap.end())
 				{
@@ -385,7 +386,7 @@ public:
 
 	void CalcGlobalTransforms(Joint& j, const SMatrix& parentMat)
 	{
-		j.globalTransform = j.aiNodeTransform * parentMat;
+		j.globalTransform = j.locNodeTransform * parentMat;
 
 		for (Joint* cj : j.offspring)
 		{
@@ -466,7 +467,7 @@ public:
 		SMatrix nodeTransform;
 		
 		if(found)
-			nodeTransform = animationMatrix * joint.aiNodeTransform * parentMatrix;
+			nodeTransform = animationMatrix * joint.locNodeTransform * parentMatrix;
 		else
 			nodeTransform = animationMatrix * parentMatrix;
 

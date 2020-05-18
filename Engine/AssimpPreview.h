@@ -15,15 +15,16 @@ private:
 
 	UINT _meshIndex;
 
-	std::vector<Texture> _textures;
-
 public:
 
-	bool loadAiScene(const std::string& path, UINT inFlags)
+	Model _model;
+
+
+
+	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
 	{
 		_path = path;
 		_meshIndex = 0;
-		_textures.clear();
 
 		assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
@@ -43,6 +44,8 @@ public:
 			OutputDebugStringA(errString.c_str());
 			return false;
 		}
+
+		_model.LoadModel(device, path);
 
 		return true;
 	}
@@ -72,9 +75,10 @@ public:
 		std::string nodeName("Node: ");
 		nodeName += node->mName.C_Str();
 
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
 		if (ImGui::TreeNode(nodeName.c_str()))
 		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.6, 0., 1., 1.));
+
 			aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;
 
 			if (ImGui::TreeNode("Concatenated transform: "))
@@ -117,7 +121,6 @@ public:
 				ImGui::PopStyleColor();
 			}
 
-			
 
 			ImGui::Separator();
 
@@ -139,9 +142,10 @@ public:
 				}	
 			}
 
+			ImGui::PopStyleColor();
 			ImGui::TreePop();
 		}
-		ImGui::PopStyleColor();
+		
 
 		return true;
 	}
@@ -157,31 +161,34 @@ public:
 
 		ImGui::BeginGroup();
 
-			ImGui::Text("UVs");
+		ImGui::Text("UVs");
 
-			ImGui::Text("Nr. of UV channels: ");
-			ImGui::SameLine();
-			ImGui::Text(std::to_string(numUVChannels).c_str());
+		ImGui::Text("Nr. of UV channels: ");
+		ImGui::SameLine();
+		ImGui::Text(std::to_string(numUVChannels).c_str());
 
-			ImGui::Text("Nr. of UV components per channel: ");
+		ImGui::Text("Nr. of UV components per channel: ");
 
-			ImGui::Indent();
-			for (int i = 0; i < numUVChannels; i++)
-			{
-				ImGui::Text(std::to_string(numUVComponents[i]).c_str());
-			}
-			ImGui::Unindent();
+		ImGui::Indent();
+		for (int i = 0; i < numUVChannels; i++)
+		{
+			ImGui::Text(std::to_string(numUVComponents[i]).c_str());
+		}
+		ImGui::Unindent();
 
 		ImGui::EndGroup();
 
 		ImGui::Separator();
+
+		//  Get a minimum bounding sphere, useful for model loading but not needed here
+		/*
 
 		//float maxDist = 0.f;
 		//Vert3D vertex;
 
 		for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
 		{
-			/*
+			
 			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
 			float curDist = vertex.pos.LengthSquared();
@@ -194,32 +201,20 @@ public:
 			vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x * rUVx, aiMesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
 
 			mesh._vertices.push_back(vertex);
-			*/
+			
 		}
 
 		//maxDist = sqrt(maxDist);
+		*/
 
 		UINT indexCount = 0u;
 
-		aiFace face;
 		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 		{
-			face = mesh->mFaces[i];
-
 			//populate indices from faces
-			for (unsigned int j = 0; j < face.mNumIndices; ++j)
+			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; ++j)
 				++indexCount;	//_indices.push_back(face.mIndices[j]);
 		}
-
-		//even if it's not too fast, this is still a better solution to the previous one (bottom)
-		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
-		{
-			face = mesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
-
-			//assign face tangents to vertex tangents
-			//for (unsigned int j = 0; j < face.mNumIndices; ++j) mesh._vertices[face.mIndices[j]].tangent += faceTangents[i];
-		}
-
 
 		ImGui::BeginGroup();
 
@@ -243,116 +238,143 @@ public:
 
 		ImGui::Separator();
 
+		printAiMaterial(mesh);
+	}
+
+
+
+	void printAiMaterial(aiMesh* mesh)
+	{
+		ImGui::BeginGroup();
+
+		ImGui::Text("Material: ");
+		ImGui::Indent();
+
 		if (mesh->mMaterialIndex >= 0)
 		{
 			aiMaterial* material = _scene->mMaterials[mesh->mMaterialIndex];
 
 			// Diffuse maps
-			loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+			printMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
 
 			//  Normal maps
-			loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", NORMAL);
+			printMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", NORMAL);
 
 			// Specular maps
-			loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+			printMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
 
 			// Shininess maps
-			loadMaterialTextures(material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+			printMaterialTextures(material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
 
 			// Opacity maps
-			loadMaterialTextures(material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
+			printMaterialTextures(material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
 
 			// Displacement maps
-			loadMaterialTextures(material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+			printMaterialTextures(material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
 
 			// Ambient occlusion maps
-			loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+			printMaterialTextures(material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
 
 			// Other maps
-			loadMaterialTextures(material, aiTextureType_UNKNOWN, "texture_other", OTHER);
+			printMaterialTextures(material, aiTextureType_UNKNOWN, "texture_other", OTHER);
 
 			// Weird properties... that I never really saw trigger
-			loadMaterialTextures(material, aiTextureType_NONE, "texture_property", OTHER);
+			printMaterialTextures(material, aiTextureType_NONE, "texture_property", OTHER);
 		}
 
-		ImGui::BeginGroup();
-		ImGui::Text("Materials");
-
-
+		ImGui::Unindent();
 		ImGui::EndGroup();
 	}
 
 
 
-	void printAiMaterial()
+	void printMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, TextureRole role)
 	{
+		UINT numThisType = mat->GetTextureCount(type);
+		typeName += " count: ";
+		typeName += std::to_string(numThisType);
 
-	}
+		ImGui::Text(typeName.c_str());
 
+		ImGui::Indent();
 
-
-	bool loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, TextureRole role)
-	{
 		//iterate all textures of relevant related to the material
-		for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
+		for (unsigned int i = 0; i < numThisType; ++i)
 		{
+			// Try to load this texture from file
 			aiString obtainedTexturePath;
 			mat->GetTexture(type, i, &obtainedTexturePath);
 
-			std::string texPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
+			// This assumes files are exported with relative paths... which is a big if, considering artists can't seem to grasp the concept
 			
-			Texture curTexture;
-			curTexture._fileName = texPath;
-			curTexture._typeName = typeName;
-			curTexture._role = role;
+			std::string modelFolderPath = _path.substr(0, _path.find_last_of("/\\")) + "\\";
+			std::string texPath = modelFolderPath + std::string(obtainedTexturePath.data);
+			std::string texName = std::filesystem::path(std::string(obtainedTexturePath.C_Str())).filename().string();
 
-			//try to load this texture from file
-			bool loaded = curTexture.LoadFromStoredPath();
-
-			//load from file failed - probably means it is embedded, try to load from memory instead...
-			if (!loaded)
+			bool loaded = FileUtils::fileExists(texPath);
+			
+			if (loaded)
 			{
-				int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
-				loaded = loadEmbeddedTexture(curTexture, embeddedIndex);
+				ImGui::Text("Path: ");
+				ImGui::SameLine();
+				ImGui::Text(texPath.c_str());
 			}
-
-
-			//load failed completely - most likely the data is corrupted or my library doesn't support it
-			if (!loaded)
+			else
 			{
-				OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-				continue;
+				aiTexture* aiTex;
+
+				int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char), also switch to std::to_integer()
+
+				if (_scene->mTextures)
+				{
+					aiTex = _scene->mTextures[embeddedIndex];
+					loaded = (aiTex != nullptr);
+				}
+
+				if (loaded)
+				{
+					ImGui::Text("This texture is embedded at index ");
+					ImGui::SameLine();
+					ImGui::Text(std::to_string(embeddedIndex).c_str());
+				}
+				else
+				{
+					ImGui::Text("Path: ");
+					ImGui::SameLine();
+					ImGui::Text(texPath.c_str());
+
+					ImGui::SameLine();
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
+					ImGui::Text(" ( WARNING: NOT FOUND! )");
+					ImGui::PopStyleColor();
+
+					// Try to apply the fix
+					std::filesystem::directory_entry dumbassArtist;
+					if (FileUtils::findFile(modelFolderPath, texName, dumbassArtist))
+					{
+						ImGui::Indent();
+						ImGui::Text("Proposed path: ");
+						ImGui::SameLine();
+						ImGui::Text(dumbassArtist.path().string().c_str());
+						ImGui::Unindent();
+					}
+				}
+
 			}
-			
-			
-			_textures.push_back(curTexture);
 		}
 
-		//goes through for now... I'm using some bootleg meshes, happens on occasion, don't want to terminate over it
-		return true;
+		ImGui::Unindent();
 	}
 
 
 
-	bool loadEmbeddedTexture(Texture& texture, UINT index)
+	void printAnimations(aiScene* scene)
 	{
-		if (!_scene->mTextures)
-			return false;
+		ImGui::Begin("Animation data");
 
-		aiTexture* aiTex = _scene->mTextures[index];
 
-		if (!aiTex)
-			return false;
 
-		size_t texSize = aiTex->mWidth;
-
-		// Compressed (embedded) textures could have height value of 0
-		if (aiTex->mHeight != 0)
-			texSize *= aiTex->mHeight;
-
-		texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
-
-		return true;
+		ImGui::End();
 	}
 
 };

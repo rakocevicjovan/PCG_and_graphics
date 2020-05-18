@@ -19,9 +19,6 @@
     <Filter Include="AI">
       <UniqueIdentifier>{527b4072-18fc-437c-968c-41405c35f43c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\SkelAnim">
-      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision\Spatial partitioning">
       <UniqueIdentifier>{8f9f92cc-7b19-41f2-9964-cdf2ff740ee8}</UniqueIdentifier>
     </Filter>
@@ -141,6 +138,9 @@
     <Filter Include="Memory Allocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources\Resource classes\SkelAnim">
+      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -204,7 +204,7 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>Rendering\SkelAnim</Filter>
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
@@ -213,7 +213,7 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp">
-      <Filter>Rendering\SkelAnim</Filter>
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Resources</Filter>
@@ -485,13 +485,13 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
-      <Filter>Rendering\SkelAnim</Filter>
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalMesh.h">
-      <Filter>Rendering\SkelAnim</Filter>
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModel.h">
-      <Filter>Rendering\SkelAnim</Filter>
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>Resources</Filter>
