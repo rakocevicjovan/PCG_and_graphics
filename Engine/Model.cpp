@@ -41,7 +41,7 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 
 	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
-	unsigned int pFlags =
+	UINT pFlags =
 		aiProcessPreset_TargetRealtime_MaxQuality |
 		aiProcess_Triangulate |
 		aiProcess_GenSmoothNormals |
@@ -50,14 +50,11 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 		aiProcess_ConvertToLeftHanded;
 
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, pFlags);
 
-	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-	{
-		std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
-		OutputDebugStringA(errString.c_str());
+	const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
+
+	if (!scene)
 		return false;
-	}
 
 	_meshes.reserve(scene->mNumMeshes);
 

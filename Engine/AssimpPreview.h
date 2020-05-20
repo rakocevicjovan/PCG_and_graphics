@@ -12,30 +12,26 @@ private:
 	Assimp::Importer _importer;
 
 	std::string _path;
+
 	const aiScene* _scene;
 
-	UINT _meshIndex;
+	UINT _meshIndex;	// Used to differentiate between mesh names because they tend to have same names
 
-	FileBrowser _browser;
-
-	Model _model;	// To modify and export eventually...
+	// Things this class could end up loading... inellegant way to do it but cba abstracting until it's solid and works
+	Model _model;
 	std::vector<Animation> _anims;
-
-	std::filesystem::directory_entry _selectedFile;
+	std::vector<Texture> _textures;
 
 public:
 
 
 
-
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
 	{
-		_browser = FileBrowser(path);
+		//static_assert(std::is_nothrow_move_constructible<AssimpPreview>::value, "MyType should be noexcept MoveConstructible");
 
 		_path = path;
 		_meshIndex = 0;
-
-		assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
@@ -44,14 +40,10 @@ public:
 			aiProcess_FlipUVs |
 			aiProcess_ConvertToLeftHanded;
 
-		_scene = _importer.ReadFile(path, pFlags);
+		_scene = AssimpWrapper::loadScene(_importer, path, pFlags);
 
-		if (!_scene || _scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !_scene->mRootNode)
-		{
-			std::string errString("Assimp error:" + std::string(_importer.GetErrorString()));
-			OutputDebugStringA(errString.c_str());
+		if (!_scene)
 			return false;
-		}
 
 		_model.LoadModel(device, path);
 
@@ -60,12 +52,11 @@ public:
 	
 
 
-	void displayAiScene()
+	void displayAiScene(const std::string& sName)
 	{
 		_meshIndex = 0;
 
-		
-		ImGui::Begin("Scene");
+		ImGui::BeginChild(sName.c_str());
 
 		if (ImGui::TreeNode("Node tree"))
 		{
@@ -76,14 +67,7 @@ public:
 
 		printSceneAnimations();
 		
-		ImGui::End();
-		
-		auto selected = _browser.display();
-
-		if (selected.has_value())
-		{
-			_selectedFile = selected.value();
-		}
+		ImGui::EndChild();
 	}
 
 
@@ -130,6 +114,7 @@ public:
 							ImGui::PushID(i);
 							printAiMesh(mesh, concatenatedTransform);
 							ImGui::PopID();
+							ImGui::Separator();
 							ImGui::TreePop();
 						}
 
@@ -431,4 +416,8 @@ public:
 		}
 		*/
 	}
+
+
+
+	std::filesystem::path getPath() { return std::filesystem::path(_path); }
 };

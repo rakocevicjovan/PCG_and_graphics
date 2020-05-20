@@ -5,6 +5,8 @@
 #include "Mesh.h"
 #include "Animation.h"
 #include "Texture.h"
+#include "FileUtilities.h"
+
 
 
 class AssimpWrapper
@@ -15,9 +17,20 @@ private:
 
 public:
 
-	static void wat()
+	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags)
 	{
+		assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
+		const aiScene* scene = importer.ReadFile(path, pFlags);
+
+		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
+			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
+			OutputDebugStringA(errString.c_str());
+			return nullptr;
+		}
+
+		return scene;
 	}
 
 
