@@ -12,15 +12,16 @@ struct AnimChannel
 
 	AnimChannel(int p, int r, int s)
 	{
-		posVec.reserve(p);
-		rotVec.reserve(r);
-		sclVec.reserve(s);
+		pKeys.reserve(p);
+		rKeys.reserve(r);
+		sKeys.reserve(s);
 	}
 
 	std::string jointName;
-	std::vector<std::pair<float, SVec3>> posVec;
-	std::vector<std::pair<float, SQuat>> rotVec;
-	std::vector<std::pair<float, SVec3>> sclVec;
+
+	std::vector<std::pair<float, SVec3>> sKeys;
+	std::vector<std::pair<float, SQuat>> rKeys;
+	std::vector<std::pair<float, SVec3>> pKeys;
 };
 
 

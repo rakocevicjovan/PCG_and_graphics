@@ -4,13 +4,7 @@
 #include <map>
 #include <vector>
 #include <d3d11.h>
-
-#include "assimp\Importer.hpp"	
-#include "assimp\scene.h"
-#include "assimp\postprocess.h" 
-#include "Mesh.h"
-
-class Collider;
+#include "AssimpWrapper.h"
 
 namespace Procedural { class Terrain; }
 
@@ -19,15 +13,8 @@ class Model : public Resource
 private:
 
 	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
-	
+
 	bool processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene* scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
-	
-	bool loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, 
-		aiTextureType type, std::string typeName, TextureRole role);
-	
-	bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index);
-	
-	SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
 
 public:
 	std::vector<Mesh> _meshes;

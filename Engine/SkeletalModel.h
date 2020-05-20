@@ -9,15 +9,12 @@
 
 #include <d3d11.h>
 
-#include "assimp\Importer.hpp"	
-#include "assimp\scene.h"
-#include "assimp\postprocess.h" 
+#include "AssimpWrapper.h"
 #include "SkeletalMesh.h"
-#include "Animation.h"
 
 
 //@TODO Make this use the model class for everything but skinning... 
-//can't replicate all material changes that happened without messing something up
+//can't replicate all the changes that happened without messing something up
 class SkeletalModel
 {
 public:
@@ -77,8 +74,8 @@ public:
 		//relies on names to detect bones amongst other nodes (processNode already collected all bone names using loadBones)
 		//and then on map searches to find relationships between the bones
 		linkSkeletonTree(scene->mRootNode);	
-		MakeLikeATree();
-		loadAnimations(scene);
+		makeLikeATree();
+		AssimpWrapper::loadAnimations(scene, anims);
 
 		//auto it = std::find_if(_boneMap.begin(), _boneMap.end(), [](const std::pair<std::string, Joint>& njPair) { return njPair.second.index == 10; });
 		//Joint foundJoint = it->second;
@@ -316,60 +313,7 @@ public:
 
 
 
-	void loadAnimations(const aiScene* scene) 
-	{
-		if (!scene->HasAnimations())
-			return;
-
-		for (int i = 0; i < scene->mNumAnimations; ++i) 
-		{
-			auto sceneAnimation = scene->mAnimations[i];
-			int numChannels = sceneAnimation->mNumChannels;
-
-			Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
-
-			for (int j = 0; j < numChannels; ++j)
-			{
-				aiNodeAnim* channel = sceneAnimation->mChannels[j];
-
-				//create empty channel object, for our use not like assimp's
-				AnimChannel ac(channel->mNumPositionKeys, channel->mNumRotationKeys, channel->mNumScalingKeys);
-				ac.jointName = std::string(channel->mNodeName.C_Str());
-
-				for (int c = 0; c < channel->mNumScalingKeys; c++)
-				{
-					double time = channel->mScalingKeys[c].mTime;
-					aiVector3D chScale = channel->mScalingKeys[c].mValue;
-					SVec3 scale = SVec3(chScale.x, chScale.y, chScale.z);
-					ac.sclVec.emplace_back(time, scale);
-				}
-
-				for (int b = 0; b < channel->mNumRotationKeys; b++) 
-				{
-					double time = channel->mRotationKeys[b].mTime;
-					aiQuaternion chRot = channel->mRotationKeys[b].mValue;
-					SQuat rot = SQuat(chRot.x, chRot.y, chRot.z, chRot.w);
-					ac.rotVec.emplace_back(time, rot);
-				}
-
-				for (int a = 0; a < channel->mNumPositionKeys; a++)
-				{
-					double time = channel->mPositionKeys[a].mTime;
-					aiVector3D chPos = channel->mPositionKeys[a].mValue;
-					SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
-					ac.posVec.emplace_back(time, pos);
-				}
-
-				anim.addChannel(ac);
-			}
-
-			anims.push_back(anim);
-		}
-	}
-
-
-
-	void MakeLikeATree()
+	void makeLikeATree()
 	{
 		for (auto njPair : _boneMap)
 		{
@@ -377,18 +321,18 @@ public:
 				_rootJoint = njPair.second;
 		}
 
-		CalcGlobalTransforms(_rootJoint, SMatrix::Identity);
+		calcGlobalTransforms(_rootJoint, SMatrix::Identity);	// Identity because this is for root only
 	}
 
 
 
-	void CalcGlobalTransforms(Joint& j, const SMatrix& parentMat)
+	void calcGlobalTransforms(Joint& j, const SMatrix& parentMat)
 	{
 		j.globalTransform = j.locNodeTransform * parentMat;
 
 		for (Joint* cj : j.offspring)
 		{
-			CalcGlobalTransforms(*cj, j.globalTransform);
+			calcGlobalTransforms(*cj, j.globalTransform);
 		}
 	}
 
@@ -422,34 +366,34 @@ public:
 
 		if (found)
 		{
-			for (UINT i = 0; i < channel.posVec.size() - 1; ++i)
+			for (UINT i = 0; i < channel.pKeys.size() - 1; ++i)
 			{
-				if (currentTick < (float)channel.posVec[i + 1].first)
+				if (currentTick < (float)channel.pKeys[i + 1].first)
 				{
-					SVec3 posPre = channel.posVec[i].second;
-					SVec3 posPost = channel.posVec[i + 1 == channel.posVec.size() ? 0 : i + 1].second;
+					SVec3 posPre = channel.pKeys[i].second;
+					SVec3 posPost = channel.pKeys[i + 1 == channel.pKeys.size() ? 0 : i + 1].second;
 					pos = Math::lerp(posPre, posPost, t);
 					break;
 				}
 			}
 
-			for (UINT i = 0; i < channel.sclVec.size() - 1; ++i)
+			for (UINT i = 0; i < channel.sKeys.size() - 1; ++i)
 			{
-				if (currentTick < (float)channel.sclVec[i + 1].first)
+				if (currentTick < (float)channel.sKeys[i + 1].first)
 				{
-					SVec3 scalePre = channel.sclVec[i].second;
-					SVec3 scalePost = channel.sclVec[i + 1 == channel.sclVec.size() ? 0 : i + 1].second;
+					SVec3 scalePre = channel.sKeys[i].second;
+					SVec3 scalePost = channel.sKeys[i + 1 == channel.sKeys.size() ? 0 : i + 1].second;
 					scale = Math::lerp(scalePre, scalePost, t);
 					break;
 				}
 			}
 
-			for (UINT i = 0; i < channel.rotVec.size() - 1; ++i)
+			for (UINT i = 0; i < channel.rKeys.size() - 1; ++i)
 			{
-				if (currentTick < (float)channel.rotVec[i + 1].first)
+				if (currentTick < (float)channel.rKeys[i + 1].first)
 				{
-					SQuat rotPre = channel.rotVec[i].second;
-					SQuat rotPost = channel.rotVec[i + 1 == channel.rotVec.size() ? 0 : i + 1].second;
+					SQuat rotPre = channel.rKeys[i].second;
+					SQuat rotPost = channel.rKeys[i + 1 == channel.rKeys.size() ? 0 : i + 1].second;
 					quat = SQuat::Slerp(rotPre, rotPost, t);
 					break;
 				}

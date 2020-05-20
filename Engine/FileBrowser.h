@@ -1,6 +1,7 @@
 #pragma once
 #include "GuiBlocks.h"
 #include "FileUtilities.h"
+#include <optional>
 
 class FileBrowser
 {
@@ -13,8 +14,6 @@ private:
 	std::filesystem::path _curDirPath;
 
 	std::deque<std::filesystem::path> _pathHistory;
-
-	std::filesystem::path _selectedItemPath;
 
 	bool _badPath;
 
@@ -39,8 +38,10 @@ public:
 
 
 
-	void display()
+	std::optional<std::filesystem::directory_entry> display()
 	{
+		std::optional <std::filesystem::directory_entry> selected;
+
 		if (ImGui::Begin("Asset list"))
 		{
 			bool tempBadPath = _badPath;	//Since it can change with seek
@@ -65,40 +66,18 @@ public:
 
 			if (ImGui::Button("Back"))
 				stepBack();
-
-
-			ImGui::ListBoxHeader("Contents");
-
-			auto file = std::filesystem::directory_entry(_curDirPath);
-
-			if (file.exists() && file.is_directory())
-			{
-				std::filesystem::directory_iterator dirIter(_curDirPath);
-
-				for (const std::filesystem::directory_entry& de : dirIter)	//for (int i = 0; i < _contents.size(); i++)
-				{
-					if (ImGui::Button(de.path().filename().string().data()))	//ImGui::Button(_contents[i].c_str())
-					{
-						if (de.is_directory())
-						{
-							_searchedString = de.path().string();
-							seek();
-						}
-						else
-						{
-							_selectedItemPath = de;
-						}
-					}
-				}
-			}
-
-			ImGui::ListBoxFooter();
+			
+			selected = printContentList();
 
 		}
 		ImGui::End();
+
+		return selected;
 	}
 
 
+
+private:
 
 	void seek()
 	{
@@ -147,5 +126,40 @@ public:
 		{
 			_badPath = true;
 		}
+	}
+
+
+
+	std::optional<std::filesystem::directory_entry> printContentList()
+	{
+		std::optional<std::filesystem::directory_entry> result;
+
+		ImGui::ListBoxHeader("Contents");
+
+		auto file = std::filesystem::directory_entry(_curDirPath);
+
+		if (file.exists() && file.is_directory())
+		{
+			std::filesystem::directory_iterator dirIter(_curDirPath);
+
+			for (const std::filesystem::directory_entry& de : dirIter)	//for (int i = 0; i < _contents.size(); i++)
+			{
+				if (ImGui::Button(de.path().filename().string().data()))	//ImGui::Button(_contents[i].c_str())
+				{
+					if (de.is_directory())
+					{
+						_searchedString = de.path().string();
+						seek();
+					}
+					else
+					{
+						result = de;
+					}
+				}
+			}
+		}
+
+		ImGui::ListBoxFooter();
+		return result;
 	}
 };

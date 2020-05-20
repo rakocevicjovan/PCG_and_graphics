@@ -18,11 +18,15 @@ private:
 
 	FileBrowser _browser;
 
+	Model _model;	// To modify and export eventually...
+	std::vector<Animation> _anims;
+
+	std::filesystem::directory_entry _selectedFile;
+
 public:
 
-	Model _model;	// To modify and export eventually...
 
-	std::vector<Animation> _anims;
+
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
 	{
@@ -74,7 +78,12 @@ public:
 		
 		ImGui::End();
 		
-		_browser.display();
+		auto selected = _browser.display();
+
+		if (selected.has_value())
+		{
+			_selectedFile = selected.value();
+		}
 	}
 
 
@@ -145,6 +154,7 @@ public:
 					{
 						ImGui::PushID(i);
 						printaiNode(node->mChildren[i], scene, concatenatedTransform);
+						ImGui::Separator();
 						ImGui::PopID();
 					}
 					ImGui::TreePop();
@@ -166,18 +176,14 @@ public:
 		UINT numUVChannels = mesh->GetNumUVChannels();
 		UINT* numUVComponents = mesh->mNumUVComponents;
 
-		bool hasTexCoords = mesh->mTextureCoords[0];
-
 		ImGui::BeginGroup();
 
 		ImGui::Text("UVs");
-
 		ImGui::Text("Nr. of UV channels: ");
 		ImGui::SameLine();
 		ImGui::Text(std::to_string(numUVChannels).c_str());
 
 		ImGui::Text("Nr. of UV components per channel: ");
-
 		ImGui::Indent();
 		for (int i = 0; i < numUVChannels; i++)
 		{
@@ -186,35 +192,7 @@ public:
 		ImGui::Unindent();
 
 		ImGui::EndGroup();
-
-		ImGui::Separator();
-
-		//  Get a minimum bounding sphere, useful for model loading but not needed here
-		/*
-
-		//float maxDist = 0.f;
-		//Vert3D vertex;
-
-		for (unsigned int i = 0; i < mesh->mNumVertices; ++i)
-		{
-			
-			vertex.pos = SVec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-
-			float curDist = vertex.pos.LengthSquared();
-			if (maxDist < curDist)
-				maxDist = curDist;
-
-			vertex.normal = SVec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-			//vertex.normal.Normalize();	//not sure if required, should be so already
-
-			vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x * rUVx, aiMesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
-
-			mesh._vertices.push_back(vertex);
-			
-		}
-
-		//maxDist = sqrt(maxDist);
-		*/
+		ImGui::NewLine();
 
 		UINT indexCount = 0u;
 
@@ -244,8 +222,7 @@ public:
 		ImGui::Text(std::to_string(mesh->HasTangentsAndBitangents()).c_str());
 
 		ImGui::EndGroup();
-
-		ImGui::Separator();
+		ImGui::NewLine();
 
 		printAiMaterial(mesh);
 	}
@@ -264,7 +241,7 @@ public:
 			// Diffuse maps
 			printMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
 
-			//  Normal maps
+			// Normal maps
 			printMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", NORMAL);
 
 			// Specular maps
@@ -354,14 +331,14 @@ public:
 					ImGui::Text(" ( WARNING: NOT FOUND! )");
 					ImGui::PopStyleColor();
 
-					// Try to apply the fix
-					std::filesystem::directory_entry dumbassArtist;
-					if (FileUtils::findFile(modelFolderPath, texName, dumbassArtist))
+					// Try to apply the fix for absolute paths to textures...
+					std::filesystem::directory_entry artistPls;
+					if (FileUtils::findFile(modelFolderPath, texName, artistPls))
 					{
 						ImGui::Indent();
 						ImGui::Text("Proposed path: ");
 						ImGui::SameLine();
-						ImGui::Text(dumbassArtist.path().string().c_str());
+						ImGui::Text(artistPls.path().string().c_str());
 						ImGui::Unindent();
 					}
 				}
@@ -395,9 +372,7 @@ public:
 	{
 		int numChannels = sceneAnimation->mNumChannels;
 
-		Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
-
-		if (ImGui::TreeNode(anim.getName().c_str()))
+		if (ImGui::TreeNode(sceneAnimation->mName.C_Str()))
 		{
 			ImGui::Text("Num channels: ");
 			ImGui::SameLine();
@@ -412,11 +387,9 @@ public:
 					printAiNodeAnim(channel);
 					ImGui::TreePop();
 				}
-
 			}
 			ImGui::TreePop();
 		}
-
 	}
 
 

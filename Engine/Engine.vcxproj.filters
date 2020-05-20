@@ -875,6 +875,9 @@
     <ClInclude Include="FileBrowser.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="AssimpWrapper.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

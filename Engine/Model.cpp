@@ -2,8 +2,7 @@
 #include "CollisionEngine.h"
 #include "Terrain.h"
 #include "FileUtilities.h"
-#include "CollisionEngine.h"
-
+#include "Collider.h"
 
 
 Model::Model(const std::string& path)
@@ -93,104 +92,33 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 
 bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
 {
-	std::vector<SVec3> faceTangents;
-
 	mesh._vertices.reserve(aiMesh->mNumVertices);
 	mesh._indices.reserve(aiMesh->mNumFaces * 3);
+
+	std::vector<SVec3> faceTangents;
 	faceTangents.reserve(aiMesh->mNumFaces);
 
-	bool hasTexCoords = aiMesh->mTextureCoords[0];
-	float maxDist = 0.f;
-	Vert3D vertex;
+	bool hasTexCoords = aiMesh->HasTextureCoords(0);
+	bool hasNormals = aiMesh->HasNormals();
+	bool hasTangents = aiMesh->HasTangentsAndBitangents();
 
-	for (unsigned int i = 0; i < aiMesh->mNumVertices; ++i)
-	{
-		//memcpy faster?
-		vertex.pos = SVec3(aiMesh->mVertices[i].x, aiMesh->mVertices[i].y, aiMesh->mVertices[i].z);
-		
-		float curDist = vertex.pos.LengthSquared();
-		if (maxDist < curDist)
-			maxDist = curDist;
+	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, mesh._vertices);
 
-		vertex.normal = SVec3(aiMesh->mNormals[i].x, aiMesh->mNormals[i].y, aiMesh->mNormals[i].z);
-		//vertex.normal.Normalize();	//not sure if required, should be so already
+	AssimpWrapper::loadIndices(aiMesh, mesh);	// also calculates tangents per face
 
-		vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x * rUVx, aiMesh->mTextureCoords[0][i].y * rUVy) : SVec2::Zero;
+	AssimpWrapper::loadTangents(aiMesh, mesh._vertices, faceTangents);
 
-		mesh._vertices.push_back(vertex);
-	}
+	AssimpWrapper::loadMaterials(_path, scene, aiMesh, mesh._textures);
 
-	maxDist = sqrt(maxDist);
-
-
-	aiFace face;
-	for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i)
-	{
-		 face = aiMesh->mFaces[i];
-
-		//populate indices from faces
-		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			mesh._indices.push_back(face.mIndices[j]);
-
-		//calculate tangents for faces
-		faceTangents.push_back(calculateTangent(mesh._vertices, face));
-	}
-
-
-	//even if it's not too fast, this is still a better solution to the previous one (bottom)
-	for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i)
-	{
-		face = aiMesh->mFaces[i];	//used only for the name hopefully optimized away... don't need repeated allocation really...
-		
-		//assign face tangents to vertex tangents
-		for (unsigned int j = 0; j < face.mNumIndices; ++j)
-			mesh._vertices[face.mIndices[j]].tangent += faceTangents[i];
-	}
-
-	//after the normalization step we have all the tangents properly calculated
-	for (Vert3D& vert : mesh._vertices)
-		vert.tangent.Normalize();
-
-	if (aiMesh->mMaterialIndex >= 0)
-	{
-		aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
-
-		// Diffuse maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
-
-		//  Normal maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
-
-		// Specular maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
-
-		// Shininess maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
-
-		// Opacity maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
-
-		// Displacement maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
-
-		// Ambient occlusion maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
-
-		// Other maps
-		loadMaterialTextures(mesh._textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
-
-		// Weird properties... that I never really saw trigger
-		//loadMaterialTextures(mesh.textures, scene, material, aiTextureType_NONE, "texture_property", OTHER);
-	}
-
-
-	//not true in the general case... it would require tool support with my own format for this!
-	//there is no robust way to infer whether a texture is transparent or not, as some textures use 
-	//32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
-	//brute force checking could solve this but incurs a lot of overhead on load
-	//and randomized sampling is not reliable, so for now... we have this
+	
+	// Not true in the general case... it would require tool support with my own format for this!
+	// there is no robust way to infer whether a texture is transparent or not, as some textures use 
+	// 32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
+	// brute force checking could solve this but incurs a lot of overhead on load
+	// and randomized sampling is not reliable, so for now... we have this
 	mesh._baseMaterial._opaque = true;
 
+	// We got through import shenanigans, these textures are valid and will be uploaded to the gpu
 	for (Texture& t : mesh._textures)
 	{
 		t.SetUpAsResource(device);
@@ -202,102 +130,4 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 	}
 
 	return true;
-}
-
-
-
-bool Model::loadMaterialTextures(std::vector<Texture>& textures, const aiScene* scene, aiMaterial *mat, 
-	aiTextureType type, std::string typeName, TextureRole role)
-{
-	//iterate all textures of relevant related to the material
-	for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
-	{
-		aiString obtainedTexturePath;
-		mat->GetTexture(type, i, &obtainedTexturePath);
-
-		std::string texPath = _path.substr(0, _path.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
-		Texture curTexture;
-		curTexture._fileName = texPath;
-		curTexture._typeName = typeName;
-		curTexture._role = role;
-
-		//try to load this texture from file
-		bool loaded = curTexture.LoadFromStoredPath();
-
-		//load from file failed - probably means it is embedded, try to load from memory instead...
-		if (!loaded)
-		{
-			int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
-			loaded = loadEmbeddedTexture(curTexture, scene, embeddedIndex);
-		}
-			
-
-		//load failed completely - most likely the data is corrupted or my library doesn't support it
-		if (!loaded)
-		{
-			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-			continue;
-		}
-
-		textures.push_back(curTexture);
-	}
-
-	//goes through for now... I'm using some bootleg meshes, happens on occasion, don't want to terminate over it
-	return true;
-}
-
-
-
-bool Model::loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index)
-{
-	if (!scene->mTextures)
-		return false;
-
-	aiTexture* aiTex = scene->mTextures[index];
-
-	if (!aiTex)
-		return false;
-
-	size_t texSize = aiTex->mWidth;
-
-	//compressed textures could have height value of 0
-	if (aiTex->mHeight != 0)
-		texSize *= aiTex->mHeight;
-
-	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
-
-	return true;
-}
-
-
-//this allocates unnecessarily? Even if it's on the stack, I could probably speed up by reusing the declared SVec3s and SVec2s
-SVec3 Model::calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
-{
-	if (face.mNumIndices < 3) return SVec3(0, 0, 0);
-
-	SVec3 tangent;
-	SVec3 edge1, edge2;
-	SVec2 duv1, duv2;
-	
-	//Find first texture coordinate edge 2d vector
-	Vert3D v0 = vertices[face.mIndices[0]];
-	Vert3D v1 = vertices[face.mIndices[1]];
-	Vert3D v2 = vertices[face.mIndices[2]];
-
-	edge1 = v0.pos - v2.pos;
-	edge2 = v2.pos - v1.pos;
-
-	duv1 = v0.texCoords - v2.texCoords;
-	duv2 = v2.texCoords - v1.texCoords;
-
-	float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
-
-	//Find tangent using both tex coord edges and position edges
-	tangent.x = (duv1.y * edge1.x - duv2.y * edge2.x) * f;
-	tangent.y = (duv1.y * edge1.y - duv2.y * edge2.y) * f;
-	tangent.z = (duv1.y * edge1.z - duv2.y * edge2.z) * f;
-
-	tangent.Normalize();
-
-	return tangent;
 }
