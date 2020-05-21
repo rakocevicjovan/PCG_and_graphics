@@ -2,12 +2,13 @@
 #include "assimp\Importer.hpp"	
 #include "assimp\scene.h"
 #include "assimp\postprocess.h" 
-#include "Mesh.h"
-#include "Animation.h"
-#include "Texture.h"
-#include "FileUtilities.h"
-#include "Skeleton.h"
 
+#include "FileUtilities.h"
+
+#include "Mesh.h"
+#include "Texture.h"
+#include "Skeleton.h"
+#include "Animation.h"
 
 
 class AssimpWrapper
@@ -91,7 +92,7 @@ public:
 	}
 
 
-
+	// Template here as well? I need to think well about different vertex types
 	static void loadTangents(aiMesh* aiMesh, std::vector<Vert3D>& verts, std::vector<SVec3>& faceTangents)
 	{
 		aiFace face;

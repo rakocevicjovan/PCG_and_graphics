@@ -886,6 +886,9 @@
     <ClInclude Include="AssimpLoader.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="AeonWriter.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

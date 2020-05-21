@@ -18,9 +18,6 @@ private:
 	UINT _meshIndex;	// Used to differentiate between mesh names because they tend to have same names
 
 	// Things this class could end up loading... inellegant way to do it but cba abstracting until it's solid and works
-	Model _model;
-	std::vector<Animation> _anims;
-	std::vector<Texture> _textures;
 
 public:
 
@@ -45,8 +42,6 @@ public:
 		if (!_scene)
 			return false;
 
-		_model.LoadModel(device, path);
-
 		return true;
 	}
 	
@@ -56,8 +51,6 @@ public:
 	{
 		_meshIndex = 0;
 
-		ImGui::BeginChild(sName.c_str());
-
 		if (ImGui::TreeNode("Node tree"))
 		{
 			printaiNode(_scene->mRootNode, _scene, _scene->mRootNode->mTransformation);
@@ -66,8 +59,6 @@ public:
 		}
 
 		printSceneAnimations();
-		
-		ImGui::EndChild();
 	}
 
 
