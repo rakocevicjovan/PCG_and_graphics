@@ -6,6 +6,7 @@
 #include "Animation.h"
 #include "Texture.h"
 #include "FileUtilities.h"
+#include "Skeleton.h"
 
 
 
@@ -53,7 +54,7 @@ public:
 		
 		float maxDist = 0.f;
 
-		Vert3D vertex;
+		VertexType vertex;
 
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; ++i)
 		{
