@@ -59,7 +59,7 @@ public:
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; ++i)
 		{
 			//SVec3(aiMesh->mVertices[i].x, aiMesh->mVertices[i].y, aiMesh->mVertices[i].z);
-			vertex.pos = SVec3(aiMesh->mVertices[i].x);	
+			vertex.pos = SVec3(&aiMesh->mVertices[i].x);	
 
 			// Should be normalized already?
 			vertex.normal = SVec3(&aiMesh->mNormals[i].x);
@@ -97,6 +97,7 @@ public:
 		aiFace face;
 		for (UINT i = 0; i < aiMesh->mNumFaces; ++i)
 		{
+			face = aiMesh->mFaces[i];
 			faceTangents.emplace_back(calculateTangent(verts, face));	// Calculate tangents for faces
 		}
 

@@ -52,13 +52,24 @@ public:
 
 		if (selected.has_value())
 		{
-			_previews.push_back(std::make_unique<AssimpPreview>());
-			if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u))
+			bool alreadyLoaded = false;
+			for (auto& p : _previews)
 			{
-				_previews.pop_back();
+				if (p->getPath() == selected.value().path())
+				{
+					alreadyLoaded = true;
+					break;
+				}
+			}
+
+			if (!alreadyLoaded)
+			{
+				_previews.push_back(std::make_unique<AssimpPreview>());
+				
+				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u))
+					_previews.pop_back();
 			}
 		}
-
 
 
 

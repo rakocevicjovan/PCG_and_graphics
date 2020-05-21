@@ -54,7 +54,10 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 	const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
 
 	if (!scene)
+	{
 		return false;
+	}
+		
 
 	_meshes.reserve(scene->mNumMeshes);
 

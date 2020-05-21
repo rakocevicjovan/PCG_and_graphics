@@ -871,7 +871,6 @@
     <ClInclude Include="AssimpPreview.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="FileBrowser.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -883,6 +882,9 @@
     </ClInclude>
     <ClInclude Include="Skeleton.h">
       <Filter>Resources\Resource classes\SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpLoader.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

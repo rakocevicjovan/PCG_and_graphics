@@ -23,8 +23,9 @@ public:
 	{
 		CubeMapper::loadCubeMapFromFile(device, path, resolution, _texPtr, _shResView);
 		_r = Renderable(model->_meshes[0]);
-		_r.mat->setVS(m->getVS());
-		_r.mat->setPS(m->getPS());
+		_r.mat = m;
+		//_r.mat->setVS(m->getVS());
+		//_r.mat->setPS(m->getPS());
 	}
 
 

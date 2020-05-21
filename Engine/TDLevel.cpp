@@ -31,13 +31,13 @@ void TDLevel::init(Systems& sys)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 	_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
-
+	Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");
 
 	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 	S_INMAN.registerController(&_tdController);
 
-	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", S_RESMAN.getByName<Model>("Skysphere"), S_MATCACHE.getMaterial("skybox"));
+	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
 
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
@@ -460,7 +460,6 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
-
 	if (_inBuildingMode)
 	{
 		for (Renderable& r : _templateBuilding->_renderables)
@@ -563,7 +562,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	// AAAAAA
 	//_editor.display(_scene._actors);
-	_loaderGui.displayModel(S_DEVICE);
+	//_loaderGui.displayModel(S_DEVICE);
 
 	
 	GUI::endGuiFrame();

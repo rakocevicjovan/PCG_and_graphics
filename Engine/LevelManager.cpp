@@ -10,7 +10,7 @@
 
 LevelManager::LevelManager(Systems& systems)
 {	
-	//new ProjectPickerLevel(systems); boring to click through...
+	//current = new ProjectPickerLevel(systems);	//boring to click through...
 	
 	//current = new TDLevel(systems);		
 
