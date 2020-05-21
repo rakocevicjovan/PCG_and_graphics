@@ -101,7 +101,7 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, mesh._vertices);
 
-	AssimpWrapper::loadIndices(aiMesh, mesh);	// also calculates tangents per face
+	AssimpWrapper::loadIndices(aiMesh, mesh._indices);	// also calculates tangents per face
 
 	AssimpWrapper::loadTangents(aiMesh, mesh._vertices, faceTangents);
 

@@ -43,7 +43,8 @@ public:
 
 
 	// returns bounding sphere radius
-	static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<Vert3D>& verts)
+	template <typename VertexType>
+	static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
 	{
 		verts.reserve(aiMesh->mNumVertices);
 
@@ -75,7 +76,7 @@ public:
 
 
 
-	static void loadIndices(aiMesh* aiMesh, Mesh& mesh)
+	static void loadIndices(aiMesh* aiMesh, std::vector<UINT>& indices)
 	{
 		aiFace face;
 		for (UINT i = 0; i < aiMesh->mNumFaces; ++i)
@@ -84,7 +85,7 @@ public:
 
 			//populate indices from faces
 			for (UINT j = 0; j < face.mNumIndices; ++j)
-				mesh._indices.emplace_back(face.mIndices[j]);
+				indices.emplace_back(face.mIndices[j]);
 		}
 	}
 
@@ -257,6 +258,53 @@ public:
 			}
 
 			outAnims.push_back(anim);
+		}
+	}
+
+
+
+	static void loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
+	{
+		if (!aiMesh.HasBones())
+			return;
+
+		int numBones = 0;
+
+		for (unsigned int i = 0; i < aiMesh.mNumBones; ++i)
+		{
+			aiBone* bone = aiMesh.mBones[i];
+			int boneIndex = 0;
+
+			std::string boneName(bone->mName.data);
+
+			// Connect bone indices to vertex skinning data
+
+			int foundIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
+
+			if (foundIndex > 0)
+			{
+				boneIndex = foundIndex;	// Bone found, use it's index for skinning
+			}
+			else	// Bone doesn't exist in our skeleton data yet, add it, then use it's index for skinning
+			{
+				boneIndex = numBones;
+
+				SMatrix jointOffsetMat(&bone->mOffsetMatrix.a1);
+				jointOffsetMat = jointOffsetMat.Transpose();
+
+				Joint joint(boneIndex, boneName, jointOffsetMat);
+				skeleton._boneMap.insert({ boneName, joint });
+				++numBones;
+			}
+
+
+			// Load skinning data (up to four bone indices and four weights) into vertices
+			for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+			{
+				unsigned int vertID = bone->mWeights[j].mVertexId;
+				float weight = bone->mWeights[j].mWeight;
+				verts[vertID].AddBoneData(boneIndex, weight);
+			}
 		}
 	}
 

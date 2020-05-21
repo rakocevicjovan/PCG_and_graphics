@@ -2,12 +2,13 @@
 
 #include <d3d11.h>
 #include <vector>
-
 #include "MeshDataStructs.h"
 #include "Texture.h"
 #include "Math.h"
 #include "Geometry.h"
 #include "SkelAnimShader.h"
+
+
 
 class SkeletalMesh
 {

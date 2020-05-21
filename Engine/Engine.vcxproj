@@ -357,6 +357,7 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationInstance.h" />
     <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="AssimpPreview.h" />
     <ClInclude Include="AssimpWrapper.h" />
@@ -405,6 +406,7 @@
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="QTObject.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="Skeleton.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SlotVector.h" />
     <ClInclude Include="SphereHull.h" />

@@ -878,6 +878,12 @@
     <ClInclude Include="AssimpWrapper.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationInstance.h">
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.h">
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
