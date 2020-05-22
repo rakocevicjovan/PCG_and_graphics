@@ -5,14 +5,14 @@
 #include "Collider.h"
 
 
-Model::Model(const std::string& path)
+Model::Model(const std::string& path) : collider(nullptr)
 {
 	_path = path;
 }
 
 
 
-Model::Model(const Collider & collider, ID3D11Device* device)
+Model::Model(const Collider & collider, ID3D11Device* device) : collider(nullptr)
 {
 	for each(auto hull in collider.getHulls())
 		_meshes.push_back(Mesh(hull, device));
@@ -20,7 +20,7 @@ Model::Model(const Collider & collider, ID3D11Device* device)
 
 
 
-Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device)
+Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device) : collider(nullptr)
 {
 	_meshes.emplace_back(terrain, device);
 	_transform = SMatrix::CreateTranslation(terrain.getOffset());

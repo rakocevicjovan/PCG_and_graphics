@@ -45,10 +45,8 @@ public:
 	}
 
 
-
 	// returns bounding sphere radius
-	template <typename VertexType>
-	static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
+	template <typename VertexType> static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
 	{
 		verts.reserve(aiMesh->mNumVertices);
 
@@ -273,118 +271,105 @@ public:
 		if (!aiMesh.HasBones())
 			return;
 
-		int numBones = 0;
-
 		for (UINT i = 0; i < aiMesh.mNumBones; ++i)
 		{
-			aiBone* bone = aiMesh.mBones[i];
+			aiBone* assBone = aiMesh.mBones[i];
 
-			int boneIndex = 0;
-
-			std::string boneName(bone->mName.data);
+			std::string boneName(assBone->mName.data);
 
 			// Connect bone indices to vertex skinning data
+			int boneIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
 
-			int foundIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
-
-			if (foundIndex > 0)		// Bone found, use its index for skinning
+			if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
 			{
-				boneIndex = foundIndex;	
-			}
-			else					// Bone doesn't exist in our skeleton data yet, add it, then use it's index for skinning
-			{
-				boneIndex = numBones;
-
-				SMatrix boneOffsetMat(&bone->mOffsetMatrix.a1);
-				boneOffsetMat = boneOffsetMat.Transpose();
+				boneIndex = skeleton._boneMap.size();
+				SMatrix boneOffsetMat = SMatrix(&assBone->mOffsetMatrix.a1).Transpose();
 
 				Bone bone(boneIndex, boneName, boneOffsetMat);
+
 				skeleton._boneMap.insert({ boneName, bone });
-				++numBones;
 			}
 
 
 			// Load skinning data (up to four bone indices and four weights) into vertices
-			for (UINT j = 0; j < bone->mNumWeights; ++j)
+			for (UINT j = 0; j < assBone->mNumWeights; ++j)
 			{
-				UINT vertID = bone->mWeights[j].mVertexId;
-				float weight = bone->mWeights[j].mWeight;
+				UINT vertID = assBone->mWeights[j].mVertexId;
+				float weight = assBone->mWeights[j].mWeight;
 				verts[vertID].AddBoneData(boneIndex, weight);
 			}
 		}
 	}
 
 
-
-	static void extractBoneNames(const aiScene* scene, Skeleton& skeleton)
+	// Loads bones with direct influnce on vertices
+	static void loadBones(const aiScene* scene, const aiNode* node, Skeleton& skeleton)
 	{
-		aiNode* root = scene->mRootNode;
-
-		if (root)
+		for (int i = 0; i < node->mNumMeshes; ++i)	// Iterate through meshes in a node
 		{
-			extractNodeBoneNames(scene, root, skeleton);
-		}
-	}
-
-
-
-	static void extractNodeBoneNames(const aiScene* scene, aiNode* node, Skeleton& skeleton)
-	{
-		for (int i = 0; i < node->mNumMeshes; ++i)
-		{
-			UINT numBones = 0u;
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
-			for (UINT j = 0; j < mesh->mNumBones; ++j)
+			for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
 			{
 				aiBone* bone = mesh->mBones[j];
 
-				UINT boneIndex = 0;
-
 				std::string boneName(bone->mName.data);
 
-				int foundIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
+				int boneIndex = skeleton.getBoneIndex(boneName);	// Check if this bone is already added
 
-				if (foundIndex > 0)		// Bone found, use its index for skinning
+				if (boneIndex < 0)	// Bone wasn't added already, add it now
 				{
-					boneIndex = foundIndex;
-				}
-				else					// Bone doesn't exist in our skeleton data yet, add it, then use it's index for skinning
-				{
-					boneIndex = numBones;
+					boneIndex = skeleton._boneMap.size();
+					
+					SMatrix boneOffsetMat = SMatrix(&bone->mOffsetMatrix.a1).Transpose();
 
-					SMatrix boneOffsetMat(&bone->mOffsetMatrix.a1);
-					boneOffsetMat = boneOffsetMat.Transpose();
-
-					Bone bone(boneIndex, boneName, boneOffsetMat);
-					skeleton._boneMap.insert({ boneName, bone });
-					++numBones;
+					skeleton._boneMap.insert({ boneName, Bone(boneIndex, boneName, boneOffsetMat) });
 				}
 			}
 		}
 
-		for (UINT i = 0; i < node->mNumChildren; ++i)
+		for (UINT i = 0; i < node->mNumChildren; ++i)	// Repeat recursively
 		{
-			extractNodeBoneNames(scene, node->mChildren[i], skeleton);
+			loadBones(scene, node->mChildren[i], skeleton);
 		}
 	}
 
 
 
-	static void extractBoneHierarchy(const aiScene* scene, Skeleton& skeleton)
+	static void linkSkeletonHierarchy(const aiNode* skelRoot, Skeleton& skeleton)
 	{
-		aiNode* root = scene->mRootNode;
-
-		if (root)
+		//aiNode* root = scene->mRootNode;
+		
+		if (skelRoot)	//assert(skelRoot);
 		{
-			skeleton.makeLikeATree(root);
+			skeleton.makeLikeATree(skelRoot);
 			skeleton.propagateTransformations();
 		}
 	}
 
 
 
-	static void extractBonesFromNode(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)
+	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton)
+	{
+		const aiNode* result = nullptr;
+
+		if (skeleton.boneExists(node->mName.C_Str()))
+			result = node;
+		else
+		{
+			for (int i = 0; i < node->mNumChildren; ++i)
+			{
+				result = findSkeletonRoot(node->mChildren[i], skeleton);
+				if (result) break;
+			}
+		}
+	
+		return result;
+	}
+
+
+
+	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)
 	{
 		for (UINT i = 0; i < node->mNumMeshes; ++i)
 		{
@@ -399,7 +384,7 @@ public:
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
 		{
-			extractBonesFromNode(scene, node->mChildren[i], boneNames);
+			loadAllBoneNames(scene, node->mChildren[i], boneNames);
 		}
 	}
 

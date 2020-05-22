@@ -68,6 +68,7 @@ public:
 		//and then on map searches to find relationships between the bones
 		_skeleton.makeLikeATree(scene->mRootNode);	
 		_skeleton.propagateTransformations();
+
 		AssimpWrapper::loadAnimations(scene, anims);
 
 		return true;

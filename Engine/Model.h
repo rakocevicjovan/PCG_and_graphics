@@ -23,7 +23,7 @@ public:
 
 	Collider* collider;		//remove this eventually when game object becomes better defined... used model for it so far...
 
-	Model() {}
+	Model() : collider(nullptr) {}
 	Model(const std::string& path);
 	Model(const Collider& collider, ID3D11Device* device);
 	~Model();

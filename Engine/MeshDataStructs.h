@@ -63,16 +63,10 @@ public:
 	Bone* parent = nullptr;
 	std::vector<Bone*> offspring;
 
-	Bone() {}
+	Bone() : parent(nullptr) {}
 
 	Bone(int index, std::string name, SMatrix offset) 
-	{
-		this->index = index;
-		this->name = name;
-		this->meshToLocalBoneSpaceTransform = offset;
-
-		parent = nullptr;
-	}
+		: index(index), name(name), meshToLocalBoneSpaceTransform(offset), parent(nullptr) {}
 };
 
 

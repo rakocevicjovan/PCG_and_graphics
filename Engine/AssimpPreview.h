@@ -5,6 +5,8 @@
 #include "Texture.h"
 #include "FileBrowser.h"
 
+
+
 class AssimpPreview
 {
 private:
@@ -37,13 +39,20 @@ public:
 			aiProcess_FlipUVs |
 			aiProcess_ConvertToLeftHanded;
 
+		//AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES
+		_importer.SetPropertyInteger(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, 0);
+
 		_scene = AssimpWrapper::loadScene(_importer, path, pFlags);
 
 		if (!_scene)
 			return false;
 
-		AssimpWrapper::extractBoneNames(_scene, _skeleton);
-		AssimpWrapper::extractBoneHierarchy(_scene, _skeleton);
+		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
+
+		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton);
+		
+		if (skelRoot)
+			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
 
 		return true;
 	}
@@ -65,7 +74,7 @@ public:
 
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			printSkeleton();
+			printBone(&_skeleton._root);
 			ImGui::TreePop();
 		}
 
@@ -423,19 +432,17 @@ public:
 
 
 
-	void printSkeleton()
-	{
-		printBone(&_skeleton._root);
-	}
-
-
-
 	void printBone(const Bone* bone)
 	{
 		if (ImGui::TreeNode(bone->name.c_str()))
 		{
+			ImGui::Text("Index: ");
+			ImGui::SameLine();
+			ImGui::Text(std::to_string(bone->index).c_str());
+
 			for (Bone* cBone : bone->offspring)
 				printBone(cBone);
+
 			ImGui::TreePop();
 		}
 	}
