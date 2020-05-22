@@ -47,25 +47,25 @@ struct BonedVert3D
 		}
 
 		// should never get here - more bones than we have space for
-		assert(0);
+		assert(false && "Attempted to load more than 4 bone weights per vertex.");
 	}
 };
 
 
 
-class Joint
+class Bone
 {
 public:
 
 	int index;
 	std::string name;
 	SMatrix meshToLocalBoneSpaceTransform, locNodeTransform, globalTransform;
-	Joint* parent = nullptr;
-	std::vector<Joint*> offspring;
+	Bone* parent = nullptr;
+	std::vector<Bone*> offspring;
 
-	Joint() {}
+	Bone() {}
 
-	Joint(int index, std::string name, SMatrix offset) 
+	Bone(int index, std::string name, SMatrix offset) 
 	{
 		this->index = index;
 		this->name = name;

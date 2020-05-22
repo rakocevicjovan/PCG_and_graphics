@@ -66,8 +66,8 @@ public:
 		//adds parent/child relationships
 		//relies on names to detect bones amongst other nodes (processNode already collected all bone names using loadBones)
 		//and then on map searches to find relationships between the bones
-		_skeleton.link(scene->mRootNode);	
-		_skeleton.makeLikeATree();
+		_skeleton.makeLikeATree(scene->mRootNode);	
+		_skeleton.propagateTransformations();
 		AssimpWrapper::loadAnimations(scene, anims);
 
 		return true;
@@ -109,7 +109,7 @@ public:
 		for (Texture& t : locTextures)
 			t.SetUpAsResource(device);
 
-		AssimpWrapper::loadBones(*mesh, vertices, _skeleton);
+		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton);
 
 		return SkeletalMesh(vertices, indices, locTextures, device, ind);
 	}
@@ -121,6 +121,6 @@ public:
 		for (int i = 0; i < _animInstances.size(); ++i)
 			_animInstances[i].update(dTime);
 
-		_animInstances[animIndex].getTransformAtTime(_skeleton._rootJoint, vec, SMatrix::Identity, _skeleton._globalInverseTransform);
+		_animInstances[animIndex].getTransformAtTime(_skeleton._root, vec, SMatrix::Identity, _skeleton._globalInverseTransform);
 	}
 };

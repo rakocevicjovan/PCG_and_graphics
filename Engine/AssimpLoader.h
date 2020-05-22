@@ -16,6 +16,7 @@ private:
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
 
+	std::string _exportPath;
 	int _exporting;
 
 public:
@@ -24,11 +25,11 @@ public:
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking");
 		
-_exporting = -1;
+		_exporting = -1;
 
-//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
-//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
-//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
+		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
+		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
+		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
 	}
 
 
@@ -126,7 +127,6 @@ _exporting = -1;
 		{
 			// Prompt for export options in an easy to use way...
 
-			std::string _exportPath;
 			if (inTextStdString("Export path", _exportPath))
 			{
 				// Check if file already exists to prevent unwanted overwrites
@@ -134,7 +134,7 @@ _exporting = -1;
 
 			if (ImGui::Button("Close"))
 			{
-				_exporting = false;
+				_exporting = -1;
 			}
 			
 			ImGui::SameLine();

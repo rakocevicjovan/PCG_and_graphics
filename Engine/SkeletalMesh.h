@@ -17,7 +17,7 @@ public:
 	std::vector<BonedVert3D> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-	std::vector<Joint> joints;
+	std::vector<Bone> joints;
 
 	unsigned int indexIntoModelMeshArray;
 

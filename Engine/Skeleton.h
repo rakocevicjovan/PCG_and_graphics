@@ -11,20 +11,20 @@ private:
 
 public:
 
-	std::map<std::string, Joint> _boneMap;
-	Joint _rootJoint;
+	std::map<std::string, Bone> _boneMap;
+	Bone _root;
 	SMatrix _globalInverseTransform;
 
 
-	void link(const aiNode* node)
+	void makeLikeATree(const aiNode* node)
 	{
 		auto it = _boneMap.find(std::string(node->mName.data));
 
 		// If node is a bone
 		if (it != _boneMap.end())
 		{
-			Joint& currentJoint = it->second;
-			currentJoint.locNodeTransform = (SMatrix(&node->mTransformation.a1).Transpose());
+			Bone& currentBone = it->second;
+			currentBone.locNodeTransform = (SMatrix(&node->mTransformation.a1).Transpose());
 
 			if (node->mParent != nullptr)
 			{
@@ -34,38 +34,38 @@ public:
 
 				if (it2 != _boneMap.end())
 				{
-					currentJoint.parent = &(it2->second);
-					currentJoint.parent->offspring.push_back(&currentJoint);
+					currentBone.parent = &(it2->second);
+					currentBone.parent->offspring.push_back(&currentBone);
 				}
 			}
 		}
 
 		for (unsigned int i = 0; i < node->mNumChildren; ++i)
-			this->link(node->mChildren[i]);
+			this->makeLikeATree(node->mChildren[i]);
 	}
 
 
 
-	void makeLikeATree()
+	void propagateTransformations()
 	{
-		for (auto nameJointPair : _boneMap)
+		for (auto nameBone : _boneMap)
 		{
-			if (nameJointPair.second.parent == nullptr)
-				_rootJoint = nameJointPair.second;
+			if (nameBone.second.parent == nullptr)
+				_root = nameBone.second;
 		}
 
-		calcGlobalTransforms(_rootJoint, SMatrix::Identity);	// Identity because this is for root only
+		calcGlobalTransforms(_root, SMatrix::Identity);	// Identity because this is for root only
 	}
 
 
 
-	void calcGlobalTransforms(Joint& j, const SMatrix& parentMat)
+	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
 	{
-		j.globalTransform = j.locNodeTransform * parentMat;
+		bone.globalTransform = bone.locNodeTransform * parentTransform;
 
-		for (Joint* cj : j.offspring)
+		for (Bone* childBone : bone.offspring)
 		{
-			calcGlobalTransforms(*cj, j.globalTransform);
+			calcGlobalTransforms(*childBone, bone.globalTransform);
 		}
 	}
 

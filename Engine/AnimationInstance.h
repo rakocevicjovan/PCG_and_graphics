@@ -24,7 +24,7 @@ public:
 
 
 
-	void getTransformAtTime(Joint& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
+	void getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
 	{
 		float currentTick = _elapsed / _anim->getTickDuration();
 		float t = fmod(_elapsed, _anim->getTickDuration());
@@ -98,7 +98,7 @@ public:
 		vec[joint.index] = finalMatrix.Transpose();	//transpose because the shader is column major, nothing to do with the animation process
 
 
-		for (Joint* child : joint.offspring)
+		for (Bone* child : joint.offspring)
 		{
 			getTransformAtTime(*child, vec, nodeTransform, glInvT);
 		}

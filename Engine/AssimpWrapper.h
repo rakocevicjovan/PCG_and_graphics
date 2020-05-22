@@ -10,6 +10,8 @@
 #include "Skeleton.h"
 #include "Animation.h"
 
+#include <set>
+
 
 class AssimpWrapper
 {
@@ -266,16 +268,17 @@ public:
 
 
 
-	static void loadBones(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
+	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
 	{
 		if (!aiMesh.HasBones())
 			return;
 
 		int numBones = 0;
 
-		for (unsigned int i = 0; i < aiMesh.mNumBones; ++i)
+		for (UINT i = 0; i < aiMesh.mNumBones; ++i)
 		{
 			aiBone* bone = aiMesh.mBones[i];
+
 			int boneIndex = 0;
 
 			std::string boneName(bone->mName.data);
@@ -284,27 +287,27 @@ public:
 
 			int foundIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
 
-			if (foundIndex > 0)
+			if (foundIndex > 0)		// Bone found, use its index for skinning
 			{
-				boneIndex = foundIndex;	// Bone found, use it's index for skinning
+				boneIndex = foundIndex;	
 			}
-			else	// Bone doesn't exist in our skeleton data yet, add it, then use it's index for skinning
+			else					// Bone doesn't exist in our skeleton data yet, add it, then use it's index for skinning
 			{
 				boneIndex = numBones;
 
-				SMatrix jointOffsetMat(&bone->mOffsetMatrix.a1);
-				jointOffsetMat = jointOffsetMat.Transpose();
+				SMatrix boneOffsetMat(&bone->mOffsetMatrix.a1);
+				boneOffsetMat = boneOffsetMat.Transpose();
 
-				Joint joint(boneIndex, boneName, jointOffsetMat);
-				skeleton._boneMap.insert({ boneName, joint });
+				Bone bone(boneIndex, boneName, boneOffsetMat);
+				skeleton._boneMap.insert({ boneName, bone });
 				++numBones;
 			}
 
 
 			// Load skinning data (up to four bone indices and four weights) into vertices
-			for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+			for (UINT j = 0; j < bone->mNumWeights; ++j)
 			{
-				unsigned int vertID = bone->mWeights[j].mVertexId;
+				UINT vertID = bone->mWeights[j].mVertexId;
 				float weight = bone->mWeights[j].mWeight;
 				verts[vertID].AddBoneData(boneIndex, weight);
 			}
@@ -313,9 +316,98 @@ public:
 
 
 
+	static void extractBoneNames(const aiScene* scene, Skeleton& skeleton)
+	{
+		aiNode* root = scene->mRootNode;
+
+		if (root)
+		{
+			extractNodeBoneNames(scene, root, skeleton);
+		}
+	}
 
 
-	// Helper stuff
+
+	static void extractNodeBoneNames(const aiScene* scene, aiNode* node, Skeleton& skeleton)
+	{
+		for (int i = 0; i < node->mNumMeshes; ++i)
+		{
+			UINT numBones = 0u;
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+			for (UINT j = 0; j < mesh->mNumBones; ++j)
+			{
+				aiBone* bone = mesh->mBones[j];
+
+				UINT boneIndex = 0;
+
+				std::string boneName(bone->mName.data);
+
+				int foundIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
+
+				if (foundIndex > 0)		// Bone found, use its index for skinning
+				{
+					boneIndex = foundIndex;
+				}
+				else					// Bone doesn't exist in our skeleton data yet, add it, then use it's index for skinning
+				{
+					boneIndex = numBones;
+
+					SMatrix boneOffsetMat(&bone->mOffsetMatrix.a1);
+					boneOffsetMat = boneOffsetMat.Transpose();
+
+					Bone bone(boneIndex, boneName, boneOffsetMat);
+					skeleton._boneMap.insert({ boneName, bone });
+					++numBones;
+				}
+			}
+		}
+
+		for (UINT i = 0; i < node->mNumChildren; ++i)
+		{
+			extractNodeBoneNames(scene, node->mChildren[i], skeleton);
+		}
+	}
+
+
+
+	static void extractBoneHierarchy(const aiScene* scene, Skeleton& skeleton)
+	{
+		aiNode* root = scene->mRootNode;
+
+		if (root)
+		{
+			skeleton.makeLikeATree(root);
+			skeleton.propagateTransformations();
+		}
+	}
+
+
+
+	static void extractBonesFromNode(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)
+	{
+		for (UINT i = 0; i < node->mNumMeshes; ++i)
+		{
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+			for (UINT i = 0; i < mesh->mNumBones; ++i)
+			{
+				aiBone* bone = mesh->mBones[i];
+				boneNames.insert(std::string(bone->mName.C_Str()));
+			}
+		}
+
+		for (UINT i = 0; i < node->mNumChildren; ++i)
+		{
+			extractBonesFromNode(scene, node->mChildren[i], boneNames);
+		}
+	}
+
+
+
+
+
+	// Helpers
 
 	static SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
 	{

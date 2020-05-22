@@ -17,7 +17,7 @@ private:
 
 	UINT _meshIndex;	// Used to differentiate between mesh names because they tend to have same names
 
-	// Things this class could end up loading... inellegant way to do it but cba abstracting until it's solid and works
+	Skeleton _skeleton;
 
 public:
 
@@ -42,6 +42,9 @@ public:
 		if (!_scene)
 			return false;
 
+		AssimpWrapper::extractBoneNames(_scene, _skeleton);
+		AssimpWrapper::extractBoneHierarchy(_scene, _skeleton);
+
 		return true;
 	}
 	
@@ -57,6 +60,16 @@ public:
 
 			ImGui::TreePop();
 		}
+
+		ImGui::Separator();
+
+		if (ImGui::TreeNode("Skeleton"))
+		{
+			printSkeleton();
+			ImGui::TreePop();
+		}
+
+		ImGui::Separator();
 
 		printSceneAnimations();
 	}
@@ -76,7 +89,7 @@ public:
 
 			if (ImGui::TreeNode("Concatenated transform: "))
 			{
-				displayTransform(SMatrix(&concatenatedTransform.a1));
+				displayTransform(SMatrix(&concatenatedTransform.a1).Transpose());	// Careful
 				ImGui::TreePop();
 			}
 			
@@ -118,7 +131,7 @@ public:
 
 			ImGui::Separator();
 
-			ImGui::Text("Children count: ");
+			ImGui::Text("Child count: ");
 			ImGui::SameLine();
 			ImGui::Text(std::to_string(node->mNumChildren).c_str());
 
@@ -360,7 +373,7 @@ public:
 
 				if (ImGui::TreeNode(channel->mNodeName.C_Str()))
 				{
-					printAiNodeAnim(channel);
+					printAnimationTrack(channel);
 					ImGui::TreePop();
 				}
 			}
@@ -370,7 +383,7 @@ public:
 
 
 
-	void printAiNodeAnim(aiNodeAnim* channel)
+	void printAnimationTrack(aiNodeAnim* channel)
 	{
 		ImGui::Text("Num scaling keys: ");
 		ImGui::SameLine();
@@ -406,6 +419,25 @@ public:
 			SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
 		}
 		*/
+	}
+
+
+
+	void printSkeleton()
+	{
+		printBone(&_skeleton._root);
+	}
+
+
+
+	void printBone(const Bone* bone)
+	{
+		if (ImGui::TreeNode(bone->name.c_str()))
+		{
+			for (Bone* cBone : bone->offspring)
+				printBone(cBone);
+			ImGui::TreePop();
+		}
 	}
 
 
