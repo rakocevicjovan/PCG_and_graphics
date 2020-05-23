@@ -98,7 +98,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	bool initialize(int wWidth, int wHeight, HWND wHandle, D3D& d3d);
+	bool initialize(int wWidth, int wHeight, D3D& d3d);
 	bool frame(float dTime);
 	bool updatePerFrameBuffers(float dTime);
 	

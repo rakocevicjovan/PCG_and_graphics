@@ -12,7 +12,7 @@ private:
 public:
 
 	std::map<std::string, Bone> _boneMap;
-	Bone _root;
+	Bone* _root;
 	SMatrix _globalInverseTransform;
 
 
@@ -73,7 +73,7 @@ public:
 		*/
 
 		// Calculate transforms for all nodes
-		calcGlobalTransforms(_root, SMatrix::Identity);	// Identity because this is for root only
+		calcGlobalTransforms(*_root, SMatrix::Identity);	// Identity because this is for root only
 	}
 
 

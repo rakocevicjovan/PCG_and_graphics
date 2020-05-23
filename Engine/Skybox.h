@@ -59,7 +59,7 @@ public:
 
 		context->IASetVertexBuffers(0, 1, _r.mesh->_vertexBuffer.ptr(), &stride, &offset);
 		context->IASetIndexBuffer(_r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
-		context->DrawIndexed(_r.mesh->_indexCount, 0, 0);
+		context->DrawIndexed(_r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 
 		ID3D11ShaderResourceView* unbinder[] = { nullptr };
 		context->PSSetShaderResources(0, 1, unbinder);

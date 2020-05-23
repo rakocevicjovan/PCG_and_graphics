@@ -49,6 +49,7 @@ public:
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
+		// This might be wrong
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton);
 		
 		if (skelRoot)
@@ -74,7 +75,7 @@ public:
 
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			printBone(&_skeleton._root);
+			printBone(_skeleton._root);
 			ImGui::TreePop();
 		}
 

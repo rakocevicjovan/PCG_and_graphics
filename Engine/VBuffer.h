@@ -15,6 +15,6 @@ public:
 	inline ID3D11Buffer* const * ptr() const { return &_vertexBuffer; }
 	inline ID3D11Buffer*& ptrVar() { return _vertexBuffer; }
 
-	UINT _stride = sizeof(Vert3D);
-	UINT _offset = 0;
+	UINT _stride;
+	UINT _offset;
 };

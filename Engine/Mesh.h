@@ -28,7 +28,6 @@ public:
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	_vertices;
 	std::vector<UINT> _indices;
-	UINT _indexCount;
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
@@ -55,11 +54,10 @@ public:
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
 
-	inline PointLight* getLight() const { return _baseMaterial.pLight; }
+	inline PointLight* getLight() const { return _baseMaterial.pLight; }	// @TODO remove
 
 	void draw(ID3D11DeviceContext* dc, PointLight* p)
 	{
-
 		//update and set cbuffers
 		_baseMaterial.getVS()->updateBuffersAuto(dc, *this);
 		_baseMaterial.getVS()->setBuffers(dc);
@@ -83,7 +81,7 @@ public:
 		dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);
 		dc->IASetIndexBuffer(_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-		dc->DrawIndexed(_indexCount, 0, 0);
+		dc->DrawIndexed(_indexBuffer.getIdxCount(), 0, 0);
 	}
 
 

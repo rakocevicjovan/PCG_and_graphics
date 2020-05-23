@@ -35,10 +35,10 @@ VertexShader::VertexShader(
 	const std::wstring& path,
 	const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc,
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
-	: Shader(shc , path, descriptions)
+	: Shader(shc, path, descriptions)
 {
 	_type = SHADER_TYPE::VS;
-	shc.compileVS(path, inputLayoutDesc,_vsPtr, _layout);
+	shc.compileVS(path, inputLayoutDesc, _vsPtr, _layout);
 }
 
 

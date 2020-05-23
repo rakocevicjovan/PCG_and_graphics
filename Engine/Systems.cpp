@@ -34,7 +34,7 @@ bool Systems::Initialize()
 	_defController = Controller(&_inputManager);
 	_inputManager.registerController(&_defController);
 
-	if (!_renderer.initialize(windowWidth, windowHeight, _hwnd, _D3D))
+	if (!_renderer.initialize(windowWidth, windowHeight, _D3D))
 	{
 		_renderer._cam._controller = &_defController;
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);

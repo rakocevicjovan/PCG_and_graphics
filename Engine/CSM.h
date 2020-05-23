@@ -277,7 +277,7 @@ public:
 		context->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
 		context->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-		context->DrawIndexed(r.mesh->_indexCount, 0, 0);
+		context->DrawIndexed(r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 	}
 
 
@@ -311,7 +311,7 @@ public:
 		context->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
 		context->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-		context->DrawIndexed(r.mesh->_indexCount, 0, 0);
+		context->DrawIndexed(r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 
 		// Unbind shadow map array
 		ID3D11ShaderResourceView *const pSRV[1] = { NULL };

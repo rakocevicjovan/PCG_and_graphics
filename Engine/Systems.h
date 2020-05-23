@@ -73,6 +73,8 @@ public:
 	inline UINT getScrH() const { return screenHeight; }
 	inline UINT getWinW() const { return windowWidth;  }
 	inline UINT getWinH() const { return windowHeight; }
+
+	inline const HWND* getHWND() const { return &_hwnd; }
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

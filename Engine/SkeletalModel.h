@@ -8,11 +8,11 @@
 #include <vector>
 
 #include <d3d11.h>
-
 #include "AssimpWrapper.h"
 #include "SkeletalMesh.h"
 #include "AnimationInstance.h"
 #include "Skeleton.h"
+
 
 
 //@TODO Change code to use assimp wrapper
@@ -21,7 +21,6 @@ class SkeletalModel
 public:
 
 	std::vector<SkeletalMesh> _meshes;
-	std::vector<Texture> textures_loaded;
 
 	std::string directory;
 	std::string name;
@@ -31,8 +30,6 @@ public:
 	std::vector<Animation> anims;
 
 	Skeleton _skeleton;
-
-	std::vector<AnimationInstance> _animInstances;
 
 
 	SkeletalModel();
@@ -66,8 +63,14 @@ public:
 		//adds parent/child relationships
 		//relies on names to detect bones amongst other nodes (processNode already collected all bone names using loadBones)
 		//and then on map searches to find relationships between the bones
-		_skeleton.makeLikeATree(scene->mRootNode);	
-		_skeleton.propagateTransformations();
+
+		AssimpWrapper::loadBones(scene, scene->mRootNode, _skeleton);
+
+		// This might be wrong
+		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton);
+
+		if (skelRoot)
+			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
 
 		AssimpWrapper::loadAnimations(scene, anims);
 
@@ -117,11 +120,33 @@ public:
 
 
 
+	void draw(ID3D11DeviceContext* context)
+	{
+
+		for (SkeletalMesh& m : _meshes)
+		{
+			m.draw(context);
+		}
+	}
+};
+
+
+
+class SkeletalModelInstance
+{
+public:
+
+	SkeletalModel* _skm;
+
+	std::vector<AnimationInstance> _animInstances;
+
+
+
 	void update(float dTime, std::vector<SMatrix>& vec, UINT animIndex = 0u)
 	{
 		for (int i = 0; i < _animInstances.size(); ++i)
 			_animInstances[i].update(dTime);
 
-		_animInstances[animIndex].getTransformAtTime(_skeleton._root, vec, SMatrix::Identity, _skeleton._globalInverseTransform);
+		_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, vec, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
 	}
 };

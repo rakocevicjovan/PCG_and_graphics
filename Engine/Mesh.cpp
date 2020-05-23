@@ -9,12 +9,8 @@ Mesh::Mesh() {}
 
 
 Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texes, ID3D11Device* device, unsigned int ind)
-	//: vertices(vertices), indices(indices), textures(textures)
+	: _vertices(std::move(verts)), _indices(std::move(inds)), _textures(texes)
 {
-	_vertices = std::move(verts);
-	_indices = std::move(inds);
-	_textures = std::move(texes);
-
 	//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
 	for (auto& t : _textures)
 	{
@@ -148,6 +144,9 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	vertexData.pSysMem = _vertices.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
+	
+	_vertexBuffer._stride = sizeof(Vert3D);
+	_vertexBuffer._offset = 0u;
 
 	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer.ptrVar() )))
 		return false;
@@ -168,7 +167,7 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer.ptrVar())))
 		return false;
 	
-	_indexCount = _indices.size();
+	_indexBuffer.setIdxCount(_indices.size());
 
 	//this ABSOLUTELY needs to happen!
 	//vertices.clear();

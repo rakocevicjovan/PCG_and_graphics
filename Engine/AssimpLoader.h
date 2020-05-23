@@ -19,6 +19,12 @@ private:
 	std::string _exportPath;
 	int _exporting;
 
+	// For previewing models in 3d not data
+	SkeletalModel _skelModel;
+	Material _skelAnimMat;
+
+	PointLight _pointLight;
+
 public:
 
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
@@ -35,7 +41,47 @@ public:
 
 	void init(Systems& sys) override
 	{
+		LightData ld = LightData(SVec3(1.), .1, SVec3(1.), .5, SVec3(1.), .5);
 
+		_pointLight = PointLight(ld, SVec4(0., 20., 0., 1.));
+
+		ShaderCompiler shc;
+
+		shc.init(const_cast<HWND*>(sys.getHWND()), S_DEVICE);	// Temporary
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_biw_layout =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BONE_ID" , 0, DXGI_FORMAT_R32G32B32A32_UINT,		0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BONE_W"  , 0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		};
+
+		D3D11_SAMPLER_DESC regularSD = shc.createSamplerDesc();
+
+
+		D3D11_BUFFER_DESC WMBufferDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
+		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
+		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
+
+		D3D11_BUFFER_DESC BoneBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
+		CBufferMeta BoneBufferMeta(1, BoneBufferDesc.ByteWidth);
+
+
+		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc, BoneBufferDesc });
+		saVS->describeBuffers({ WMBufferMeta, BoneBufferMeta });
+
+		D3D11_BUFFER_DESC lightBufferDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
+		CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
+		lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
+
+		PixelShader* phong = new PixelShader(shc, L"lightPS.hlsl", regularSD, { lightBufferDesc });
+		phong->describeBuffers({ lightBufferMeta });
+
+		_skelAnimMat.setVS(saVS);
+		_skelAnimMat.setPS(phong);
+		_skelAnimMat.pLight = &_pointLight;
 	}
 
 
@@ -90,6 +136,21 @@ public:
 				{
 					_exporting = i;
 				}
+				
+				ImGui::SameLine();
+
+				if (ImGui::Button("Load as skeletal model"))
+				{
+					_skelModel = SkeletalModel();
+					_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
+
+					for (auto& skmesh : _skelModel._meshes)
+					{
+						skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
+						skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
+						skmesh._baseMaterial.pLight = &_pointLight;
+					}
+				}
 
 				ImGui::EndTabItem();
 			}
@@ -103,6 +164,8 @@ public:
 			exportScene(_previews[_exporting].get());
 
 		GUI::endGuiFrame();
+
+		_skelModel.draw(S_CONTEXT);
 
 		rc.d3d->EndScene();
 	}

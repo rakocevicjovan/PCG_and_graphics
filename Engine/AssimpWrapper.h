@@ -338,8 +338,8 @@ public:
 
 	static void linkSkeletonHierarchy(const aiNode* skelRoot, Skeleton& skeleton)
 	{
-		//aiNode* root = scene->mRootNode;
-		
+		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
+
 		if (skelRoot)	//assert(skelRoot);
 		{
 			skeleton.makeLikeATree(skelRoot);
