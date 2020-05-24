@@ -31,7 +31,6 @@ public:
 
 	Skeleton _skeleton;
 
-
 	SkeletalModel();
 	~SkeletalModel();
 
@@ -118,16 +117,6 @@ public:
 		return SkeletalMesh(vertices, indices, locTextures, device, ind);
 	}
 
-
-
-	void draw(ID3D11DeviceContext* context)
-	{
-
-		for (SkeletalMesh& m : _meshes)
-		{
-			m.draw(context);
-		}
-	}
 };
 
 
@@ -136,17 +125,57 @@ class SkeletalModelInstance
 {
 public:
 
+	CBuffer _skeletonTransforms;
+	std::vector<SMatrix> _skeletonMatrices;
+
 	SkeletalModel* _skm;
 
 	std::vector<AnimationInstance> _animInstances;
 
+	SkeletalModelInstance() : _skm(nullptr) {}
 
-
-	void update(float dTime, std::vector<SMatrix>& vec, UINT animIndex = 0u)
+	bool init(ID3D11Device* dvc, SkeletalModel* skm)
 	{
+		_skm = skm;
+
+		for (Animation& anim : skm->anims)
+		{
+			_animInstances.emplace_back(anim);
+		}
+
+		
+		D3D11_BUFFER_DESC desc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
+		_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
+
+		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skeletonTransforms._cbPtr)))
+			return false;
+
+		return true;
+	}
+
+
+
+	void update(float dTime, UINT animIndex = 0u)
+	{
+
 		for (int i = 0; i < _animInstances.size(); ++i)
 			_animInstances[i].update(dTime);
 
-		_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, vec, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
+		_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
+	}
+
+
+
+	void draw(ID3D11DeviceContext* context)
+	{
+		_skeletonTransforms.updateWholeBuffer(
+			context, _skeletonTransforms._cbPtr, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton._boneMap.size());
+
+		context->VSSetConstantBuffers(1, 1, &_skeletonTransforms._cbPtr);
+
+		for (SkeletalMesh& m : _skm->_meshes)
+		{
+			m.draw(context);
+		}
 	}
 };

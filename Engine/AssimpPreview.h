@@ -47,6 +47,9 @@ public:
 		if (!_scene)
 			return false;
 
+		aiMatrix4x4 globInvTrans = _scene->mRootNode->mTransformation;
+		_skeleton._globalInverseTransform = SMatrix(&globInvTrans.a1).Transpose().Invert();
+
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
 		// This might be wrong

@@ -25,7 +25,7 @@ public:
 		if (nameBone != _boneMap.end())	// If node is a bone
 		{
 			Bone& currentBone = nameBone->second;
-			currentBone.locNodeTransform = (SMatrix(&node->mTransformation.a1).Transpose());
+			currentBone.localTransform = (SMatrix(&node->mTransformation.a1).Transpose());
 			linkToParentBone(node, currentBone);
 		}
 
@@ -52,8 +52,12 @@ public:
 		}
 		else	// This node is not a bone yet, but it should be, so add it.
 		{
-			Bone newParentBone(_boneMap.size(), parentName, SMatrix(&parent->mTransformation.a1).Transpose());
+			Bone newParentBone;
+			newParentBone.name = parentName;
+			newParentBone.index = _boneMap.size();
+			newParentBone.localTransform = SMatrix(&parent->mTransformation.a1).Transpose();
 			_boneMap.insert({ parentName, newParentBone });
+
 			currentBone.parent = &(_boneMap.at(parentName));
 			currentBone.parent->offspring.push_back(&currentBone);
 
@@ -80,7 +84,7 @@ public:
 
 	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
 	{
-		bone.globalTransform = bone.locNodeTransform * parentTransform;
+		bone.globalTransform = bone.localTransform * parentTransform;
 
 		for (Bone* childBone : bone.offspring)
 		{

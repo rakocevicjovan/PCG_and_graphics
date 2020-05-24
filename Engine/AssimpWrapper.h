@@ -340,11 +340,9 @@ public:
 	{
 		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
 
-		if (skelRoot)	//assert(skelRoot);
-		{
-			skeleton.makeLikeATree(skelRoot);
-			skeleton.propagateTransformations();
-		}
+		skeleton.makeLikeATree(skelRoot);
+
+		skeleton.propagateTransformations();
 	}
 
 

@@ -42,13 +42,13 @@ public:
 	Material();
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
 	~Material();
-	
-	void setVS(VertexShader* vs);
-	void setPS(PixelShader* ps);
 
 	void bindTextures(ID3D11DeviceContext* context);
-
+	
 	inline VertexShader* getVS() const { return _vertexShader; }
 	inline PixelShader* getPS() const { return _pixelShader; }
 	inline PointLight* getLight() const { return pLight; }
+
+	void setVS(VertexShader* vs);
+	void setPS(PixelShader* ps);
 };

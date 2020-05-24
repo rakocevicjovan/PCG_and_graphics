@@ -21,13 +21,21 @@ private:
 
 	// For previewing models in 3d not data
 	SkeletalModel _skelModel;
+	SkeletalModelInstance _skelModelInstance;
 	Material _skelAnimMat;
-
 	PointLight _pointLight;
+
+	float _playbackSpeed;
+
+	// Floor 
+	Procedural::Terrain terrain;
+	Mesh floorMesh;
+	Renderable floorRenderable;
+	Actor terrainActor;
 
 public:
 
-	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
+	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _playbackSpeed(1.f)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking");
 		
@@ -43,11 +51,18 @@ public:
 	{
 		LightData ld = LightData(SVec3(1.), .1, SVec3(1.), .5, SVec3(1.), .5);
 
-		_pointLight = PointLight(ld, SVec4(0., 20., 0., 1.));
+		_pointLight = PointLight(ld, SVec4(0., 25., 125., 1.));
 
 		ShaderCompiler shc;
 
 		shc.init(const_cast<HWND*>(sys.getHWND()), S_DEVICE);	// Temporary
+
+		std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_layout =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		};
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_biw_layout =
 		{
@@ -65,12 +80,12 @@ public:
 		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
 		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
 
-		D3D11_BUFFER_DESC BoneBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
-		CBufferMeta BoneBufferMeta(1, BoneBufferDesc.ByteWidth);
+		//D3D11_BUFFER_DESC BoneBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
+		//CBufferMeta BoneBufferMeta(1, BoneBufferDesc.ByteWidth);
 
 
-		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc, BoneBufferDesc });
-		saVS->describeBuffers({ WMBufferMeta, BoneBufferMeta });
+		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc });
+		saVS->describeBuffers({ WMBufferMeta });
 
 		D3D11_BUFFER_DESC lightBufferDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
 		CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
@@ -82,6 +97,28 @@ public:
 		_skelAnimMat.setVS(saVS);
 		_skelAnimMat.setPS(phong);
 		_skelAnimMat.pLight = &_pointLight;
+
+
+		VertexShader* basicVS = new VertexShader(shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
+		basicVS->describeBuffers({ WMBufferMeta });
+
+		// Floor
+		float _tSize = 500.f;
+		terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
+		terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
+		terrain.CalculateTexCoords();
+		terrain.CalculateNormals();
+		floorMesh = Mesh(terrain, S_DEVICE);
+		Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
+		floorTex.SetUpAsResource(S_DEVICE);
+		floorMesh._textures.push_back(floorTex);
+		floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
+		floorMesh._baseMaterial.pLight = &_pointLight;
+		floorRenderable = Renderable(floorMesh);
+		floorRenderable.mat->setVS(basicVS);
+		floorRenderable.mat->setPS(phong);
+		terrainActor.addRenderable(floorRenderable, 500);
+		terrainActor._collider.collidable = false;
 	}
 
 
@@ -96,6 +133,8 @@ public:
 	void draw(const RenderContext& rc) override
 	{
 		rc.d3d->ClearColourDepthBuffers();
+
+		S_RANDY.render(floorRenderable);
 
 		GUI::startGuiFrame();
 
@@ -141,7 +180,7 @@ public:
 
 				if (ImGui::Button("Load as skeletal model"))
 				{
-					_skelModel = SkeletalModel();
+					_skelModel = SkeletalModel();	// reset
 					_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
 
 					for (auto& skmesh : _skelModel._meshes)
@@ -150,7 +189,12 @@ public:
 						skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
 						skmesh._baseMaterial.pLight = &_pointLight;
 					}
+
+					_skelModelInstance = SkeletalModelInstance();
+					_skelModelInstance.init(S_DEVICE, &_skelModel);
 				}
+
+				ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
 
 				ImGui::EndTabItem();
 			}
@@ -165,7 +209,12 @@ public:
 
 		GUI::endGuiFrame();
 
-		_skelModel.draw(S_CONTEXT);
+		if (_skelModelInstance._skm)
+		{
+			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
+			_skelModelInstance.draw(S_CONTEXT);
+		}
+	
 
 		rc.d3d->EndScene();
 	}

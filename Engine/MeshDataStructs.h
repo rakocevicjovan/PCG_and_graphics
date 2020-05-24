@@ -59,14 +59,14 @@ public:
 
 	int index;
 	std::string name;
-	SMatrix meshToLocalBoneSpaceTransform, locNodeTransform, globalTransform;
+	SMatrix meshToBoneTransform, localTransform, globalTransform;
 	Bone* parent = nullptr;
 	std::vector<Bone*> offspring;
 
 	Bone() : parent(nullptr) {}
 
 	Bone(int index, std::string name, SMatrix offset) 
-		: index(index), name(name), meshToLocalBoneSpaceTransform(offset), parent(nullptr) {}
+		: index(index), name(name), meshToBoneTransform(offset), parent(nullptr) {}
 };
 
 
