@@ -3,6 +3,9 @@
 #include "MeshDataStructs.h"
 #include "Math.h"
 
+#include "assimp\Importer.hpp"	
+#include "assimp\scene.h"
+#include "assimp\postprocess.h" 
 
 // @TODO get rid of the map, it was a learning crutch, too slow - transform to vector of bones with indices as "names"
 class Skeleton
@@ -16,75 +19,21 @@ public:
 	SMatrix _globalInverseTransform;
 
 
-	void makeLikeATree(const aiNode* node)
-	{
-		std::string nodeName = std::string(node->mName.data);
-
-		auto nameBone = _boneMap.find(nodeName);
-
-		if (nameBone != _boneMap.end())	// If node is a bone
-		{
-			Bone& currentBone = nameBone->second;
-			currentBone.localTransform = (SMatrix(&node->mTransformation.a1).Transpose());
-			linkToParentBone(node, currentBone);
-		}
-
-		for (unsigned int i = 0; i < node->mNumChildren; ++i)
-			this->makeLikeATree(node->mChildren[i]);
-	}
-
-
-	void linkToParentBone(const aiNode* node, Bone& currentBone)
-	{
-		aiNode* parent = node->mParent;
-
-		if (parent == nullptr)	// We are at root node, nowhere to go
-			return;
-
-		std::string parentName(node->mParent->mName.data);
-
-		auto existingBone = _boneMap.find(parentName);
-
-		if (existingBone != _boneMap.end())	// Found it, no need to go further
-		{
-			currentBone.parent = &(existingBone->second);
-			currentBone.parent->offspring.push_back(&currentBone);
-		}
-		else	// This node is not a bone yet, but it should be, so add it.
-		{
-			Bone newParentBone;
-			newParentBone.name = parentName;
-			newParentBone.index = _boneMap.size();
-			newParentBone.localTransform = SMatrix(&parent->mTransformation.a1).Transpose();
-			_boneMap.insert({ parentName, newParentBone });
-
-			// @TODO ADD INVERSE TRANSFORM TO THESE BONES, NOT CALCULATED YET!!!
-			// WILL BREAK IF REQUIRED (LIKE ON WOLF MODEL!)
-
-			currentBone.parent = &(_boneMap.at(parentName));
-			currentBone.parent->offspring.push_back(&currentBone);
-
-			linkToParentBone(parent, *currentBone.parent);	// Further recursion until a bone (or root node) is hit
-		}
-	}
+	void makeLikeATree(const aiNode* node, SMatrix parentMatrix);
 
 
 
-	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
-	{
-		bone.globalTransform = bone.localTransform * parentTransform;
+	void linkToParentBone(const aiNode* node, Bone& currentBone);
 
-		for (Bone* childBone : bone.offspring)
-		{
-			calcGlobalTransforms(*childBone, bone.globalTransform);
-		}
-	}
+
+
+	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
 
 
 
 	inline bool boneExists(const std::string& name)
 	{
-		return ( _boneMap.find(name) != _boneMap.end() );
+		return (_boneMap.find(name) != _boneMap.end());
 	}
 
 

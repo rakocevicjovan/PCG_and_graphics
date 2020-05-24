@@ -316,6 +316,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp" />
+    <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="SphereHull.cpp" />
     <ClCompile Include="StrifeLevel.cpp" />
     <ClCompile Include="Systems.cpp" />

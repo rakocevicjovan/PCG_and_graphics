@@ -1,8 +1,4 @@
 #pragma once
-#include "assimp\Importer.hpp"	
-#include "assimp\scene.h"
-#include "assimp\postprocess.h" 
-
 #include "FileUtilities.h"
 
 #include "Mesh.h"
@@ -340,7 +336,7 @@ public:
 	{
 		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
 
-		skeleton.makeLikeATree(skelRoot);
+		skeleton.makeLikeATree(skelRoot, SMatrix::Identity);
 
 		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
 	}

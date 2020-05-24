@@ -152,7 +152,6 @@ public:
 
 	void update(float dTime, UINT animIndex = 0u)
 	{
-
 		for (int i = 0; i < _animInstances.size(); ++i)
 			_animInstances[i].update(dTime);
 

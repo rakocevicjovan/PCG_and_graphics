@@ -398,6 +398,9 @@
     <ClCompile Include="ClusterManager.cpp">
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClCompile>
+    <ClCompile Include="Skeleton.cpp">
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems.h">

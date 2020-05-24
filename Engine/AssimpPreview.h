@@ -436,13 +436,15 @@ public:
 
 
 
-	void printBone(const Bone* bone)
+	void printBone(Bone* bone)
 	{
 		if (ImGui::TreeNode(bone->name.c_str()))
 		{
 			ImGui::Text("Index: ");
 			ImGui::SameLine();
 			ImGui::Text(std::to_string(bone->index).c_str());
+
+			displayTransform(bone->meshToBoneTransform);
 
 			for (Bone* cBone : bone->offspring)
 				printBone(cBone);
