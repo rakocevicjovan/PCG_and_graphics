@@ -53,12 +53,10 @@ PixelInputType main(VertexInputType input)
 	boneTransform  += boneTransforms[input.boneIDs.y] * input.boneWs.y;
 	boneTransform  += boneTransforms[input.boneIDs.z] * input.boneWs.z;
 	boneTransform  += boneTransforms[input.boneIDs.w] * input.boneWs.w;
-	
-
-	//float4 total = mul(input.position, boneTransform);
-	//output.worldPos = mul(total, worldMatrix);
 
 	float4x4 totalMat = mul(boneTransform, worldMatrix);
+	//float4x4 totalMat = mul(worldMatrix, boneTransform);
+
 	output.worldPos = mul(input.position, totalMat);
 	output.position = mul(output.worldPos, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);

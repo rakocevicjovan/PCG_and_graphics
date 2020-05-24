@@ -342,7 +342,7 @@ public:
 
 		skeleton.makeLikeATree(skelRoot);
 
-		skeleton.propagateTransformations();
+		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
 	}
 
 

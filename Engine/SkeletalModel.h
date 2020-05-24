@@ -37,12 +37,12 @@ public:
 
 	bool loadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1, float rUVy = 1)
 	{
-		assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
+		assert(FileUtils::fileExists(path) && "File not accessible!");
 
-		unsigned int pFlags = aiProcessPreset_TargetRealtime_MaxQuality |
+		unsigned int pFlags = 
+			aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
-			aiProcess_FlipUVs |
 			aiProcess_ConvertToLeftHanded |
 			aiProcess_LimitBoneWeights;
 
@@ -57,19 +57,14 @@ public:
 		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
 		_skeleton._globalInverseTransform = SMatrix(&globInvTrans.a1).Transpose().Invert();
 
-		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);	/*scene->mRootNode->mTransformation*/
-
-		//adds parent/child relationships
-		//relies on names to detect bones amongst other nodes (processNode already collected all bone names using loadBones)
-		//and then on map searches to find relationships between the bones
-
-		AssimpWrapper::loadBones(scene, scene->mRootNode, _skeleton);
+		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);
 
 		// This might be wrong
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton);
 
-		if (skelRoot)
-			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
+		assert(skelRoot);	// Can't work without!
+
+		AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
 
 		AssimpWrapper::loadAnimations(scene, anims);
 

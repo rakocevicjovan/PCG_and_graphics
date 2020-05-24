@@ -94,27 +94,34 @@ public:
 		bool found = getAnimChannel(joint.name, channel);
 
 		// This matrix is created according to animation data and current time using interpolation, if no data use default
-		SMatrix nodeTransform;		// V * S * R * T
-
-		//MATRIX b.aiNodeTransform IS NOT ABSOLUTE TO MESH ROOT, UNLIKE BONE OFFSETS!!! THESE MUST BE CHAINED INTO globalTransform
+		
+		SMatrix animTransform;
 
 		if (found)
 		{
-			nodeTransform = getInterpolatedTransform(channel, currentTick, t);	// Animation found, use it
+			animTransform = getInterpolatedTransform(channel, currentTick, t);	// Animation found, use it
 		}
 		else
 		{
-			nodeTransform = joint.localTransform;	// No animation channels for this bone right now, use default
+			animTransform = joint.localTransform;	// No animation channels for this bone right now, use default
 		}
 
-		nodeTransform *= parentMatrix;			// Go to parent space (as in, attach the bone to the parent
+
+		SMatrix nodeTransform = animTransform;
 		//nodeTransform *= joint.globalTransform;
+		nodeTransform *= parentMatrix;
 
-		SMatrix finalMatrix =
-			joint.meshToBoneTransform			// Go from mesh space to bone space
-			* nodeTransform						// Animate
-			* glInvT;							//move the entire mesh to origin
+		SVec4 pretendHipVert(0., 120., 0., 1.);
 
+		SVec4 lbs = SVec4::Transform(pretendHipVert, joint.meshToBoneTransform);
+		SVec4 abs = SVec4::Transform(lbs, nodeTransform);
+		SVec4 fms = SVec4::Transform(abs, glInvT);
+
+		SMatrix finalMatrix = joint.meshToBoneTransform;	// Go from mesh space to bone space
+		finalMatrix *= nodeTransform;						// Animate					
+		finalMatrix *= glInvT;								// Do uh... something, this is idt anyways
+
+		SVec4 control = SVec4::Transform(pretendHipVert, finalMatrix);
 
 		// @TODO move responsibility for this to calling code
 		vec[joint.index] = finalMatrix.Transpose();	//transpose because the shader is column major, nothing to do with the animation process
@@ -167,6 +174,6 @@ public:
 		SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
 		SMatrix tMat = SMatrix::CreateTranslation(pos);
 
-		return (sMat * rMat * tMat);
+		return (sMat * rMat * tMat);	// V * S * R * T
 	}
 };

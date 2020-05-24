@@ -58,26 +58,14 @@ public:
 			newParentBone.localTransform = SMatrix(&parent->mTransformation.a1).Transpose();
 			_boneMap.insert({ parentName, newParentBone });
 
+			// @TODO ADD INVERSE TRANSFORM TO THESE BONES, NOT CALCULATED YET!!!
+			// WILL BREAK IF REQUIRED (LIKE ON WOLF MODEL!)
+
 			currentBone.parent = &(_boneMap.at(parentName));
 			currentBone.parent->offspring.push_back(&currentBone);
 
 			linkToParentBone(parent, *currentBone.parent);	// Further recursion until a bone (or root node) is hit
 		}
-	}
-
-
-
-	void propagateTransformations()
-	{
-		// Find root bone
-		/*
-		for (auto nameBone : _boneMap)
-			if (nameBone.second.parent == nullptr)
-				_root = nameBone.second;
-		*/
-
-		// Calculate transforms for all nodes
-		calcGlobalTransforms(*_root, SMatrix::Identity);	// Identity because this is for root only
 	}
 
 

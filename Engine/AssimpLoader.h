@@ -165,7 +165,7 @@ public:
 			std::string sceneName = _previews[i]->getPath().filename().string();
 			if (ImGui::BeginTabItem(sceneName.c_str()))
 			{
-				ImGui::BeginChild(sceneName.c_str(), ImVec2(0., -30.f));
+				ImGui::BeginChild(sceneName.c_str(), ImVec2(0., -50.f));
 
 				_previews[i]->displayAiScene(sceneName);	// Add tabs here
 
