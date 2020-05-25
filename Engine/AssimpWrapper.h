@@ -245,7 +245,7 @@ public:
 
 				for (int b = 0; b < channel->mNumRotationKeys; b++)
 				{
-					ac.rKeys.emplace_back(channel->mRotationKeys[b].mTime, SQuat(&channel->mRotationKeys[b].mValue.x));
+					ac.rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
 				}
 
 				for (int a = 0; a < channel->mNumPositionKeys; a++)
@@ -279,7 +279,7 @@ public:
 			if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
 			{
 				boneIndex = skeleton._boneMap.size();
-				SMatrix boneOffsetMat = SMatrix(&assBone->mOffsetMatrix.a1).Transpose();
+				SMatrix boneOffsetMat = aiMatToSMat(assBone->mOffsetMatrix);
 
 				Bone bone(boneIndex, boneName, boneOffsetMat);
 
@@ -317,7 +317,7 @@ public:
 				{
 					boneIndex = skeleton._boneMap.size();
 					
-					SMatrix boneOffsetMat = SMatrix(&bone->mOffsetMatrix.a1).Transpose();
+					SMatrix boneOffsetMat = aiMatToSMat(bone->mOffsetMatrix);
 
 					skeleton._boneMap.insert({ boneName, Bone(boneIndex, boneName, boneOffsetMat) });
 				}
@@ -336,25 +336,39 @@ public:
 	{
 		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
 
-		skeleton.makeLikeATree(skelRoot, SMatrix::Identity);
+		SMatrix rootMat = skeleton._root->localTransform;
 
-		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
+		skeleton.makeLikeATree(skelRoot, skeleton._globalInverseTransform);
+
+		skeleton._root->localTransform = rootMat;	// Ugly workaround to check the concept
+
+		skeleton.calcGlobalTransforms(*skeleton._root, skeleton._globalInverseTransform);	// Identity because this is for root only
 	}
 
 
 
-	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton)
+	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
 	{
 		const aiNode* result = nullptr;
 
-		if (skeleton.boneExists(node->mName.C_Str()))
+		Bone* bone = skeleton.findBone(node->mName.C_Str());
+
+		SMatrix boneLocalTransform = aiMatToSMat(node->mTransformation);
+		pMat = boneLocalTransform * pMat;
+
+		if (bone)
+		{
+			bone->localTransform = pMat;
 			result = node;
+		}
 		else
 		{
 			for (int i = 0; i < node->mNumChildren; ++i)
 			{
-				result = findSkeletonRoot(node->mChildren[i], skeleton);
-				if (result) break;
+				result = findSkeletonRoot(node->mChildren[i], skeleton, pMat);
+				
+				if (result)
+					break;
 			}
 		}
 	
@@ -419,4 +433,11 @@ public:
 		return tangent;
 	}
 
+
+
+	inline static SMatrix aiMatToSMat(const aiMatrix4x4& aiMat) { return SMatrix(&aiMat.a1).Transpose(); }
+
+
+
+	inline static SQuat aiQuatToSQuat(const aiQuaternion& aq) { return SQuat(aq.x, aq.y, aq.z, aq.w); }
 };

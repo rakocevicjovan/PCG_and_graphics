@@ -45,7 +45,6 @@ public:
 		_duration = _ticks / _ticksPerSecond;
 		_tickDuration = _duration / _ticks;
 		_invTickDuration = 1.0 / _duration;
-		//_channels.reserve(nc);
 	}
 
 
@@ -53,10 +52,16 @@ public:
 	~Animation();
 
 
-	void addChannel(const AnimChannel& ac)
-	{
-		_channels.insert({ ac.jointName, ac });
-	}
+
+	void getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed) const;
+
+
+
+	SMatrix getInterpolatedTransform(const AnimChannel& channel, float currentTick, float t) const;
+
+
+
+	inline void addChannel(const AnimChannel& ac) { _channels.insert({ ac.jointName, ac }); }
 
 
 
@@ -65,6 +70,10 @@ public:
 
 
 	inline float getDuration()		const { return _duration; }
+
+
+
+	inline std::string getName() { return _name; }
 
 
 
@@ -79,15 +88,4 @@ public:
 		}
 		return false;
 	}
-
-
-	std::string getName() { return _name; }
-
-
-
-	void getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed) const;
-
-
-
-	SMatrix getInterpolatedTransform(const AnimChannel& channel, float currentTick, float t) const;
 };

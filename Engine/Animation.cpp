@@ -16,7 +16,7 @@ Animation::~Animation()
 void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed) const
 {
 	float currentTick = elapsed / _tickDuration;
-	float t = fmod(elapsed, _tickDuration);
+	float t = fmod(elapsed, _tickDuration) / _tickDuration;
 
 	AnimChannel channel;
 	bool found = getAnimChannel(joint.name, channel);
@@ -27,7 +27,7 @@ void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const
 
 	if (found)
 	{
-		animTransform = getInterpolatedTransform(channel, currentTick, t);	// Animation found, use it
+		animTransform = getInterpolatedTransform(channel, currentTick, t) * joint.localTransform;	// Animation found, use it
 	}
 	else
 	{
@@ -36,16 +36,17 @@ void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const
 
 	SMatrix nodeTransform = animTransform * parentMatrix;
 
-	for (Bone* child : joint.offspring)
-		getTransformAtTime(*child, vec, nodeTransform, glInvT, elapsed);
-
-	SMatrix finalMatrix = joint.meshToBoneTransform;	// Go from mesh space to bone space
-	finalMatrix = finalMatrix * nodeTransform;			// Animate					
-	//finalMatrix = finalMatrix * glInvT;				// Whole mesh moves with global inverse
+	// Bind space to bone space, animate, apply global inverse
+	SMatrix finalMatrix = joint.meshToBoneTransform;
+	finalMatrix = finalMatrix * nodeTransform;
+	finalMatrix = finalMatrix * glInvT;
 
 	// @TODO move responsibility for this to calling code
 	//transpose because the shader is column major, nothing to do with the animation process
 	vec[joint.index] = finalMatrix.Transpose();
+
+	for (Bone* child : joint.offspring)
+		getTransformAtTime(*child, vec, nodeTransform, glInvT, elapsed);
 }
 
 
@@ -84,7 +85,7 @@ SMatrix Animation::getInterpolatedTransform(const AnimChannel& channel, float cu
 		{
 			SQuat rotPre = channel.rKeys[i].second;
 			SQuat rotPost = channel.rKeys[i + 1 == channel.rKeys.size() ? 0 : i + 1].second;
-			quat = SQuat::Slerp(rotPre, rotPost, t);
+			quat = SQuat::Slerp(rotPre, rotPost, t);	// Could just lerp as well tbh, looks okay
 			break;
 		}
 	}

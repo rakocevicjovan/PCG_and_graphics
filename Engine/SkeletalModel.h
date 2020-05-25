@@ -22,8 +22,7 @@ public:
 
 	std::vector<SkeletalMesh> _meshes;
 
-	std::string directory;
-	std::string name;
+	std::string _path;
 
 	SMatrix transform;
 	
@@ -37,6 +36,8 @@ public:
 
 	bool loadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1, float rUVy = 1)
 	{
+		_path = path;
+
 		assert(FileUtils::fileExists(path) && "File not accessible!");
 
 		unsigned int pFlags = 
@@ -46,23 +47,23 @@ public:
 			aiProcess_ConvertToLeftHanded |
 			aiProcess_LimitBoneWeights;
 
+		//aiProcess_ValidateDataStructure |
+
 		// Read file via ASSIMP
 		Assimp::Importer importer;
 
 		const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
 
-		directory = path.substr(0, path.find_last_of('/'));
-		name = path.substr(path.find_last_of('/') + 1, path.size());
 
 		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
-		_skeleton._globalInverseTransform = SMatrix(&globInvTrans.a1).Transpose().Invert();
+		_skeleton._globalInverseTransform = AssimpWrapper::aiMatToSMat(globInvTrans).Invert();
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);
 
 		// This might be wrong
-		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton);
+		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton, SMatrix());
 
-		assert(skelRoot);	// Can't work without!
+		assert(skelRoot);	// Can't work without! Quickly, beat up the artist!
 
 		AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
 
@@ -102,7 +103,7 @@ public:
 
 		AssimpWrapper::loadIndices(mesh, indices);
 
-		AssimpWrapper::loadMaterials(directory, scene, mesh, locTextures);
+		AssimpWrapper::loadMaterials(_path, scene, mesh, locTextures);
 
 		for (Texture& t : locTextures)
 			t.SetUpAsResource(device);

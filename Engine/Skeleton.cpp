@@ -1,19 +1,21 @@
 #include "Skeleton.h"
+#include "AssimpWrapper.h"
 
 
-
-void Skeleton::makeLikeATree(const aiNode* node, SMatrix parentMatrix)
+void Skeleton::makeLikeATree(const aiNode* node, SMatrix parentMatrix)	//PM NOT USED!!!
 {
 	std::string nodeName = std::string(node->mName.data);
 
-	auto nameBone = _boneMap.find(nodeName);
+	std::map<std::string, Bone>::iterator boneIterator = _boneMap.find(nodeName);
 
-	parentMatrix = (SMatrix(&node->mTransformation.a1).Transpose()) * parentMatrix;
+	SMatrix locNodeMat = AssimpWrapper::aiMatToSMat(node->mTransformation);
 
-	if (nameBone != _boneMap.end())	// If node is a bone
+	parentMatrix = locNodeMat * parentMatrix;
+
+	if (boneIterator != _boneMap.end())	// If node is a bone
 	{
-		Bone& currentBone = nameBone->second;
-		currentBone.localTransform = (SMatrix(&node->mTransformation.a1).Transpose());
+		Bone& currentBone = boneIterator->second;
+		currentBone.localTransform = locNodeMat;
 		linkToParentBone(node, currentBone);
 	}
 
@@ -41,12 +43,12 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 	}
 	else	// This node is not a bone yet, but it should be, so add it.
 	{
-		SMatrix nodeMatrix = SMatrix(&parent->mTransformation.a1).Transpose();
+		SMatrix locNodeMat = AssimpWrapper::aiMatToSMat(parent->mTransformation);
 
 		Bone newParentBone;
 		newParentBone.name = parentName;
 		newParentBone.index = _boneMap.size();
-		newParentBone.localTransform = nodeMatrix;
+		newParentBone.localTransform = locNodeMat;
 		_boneMap.insert({ parentName, newParentBone });
 
 		// @TODO ADD INVERSE TRANSFORM TO THESE BONES, NOT CALCULATED YET!!!

@@ -53,7 +53,7 @@ public:
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
 		// This might be wrong
-		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton);
+		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton, SMatrix());
 		
 		if (skelRoot)
 			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
@@ -444,7 +444,23 @@ public:
 			ImGui::SameLine();
 			ImGui::Text(std::to_string(bone->index).c_str());
 
-			displayTransform(bone->meshToBoneTransform);
+			if (ImGui::TreeNode("Inverse offset matrix"))
+			{
+				displayTransform(bone->meshToBoneTransform);
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("Local matrix"))
+			{
+				displayTransform(bone->localTransform);
+				ImGui::TreePop();
+			}
+
+			if (ImGui::TreeNode("Global matrix"))
+			{
+				displayTransform(bone->globalTransform);
+				ImGui::TreePop();
+			}
 
 			for (Bone* cBone : bone->offspring)
 				printBone(cBone);

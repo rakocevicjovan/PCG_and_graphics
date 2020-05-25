@@ -180,7 +180,7 @@ public:
 
 				if (ImGui::Button("Load as skeletal model"))
 				{
-					_skelModel = SkeletalModel();	// reset
+					_skelModel = SkeletalModel();
 					_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
 
 					for (auto& skmesh : _skelModel._meshes)
