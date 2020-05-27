@@ -214,7 +214,6 @@ public:
 			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
 			_skelModelInstance.draw(S_CONTEXT);
 		}
-	
 
 		rc.d3d->EndScene();
 	}

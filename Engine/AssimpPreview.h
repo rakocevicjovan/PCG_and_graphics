@@ -39,20 +39,20 @@ public:
 			aiProcess_FlipUVs |
 			aiProcess_ConvertToLeftHanded;
 
-		//AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES
-		_importer.SetPropertyInteger(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, 0);
+		_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	// This doesn't work...
 
 		_scene = AssimpWrapper::loadScene(_importer, path, pFlags);
 
 		if (!_scene)
 			return false;
 
-		aiMatrix4x4 globInvTrans = _scene->mRootNode->mTransformation;
-		_skeleton._globalInverseTransform = SMatrix(&globInvTrans.a1).Transpose().Invert();
+		aiMatrix4x4 rootNodeTransform = _scene->mRootNode->mTransformation;
+		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(rootNodeTransform);
+		_skeleton._globalInverseTransform = globalTransform.Invert();
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
-		// This might be wrong
+
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton, SMatrix());
 		
 		if (skelRoot)

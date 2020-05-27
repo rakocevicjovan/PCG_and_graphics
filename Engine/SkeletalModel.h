@@ -47,25 +47,34 @@ public:
 			aiProcess_ConvertToLeftHanded |
 			aiProcess_LimitBoneWeights;
 
-		//aiProcess_ValidateDataStructure |
-
-		// Read file via ASSIMP
 		Assimp::Importer importer;
+
+		importer.SetPropertyInteger(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, 0);
 
 		const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
 
+		if (!scene)
+			return false;
 
-		aiMatrix4x4 globInvTrans = scene->mRootNode->mTransformation;
-		_skeleton._globalInverseTransform = AssimpWrapper::aiMatToSMat(globInvTrans).Invert();
+		aiMatrix4x4 rootNodeTransform = scene->mRootNode->mTransformation;
+		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(rootNodeTransform);
+		_skeleton._globalInverseTransform = globalTransform.Invert();
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);
 
 		// This might be wrong
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton, SMatrix());
 
-		assert(skelRoot);	// Can't work without! Quickly, beat up the artist!
+		if (skelRoot)
+		{
+			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
+		}
+		else
+		{
+			// Skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
+		}
 
-		AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
+		
 
 		AssimpWrapper::loadAnimations(scene, anims);
 

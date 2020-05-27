@@ -332,21 +332,6 @@ public:
 
 
 
-	static void linkSkeletonHierarchy(const aiNode* skelRoot, Skeleton& skeleton)
-	{
-		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
-
-		SMatrix rootMat = skeleton._root->localTransform;
-
-		skeleton.makeLikeATree(skelRoot, skeleton._globalInverseTransform);
-
-		skeleton._root->localTransform = rootMat;	// Ugly workaround to check the concept
-
-		skeleton.calcGlobalTransforms(*skeleton._root, skeleton._globalInverseTransform);	// Identity because this is for root only
-	}
-
-
-
 	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
 	{
 		const aiNode* result = nullptr;
@@ -366,13 +351,30 @@ public:
 			for (int i = 0; i < node->mNumChildren; ++i)
 			{
 				result = findSkeletonRoot(node->mChildren[i], skeleton, pMat);
-				
+
 				if (result)
 					break;
 			}
 		}
-	
+
 		return result;
+	}
+
+
+
+	static void linkSkeletonHierarchy(const aiNode* skelRoot, Skeleton& skeleton)
+	{
+		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
+
+		SMatrix rootMat = skeleton._root->localTransform;
+
+		skeleton.makeLikeATree(skelRoot, rootMat);
+
+		skeleton._root->localTransform = rootMat;	// Ugly workaround to check the concept
+
+		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
+	
+		skeleton._globalInverseTransform = rootMat.Invert();
 	}
 
 
