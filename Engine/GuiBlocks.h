@@ -223,3 +223,15 @@ static bool inTextStdString(char* label, std::string& inoutString)
 		return 0;
 	}, &inoutString));
 }
+
+
+
+static bool contextMenu()	// Doesn't do anything, just a syntax refresher ( imagine having documentation )
+{
+	if (ImGui::BeginPopupContextItem("Bruh"))	// ImGui::BeginPopupContextWindow();
+	{
+		if (ImGui::Selectable("zone"))
+		{
+		}
+	}
+}

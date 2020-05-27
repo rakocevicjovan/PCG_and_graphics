@@ -70,7 +70,7 @@ void ResourceManager::loadLevel(int i)
 
 void ResourceManager::popLevel(int i)
 {
-	//but if I clear the stack they will get overwritten... how to get around keeping some of them while using my own allocator
+	//but if I clear the stack they will get deleted indiscriminately... unsuitable
 	for (auto resPtr : _resourceMap)
 	{
 		if (!resPtr.second->isInUse())

@@ -401,6 +401,9 @@
     <ClCompile Include="Skeleton.cpp">
       <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClCompile>
+    <ClCompile Include="Project.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems.h">
@@ -891,6 +894,9 @@
     </ClInclude>
     <ClInclude Include="AeonWriter.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Project.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

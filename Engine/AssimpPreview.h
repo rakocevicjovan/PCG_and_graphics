@@ -444,21 +444,17 @@ public:
 			ImGui::SameLine();
 			ImGui::Text(std::to_string(bone->index).c_str());
 
-			if (ImGui::TreeNode("Inverse offset matrix"))
+			if (ImGui::TreeNode("Transformations"))
 			{
-				displayTransform(bone->meshToBoneTransform);
-				ImGui::TreePop();
-			}
-
-			if (ImGui::TreeNode("Local matrix"))
-			{
+				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
 				displayTransform(bone->localTransform);
-				ImGui::TreePop();
-			}
 
-			if (ImGui::TreeNode("Global matrix"))
-			{
+				ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
 				displayTransform(bone->globalTransform);
+
+				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
+				displayTransform(bone->meshToBoneTransform);		
+
 				ImGui::TreePop();
 			}
 

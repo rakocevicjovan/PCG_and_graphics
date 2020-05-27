@@ -180,6 +180,7 @@
       <FloatingPointExceptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </FloatingPointExceptions>
     </ClCompile>
+    <ClCompile Include="Project.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -382,6 +383,7 @@
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="LoaderGUI.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
+    <ClInclude Include="Project.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h">
