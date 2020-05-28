@@ -56,11 +56,13 @@ public:
 		if (!scene)
 			return false;
 
+		_meshes.reserve(scene->mNumMeshes);
+
 		aiMatrix4x4 rootNodeTransform = scene->mRootNode->mTransformation;
 		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(rootNodeTransform);
 		_skeleton._globalInverseTransform = globalTransform.Invert();
 
-		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy);
+		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
 
 		// This might be wrong
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton, SMatrix());
@@ -74,8 +76,6 @@ public:
 			// Skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
 		}
 
-		
-
 		AssimpWrapper::loadAnimations(scene, anims);
 
 		return true;
@@ -83,23 +83,24 @@ public:
 
 
 
-	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy)	//aiMatrix4x4 parentTransform, 
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix parentMat)	//aiMatrix4x4 parentTransform, 
 	{
-		//aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
+		SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
+		parentMat = locNodeTransform * parentMat;
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), rUVx, rUVy)); /*concatenatedTransform*/
+			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), parentMat, rUVx, rUVy)); /*concatenatedTransform*/
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
-			this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy);
+			this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy, parentMat);
 
 		return true;
 	}
 
 
 
-	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind/*, aiMatrix4x4 parentTransform*/, float rUVx, float rUVy)
+	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy)
 	{
 		// Data to fill
 		std::vector<BonedVert3D> vertices;
@@ -119,7 +120,7 @@ public:
 
 		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton);
 
-		return SkeletalMesh(vertices, indices, locTextures, device, ind);
+		return SkeletalMesh(vertices, indices, locTextures, device, ind, transform);
 	}
 
 };
@@ -164,6 +165,11 @@ public:
 	{
 		for (int i = 0; i < _animInstances.size(); ++i)
 			_animInstances[i].update(dTime);
+
+		for (int i = 0; i < _skm->_meshes.size(); ++i)
+		{
+			_skm->_meshes[i]._transform = _skm->_meshes[i]._localTransform * _skm->transform;
+		}
 
 		_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
 	}

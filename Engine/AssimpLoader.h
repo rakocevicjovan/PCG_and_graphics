@@ -37,7 +37,7 @@ public:
 
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _playbackSpeed(1.f)
 	{
-		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking");
+		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\");
 		
 		_exporting = -1;
 
@@ -82,7 +82,6 @@ public:
 
 		//D3D11_BUFFER_DESC BoneBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
 		//CBufferMeta BoneBufferMeta(1, BoneBufferDesc.ByteWidth);
-
 
 		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc });
 		saVS->describeBuffers({ WMBufferMeta });

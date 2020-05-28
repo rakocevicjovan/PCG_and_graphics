@@ -18,7 +18,8 @@ public:
 	std::vector<UINT> _indices;
 	std::vector<Texture> _textures;
 
-	SMatrix _transform;
+	SMatrix _transform;	// relative to parent model
+	SMatrix _localTransform;
 
 	Material _baseMaterial;
 	std::vector<Bone> joints;
@@ -33,9 +34,10 @@ public:
 
 
 
-	SkeletalMesh(std::vector<BonedVert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* dvc, unsigned int ind) 
-		: _vertices(vertices), _indices(indices), _textures(textures)
+	SkeletalMesh(std::vector<BonedVert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* dvc, unsigned int ind, SMatrix localTransform) 
+		: _vertices(vertices), _indices(indices), _textures(textures), _localTransform(localTransform)
 	{
+		//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
 		for (auto& t : _textures)
 		{
 			_baseMaterial._texDescription.push_back({ t._role, &t });

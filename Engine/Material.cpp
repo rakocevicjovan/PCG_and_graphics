@@ -38,8 +38,6 @@ void Material::bindTextures(ID3D11DeviceContext* context)
 	// This does not work as intended yet, the idea is to use _texDescription to set proper fields not naive iteration
 	for (int i = 0; i < _texDescription.size(); ++i)
 	{
-		//PixelShader* p = _pixelShader;
-
 		context->PSSetShaderResources(i, 1, &(_texDescription[i]._tex->_srv));	//texturesAdded + i was used before, deprecated
 	}
 }

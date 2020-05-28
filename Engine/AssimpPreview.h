@@ -21,6 +21,9 @@ private:
 
 	Skeleton _skeleton;
 
+	std::vector<Texture> _embTextures;
+	std::vector<Texture> _extTextures;
+
 public:
 
 
@@ -85,6 +88,15 @@ public:
 		ImGui::Separator();
 
 		printSceneAnimations();
+
+		ImGui::Separator();
+
+		if (ImGui::TreeNode("Textures"))
+		{
+			printTextures();
+			ImGui::TreePop();
+		}
+
 	}
 
 
@@ -318,9 +330,9 @@ public:
 
 				if (loaded)
 				{
-					ImGui::Text("This texture is embedded at index ");
-					ImGui::SameLine();
-					ImGui::Text(std::to_string(embeddedIndex).c_str());
+					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0., 1., 1., 1.));
+					ImGui::Text("This texture is embedded!");
+					ImGui::PopStyleColor();
 				}
 				else
 				{
@@ -460,6 +472,45 @@ public:
 
 			for (Bone* cBone : bone->offspring)
 				printBone(cBone);
+
+			ImGui::TreePop();
+		}
+	}
+
+
+
+	void printTextures()
+	{
+		if (_scene->mTextures)
+		{
+			if (ImGui::TreeNode("Embedded"))
+			{
+				for (int i = 0; i < _scene->mNumTextures; ++i)
+				{
+					aiTexture* tex = _scene->mTextures[i];
+					
+					ImGui::Text("Name: ");
+					ImGui::SameLine();
+					ImGui::Text(tex->mFilename.C_Str());
+
+					ImGui::Text("Width: %d; Height: %d;", tex->mWidth, tex->mHeight);
+
+					ImGui::Text("Format hint: ");
+					ImGui::SameLine();
+					ImGui::Text(tex->achFormatHint);
+				}
+
+				ImGui::TreePop();
+			}
+		}
+		else
+		{
+			ImGui::Text("No embedded textures found");
+		}
+		
+
+		if (ImGui::TreeNode("External"))
+		{
 
 			ImGui::TreePop();
 		}

@@ -177,8 +177,7 @@ public:
 			// Load from file failed - embedded (attempt to load from memory) or corrupted
 			if (!loaded)
 			{
-				int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
-				loaded = loadEmbeddedTexture(curTexture, scene, embeddedIndex);
+				loaded = loadEmbeddedTexture(curTexture, scene, &obtainedTexturePath);
 			}
 
 			// Load failed completely - most likely the data is corrupted or my library doesn't support it
@@ -195,12 +194,16 @@ public:
 
 
 
-	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, UINT index)
+	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str)
 	{
+		// This was the "old way" in assimp but it still worked for most textures! This library is strange...
+		//int index = atoi(str.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
+		//aiTexture* aiTex = scene->mTextures[index];
+
 		if (!scene->mTextures)
 			return false;
 
-		aiTexture* aiTex = scene->mTextures[index];
+		const aiTexture* aiTex = scene->GetEmbeddedTexture(str->C_Str());
 
 		if (!aiTex)
 			return false;
@@ -214,6 +217,23 @@ public:
 		texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
 
 		return true;
+	}
+
+
+
+	static bool readEmbeddedTextures(const aiScene* scene)
+	{
+		if (!scene->mTextures)
+			return false;
+
+		UINT numEmbTextures = scene->mNumTextures;
+
+		for (int i = 0; i < numEmbTextures; ++i)
+		{
+			aiTexture* tex = scene->mTextures[i];
+		}
+
+
 	}
 
 
