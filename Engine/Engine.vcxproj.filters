@@ -898,6 +898,9 @@
     <ClInclude Include="Project.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Resources\Resource classes\SkelAnim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

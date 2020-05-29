@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 
+class Bone;
 
 struct AnimChannel
 {

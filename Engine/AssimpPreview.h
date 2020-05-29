@@ -11,13 +11,11 @@ class AssimpPreview
 {
 private:
 
-	Assimp::Importer _importer;
-
 	std::string _path;
 
-	const aiScene* _scene;
+	Assimp::Importer _importer;
 
-	UINT _meshIndex;	// Used to differentiate between mesh names because they tend to have same names
+	const aiScene* _scene;
 
 	Skeleton _skeleton;
 
@@ -33,7 +31,6 @@ public:
 		//static_assert(std::is_nothrow_move_constructible<AssimpPreview>::value, "MyType should be noexcept MoveConstructible");
 
 		_path = path;
-		_meshIndex = 0;
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
@@ -68,7 +65,6 @@ public:
 
 	void displayAiScene(const std::string& sName)
 	{
-		_meshIndex = 0;
 
 		if (ImGui::TreeNode("Node tree"))
 		{
@@ -131,12 +127,11 @@ public:
 					for (unsigned int i = 0; i < node->mNumMeshes; i++)
 					{
 						aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-						++_meshIndex;
 
-						std::string meshName("Mesh name and index: ");
+						std::string meshName("Mesh name and node index: ");
 						meshName += mesh->mName.C_Str();
 						meshName += " ";
-						meshName += std::to_string(_meshIndex);
+						meshName += std::to_string(i);
 
 						if (ImGui::TreeNode(meshName.c_str()))
 						{
@@ -459,13 +454,13 @@ public:
 			if (ImGui::TreeNode("Transformations"))
 			{
 				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
-				displayTransform(bone->localTransform);
+				displayTransform(bone->_localMatrix);
 
-				ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
-				displayTransform(bone->globalTransform);
+				//ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
+				//displayTransform(bone->globalMatrix);
 
 				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
-				displayTransform(bone->meshToBoneTransform);		
+				displayTransform(bone->_offsetMatrix);		
 
 				ImGui::TreePop();
 			}

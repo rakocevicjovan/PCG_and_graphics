@@ -1,13 +1,17 @@
 #pragma once
 #include <string>
-#include "MeshDataStructs.h"
-#include "Math.h"
+#include <map>
+#include "Bone.h"
 
 #include "assimp\Importer.hpp"	
 #include "assimp\scene.h"
 #include "assimp\postprocess.h" 
 
 #include <optional>
+
+
+
+
 
 // @TODO get rid of the map, it was a learning crutch, too slow - transform to vector of bones with indices as "names"
 class Skeleton
@@ -29,7 +33,7 @@ public:
 
 
 
-	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
+	//void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
 
 
 

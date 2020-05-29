@@ -1,5 +1,5 @@
 #include "Animation.h"
-
+#include "Bone.h"
 
 
 Animation::Animation()
@@ -27,17 +27,17 @@ void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const
 
 	if (found)
 	{
-		animTransform = getInterpolatedTransform(channel, currentTick, t) * joint.localTransform;	// Animation found, use it
+		animTransform = getInterpolatedTransform(channel, currentTick, t) * joint._localMatrix;	// Animation found, use it
 	}
 	else
 	{
-		animTransform = joint.localTransform;		// No animation channels for this bone right now, use default
+		animTransform = joint._localMatrix;		// No animation channels for this bone right now, use default
 	}
 
 	SMatrix nodeTransform = animTransform * parentMatrix;
 
 	// Bind space to bone space, animate, apply global inverse
-	SMatrix finalMatrix = joint.meshToBoneTransform;
+	SMatrix finalMatrix = joint._offsetMatrix;
 	finalMatrix = finalMatrix * nodeTransform;
 	finalMatrix = finalMatrix * glInvT;
 

@@ -6,6 +6,8 @@
 #include "GUI.h"
 #include <memory>
 
+
+
 class AssimpLoader : public Level
 {
 private:
@@ -37,7 +39,7 @@ public:
 
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _playbackSpeed(1.f)
 	{
-		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\");
+		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
 		
 		_exporting = -1;
 
@@ -108,10 +110,6 @@ public:
 		terrain.CalculateTexCoords();
 		terrain.CalculateNormals();
 		floorMesh = Mesh(terrain, S_DEVICE);
-		Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
-		floorTex.SetUpAsResource(S_DEVICE);
-		floorMesh._textures.push_back(floorTex);
-		floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
 		floorMesh._baseMaterial.pLight = &_pointLight;
 		floorRenderable = Renderable(floorMesh);
 		floorRenderable.mat->setVS(basicVS);

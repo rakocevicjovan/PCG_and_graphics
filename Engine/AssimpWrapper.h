@@ -363,7 +363,7 @@ public:
 
 		if (bone)
 		{
-			bone->localTransform = pMat;
+			bone->_localMatrix = pMat;
 			result = node;
 		}
 		else
@@ -386,13 +386,13 @@ public:
 	{
 		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
 
-		SMatrix rootMat = skeleton._root->localTransform;
+		SMatrix rootMat = skeleton._root->_localMatrix;
 
 		skeleton.makeLikeATree(skelRoot, rootMat);
 
-		skeleton._root->localTransform = rootMat;	// Ugly workaround to check the concept
+		skeleton._root->_localMatrix = rootMat;	// Ugly workaround to check the concept
 
-		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
+		//skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
 	
 		skeleton._globalInverseTransform = rootMat.Invert();
 	}

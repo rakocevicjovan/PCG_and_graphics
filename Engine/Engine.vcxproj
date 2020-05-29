@@ -364,6 +364,7 @@
     <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="AssimpPreview.h" />
     <ClInclude Include="AssimpWrapper.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="Callable.h" />
     <ClInclude Include="ClusteringMath.h" />
     <ClInclude Include="ClusteringUnusedCode.h" />

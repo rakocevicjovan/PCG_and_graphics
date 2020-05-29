@@ -15,7 +15,7 @@ void Skeleton::makeLikeATree(const aiNode* node, SMatrix parentMatrix)	//PM NOT 
 	if (boneIterator != _boneMap.end())	// If node is a bone
 	{
 		Bone& currentBone = boneIterator->second;
-		currentBone.localTransform = locNodeMat;
+		currentBone._localMatrix = locNodeMat;
 		linkToParentBone(node, currentBone);
 	}
 
@@ -48,7 +48,7 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 		Bone newParentBone;
 		newParentBone.name = parentName;
 		newParentBone.index = _boneMap.size();
-		newParentBone.localTransform = locNodeMat;
+		newParentBone._localMatrix = locNodeMat;
 		_boneMap.insert({ parentName, newParentBone });
 
 		// @TODO ADD INVERSE TRANSFORM TO THESE BONES, NOT CALCULATED YET!!!
@@ -62,13 +62,12 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 }
 
 
-
+/*
 void Skeleton::calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
 {
-	bone.globalTransform = bone.localTransform * parentTransform;
+	bone.globalTransform = bone._localMatrix * parentTransform;
 
 	for (Bone* childBone : bone.offspring)
-	{
 		calcGlobalTransforms(*childBone, bone.globalTransform);
-	}
 }
+*/

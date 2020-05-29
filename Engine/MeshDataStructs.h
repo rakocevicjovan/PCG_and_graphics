@@ -53,24 +53,6 @@ struct BonedVert3D
 
 
 
-class Bone
-{
-public:
-
-	int index;
-	std::string name;
-	SMatrix meshToBoneTransform, localTransform, globalTransform;
-	Bone* parent = nullptr;
-	std::vector<Bone*> offspring;
-
-	Bone() : parent(nullptr) {}
-
-	Bone(int index, std::string name, SMatrix offset) 
-		: index(index), name(name), meshToBoneTransform(offset), parent(nullptr) {}
-};
-
-
-
 struct Colour
 {
 	unsigned char col[4];

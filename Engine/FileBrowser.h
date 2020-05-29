@@ -44,7 +44,7 @@ public:
 	{
 		std::optional <std::filesystem::directory_entry> selected;
 
-		if (ImGui::Begin("Asset list"))
+		if (ImGui::Begin("File browser"))
 		{
 			bool tempBadPath = _badPath;	//Since it can change with seek
 
@@ -70,8 +70,8 @@ public:
 				stepBack();
 			
 			selected = printContentList();
-
 		}
+
 		ImGui::End();
 
 		return selected;
@@ -136,32 +136,33 @@ private:
 	{
 		std::optional<std::filesystem::directory_entry> result;
 
-		ImGui::ListBoxHeader("Contents");
-
-		auto file = std::filesystem::directory_entry(_curDirPath);
-
-		if (file.exists() && file.is_directory())
+		if (ImGui::ListBoxHeader("Contents"))
 		{
-			std::filesystem::directory_iterator dirIter(_curDirPath);
+			auto file = std::filesystem::directory_entry(_curDirPath);
 
-			for (const std::filesystem::directory_entry& de : dirIter)	//for (int i = 0; i < _contents.size(); i++)
+			if (file.exists() && file.is_directory())
 			{
-				if (ImGui::Button(de.path().filename().string().data()))	//ImGui::Button(_contents[i].c_str())
+				std::filesystem::directory_iterator dirIter(_curDirPath);
+
+				for (const std::filesystem::directory_entry& de : dirIter)	//for (int i = 0; i < _contents.size(); i++)
 				{
-					if (de.is_directory())
+					if (ImGui::Button(de.path().filename().string().data()))	//ImGui::Button(_contents[i].c_str())
 					{
-						_searchedString = de.path().string();
-						seek();
-					}
-					else
-					{
-						result = de;
+						if (de.is_directory())
+						{
+							_searchedString = de.path().string();
+							seek();
+						}
+						else
+						{
+							result = de;
+						}
 					}
 				}
 			}
+			ImGui::ListBoxFooter();
 		}
 
-		ImGui::ListBoxFooter();
 		return result;
 	}
 };
