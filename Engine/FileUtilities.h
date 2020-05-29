@@ -8,7 +8,6 @@
 #include <dirent.h>	// Using 17 now so not necessary?
 
 
-
 namespace FileUtils
 {
 	inline static std::string loadFileContents(const std::string& path)
@@ -76,5 +75,30 @@ namespace FileUtils
 			}
 		}
 		return false;
+	}
+
+
+
+	static std::vector<char> readAllBytes(char const* filename)
+	{
+		static_assert(sizeof(char) == 1);								// Am I paranoid? Yes I aaaam
+
+		std::ifstream ifs(filename, std::ios::binary | std::ios::ate);	// Construct with cursor "At-The-End"
+		std::ifstream::pos_type byteCount = ifs.tellg();				// Save file size
+
+		std::vector<char> result(byteCount);	// Create a vector of matching size
+
+		ifs.seekg(0, std::ios::beg);
+		ifs.read(result.data(), byteCount);		// Read byteCount bytes into the result vector
+
+		return result;
+	}
+
+
+
+	static void writeAllBytes(char const* filename, void* content, size_t size)
+	{
+		std::ofstream writer(filename, std::ios::out | std::ios::binary);
+		writer.write(static_cast<char*>(content), size);
 	}
 }
