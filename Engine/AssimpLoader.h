@@ -43,6 +43,8 @@ public:
 		
 		_exporting = -1;
 
+		_exportPath = "C:\\Users\\Senpai\\Desktop\\Assets.txt";
+
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
@@ -168,7 +170,7 @@ public:
 
 				ImGui::EndChild();
 
-				if (ImGui::Button("Export to .aeon"))
+				if (ImGui::Button("Export"))
 				{
 					_exporting = i;
 				}

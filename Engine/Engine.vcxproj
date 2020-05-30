@@ -376,6 +376,7 @@
     <ClInclude Include="BOBuffer.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
+    <ClInclude Include="Exporter.h" />
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="GUI.h" />

@@ -52,7 +52,6 @@ public:
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
-
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton, SMatrix());
 		
 		if (skelRoot)
@@ -77,7 +76,7 @@ public:
 
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			printBone(_skeleton._root);
+			printBoneHierarchy(_skeleton._root);
 			ImGui::TreePop();
 		}
 
@@ -443,7 +442,7 @@ public:
 
 
 
-	void printBone(Bone* bone)
+	void printBoneHierarchy(Bone* bone)
 	{
 		if (ImGui::TreeNode(bone->name.c_str()))
 		{
@@ -466,7 +465,7 @@ public:
 			}
 
 			for (Bone* cBone : bone->offspring)
-				printBone(cBone);
+				printBoneHierarchy(cBone);
 
 			ImGui::TreePop();
 		}

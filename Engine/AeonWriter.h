@@ -1,11 +1,10 @@
 #pragma once
 #include "Math.h"
 #include "Model.h"
+#include "FileUtilities.h"
 
 class AeonWriter
 {
-	static void writeToFile(const std::string& ofPath)
-	{
+	std::string _exportPath;
 
-	}
 };

@@ -901,6 +901,9 @@
     <ClInclude Include="Bone.h">
       <Filter>Resources\Resource classes\SkelAnim</Filter>
     </ClInclude>
+    <ClInclude Include="Exporter.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
