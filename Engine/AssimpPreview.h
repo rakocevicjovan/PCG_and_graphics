@@ -4,6 +4,7 @@
 #include "GuiBlocks.h"
 #include "Texture.h"
 #include "FileBrowser.h"
+#include "Exporter.h"
 
 
 
@@ -17,6 +18,7 @@ private:
 
 	const aiScene* _scene;
 
+	Exporter _exporter;
 
 	// All possible (read relevant) objects that can be loaded from assimp scenes
 	SkeletalModel _skModel;
@@ -55,6 +57,8 @@ public:
 		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(_scene->mRootNode->mTransformation);
 		_skeleton._globalInverseTransform = globalTransform.Invert();
 
+		//AssimpWrapper::loadMeshes();
+
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton, SMatrix());
@@ -71,6 +75,7 @@ public:
 
 	void displayAiScene(const std::string& sName)
 	{
+		ImGui::Text("Assimp structure");
 
 		if (ImGui::TreeNode("Node tree"))
 		{
@@ -79,7 +84,9 @@ public:
 			ImGui::TreePop();
 		}
 
-		ImGui::Separator();
+
+		ImGui::NewLine();
+		ImGui::Text("Parsed assets");
 
 		if (ImGui::TreeNode("Skeleton"))
 		{
@@ -98,6 +105,41 @@ public:
 			printTextures();
 			ImGui::TreePop();
 		}
+		
+
+		ImGui::NewLine();
+		ImGui::Text("Commands");
+
+		if (ImGui::Button("Export"))
+		{
+			_exporter.activate();
+		}
+
+		if(_exporter.isActive())
+			_exporter.displayExportSettings();
+
+		/*
+		if (ImGui::Button("Load as skeletal model"))
+		{
+			_skelModel = SkeletalModel();
+			_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
+
+			for (auto& skmesh : _skelModel._meshes)
+			{
+				skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
+				skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
+				skmesh._baseMaterial.pLight = &_pointLight;
+			}
+
+			_skelModelInstance = SkeletalModelInstance();
+			_skelModelInstance.init(S_DEVICE, &_skelModel);
+		}
+		*/
+
+		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
+
+		//if (_exporting >= 0)
+		//	displayExportWindow(_previews[_exporting].get());
 
 	}
 
@@ -116,7 +158,7 @@ public:
 
 			if (ImGui::TreeNode("Concatenated transform: "))
 			{
-				displayTransform(SMatrix(&concatenatedTransform.a1).Transpose());	// Careful
+				displayTransform(AssimpWrapper::aiMatToSMat(concatenatedTransform));	// Careful
 				ImGui::TreePop();
 			}
 			
@@ -179,7 +221,6 @@ public:
 			ImGui::PopStyleColor();
 			ImGui::TreePop();
 		}
-		
 
 		return true;
 	}
@@ -303,8 +344,7 @@ public:
 			aiString obtainedTexturePath;
 			mat->GetTexture(type, i, &obtainedTexturePath);
 
-			// This assumes files are exported with relative paths... which is a big if, considering artists can't seem to grasp the concept
-			
+			// This assumes files are exported with relative paths... which seems to be a big if...
 			std::string modelFolderPath = _path.substr(0, _path.find_last_of("/\\")) + "\\";
 			std::string texPath = modelFolderPath + std::string(obtainedTexturePath.data);
 			std::string texName = std::filesystem::path(std::string(obtainedTexturePath.C_Str())).filename().string();
@@ -319,13 +359,11 @@ public:
 			}
 			else
 			{
-				aiTexture* aiTex;
-
-				int embeddedIndex = atoi(obtainedTexturePath.C_Str() + sizeof(char));	//skip the * with + sizeof(char), also switch to std::to_integer()
+				const aiTexture* aiTex;
 
 				if (_scene->mTextures)
 				{
-					aiTex = _scene->mTextures[embeddedIndex];
+					aiTex = _scene->GetEmbeddedTexture(obtainedTexturePath.C_Str());
 					loaded = (aiTex != nullptr);
 				}
 
@@ -422,29 +460,6 @@ public:
 		ImGui::Text("Num position keys: ");
 		ImGui::SameLine();
 		ImGui::Text(std::to_string(channel->mNumPositionKeys).c_str());
-
-		/*
-		for (int c = 0; c < channel->mNumScalingKeys; c++)
-		{
-			double time = channel->mScalingKeys[c].mTime;
-			aiVector3D chScale = channel->mScalingKeys[c].mValue;
-			SVec3 scale = SVec3(chScale.x, chScale.y, chScale.z);
-		}
-
-		for (int b = 0; b < channel->mNumRotationKeys; b++)
-		{
-			double time = channel->mRotationKeys[b].mTime;
-			aiQuaternion chRot = channel->mRotationKeys[b].mValue;
-			SQuat rot = SQuat(chRot.x, chRot.y, chRot.z, chRot.w);
-		}
-
-		for (int a = 0; a < channel->mNumPositionKeys; a++)
-		{
-			double time = channel->mPositionKeys[a].mTime;
-			aiVector3D chPos = channel->mPositionKeys[a].mValue;
-			SVec3 pos = SVec3(chPos.x, chPos.y, chPos.z);
-		}
-		*/
 	}
 
 
@@ -515,6 +530,13 @@ public:
 
 			ImGui::TreePop();
 		}
+	}
+
+
+
+	void displayExportWindow(AssimpPreview* preview)
+	{
+		
 	}
 
 

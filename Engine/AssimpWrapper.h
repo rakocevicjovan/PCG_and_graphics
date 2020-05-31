@@ -41,6 +41,16 @@ public:
 	}
 
 
+
+	static void loadMeshes(aiScene* scene)
+	{
+		bool isRigged = AssimpWrapper::containsRiggedMeshes(scene);
+
+
+	}
+
+
+
 	// returns bounding sphere radius
 	template <typename VertexType> static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
 	{
@@ -288,9 +298,9 @@ public:
 
 		for (UINT i = 0; i < aiMesh.mNumBones; ++i)
 		{
-			aiBone* assBone = aiMesh.mBones[i];
+			aiBone* aiBone = aiMesh.mBones[i];
 
-			std::string boneName(assBone->mName.data);
+			std::string boneName(aiBone->mName.data);
 
 			// Connect bone indices to vertex skinning data
 			int boneIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
@@ -298,7 +308,8 @@ public:
 			if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
 			{
 				boneIndex = skeleton._boneMap.size();
-				SMatrix boneOffsetMat = aiMatToSMat(assBone->mOffsetMatrix);
+				
+				SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
 
 				Bone bone(boneIndex, boneName, boneOffsetMat);
 
@@ -307,10 +318,10 @@ public:
 
 
 			// Load skinning data (up to four bone indices and four weights) into vertices
-			for (UINT j = 0; j < assBone->mNumWeights; ++j)
+			for (UINT j = 0; j < aiBone->mNumWeights; ++j)
 			{
-				UINT vertID = assBone->mWeights[j].mVertexId;
-				float weight = assBone->mWeights[j].mWeight;
+				UINT vertID = aiBone->mWeights[j].mVertexId;
+				float weight = aiBone->mWeights[j].mWeight;
 				verts[vertID].AddBoneData(boneIndex, weight);
 			}
 		}
@@ -415,6 +426,19 @@ public:
 		{
 			loadAllBoneNames(scene, node->mChildren[i], boneNames);
 		}
+	}
+
+
+
+	static bool containsRiggedMeshes(const aiScene* scene)
+	{
+		for (int i = 0; i < scene->mNumMeshes; ++i)
+		{
+			if (scene->mMeshes[i]->HasBones())
+				return true;
+		}
+
+		return false;
 	}
 
 

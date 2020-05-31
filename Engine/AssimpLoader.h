@@ -18,9 +18,6 @@ private:
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
 
-	std::string _exportPath;
-	int _exporting;
-
 	// For previewing models in 3d not data
 	SkeletalModel _skelModel;
 	SkeletalModelInstance _skelModelInstance;
@@ -40,10 +37,6 @@ public:
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _playbackSpeed(1.f)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
-		
-		_exporting = -1;
-
-		_exportPath = "C:\\Users\\Senpai\\Desktop\\Assets.txt";
 
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
@@ -164,36 +157,11 @@ public:
 			std::string sceneName = _previews[i]->getPath().filename().string();
 			if (ImGui::BeginTabItem(sceneName.c_str()))
 			{
-				ImGui::BeginChild(sceneName.c_str(), ImVec2(0., -50.f));
+				ImGui::BeginChild(sceneName.c_str());
 
 				_previews[i]->displayAiScene(sceneName);	// Add tabs here
 
 				ImGui::EndChild();
-
-				if (ImGui::Button("Export"))
-				{
-					_exporting = i;
-				}
-				
-				ImGui::SameLine();
-
-				if (ImGui::Button("Load as skeletal model"))
-				{
-					_skelModel = SkeletalModel();
-					_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
-
-					for (auto& skmesh : _skelModel._meshes)
-					{
-						skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
-						skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
-						skmesh._baseMaterial.pLight = &_pointLight;
-					}
-
-					_skelModelInstance = SkeletalModelInstance();
-					_skelModelInstance.init(S_DEVICE, &_skelModel);
-				}
-
-				ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
 
 				ImGui::EndTabItem();
 			}
@@ -203,16 +171,15 @@ public:
 
 		ImGui::End();
 
-		if (_exporting >= 0)
-			exportScene(_previews[_exporting].get());
-
 		GUI::endGuiFrame();
 
+		/* @TODO replace with an option to preview it
 		if (_skelModelInstance._skm)
 		{
 			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
 			_skelModelInstance.draw(S_CONTEXT);
 		}
+		*/
 
 		rc.d3d->EndScene();
 	}
@@ -226,34 +193,5 @@ public:
 				return true;
 
 		return false;
-	}
-
-
-
-	void exportScene(AssimpPreview* preview)
-	{
-		// Move this to a separate class, it could get big...
-		if (ImGui::Begin("Export panel"))
-		{
-			// Prompt for export options in an easy to use way...
-
-			if (inTextStdString("Export path", _exportPath))
-			{
-				// @TODO Check if file already exists to prevent unwanted overwrites
-			}
-
-			if (ImGui::Button("Close"))
-			{
-				_exporting = -1;
-			}
-			
-			ImGui::SameLine();
-			
-			if (ImGui::Button("Commit"))
-			{
-				//use aeon writer and write to file...
-			}
-		}
-		ImGui::End();
 	}
 };
