@@ -42,15 +42,6 @@ public:
 
 
 
-	static void loadMeshes(aiScene* scene)
-	{
-		bool isRigged = AssimpWrapper::containsRiggedMeshes(scene);
-
-
-	}
-
-
-
 	// returns bounding sphere radius
 	template <typename VertexType> static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
 	{
@@ -205,44 +196,19 @@ public:
 
 	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str)
 	{
-		// This was the "old way" in assimp but it still worked for most textures! This library is strange...
-		//int index = atoi(str.C_Str() + sizeof(char));	//skip the * with + sizeof(char)
-		//aiTexture* aiTex = scene->mTextures[index];
-
-		if (!scene->mTextures)
-			return false;
-
 		const aiTexture* aiTex = scene->GetEmbeddedTexture(str->C_Str());
 
 		if (!aiTex)
 			return false;
 
-		size_t texSize = aiTex->mWidth;
+		UINT texSize = aiTex->mWidth;
 
-		//compressed textures could have height value of 0
-		if (aiTex->mHeight != 0)
+		if (aiTex->mHeight != 0)	//compressed textures could have height value of 0
 			texSize *= aiTex->mHeight;
 
 		texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
 
 		return true;
-	}
-
-
-
-	static bool readEmbeddedTextures(const aiScene* scene)
-	{
-		if (!scene->mTextures)
-			return false;
-
-		UINT numEmbTextures = scene->mNumTextures;
-
-		for (int i = 0; i < numEmbTextures; ++i)
-		{
-			aiTexture* tex = scene->mTextures[i];
-		}
-
-
 	}
 
 
@@ -268,19 +234,13 @@ public:
 				ac.jointName = std::string(channel->mNodeName.C_Str());
 
 				for (int c = 0; c < channel->mNumScalingKeys; c++)
-				{
 					ac.sKeys.emplace_back(channel->mScalingKeys[c].mTime, SVec3(&channel->mScalingKeys[c].mValue.x));
-				}
 
 				for (int b = 0; b < channel->mNumRotationKeys; b++)
-				{
 					ac.rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
-				}
 
 				for (int a = 0; a < channel->mNumPositionKeys; a++)
-				{
 					ac.pKeys.emplace_back(channel->mPositionKeys[a].mTime, SVec3(&channel->mPositionKeys[a].mValue.x));
-				}
 
 				anim.addChannel(ac);
 			}
@@ -433,10 +393,8 @@ public:
 	static bool containsRiggedMeshes(const aiScene* scene)
 	{
 		for (int i = 0; i < scene->mNumMeshes; ++i)
-		{
 			if (scene->mMeshes[i]->HasBones())
 				return true;
-		}
 
 		return false;
 	}

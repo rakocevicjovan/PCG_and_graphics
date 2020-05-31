@@ -18,7 +18,7 @@ private:
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
 
-	// For previewing models in 3d not data
+	// For previewing models in 3d
 	SkeletalModel _skelModel;
 	SkeletalModelInstance _skelModelInstance;
 	Material _skelAnimMat;
@@ -126,7 +126,18 @@ public:
 	{
 		rc.d3d->ClearColourDepthBuffers();
 
+
 		S_RANDY.render(floorRenderable);
+
+		/* @TODO replace with an option to preview it
+		if (_skelModelInstance._skm)
+		{
+			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
+			_skelModelInstance.draw(S_CONTEXT);
+		}
+		*/
+
+
 
 		GUI::startGuiFrame();
 
@@ -142,7 +153,6 @@ public:
 					_previews.pop_back();
 			}
 		}
-
 
 
 		ImGui::Begin("Content");
@@ -172,14 +182,6 @@ public:
 		ImGui::End();
 
 		GUI::endGuiFrame();
-
-		/* @TODO replace with an option to preview it
-		if (_skelModelInstance._skm)
-		{
-			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
-			_skelModelInstance.draw(S_CONTEXT);
-		}
-		*/
 
 		rc.d3d->EndScene();
 	}

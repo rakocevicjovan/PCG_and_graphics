@@ -36,8 +36,6 @@ public:
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
 	{
-		//static_assert(std::is_nothrow_move_constructible<AssimpPreview>::value, "MyType should be noexcept MoveConstructible");
-
 		_path = path;
 
 		unsigned int pFlags =
@@ -54,10 +52,13 @@ public:
 		if (!_scene)
 			return false;
 
+		// Infer what is possible to load from this file.
+		// It could be a model, a skeletal model, a standalone skeleton, or only animation(s)
+		// Textures are handled the same way regardless so that doesn't matter here.
+		bool isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_scene);
+
 		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(_scene->mRootNode->mTransformation);
 		_skeleton._globalInverseTransform = globalTransform.Invert();
-
-		//AssimpWrapper::loadMeshes();
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
@@ -345,7 +346,8 @@ public:
 			mat->GetTexture(type, i, &obtainedTexturePath);
 
 			// This assumes files are exported with relative paths... which seems to be a big if...
-			std::string modelFolderPath = _path.substr(0, _path.find_last_of("/\\")) + "\\";
+			//std::string modelFolderPath = _path.substr(0, _path.find_last_of("/\\")) + "\\";
+			std::string modelFolderPath = std::filesystem::path(_path).parent_path().string();
 			std::string texPath = modelFolderPath + std::string(obtainedTexturePath.data);
 			std::string texName = std::filesystem::path(std::string(obtainedTexturePath.C_Str())).filename().string();
 
