@@ -138,7 +138,7 @@
     <Filter Include="Memory Allocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources\Resource classes\SkelAnim">
+    <Filter Include="Resources\SkelAnim">
       <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -204,7 +204,7 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
@@ -213,7 +213,7 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Resources</Filter>
@@ -399,7 +399,7 @@
       <Filter>Rendering\AAA Improved\Lights</Filter>
     </ClCompile>
     <ClCompile Include="Skeleton.cpp">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="Project.cpp">
       <Filter>Resources</Filter>
@@ -491,13 +491,13 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalMesh.h">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModel.h">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>Resources</Filter>
@@ -884,10 +884,10 @@
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="AnimationInstance.h">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Skeleton.h">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="AssimpLoader.h">
       <Filter>Editor</Filter>
@@ -899,7 +899,7 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Bone.h">
-      <Filter>Resources\Resource classes\SkelAnim</Filter>
+      <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Exporter.h">
       <Filter>Editor</Filter>

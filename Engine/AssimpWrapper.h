@@ -25,7 +25,7 @@ public:
 
 		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
-			std::string errString("Assimp error:" + std::string(importer.GetErrorString()));
+			std::string errString("Assimp error: " + std::string(importer.GetErrorString()));
 			OutputDebugStringA(errString.c_str());
 			return nullptr;
 		}
@@ -168,7 +168,6 @@ public:
 			std::string texPath = modelPath.substr(0, modelPath.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
 			Texture curTexture;
 			curTexture._fileName = texPath;
-			curTexture._typeName = typeName;
 			curTexture._role = role;
 
 			// Try to load from file

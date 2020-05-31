@@ -17,7 +17,13 @@ private:
 
 	const aiScene* _scene;
 
+
+	// All possible (read relevant) objects that can be loaded from assimp scenes
+	SkeletalModel _skModel;
+
 	Skeleton _skeleton;
+
+	std::vector<Animation> _anims;
 
 	std::vector<Texture> _embTextures;
 	std::vector<Texture> _extTextures;
@@ -46,8 +52,7 @@ public:
 		if (!_scene)
 			return false;
 
-		aiMatrix4x4 rootNodeTransform = _scene->mRootNode->mTransformation;
-		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(rootNodeTransform);
+		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(_scene->mRootNode->mTransformation);
 		_skeleton._globalInverseTransform = globalTransform.Invert();
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
@@ -56,6 +61,8 @@ public:
 		
 		if (skelRoot)
 			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
+
+		AssimpWrapper::loadAnimations(_scene, _anims);
 
 		return true;
 	}

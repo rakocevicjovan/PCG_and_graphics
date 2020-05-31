@@ -47,7 +47,7 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 Texture::Texture(const Texture& other)
 	: w(other.w), h(other.h), n(other.n), _mdata(other._mdata),
-	_fileName(other._fileName), _role(other._role), _typeName(other._typeName),
+	_fileName(other._fileName), _role(other._role), 
 	_dxID(other._dxID), _srv(other._srv)
 {
 
@@ -62,7 +62,7 @@ Texture::Texture(const Texture& other)
 
 Texture::Texture(Texture&& other)
 	: w(other.w), h(other.h), n(other.n), _mdata(std::move(other._mdata)),
-	_fileName(std::move(other._fileName)), _role(other._role), _typeName(std::move(other._typeName)),
+	_fileName(std::move(other._fileName)), _role(other._role), 
 	_dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
 	//other._data.reset();	// Shouldn't even be necessary I guess?
@@ -87,7 +87,6 @@ Texture& Texture::operator=(const Texture& other)
 
 		_fileName = other._fileName;
 		_role = other._role;
-		_typeName = other._typeName;
 
 		_dxID->AddRef();
 		_srv->AddRef();

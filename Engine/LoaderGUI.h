@@ -144,7 +144,7 @@ private:
 		{
 			if (_curTex)
 			{
-				displayTexture(_curTex->_srv, _curTex->getPath(),
+				displayTexture(_curTex->_srv, _curTex->getName(),
 					_curTex->getW(),
 					_curTex->getH(),
 					_curTex->getN());

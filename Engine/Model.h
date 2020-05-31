@@ -17,6 +17,9 @@ private:
 	bool processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene* scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
 
 public:
+
+	std::string _path;
+
 	std::vector<Mesh> _meshes;
 
 	SMatrix _transform;

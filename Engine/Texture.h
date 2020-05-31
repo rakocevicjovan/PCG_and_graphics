@@ -23,7 +23,7 @@ protected:
 	//doesn't have to be retained after loading unless we need to operate on the texture on the CPU side
 	int w, h, n;
 	
-	//unsigned char* _data;
+	//unsigned char* _data;	with this a texture is 64 bytes so probably should use eventually...
 	std::shared_ptr<unsigned char> _mdata;
 
 public:
@@ -35,7 +35,6 @@ public:
 	
 	//static const size_t NUM_ROLES = 8u;
 	TextureRole _role;
-	std::string _typeName;	//type should be a part of Material definition when that's working (I think...)
 
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
@@ -61,6 +60,8 @@ public:
 	inline int getH() const { return h; }
 	inline int getN() const { return n; }
 	inline const unsigned char* getData() const { return _mdata.get(); }	//data can't be modified, only read
+	inline std::string getName() const { return _fileName; }
+
 	inline void freeMemory() { if (_mdata.get()) _mdata.reset(); }
 
 

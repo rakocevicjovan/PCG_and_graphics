@@ -48,7 +48,7 @@ void ResourceManager::loadLevel(int i)
 		if (resDefs[i].type == ResType::MESH)
 		{
 			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
-			temp->setPathName(resDefs[i].path, resDefs[i].name);
+			//temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Model*>(temp)->LoadModel(_device, _projLoader.getProjDir() + resDefs[i].path);
 			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
@@ -56,7 +56,7 @@ void ResourceManager::loadLevel(int i)
 		else if (resDefs[i].type == ResType::TEXTURE)
 		{
 			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(_projLoader.getProjDir() + resDefs[i].path);
-			temp->setPathName(resDefs[i].path, resDefs[i].name);
+			//temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Texture*>(temp)->SetUpAsResource(_device);
 			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));

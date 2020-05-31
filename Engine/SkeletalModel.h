@@ -15,7 +15,6 @@
 
 
 
-//@TODO Change code to use assimp wrapper
 class SkeletalModel
 {
 public:
@@ -24,9 +23,9 @@ public:
 
 	std::string _path;
 
-	SMatrix transform;
+	SMatrix _transform;
 	
-	std::vector<Animation> anims;
+	std::vector<Animation> _anims;
 
 	Skeleton _skeleton;
 
@@ -55,28 +54,29 @@ public:
 
 		if (!scene)
 			return false;
+		else
+			return loadFromScene(dvc, scene, rUVx, rUVy);
+	}
 
+
+
+	bool loadFromScene(ID3D11Device* dvc, const aiScene* scene, float rUVx = 1, float rUVy = 1)
+	{
 		_meshes.reserve(scene->mNumMeshes);
 
-		aiMatrix4x4 rootNodeTransform = scene->mRootNode->mTransformation;
-		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(rootNodeTransform);
+		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
 		_skeleton._globalInverseTransform = globalTransform.Invert();
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
 
-		// This might be wrong
+		// This won't check "indirect" bones, breaks on wolf example (needs to be solved before this)
 		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton, SMatrix());
 
+		// Otherwise, skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
 		if (skelRoot)
-		{
 			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
-		}
-		else
-		{
-			// Skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
-		}
 
-		AssimpWrapper::loadAnimations(scene, anims);
+		AssimpWrapper::loadAnimations(scene, _anims);
 
 		return true;
 	}
@@ -144,7 +144,7 @@ public:
 	{
 		_skm = skm;
 
-		for (Animation& anim : skm->anims)
+		for (Animation& anim : skm->_anims)
 		{
 			_animInstances.emplace_back(anim);
 		}
@@ -168,7 +168,7 @@ public:
 
 		for (int i = 0; i < _skm->_meshes.size(); ++i)
 		{
-			_skm->_meshes[i]._transform = _skm->_meshes[i]._localTransform * _skm->transform;
+			_skm->_meshes[i]._transform = _skm->_meshes[i]._localTransform * _skm->_transform;
 		}
 
 		_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
