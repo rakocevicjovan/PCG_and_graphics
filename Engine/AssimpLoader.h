@@ -18,13 +18,13 @@ private:
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
 
+	int _curPreview;
+
 	// For previewing models in 3d
 	SkeletalModel _skelModel;
 	SkeletalModelInstance _skelModelInstance;
 	Material _skelAnimMat;
 	PointLight _pointLight;
-
-	float _playbackSpeed;
 
 	// Floor 
 	Procedural::Terrain terrain;
@@ -32,15 +32,13 @@ private:
 	Renderable floorRenderable;
 	Actor terrainActor;
 
-	int curAnim = 0;
+
 
 public:
 
-	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _playbackSpeed(1.f)
+	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _curPreview(-1)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
-
-		curAnim = 0u;
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
@@ -129,20 +127,21 @@ public:
 	{
 		rc.d3d->ClearColourDepthBuffers();
 
-
 		S_RANDY.render(floorRenderable);
 
 		/* @TODO replace with an option to preview it */
-		if (_skelModelInstance._skm)
+		if (_skelModelInstance._skm && _curPreview >= 0)
 		{
-			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
+			// Not really correct but good enough for now...
+			float pbs = _previews[_curPreview]->getPlaybackSpeed();
+			int animIndex = _previews[_curPreview]->getCurrentAnim();
+
+			_skelModelInstance.update(rc.dTime * pbs, animIndex);
 			_skelModelInstance.draw(S_CONTEXT);
 		}
 
 
 		GUI::startGuiFrame();
-
-		ImGui::InputInt("Animation to play: ", &curAnim);
 
 		auto selected = _browser.display();
 
@@ -170,6 +169,8 @@ public:
 			std::string sceneName = _previews[i]->getPath().filename().string();
 			if (ImGui::BeginTabItem(sceneName.c_str()))
 			{
+				_curPreview = i;
+
 				ImGui::BeginChild(sceneName.c_str());
 
 				_previews[i]->displayAiScene(sceneName);	// Add tabs here

@@ -322,13 +322,25 @@ public:
 
 
 
+	static void loadSkeleton(const aiScene* scene)
+	{
+		const aiNode* root = scene->mRootNode;
+
+		Skeleton skeleton;
+
+		loadBones(scene, root, skeleton);
+
+	}
+
+
+
 	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
 	{
 		const aiNode* result = nullptr;
 
 		// Make skeleton root account for all nodes before it (usually it's only root)
-		SMatrix boneLocalTransform = aiMatToSMat(node->mTransformation);
-		pMat = boneLocalTransform * pMat;
+		SMatrix nodeLocalTransform = aiMatToSMat(node->mTransformation);
+		pMat = nodeLocalTransform * pMat;
 
 		Bone* bone = skeleton.findBone(node->mName.C_Str());
 
@@ -353,11 +365,11 @@ public:
 
 
 
-	static void linkSkeletonHierarchy(const aiNode* skelRoot, Skeleton& skeleton)
+	static void linkSkeletonHierarchy(const aiNode* skelRootNode, Skeleton& skeleton)
 	{
-		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
+		skeleton._root = &skeleton._boneMap.at((skelRootNode->mName.C_Str()));
 
-		skeleton.makeLikeATree(skelRoot, SMatrix::Identity);
+		skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
 	
 		skeleton._globalInverseTransform = skeleton._root->_localMatrix.Invert();
 	}

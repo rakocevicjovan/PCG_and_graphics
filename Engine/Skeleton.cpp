@@ -22,7 +22,7 @@ void Skeleton::loadFromAssimp(const aiScene* scene)
 
 void Skeleton::makeLikeATree(const aiNode* node, SMatrix concat)
 {
-	std::string nodeName = std::string(node->mName.data);
+	std::string nodeName(node->mName.data);
 
 	std::map<std::string, Bone>::iterator boneIterator = _boneMap.find(nodeName);
 
@@ -34,7 +34,6 @@ void Skeleton::makeLikeATree(const aiNode* node, SMatrix concat)
 	{
 		Bone& currentBone = boneIterator->second;
 		currentBone._localMatrix = locNodeMat;
-		currentBone._offsetMatrix = concat.Invert();
 		linkToParentBone(node, currentBone, concat);
 	}
 
@@ -49,7 +48,10 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone, SMatrix c
 {
 	aiNode* parent = node->mParent;
 
-	if (parent == nullptr)	// We are at root node, nowhere to go
+	if (parent == nullptr)	// We are at root node
+		return;
+
+	if (parent->mParent == nullptr)	// Exclude the root node as well
 		return;
 
 	std::string parentName(node->mParent->mName.data);
@@ -84,15 +86,15 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone, SMatrix c
 }
 
 
-
+// Seeks upwards from every existing bone, filling in intermediate nodes
 void Skeleton::addMissingBones(const aiScene* scene, const aiNode* node)
 {
 	aiNode* parent = node->mParent;
 
-	if (!parent)			// We are at root node, get out
+	if (!parent)			// We are at root node, no way but down
 		return;
 
-	if (!parent->mParent)	// Don't include the root node either
+	if (!parent->mParent)	// Don't include the root node either... bit hacky but ok
 		return;
 
 	std::string parentName(parent->mName.C_Str());

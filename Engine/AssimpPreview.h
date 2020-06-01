@@ -30,12 +30,18 @@ private:
 	std::vector<Texture> _embTextures;
 	std::vector<Texture> _extTextures;
 
+	int _currentAnim;
+	float _playbackSpeed;
+
 public:
 
 
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
 	{
+		_currentAnim = 0;
+		_playbackSpeed = 1;
+
 		_path = path;
 
 		unsigned int pFlags =
@@ -61,14 +67,14 @@ public:
 		_skeleton._globalInverseTransform = globalTransform.Invert();
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
-		
+
 		_skeleton.loadFromAssimp(_scene);
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
 
 		return true;
 	}
-	
+
 
 
 	void displayAiScene(const std::string& sName)
@@ -115,6 +121,8 @@ public:
 
 		if(_exporter.isActive())
 			_exporter.displayExportSettings();
+
+		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
 
 		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
@@ -524,4 +532,9 @@ public:
 
 
 	std::filesystem::path getPath() { return std::filesystem::path(_path); }
+
+
+
+	int getCurrentAnim() { return _currentAnim; }
+	float getPlaybackSpeed() { return _playbackSpeed; }
 };

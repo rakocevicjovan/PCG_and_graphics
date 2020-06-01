@@ -69,6 +69,10 @@ public:
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
 
+		SMatrix meshOffsetMat;
+		if (_meshes.size() > 0)
+			meshOffsetMat = _meshes[0]._localTransform;	// Offset of mesh node...
+
 		_skeleton.loadFromAssimp(scene);
 
 		AssimpWrapper::loadAnimations(scene, _anims);
@@ -126,7 +130,7 @@ class SkeletalModelInstance
 {
 public:
 
-	CBuffer _skeletonTransforms;
+	CBuffer _skMatsBuffer;
 	std::vector<SMatrix> _skeletonMatrices;
 
 	SkeletalModel* _skm;
@@ -144,11 +148,10 @@ public:
 			_animInstances.emplace_back(anim);
 		}
 
-		
 		D3D11_BUFFER_DESC desc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
 		_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
 
-		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skeletonTransforms._cbPtr)))
+		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skMatsBuffer._cbPtr)))
 			return false;
 
 		return true;
@@ -170,9 +173,10 @@ public:
 			_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
 		else
 		{
-			_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
+			for (SMatrix& mat : _skeletonMatrices)
+				mat = SMatrix::Identity;
 		}
-		
+
 		for (SMatrix& mat : _skeletonMatrices)
 			mat = mat.Transpose();
 	}
@@ -181,10 +185,10 @@ public:
 
 	void draw(ID3D11DeviceContext* context)
 	{
-		_skeletonTransforms.updateWholeBuffer(
-			context, _skeletonTransforms._cbPtr, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton._boneMap.size());
+		_skMatsBuffer.updateWholeBuffer(
+			context, _skMatsBuffer._cbPtr, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton._boneMap.size());
 
-		context->VSSetConstantBuffers(1, 1, &_skeletonTransforms._cbPtr);
+		context->VSSetConstantBuffers(1, 1, &_skMatsBuffer._cbPtr);
 
 		for (SkeletalMesh& m : _skm->_meshes)
 		{
