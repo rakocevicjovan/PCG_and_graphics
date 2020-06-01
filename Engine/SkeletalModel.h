@@ -69,12 +69,7 @@ public:
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
 
-		// This won't check "indirect" bones, breaks on wolf example (needs to be solved before this)
-		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, _skeleton, SMatrix());
-
-		// Otherwise, skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
-		if (skelRoot)
-			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
+		_skeleton.loadFromAssimp(scene);
 
 		AssimpWrapper::loadAnimations(scene, _anims);
 
@@ -171,7 +166,15 @@ public:
 			_skm->_meshes[i]._transform = _skm->_meshes[i]._localTransform * _skm->_transform;
 		}
 
-		_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
+		if(_animInstances.size() > animIndex)	// Avoid crashing when no anim is loaded
+			_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
+		else
+		{
+			_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
+		}
+		
+		for (SMatrix& mat : _skeletonMatrices)
+			mat = mat.Transpose();
 	}
 
 

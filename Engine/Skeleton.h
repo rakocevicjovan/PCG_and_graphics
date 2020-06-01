@@ -25,11 +25,24 @@ public:
 	SMatrix _globalInverseTransform;
 
 
-	void makeLikeATree(const aiNode* node, SMatrix parentMatrix);
+
+	// Assumes influencing bones were loaded from the meshes already
+	void loadFromAssimp(const aiScene* scene);
+
+
+	void makeLikeATree(const aiNode* node, SMatrix concat);
 
 
 
-	void linkToParentBone(const aiNode* node, Bone& currentBone);
+	void linkToParentBone(const aiNode* node, Bone& currentBone, SMatrix concat);
+
+
+
+	void addMissingBones(const aiScene* scene, const aiNode* node);
+
+
+
+	//SMatrix calculateOffsetMatrix(SMatrix concat);
 
 
 
@@ -59,7 +72,7 @@ public:
 
 
 
-	Bone* findBone(const std::string& name)	//std::map<std::string, Bone>::iterator
+	Bone* findBone(const std::string& name)		//std::map<std::string, Bone>::iterator
 	{
 		Bone* result = nullptr;
 

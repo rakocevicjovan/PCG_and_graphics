@@ -2,7 +2,25 @@
 #include "AssimpWrapper.h"
 
 
-void Skeleton::makeLikeATree(const aiNode* node, SMatrix parentMatrix)	//PM NOT USED!!!
+
+void Skeleton::loadFromAssimp(const aiScene* scene)
+{
+	for (auto namedBone : _boneMap)
+	{
+		aiNode* node = scene->mRootNode->FindNode(namedBone.first.c_str());
+		addMissingBones(scene, node);
+	}
+
+	const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, *this, SMatrix());
+
+	// Otherwise, skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
+	if (skelRoot)
+		AssimpWrapper::linkSkeletonHierarchy(skelRoot, *this);
+}
+
+
+
+void Skeleton::makeLikeATree(const aiNode* node, SMatrix concat)
 {
 	std::string nodeName = std::string(node->mName.data);
 
@@ -10,22 +28,24 @@ void Skeleton::makeLikeATree(const aiNode* node, SMatrix parentMatrix)	//PM NOT 
 
 	SMatrix locNodeMat = AssimpWrapper::aiMatToSMat(node->mTransformation);
 
-	parentMatrix = locNodeMat * parentMatrix;
+	concat = locNodeMat * concat;
 
 	if (boneIterator != _boneMap.end())	// If node is a bone
 	{
 		Bone& currentBone = boneIterator->second;
 		currentBone._localMatrix = locNodeMat;
-		linkToParentBone(node, currentBone);
+		currentBone._offsetMatrix = concat.Invert();
+		linkToParentBone(node, currentBone, concat);
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		this->makeLikeATree(node->mChildren[i], parentMatrix);
+		this->makeLikeATree(node->mChildren[i], concat);
 }
 
 
 
-void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
+// Concatenated matrix represents the global transform of a child node we are currently coming from
+void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone, SMatrix concat)
 {
 	aiNode* parent = node->mParent;
 
@@ -49,18 +69,57 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 		newParentBone.name = parentName;
 		newParentBone.index = _boneMap.size();
 		newParentBone._localMatrix = locNodeMat;
-		_boneMap.insert({ parentName, newParentBone });
 
 		// @TODO ADD INVERSE TRANSFORM TO THESE BONES, NOT CALCULATED YET!!!
 		// WILL BREAK IF REQUIRED (LIKE ON WOLF MODEL!)
 
+		_boneMap.insert({ parentName, newParentBone });
+
 		currentBone.parent = &(_boneMap.at(parentName));
 		currentBone.parent->offspring.push_back(&currentBone);
 
-		linkToParentBone(parent, *currentBone.parent);	// Further recursion until a bone (or root node) is hit
+		// Further recursion until a bone (or root node) is hit
+		linkToParentBone(parent, *currentBone.parent, concat);
 	}
 }
 
+
+
+void Skeleton::addMissingBones(const aiScene* scene, const aiNode* node)
+{
+	aiNode* parent = node->mParent;
+
+	if (!parent)			// We are at root node, get out
+		return;
+
+	if (!parent->mParent)	// Don't include the root node either
+		return;
+
+	std::string parentName(parent->mName.C_Str());
+
+	if (boneExists(parentName))	// Parent is already a bone, terminate
+		return;
+
+	Bone newParentBone;
+	newParentBone.name = parentName;
+	newParentBone.index = _boneMap.size();
+	_boneMap.insert({ parentName, newParentBone });
+
+	addMissingBones(scene, parent);
+}
+
+
+/*
+SMatrix Skeleton::calculateOffsetMatrix(SMatrix concat)
+{
+	string boneName = SkinInfo.GetBoneName(boneIndex);
+	Frame boneFrame = FindFrame(root_frame, boneName);
+
+	// error check for boneFrame == NULL 
+	//if desired offsetMatrix[boneIndex] = MeshFrame.ToRoot * MatrixInverse(boneFrame.ToRoot);
+	return (SMatrix::Identity * 
+}
+*/
 
 /*
 void Skeleton::calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)

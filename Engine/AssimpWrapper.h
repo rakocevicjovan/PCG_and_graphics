@@ -326,10 +326,11 @@ public:
 	{
 		const aiNode* result = nullptr;
 
-		Bone* bone = skeleton.findBone(node->mName.C_Str());
-
+		// Make skeleton root account for all nodes before it (usually it's only root)
 		SMatrix boneLocalTransform = aiMatToSMat(node->mTransformation);
 		pMat = boneLocalTransform * pMat;
+
+		Bone* bone = skeleton.findBone(node->mName.C_Str());
 
 		if (bone)
 		{
@@ -356,15 +357,9 @@ public:
 	{
 		skeleton._root = &skeleton._boneMap.at((skelRoot->mName.C_Str()));
 
-		SMatrix rootMat = skeleton._root->_localMatrix;
-
-		skeleton.makeLikeATree(skelRoot, rootMat);
-
-		skeleton._root->_localMatrix = rootMat;	// Ugly workaround to check the concept
-
-		//skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);	// Identity because this is for root only
+		skeleton.makeLikeATree(skelRoot, SMatrix::Identity);
 	
-		skeleton._globalInverseTransform = rootMat.Invert();
+		skeleton._globalInverseTransform = skeleton._root->_localMatrix.Invert();
 	}
 
 

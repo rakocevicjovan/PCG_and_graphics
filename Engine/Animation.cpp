@@ -7,6 +7,7 @@ Animation::Animation()
 }
 
 
+
 Animation::~Animation()
 {
 }
@@ -37,13 +38,9 @@ void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const
 	SMatrix nodeTransform = animTransform * parentMatrix;
 
 	// Bind space to bone space, animate, apply global inverse
-	SMatrix finalMatrix = joint._offsetMatrix;
-	finalMatrix = finalMatrix * nodeTransform;
-	finalMatrix = finalMatrix * glInvT;
+	SMatrix finalMatrix = joint._offsetMatrix * nodeTransform * glInvT;
 
-	// @TODO move responsibility for this to calling code
-	//transpose because the shader is column major, nothing to do with the animation process
-	vec[joint.index] = finalMatrix.Transpose();
+	vec[joint.index] = finalMatrix;
 
 	for (Bone* child : joint.offspring)
 		getTransformAtTime(*child, vec, nodeTransform, glInvT, elapsed);

@@ -32,12 +32,15 @@ private:
 	Renderable floorRenderable;
 	Actor terrainActor;
 
+	int curAnim = 0;
+
 public:
 
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _playbackSpeed(1.f)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
 
+		curAnim = 0u;
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
@@ -129,17 +132,17 @@ public:
 
 		S_RANDY.render(floorRenderable);
 
-		/* @TODO replace with an option to preview it
+		/* @TODO replace with an option to preview it */
 		if (_skelModelInstance._skm)
 		{
 			_skelModelInstance.update(rc.dTime * _playbackSpeed, 0u);
 			_skelModelInstance.draw(S_CONTEXT);
 		}
-		*/
-
 
 
 		GUI::startGuiFrame();
+
+		ImGui::InputInt("Animation to play: ", &curAnim);
 
 		auto selected = _browser.display();
 
@@ -170,6 +173,22 @@ public:
 				ImGui::BeginChild(sceneName.c_str());
 
 				_previews[i]->displayAiScene(sceneName);	// Add tabs here
+
+				if (ImGui::Button("Load as skeletal model"))
+				{
+					_skelModel = SkeletalModel();
+					_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
+
+					for (auto& skmesh : _skelModel._meshes)
+					{
+						skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
+						skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
+						skmesh._baseMaterial.pLight = &_pointLight;
+					}
+
+					_skelModelInstance = SkeletalModelInstance();
+					_skelModelInstance.init(S_DEVICE, &_skelModel);
+				}
 
 				ImGui::EndChild();
 

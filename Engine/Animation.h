@@ -34,7 +34,7 @@ private:
 
 	std::map<std::string, AnimChannel> _channels;
 
-	double _ticks, _ticksPerSecond, _duration, _tickDuration, _invTickDuration;
+	double _ticks, _ticksPerSecond, _duration, _tickDuration;
 	
 
 public:
@@ -44,8 +44,8 @@ public:
 	Animation(std::string& name, double ticks, double ticksPerSecond, int nc) : _name(name), _ticks(ticks), _ticksPerSecond(ticksPerSecond)
 	{
 		_duration = _ticks / _ticksPerSecond;
+		//_tickDuration = 1. / ticksPerSecond;
 		_tickDuration = _duration / _ticks;
-		_invTickDuration = 1.0 / _duration;
 	}
 
 

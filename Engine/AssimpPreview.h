@@ -61,11 +61,8 @@ public:
 		_skeleton._globalInverseTransform = globalTransform.Invert();
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
-
-		const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(_scene->mRootNode, _skeleton, SMatrix());
 		
-		if (skelRoot)
-			AssimpWrapper::linkSkeletonHierarchy(skelRoot, _skeleton);
+		_skeleton.loadFromAssimp(_scene);
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
 
@@ -119,23 +116,6 @@ public:
 		if(_exporter.isActive())
 			_exporter.displayExportSettings();
 
-		/*
-		if (ImGui::Button("Load as skeletal model"))
-		{
-			_skelModel = SkeletalModel();
-			_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
-
-			for (auto& skmesh : _skelModel._meshes)
-			{
-				skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
-				skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
-				skmesh._baseMaterial.pLight = &_pointLight;
-			}
-
-			_skelModelInstance = SkeletalModelInstance();
-			_skelModelInstance.init(S_DEVICE, &_skelModel);
-		}
-		*/
 
 		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
 
