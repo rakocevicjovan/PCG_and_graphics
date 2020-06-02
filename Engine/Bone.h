@@ -12,7 +12,7 @@ public:
 
 	SMatrix _offsetMatrix;
 	SMatrix _localMatrix;
-	//SMatrix _globalTransform;
+	SMatrix _globalMatrix;
 
 	Bone* parent = nullptr;
 	std::vector<Bone*> offspring;

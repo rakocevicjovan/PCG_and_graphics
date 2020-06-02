@@ -73,7 +73,7 @@ public:
 		if (_meshes.size() > 0)
 			meshOffsetMat = _meshes[0]._localTransform;	// Offset of mesh node...
 
-		_skeleton.loadFromAssimp(scene);
+		_skeleton.loadFromAssimp(scene, meshOffsetMat);
 
 		AssimpWrapper::loadAnimations(scene, _anims);
 
@@ -82,13 +82,13 @@ public:
 
 
 
-	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix parentMat)	//aiMatrix4x4 parentTransform, 
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix parentMat)
 	{
 		SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
 		parentMat = locNodeTransform * parentMat;
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), parentMat, rUVx, rUVy)); /*concatenatedTransform*/
+			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), parentMat, rUVx, rUVy));
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++)

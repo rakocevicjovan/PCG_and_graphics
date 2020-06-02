@@ -27,14 +27,14 @@ public:
 
 
 	// Assumes influencing bones were loaded from the meshes already
-	void loadFromAssimp(const aiScene* scene);
+	void loadFromAssimp(const aiScene* scene, SMatrix meshOffset);
 
 
 	void makeLikeATree(const aiNode* node, SMatrix concat);
 
 
 
-	void linkToParentBone(const aiNode* node, Bone& currentBone, SMatrix concat);
+	void linkToParentBone(const aiNode* node, Bone& currentBone);
 
 
 
@@ -46,7 +46,7 @@ public:
 
 
 
-	//void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
+	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
 
 
 

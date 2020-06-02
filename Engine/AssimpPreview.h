@@ -68,7 +68,7 @@ public:
 
 		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
-		_skeleton.loadFromAssimp(_scene);
+		_skeleton.loadFromAssimp(_scene, SMatrix::Identity);
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
 
@@ -467,8 +467,8 @@ public:
 				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
 				displayTransform(bone->_localMatrix);
 
-				//ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
-				//displayTransform(bone->globalMatrix);
+				ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
+				displayTransform(bone->_globalMatrix);
 
 				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
 				displayTransform(bone->_offsetMatrix);		

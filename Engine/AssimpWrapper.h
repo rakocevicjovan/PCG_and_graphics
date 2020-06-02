@@ -321,7 +321,7 @@ public:
 	}
 
 
-
+	// Might pop everything related to skeleton loading here in one place tbh
 	static void loadSkeleton(const aiScene* scene)
 	{
 		const aiNode* root = scene->mRootNode;
@@ -329,7 +329,6 @@ public:
 		Skeleton skeleton;
 
 		loadBones(scene, root, skeleton);
-
 	}
 
 
@@ -346,7 +345,7 @@ public:
 
 		if (bone)
 		{
-			bone->_localMatrix = pMat;
+			bone->_localMatrix = pMat;	//pMat;
 			result = node;
 		}
 		else
@@ -370,7 +369,10 @@ public:
 		skeleton._root = &skeleton._boneMap.at((skelRootNode->mName.C_Str()));
 
 		skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
+
+		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);
 	
+		// This isn't supposed to be correct but it gives better results (where did I screw up?)
 		skeleton._globalInverseTransform = skeleton._root->_localMatrix.Invert();
 	}
 
