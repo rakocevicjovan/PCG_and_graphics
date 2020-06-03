@@ -117,26 +117,10 @@ public:
 		for (Texture& t : locTextures)
 			t.SetUpAsResource(device);
 
-		/* 
-		//Testing to see if I understand how mOffsetMatrix in bones is created
+		// Calculates offset matrices from mesh and bone (scene is just required for bones global transform)
 		for (int i = 0; i < mesh->mNumBones; ++i)
-		{
-			aiBone* bone = mesh->mBones[i];
-			
-			std::string boneName(bone->mName.C_Str());
-
-			aiNode* boneNode = scene->mRootNode->FindNode(boneName.c_str());
-			
-			SMatrix boneNodeGlobalTransform = AssimpWrapper::getGlobalTransform(boneNode);
-
-			SMatrix myOffsetMatrix = AssimpWrapper::calculateOffsetMatrix(transform, boneNodeGlobalTransform);
-
-			SMatrix realOffsetMatrix = AssimpWrapper::aiMatToSMat(bone->mOffsetMatrix);
-
-			//Should be identiteh (or really close), confirmed it is test succeeded
-			// realOffsetMatrix = realOffsetMatrix * myOffsetMatrix.Invert();	
-		}
-		*/
+			AssimpWrapper::calculateOffsetMatrix(scene, mesh->mBones[i], transform);
+		
 
 		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
 

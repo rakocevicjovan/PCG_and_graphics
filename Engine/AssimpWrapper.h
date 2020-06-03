@@ -474,9 +474,9 @@ public:
 
 
 
-	inline static SMatrix getGlobalTransform(aiNode* node)
+	inline static SMatrix getGlobalTransform(const aiNode* node)
 	{
-		aiNode* current = node;
+		const aiNode* current = node;
 		SMatrix concat = SMatrix::Identity;		// c * p * pp * ppp * pppp...
 
 		while (current)
@@ -491,10 +491,23 @@ public:
 
 
 
-	inline static SMatrix calculateOffsetMatrix(const SMatrix& meshGlobalMat, const SMatrix& boneGlobalMat)
+	inline static SMatrix calculateOffsetMatrix(const aiScene* scene, const aiBone* bone, SMatrix meshGlobalMat)
 	{
-		return meshGlobalMat * boneGlobalMat.Invert()
+		std::string boneName(bone->mName.C_Str());
+
+		const aiNode* boneNode = scene->mRootNode->FindNode(boneName.c_str());
+
+		SMatrix boneNodeGlobalTransform = getGlobalTransform(boneNode);
+
+		SMatrix myOffsetMatrix = meshGlobalMat * boneNodeGlobalTransform.Invert();
+
+		//Should be identiteh (or really close) - confirmed, test succeeded
+		//SMatrix realOffsetMatrix = aiMatToSMat(bone->mOffsetMatrix);
+		//SMatrix shouldBeIdentity = realOffsetMatrix * myOffsetMatrix.Invert();
+
+		return myOffsetMatrix;
 	}
+
 
 
 
