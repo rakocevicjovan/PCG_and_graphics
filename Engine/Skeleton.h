@@ -42,7 +42,7 @@ public:
 
 
 
-	//SMatrix calculateOffsetMatrix(SMatrix concat);
+	void linkSkeletonHierarchy(const aiNode* skelRoot);
 
 
 

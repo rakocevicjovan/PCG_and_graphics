@@ -865,9 +865,6 @@
     <ClInclude Include="EditorLayout.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="FBXLoader.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="GuiBlocks.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -902,6 +899,9 @@
       <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Exporter.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="FBXLoader.h">
       <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>

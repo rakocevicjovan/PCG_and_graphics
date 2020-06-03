@@ -18,7 +18,7 @@ cbuffer WMBuffer: register(b0)
 
 cbuffer TransformsBuffer : register(b1)
 {
-	float4x4 boneTransforms[96];
+	float4x4 boneTransforms[144];
 };
 
 

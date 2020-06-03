@@ -251,7 +251,7 @@ public:
 
 
 
-	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
+	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton, SMatrix global)
 	{
 		if (!aiMesh.HasBones())
 			return;
@@ -270,6 +270,8 @@ public:
 				boneIndex = skeleton._boneMap.size();
 				
 				SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
+
+				boneOffsetMat = boneOffsetMat;		/* * global.Invert() found this but it's not correct!*/
 
 				Bone bone(boneIndex, boneName, boneOffsetMat);
 
@@ -360,26 +362,6 @@ public:
 		}
 
 		return result;
-	}
-
-
-
-	static void linkSkeletonHierarchy(const aiNode* skelRootNode, Skeleton& skeleton)
-	{
-		skeleton._root = skeleton.findBone(skelRootNode->mName.C_Str());
-
-		//skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
-
-		// Skip root itself, it has a bit of a special transform (local IS global... my bad there)
-		for (int i = 0; i < skelRootNode->mNumChildren; i++)
-		{
-			skeleton.makeLikeATree(skelRootNode->mChildren[i], skeleton._root->_localMatrix);
-		}
-
-		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);
-	
-		// This isn't supposed to be correct but it gives better results (where did I screw up?)
-		skeleton._globalInverseTransform = skeleton._root->_localMatrix.Invert();
 	}
 
 
@@ -488,6 +470,30 @@ public:
 		tangent.Normalize();
 
 		return tangent;
+	}
+
+
+
+	inline static SMatrix getGlobalTransform(aiNode* node)
+	{
+		aiNode* current = node;
+		SMatrix concat = SMatrix::Identity;		// c * p * pp * ppp * pppp...
+
+		while (current)
+		{
+			SMatrix parentLocTransform = aiMatToSMat(current->mTransformation);
+			concat = concat * parentLocTransform;
+			current = current->mParent;
+		}
+
+		return concat;
+	}
+
+
+
+	inline static SMatrix calculateOffsetMatrix(const SMatrix& meshGlobalMat, const SMatrix& boneGlobalMat)
+	{
+		return meshGlobalMat * boneGlobalMat.Invert()
 	}
 
 

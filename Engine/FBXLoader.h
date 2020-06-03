@@ -50,7 +50,12 @@ public:
 		if (lRootNode)
 		{
 			for (int i = 0; i < lRootNode->GetChildCount(); i++)
-				PrintNode(lRootNode->GetChild(i));
+			{
+				//PrintNode(lRootNode->GetChild(i));
+
+
+			}
+			
 		}
 		
 		// Destroy the SDK manager and all the other objects it was handling.
@@ -75,6 +80,20 @@ private:
 
 
 
+	static void printNode(FbxNode* pNode)
+	{
+		std::string nodeName(pNode->GetName());
+
+		FbxDouble3 translation = pNode->LclTranslation.Get();
+		FbxDouble3 rotation = pNode->LclRotation.Get();
+		FbxDouble3 scaling = pNode->LclScaling.Get();
+
+		FbxMatrix local = pNode->EvaluateLocalTransform(FBXSDK_TIME_INFINITE);
+		FbxMatrix global = pNode->EvaluateGlobalTransform(FBXSDK_TIME_INFINITE);
+
+
+
+	}
 
 
 	// Printing code, pretty useless for anything except tedious debugging but meh

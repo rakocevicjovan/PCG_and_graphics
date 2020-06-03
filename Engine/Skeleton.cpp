@@ -15,7 +15,27 @@ void Skeleton::loadFromAssimp(const aiScene* scene, SMatrix meshOffset)
 
 	// Otherwise, skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
 	if (skelRoot)
-		AssimpWrapper::linkSkeletonHierarchy(skelRoot, *this);
+		linkSkeletonHierarchy(skelRoot);
+}
+
+
+
+void Skeleton::linkSkeletonHierarchy(const aiNode* skelRootNode)
+{
+	_root = findBone(skelRootNode->mName.C_Str());
+
+	//skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
+
+	// Skip root itself, it has a bit of a special transform (local IS global... my bad there)
+	for (int i = 0; i < skelRootNode->mNumChildren; i++)
+	{
+		makeLikeATree(skelRootNode->mChildren[i], _root->_localMatrix);
+	}
+
+	calcGlobalTransforms(*_root, SMatrix::Identity);
+
+	// This isn't supposed to be correct but it gives better results (where did I screw up?)
+	_globalInverseTransform = _root->_localMatrix.Invert();
 }
 
 
@@ -85,7 +105,7 @@ void Skeleton::addMissingBones(const aiScene* scene, const aiNode* childNode, Bo
 	Bone newParentBone;
 	newParentBone.name = parentName;
 	newParentBone.index = _boneMap.size();
-	newParentBone._offsetMatrix = childBone._offsetMatrix * childLocMat.Invert();
+	//newParentBone._offsetMatrix = childBone._offsetMatrix * childLocMat.Invert();
 	auto boneIter = _boneMap.insert({ parentName, newParentBone });
 
 	addMissingBones(scene, parent, boneIter.first->second);

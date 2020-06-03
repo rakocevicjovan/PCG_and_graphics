@@ -99,7 +99,7 @@ public:
 
 
 
-	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh *mesh, const aiScene *scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy)
+	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy)
 	{
 		// Data to fill
 		std::vector<BonedVert3D> vertices;
@@ -117,7 +117,28 @@ public:
 		for (Texture& t : locTextures)
 			t.SetUpAsResource(device);
 
-		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton);
+		/* 
+		//Testing to see if I understand how mOffsetMatrix in bones is created
+		for (int i = 0; i < mesh->mNumBones; ++i)
+		{
+			aiBone* bone = mesh->mBones[i];
+			
+			std::string boneName(bone->mName.C_Str());
+
+			aiNode* boneNode = scene->mRootNode->FindNode(boneName.c_str());
+			
+			SMatrix boneNodeGlobalTransform = AssimpWrapper::getGlobalTransform(boneNode);
+
+			SMatrix myOffsetMatrix = AssimpWrapper::calculateOffsetMatrix(transform, boneNodeGlobalTransform);
+
+			SMatrix realOffsetMatrix = AssimpWrapper::aiMatToSMat(bone->mOffsetMatrix);
+
+			//Should be identiteh (or really close), confirmed it is test succeeded
+			// realOffsetMatrix = realOffsetMatrix * myOffsetMatrix.Invert();	
+		}
+		*/
+
+		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
 
 		return SkeletalMesh(vertices, indices, locTextures, device, ind, transform);
 	}
@@ -148,7 +169,9 @@ public:
 			_animInstances.emplace_back(anim);
 		}
 
-		D3D11_BUFFER_DESC desc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
+		UINT numBones = 144;
+
+		D3D11_BUFFER_DESC desc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * numBones);
 		_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
 
 		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skMatsBuffer._cbPtr)))
