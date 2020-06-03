@@ -64,8 +64,8 @@ public:
 	{
 		_meshes.reserve(scene->mNumMeshes);
 
-		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
-		_skeleton._globalInverseTransform = globalTransform.Invert();
+		SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
+		_skeleton._globalInverseTransform = rootTransform.Invert();
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
 

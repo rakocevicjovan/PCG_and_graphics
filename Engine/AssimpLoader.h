@@ -47,9 +47,9 @@ public:
 
 	void init(Systems& sys) override
 	{
-		LightData ld = LightData(SVec3(1.), .1, SVec3(1.), .5, SVec3(1.), .5);
+		LightData ld = LightData(SVec3(1.), .2, SVec3(1.), .6, SVec3(1.), .7);
 
-		_pointLight = PointLight(ld, SVec4(0., 25., 125., 1.));
+		_pointLight = PointLight(ld, SVec4(0., 300., 0., 1.));
 
 		ShaderCompiler shc;
 

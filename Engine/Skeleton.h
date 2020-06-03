@@ -38,7 +38,7 @@ public:
 
 
 
-	void addMissingBones(const aiScene* scene, const aiNode* node);
+	void addMissingBones(const aiScene* scene, const aiNode* node, Bone& childBone);
 
 
 
@@ -65,7 +65,7 @@ public:
 
 
 
-	bool insertBone(const Bone& bone)
+	inline bool insertBone(Bone bone)
 	{
 		return (_boneMap.insert({ bone.name, bone }).second);
 	}
@@ -79,9 +79,7 @@ public:
 		auto boneIter = _boneMap.find(name);
 		
 		if (boneIter != _boneMap.end())
-		{
 			result = &(boneIter->second);
-		}
 
 		return result;
 	}

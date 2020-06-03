@@ -59,16 +59,24 @@ public:
 			return false;
 
 		// Infer what is possible to load from this file.
-		// It could be a model, a skeletal model, a standalone skeleton, or only animation(s)
-		// Textures are handled the same way regardless so that doesn't matter here.
-		bool isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_scene);
+		bool isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_scene);
 
-		SMatrix globalTransform = AssimpWrapper::aiMatToSMat(_scene->mRootNode->mTransformation);
-		_skeleton._globalInverseTransform = globalTransform.Invert();
+		if (isOnlySkeleton)
+		{
+			AssimpWrapper::loadOnlySkeleton(_scene, _scene->mRootNode, _skeleton, SMatrix::Identity);
+			_skeleton._root = _skeleton.findBone(_scene->mRootNode->mName.C_Str());
+		}
+		else
+		{
+			bool isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_scene);
 
-		AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
+			SMatrix rootTransform = AssimpWrapper::aiMatToSMat(_scene->mRootNode->mTransformation);
+			_skeleton._globalInverseTransform = rootTransform.Invert();
 
-		_skeleton.loadFromAssimp(_scene, SMatrix::Identity);
+			AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
+
+			_skeleton.loadFromAssimp(_scene, SMatrix::Identity);
+		}
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
 
@@ -88,6 +96,7 @@ public:
 			ImGui::TreePop();
 		}
 
+		printSceneAnimations();
 
 		ImGui::NewLine();
 		ImGui::Text("Parsed assets");
@@ -97,12 +106,6 @@ public:
 			printBoneHierarchy(_skeleton._root);
 			ImGui::TreePop();
 		}
-
-		ImGui::Separator();
-
-		printSceneAnimations();
-
-		ImGui::Separator();
 
 		if (ImGui::TreeNode("Textures"))
 		{
@@ -143,11 +146,16 @@ public:
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.6, 0., 1., 1.));
 
-			aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;
+			aiMatrix4x4 concatenatedTransform = node->mTransformation * parentTransform;
+			SMatrix concatSMat = AssimpWrapper::aiMatToSMat(concatenatedTransform);
 
 			if (ImGui::TreeNode("Concatenated transform: "))
 			{
-				displayTransform(AssimpWrapper::aiMatToSMat(concatenatedTransform));	// Careful
+				displayTransform(concatSMat);
+
+				SQuat squat = SQuat::CreateFromRotationMatrix(concatSMat);
+				ImGui::InputFloat4("Quat: ", &squat.x, 3, ImGuiInputTextFlags_ReadOnly);
+
 				ImGui::TreePop();
 			}
 			

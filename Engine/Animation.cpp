@@ -28,7 +28,7 @@ void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const
 
 	if (found)
 	{
-		animTransform = getInterpolatedTransform(channel, currentTick, t) * joint._localMatrix;	// Animation found, use it
+		animTransform = getInterpolatedTransform(channel, currentTick, t) * joint._localMatrix;	// Animation found
 	}
 	else
 	{

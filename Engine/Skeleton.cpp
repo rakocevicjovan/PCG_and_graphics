@@ -8,7 +8,7 @@ void Skeleton::loadFromAssimp(const aiScene* scene, SMatrix meshOffset)
 	for (auto namedBone : _boneMap)
 	{
 		aiNode* node = scene->mRootNode->FindNode(namedBone.first.c_str());
-		addMissingBones(scene, node);
+		addMissingBones(scene, node, namedBone.second);
 	}
 
 	const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, *this, SMatrix());
@@ -19,7 +19,7 @@ void Skeleton::loadFromAssimp(const aiScene* scene, SMatrix meshOffset)
 }
 
 
-
+// Overwrites root's transform...
 void Skeleton::makeLikeATree(const aiNode* node, SMatrix concat)
 {
 	std::string nodeName(node->mName.data);
@@ -64,9 +64,12 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 
 
 // Seeks upwards from every existing bone, filling in intermediate nodes
-void Skeleton::addMissingBones(const aiScene* scene, const aiNode* childNode)
+void Skeleton::addMissingBones(const aiScene* scene, const aiNode* childNode, Bone& childBone)
 {
 	aiNode* parent = childNode->mParent;
+
+	// bones don't have local transforms yet so i use the node ones
+	SMatrix childLocMat = AssimpWrapper::aiMatToSMat(childNode->mTransformation);
 
 	if (!parent)			// We are at root node, no way but down
 		return;
@@ -82,20 +85,10 @@ void Skeleton::addMissingBones(const aiScene* scene, const aiNode* childNode)
 	Bone newParentBone;
 	newParentBone.name = parentName;
 	newParentBone.index = _boneMap.size();
+	newParentBone._offsetMatrix = childBone._offsetMatrix * childLocMat.Invert();
+	auto boneIter = _boneMap.insert({ parentName, newParentBone });
 
-	/*
-	SMatrix total = AssimpWrapper::aiMatToSMat(parent->mTransformation);
-	aiNode* pp = parent->mParent;
-	while (pp)
-	{
-		total = AssimpWrapper::aiMatToSMat(pp->mTransformation) * total;
-		pp = pp->mParent;
-	}
-	newParentBone._offsetMatrix = total.Invert();
-	*/
-	_boneMap.insert({ parentName, newParentBone });
-
-	addMissingBones(scene, parent);
+	addMissingBones(scene, parent, boneIter.first->second);
 }
 
 

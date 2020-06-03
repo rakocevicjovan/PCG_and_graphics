@@ -366,9 +366,15 @@ public:
 
 	static void linkSkeletonHierarchy(const aiNode* skelRootNode, Skeleton& skeleton)
 	{
-		skeleton._root = &skeleton._boneMap.at((skelRootNode->mName.C_Str()));
+		skeleton._root = skeleton.findBone(skelRootNode->mName.C_Str());
 
-		skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
+		//skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
+
+		// Skip root itself, it has a bit of a special transform (local IS global... my bad there)
+		for (int i = 0; i < skelRootNode->mNumChildren; i++)
+		{
+			skeleton.makeLikeATree(skelRootNode->mChildren[i], skeleton._root->_localMatrix);
+		}
 
 		skeleton.calcGlobalTransforms(*skeleton._root, SMatrix::Identity);
 	
@@ -409,6 +415,45 @@ public:
 	}
 
 
+
+	static bool isOnlySkeleton(const aiScene* scene)
+	{
+		return (scene->mNumMeshes == 0);
+	}
+
+
+
+	static void loadOnlySkeleton(const aiScene* scene, aiNode* node, Skeleton& skeleton, SMatrix parent)
+	{
+		SMatrix locTf = aiMatToSMat(node->mTransformation);
+		parent = locTf * parent;
+
+		std::string boneName(node->mName.C_Str());
+		
+
+		Bone bone;
+		bone.name = boneName;
+		bone.index = skeleton._boneMap.size();
+		bone._localMatrix = locTf;
+		bone._globalMatrix = parent;
+		bone._offsetMatrix = bone._globalMatrix.Invert();
+
+		if (node->mParent)
+		{
+			std::string parentName(node->mParent->mName.C_Str());
+			bone.parent = skeleton.findBone(parentName);
+		}
+	
+		auto iter = skeleton._boneMap.insert({ bone.name, bone });
+
+		if(bone.parent)	// Avoid crashing on root, add links between parents and children
+			bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
+
+		for (int i = 0; i < node->mNumChildren; ++i)
+		{
+			loadOnlySkeleton(scene, node->mChildren[i], skeleton, parent);
+		}
+	}
 
 
 
