@@ -43,7 +43,7 @@ public:
 
 
 
-	void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
+	//void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
 
 
 

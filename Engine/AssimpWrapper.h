@@ -444,8 +444,7 @@ public:
 		bone.name = boneName;
 		bone.index = skeleton._boneMap.size();
 		bone._localMatrix = locTf;
-		bone._globalMatrix = parent;
-		bone._offsetMatrix = bone._globalMatrix.Invert();
+		bone._offsetMatrix = parent.Invert();
 
 		if (node->mParent)
 		{

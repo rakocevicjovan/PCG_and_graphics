@@ -5,7 +5,6 @@
 
 void Skeleton::loadFromAssimp(const aiScene* scene)
 {
-	
 	for (auto namedBone : _boneMap)
 	{
 		aiNode* boneNode = scene->mRootNode->FindNode(namedBone.first.c_str());
@@ -31,7 +30,7 @@ void Skeleton::linkSkeletonHierarchy(const aiNode* skelRootNode)
 		makeLikeATree(skelRootNode->mChildren[i], _root->_localMatrix);
 	}
 
-	calcGlobalTransforms(*_root, SMatrix::Identity);
+	//calcGlobalTransforms(*_root, SMatrix::Identity);
 }
 
 
@@ -80,23 +79,10 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 
 
 
-/*
-SMatrix Skeleton::calculateOffsetMatrix(SMatrix concat)
-{
-	string boneName = SkinInfo.GetBoneName(boneIndex);
-	Frame boneFrame = FindFrame(root_frame, boneName);
-
-	// error check for boneFrame == NULL 
-	//if desired offsetMatrix[boneIndex] = MeshFrame.ToRoot * MatrixInverse(boneFrame.ToRoot);
-	return (SMatrix::Identity * 
-}
-*/
-
-
-void Skeleton::calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
+/*void Skeleton::calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
 {
 	bone._globalMatrix = bone._localMatrix * parentTransform;
 
 	for (Bone* childBone : bone.offspring)
 		calcGlobalTransforms(*childBone, bone._globalMatrix);
-}
+}*/

@@ -474,8 +474,8 @@ public:
 				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
 				displayTransform(bone->_localMatrix);
 
-				ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
-				displayTransform(bone->_globalMatrix);
+				//ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
+				//displayTransform(bone->_globalMatrix);
 
 				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
 				displayTransform(bone->_offsetMatrix);		
