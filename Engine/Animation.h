@@ -7,6 +7,39 @@
 
 class Bone;
 
+struct PosFrame
+{
+	SVec3 pos;
+	float tick;
+
+	PosFrame() {}
+	PosFrame(float tick, SVec3 pos) : pos(pos), tick(tick) {}
+};
+
+
+
+struct RotFrame
+{
+	SQuat rot;
+	float tick;
+
+	RotFrame() {}
+	RotFrame(float tick, SQuat rot) : rot(rot), tick(tick) {}
+};
+
+
+
+struct SclFrame
+{
+	SVec3 scale;
+	float tick;
+
+	SclFrame() {}
+	SclFrame(float tick, SVec3 scale) : scale(scale), tick(tick) {}
+};
+
+
+
 struct AnimChannel
 {
 	AnimChannel() {}
@@ -20,9 +53,9 @@ struct AnimChannel
 
 	std::string jointName;
 
-	std::vector<std::pair<float, SVec3>> sKeys;
-	std::vector<std::pair<float, SQuat>> rKeys;
-	std::vector<std::pair<float, SVec3>> pKeys;
+	std::vector<SclFrame> sKeys;
+	std::vector<RotFrame> rKeys;
+	std::vector<PosFrame> pKeys;
 };
 
 

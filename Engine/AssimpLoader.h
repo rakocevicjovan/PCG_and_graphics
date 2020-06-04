@@ -178,7 +178,7 @@ public:
 				if (ImGui::Button("Load as skeletal model"))
 				{
 					_skelModel = SkeletalModel();
-					_skelModel.loadModel(S_DEVICE, _previews[i]->getPath().string());
+					_skelModel.loadFromScene(S_DEVICE, _previews[i]->getScene());
 
 					for (auto& skmesh : _skelModel._meshes)
 					{

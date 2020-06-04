@@ -48,7 +48,6 @@ public:
 			aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
-			aiProcess_FlipUVs |
 			aiProcess_ConvertToLeftHanded;
 
 		_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	// This doesn't work...
@@ -75,7 +74,7 @@ public:
 
 			AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
 
-			_skeleton.loadFromAssimp(_scene, SMatrix::Identity);
+			_skeleton.loadFromAssimp(_scene);
 		}
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
@@ -534,7 +533,7 @@ public:
 
 	void displayExportWindow(AssimpPreview* preview)
 	{
-		
+		// todo todo todo todo todoooooo
 	}
 
 
@@ -544,5 +543,8 @@ public:
 
 
 	int getCurrentAnim() { return _currentAnim; }
+
 	float getPlaybackSpeed() { return _playbackSpeed; }
+
+	const aiScene* getScene() { return _scene; }
 };

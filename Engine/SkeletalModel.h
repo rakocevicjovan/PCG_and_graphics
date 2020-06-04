@@ -48,8 +48,6 @@ public:
 
 		Assimp::Importer importer;
 
-		importer.SetPropertyInteger(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, 0);
-
 		const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
 
 		if (!scene)
@@ -69,11 +67,7 @@ public:
 
 		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
 
-		SMatrix meshOffsetMat;
-		if (_meshes.size() > 0)
-			meshOffsetMat = _meshes[0]._localTransform;	// Offset of mesh node...
-
-		_skeleton.loadFromAssimp(scene, meshOffsetMat);
+		_skeleton.loadFromAssimp(scene);
 
 		AssimpWrapper::loadAnimations(scene, _anims);
 
@@ -82,17 +76,17 @@ public:
 
 
 
-	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix parentMat)
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix globNodeTransform)
 	{
 		SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
-		parentMat = locNodeTransform * parentMat;
+		globNodeTransform = locNodeTransform * globNodeTransform;
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), parentMat, rUVx, rUVy));
+			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform, rUVx, rUVy));
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
-			this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy, parentMat);
+			this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy, globNodeTransform);
 
 		return true;
 	}
@@ -116,11 +110,6 @@ public:
 
 		for (Texture& t : locTextures)
 			t.SetUpAsResource(device);
-
-		// Calculates offset matrices from mesh and bone (scene is just required for bones global transform)
-		for (int i = 0; i < mesh->mNumBones; ++i)
-			AssimpWrapper::calculateOffsetMatrix(scene, mesh->mBones[i], transform);
-		
 
 		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
 

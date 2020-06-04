@@ -27,7 +27,8 @@ public:
 
 
 	// Assumes influencing bones were loaded from the meshes already
-	void loadFromAssimp(const aiScene* scene, SMatrix meshOffset);
+	void loadFromAssimp(const aiScene* scene);
+
 
 
 	void makeLikeATree(const aiNode* node, SMatrix concat);
@@ -35,10 +36,6 @@ public:
 
 
 	void linkToParentBone(const aiNode* node, Bone& currentBone);
-
-
-
-	void addMissingBones(const aiScene* scene, const aiNode* node, Bone& childBone);
 
 
 

@@ -28,7 +28,7 @@ void Animation::getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const
 
 	if (found)
 	{
-		animTransform = getInterpolatedTransform(channel, currentTick, t) * joint._localMatrix;	// Animation found
+		animTransform = getInterpolatedTransform(channel, currentTick, t);	// Animation found, replace local mat
 	}
 	else
 	{
@@ -54,39 +54,73 @@ SMatrix Animation::getInterpolatedTransform(const AnimChannel& channel, float cu
 	SVec3 scale = SVec3(1.);
 	SQuat quat = SQuat::Identity;
 
-	for (UINT i = 0; i < channel.pKeys.size() - 1; ++i)
+	UINT numPCh = channel.pKeys.size();
+	if (numPCh == 1u)
 	{
-		if (currentTick < (float)channel.pKeys[i + 1].first)
+		pos = channel.pKeys[0].pos;
+	}
+	else
+	{
+		for (UINT i = 0; i < numPCh; ++i)
 		{
-			SVec3 posPre = channel.pKeys[i].second;
-			SVec3 posPost = channel.pKeys[i + 1 == channel.pKeys.size() ? 0 : i + 1].second;
-			pos = Math::lerp(posPre, posPost, t);
-			break;
+			int nextTick = i + 1 == numPCh ? 0 : i + 1;
+
+			if (currentTick < (float)channel.pKeys[nextTick].tick)
+			{
+				SVec3 posPre = channel.pKeys[i].pos;
+				SVec3 posPost = channel.pKeys[nextTick].pos;
+				pos = Math::lerp(posPre, posPost, t);
+				break;
+			}
 		}
 	}
 
-	for (UINT i = 0; i < channel.sKeys.size() - 1; ++i)
+
+	UINT numSCh = channel.sKeys.size();
+	if (numSCh == 1u)
 	{
-		if (currentTick < (float)channel.sKeys[i + 1].first)
+		scale = channel.sKeys[0].scale;
+	}
+	else
+	{
+		for (UINT i = 0; i < numSCh; ++i)
 		{
-			SVec3 scalePre = channel.sKeys[i].second;
-			SVec3 scalePost = channel.sKeys[i + 1 == channel.sKeys.size() ? 0 : i + 1].second;
-			scale = Math::lerp(scalePre, scalePost, t);
-			break;
+			int nextTick = i + 1 == numSCh ? 0 : i + 1;	// make it work around
+
+			if (currentTick < (float)channel.sKeys[nextTick].tick)
+			{
+				SVec3 scalePre = channel.sKeys[i].scale;
+				SVec3 scalePost = channel.sKeys[nextTick].scale;
+				scale = Math::lerp(scalePre, scalePost, t);
+				break;
+			}
 		}
 	}
 
-	for (UINT i = 0; i < channel.rKeys.size() - 1; ++i)
+
+	UINT numRCh = channel.rKeys.size();
+	if (numRCh == 1u)
 	{
-		if (currentTick < (float)channel.rKeys[i + 1].first)
+		quat = channel.rKeys[0].rot;
+	}
+	else
+	{
+		for (UINT i = 0; i < numRCh; ++i)
 		{
-			SQuat rotPre = channel.rKeys[i].second;
-			SQuat rotPost = channel.rKeys[i + 1 == channel.rKeys.size() ? 0 : i + 1].second;
-			quat = SQuat::Slerp(rotPre, rotPost, t);	// Could just lerp as well tbh, looks okay
-			break;
+			int nextTick = i + 1 == numRCh ? 0 : i + 1;
+
+			if (currentTick < (float)channel.rKeys[nextTick].tick)
+			{
+				SQuat rotPre = channel.rKeys[i].rot;
+				SQuat rotPost = channel.rKeys[nextTick].rot;
+				quat = SQuat::Slerp(rotPre, rotPost, t);	// Could just lerp as well tbh, looks okay
+				break;
+			}
 		}
 	}
 
+
+	// @TODO this is hella work compared to what it could be, optimize it
 	SMatrix sMat = SMatrix::CreateScale(scale);
 	SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
 	SMatrix tMat = SMatrix::CreateTranslation(pos);

@@ -3,12 +3,13 @@
 
 
 
-void Skeleton::loadFromAssimp(const aiScene* scene, SMatrix meshOffset)
+void Skeleton::loadFromAssimp(const aiScene* scene)
 {
+	
 	for (auto namedBone : _boneMap)
 	{
-		aiNode* node = scene->mRootNode->FindNode(namedBone.first.c_str());
-		addMissingBones(scene, node, namedBone.second);
+		aiNode* boneNode = scene->mRootNode->FindNode(namedBone.first.c_str());
+		AssimpWrapper::addMissingBones(*this, boneNode, SMatrix::Identity);
 	}
 
 	const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, *this, SMatrix());
@@ -24,8 +25,6 @@ void Skeleton::linkSkeletonHierarchy(const aiNode* skelRootNode)
 {
 	_root = findBone(skelRootNode->mName.C_Str());
 
-	//skeleton.makeLikeATree(skelRootNode, SMatrix::Identity);
-
 	// Skip root itself, it has a bit of a special transform (local IS global... my bad there)
 	for (int i = 0; i < skelRootNode->mNumChildren; i++)
 	{
@@ -33,9 +32,6 @@ void Skeleton::linkSkeletonHierarchy(const aiNode* skelRootNode)
 	}
 
 	calcGlobalTransforms(*_root, SMatrix::Identity);
-
-	// This isn't supposed to be correct but it gives better results (where did I screw up?)
-	_globalInverseTransform = _root->_localMatrix.Invert();
 }
 
 
@@ -82,34 +78,6 @@ void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
 	}
 }
 
-
-// Seeks upwards from every existing bone, filling in intermediate nodes
-void Skeleton::addMissingBones(const aiScene* scene, const aiNode* childNode, Bone& childBone)
-{
-	aiNode* parent = childNode->mParent;
-
-	// bones don't have local transforms yet so i use the node ones
-	SMatrix childLocMat = AssimpWrapper::aiMatToSMat(childNode->mTransformation);
-
-	if (!parent)			// We are at root node, no way but down
-		return;
-
-	if (!parent->mParent)	// Don't include the root node either... bit hacky but works out so far
-		return;
-
-	std::string parentName(parent->mName.C_Str());
-
-	if (boneExists(parentName))	// Parent is already a bone, terminate
-		return;
-
-	Bone newParentBone;
-	newParentBone.name = parentName;
-	newParentBone.index = _boneMap.size();
-	//newParentBone._offsetMatrix = childBone._offsetMatrix * childLocMat.Invert();
-	auto boneIter = _boneMap.insert({ parentName, newParentBone });
-
-	addMissingBones(scene, parent, boneIter.first->second);
-}
 
 
 /*

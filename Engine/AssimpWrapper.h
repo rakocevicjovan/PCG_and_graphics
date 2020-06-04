@@ -323,6 +323,33 @@ public:
 	}
 
 
+
+	// Seeks upwards from every existing bone, filling in intermediate nodes
+	static void addMissingBones(Skeleton& skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
+	{
+		aiNode* parent = boneNode->mParent;
+
+		if (!parent)			// We are at root node, no way but down
+			return;
+
+		if (!parent->mParent)	// Don't include the root node either... bit hacky but works out so far
+			return;
+
+		std::string parentName(parent->mName.C_Str());
+
+		if (skeleton.boneExists(parentName))	// Parent is already a bone, terminate
+			return;
+
+		Bone newParentBone;
+		newParentBone.name = parentName;
+		newParentBone.index = skeleton._boneMap.size();
+		//newParentBone._offsetMatrix = AssimpWrapper::calculateOffsetMatrix(boneNode, meshGlobalMatrix);
+		auto boneIter = skeleton._boneMap.insert({ parentName, newParentBone });
+
+		addMissingBones(skeleton, parent, meshGlobalMatrix);
+	}
+
+
 	// Might pop everything related to skeleton loading here in one place tbh
 	static void loadSkeleton(const aiScene* scene)
 	{
@@ -474,7 +501,7 @@ public:
 
 
 
-	inline static SMatrix getGlobalTransform(const aiNode* node)
+	inline static SMatrix getNodeGlobalTransform(const aiNode* node)
 	{
 		const aiNode* current = node;
 		SMatrix concat = SMatrix::Identity;		// c * p * pp * ppp * pppp...
@@ -491,17 +518,14 @@ public:
 
 
 
-	inline static SMatrix calculateOffsetMatrix(const aiScene* scene, const aiBone* bone, SMatrix meshGlobalMat)
+	inline static SMatrix calculateOffsetMatrix(const aiNode* boneNode, SMatrix meshGlobalMat)
 	{
-		std::string boneName(bone->mName.C_Str());
-
-		const aiNode* boneNode = scene->mRootNode->FindNode(boneName.c_str());
-
-		SMatrix boneNodeGlobalTransform = getGlobalTransform(boneNode);
+		SMatrix boneNodeGlobalTransform = getNodeGlobalTransform(boneNode);
 
 		SMatrix myOffsetMatrix = meshGlobalMat * boneNodeGlobalTransform.Invert();
 
-		//Should be identiteh (or really close) - confirmed, test succeeded
+		// Should be identiteh (or really close due to fpp) - confirmed, test succeeded
+		// Bone is no longer in fn signature but this function remains the same
 		//SMatrix realOffsetMatrix = aiMatToSMat(bone->mOffsetMatrix);
 		//SMatrix shouldBeIdentity = realOffsetMatrix * myOffsetMatrix.Invert();
 
