@@ -8,7 +8,7 @@ Mesh::Mesh() {}
 
 
 
-Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texes, ID3D11Device* device, unsigned int ind)
+Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texes, ID3D11Device* device)
 	: _vertices(std::move(verts)), _indices(std::move(inds)), _textures(texes)
 {
 	//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
@@ -17,8 +17,6 @@ Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vecto
 		_baseMaterial._texDescription.push_back({ t._role, &t });
 	}
 
-
-	indexIntoModelMeshArray = ind;
 	setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 }
 

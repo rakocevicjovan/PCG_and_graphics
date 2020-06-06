@@ -10,6 +10,8 @@ private:
 
 	bool _active;
 
+	void* outputItem;	// Boo hoo voidptr evil
+
 public:
 
 	std::string _exportPath;
@@ -18,10 +20,9 @@ public:
 	{}
 
 
+
 	void displayExportSettings()
 	{
-
-		// Move this to a separate class, it could get big...
 		if (ImGui::Begin("Export panel"))
 		{
 			// Settings
@@ -74,13 +75,29 @@ public:
 
 	void exportAssets()
 	{
-		char* test = "TEST";
-		FileUtils::writeAllBytes(_exportPath.c_str(), test, 4);
+		//exportTexture(outputItem, _exportPath);
 	}
 
 
 
 	// Export functions for asset classes
+	static void exportMesh(const Mesh& mesh, std::string& exportPath)
+	{
+		UINT indexCount = mesh._indices.size();
+		UINT vertexCount = mesh._vertices.size();
+
+		// 48 bytes for 3 vectors, 12 for vbuffer, 8 for IBuffer, 64 for local trf, 36 for material
+		sizeof(Material);
+		const SMatrix* meshLocMat = &mesh._transform;
+
+		char* output;
+
+		// Serializing a material could take some work, leave for later...
+		FileUtils::writeAllBytes(exportPath.c_str(), &output, 0);
+	}
+
+
+
 	static void exportTexture(const Texture& texture, std::string& exportPath)
 	{
 		// Metadata 4 * 4 bytes, data varies
@@ -95,16 +112,20 @@ public:
 		UINT dataSize = w * h * n;
 
 		char* output = new char[metadataSize + dataSize];
-		memcpy(&output, &w, metadataSize);
-		memcpy(&output + 16, data, dataSize);
+
+		// To symmetry... And beyond!
+		memcpy(&output[0],	&w,		sizeof(w));
+		memcpy(&output[4],	&h,		sizeof(n));
+		memcpy(&output[8],	&n,		sizeof(h));
+		memcpy(&output[12], &role,	sizeof(role));
+		memcpy(&output[16], data,	dataSize);
 
 		FileUtils::writeAllBytes(exportPath.c_str(), &output, metadataSize + dataSize);
-
-		// Too naive, needs to be replicated otherwise
-		//FileUtils::writeAllBytes(exportPath.c_str(), &texture, sizeof(Texture));
 	}
 
 	inline void activate() { _active = true; }
+
 	inline void deactivate() { _active = false; }
+
 	inline bool isActive() { return _active; }
 };

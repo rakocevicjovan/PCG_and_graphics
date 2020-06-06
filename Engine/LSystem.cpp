@@ -298,7 +298,7 @@ namespace Procedural
 		}
 		//finalMesh.setupMesh(device);
 		tree._meshes.clear();
-		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh._textures, device, 0);
+		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh._textures, device);
 		
 		return tree;
 	}

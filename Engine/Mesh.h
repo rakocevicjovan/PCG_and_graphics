@@ -28,6 +28,7 @@ public:
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	_vertices;
 	std::vector<UINT> _indices;
+	std::vector<Texture> _textures;	//@TODO not sure what to do with this... who should own them?
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
@@ -36,12 +37,11 @@ public:
 	SMatrix _transform;
 	Material _baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
 
-	std::vector<Texture> _textures;	//@TODO not sure what to do with this... who should own them?
-	unsigned int indexIntoModelMeshArray;
+
 
 	//valid, useful constructors... but @TODO make a material instead of textures!
 	Mesh();
-	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device, unsigned int ind);
+	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device);
 	~Mesh();
 	
 	//not so sure, seems like heavy coupling for no reason really!
@@ -54,7 +54,11 @@ public:
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
 
+
+
 	inline PointLight* getLight() const { return _baseMaterial.pLight; }	// @TODO remove
+
+
 
 	void draw(ID3D11DeviceContext* dc, PointLight* p)
 	{
@@ -85,9 +89,14 @@ public:
 	}
 
 
+
 	inline UINT getStride() const { return _vertexBuffer._stride; }
 
+
+
 	inline UINT getOffset() const { return _vertexBuffer._offset; }
+
+
 
 	//from the old rendering system, but still could be very useful...
 	/*
