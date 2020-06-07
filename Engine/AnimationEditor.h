@@ -17,7 +17,7 @@ public:
 
 		ImGui::Text("Number of channels: %d", numChannels);
 
-		ImGui::Text("Duration: %f; \nNum ticks: %d", anim->getDuration(), anim->getNumTicks());
+		ImGui::Text("Duration: %f; \nNum ticks: %f", anim->getDuration(), anim->getNumTicks());
 
 		const std::map<std::string, AnimChannel>* channels = anim->getChannels();
 
@@ -37,14 +37,30 @@ public:
 
 				for (UINT i = 0; i < pkfc; ++i)
 				{
-					ImGui::Button((const char*)(i));
+					ImGui::Text("%d", i);
+					/*
 					ImGui::BeginTooltip();
+					ImGui::Text("Tooltip!");
 					ImGui::EndTooltip();
+					*/
+
+					// Absolutely not a way to do this, really lame... Need a sequencer...
+					displayPositionKeyframe(ch.pKeys[i], i);
+
 				}
 
 				ImGui::TreePop();
 			}
 
 		}
+	}
+
+
+
+	static void displayPositionKeyframe(PosFrame pf, UINT i)
+	{
+		ImGui::PushID(i);
+		ImGui::InputFloat3("##", &pf.pos.x, 3, ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopID();
 	}
 };

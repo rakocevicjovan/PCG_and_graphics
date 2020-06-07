@@ -4,7 +4,6 @@
 #include "Systems.h"
 #include "Scene.h"
 #include "GUI.h"
-#include "AnimationEditor.h"
 #include <memory>
 
 
@@ -16,8 +15,6 @@ private:
 	Scene _scene;
 
 	FileBrowser _browser;
-
-	AnimationEditor animEditor;	//@TODO implement this, somewhere, here its just a test for now
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
 
@@ -46,6 +43,7 @@ public:
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
 		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
 	}
+
 
 
 	void init(Systems& sys) override

@@ -6,6 +6,8 @@
 #include "FileBrowser.h"
 #include "Exporter.h"
 
+#include "AnimationEditor.h"
+
 
 
 class AssimpPreview
@@ -30,8 +32,13 @@ private:
 	std::vector<Texture> _embTextures;
 	std::vector<Texture> _extTextures;
 
+	// Put this...
 	int _currentAnim;
 	float _playbackSpeed;
+
+	// ... here
+	AnimationEditor _animEditor;	//@TODO implement this, somewhere, here its just a test for now
+	Animation* _selectedAnim;
 
 public:
 
@@ -78,6 +85,11 @@ public:
 		}
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
+
+		_selectedAnim = nullptr;
+
+		if (_anims.size() > 0)
+			_selectedAnim = &_anims[0];
 
 		return true;
 	}
@@ -126,6 +138,12 @@ public:
 
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
+		if (_selectedAnim)
+		{
+			ImGui::Begin("Animation editor");
+			_animEditor.displayAnimation(_selectedAnim);
+			ImGui::End();
+		}
 
 		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
 
