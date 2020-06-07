@@ -85,7 +85,7 @@ SMatrix Animation::getInterpolatedTransform(const AnimChannel& channel, float cu
 	{
 		for (UINT i = 0; i < numSCh; ++i)
 		{
-			int nextTick = i + 1 == numSCh ? 0 : i + 1;	// make it work around
+			int nextTick = i + 1 == numSCh ? 0 : i + 1;
 
 			if (currentTick < (float)channel.sKeys[nextTick].tick)
 			{
@@ -113,7 +113,7 @@ SMatrix Animation::getInterpolatedTransform(const AnimChannel& channel, float cu
 			{
 				SQuat rotPre = channel.rKeys[i].rot;
 				SQuat rotPost = channel.rKeys[nextTick].rot;
-				quat = SQuat::Slerp(rotPre, rotPost, t);	// Could just lerp as well tbh, looks okay
+				quat = SQuat::Lerp(rotPre, rotPost, t);	// NLERP and SLERP both work well, so the cheaper one...
 				break;
 			}
 		}

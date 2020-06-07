@@ -4,6 +4,7 @@
 #include "Systems.h"
 #include "Scene.h"
 #include "GUI.h"
+#include "AnimationEditor.h"
 #include <memory>
 
 
@@ -15,6 +16,8 @@ private:
 	Scene _scene;
 
 	FileBrowser _browser;
+
+	AnimationEditor animEditor;	//@TODO implement this, somewhere, here its just a test for now
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
 

@@ -5,11 +5,17 @@
 
 namespace Curves
 {
-	// Could be a template, it would work for scalars, 1d, 2d and 3d vectors
-	struct Hermite
+	// Could be a template, it would work for scalars and n-d vectors I guess?
+	class Hermite
 	{
+	public:
+
 		SVec3 p0, p1;
 		SVec3 tg0, tg1;
+
+
+		Hermite(SVec3 p0, SVec3 tg0, SVec3 p1, SVec3 tg1) : p0(p0), tg0(tg0), p1(p1), tg1(tg1) {}
+
 
 		SVec3 getCubicHermite(float t)
 		{

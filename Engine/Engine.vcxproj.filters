@@ -907,6 +907,9 @@
     <ClInclude Include="Curves.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="AnimationEditor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

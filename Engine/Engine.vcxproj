@@ -360,6 +360,7 @@
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationEditor.h" />
     <ClInclude Include="AnimationInstance.h" />
     <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="AssimpPreview.h" />

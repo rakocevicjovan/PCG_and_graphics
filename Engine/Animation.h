@@ -59,6 +59,7 @@ struct AnimChannel
 };
 
 
+
 class Animation
 {
 private:
@@ -98,6 +99,10 @@ public:
 
 
 
+	inline float getNumTicks() const { return _ticks; };
+
+
+
 	inline float getTickDuration()	const { return _tickDuration; }
 
 
@@ -127,5 +132,12 @@ public:
 			return true;
 		}
 		return false;
+	}
+
+
+
+	const std::map<std::string, AnimChannel>* getChannels()
+	{
+		return &_channels;
 	}
 };
