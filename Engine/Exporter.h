@@ -87,7 +87,6 @@ public:
 		UINT vertexCount = mesh._vertices.size();
 
 		// 48 bytes for 3 vectors, 12 for vbuffer, 8 for IBuffer, 64 for local trf, 36 for material
-		sizeof(Material);
 		const SMatrix* meshLocMat = &mesh._transform;
 
 		char* output;

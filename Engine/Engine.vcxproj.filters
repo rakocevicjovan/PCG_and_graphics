@@ -904,6 +904,9 @@
     <ClInclude Include="FBXLoader.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Curves.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

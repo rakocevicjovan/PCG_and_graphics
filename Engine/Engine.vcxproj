@@ -374,6 +374,7 @@
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
     <ClInclude Include="BOBuffer.h" />
+    <ClInclude Include="Curves.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
     <ClInclude Include="Exporter.h" />
