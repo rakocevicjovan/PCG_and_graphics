@@ -180,6 +180,7 @@
       <FloatingPointExceptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </FloatingPointExceptions>
     </ClCompile>
+    <ClCompile Include="imnodes.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp">
@@ -383,6 +384,7 @@
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="imnodes.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="LoaderGUI.h" />

@@ -404,6 +404,9 @@
     <ClCompile Include="Project.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="imnodes.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems.h">
@@ -909,6 +912,9 @@
     </ClInclude>
     <ClInclude Include="AnimationEditor.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="imnodes.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

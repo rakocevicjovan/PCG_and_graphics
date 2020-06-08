@@ -32,12 +32,13 @@ private:
 	std::vector<Texture> _embTextures;
 	std::vector<Texture> _extTextures;
 
+
 	// Put this...
 	int _currentAnim;
 	float _playbackSpeed;
 
 	// ... here
-	AnimationEditor _animEditor;	//@TODO implement this, somewhere, here its just a test for now
+	AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
 	Animation* _selectedAnim;
 
 public:
@@ -138,12 +139,12 @@ public:
 
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
-		if (_selectedAnim)
+		/*if (_selectedAnim)
 		{
 			ImGui::Begin("Animation editor");
 			_animEditor.displayAnimation(_selectedAnim);
 			ImGui::End();
-		}
+		}*/
 
 		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
 

@@ -16,7 +16,7 @@ public:
 
 
 
-	void update(float dTime)
+	inline void update(float dTime)
 	{
 		_elapsed += dTime;
 		_elapsed = fmod(_elapsed, _anim->getDuration());
@@ -24,7 +24,7 @@ public:
 
 
 
-	void getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
+	inline void getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
 	{
 		_anim->getTransformAtTime(joint, vec, parentMatrix, glInvT, _elapsed);
 	}

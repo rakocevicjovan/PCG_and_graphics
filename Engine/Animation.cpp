@@ -113,17 +113,19 @@ SMatrix Animation::getInterpolatedTransform(const AnimChannel& channel, float cu
 			{
 				SQuat rotPre = channel.rKeys[i].rot;
 				SQuat rotPost = channel.rKeys[nextTick].rot;
-				quat = SQuat::Lerp(rotPre, rotPost, t);	// NLERP and SLERP both work well, so the cheaper one...
+				quat = SQuat::Lerp(rotPre, rotPost, t);	// NLERP is faster than SLERP and still good
 				break;
 			}
 		}
 	}
 
-
-	// @TODO this is hella work compared to what it could be, optimize it
+	/* Old way, I think slower enough to warrant the change
 	SMatrix sMat = SMatrix::CreateScale(scale);
 	SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
 	SMatrix tMat = SMatrix::CreateTranslation(pos);
 
 	return (sMat * rMat * tMat);	// V * S * R * T
+	*/
+
+	return DirectX::XMMatrixAffineTransformation(scale, SVec3(0.f), quat, pos);
 }
