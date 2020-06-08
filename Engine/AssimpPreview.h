@@ -25,8 +25,6 @@ private:
 
 	Skeleton _skeleton;
 	std::vector<Animation> _anims;
-	std::vector<Texture> _embTextures;
-	std::vector<Texture> _extTextures;
 
 
 

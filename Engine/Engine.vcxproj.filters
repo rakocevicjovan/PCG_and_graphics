@@ -916,6 +916,9 @@
     <ClInclude Include="imnodes.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletalModelInstance.h">
+      <Filter>Resources\SkelAnim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

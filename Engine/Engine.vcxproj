@@ -416,6 +416,7 @@
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="QTObject.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="SkeletalModelInstance.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SlotVector.h" />

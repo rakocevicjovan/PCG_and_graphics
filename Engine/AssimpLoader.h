@@ -4,6 +4,7 @@
 #include "Systems.h"
 #include "Scene.h"
 #include "GUI.h"
+#include "SkeletalModelInstance.h"
 #include <memory>
 
 
@@ -17,8 +18,7 @@ private:
 	FileBrowser _browser;
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
-
-	int _curPreview;
+	std::unique_ptr<AssimpPreview>* _curPreview;
 
 	// For previewing models in 3d
 	SkeletalModel _skelModel;
@@ -36,12 +36,9 @@ private:
 
 public:
 
-	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _curPreview(-1)
+	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
-		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\New folder\\ArmyPilot.fbx", 0);
-		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\Kachujin_walking\\Walking.fbx", 0);
-		//_assimpPreview.loadAiScene(sys._device, "C:\\Users\\Senpai\\Desktop\\Erika\\erika_archer_bow_arrow.fbx", 0);
 	}
 
 
@@ -117,10 +114,7 @@ public:
 
 
 
-	void update(const RenderContext& rc) override
-	{
-
-	}
+	void update(const RenderContext& rc) override {}
 
 
 
@@ -131,11 +125,11 @@ public:
 		S_RANDY.render(floorRenderable);
 
 		/* @TODO replace with an option to preview it */
-		if (_skelModelInstance._skm && _curPreview >= 0)
+		if (_skelModelInstance._skm && _curPreview)
 		{
 			// Not really correct but good enough for now...
-			float pbs = _previews[_curPreview]->getPlaybackSpeed();
-			int animIndex = _previews[_curPreview]->getCurrentAnim();
+			float pbs = _curPreview->get()->getPlaybackSpeed();
+			int animIndex = _curPreview->get()->getCurrentAnim();
 
 			_skelModelInstance.update(rc.dTime * pbs, animIndex);
 			_skelModelInstance.draw(S_CONTEXT);
@@ -170,7 +164,7 @@ public:
 			std::string sceneName = _previews[i]->getPath().filename().string();
 			if (ImGui::BeginTabItem(sceneName.c_str()))
 			{
-				_curPreview = i;
+				_curPreview = &_previews[i];
 
 				ImGui::BeginChild(sceneName.c_str());
 
