@@ -17,6 +17,8 @@ private:
 
 	std::deque<std::filesystem::path> _pathHistory;
 
+	std::vector<std::filesystem::directory_entry> _contents;
+
 	bool _badPath;
 
 public:
@@ -68,6 +70,9 @@ public:
 
 			if (ImGui::Button("Back"))
 				stepBack();
+
+			if (ImGui::Button("Refresh"))
+				refreshContentList();
 			
 			selected = printContentList();
 		}
@@ -123,6 +128,8 @@ private:
 			_searchedString = _curDirPath.string();
 
 			_badPath = false;
+
+			refreshContentList();
 		}
 		else
 		{
@@ -138,25 +145,18 @@ private:
 
 		if (ImGui::ListBoxHeader("Contents"))
 		{
-			auto file = std::filesystem::directory_entry(_curDirPath);
-
-			if (file.exists() && file.is_directory())
+			for (const std::filesystem::directory_entry& de : _contents)
 			{
-				std::filesystem::directory_iterator dirIter(_curDirPath);
-
-				for (const std::filesystem::directory_entry& de : dirIter)	//for (int i = 0; i < _contents.size(); i++)
+				if (ImGui::Button(de.path().filename().string().data()))
 				{
-					if (ImGui::Button(de.path().filename().string().data()))	//ImGui::Button(_contents[i].c_str())
+					if (de.is_directory())
 					{
-						if (de.is_directory())
-						{
-							_searchedString = de.path().string();
-							seek();
-						}
-						else
-						{
-							result = de;
-						}
+						_searchedString = de.path().string();
+						seek();
+					}
+					else
+					{
+						result = de;
 					}
 				}
 			}
@@ -164,5 +164,21 @@ private:
 		}
 
 		return result;
+	}
+
+
+
+	void refreshContentList()
+	{
+		_contents.clear();
+
+		auto file = std::filesystem::directory_entry(_curDirPath);
+
+		if (file.exists() && file.is_directory())
+		{
+			std::filesystem::directory_iterator dirIter(_curDirPath);
+			for (const std::filesystem::directory_entry& de : dirIter)
+				_contents.push_back(de);
+		}
 	}
 };
