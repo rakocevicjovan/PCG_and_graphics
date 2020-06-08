@@ -18,7 +18,11 @@ private:
 
 	Assimp::Importer _importer;
 
-	const aiScene* _scene;
+	const aiScene* _aiScene;
+
+	bool isOnlySkeleton;
+	bool isSkeletalModel;
+	bool containsAnimations;
 
 	Exporter _exporter;
 
@@ -26,14 +30,11 @@ private:
 	Skeleton _skeleton;
 	std::vector<Animation> _anims;
 
-
-
 	// Put this...
 	int _currentAnim;
 	float _playbackSpeed;
 
-	/*
-	// ... here
+	/* // ... here
 	AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
 	Animation* _selectedAnim;
 	*/
@@ -57,35 +58,33 @@ public:
 
 		_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	// This doesn't work...
 
-		_scene = AssimpWrapper::loadScene(_importer, path, pFlags);
+		_aiScene = AssimpWrapper::loadScene(_importer, path, pFlags);
 
-		if (!_scene)
+		if (!_aiScene)
 			return false;
 
-		// Infer what is possible to load from this file.
-		bool isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_scene);
+
+		isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
 
 		if (isOnlySkeleton)
 		{
-			AssimpWrapper::loadOnlySkeleton(_scene, _scene->mRootNode, _skeleton, SMatrix::Identity);
-			_skeleton._root = _skeleton.findBone(_scene->mRootNode->mName.C_Str());
+			AssimpWrapper::loadOnlySkeleton(_aiScene, _aiScene->mRootNode, _skeleton, SMatrix::Identity);
+			_skeleton._root = _skeleton.findBone(_aiScene->mRootNode->mName.C_Str());
 		}
 		else
 		{
-			bool isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_scene);
+			isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);
 
-			SMatrix rootTransform = AssimpWrapper::aiMatToSMat(_scene->mRootNode->mTransformation);
+			SMatrix rootTransform = AssimpWrapper::aiMatToSMat(_aiScene->mRootNode->mTransformation);
 			_skeleton._globalInverseTransform = rootTransform.Invert();
 
-			AssimpWrapper::loadBones(_scene, _scene->mRootNode, _skeleton);
+			AssimpWrapper::loadBones(_aiScene, _aiScene->mRootNode, _skeleton);
 
-			_skeleton.loadFromAssimp(_scene);
+			_skeleton.loadFromAssimp(_aiScene);
 		}
 
-		AssimpWrapper::loadAnimations(_scene, _anims);
-
-		//_selectedAnim = nullptr;
-		//if (_anims.size() > 0) _selectedAnim = &_anims[0];
+		AssimpWrapper::loadAnimations(_aiScene, _anims);
+		containsAnimations = (_anims.size() > 0);
 
 		return true;
 	}
@@ -98,12 +97,20 @@ public:
 
 		if (ImGui::TreeNode("Node tree"))
 		{
-			printaiNode(_scene->mRootNode, _scene, _scene->mRootNode->mTransformation);
+			printaiNode(_aiScene->mRootNode, _aiScene, _aiScene->mRootNode->mTransformation);
 
 			ImGui::TreePop();
 		}
 
 		printSceneAnimations();
+
+		if (ImGui::TreeNode("Textures"))
+		{
+			printTextures();
+			ImGui::TreePop();
+		}
+
+
 
 		ImGui::NewLine();
 		ImGui::Text("Parsed assets");
@@ -114,20 +121,12 @@ public:
 			ImGui::TreePop();
 		}
 
-		if (ImGui::TreeNode("Textures"))
-		{
-			printTextures();
-			ImGui::TreePop();
-		}
-
 
 		ImGui::NewLine();
 		ImGui::Text("Commands");
 
 		if (ImGui::Button("Export"))
-		{
 			_exporter.activate();
-		}
 
 		if(_exporter.isActive())
 			_exporter.displayExportSettings();
@@ -135,20 +134,9 @@ public:
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
 		if (ImGui::Button("Close"))
-		{
 			return false;
-		}
 
 		return true;
-
-		/*if (_selectedAnim)
-		{
-			ImGui::Begin("Animation editor");
-			_animEditor.displayAnimation(_selectedAnim);
-			ImGui::End();
-		}*/
-
-		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
 	}
 
 
@@ -248,15 +236,14 @@ public:
 		ImGui::BeginGroup();
 
 		ImGui::Text("UVs");
-		ImGui::Text("Nr. of UV channels: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(numUVChannels).c_str());
+
+		ImGui::Text("Nr. of UV channels: %d", numUVChannels);
 
 		ImGui::Text("Nr. of UV components per channel: ");
 		ImGui::Indent();
 		for (int i = 0; i < numUVChannels; i++)
 		{
-			ImGui::Text(std::to_string(numUVComponents[i]).c_str());
+			ImGui::Text("##%d", numUVComponents[i]);
 		}
 		ImGui::Unindent();
 
@@ -265,32 +252,22 @@ public:
 
 		UINT indexCount = 0u;
 
-		for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
+		indexCount = mesh->mNumFaces * 3;	// Much quicker approximation, if assimp triangulation worked
+
+		/*for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
 		{
 			//populate indices from faces
 			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; ++j)
 				++indexCount;	//_indices.push_back(face.mIndices[j]);
-		}
+		}*/
 
 		ImGui::BeginGroup();
-
-		ImGui::Text("Vertex count: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(mesh->mNumVertices).c_str());
-
-		ImGui::Text("Index count: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(indexCount).c_str());
-
-		ImGui::Text("Face count: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(mesh->mNumFaces).c_str());
-	
-		ImGui::Text("Has tangents and bitangents: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(mesh->HasTangentsAndBitangents()).c_str());
-
+		ImGui::Text("Vertex count: %d", mesh->mNumVertices);
+		ImGui::Text("Index count: %d", indexCount);
+		ImGui::Text("Face count: %d", mesh->mNumFaces);
+		ImGui::Text("Has tangents and bitangents: %d", mesh->HasTangentsAndBitangents());
 		ImGui::EndGroup();
+
 		ImGui::NewLine();
 
 		printAiMaterial(mesh);
@@ -305,7 +282,7 @@ public:
 
 		if (mesh->mMaterialIndex >= 0)
 		{
-			aiMaterial* material = _scene->mMaterials[mesh->mMaterialIndex];
+			aiMaterial* material = _aiScene->mMaterials[mesh->mMaterialIndex];
 
 			// Diffuse maps
 			printMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
@@ -363,25 +340,23 @@ public:
 			std::string texPath = modelFolderPath + std::string(obtainedTexturePath.data);
 			std::string texName = std::filesystem::path(std::string(obtainedTexturePath.C_Str())).filename().string();
 
-			bool loaded = FileUtils::fileExists(texPath);
+			bool texFound = FileUtils::fileExists(texPath);
 			
-			if (loaded)
+			if (texFound)
 			{
-				ImGui::Text("Path: ");
-				ImGui::SameLine();
-				ImGui::Text(texPath.c_str());
+				ImGui::Text("Path: %s", texPath.c_str());
 			}
 			else
 			{
 				const aiTexture* aiTex;
 
-				if (_scene->mTextures)
+				if (_aiScene->mTextures)
 				{
-					aiTex = _scene->GetEmbeddedTexture(obtainedTexturePath.C_Str());
-					loaded = (aiTex != nullptr);
+					aiTex = _aiScene->GetEmbeddedTexture(obtainedTexturePath.C_Str());
+					texFound = (aiTex != nullptr);
 				}
 
-				if (loaded)
+				if (texFound)
 				{
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0., 1., 1., 1.));
 					ImGui::Text("This texture is embedded!");
@@ -389,10 +364,7 @@ public:
 				}
 				else
 				{
-					ImGui::Text("Path: ");
-					ImGui::SameLine();
-					ImGui::Text(texPath.c_str());
-
+					ImGui::Text("Path: %s", texPath.c_str());
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
 					ImGui::Text(" ( WARNING: NOT FOUND! )");
@@ -420,15 +392,14 @@ public:
 
 	void printSceneAnimations()
 	{
-		if (!_scene->HasAnimations())
+		if (!_aiScene->HasAnimations())
 			return;
 
 		if(ImGui::TreeNode("Animation list"))
 		{
-			for (int i = 0; i < _scene->mNumAnimations; ++i)
-			{
-				printAnimation(_scene->mAnimations[i]);
-			}
+			for (int i = 0; i < _aiScene->mNumAnimations; ++i)
+				printAnimation(_aiScene->mAnimations[i]);
+
 			ImGui::TreePop();
 		}
 	}
@@ -441,9 +412,7 @@ public:
 
 		if (ImGui::TreeNode(sceneAnimation->mName.C_Str()))
 		{
-			ImGui::Text("Num channels: ");
-			ImGui::SameLine();
-			ImGui::Text(std::to_string(numChannels).c_str());
+			ImGui::Text("Num channels: %d", numChannels);
 
 			for (int j = 0; j < numChannels; ++j)
 			{
@@ -463,17 +432,9 @@ public:
 
 	void printAnimationTrack(aiNodeAnim* channel)
 	{
-		ImGui::Text("Num scaling keys: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(channel->mNumScalingKeys).c_str());
-
-		ImGui::Text("Num rotation keys: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(channel->mNumRotationKeys).c_str());
-
-		ImGui::Text("Num position keys: ");
-		ImGui::SameLine();
-		ImGui::Text(std::to_string(channel->mNumPositionKeys).c_str());
+		ImGui::Text("Num scaling keys: %d", channel->mNumScalingKeys);
+		ImGui::Text("Num rotation keys: %d", channel->mNumRotationKeys);
+		ImGui::Text("Num position keys: %d", channel->mNumPositionKeys);
 	}
 
 
@@ -511,13 +472,13 @@ public:
 
 	void printTextures()
 	{
-		if (_scene->mTextures)
+		if (_aiScene->mTextures)
 		{
 			if (ImGui::TreeNode("Embedded"))
 			{
-				for (int i = 0; i < _scene->mNumTextures; ++i)
+				for (int i = 0; i < _aiScene->mNumTextures; ++i)
 				{
-					aiTexture* tex = _scene->mTextures[i];
+					aiTexture* tex = _aiScene->mTextures[i];
 					
 					ImGui::Text("Name: ");
 					ImGui::SameLine();
@@ -554,5 +515,5 @@ public:
 
 	float getPlaybackSpeed() { return _playbackSpeed; }
 
-	const aiScene* getScene() { return _scene; }
+	const aiScene* getScene() { return _aiScene; }
 };

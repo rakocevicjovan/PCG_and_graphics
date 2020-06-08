@@ -2,7 +2,7 @@
 #include "AssimpWrapper.h"
 
 
-
+// Assumes some bones were loaded already
 void Skeleton::loadFromAssimp(const aiScene* scene)
 {
 	for (auto namedBone : _boneMap)

@@ -437,14 +437,12 @@ public:
 		SMatrix locTf = aiMatToSMat(node->mTransformation);
 		parent = locTf * parent;
 
-		std::string boneName(node->mName.C_Str());
-		
-
 		Bone bone;
-		bone.name = boneName;
+		bone.name = std::string(node->mName.C_Str());
 		bone.index = skeleton._boneMap.size();
 		bone._localMatrix = locTf;
-		bone._offsetMatrix = parent.Invert();
+		// Does not account for mesh offset, that has to be added when attaching mesh to skeleton
+		bone._offsetMatrix = parent.Invert();	
 
 		if (node->mParent)
 		{
@@ -454,13 +452,11 @@ public:
 	
 		auto iter = skeleton._boneMap.insert({ bone.name, bone });
 
-		if(bone.parent)	// Avoid crashing on root, add links between parents and children
+		if(bone.parent)	// Add links between parents and children, avoid crashing on root
 			bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
 
 		for (int i = 0; i < node->mNumChildren; ++i)
-		{
 			loadOnlySkeleton(scene, node->mChildren[i], skeleton, parent);
-		}
 	}
 
 
@@ -507,8 +503,8 @@ public:
 
 		while (current)
 		{
-			SMatrix parentLocTransform = aiMatToSMat(current->mTransformation);
-			concat = concat * parentLocTransform;
+			SMatrix localTransform = aiMatToSMat(current->mTransformation);
+			concat *= localTransform;
 			current = current->mParent;
 		}
 
@@ -522,11 +518,6 @@ public:
 		SMatrix boneNodeGlobalTransform = getNodeGlobalTransform(boneNode);
 
 		SMatrix myOffsetMatrix = meshGlobalMat * boneNodeGlobalTransform.Invert();
-
-		// Should be identiteh (or really close due to fpp) - confirmed, test succeeded
-		// Bone is no longer in fn signature but this function remains the same
-		//SMatrix realOffsetMatrix = aiMatToSMat(bone->mOffsetMatrix);
-		//SMatrix shouldBeIdentity = realOffsetMatrix * myOffsetMatrix.Invert();
 
 		return myOffsetMatrix;
 	}
