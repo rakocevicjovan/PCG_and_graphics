@@ -174,22 +174,27 @@ public:
 
 				ImGui::BeginChild(sceneName.c_str());
 
-				_previews[i]->displayAiScene(sceneName);	// Add tabs here
-
-				if (ImGui::Button("Load as skeletal model"))
+				if(!_previews[i]->displayAiScene(sceneName))
 				{
-					_skelModel = SkeletalModel();
-					_skelModel.loadFromScene(S_DEVICE, _previews[i]->getScene());
-
-					for (auto& skmesh : _skelModel._meshes)
+					_previews.erase(_previews.begin() + i);
+				}
+				else
+				{
+					if (ImGui::Button("Load as skeletal model"))
 					{
-						skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
-						skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
-						skmesh._baseMaterial.pLight = &_pointLight;
-					}
+						_skelModel = SkeletalModel();
+						_skelModel.loadFromScene(S_DEVICE, _previews[i]->getScene());
 
-					_skelModelInstance = SkeletalModelInstance();
-					_skelModelInstance.init(S_DEVICE, &_skelModel);
+						for (auto& skmesh : _skelModel._meshes)
+						{
+							skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
+							skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
+							skmesh._baseMaterial.pLight = &_pointLight;
+						}
+
+						_skelModelInstance = SkeletalModelInstance();
+						_skelModelInstance.init(S_DEVICE, &_skelModel);
+					}
 				}
 
 				ImGui::EndChild();

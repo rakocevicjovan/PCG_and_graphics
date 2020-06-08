@@ -22,24 +22,23 @@ private:
 
 	Exporter _exporter;
 
-	// All possible (read relevant) objects that can be loaded from assimp scenes
-	SkeletalModel _skModel;
 
 	Skeleton _skeleton;
-
 	std::vector<Animation> _anims;
-
 	std::vector<Texture> _embTextures;
 	std::vector<Texture> _extTextures;
+
 
 
 	// Put this...
 	int _currentAnim;
 	float _playbackSpeed;
 
+	/*
 	// ... here
 	AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
 	Animation* _selectedAnim;
+	*/
 
 public:
 
@@ -87,17 +86,15 @@ public:
 
 		AssimpWrapper::loadAnimations(_scene, _anims);
 
-		_selectedAnim = nullptr;
-
-		if (_anims.size() > 0)
-			_selectedAnim = &_anims[0];
+		//_selectedAnim = nullptr;
+		//if (_anims.size() > 0) _selectedAnim = &_anims[0];
 
 		return true;
 	}
 
 
 
-	void displayAiScene(const std::string& sName)
+	bool displayAiScene(const std::string& sName)
 	{
 		ImGui::Text("Assimp structure");
 
@@ -124,7 +121,7 @@ public:
 			printTextures();
 			ImGui::TreePop();
 		}
-		
+
 
 		ImGui::NewLine();
 		ImGui::Text("Commands");
@@ -139,6 +136,13 @@ public:
 
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
+		if (ImGui::Button("Close"))
+		{
+			return false;
+		}
+
+		return true;
+
 		/*if (_selectedAnim)
 		{
 			ImGui::Begin("Animation editor");
@@ -147,10 +151,6 @@ public:
 		}*/
 
 		//ImGui::SliderFloat("Playback speed", &_playbackSpeed, -1., 1.);
-
-		//if (_exporting >= 0)
-		//	displayExportWindow(_previews[_exporting].get());
-
 	}
 
 
@@ -550,16 +550,7 @@ public:
 
 
 
-	void displayExportWindow(AssimpPreview* preview)
-	{
-		// todo todo todo todo todoooooo
-	}
-
-
-
 	std::filesystem::path getPath() { return std::filesystem::path(_path); }
-
-
 
 	int getCurrentAnim() { return _currentAnim; }
 

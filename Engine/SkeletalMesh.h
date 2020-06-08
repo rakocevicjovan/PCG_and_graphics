@@ -22,7 +22,6 @@ public:
 	SMatrix _localTransform;
 
 	Material _baseMaterial;
-	std::vector<Bone> joints;
 
 	unsigned int indexIntoModelMeshArray;
 

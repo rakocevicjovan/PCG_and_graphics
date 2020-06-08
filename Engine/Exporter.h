@@ -1,6 +1,11 @@
 #pragma once
 #include "AssimpPreview.h"
 #include "FileUtilities.h"
+#include <iostream>
+
+
+
+//enum ASS_TYPE { MODEL, SK_MODEL, SKELLY };
 
 
 
@@ -15,6 +20,8 @@ private:
 public:
 
 	std::string _exportPath;
+
+
 
 	Exporter() : _active(false), _exportPath("C:\\Users\\Senpai\\Desktop\\Test.txt")
 	{}
@@ -75,13 +82,78 @@ public:
 
 	void exportAssets()
 	{
-		//exportTexture(outputItem, _exportPath);
 	}
 
 
 
 	// Export functions for asset classes
-	static void exportMesh(const Mesh& mesh, std::string& exportPath)
+	void exportSkeletalModel(const SkeletalModel& skm)
+	{
+		std::vector<std::pair<char*, UINT>> meshStrings;
+
+		meshStrings.reserve(skm._meshes.size());
+
+		for (int i = 0; i < skm._meshes.size(); ++i)
+		{
+			const SkeletalMesh& m = skm._meshes[i];
+
+			meshStrings.push_back(exportSkelMesh(m));
+		}
+
+		for (int i = 0; i < 1; ++i)	//skm._meshes.size() FOR NOW ONLY ONE
+		{
+			FileUtils::writeAllBytes(_exportPath.c_str(), meshStrings[i].first, meshStrings[i].second);
+		}
+
+		for (auto ms : meshStrings)
+		{
+			delete ms.first;
+		}
+	}
+
+
+
+	std::pair<char*, UINT> exportSkelMesh(const SkeletalMesh& mesh)
+	{
+		// Header data
+		UINT indexCount = mesh._indices.size();
+		UINT vertexCount = mesh._vertices.size();
+		//UINT texCount = mesh._textures.size();
+
+		UINT ibs = indexCount * sizeof(UINT);
+		UINT vbs = vertexCount * sizeof(BonedVert3D);
+		//UINT tbs = texCount * sizeof(UINT);	// These will be indices... not sure how that's gonna work
+		
+		UINT headerSize = 12;
+		UINT dataSize = ibs + vbs;		// + tbs
+
+		UINT totalSize = headerSize + dataSize;
+
+		char* result = new char[totalSize];
+
+		UINT offset = 0u;	// Wrap in a helper if this works
+
+		memcpy(result + offset, &indexCount, sizeof(UINT));
+		offset += sizeof(UINT);
+
+		memcpy(result + offset, &vertexCount, sizeof(UINT));
+		offset += sizeof(UINT);
+
+		memcpy(result + offset, &vertexCount, sizeof(UINT));
+		offset += sizeof(UINT);
+
+		memcpy(result + offset, mesh._indices.data(), ibs);
+		offset += ibs;
+
+		memcpy(result + offset, mesh._vertices.data(), vbs);
+		offset += vbs;
+
+		return { result, totalSize };
+	}
+
+
+
+	void exportMesh(const Mesh& mesh, const std::string& exportPath)
 	{
 		UINT indexCount = mesh._indices.size();
 		UINT vertexCount = mesh._vertices.size();
@@ -97,7 +169,7 @@ public:
 
 
 
-	static void exportTexture(const Texture& texture, std::string& exportPath)
+	void exportTexture(const Texture& texture, std::string& exportPath)
 	{
 		// Metadata 4 * 4 bytes, data varies
 		int w = texture.getW();
@@ -121,6 +193,8 @@ public:
 
 		FileUtils::writeAllBytes(exportPath.c_str(), &output, metadataSize + dataSize);
 	}
+
+
 
 	inline void activate() { _active = true; }
 
