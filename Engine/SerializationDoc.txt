@@ -1,0 +1,37 @@
+Work in progress...
+
+Header refers to constant data size part, even if it's not necessarily metadata
+
+Texture:
+	Header (16):
+		UINT:
+			w
+			h
+			n
+			role
+	Body:
+		char* imageData
+
+
+Mesh:
+	Header (144):
+		UINT:
+			numIndices
+			numVertices
+			numTextures
+			sizeof(Vert)
+		SMatrix:
+			local
+			global
+	Body:
+		std::vec<Vert> vertices
+		std::vec<UINT> indices
+		std::vec<Texture> textures	// Should be only references
+
+
+Model:
+	Header:
+		UINT:
+			numMeshes
+	SMatrix:
+		transform

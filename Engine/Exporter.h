@@ -4,11 +4,14 @@
 #include <iostream>
 #include <memory>
 
+
+
 struct MemChunk
 {
 	std::unique_ptr<char> ptr;
 	UINT size;
 };
+
 
 
 class Exporter
@@ -19,13 +22,20 @@ private:
 
 	void* outputItem;	// Boo hoo voidptr evil
 
+	bool doMod;
+	bool doSkel;
+	bool doTex;
+	bool doAnim;
+
 public:
 
 	std::string _exportPath;
 
 
 
-	Exporter() : _active(false), _exportPath("C:\\Users\\Senpai\\Desktop\\Test.txt") {}
+	Exporter() : 
+		_active(false), doMod(true), doSkel(true), doTex(true), doAnim(true),
+		_exportPath("C:\\Users\\Senpai\\Desktop\\Test.txt") {}
 
 
 
@@ -36,6 +46,10 @@ public:
 			// Settings
 			inTextStdString("Export path", _exportPath);
 
+			ImGui::Checkbox("Model", &doMod);
+			ImGui::Checkbox("Skeleton", &doSkel);
+			ImGui::Checkbox("Textures", &doTex);
+			ImGui::Checkbox("Animations", &doAnim);
 
 			// Controls
 			if (ImGui::Button("Close"))
@@ -89,29 +103,25 @@ public:
 
 
 	// Export functions for asset classes
-	void exportSkeletalModel(const SkeletalModel& skm)
+	static MemChunk serializeSkeletalModel(const SkeletalModel& skm)
 	{
+		MemChunk result;
+
 		std::vector<MemChunk> memChunks;
 
 		memChunks.reserve(skm._meshes.size());
 
 		for (int i = 0; i < skm._meshes.size(); ++i)
-		{
-			const SkeletalMesh& m = skm._meshes[i];
+			memChunks.push_back(serializeSkeletalMesh(skm._meshes[i]));
 
-			memChunks.push_back(exportSkelMesh(m));
-		}
 
-		for (int i = 0; i < 1; ++i)	//skm._meshes.size() FOR NOW ONLY ONE
-		{
-			FileUtils::writeAllBytes(_exportPath.c_str(), memChunks[i].ptr.get(), memChunks[i].size);
-		}
-
+		//FileUtils::writeAllBytes(_exportPath.c_str(), memChunks[i].ptr.get(), memChunks[i].size);
+		return result;
 	}
 
 
 
-	static MemChunk exportSkelMesh(const SkeletalMesh& mesh)
+	static MemChunk serializeSkeletalMesh(const SkeletalMesh& mesh)
 	{
 		// Header data
 		UINT indexCount = mesh._indices.size();
@@ -151,7 +161,7 @@ public:
 
 
 
-	static MemChunk exportTexture(const Texture& texture)
+	static MemChunk serializeTexture(const Texture& texture)
 	{
 		// Metadata 4 * 4 bytes, data varies
 		int w = texture.getW();

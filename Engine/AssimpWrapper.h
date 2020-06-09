@@ -350,17 +350,6 @@ public:
 	}
 
 
-	// Might pop everything related to skeleton loading here in one place tbh
-	static void loadSkeleton(const aiScene* scene)
-	{
-		const aiNode* root = scene->mRootNode;
-
-		Skeleton skeleton;
-
-		loadBones(scene, root, skeleton);
-	}
-
-
 
 	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
 	{
@@ -459,6 +448,35 @@ public:
 			loadOnlySkeleton(scene, node->mChildren[i], skeleton, parent);
 	}
 
+
+
+	static std::vector<aiString> loadExternalTextures(const aiScene* scene)
+	{
+		std::vector<aiString> result;
+
+		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+		{
+			aiMaterial* mat = scene->mMaterials[i];
+
+			for (int j = aiTextureType::aiTextureType_NONE; j <= aiTextureType_UNKNOWN; ++j)
+			{
+				aiTextureType curType = static_cast<aiTextureType>(j);
+				UINT curCount = mat->GetTextureCount(curType);
+
+				for (UINT k = 0; k < curCount; ++k)
+				{
+					aiString texPath;
+					mat->GetTexture(curType, k, &texPath);
+
+					const aiTexture* aiTex = scene->GetEmbeddedTexture(texPath.C_Str());
+
+					if (!aiTex)	// Only interested in external for this function
+						result.push_back(texPath);
+				}
+			}
+		}
+		return result;
+	}
 
 
 	// Helpers

@@ -26,7 +26,6 @@ private:
 
 	Exporter _exporter;
 
-
 	Skeleton _skeleton;
 	std::vector<Animation> _anims;
 
@@ -38,6 +37,9 @@ private:
 	AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
 	Animation* _selectedAnim;
 	*/
+
+	// It's slow to parse this per frame so I do it once and keep it
+	std::vector<aiString> _externalTextures;
 
 public:
 
@@ -63,7 +65,6 @@ public:
 		if (!_aiScene)
 			return false;
 
-
 		isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
 
 		if (isOnlySkeleton)
@@ -86,6 +87,8 @@ public:
 		AssimpWrapper::loadAnimations(_aiScene, _anims);
 		containsAnimations = (_anims.size() > 0);
 
+		_externalTextures = AssimpWrapper::loadExternalTextures(_aiScene);
+
 		return true;
 	}
 
@@ -93,7 +96,7 @@ public:
 
 	bool displayAiScene(const std::string& sName)
 	{
-		ImGui::Text("Assimp structure");
+		ImGui::Text("Assimp structures");
 
 		if (ImGui::TreeNode("Node tree"))
 		{
@@ -109,7 +112,6 @@ public:
 			printTextures();
 			ImGui::TreePop();
 		}
-
 
 
 		ImGui::NewLine();
@@ -441,11 +443,15 @@ public:
 
 	void printBoneHierarchy(Bone* bone)
 	{
+		if (!bone)
+		{
+			ImGui::Text("Bone is nullptr");
+			return;
+		}
+
 		if (ImGui::TreeNode(bone->name.c_str()))
 		{
-			ImGui::Text("Index: ");
-			ImGui::SameLine();
-			ImGui::Text(std::to_string(bone->index).c_str());
+			ImGui::Text("Index: %d", bone->index);
 
 			if (ImGui::TreeNode("Transformations"))
 			{
@@ -478,17 +484,10 @@ public:
 			{
 				for (int i = 0; i < _aiScene->mNumTextures; ++i)
 				{
-					aiTexture* tex = _aiScene->mTextures[i];
-					
-					ImGui::Text("Name: ");
-					ImGui::SameLine();
-					ImGui::Text(tex->mFilename.C_Str());
-
+					const aiTexture* tex = _aiScene->mTextures[i];	
+					ImGui::Text("Name: %s", tex->mFilename.C_Str());
 					ImGui::Text("Width: %d; Height: %d;", tex->mWidth, tex->mHeight);
-
-					ImGui::Text("Format hint: ");
-					ImGui::SameLine();
-					ImGui::Text(tex->achFormatHint);
+					ImGui::Text("Format hint: %s", tex->achFormatHint);
 				}
 
 				ImGui::TreePop();
@@ -499,12 +498,21 @@ public:
 			ImGui::Text("No embedded textures found");
 		}
 		
-
-		if (ImGui::TreeNode("External"))
+		if (_externalTextures.size() > 0)
 		{
+			if (ImGui::TreeNode("External"))
+			{
+				for (int i = 0; i < _externalTextures.size(); ++i)
+					ImGui::Text(_externalTextures[i].C_Str());
 
-			ImGui::TreePop();
+				ImGui::TreePop();
+			}
 		}
+		else
+		{
+			ImGui::Text("No external textures found");
+		}
+		
 	}
 
 
