@@ -174,7 +174,10 @@ public:
 				}
 				else
 				{
-					if (ImGui::Button("Load as skeletal model"))
+					ImGui::NewLine();
+					ImGui::NewLine();
+
+					if (ImGui::Button("Preview as skeletal model"))
 					{
 						_skelModel = SkeletalModel();
 						_skelModel.loadFromScene(S_DEVICE, _previews[i]->getScene());

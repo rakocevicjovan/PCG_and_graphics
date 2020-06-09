@@ -82,7 +82,7 @@ public:
 		globNodeTransform = locNodeTransform * globNodeTransform;
 		
 		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-			_meshes.push_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform, rUVx, rUVy));
+			_meshes.emplace_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform, rUVx, rUVy));
 
 		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 		for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -112,7 +112,7 @@ public:
 			t.SetUpAsResource(device);
 
 		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
-
+		// Elision does happen... I was wondering
 		return SkeletalMesh(vertices, indices, locTextures, device, ind, transform);
 	}
 

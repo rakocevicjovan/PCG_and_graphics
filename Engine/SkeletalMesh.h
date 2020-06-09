@@ -33,8 +33,8 @@ public:
 
 
 
-	SkeletalMesh(std::vector<BonedVert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* dvc, unsigned int ind, SMatrix localTransform) 
-		: _vertices(vertices), _indices(indices), _textures(textures), _localTransform(localTransform)
+	SkeletalMesh(std::vector<BonedVert3D>& vertices, std::vector<unsigned int>& indices, std::vector<Texture>& textures, ID3D11Device* dvc, unsigned int ind, SMatrix& localTransform) 
+		: _vertices(std::move(vertices)), _indices(std::move(indices)), _textures(std::move(textures)), _localTransform(localTransform)
 	{
 		//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
 		for (auto& t : _textures)

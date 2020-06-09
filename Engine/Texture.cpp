@@ -100,8 +100,6 @@ Texture& Texture::operator=(const Texture& other)
 
 Texture::~Texture()
 {
-	// data should not be deleted unless explicitly, sometimes useful to keep it for procgen
-
 	if(_dxID)
 		_dxID->Release();
 

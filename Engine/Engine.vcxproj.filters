@@ -919,6 +919,9 @@
     <ClInclude Include="AssimpWrapper.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="Serializer.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

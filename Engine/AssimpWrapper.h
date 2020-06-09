@@ -457,6 +457,7 @@ public:
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
 		{
 			aiMaterial* mat = scene->mMaterials[i];
+			result.push_back(aiString(std::string("Mat: ") + mat->GetName().C_Str()));
 
 			for (int j = aiTextureType::aiTextureType_NONE; j <= aiTextureType_UNKNOWN; ++j)
 			{

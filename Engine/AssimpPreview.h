@@ -5,7 +5,6 @@
 #include "Texture.h"
 #include "FileBrowser.h"
 #include "Exporter.h"
-
 #include "AnimationEditor.h"
 
 
@@ -26,9 +25,6 @@ private:
 
 	Exporter _exporter;
 
-	Skeleton _skeleton;
-	std::vector<Animation> _anims;
-
 	// Put this...
 	int _currentAnim;
 	float _playbackSpeed;
@@ -38,8 +34,11 @@ private:
 	Animation* _selectedAnim;
 	*/
 
-	// It's slow to parse this per frame so I do it once and keep it
+	// It's unnecessary to parse this per frame so I do it once and keep it
+	Skeleton _skeleton;
+	std::vector<Animation> _anims;
 	std::vector<aiString> _externalTextures;
+	
 
 public:
 
@@ -131,7 +130,12 @@ public:
 			_exporter.activate();
 
 		if(_exporter.isActive())
-			_exporter.displayExportSettings();
+			if (_exporter.displayExportSettings())
+			{
+				//Gather settings, process them
+				//Serializer::serializeSkeletalModel(); or similar, based on what's picked
+				//exporter.exportAsset...
+			}
 
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
