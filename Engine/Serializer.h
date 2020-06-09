@@ -6,7 +6,7 @@
 
 struct MemChunk
 {
-	std::unique_ptr<char> ptr;
+	std::unique_ptr<char[]> ptr;
 	UINT size;
 };
 
@@ -18,15 +18,17 @@ public:
 	{
 		MemChunk result;
 
+		/*
 		std::vector<MemChunk> memChunks;
 
 		memChunks.reserve(skm._meshes.size());
 
 		for (int i = 0; i < skm._meshes.size(); ++i)
 			memChunks.push_back(serializeSkeletalMesh(skm._meshes[i]));
+		*/
 
+		result = serializeSkeletalMesh(skm._meshes[0]);
 
-		//FileUtils::writeAllBytes(_exportPath.c_str(), memChunks[i].ptr.get(), memChunks[i].size);
 		return result;
 	}
 
@@ -48,7 +50,7 @@ public:
 
 		UINT totalSize = headerSize + dataSize;
 
-		std::unique_ptr<char> result(new char(totalSize));
+		std::unique_ptr<char[]> result(new char[totalSize]);
 
 		UINT offset = 0u;	// Wrap in a helper if this works
 
@@ -86,7 +88,7 @@ public:
 		UINT dataSize = w * h * n;
 		UINT totalSize = metadataSize + dataSize;
 
-		std::unique_ptr<char> output(new char(totalSize));
+		std::unique_ptr<char[]> output(new char[totalSize]);
 
 		// To symmetry... And beyond!
 		memcpy(&output.get()[0], &w, sizeof(w));

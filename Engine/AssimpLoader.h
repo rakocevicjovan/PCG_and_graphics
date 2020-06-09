@@ -18,11 +18,9 @@ private:
 	FileBrowser _browser;
 
 	std::vector<std::unique_ptr<AssimpPreview>> _previews;
-	std::unique_ptr<AssimpPreview>* _curPreview;
+	AssimpPreview* _curPreview;
 
 	// For previewing models in 3d
-	SkeletalModel _skelModel;
-	SkeletalModelInstance _skelModelInstance;
 	Material _skelAnimMat;
 	PointLight _pointLight;
 
@@ -39,6 +37,7 @@ public:
 	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
+		_curPreview = nullptr;
 	}
 
 
@@ -124,17 +123,8 @@ public:
 
 		S_RANDY.render(floorRenderable);
 
-		/* @TODO replace with an option to preview it */
-		if (_skelModelInstance._skm && _curPreview)
-		{
-			// Not really correct but good enough for now...
-			float pbs = _curPreview->get()->getPlaybackSpeed();
-			int animIndex = _curPreview->get()->getCurrentAnim();
-
-			_skelModelInstance.update(rc.dTime * pbs, animIndex);
-			_skelModelInstance.draw(S_CONTEXT);
-		}
-
+		if(_curPreview)
+			_curPreview->draw(S_CONTEXT, rc.dTime);
 
 		GUI::startGuiFrame();
 
@@ -146,8 +136,12 @@ public:
 			{
 				_previews.push_back(std::make_unique<AssimpPreview>());
 
-				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u))
+				if (!_previews.back()->
+					loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 
+						0u, &_skelAnimMat, &_pointLight))
+				{
 					_previews.pop_back();
+				}
 			}
 		}
 
@@ -164,34 +158,14 @@ public:
 			std::string sceneName = _previews[i]->getPath().filename().string();
 			if (ImGui::BeginTabItem(sceneName.c_str()))
 			{
-				_curPreview = &_previews[i];
+				_curPreview = _previews[i].get();
 
 				ImGui::BeginChild(sceneName.c_str());
 
 				if(!_previews[i]->displayAiScene(sceneName))
 				{
 					_previews.erase(_previews.begin() + i);
-				}
-				else
-				{
-					ImGui::NewLine();
-					ImGui::NewLine();
-
-					if (ImGui::Button("Preview as skeletal model"))
-					{
-						_skelModel = SkeletalModel();
-						_skelModel.loadFromScene(S_DEVICE, _previews[i]->getScene());
-
-						for (auto& skmesh : _skelModel._meshes)
-						{
-							skmesh._baseMaterial.setVS(_skelAnimMat.getVS());
-							skmesh._baseMaterial.setPS(_skelAnimMat.getPS());
-							skmesh._baseMaterial.pLight = &_pointLight;
-						}
-
-						_skelModelInstance = SkeletalModelInstance();
-						_skelModelInstance.init(S_DEVICE, &_skelModel);
-					}
+					_curPreview = nullptr;
 				}
 
 				ImGui::EndChild();

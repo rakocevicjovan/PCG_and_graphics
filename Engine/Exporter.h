@@ -62,7 +62,7 @@ public:
 				if (FileUtils::fileExists(_exportPath))
 					ImGui::OpenPopup("File already exists!");
 				else
-					return true;
+					result = true;
 			}
 
 			result = displayOverwriteWarning();
@@ -76,6 +76,8 @@ public:
 
 	bool displayOverwriteWarning()
 	{
+		bool result = false;
+
 		if (ImGui::BeginPopup("File already exists!"))
 		{
 			ImGui::Text("Are you sure you want to overwrite it?");
@@ -83,19 +85,17 @@ public:
 			if (ImGui::Button("JUST DO IT!"))
 			{
 				ImGui::CloseCurrentPopup();
-				return true;
+				result = true;
 			}
 
 			ImGui::SameLine();
 
 			if (ImGui::Button("No"))
-			{
 				ImGui::CloseCurrentPopup();
-				return false;
-			}
 
 			ImGui::EndPopup();
 		}
+		return result;
 	}
 
 

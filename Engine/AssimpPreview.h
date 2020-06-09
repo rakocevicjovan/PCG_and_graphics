@@ -6,6 +6,7 @@
 #include "FileBrowser.h"
 #include "Exporter.h"
 #include "AnimationEditor.h"
+#include "SkeletalModelInstance.h"
 
 
 
@@ -14,10 +15,15 @@ class AssimpPreview
 private:
 
 	std::string _path;
-
 	Assimp::Importer _importer;
-
 	const aiScene* _aiScene;
+
+	// For preview
+	ID3D11Device* _device;
+	std::unique_ptr<SkeletalModel> _skModel;
+	std::unique_ptr<SkeletalModelInstance> _skModelInst;
+	Material* _skelAnimMat;
+	PointLight* _pLight;
 
 	bool isOnlySkeleton;
 	bool isSkeletalModel;
@@ -25,14 +31,11 @@ private:
 
 	Exporter _exporter;
 
-	// Put this...
+	// Put this into animEditor
 	int _currentAnim;
 	float _playbackSpeed;
-
-	/* // ... here
-	AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
-	Animation* _selectedAnim;
-	*/
+	//AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
+	//Animation* _selectedAnim;
 
 	// It's unnecessary to parse this per frame so I do it once and keep it
 	Skeleton _skeleton;
@@ -44,12 +47,15 @@ public:
 
 
 
-	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags)
+	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat, PointLight* pLight)
 	{
 		_currentAnim = 0;
 		_playbackSpeed = 1;
 
 		_path = path;
+		_device = device;
+		_skelAnimMat = defMat;
+		_pLight = pLight;
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
@@ -122,20 +128,50 @@ public:
 			ImGui::TreePop();
 		}
 
-
 		ImGui::NewLine();
+
+		return displayCommands();
+	}
+
+
+
+	bool displayCommands()
+	{		
 		ImGui::Text("Commands");
 
+		if (ImGui::Button("Load as skeletal model"))
+		{
+			_skModel.reset();
+			_skModel = std::make_unique<SkeletalModel>();
+			_skModel->loadFromScene(_device, _aiScene);
+
+			for (SkeletalMesh& skmesh : _skModel->_meshes)
+			{
+				skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
+				skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
+				skmesh._baseMaterial.pLight = _pLight;
+			}
+
+			_skModelInst.reset();
+			_skModelInst = std::make_unique<SkeletalModelInstance>();
+			_skModelInst->init(_device, _skModel.get());
+		}
+		sizeof(BonedVert3D);
 		if (ImGui::Button("Export"))
 			_exporter.activate();
 
-		if(_exporter.isActive())
+		if (_exporter.isActive())
+		{
 			if (_exporter.displayExportSettings())
 			{
 				//Gather settings, process them
-				//Serializer::serializeSkeletalModel(); or similar, based on what's picked
-				//exporter.exportAsset...
+				if (!_skModel.get())
+					return true;
+
+				MemChunk chunk = Serializer::serializeSkeletalModel(*_skModel.get());
+				_exporter.exportAsset(chunk);
 			}
+		}
 
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
@@ -143,6 +179,17 @@ public:
 			return false;
 
 		return true;
+	}
+
+
+
+	void draw(ID3D11DeviceContext* context, float dTime)
+	{
+		if (!_skModel)
+			return;
+
+		_skModelInst->update(dTime * _playbackSpeed, _currentAnim);
+		_skModelInst->draw(context);
 	}
 
 
