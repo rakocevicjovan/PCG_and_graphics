@@ -7,6 +7,7 @@
 #include "Exporter.h"
 #include "AnimationEditor.h"
 #include "SkeletalModelInstance.h"
+#include "Model.h"
 
 
 
@@ -18,30 +19,30 @@ private:
 	Assimp::Importer _importer;
 	const aiScene* _aiScene;
 
-	// For preview
+	// For 3d preview I need these... until a better system is in place at least
 	ID3D11Device* _device;
-	std::unique_ptr<SkeletalModel> _skModel;
-	std::unique_ptr<SkeletalModelInstance> _skModelInst;
 	Material* _skelAnimMat;
 	PointLight* _pLight;
 
-	bool isOnlySkeleton;
-	bool isSkeletalModel;
-	bool containsAnimations;
+	std::unique_ptr<SkeletalModel> _skModel;
+	std::unique_ptr<SkeletalModelInstance> _skModelInst;
+	std::unique_ptr<Model> _model;
+	std::unique_ptr<Skeleton> _skeleton;
+	std::vector<Animation> _anims;
+
+	bool _isOnlySkeleton, _isSkeletalModel, _hasAnimations;
+
+	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
+
+	bool _importConfigured;
 
 	Exporter _exporter;
 
 	// Put this into animEditor
 	int _currentAnim;
 	float _playbackSpeed;
-	//AnimationEditor _animEditor;	//@TODO sequencer and all that, not a priority yet
-	//Animation* _selectedAnim;
 
-	// It's unnecessary to parse this per frame so I do it once and keep it
-	Skeleton _skeleton;
-	std::vector<Animation> _anims;
 	std::vector<aiString> _externalTextures;
-	
 
 public:
 
@@ -70,38 +71,128 @@ public:
 		if (!_aiScene)
 			return false;
 
-		isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
 
-		if (isOnlySkeleton)
-		{
-			AssimpWrapper::loadOnlySkeleton(_aiScene, _aiScene->mRootNode, _skeleton, SMatrix::Identity);
-			_skeleton._root = _skeleton.findBone(_aiScene->mRootNode->mName.C_Str());
-		}
-		else
-		{
-			isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);
+		_importConfigured = _impSkeleton = _impSkModel = _impModel = _impAnims = false;
 
-			SMatrix rootTransform = AssimpWrapper::aiMatToSMat(_aiScene->mRootNode->mTransformation);
-			_skeleton._globalInverseTransform = rootTransform.Invert();
+		_isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
+		_isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);
+		_hasAnimations = _aiScene->HasAnimations();
 
-			AssimpWrapper::loadBones(_aiScene, _aiScene->mRootNode, _skeleton);
+		// Peak elegance programming... but it's simple and it works I guess :/
+		if (_isOnlySkeleton) _impSkeleton = true;
+		if (_isSkeletalModel) _impSkModel = true;
+		if (!_isOnlySkeleton && !_isSkeletalModel) _impModel = true;
+		if (_hasAnimations) _impAnims = true;
 
-			_skeleton.loadFromAssimp(_aiScene);
-		}
-
-		AssimpWrapper::loadAnimations(_aiScene, _anims);
-		containsAnimations = (_anims.size() > 0);
-
-		_externalTextures = AssimpWrapper::loadExternalTextures(_aiScene);
+		_externalTextures = AssimpWrapper::getExtTextureNames(_aiScene);
 
 		return true;
 	}
 
 
 
-	bool displayAiScene(const std::string& sName)
+	void displayImportSettings()
 	{
-		ImGui::Text("Assimp structures");
+		if (ImGui::BeginChild("Import settings"))
+		{
+			if (_isOnlySkeleton)
+			{
+				ImGui::Text("Scene contains a standalone skeleton.");
+				ImGui::Checkbox("Load skeleton", &_impSkeleton);
+			}
+			else
+			{
+				if (_isSkeletalModel)
+				{
+					ImGui::Text("Scene contains a rigged model.");
+					ImGui::Checkbox("Load rigged model", &_impSkModel);
+				}
+				else
+				{
+					ImGui::Text("Scene contains a static model.");
+					ImGui::Checkbox("Load static model", &_impModel);
+				}
+			}
+
+			if (_hasAnimations)
+			{
+				ImGui::Text("Scene contains animations");
+				ImGui::Checkbox("Load animations", &_impAnims);
+			}
+
+			if (ImGui::Button("Import selected"))
+			{
+				if (_impSkeleton)
+				{
+					_skeleton.reset();
+					_skeleton = std::unique_ptr<Skeleton>(new Skeleton());
+					AssimpWrapper::loadOnlySkeleton(_aiScene, _aiScene->mRootNode, *_skeleton.get(), SMatrix::Identity);
+					_skeleton->_root = _skeleton->findBone(_aiScene->mRootNode->mName.C_Str());
+				}
+
+				if (_impSkModel)
+				{
+					_skModel.reset();
+					_skModel = std::make_unique<SkeletalModel>();
+					_skModel->loadFromScene(_device, _aiScene);
+
+					for (SkeletalMesh& skmesh : _skModel->_meshes)
+					{
+						skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
+						skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
+						skmesh._baseMaterial.pLight = _pLight;
+					}
+
+					_skModelInst.reset();
+					_skModelInst = std::make_unique<SkeletalModelInstance>();
+					_skModelInst->init(_device, _skModel.get());
+				}
+
+				if (_impModel)
+				{
+					_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
+					_model.reset();
+					_model = std::make_unique<Model>();
+					_model->LoadFromScene(_device, _aiScene);
+				}
+
+				if (_impAnims)
+				{
+					AssimpWrapper::loadAnimations(_aiScene, _anims);
+				}
+
+				_importConfigured = true;
+			}
+		}
+		ImGui::EndChild();
+	}
+
+
+
+	bool displayPreview(const std::string& sName)
+	{
+		if (!_importConfigured)
+		{
+			displayImportSettings();
+			return true;
+		}
+
+		displayAiScene();
+
+		ImGui::NewLine();
+
+		displayParsedAssets();
+
+		ImGui::NewLine();
+
+		return displayCommands();
+	}
+
+
+
+	void displayAiScene()
+	{
+		ImGui::Text("Assimp scene");
 
 		if (ImGui::TreeNode("Node tree"))
 		{
@@ -114,23 +205,25 @@ public:
 
 		if (ImGui::TreeNode("Textures"))
 		{
-			printTextures();
+			printSceneTextures();
 			ImGui::TreePop();
 		}
+	}
 
 
-		ImGui::NewLine();
+
+	void displayParsedAssets()
+	{
 		ImGui::Text("Parsed assets");
 
-		if (ImGui::TreeNode("Skeleton"))
+		if (_skeleton.get() || _skModel.get())
 		{
-			printBoneHierarchy(_skeleton._root);
-			ImGui::TreePop();
+			if (ImGui::TreeNode("Skeleton"))
+			{
+				printBoneHierarchy(_skeleton.get() ? _skeleton->_root : _skModel->_skeleton._root);
+				ImGui::TreePop();
+			}
 		}
-
-		ImGui::NewLine();
-
-		return displayCommands();
 	}
 
 
@@ -139,24 +232,6 @@ public:
 	{		
 		ImGui::Text("Commands");
 
-		if (ImGui::Button("Load as skeletal model"))
-		{
-			_skModel.reset();
-			_skModel = std::make_unique<SkeletalModel>();
-			_skModel->loadFromScene(_device, _aiScene);
-
-			for (SkeletalMesh& skmesh : _skModel->_meshes)
-			{
-				skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
-				skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
-				skmesh._baseMaterial.pLight = _pLight;
-			}
-
-			_skModelInst.reset();
-			_skModelInst = std::make_unique<SkeletalModelInstance>();
-			_skModelInst->init(_device, _skModel.get());
-		}
-		sizeof(BonedVert3D);
 		if (ImGui::Button("Export"))
 			_exporter.activate();
 
@@ -215,11 +290,8 @@ public:
 
 				ImGui::TreePop();
 			}
-			
 
-			ImGui::Text("Mesh count: ");
-			ImGui::SameLine();
-			ImGui::Text(std::to_string(node->mNumMeshes).c_str());
+			ImGui::Text("Mesh count: %d", node->mNumMeshes);
 
 			if (node->mNumMeshes > 0)
 			{
@@ -230,17 +302,11 @@ public:
 					{
 						aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
-						std::string meshName("Mesh name and node index: ");
-						meshName += mesh->mName.C_Str();
-						meshName += " ";
-						meshName += std::to_string(i);
-
-						if (ImGui::TreeNode(meshName.c_str()))
+						if (ImGui::TreeNode("Mesh name and node index: %s (%d)", mesh->mName.C_Str(), i))
 						{
 							ImGui::PushID(i);
 							printAiMesh(mesh, concatenatedTransform);
 							ImGui::PopID();
-							ImGui::Separator();
 							ImGui::TreePop();
 						}
 
@@ -253,9 +319,7 @@ public:
 
 			ImGui::Separator();
 
-			ImGui::Text("Child count: ");
-			ImGui::SameLine();
-			ImGui::Text(std::to_string(node->mNumChildren).c_str());
+			ImGui::Text("Child count: %d", node->mNumChildren);
 
 			if (node->mNumChildren > 0)
 			{
@@ -293,10 +357,11 @@ public:
 		ImGui::Text("Nr. of UV channels: %d", numUVChannels);
 
 		ImGui::Text("Nr. of UV components per channel: ");
+
 		ImGui::Indent();
 		for (int i = 0; i < numUVChannels; i++)
 		{
-			ImGui::Text("##%d", numUVComponents[i]);
+			ImGui::Text("%d: ", numUVComponents[i]);
 		}
 		ImGui::Unindent();
 
@@ -306,13 +371,6 @@ public:
 		UINT indexCount = 0u;
 
 		indexCount = mesh->mNumFaces * 3;	// Much quicker approximation, if assimp triangulation worked
-
-		/*for (unsigned int i = 0; i < mesh->mNumFaces; ++i)
-		{
-			//populate indices from faces
-			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; ++j)
-				++indexCount;	//_indices.push_back(face.mIndices[j]);
-		}*/
 
 		ImGui::BeginGroup();
 		ImGui::Text("Vertex count: %d", mesh->mNumVertices);
@@ -373,15 +431,14 @@ public:
 	void printMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, TextureRole role)
 	{
 		UINT numThisType = mat->GetTextureCount(type);
-		typeName += " count: ";
-		typeName += std::to_string(numThisType);
+		typeName += " count: " + std::to_string(numThisType);
 
 		ImGui::Text(typeName.c_str());
 
 		ImGui::Indent();
 
 		//iterate all textures of relevant related to the material
-		for (unsigned int i = 0; i < numThisType; ++i)
+		for (UINT i = 0; i < numThisType; ++i)
 		{
 			// Try to load this texture from file
 			aiString obtainedTexturePath;
@@ -401,15 +458,12 @@ public:
 			}
 			else
 			{
-				const aiTexture* aiTex;
+				const aiTexture* aiTex = nullptr;
 
 				if (_aiScene->mTextures)
-				{
 					aiTex = _aiScene->GetEmbeddedTexture(obtainedTexturePath.C_Str());
-					texFound = (aiTex != nullptr);
-				}
 
-				if (texFound)
+				if (aiTex)
 				{
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0., 1., 1., 1.));
 					ImGui::Text("This texture is embedded!");
@@ -428,9 +482,7 @@ public:
 					if (FileUtils::findFile(modelFolderPath, texName, artistPls))
 					{
 						ImGui::Indent();
-						ImGui::Text("Proposed path: ");
-						ImGui::SameLine();
-						ImGui::Text(artistPls.path().string().c_str());
+						ImGui::Text("Proposed path: %s", artistPls.path().string().c_str());
 						ImGui::Unindent();
 					}
 				}
@@ -500,23 +552,19 @@ public:
 			return;
 		}
 
-		if (ImGui::TreeNode(bone->name.c_str()))
+		if (ImGui::TreeNode("N: %s ; Idx: %d", bone->name.c_str(), bone->index))
 		{
-			ImGui::Text("Index: %d", bone->index);
-
-			if (ImGui::TreeNode("Transformations"))
+			if (ImGui::IsItemHovered())
 			{
+				ImGui::BeginTooltip();
 				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
 				displayTransform(bone->_localMatrix);
 
-				//ImGui::TextColored(ImVec4(0., 1., 0., 1.), "Global matrix");
-				//displayTransform(bone->_globalMatrix);
-
 				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
-				displayTransform(bone->_offsetMatrix);		
-
-				ImGui::TreePop();
+				displayTransform(bone->_offsetMatrix);
+				ImGui::EndTooltip();
 			}
+			/*if (ImGui::TreeNode("Transformations")) { ImGui::TreePop(); }*/
 
 			for (Bone* cBone : bone->offspring)
 				printBoneHierarchy(cBone);
@@ -527,7 +575,7 @@ public:
 
 
 
-	void printTextures()
+	void printSceneTextures()
 	{
 		if (_aiScene->mTextures)
 		{
@@ -563,7 +611,6 @@ public:
 		{
 			ImGui::Text("No external textures found");
 		}
-		
 	}
 
 

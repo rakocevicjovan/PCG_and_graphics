@@ -35,7 +35,7 @@ public:
 	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1);
-
+	bool LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx = 1, float rUVy = 1);
 };
 
 

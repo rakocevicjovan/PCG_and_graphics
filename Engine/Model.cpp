@@ -56,10 +56,15 @@ bool Model::LoadModel(ID3D11Device* device, const std::string& path, float rUVx,
 	if (!scene)
 		return false;
 
+	return LoadFromScene(device, scene, rUVx, rUVy);
+}
+
+
+
+bool Model::LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx, float rUVy)
+{
 	_meshes.reserve(scene->mNumMeshes);
-
 	processNode(device, scene->mRootNode, scene, scene->mRootNode->mTransformation, rUVx, rUVy);
-
 	return true;
 }
 

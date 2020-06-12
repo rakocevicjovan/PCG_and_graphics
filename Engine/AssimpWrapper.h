@@ -450,7 +450,7 @@ public:
 
 
 
-	static std::vector<aiString> loadExternalTextures(const aiScene* scene)
+	static std::vector<aiString> getExtTextureNames(const aiScene* scene)
 	{
 		std::vector<aiString> result;
 

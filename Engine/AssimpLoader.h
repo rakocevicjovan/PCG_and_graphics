@@ -162,7 +162,7 @@ public:
 
 				ImGui::BeginChild(sceneName.c_str());
 
-				if(!_previews[i]->displayAiScene(sceneName))
+				if(!_previews[i]->displayPreview(sceneName))
 				{
 					_previews.erase(_previews.begin() + i);
 					_curPreview = nullptr;

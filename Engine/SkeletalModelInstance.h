@@ -21,17 +21,16 @@ public:
 		_skm = skm;
 
 		for (Animation& anim : skm->_anims)
-		{
 			_animInstances.emplace_back(anim);
-		}
 
 		UINT numBones = 144;
 
 		D3D11_BUFFER_DESC desc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * numBones);
-		_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
 
 		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skMatsBuffer._cbPtr)))
 			return false;
+
+		_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
 
 		return true;
 	}
