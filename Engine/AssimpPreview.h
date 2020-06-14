@@ -240,11 +240,12 @@ public:
 			if (_exporter.displayExportSettings())
 			{
 				//Gather settings, process them
-				if (!_skModel.get())
-					return true;
+				if (_skModel.get())
+				{
+					auto chunks = Serializer::serializeSkeletalModel(*_skModel.get());
+				}
 
-				MemChunk chunk = Serializer::serializeSkeletalModel(*_skModel.get());
-				_exporter.exportAsset(chunk);
+
 			}
 		}
 

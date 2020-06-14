@@ -2,7 +2,7 @@
 #include "SkeletalModel.h"
 #include "Model.h"
 
-// I'd wrap it in a class or namespace but cba typing it... I know right.
+
 
 struct MemChunk
 {
@@ -10,26 +10,22 @@ struct MemChunk
 	UINT size;
 };
 
+
+
 class Serializer
 {
 public:
 	// Serialization functions for asset classes
-	static MemChunk serializeSkeletalModel(const SkeletalModel& skm)
+	static std::vector<MemChunk> serializeSkeletalModel(const SkeletalModel& skm)
 	{
-		MemChunk result;
-
-		/*
 		std::vector<MemChunk> memChunks;
 
 		memChunks.reserve(skm._meshes.size());
 
 		for (int i = 0; i < skm._meshes.size(); ++i)
 			memChunks.push_back(serializeSkeletalMesh(skm._meshes[i]));
-		*/
 
-		result = serializeSkeletalMesh(skm._meshes[0]);
-
-		return result;
+		return memChunks;
 	}
 
 
@@ -100,6 +96,16 @@ public:
 		//FileUtils::writeAllBytes(exportPath.c_str(), &output, metadataSize + dataSize);
 
 		return { std::move(output), totalSize };
+	}
+
+
+
+	static MemChunk serializeAnimation(const Animation& anim)
+	{
+		anim.getName();
+		anim.getTickDuration();
+		anim.getNumTicks();
+		anim.getDuration();	// Ticks per second can be inferred
 	}
 
 };

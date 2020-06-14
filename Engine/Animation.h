@@ -66,6 +66,7 @@ private:
 
 	std::string _name;
 
+	// @TODO Make this a sorted vector with lower_bound search, this is horrible!
 	std::map<std::string, AnimChannel> _channels;
 
 	double _ticks, _ticksPerSecond, _duration, _tickDuration;
@@ -99,7 +100,11 @@ public:
 
 
 
-	inline float getNumTicks() const { return _ticks; };
+	inline float getNumTicks()		const { return _ticks; };
+
+
+
+	inline float getTicksPerSec()	const { return _ticksPerSecond; }
 
 
 
@@ -111,14 +116,11 @@ public:
 
 
 
-	inline std::string getName() { return _name; }
+	inline std::string getName()	const { return _name; }
 
 
 
-	inline UINT getNumChannels()
-	{
-		return _channels.size();
-	}
+	inline UINT getNumChannels()	const { return _channels.size(); }
 
 
 
