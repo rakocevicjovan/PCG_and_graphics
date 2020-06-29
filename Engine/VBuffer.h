@@ -22,7 +22,7 @@ public:
 
 	~VBuffer()
 	{
-		//if (_vbPtr) _vbPtr->Release();
+		if (_vbPtr) _vbPtr->Release();
 	}
 
 

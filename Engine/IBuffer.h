@@ -20,7 +20,7 @@ public:
 
 	~IBuffer()
 	{
-		//if (_ibPtr) _ibPtr->Release();
+		if (_ibPtr) _ibPtr->Release();
 	}
 
 
