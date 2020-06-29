@@ -182,6 +182,7 @@
     </ClCompile>
     <ClCompile Include="imnodes.cpp" />
     <ClCompile Include="Project.cpp" />
+    <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -375,7 +376,6 @@
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
-    <ClInclude Include="BOBuffer.h" />
     <ClInclude Include="Curves.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
@@ -390,6 +390,7 @@
     <ClInclude Include="LoaderGUI.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
+    <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Serializer.h" />
     <ClInclude Include="ShaderGenerator.h" />

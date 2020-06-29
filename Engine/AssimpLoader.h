@@ -5,6 +5,7 @@
 #include "Scene.h"
 #include "GUI.h"
 #include "SkeletalModelInstance.h"
+#include "Sampler.h"
 #include <memory>
 
 
@@ -68,8 +69,7 @@ public:
 			{ "BONE_W"  , 0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
-		D3D11_SAMPLER_DESC regularSD = shc.createSamplerDesc();
-
+		D3D11_SAMPLER_DESC regularSD = Sampler::createSamplerDesc();
 
 		D3D11_BUFFER_DESC WMBufferDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
 		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);

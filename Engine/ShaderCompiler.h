@@ -36,7 +36,7 @@ namespace ShRef
 		uint8_t boundAt;
 	};
 
-	struct ShaderMetadata
+	struct SRShaderMetadata
 	{
 		std::vector<SRCBuffer> _cBuffers;
 		std::vector<SRTexture> _textures;
@@ -61,10 +61,10 @@ public:
 	void ShaderCompiler::init(HWND* hwnd, ID3D11Device* device);
 
 	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const;
-	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::ShaderMetadata* shMetaData = nullptr) const;
+	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData = nullptr) const;
 	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const;
 
-	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& shMetaData);
+	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
 
 	bool createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState) const;
 	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer) const;
@@ -89,34 +89,5 @@ public:
 		cbDesc.MiscFlags = miscFlag;
 		cbDesc.StructureByteStride = stride;
 		return cbDesc;
-	}
-
-
-	
-	inline static D3D11_SAMPLER_DESC createSamplerDesc(
-		D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR,
-		D3D11_COMPARISON_FUNC comparisonFunc = D3D11_COMPARISON_ALWAYS,
-		FLOAT minLOD = 0.f,
-		FLOAT maxLOD = D3D11_FLOAT32_MAX,
-		D3D11_TEXTURE_ADDRESS_MODE addressU = D3D11_TEXTURE_ADDRESS_WRAP,
-		D3D11_TEXTURE_ADDRESS_MODE addressV = D3D11_TEXTURE_ADDRESS_WRAP,
-		D3D11_TEXTURE_ADDRESS_MODE addressW = D3D11_TEXTURE_ADDRESS_WRAP,
-		FLOAT mipLODBias = 0.0f,
-		UINT maxAnisotropy = 1.0f,
-		std::vector<FLOAT> borderColor = { 0.f, 0.f, 0.f, 0.f })
-	{
-		D3D11_SAMPLER_DESC sDesc;
-		ZeroMemory(&sDesc, sizeof(D3D11_SAMPLER_DESC));
-		sDesc.Filter = filter;
-		sDesc.AddressU = addressU;
-		sDesc.AddressV = addressV;
-		sDesc.AddressW = addressW;
-		sDesc.MipLODBias = mipLODBias;
-		sDesc.MaxAnisotropy = maxAnisotropy;
-		sDesc.ComparisonFunc = comparisonFunc;
-		memcpy(sDesc.BorderColor, borderColor.data(), sizeof(sDesc.BorderColor));
-		sDesc.MinLOD = minLOD;
-		sDesc.MaxLOD = maxLOD;
-		return sDesc;
 	}
 };

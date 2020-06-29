@@ -28,7 +28,7 @@ public:
 	std::wstring _path;
 
 	//contains texture and constant buffer meta data along with register indices for each of them, reflected from shader directly
-	ShRef::ShaderMetadata _refShMetaData;
+	ShRef::SRShaderMetadata _refShMetaData;
 
 	//set manually, similar to reflected data minus the texture bind slots
 	std::vector<CBuffer> _cbuffers;

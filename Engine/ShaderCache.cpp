@@ -1,6 +1,7 @@
 #include "ShaderCache.h"
 #include "ShaderDataStructs.h"
 #include "Math.h"
+#include "Sampler.h"
 #include <assert.h>
 
 
@@ -70,19 +71,19 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	// Sampler descriptions
 
-	D3D11_SAMPLER_DESC regularSD = _shc->createSamplerDesc();	//uses default settings, wrap all
+	D3D11_SAMPLER_DESC regularSD = Sampler::createSamplerDesc();	//uses default settings, wrap all
 
-	D3D11_SAMPLER_DESC skbyoxSD = _shc->createSamplerDesc(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_NEVER);
+	D3D11_SAMPLER_DESC skbyoxSD = Sampler::createSamplerDesc(D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_NEVER);
 
-	D3D11_SAMPLER_DESC clampSD = _shc->createSamplerDesc(
+	D3D11_SAMPLER_DESC clampSD = Sampler::createSamplerDesc(
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0, D3D11_FLOAT32_MAX,
 		D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP);
 
-	D3D11_SAMPLER_DESC waterSD = _shc->createSamplerDesc(
+	D3D11_SAMPLER_DESC waterSD = Sampler::createSamplerDesc(
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0, D3D11_FLOAT32_MAX,
 		D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_WRAP, D3D11_TEXTURE_ADDRESS_CLAMP);
 
-	D3D11_SAMPLER_DESC cloudSD = _shc->createSamplerDesc(
+	D3D11_SAMPLER_DESC cloudSD = Sampler::createSamplerDesc(
 		D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_COMPARISON_ALWAYS, 0.f, 8.f);
 
 

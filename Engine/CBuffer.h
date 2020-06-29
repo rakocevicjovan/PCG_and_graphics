@@ -2,9 +2,9 @@
 #include <d3d11.h>
 #include <vector>
 
-
-enum class CBUFFER_FIELD_TYPE		{ BOOL, FLOAT, FLOAT4, MATRIX4 };
-enum class CBUFFER_FIELD_CONTENT	{ TRANSFORM, P_LIGHT, CSM };
+// Basically halves the class size with the option to use 8 bit enums...
+enum class CBUFFER_FIELD_TYPE : uint8_t		{ BOOL, FLOAT, FLOAT4, MATRIX4 };
+enum class CBUFFER_FIELD_CONTENT : uint8_t { TRANSFORM, P_LIGHT, CSM };
 
 struct CBufferFieldDesc
 {
@@ -57,10 +57,12 @@ public:
 	}
 
 
+
 	inline static void updateField(ID3D11Buffer*& cbuffer, void* data, size_t size, size_t offset, D3D11_MAPPED_SUBRESOURCE mappedResource)
 	{
 		memcpy(static_cast<UCHAR*>(mappedResource.pData) + offset, data, size);
 	}
+
 
 
 	inline static void unmap(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer)

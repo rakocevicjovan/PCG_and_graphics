@@ -86,9 +86,6 @@
     <Filter Include="Rendering\AAA Improved\Shaders">
       <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Buffers">
-      <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\DeprMaterials">
       <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
     </Filter>
@@ -140,6 +137,12 @@
     </Filter>
     <Filter Include="Resources\SkelAnim">
       <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\ApiWrapper">
+      <UniqueIdentifier>{1da54352-487a-441b-a470-eaacbf7447e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\ApiWrapper\Buffers">
+      <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -406,6 +409,9 @@
     </ClCompile>
     <ClCompile Include="imnodes.cpp">
       <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp">
+      <Filter>Rendering\ApiWrapper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -770,13 +776,13 @@
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="CBuffer.h">
-      <Filter>Rendering\Buffers</Filter>
+      <Filter>Rendering\ApiWrapper\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="IBuffer.h">
-      <Filter>Rendering\Buffers</Filter>
+      <Filter>Rendering\ApiWrapper\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="VBuffer.h">
-      <Filter>Rendering\Buffers</Filter>
+      <Filter>Rendering\ApiWrapper\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="OST.h">
       <Filter>Rendering\AAA Improved</Filter>
@@ -830,7 +836,7 @@
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="SBuffer.h">
-      <Filter>Rendering\Buffers</Filter>
+      <Filter>Rendering\ApiWrapper\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="ClusterManager.h">
       <Filter>Rendering\AAA Improved\Lights</Filter>
@@ -858,9 +864,6 @@
     </ClInclude>
     <ClInclude Include="VitThreadPool.h">
       <Filter>Multi Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="BOBuffer.h">
-      <Filter>Rendering\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="Editor.h">
       <Filter>Editor</Filter>
@@ -921,6 +924,9 @@
     </ClInclude>
     <ClInclude Include="Serializer.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
+      <Filter>Rendering\ApiWrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

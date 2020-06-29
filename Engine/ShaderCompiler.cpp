@@ -48,7 +48,7 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 
 
-bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::ShaderMetadata* shMetaData) const
+bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
 	ID3DBlob* errorMessage = nullptr;
 	ID3DBlob* shaderBuffer = nullptr;
@@ -104,7 +104,7 @@ bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShade
 
 
 
-bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& shMetaData)
+bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData)
 {
 	ID3D11ShaderReflection* reflection = NULL;
 
@@ -177,18 +177,6 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::ShaderMetadata& sh
 			shMetaData._textures.push_back(t);
 		}
 	}
-}
-
-
-
-bool ShaderCompiler::createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState) const
-{
-	if (FAILED(_device->CreateSamplerState(&samplerDesc, &sampleState)))
-	{
-		MessageBoxA(*_hwnd, std::string(__FILE__).c_str(), "Failed to create sampler state shader.", MB_OK);
-		return false;
-	}
-	return true;
 }
 
 

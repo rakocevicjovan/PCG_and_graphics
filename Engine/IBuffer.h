@@ -4,8 +4,11 @@
 class IBuffer
 {
 protected:
-	ID3D11Buffer* _indexBuffer = nullptr;
+	ID3D11Buffer* _indexBuffer;
 	UINT _count;
+
+	IBuffer() : _indexBuffer(nullptr), _count (0u) {}
+
 public:
 
 	inline ID3D11Buffer* ptr() const { return _indexBuffer; }
