@@ -410,9 +410,6 @@
     <ClCompile Include="imnodes.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="Sampler.cpp">
-      <Filter>Rendering\ApiWrapper</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems.h">

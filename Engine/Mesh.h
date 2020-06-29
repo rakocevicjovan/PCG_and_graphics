@@ -43,13 +43,13 @@ public:
 	Mesh();
 	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device);
 	~Mesh();
-	
+
 	//not so sure, seems like heavy coupling for no reason really!
 	Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z = 0);	//this is used for the screen quads...
 	Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true, bool hasTangents = true);
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(const Hull* hull, ID3D11Device* device);
-	
+
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
@@ -68,7 +68,7 @@ public:
 
 		_baseMaterial.getPS()->updateBuffersAuto(dc, *this);
 		_baseMaterial.getPS()->setBuffers(dc);
-		
+
 
 		//set shaders and similar geebees
 		dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
@@ -95,3 +95,4 @@ public:
 
 
 	inline UINT getOffset() const { return _vertexBuffer._offset; }
+};

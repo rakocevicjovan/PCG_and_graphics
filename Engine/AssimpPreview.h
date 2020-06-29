@@ -245,7 +245,6 @@ public:
 					auto chunks = Serializer::serializeSkeletalModel(*_skModel.get());
 				}
 
-
 			}
 		}
 

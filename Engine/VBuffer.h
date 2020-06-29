@@ -1,5 +1,8 @@
 #pragma once
 #include "MeshDataStructs.h"
+#include <d3d11.h>
+
+
 
 class VBuffer
 {
@@ -8,22 +11,28 @@ protected:
 
 public:
 
+	UINT _stride;
+	UINT _offset;
+
+
+
 	VBuffer() : _vbPtr(nullptr), _stride(0u), _offset(0u) {}
+
+
 
 	~VBuffer()
 	{
-		if (_vbPtr)
-			_vbPtr->Release();
+		//if (_vbPtr) _vbPtr->Release();
 	}
 
 
 
-	template <typename VertexType>
-	VBuffer(ID3D11Device* device, std::vector<VertexType>& vertices, UINT offset = 0u)
-		: _stride(sizeof(VertexType)), _offset(offset)
+	//template <typename VertexType>
+	VBuffer(ID3D11Device* device, std::vector<Vert3D>& vertices, UINT offset = 0u)
+		: _stride(sizeof(Vert3D)), _offset(offset)
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
@@ -46,7 +55,4 @@ public:
 
 	inline ID3D11Buffer* const * ptr() const { return &_vbPtr; }
 	inline ID3D11Buffer*& ptrVar() { return _vbPtr; }
-
-	UINT _stride;
-	UINT _offset;
 };

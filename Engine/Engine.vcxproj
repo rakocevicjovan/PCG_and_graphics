@@ -182,7 +182,6 @@
     </ClCompile>
     <ClCompile Include="imnodes.cpp" />
     <ClCompile Include="Project.cpp" />
-    <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="SkelAnimShader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
