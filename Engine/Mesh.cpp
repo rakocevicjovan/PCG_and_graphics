@@ -128,44 +128,8 @@ Mesh::~Mesh()
 
 bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
 {
-	D3D11_SUBRESOURCE_DATA vertexData, indexData;
-	
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-	
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-	vertexBufferDesc.ByteWidth = sizeof(Vert3D) * _vertices.size();
-	
-	vertexData.pSysMem = _vertices.data();
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-	
-	_vertexBuffer._stride = sizeof(Vert3D);
-	_vertexBuffer._offset = 0u;
-
-	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer.ptrVar() )))
-		return false;
-
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned int) * _indices.size();
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
-
-	// Give the subresource structure a pointer to the index data.
-	indexData.pSysMem = _indices.data();
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-
-	// Create the index buffer.
-	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer.ptrVar())))
-		return false;
-	
-	_indexBuffer.setIdxCount(_indices.size());
+	_vertexBuffer = VBuffer(device, _vertices, 0u);
+	_indexBuffer = IBuffer(device, _indices);
 
 	//this ABSOLUTELY needs to happen!
 	//vertices.clear();

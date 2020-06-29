@@ -45,8 +45,7 @@ public:
 	ID3D11Buffer* _cbPtr;
 	CBufferMeta _metaData;
 
-	CBuffer() {}
-	//cray utils to make the rest of the engine rid of the syntax scourge
+	CBuffer() : _cbPtr(nullptr) {}
 
 	inline static bool map(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, D3D11_MAPPED_SUBRESOURCE& mappedResource)
 	{
@@ -76,11 +75,14 @@ public:
 	static bool updateWholeBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, void* data, size_t size)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		
 		if (!map(cont, cbuffer, mappedResource))
 			return false;
 
 		memcpy(mappedResource.pData, data, size);
 		
 		unmap(cont, cbuffer);
+
+		return true;
 	}
 };

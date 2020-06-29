@@ -11,17 +11,26 @@ public:
 	ID3D11SamplerState* _dxSampler;
 
 
+	Sampler() : _dxSampler(nullptr) {}
 
-	inline static Sampler createSampler(ID3D11Device* device, const D3D11_SAMPLER_DESC& samplerDesc)
+
+
+	inline static Sampler createSampler(ID3D11Device* device, const D3D11_SAMPLER_DESC* samplerDesc)
 	{
 		Sampler result;
-		if (FAILED(device->CreateSamplerState(&samplerDesc, &result._dxSampler)))
+		setUp(device, samplerDesc, result._dxSampler);
+		return result;
+	}
+
+
+
+	inline static void setUp(ID3D11Device* device, const D3D11_SAMPLER_DESC* samplerDesc, ID3D11SamplerState*& samplerState)
+	{
+		if (FAILED(device->CreateSamplerState(samplerDesc, &samplerState)))
 		{
 			OutputDebugStringA("Failed to create sampler.");
 			exit(1001);
 		}
-
-		return result;
 	}
 
 

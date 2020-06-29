@@ -66,7 +66,6 @@ public:
 
 	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
 
-	bool createSamplerState(const D3D11_SAMPLER_DESC& samplerDesc, ID3D11SamplerState*& sampleState) const;
 	bool createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer) const;
 
 

@@ -2,6 +2,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 #include "Shader.h"
+#include "Sampler.h"
 #include <d3d11.h>
 
 
@@ -64,7 +65,7 @@ PixelShader::PixelShader(
 {
 	_type = SHADER_TYPE::PS;
 	shc.compilePS(path, _psPtr, &_refShMetaData);
-	shc.createSamplerState(samplerDesc, _sState);
+	Sampler::setUp(shc.getDevice(), &samplerDesc, _sState);
 }
 
 
