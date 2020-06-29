@@ -3,6 +3,7 @@
 
 #include "Shader.h"
 #include "Sampler.h"
+#include "CBuffer.h"
 #include <d3d11.h>
 
 
@@ -18,7 +19,7 @@ Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::v
 
 	for (int i = 0; i < descriptions.size(); ++i)
 	{
-		shc.createConstantBuffer(descriptions[i], _cbuffers[i]._cbPtr);
+		CBuffer::createConstantBuffer(shc.getDevice(), descriptions[i], _cbuffers[i]._cbPtr);
 	}
 }
 

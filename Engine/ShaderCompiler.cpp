@@ -181,17 +181,6 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& 
 
 
 
-bool ShaderCompiler::createConstantBuffer(const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer) const
-{
-	if (FAILED(_device->CreateBuffer(&desc, NULL, &buffer)))
-	{
-		MessageBoxA(*_hwnd, std::string(__FILE__).c_str(), "Failed to create constant buffer shader.", MB_OK);
-		return false;
-	}
-	return true;
-}
-
-
 void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename, const std::wstring& filePath) const
 {
 	if (!errorMessage)

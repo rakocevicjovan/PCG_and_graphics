@@ -45,7 +45,51 @@ public:
 	ID3D11Buffer* _cbPtr;
 	CBufferMeta _metaData;
 
+
 	CBuffer() : _cbPtr(nullptr) {}
+
+
+
+	CBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)
+	{
+		if (!createConstantBuffer(device, desc, _cbPtr))
+		{
+			OutputDebugStringA("Failed to create vertex buffer.");
+			exit(1001);
+		}
+	}
+
+
+
+	static inline bool createConstantBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
+	{
+		if (FAILED(device->CreateBuffer(&desc, NULL, &buffer)))
+			return false;
+
+		return true;
+	}
+
+
+
+	inline static D3D11_BUFFER_DESC createBufferDesc(
+		UINT byteWidth,
+		D3D11_USAGE usage = D3D11_USAGE_DYNAMIC,
+		D3D11_BIND_FLAG binding = D3D11_BIND_CONSTANT_BUFFER,
+		D3D11_CPU_ACCESS_FLAG cpuAccessFlag = D3D11_CPU_ACCESS_WRITE,
+		UINT miscFlag = 0u,
+		UINT stride = 0u)
+	{
+		D3D11_BUFFER_DESC cbDesc;
+		cbDesc.ByteWidth = byteWidth;
+		cbDesc.Usage = usage;
+		cbDesc.BindFlags = binding;
+		cbDesc.CPUAccessFlags = cpuAccessFlag;
+		cbDesc.MiscFlags = miscFlag;
+		cbDesc.StructureByteStride = stride;
+		return cbDesc;
+	}
+
+
 
 	inline static bool map(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, D3D11_MAPPED_SUBRESOURCE& mappedResource)
 	{
