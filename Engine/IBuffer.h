@@ -16,11 +16,26 @@ public:
 
 	IBuffer() : _ibPtr(nullptr), _count(0u) {}
 
+	IBuffer(const IBuffer& other) : _ibPtr(other._ibPtr)
+	{
+		if (_ibPtr)
+			_ibPtr->AddRef();
 
+		_count = other._count;
+	}
+
+	IBuffer& operator=(const IBuffer& other)
+	{
+		_ibPtr = other._ibPtr;
+		_ibPtr->AddRef();
+		_count = other._count;
+		return *this;
+	}
 
 	~IBuffer()
 	{
-		if (_ibPtr) _ibPtr->Release();
+		if (_ibPtr)
+			_ibPtr->Release();
 	}
 
 

@@ -85,18 +85,7 @@ public:
 		//might want to ZeroMemory(&texDesc, sizeof(texDesc)), D3D11_RESOURCE_MISC_FLAG enum for reference
 		return D3D11_TEXTURE2D_DESC{ w, h, mipLevels, arraySize, format, sdcq, usage, bindFlags, cpuAccessFlags, miscFlags };
 	}
-	
 
-	/* Don't want this here, it will be named free functions separately... oop schmoop
-	friend std::ofstream& operator<<(std::ofstream& out, const Texture& tex)
-	{
-		out.write(reinterpret_cast<const char*>(&tex.w), sizeof(tex.w));
-		out.write(reinterpret_cast<const char*>(&tex.h), sizeof(tex.h));
-		out.write(reinterpret_cast<const char*>(&tex.n), sizeof(tex.n));
-		out.write(reinterpret_cast<const char*>(&tex._mdata), sizeof(unsigned char) * tex.w * tex.h * tex.n);
-		return out;
-	}
-	*/
 
 
 protected:	//delegated procedural generation interface to friend class

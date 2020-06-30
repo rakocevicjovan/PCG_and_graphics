@@ -5,6 +5,7 @@
 #include <dxgi.h>
 #include <d3dcommon.h>
 #include <d3d11.h>
+#include "Viewport.h"
 #include "Math.h"
 
 class D3D
@@ -20,9 +21,6 @@ public:
 	void ClearColourDepthBuffers();
 	void EndScene();
 
-	ID3D11Device* GetDevice();
-	ID3D11DeviceContext* GetDeviceContext();
-
 	void GetVideoCardInfo(char*, int&);
 	ID3D11DepthStencilView* GetDepthStencilView();
 	void SetBackBufferRenderTarget();
@@ -37,6 +35,9 @@ public:
 	void setDSSNoTest();
 	void setDSSLessEquals();
 	void setDSSLess();
+
+	ID3D11Device* GetDevice();
+	ID3D11DeviceContext* GetDeviceContext();
 
 	ID3D11RenderTargetView* _renderTargetView;
 	D3D11_VIEWPORT _viewport;
@@ -54,21 +55,4 @@ private:
 	ID3D11DepthStencilView* _depthStencilView;
 	ID3D11RasterizerState* _r_s_solid_cull, *_r_s_solid_no_cull, *_r_s_wireframe;
 	ID3D11BlendState* _blendState, *_noBlendState;
-
-
-public:
-
-	inline static D3D11_VIEWPORT createViewport(float w, float h, float minD = 0.f, float maxD = 1.f, float tlX = 0.f, float tlY = 0.f)
-	{
-		D3D11_VIEWPORT viewport;
-
-		viewport.Width = w;
-		viewport.Height = h;
-		viewport.MinDepth = minD;
-		viewport.MaxDepth = maxD;
-		viewport.TopLeftX = tlX;
-		viewport.TopLeftY = tlY;
-
-		return viewport;
-	}
 };

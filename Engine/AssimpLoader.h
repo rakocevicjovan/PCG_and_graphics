@@ -27,7 +27,7 @@ private:
 
 	// Floor 
 	Procedural::Terrain terrain;
-	Mesh floorMesh;
+	std::unique_ptr<Mesh> floorMesh;
 	Renderable floorRenderable;
 	Actor terrainActor;
 
@@ -71,7 +71,7 @@ public:
 
 		D3D11_SAMPLER_DESC regularSD = Sampler::createSamplerDesc();
 
-		D3D11_BUFFER_DESC WMBufferDesc = ShaderCompiler::createBufferDesc(sizeof(WMBuffer));
+		D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createBufferDesc(sizeof(WMBuffer));
 		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
 		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
 
@@ -81,7 +81,7 @@ public:
 		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc });
 		saVS->describeBuffers({ WMBufferMeta });
 
-		D3D11_BUFFER_DESC lightBufferDesc = ShaderCompiler::createBufferDesc(sizeof(LightBuffer));
+		D3D11_BUFFER_DESC lightBufferDesc = CBuffer::createBufferDesc(sizeof(LightBuffer));
 		CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
 		lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
 
@@ -102,9 +102,9 @@ public:
 		terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 		terrain.CalculateTexCoords();
 		terrain.CalculateNormals();
-		floorMesh = Mesh(terrain, S_DEVICE);
-		floorMesh._baseMaterial.pLight = &_pointLight;
-		floorRenderable = Renderable(floorMesh);
+		floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
+		floorMesh->_baseMaterial.pLight = &_pointLight;
+		floorRenderable = Renderable(*floorMesh);
 		floorRenderable.mat->setVS(basicVS);
 		floorRenderable.mat->setPS(phong);
 		terrainActor.addRenderable(floorRenderable, 500);

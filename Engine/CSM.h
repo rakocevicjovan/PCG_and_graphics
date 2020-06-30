@@ -60,21 +60,21 @@ public:
 
 		// Initialize buffers used by the csm shader
 
-		auto lptBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix));
+		auto lptBufferDesc = CBuffer::createBufferDesc(sizeof(SMatrix));
 		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_lvpBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM light view projection matrix buffer. ");
 			return false;
 		}
 
-		auto wmBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix));
+		auto wmBufferDesc = CBuffer::createBufferDesc(sizeof(SMatrix));
 		if (FAILED(device->CreateBuffer(&wmBufferDesc, NULL, &_wmBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM world matrix buffer. ");
 			return false;
 		}
 
-		auto shadowBufferDesc = ShaderCompiler::createBufferDesc(sizeof(ShadowBufferData));
+		auto shadowBufferDesc = CBuffer::createBufferDesc(sizeof(ShadowBufferData));
 		if (FAILED(device->CreateBuffer(&shadowBufferDesc, NULL, &_shadowBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM shadow buffer. ");

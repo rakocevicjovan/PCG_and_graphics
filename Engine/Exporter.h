@@ -46,10 +46,10 @@ public:
 			// Settings
 			inTextStdString("Export path", _exportPath);
 
-			ImGui::Checkbox("Model", &doMod);
-			ImGui::Checkbox("Skeleton", &doSkel);
-			ImGui::Checkbox("Textures", &doTex);
-			ImGui::Checkbox("Animations", &doAnim);
+			ImGui::Checkbox("Model",		&doMod);
+			ImGui::Checkbox("Skeleton",		&doSkel);
+			ImGui::Checkbox("Textures",		&doTex);
+			ImGui::Checkbox("Animations",	&doAnim);
 
 			// Controls
 			if (ImGui::Button("Close"))

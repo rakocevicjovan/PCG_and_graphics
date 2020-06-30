@@ -18,11 +18,28 @@ public:
 
 	VBuffer() : _vbPtr(nullptr), _stride(0u), _offset(0u) {}
 
+	VBuffer(const VBuffer& other) : _vbPtr(other._vbPtr)
+	{
+		if (_vbPtr)
+			_vbPtr->AddRef();
 
+		_stride = other._stride;
+		_offset = other._offset;
+	}
+
+	VBuffer& operator=(const VBuffer& other)
+	{
+		_vbPtr = other._vbPtr;
+		_vbPtr->AddRef();
+		_stride = other._stride;
+		_offset = other._offset;
+		return *this;
+	}
 
 	~VBuffer()
 	{
-		if (_vbPtr) _vbPtr->Release();
+		if (_vbPtr)
+			_vbPtr->Release();
 	}
 
 

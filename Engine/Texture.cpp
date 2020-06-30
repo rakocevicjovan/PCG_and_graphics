@@ -65,12 +65,9 @@ Texture::Texture(Texture&& other)
 	_fileName(std::move(other._fileName)), _role(other._role), 
 	_dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
-	//other._data.reset();	// Shouldn't even be necessary I guess?
-
 	// do not add refs because it's moved as opposed to copied
 	// Damage control :\ I'm not sure if this is well implemented so I need to know when I start using it
 	assert(false);	
-	
 }
 
 

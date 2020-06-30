@@ -120,10 +120,7 @@ Mesh::Mesh(const Hull* hull, ID3D11Device* device)
 
 Mesh::~Mesh()
 {
-	std::cout << "MESH DESTRUCT CALLED" << std::endl;
-
-	//_vertexBuffer->Release();
-	//_indexBuffer->Release();
+	OutputDebugStringA("MESH DESTRUCT CALLED");
 }
 
 

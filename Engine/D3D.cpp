@@ -25,12 +25,11 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
 	IDXGIOutput* adapterOutput;
-	unsigned int numModes, i, numerator, denominator;
+	unsigned int numModes, numerator, denominator;
 	size_t stringLength;
 	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11Texture2D* backBufferPtr;
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
@@ -74,7 +73,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for(i=0; i<numModes; i++){
+	for(int i = 0; i < numModes; i++){
 		if(displayModeList[i].Width == (unsigned int)windowWidth)
 		{
 			if(displayModeList[i].Height == (unsigned int)windowHeight)
@@ -115,7 +114,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	factory = 0;
 
 	// Initialize the swap chain description.
-    ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
     swapChainDesc.BufferCount = 1;	// Double buffered
     swapChainDesc.BufferDesc.Width = windowWidth;
     swapChainDesc.BufferDesc.Height = windowHeight;
@@ -285,11 +284,9 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(result))
 		return false;
 	
-	// Setup the viewport for rendering.
-	_viewport = createViewport((float)windowWidth, (float)windowHeight);
+	_viewport = Viewport::createViewport((float)windowWidth, (float)windowHeight);
 
-	// Create the viewport.
-    _deviceContext->RSSetViewports(1, &_viewport);
+	_deviceContext->RSSetViewports(1, &_viewport);
 
     return true;
 }
@@ -364,24 +361,24 @@ void D3D::EndScene(){
 }
 
 
-ID3D11Device* D3D::GetDevice(){
-	return _device;
-}
+ID3D11Device* D3D::GetDevice(){ return _device; }
 
 
-ID3D11DeviceContext* D3D::GetDeviceContext(){
-	return _deviceContext;
-}
+ID3D11DeviceContext* D3D::GetDeviceContext(){ return _deviceContext; }
 
-void D3D::GetVideoCardInfo(char* cardName, int& memory){
+
+void D3D::GetVideoCardInfo(char* cardName, int& memory)
+{
 	strcpy_s(cardName, 128, _videoCardDescription);
 	memory = _videoCardMemory;
 }
+
 
 ID3D11DepthStencilView* D3D::GetDepthStencilView()
 {
 	return _depthStencilView;
 }
+
 
 void D3D::SetBackBufferRenderTarget()
 {
@@ -389,6 +386,7 @@ void D3D::SetBackBufferRenderTarget()
 	_deviceContext->OMSetRenderTargets(1, &_renderTargetView, _depthStencilView);
 	ClearColourDepthBuffers();
 }
+
 
 void D3D::D3D::TurnOnAlphaBlending()
 {
@@ -405,15 +403,18 @@ void D3D::D3D::TurnOffAlphaBlending()
 	_deviceContext->OMSetBlendState(_noBlendState, blendFactor, 0xffffffff);
 }
 
+
 void D3D::setRSSolidCull()
 {
 	_deviceContext->RSSetState(_r_s_solid_cull);
 }
 
+
 void D3D::setRSSolidNoCull()
 {
 	_deviceContext->RSSetState(_r_s_solid_no_cull);
 }
+
 
 void D3D::setRSWireframe()
 {
@@ -425,10 +426,12 @@ void D3D::setDSSNoTest()
 	_deviceContext->OMSetDepthStencilState(_depthStencilNoDepthTest, 1);
 }
 
+
 void D3D::setDSSLessEquals()
 {
 	_deviceContext->OMSetDepthStencilState(_depthStencilLessEquals, 1);
 }
+
 
 void D3D::setDSSLess(){
 	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 1);

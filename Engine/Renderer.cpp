@@ -34,7 +34,7 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 
 bool Renderer::createGlobalBuffers()
 {
-	D3D11_BUFFER_DESC perCamBufferDesc = ShaderCompiler::createBufferDesc(sizeof(VSPerCameraBuffer));
+	D3D11_BUFFER_DESC perCamBufferDesc = CBuffer::createBufferDesc(sizeof(VSPerCameraBuffer));
 	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_VSperCamBuffer)))
 		return false;
 
@@ -45,13 +45,13 @@ bool Renderer::createGlobalBuffers()
 	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &_VSperCamBuffer);
 
 
-	D3D11_BUFFER_DESC perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(VSPerFrameBuffer));
+	D3D11_BUFFER_DESC perFrameBufferDesc = CBuffer::createBufferDesc(sizeof(VSPerFrameBuffer));
 	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &_VSperFrameBuffer)))
 		return false;
 	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &_VSperFrameBuffer);
 
 
-	D3D11_BUFFER_DESC PS_perFrameBufferDesc = ShaderCompiler::createBufferDesc(sizeof(PSPerFrameBuffer));
+	D3D11_BUFFER_DESC PS_perFrameBufferDesc = CBuffer::createBufferDesc(sizeof(PSPerFrameBuffer));
 	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &_PSperFrameBuffer)))
 		return false;
 	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &_PSperFrameBuffer);

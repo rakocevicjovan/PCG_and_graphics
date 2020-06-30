@@ -607,6 +607,7 @@
     <ClInclude Include="ToolGUI.h" />
     <ClInclude Include="Tower.h" />
     <ClInclude Include="VBuffer.h" />
+    <ClInclude Include="Viewport.h" />
     <ClInclude Include="VitThreadPool.h" />
     <ClInclude Include="Volumetric.h" />
     <ClInclude Include="VolumetricScreen.h">

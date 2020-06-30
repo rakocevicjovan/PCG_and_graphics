@@ -97,7 +97,7 @@ void OST::init(ID3D11Device* device, unsigned int w, unsigned int h, DXGI_FORMAT
 
 
 	// Fill out the viewport data for this texture
-	ostViewport = D3D::createViewport((float)_w, (float)_h);
+	ostViewport = Viewport::createViewport((float)_w, (float)_h);
 }
 
 

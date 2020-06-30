@@ -138,10 +138,10 @@
     <Filter Include="Resources\SkelAnim">
       <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\ApiWrapper">
+    <Filter Include="Rendering\Low level">
       <UniqueIdentifier>{1da54352-487a-441b-a470-eaacbf7447e3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\ApiWrapper\Buffers">
+    <Filter Include="Rendering\Low level\Buffers">
       <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -773,13 +773,13 @@
       <Filter>Rendering\AAA Improved</Filter>
     </ClInclude>
     <ClInclude Include="CBuffer.h">
-      <Filter>Rendering\ApiWrapper\Buffers</Filter>
+      <Filter>Rendering\Low level\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="IBuffer.h">
-      <Filter>Rendering\ApiWrapper\Buffers</Filter>
+      <Filter>Rendering\Low level\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="VBuffer.h">
-      <Filter>Rendering\ApiWrapper\Buffers</Filter>
+      <Filter>Rendering\Low level\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="OST.h">
       <Filter>Rendering\AAA Improved</Filter>
@@ -833,7 +833,7 @@
       <Filter>Rendering\AAA Improved\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="SBuffer.h">
-      <Filter>Rendering\ApiWrapper\Buffers</Filter>
+      <Filter>Rendering\Low level\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="ClusterManager.h">
       <Filter>Rendering\AAA Improved\Lights</Filter>
@@ -923,7 +923,10 @@
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Sampler.h">
-      <Filter>Rendering\ApiWrapper</Filter>
+      <Filter>Rendering\Low level</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewport.h">
+      <Filter>Rendering\Low level</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
