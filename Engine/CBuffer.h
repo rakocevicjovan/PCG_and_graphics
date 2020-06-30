@@ -48,6 +48,28 @@ public:
 
 	CBuffer() : _cbPtr(nullptr) {}
 
+	CBuffer(const CBuffer& other) : _cbPtr(other._cbPtr)
+	{
+		if (_cbPtr)
+			_cbPtr->AddRef();
+
+		_metaData = other._metaData;
+	}
+
+	CBuffer& operator=(const CBuffer& other)
+	{
+		_cbPtr = other._cbPtr;
+		_cbPtr->AddRef();
+		_metaData = other._metaData;
+		return *this;
+	}
+
+	~CBuffer()
+	{
+		if (_cbPtr)
+			_cbPtr->Release();
+	}
+
 
 
 	CBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)

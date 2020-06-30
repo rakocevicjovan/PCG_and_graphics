@@ -50,7 +50,6 @@ Texture::Texture(const Texture& other)
 	_fileName(other._fileName), _role(other._role), 
 	_dxID(other._dxID), _srv(other._srv)
 {
-
 	if(_dxID)
 		_dxID->AddRef();
 
@@ -74,21 +73,17 @@ Texture::Texture(Texture&& other)
 
 Texture& Texture::operator=(const Texture& other)
 {
-	if (this != &other)
-	{
-		w = other.w;
-		h = other.h;
-		n = other.n;
+	w = other.w;
+	h = other.h;
+	n = other.n;
 
-		_mdata = other._mdata;
+	_mdata = other._mdata;
 
-		_fileName = other._fileName;
-		_role = other._role;
+	_fileName = other._fileName;
+	_role = other._role;
 
-		_dxID->AddRef();
-		_srv->AddRef();
-
-	}
+	_dxID->AddRef();
+	_srv->AddRef();
 
 	return *this;
 }
@@ -97,7 +92,8 @@ Texture& Texture::operator=(const Texture& other)
 
 Texture::~Texture()
 {
-	if(_dxID)
+	
+	if (_dxID)
 		_dxID->Release();
 
 	if(_srv)
