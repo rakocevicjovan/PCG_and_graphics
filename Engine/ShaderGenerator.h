@@ -1,5 +1,6 @@
 #pragma once
 #include "ShaderCompiler.h"
+#include "FileUtilities.h"
 #include <algorithm>
 #include <set>
 
@@ -42,6 +43,7 @@
 	Process:
 		- lighting method (Lambert, Phong, Blinn-Phong, Cook-Torrance, none...) - 4 bits should be ok... I guess?
 		- lights - number, types... (this could get out of hand even with an 4/8 light max...)
+		!!! GUESS WHO GOT CLUSTERED SHADING, ABOVE IS SOLVED
 		- Shadow maps - how many, if any
 		- Diffuse - color or texture
 		- Specular - specular power, specular texture, shininess texture
@@ -53,11 +55,12 @@
 */
 
 
-//will be used to create permutations based on nr of lights, inputs etc... additive approach planned
+
 class ShaderGenerator
 {
 
-	//kinda blows to initialize tbh... although it is better for performance but this is an offline tool who cares
+	// Kinda blows to initialize tbh... although it is better for performance
+	// But this is an offline tool who cares? Seems I do
 	struct OptionSet
 	{
 		std::vector<D3D_SHADER_MACRO> _macros;
@@ -101,14 +104,13 @@ public:
 	}
 
 
-	// @TODO handle duplications by keeping a set of inserted bit masks
-	// simply store variable "total" in there and check if exists before creating
-	// currently this sorta takes care of itself because files rewrite but it is doing unnecessary work
+
 	bool mix()
 	{
 		std::string filePath = "ShGen\\genVS.hlsl";
 		std::wstring filePathW = L"ShGen\\genVS.hlsl";	//microsoft pls...
 
+		HRESULT res;
 		ID3DBlob* textBuffer = nullptr;
 		ID3DBlob* preprocessedBuffer = nullptr;
 		ID3DBlob* errorMessage = nullptr;
@@ -122,16 +124,21 @@ public:
 		std::vector<D3D_SHADER_MACRO> permOptions;
 		permOptions.reserve(optionCount);
 
-		for (uint64_t i = 0; i < (1 << (optionCount) ); ++i)	//0 - 255, or rather 00000000 to 11111111 loop
+		for (uint64_t i = 0; i < ( 1 << (optionCount) ); ++i)	//0 - 255, or rather 00000000 to 11111111 loop
 		{
-			uint64_t total = 0u;
+			uint64_t total = 0;
 			std::string permOptDebugString;
 
+			// Iterate through all options and add macros of those that are in this permutation to
+			// the list of the macros passed to the shader compiler
 			for (int j = 0; j < optionCount; ++j)
 			{
-				uint64_t andResult = optionSet._bitmasks[j] & i;
+				uint64_t currentOptionBitmask = optionSet._bitmasks[j];
+				uint64_t andResult = currentOptionBitmask & i;
 				total += andResult;
-				if (andResult == optionSet._bitmasks[j])
+
+				// If current option fits the bitmask, add it in
+				if (andResult == currentOptionBitmask)
 				{
 					permOptions.push_back(optionSet._macros[j]);
 					permOptDebugString += optionSet._macros[j].Name;
@@ -139,35 +146,44 @@ public:
 				}
 			}
 
+			// I barely remember how this works but it should eliminate doubles?
 			if (_existing.count(total))
 			{
 				permOptions.clear();
-				continue;	//skips unnecessary work, as this shader was already created
+				continue;
 			}
 			_existing.insert(total);
 
-			permOptions.push_back({ NULL, NULL });
-
-			HRESULT res;
+			permOptions.push_back({ NULL, NULL });	// Required by d3d api
 
 			res = D3DReadFileToBlob(filePathW.c_str(), &textBuffer);
 			res = D3DPreprocess(textBuffer->GetBufferPointer(), textBuffer->GetBufferSize(), filePath.c_str(),
 				permOptions.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, &preprocessedBuffer, &errorMessage);
-
-			std::ofstream fout;
-			std::wstring finalFileName = L"ShGen\\GeneratedVS\\vs_" + std::to_wstring(total) + L".hlsl";
 			
-			fout.open(finalFileName);
+			std::string finalFileName = "ShGen\\GeneratedVS\\vs_" + std::to_string(total) + ".hlsl";
+			
+			FileUtils::writeAllBytes(finalFileName.c_str(),
+				preprocessedBuffer->GetBufferPointer(),
+				preprocessedBuffer->GetBufferSize());
+			
+			/* Didn't test whether the above works, keep this until then
+			std::ofstream fout(finalFileName);
 			for (ULONG j = 0; j < preprocessedBuffer->GetBufferSize(); ++j)
 				fout << ((char*)(preprocessedBuffer->GetBufferPointer()))[j];
-
 			fout.close();
+			*/
 
 			preprocessedBuffer->Release();
 			preprocessedBuffer = nullptr;
 
+			textBuffer->Release();
+			textBuffer = nullptr;
+
+			errorMessage->Release();
+			errorMessage = nullptr;
+
 			permOptDebugString += "\n";
-			OutputDebugStringA(permOptDebugString.c_str());
+			OutputDebugStringA(permOptDebugString.c_str());	
 		}
 
 		return true;
@@ -192,7 +208,7 @@ struct ShaderOptions
 
 	
 
-	// PS keys
+	// PS keys - This changes a lot with clustered shading in place, review!
 	UINT p_p_lightModel : 4;	//16 possible lighting models, should be plenty
 	UINT p_p_nrLights	: 3;	//up to 8 lights, if light model is none it means none will be used
 	UINT p_p_lightTypes : 3;	//directional, point, spot, area, volume, ambient... and what?

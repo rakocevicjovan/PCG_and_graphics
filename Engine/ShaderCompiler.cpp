@@ -189,17 +189,9 @@ void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shad
 		return;
 	}
 
-	char* compileErrors;
-	unsigned long bufferSize, i;
-	std::ofstream fout;
-
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
-	bufferSize = errorMessage->GetBufferSize();
-	fout.open("shader-error.txt");
-	for (i = 0; i < bufferSize; i++)
-		fout << compileErrors[i];
-
-	fout.close();
+	FileUtils::writeAllBytes("shader-error.txt",
+		errorMessage->GetBufferPointer(),
+		errorMessage->GetBufferSize());
 
 	errorMessage->Release();
 	errorMessage = nullptr;

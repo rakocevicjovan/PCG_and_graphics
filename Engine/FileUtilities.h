@@ -29,16 +29,6 @@ namespace FileUtils
 
 
 
-	static void writeToFile(const std::string& fileName, void* data, size_t size)
-	{
-		std::ofstream fout;
-		fout.open(fileName, std::ios::binary | std::ios::out);
-		fout.write(reinterpret_cast<char*>(data), size);
-		fout.close();
-	}
-
-
-
 	static void printDirContents(const std::string& path)
 	{
 		for (const auto& entry : std::filesystem::directory_iterator(path))
@@ -96,9 +86,9 @@ namespace FileUtils
 
 
 
-	static void writeAllBytes(char const* filename, const void* content, const size_t size)
+	static void writeAllBytes(char const* filename, const void* content, const size_t size, int flags = std::ios::out | std::ios::binary)
 	{
-		std::ofstream writer(filename, std::ios::out | std::ios::binary);
+		std::ofstream writer(filename, flags);
 		writer.write(static_cast<const char*>(content), size);
 	}
 }
