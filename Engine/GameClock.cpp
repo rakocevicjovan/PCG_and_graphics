@@ -4,12 +4,12 @@
 
 
 GameClock::GameClock()
-	: mSecondsPerCount(0.0), mDeltaTime(-1.0), mBaseTime(0),
-	mPausedTime(0), mPrevTime(0), mCurrTime(0), mStopped(false)
+	: _secondsPerCount(0.0), _deltaTime(-1.0), _baseTime(0),
+	_pausedAt(0), _prevTime(0), _currTime(0), _isStopped(false)
 {
 	__int64 countsPerSec;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
-	mSecondsPerCount = 1.0 / (double)countsPerSec;
+	_secondsPerCount = 1.0 / (double)countsPerSec;
 }
 
 
@@ -27,9 +27,9 @@ float GameClock::TotalTime()const
 	// ----*---------------*-----------------*------------*------------*------> time
 	//  mBaseTime       mStopTime        startTime     mStopTime    mCurrTime
 
-	if (mStopped)
+	if (_isStopped)
 	{
-		return (float)(((mStopTime - mPausedTime) - mBaseTime)*mSecondsPerCount);
+		return (float)(((_stoppedAt - _pausedAt) - _baseTime)*_secondsPerCount);
 	}
 
 	// The distance mCurrTime - mBaseTime includes paused time,
@@ -44,7 +44,7 @@ float GameClock::TotalTime()const
 
 	else
 	{
-		return (float)(((mCurrTime - mPausedTime) - mBaseTime)*mSecondsPerCount);
+		return (float)(((_currTime - _pausedAt) - _baseTime)*_secondsPerCount);
 	}
 }
 
@@ -52,7 +52,7 @@ float GameClock::TotalTime()const
 
 float GameClock::DeltaTime()const
 {
-	return (float)mDeltaTime;
+	return (float)_deltaTime;
 }
 
 
@@ -62,10 +62,10 @@ void GameClock::Reset()
 	__int64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
 
-	mBaseTime = currTime;
-	mPrevTime = currTime;
-	mStopTime = 0;
-	mStopped = false;
+	_baseTime = currTime;
+	_prevTime = currTime;
+	_stoppedAt = 0;
+	_isStopped = false;
 }
 
 
@@ -82,13 +82,13 @@ void GameClock::Start()
 	// ----*---------------*-----------------*------------> time
 	//  mBaseTime       mStopTime        startTime     
 
-	if (mStopped)
+	if (_isStopped)
 	{
-		mPausedTime += (startTime - mStopTime);
+		_pausedAt += (startTime - _stoppedAt);
 
-		mPrevTime = startTime;
-		mStopTime = 0;
-		mStopped = false;
+		_prevTime = startTime;
+		_stoppedAt = 0;
+		_isStopped = false;
 	}
 }
 
@@ -96,13 +96,13 @@ void GameClock::Start()
 
 void GameClock::Stop()
 {
-	if (!mStopped)
+	if (!_isStopped)
 	{
 		__int64 currTime;
 		QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
 
-		mStopTime = currTime;
-		mStopped = true;
+		_stoppedAt = currTime;
+		_isStopped = true;
 	}
 }
 
@@ -110,27 +110,25 @@ void GameClock::Stop()
 
 void GameClock::Tick()
 {
-	if (mStopped)
+	if (_isStopped)
 	{
-		mDeltaTime = 0.0;
+		_deltaTime = 0.0;
 		return;
 	}
 
 	__int64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-	mCurrTime = currTime;
+	_currTime = currTime;
 
 	// Time difference between this frame and the previous.
-	mDeltaTime = (mCurrTime - mPrevTime)*mSecondsPerCount;
+	_deltaTime = (_currTime - _prevTime) * _secondsPerCount;
 
 	// Prepare for next frame.
-	mPrevTime = mCurrTime;
+	_prevTime = _currTime;
 
 	// Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the 
 	// processor goes into a power save mode or we get shuffled to another
 	// processor, then mDeltaTime can be negative.
-	if (mDeltaTime < 0.0)
-	{
-		mDeltaTime = 0.0;
-	}
+	if (_deltaTime < 0.0)
+		_deltaTime = 0.0;
 }

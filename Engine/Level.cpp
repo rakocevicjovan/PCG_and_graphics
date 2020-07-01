@@ -1,59 +1,10 @@
 #include "Level.h"
-#include "Controller.h"
-#include "InputManager.h"
-#include <d3d11.h>
 
 
 
 Level::Level(Systems& sys) : _sys(sys) {}
 
 
-
-void Level::ProcessSpecialInput(float dTime)
-{
-	if (_sys._inputManager.isKeyDown(VK_SPACE))
-	{
-		procGen();
-	}
-}
-
-
-#pragma region OldLevel
-/*OLD LEVEL
-
-//Math::Scale(modBall.transform, SVec3(36.f));
-//Math::Translate(modBall.transform, modBallStand.transform.Translation() + SVec3(0.0f, 42.0f, 0.0f));
-
-modTerrain.LoadModel(_device, "../Models/Terrain/NewTerTex.fbx", 50, 50);
-Math::Scale(modTerrain.transform, SVec3(2.f));
-_terrainModels.push_back(&modTerrain);
-
-modTreehouse.LoadModel(_device, "../Models/Terrain/Treehouse/thouse(formats).fbx");
-Math::SetTranslation(modTreehouse.transform, SVec3(0.0f, -50.f, -100.f));
-SMatrix treehouseRotation = SMatrix::CreateFromAxisAngle(SVec3::Up, 30.f);
-Math::SetRotation(modTreehouse.transform, treehouseRotation);
-_terrainModels.push_back(&modTreehouse);
-
-modBallStand.LoadModel(_device, "../Models/ballstand.fbx");
-SMatrix modBallStandRotation = SMatrix::CreateFromAxisAngle(SVec3::Right, PI * 0.5f);
-Math::SetRotation(modBallStand.transform, modBallStandRotation);
-Math::Scale(modBallStand.transform, SVec3(10.f));
-Math::Translate(modBallStand.transform, SVec3(300.0f, -35.0f, -295.0f));
-
-modDepths.LoadModel(_device, "../Models/WaterQuad.fbx");
-Math::Scale(modDepths.transform, SVec3(120.0f));
-Math::Translate(modDepths.transform, SVec3(0.0f, -50.0f, 0.0f));
-
-white.LoadFromFile("../Textures/noiz.png");
-white.Setup(device);
-perlinTex.LoadFromFile("../Textures/strife.png");
-perlinTex.Setup(device);
-worley.LoadFromFile("../Textures/worley.png");
-worley.Setup(device);
-
-*/
-
-#pragma endregion OldLevel
 
 #pragma region Audio
 /*
@@ -83,46 +34,11 @@ for (char lsn : lSystemNotes)
 
 audio.init();
 audio.storeSequence(notes);
-
-	///RENDERING WATER
-	water.SetShaderParameters(deviceContext, modDepths, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
-		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.baseSrv);
-	modDepths.Draw(deviceContext, water);
-	water.ReleaseShaderParameters(deviceContext);
-
-
-	///RENDERING CLOUD
-	strife.SetShaderParameters(deviceContext, modStrife, rc.cam->GetViewMatrix(), rc.cam->GetProjectionMatrix(),
-		dirLight, rc.cam->GetCameraMatrix().Translation(), dTime, white.baseSrv, perlinTex.baseSrv, worley.baseSrv, offScreenTexture._view);
-	modStrife.Draw(deviceContext, strife);
-	strife.ReleaseShaderParameters(deviceContext);
-
-	///RENDERING UI
-	//postProcessor->draw(deviceContext, HUD, offScreenTexture.baseSrv);
 */
 #pragma endregion Audio
 
-#pragma region shadowMatrix
 
-/*
-SVec3 lookAtPoint = SVec3(0.f, 100.0f, 0.0f);
-SVec3 LVDIR = lookAtPoint - SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z);
-LVDIR.Normalize();
-SVec3 LVR = LVDIR.Cross(SVec3::Up);
-LVR.Normalize();
-SVec3 LVUP = LVR.Cross(LVDIR);
-LVUP.Normalize();
-
-dirLight = DirectionalLight(lightData, SVec4(LVDIR.x, LVDIR.y, LVDIR.z, 0.0f));
-
-offScreenTexture.Init(device, ostW, ostH);
-offScreenTexture._view = DirectX::XMMatrixLookAtLH(SVec3(pointLight.pos.x, pointLight.pos.y, pointLight.pos.z), lookAtPoint, LVUP);
-offScreenTexture._lens = DirectX::XMMatrixOrthographicLH((float)ostW, (float)ostH, 1.0f, 1000.0f);
-*/
-
-#pragma endregion shadowMatrix
-
-#pragma region Diamond square testing
+#pragma region ProceduralTesting
 /*
 //proceduralTerrain.GenWithDS(SVec4(0.f, 10.f, 20.f, 30.f), 4u, 0.6f, 10.f);
 

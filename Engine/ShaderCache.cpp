@@ -90,11 +90,11 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	// Constant buffer descriptions, although it can be reflected
 
-	D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createBufferDesc(sizeof(WMBuffer));
+	D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(WMBuffer));
 	CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
 	WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
 
-	D3D11_BUFFER_DESC lightBufferDesc = CBuffer::createBufferDesc(sizeof(LightBuffer));
+	D3D11_BUFFER_DESC lightBufferDesc = CBuffer::createDesc(sizeof(LightBuffer));
 	CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
 	lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
 

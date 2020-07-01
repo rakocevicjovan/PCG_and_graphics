@@ -19,7 +19,7 @@ Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::v
 
 	for (int i = 0; i < descriptions.size(); ++i)
 	{
-		CBuffer::createConstantBuffer(shc.getDevice(), descriptions[i], _cbuffers[i]._cbPtr);
+		CBuffer::createBuffer(shc.getDevice(), descriptions[i], _cbuffers[i]._cbPtr);
 	}
 }
 

@@ -25,7 +25,7 @@ public:
 
 		UINT numBones = 144;
 
-		D3D11_BUFFER_DESC desc = CBuffer::createBufferDesc(sizeof(SMatrix) * numBones);
+		D3D11_BUFFER_DESC desc = CBuffer::createDesc(sizeof(SMatrix) * numBones);
 
 		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skMatsBuffer._cbPtr)))
 			return false;

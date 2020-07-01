@@ -240,13 +240,11 @@ LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2
 	xyi *= 0.5f;	//0, 2 to 0, 1
 	xyi *= SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);	//0, 1 to 0, maxX/Y
 
-
 	//uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, gDims[2]);
 	//uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, gDims[2]);
 
 	uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
 	uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
-
 
 	return
 	{

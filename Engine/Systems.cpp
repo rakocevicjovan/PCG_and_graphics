@@ -10,6 +10,7 @@ Systems::~Systems(){}
 
 bool Systems::Initialize()
 {
+	// Testing grounds...
 
 	//FBXLoader loader;
 	//loader.init();
@@ -17,7 +18,7 @@ bool Systems::Initialize()
 
 	InitializeWindows(screenWidth, screenHeight);
 
-	if (!_D3D.Initialize(windowWidth, windowHeight, false, _hwnd, FULL_SCREEN))
+	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _hwnd, FULL_SCREEN))
 	{
 		MessageBox(_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
@@ -34,7 +35,7 @@ bool Systems::Initialize()
 	_defController = Controller(&_inputManager);
 	_inputManager.registerController(&_defController);
 
-	if (!_renderer.initialize(windowWidth, windowHeight, _D3D))
+	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
 		_renderer._cam._controller = &_defController;
 		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
@@ -71,15 +72,13 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 {
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
-	int posX, posY;
+	int _posX, _posY;
 
 	ApplicationHandle = this;	// Get an external pointer to this object.	
 
-	// Get the instance of this application.
-	_hinstance = GetModuleHandle(NULL);
+	_hinstance = GetModuleHandle(NULL);	// Get the instance of this application.
 
-	// Give the application a name.
-	_applicationName = L"Aeolian";
+	_applicationName = L"Aeolian";	// Give the application a name.
 
 	// Setup the windows class with default settings.
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -116,25 +115,22 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 		// Change the display settings to full screen.
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 
-		windowWidth = screenWidth;
-		windowHeight = screenHeight;
+		_windowWidth = screenWidth;
+		_windowHeight = screenHeight;
 
 		// Set the position of the window to the top left corner.
-		posX = posY = 0;
+		_posX = _posY = 0;
 	}
 	else
 	{
-		//windowWidth = 1600;
-		//windowHeight = 900;
-
-		posX = (GetSystemMetrics(SM_CXSCREEN) - windowWidth) / 2;
-		posY = (GetSystemMetrics(SM_CYSCREEN) - windowHeight) / 2;
+		_posX = (GetSystemMetrics(SM_CXSCREEN) - _windowWidth) / 2;
+		_posY = (GetSystemMetrics(SM_CYSCREEN) - _windowHeight) / 2;
 	}
 
 	// Create the window with the screen settings and get the handle to it.
 	_hwnd = CreateWindowEx(WS_EX_APPWINDOW, _applicationName, _applicationName,
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-		posX, posY, windowWidth, windowHeight, NULL, NULL, _hinstance, NULL);
+		_posX, _posY, _windowWidth, _windowHeight, NULL, NULL, _hinstance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(_hwnd, SW_SHOW);
@@ -151,13 +147,11 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 
 void Systems::Run()
 {
-	MSG msg;
+	_clock.Reset();
+
+	MSG msg = {};
 	bool done = false;
 
-	_clock.Reset();
-	// Initialize the message structure.
-	ZeroMemory(&msg, sizeof(MSG));
-	
 	// Loop until there is a quit message from the window or the user.
 	while(!done)
 	{

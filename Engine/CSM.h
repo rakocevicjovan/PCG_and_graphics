@@ -16,7 +16,7 @@ struct ShadowBufferData
 class CSM
 {
 	uint8_t _nMaps;
-	UINT _width, _height;
+	uint16_t _width, _height;
 	
 	ID3D11Texture2D* _shadowMapArray;
 	std::vector<ID3D11DepthStencilView*> _dsvPtrs;
@@ -42,7 +42,7 @@ class CSM
 
 public:
 
-	bool init(ID3D11Device* device, uint8_t nMaps, UINT width, UINT height, VertexShader* vs)
+	bool init(ID3D11Device* device, uint8_t nMaps, uint16_t width, uint16_t height, VertexShader* vs)
 	{
 		_vs = vs;
 
@@ -60,21 +60,21 @@ public:
 
 		// Initialize buffers used by the csm shader
 
-		auto lptBufferDesc = CBuffer::createBufferDesc(sizeof(SMatrix));
+		auto lptBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
 		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_lvpBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM light view projection matrix buffer. ");
 			return false;
 		}
 
-		auto wmBufferDesc = CBuffer::createBufferDesc(sizeof(SMatrix));
+		auto wmBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
 		if (FAILED(device->CreateBuffer(&wmBufferDesc, NULL, &_wmBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM world matrix buffer. ");
 			return false;
 		}
 
-		auto shadowBufferDesc = CBuffer::createBufferDesc(sizeof(ShadowBufferData));
+		auto shadowBufferDesc = CBuffer::createDesc(sizeof(ShadowBufferData));
 		if (FAILED(device->CreateBuffer(&shadowBufferDesc, NULL, &_shadowBuffer)))
 		{
 			OutputDebugStringA("Failed to create CSM shadow buffer. ");

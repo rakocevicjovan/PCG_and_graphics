@@ -36,7 +36,7 @@ private:
 	POINT _midWindow;
 
 	int screenWidth, screenHeight;
-	int windowWidth = 1920, windowHeight = 1080;
+	int _windowWidth = 1920, _windowHeight = 1080;
 
 public:
 	Systems();
@@ -71,8 +71,8 @@ public:
 
 	inline UINT getScrW() const { return screenWidth;  }
 	inline UINT getScrH() const { return screenHeight; }
-	inline UINT getWinW() const { return windowWidth;  }
-	inline UINT getWinH() const { return windowHeight; }
+	inline UINT getWinW() const { return _windowWidth;  }
+	inline UINT getWinH() const { return _windowHeight; }
 
 	inline const HWND* getHWND() const { return &_hwnd; }
 };

@@ -34,26 +34,16 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 
 bool Renderer::createGlobalBuffers()
 {
-	D3D11_BUFFER_DESC perCamBufferDesc = CBuffer::createBufferDesc(sizeof(VSPerCameraBuffer));
-	if (FAILED(_device->CreateBuffer(&perCamBufferDesc, NULL, &_VSperCamBuffer)))
-		return false;
-
+	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(VSPerCameraBuffer)), _VSperCamBuffer);
 	SMatrix pT = _cam.GetProjectionMatrix().Transpose();
-
 	CBuffer::updateWholeBuffer(_deviceContext, _VSperCamBuffer, &pT, sizeof(VSPerCameraBuffer));
-
 	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &_VSperCamBuffer);
 
 
-	D3D11_BUFFER_DESC perFrameBufferDesc = CBuffer::createBufferDesc(sizeof(VSPerFrameBuffer));
-	if (FAILED(_device->CreateBuffer(&perFrameBufferDesc, NULL, &_VSperFrameBuffer)))
-		return false;
+	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(VSPerFrameBuffer)), _VSperFrameBuffer);
 	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &_VSperFrameBuffer);
 
-
-	D3D11_BUFFER_DESC PS_perFrameBufferDesc = CBuffer::createBufferDesc(sizeof(PSPerFrameBuffer));
-	if (FAILED(_device->CreateBuffer(&PS_perFrameBufferDesc, NULL, &_PSperFrameBuffer)))
-		return false;
+	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(PSPerFrameBuffer)), _PSperFrameBuffer);
 	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &_PSperFrameBuffer);
 
 	return true;
@@ -75,30 +65,12 @@ bool Renderer::frame(float dTime)
 
 
 bool Renderer::updatePerFrameBuffers(float dTime)
-{
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	
-	VSPerFrameBuffer* vsFrameBufferPtr;
-	SMatrix vT = _cam.GetViewMatrix().Transpose();
-	SVec4 eyePos = Math::fromVec3(_cam.GetPosition(), 1.);
+{	
+	CBuffer::updateWithStruct(_deviceContext, _VSperFrameBuffer, 
+		VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed});
 
-	if (FAILED(_deviceContext->Map(_VSperFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-		return false;
-	vsFrameBufferPtr = reinterpret_cast<VSPerFrameBuffer*>(mappedResource.pData);
-	vsFrameBufferPtr->viewMat = vT;
-	vsFrameBufferPtr->delta = dTime;
-	vsFrameBufferPtr->elapsed = _elapsed;
-	_deviceContext->Unmap(_VSperFrameBuffer, 0);
-
-
-	PSPerFrameBuffer* psFrameBufferPtr;
-	if (FAILED(_deviceContext->Map(_PSperFrameBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-		return false;
-	psFrameBufferPtr = reinterpret_cast<PSPerFrameBuffer*>(mappedResource.pData);
-	psFrameBufferPtr->eyePos = eyePos;
-	psFrameBufferPtr->elapsed = _elapsed;
-	psFrameBufferPtr->delta = dTime;
-	_deviceContext->Unmap(_PSperFrameBuffer, 0);
+	CBuffer::updateWithStruct(_deviceContext, _PSperFrameBuffer, 
+		PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), _elapsed, dTime });
 
 	return true;
 }

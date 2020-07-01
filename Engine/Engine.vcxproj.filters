@@ -77,15 +77,6 @@
     <Filter Include="Editor">
       <UniqueIdentifier>{bf623ccc-dcad-4998-8852-aa8c0dc95289}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\AAA Improved">
-      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Materials">
-      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shaders">
-      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\DeprMaterials">
       <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
     </Filter>
@@ -94,40 +85,6 @@
     </Filter>
     <Filter Include="Collision\Spatial partitioning\QuadTree">
       <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Lights">
-      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Clouds">
-      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Vertex shaders">
-      <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Geometry shaders">
-      <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Pixel shaders">
-      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric">
-      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Pixel shaders\PostProcessing">
-      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Pixel shaders\PBR">
-      <UniqueIdentifier>{6dc88ee7-b2a1-42c6-8aab-2484d7aeeb6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\HLSL helpers">
-      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\AAA Improved\Shader Files\Compute shaders">
-      <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
     </Filter>
     <Filter Include="Multi Threading">
       <UniqueIdentifier>{2e139f82-818b-4c4a-981b-f982b291df3b}</UniqueIdentifier>
@@ -143,6 +100,49 @@
     </Filter>
     <Filter Include="Rendering\Low level\Buffers">
       <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level">
+      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Materials">
+      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shaders">
+      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Lights">
+      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Clouds">
+      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Vertex shaders">
+      <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Geometry shaders">
+      <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Pixel shaders">
+      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Pixel shaders\Volumetric">
+      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Pixel shaders\PostProcessing">
+      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Pixel shaders\PBR">
+      <UniqueIdentifier>{6dc88ee7-b2a1-42c6-8aab-2484d7aeeb6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\HLSL helpers">
+      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Shader Files\Compute shaders">
+      <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -267,13 +267,13 @@
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="Renderable.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Rendering\AAA Improved\Materials</Filter>
+      <Filter>Rendering\High level\Materials</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Scene management</Filter>
@@ -288,10 +288,10 @@
       <Filter>Scene management</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="MaterialCache.cpp">
-      <Filter>Rendering\AAA Improved\Materials</Filter>
+      <Filter>Rendering\High level\Materials</Filter>
     </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Scene management\Controllers</Filter>
@@ -309,7 +309,7 @@
       <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
       <Filter>Rendering\DeprMaterials</Filter>
@@ -363,22 +363,22 @@
       <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCompiler.cpp">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="RenderQueue.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="OST.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="CubeMapper.cpp">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="Chaos.cpp">
       <Filter>Utils</Filter>
@@ -399,7 +399,7 @@
       <Filter>Collision\Hulls</Filter>
     </ClCompile>
     <ClCompile Include="ClusterManager.cpp">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClCompile>
     <ClCompile Include="Skeleton.cpp">
       <Filter>Resources\SkelAnim</Filter>
@@ -578,16 +578,16 @@
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
     <ClInclude Include="Renderable.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Rendering\AAA Improved\Materials</Filter>
+      <Filter>Rendering\High level\Materials</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Scene management</Filter>
@@ -605,28 +605,28 @@
       <Filter>AI\Pathfinding</Filter>
     </ClInclude>
     <ClInclude Include="MaterialCache.h">
-      <Filter>Rendering\AAA Improved\Materials</Filter>
+      <Filter>Rendering\High level\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Steering.h">
       <Filter>AI\Steering</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCompiler.h">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCache.h">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Observer.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="RenderStateManager.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="RenderState.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="SteeringComponent.h">
       <Filter>AI\Steering</Filter>
@@ -755,22 +755,22 @@
       <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="TextureRole.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="Frustum.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="RenderQueue.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="Skybox.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="CBuffer.h">
       <Filter>Rendering\Low level\Buffers</Filter>
@@ -782,10 +782,10 @@
       <Filter>Rendering\Low level\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="OST.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="CubeMapper.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="CSM.h">
       <Filter>Rendering</Filter>
@@ -809,7 +809,7 @@
       <Filter>Scene management</Filter>
     </ClInclude>
     <ClInclude Include="LightManager.h">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
     <ClInclude Include="SlotVector.h">
       <Filter>Memory Allocators</Filter>
@@ -827,25 +827,25 @@
       <Filter>Collision\Hulls</Filter>
     </ClInclude>
     <ClInclude Include="GUI.h">
-      <Filter>Rendering\AAA Improved</Filter>
+      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="ComputeShader.h">
-      <Filter>Rendering\AAA Improved\Shaders</Filter>
+      <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="SBuffer.h">
       <Filter>Rendering\Low level\Buffers</Filter>
     </ClInclude>
     <ClInclude Include="ClusterManager.h">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
     <ClInclude Include="ClusterManagerGPU.h">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
     <ClInclude Include="ClusteringUnusedCode.h">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
     <ClInclude Include="ClusteringMath.h">
-      <Filter>Rendering\AAA Improved\Lights</Filter>
+      <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
     <ClInclude Include="ParallelPrefixSum.h">
       <Filter>Multi Threading</Filter>
@@ -932,69 +932,69 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="projectTexPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="projectTexVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </None>
     <None Include="depthVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </None>
     <None Include="depthPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="cubemapVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </None>
     <None Include="cubemapPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="wireframeGS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Geometry shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Geometry shaders</Filter>
     </None>
     <None Include="wireframeVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </None>
     <None Include="lightVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </None>
     <None Include="shadowVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </None>
     <None Include="lightPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="shadowPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="wireframePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="Noise.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </None>
     <None Include="MathUtils.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </None>
     <None Include="SDF.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </None>
     <None Include="Constants.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </None>
     <None Include="PhysUtils.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </None>
     <None Include="hudPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </None>
     <None Include="Clustering.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
-      <Filter>Rendering\AAA Improved\Shader Files</Filter>
+      <Filter>Rendering\High level\Shader Files</Filter>
     </Text>
     <Text Include="IMGUI\LICENSE.txt">
       <Filter>GUI</Filter>
@@ -1005,136 +1005,136 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="volumAirPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumFirePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="VolumJuliaPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumTreePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumLavaPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumWaterPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="brightmaskPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\PostProcessing</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="bloomPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\PostProcessing</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurHorPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\PostProcessing</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="blurVerPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\PostProcessing</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\PostProcessing</Filter>
     </FxCompile>
     <FxCompile Include="dragonPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="windpipePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="volumTornadoPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\Volumetric</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\Volumetric</Filter>
     </FxCompile>
     <FxCompile Include="strifevs.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Clouds</Filter>
+      <Filter>Rendering\High level\Shader Files\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="strifeps.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Clouds</Filter>
+      <Filter>Rendering\High level\Shader Files\Clouds</Filter>
     </FxCompile>
     <FxCompile Include="windpipeVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="volumVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="mazefloorVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="mazeVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="mazePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="perlin3dPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="screenspaceVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="AnimaVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="AnimaPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="InstancedVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="clipperVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="clipperPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="terrainPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="waterPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="waterVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="skyboxVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="skyboxPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="Light.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </FxCompile>
     <FxCompile Include="terrainVNPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="Simplex.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </FxCompile>
     <FxCompile Include="Simplex_derivative.hlsli">
-      <Filter>Rendering\AAA Improved\Shader Files\HLSL helpers</Filter>
+      <Filter>Rendering\High level\Shader Files\HLSL helpers</Filter>
     </FxCompile>
     <FxCompile Include="CookTorrancePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders\PBR</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders\PBR</Filter>
     </FxCompile>
     <FxCompile Include="ShGen\genVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files</Filter>
+      <Filter>Rendering\High level\Shader Files</Filter>
     </FxCompile>
     <FxCompile Include="csmVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="csmScenePS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="csmSceneVS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Vertex shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="Culler.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Compute shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Compute shaders</Filter>
     </FxCompile>
     <FxCompile Include="clusterDebug.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="ClusteredPS.hlsl">
-      <Filter>Rendering\AAA Improved\Shader Files\Pixel shaders</Filter>
+      <Filter>Rendering\High level\Shader Files\Pixel shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

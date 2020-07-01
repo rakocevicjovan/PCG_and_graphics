@@ -3,6 +3,8 @@
 #include "GameObject.h"
 #include "Terrain.h"
 #include "Perlin.h"
+#include "Controller.h"
+#include "InputManager.h"
 #include "Observer.h"
 
 #define S_DEVICE	_sys._device
@@ -27,34 +29,18 @@ class Level : public Observer
 protected:
 	Systems& _sys;
 
-	std::vector<GameObject*> objects;
-	//std::vector<GraphicComponent*> lesRenderables;
-	std::vector<Collider> _levelColliders;
-
-	SVec3 goal;
-
 	Camera _camera;
 
 public:
 	Level(Systems& sys);
 	virtual ~Level() {};
-	
-	//@WARNING THIS HAPPENS AUTOMATICALLY IN RENDERER ANYWAYS!!!
-	void updateCam(float dTime) { S_RANDY._cam.Update(S_RANDY.rc.dTime); }
-
-	void ProcessSpecialInput(float dTime);
 
 	virtual void init(Systems& sys) = 0;
 	virtual void update(const RenderContext& rc) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
-	void win(SVec3 playerPos, float dist = 30.f) { if (SVec3::Distance(playerPos, goal) < dist) finished = true; };
-	void procGen() {};
 
 	bool finished = false;
 
-
-	void Observe(const MouseClickMessage& c) //override
-	{
-
-	}
+	virtual void Observe(const MouseClickMessage& c) override {};
+	virtual void Observe(const KeyPressMessage& msg) override {};
 };

@@ -1,5 +1,7 @@
 #include "D3D.h"
 
+
+
 D3D::D3D()
 {
 	_swapChain = 0;
@@ -14,44 +16,33 @@ D3D::D3D()
 }
 
 
-D3D::~D3D()
-{
-}
+
+D3D::~D3D(){ /* For now, it's ok because it only triggers on app exit */ }
+
 
 
 bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	HRESULT result;
-	IDXGIFactory* factory;
-	IDXGIAdapter* adapter;
-	IDXGIOutput* adapterOutput;
 	unsigned int numModes, numerator, denominator;
-	size_t stringLength;
-	DXGI_MODE_DESC* displayModeList;
-	DXGI_ADAPTER_DESC adapterDesc;
-	int error;
-	D3D_FEATURE_LEVEL featureLevel;
-	ID3D11Texture2D* backBufferPtr;
-	D3D11_TEXTURE2D_DESC depthBufferDesc;
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_BLEND_DESC blendDesc;
 
 	// Store the vsync setting.
 	_vsync_enabled = vsync;
 
 	// Create a DirectX graphics interface factory.
+	IDXGIFactory* factory;
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(result))
 		return false;
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
+	IDXGIAdapter* adapter;
 	result = factory->EnumAdapters(0, &adapter);
 	if(FAILED(result))
 		return false;
 
 	// Enumerate the primary adapter output (monitor).
+	IDXGIOutput* adapterOutput;
 	result = adapter->EnumOutputs(0, &adapterOutput);
 	if(FAILED(result))
 		return false;
@@ -62,6 +53,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
+	DXGI_MODE_DESC* displayModeList;
 	displayModeList = new DXGI_MODE_DESC[numModes];
 	if(!displayModeList)
 		return false;
@@ -85,6 +77,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	}
 
 	// Get the adapter (video card) description.
+	DXGI_ADAPTER_DESC adapterDesc;
 	result = adapter->GetDesc(&adapterDesc);
 	if(FAILED(result))
 		return false;
@@ -93,9 +86,14 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 
 	// Convert the name of the video card to a character array and store it.
-	error = wcstombs_s(&stringLength, _videoCardDescription, 128, adapterDesc.Description, 128);
-	if(error != 0)
+	size_t stringLength;
+	int error = wcstombs_s(&stringLength, _videoCardDescription, 128, adapterDesc.Description, 128);
+	if (error != 0)
+	{
+		OutputDebugStringA("Video card description failed.");
 		return false;
+	}
+		
 
 	// Release the display mode list.
 	delete [] displayModeList;
@@ -132,7 +130,6 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	}
 
-	
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	// Set the usage of the back buffer.
     swapChainDesc.OutputWindow = hwnd;								// Set the handle for the window to render to.
     swapChainDesc.SampleDesc.Count = 1;								// Turn multisampling off.
@@ -142,6 +139,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;		// Discard the back buffer contents after presenting.
 	swapChainDesc.Flags = 0;									// Don't set the advanced flags.
+	
+	D3D_FEATURE_LEVEL featureLevel;
 	featureLevel = D3D_FEATURE_LEVEL_11_1;						// Set the feature level to DirectX 11.
 
 	// Create the swap chain, Direct3D device, and Direct3D device context. D3D11_CREATE_DEVICE_DEBUG useful for now, not in release
@@ -151,6 +150,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Get the pointer to the back buffer.
+	ID3D11Texture2D* backBufferPtr;
 	result = _swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 	if(FAILED(result))
 		return false;
@@ -165,7 +165,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	backBufferPtr = 0;
 
 	// Initialize the description of the depth buffer.
-	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
+	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 	depthBufferDesc.Width = windowWidth;
 	depthBufferDesc.Height = windowHeight;
 	depthBufferDesc.MipLevels = 1;
@@ -184,7 +184,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Initialize the description of the stencil state.
-	ZeroMemory(&depthStencilDesc, sizeof(depthStencilDesc));
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
@@ -222,7 +222,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 1);
 
 	// Initialize the depth stencil view.
-	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
@@ -234,6 +234,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	_deviceContext->OMSetRenderTargets(1, &_renderTargetView, _depthStencilView);
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
+	D3D11_RASTERIZER_DESC rasterDesc = {};
 	rasterDesc.AntialiasedLineEnable = false;
 	rasterDesc.CullMode = D3D11_CULL_BACK;
 	rasterDesc.DepthBias = 0;
@@ -257,13 +258,11 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_wireframe)))
 		return false;
 
-
 	// Now set the rasterizer state.
 	_deviceContext->RSSetState(_r_s_solid_cull);
 
-
 	//blending code @TODO see why it messes with texture.... turn off until then
-	ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+	D3D11_BLEND_DESC blendDesc = {};
 	blendDesc.RenderTarget[0].BlendEnable = TRUE;
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -292,12 +291,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 }
 
 
-
-
-
-void D3D::Shutdown(){
-
-	// Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
+void D3D::Shutdown()
+{
 	if(_swapChain)
 		_swapChain->SetFullscreenState(false, NULL);
 
@@ -352,7 +347,8 @@ void D3D::ClearColourDepthBuffers()
 }
 
 
-void D3D::EndScene(){
+void D3D::EndScene()
+{
 	// Present the back buffer to the screen since rendering is complete.
 	if(_vsync_enabled)
 		_swapChain->Present(1, 0);	// Lock to screen refresh rate.

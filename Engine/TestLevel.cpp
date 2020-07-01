@@ -28,8 +28,8 @@ namespace SkelAnim
 
 	void SkelAnimTestLevel::update(const RenderContext& rc)
 	{
-		ProcessSpecialInput(rc.dTime);
-		updateCam(rc.dTime);
+		//This changed
+		//updateCam(rc.dTime);
 	}
 
 

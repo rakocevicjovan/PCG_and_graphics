@@ -74,7 +74,7 @@ public:
 
 	CBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)
 	{
-		if (!createConstantBuffer(device, desc, _cbPtr))
+		if (!createBuffer(device, desc, _cbPtr))
 		{
 			OutputDebugStringA("Failed to create vertex buffer.");
 			exit(1001);
@@ -83,7 +83,7 @@ public:
 
 
 
-	static inline bool createConstantBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
+	static inline bool createBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
 	{
 		if (FAILED(device->CreateBuffer(&desc, NULL, &buffer)))
 			return false;
@@ -93,7 +93,7 @@ public:
 
 
 
-	inline static D3D11_BUFFER_DESC createBufferDesc(
+	inline static D3D11_BUFFER_DESC createDesc(
 		UINT byteWidth,
 		D3D11_USAGE usage = D3D11_USAGE_DYNAMIC,
 		D3D11_BIND_FLAG binding = D3D11_BIND_CONSTANT_BUFFER,
@@ -147,6 +147,22 @@ public:
 
 		memcpy(mappedResource.pData, data, size);
 		
+		unmap(cont, cbuffer);
+
+		return true;
+	}
+
+
+	template <typename PODStruct>
+	static bool updateWithStruct(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, const PODStruct& s)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+
+		if (!map(cont, cbuffer, mappedResource))
+			return false;
+
+		memcpy(mappedResource.pData, &s, sizeof(PODStruct));
+
 		unmap(cont, cbuffer);
 
 		return true;

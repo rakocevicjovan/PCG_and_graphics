@@ -13,15 +13,15 @@ public:
 	void Tick();  // Call every frame.
 
 private:
-	double mSecondsPerCount;
-	double mDeltaTime;
+	double _secondsPerCount;
+	double _deltaTime;
 
-	__int64 mBaseTime;
-	__int64 mPausedTime;
-	__int64 mStopTime;
-	__int64 mPrevTime;
-	__int64 mCurrTime;
+	__int64 _baseTime;
+	__int64 _pausedAt;
+	__int64 _stoppedAt;
+	__int64 _prevTime;
+	__int64 _currTime;
 
-	bool mStopped;
+	bool _isStopped;
 };
 

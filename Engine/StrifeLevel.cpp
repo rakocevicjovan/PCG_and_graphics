@@ -67,8 +67,9 @@ namespace Strife
 			S_INMAN.toggleMouseMode();
 		}
 
-		if(!S_INMAN.getMouseMode())
-			updateCam(rc.dTime);
+		// This changed
+		//if(!S_INMAN.getMouseMode())
+			//updateCam(rc.dTime);
 	}
 
 
