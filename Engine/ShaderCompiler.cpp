@@ -1,5 +1,5 @@
 #include "ShaderCompiler.h"
-
+#include "Logger.h"
 
 
 ShaderCompiler::ShaderCompiler() {}
@@ -50,8 +50,8 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
-	ID3DBlob* errorMessage = nullptr;
-	ID3DBlob* shaderBuffer = nullptr;
+	ID3D10Blob* errorMessage = nullptr;
+	ID3D10Blob* shaderBuffer = nullptr;
 
 	//useful flags
 	//D3DCOMPILE_WARNINGS_ARE_ERRORS
