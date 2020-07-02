@@ -2,10 +2,12 @@
 #include <string>
 #include <Mouse.h>
 
+#include "ShaderGenerator.h"
+
+
 Systems::Systems() : screenWidth(0), screenHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
 
 Systems::~Systems(){}
-
 
 
 bool Systems::Initialize()
@@ -15,6 +17,8 @@ bool Systems::Initialize()
 	//FBXLoader loader;
 	//loader.init();
 	//loader.parse("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\ArmyPilot\\ArmyPilot.fbx");
+
+	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\genVS.hlsl", ShaderGenerator::getVsOptions());
 
 	InitializeWindows(screenWidth, screenHeight);
 
@@ -26,10 +30,6 @@ bool Systems::Initialize()
 
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
-
-	/* Test begin */
-
-	/* Test end */
 
 	_inputManager.initialize(_hwnd);
 	_defController = Controller(&_inputManager);

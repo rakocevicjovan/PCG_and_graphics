@@ -19,7 +19,7 @@ class GUI
 {
 public:
 
-	static void startGuiFrame()
+	static void beginFrame()
 	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
@@ -39,7 +39,7 @@ public:
 	}
 
 
-	static void endGuiFrame()
+	static void endFrame()
 	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

@@ -1,28 +1,18 @@
 #pragma once
-#include "ProjectLoader.h"
+#include "Project.h"
 #include <array>
 
 class ProjectPicker
 {
-	std::string current_item = "None picked";
+	std::string _currentItemName = "None picked";
+	
+	std::string _projPath;
 
-	const size_t MAX_PATH_SIZE = 512;
-	char* _projPath;
-
-	bool projectPicked = false;
-	ProjectLoader& _projectLoader;
+	Project* _project;
 	
 public:
-	ProjectPicker(ProjectLoader& projLoader) : _projectLoader(projLoader)
-	{
-		_projPath = new char[MAX_PATH_SIZE]();
-	}
 
-	~ProjectPicker()
-	{
-		if (_projPath)
-			delete _projPath;
-	}
+	ProjectPicker() {}
 
 	bool ProjectPicker::Render();
 };

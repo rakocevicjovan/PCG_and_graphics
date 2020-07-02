@@ -1,5 +1,5 @@
 #include "ToolGUI.h"
-
+#include "GUI.h"
 #include "IMGUI/imgui.h"
 #include "IMGUI/imgui_impl_win32.h"
 #include "IMGUI/imgui_impl_dx11.h"
@@ -20,9 +20,7 @@ namespace Strife
 
 	void ToolGUI::Render(CloudscapeDefinition& csDef)
 	{
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
+		GUI::beginFrame();
 
 		ImGui::Begin("Cloud rendering control panel");
 
@@ -68,8 +66,7 @@ namespace Strife
 
 		ImGui::End();
 
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		GUI::endFrame();
 
 		//doesn't fix automatically so I do
 		csDef.heightMask.y = max(csDef.heightMask.x, csDef.heightMask.y);

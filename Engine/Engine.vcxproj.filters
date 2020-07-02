@@ -203,9 +203,6 @@
     <ClCompile Include="Collider.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
-    <ClCompile Include="ProjectLoader.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
@@ -492,9 +489,6 @@
     </ClInclude>
     <ClInclude Include="HitResult.h">
       <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="ProjectLoader.h">
-      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Resources\SkelAnim</Filter>

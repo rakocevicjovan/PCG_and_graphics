@@ -126,7 +126,7 @@ public:
 		if(_curPreview)
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 
-		GUI::startGuiFrame();
+		GUI::beginFrame();
 
 		auto selected = _browser.display();
 
@@ -178,7 +178,7 @@ public:
 
 		ImGui::End();
 
-		GUI::endGuiFrame();
+		GUI::endFrame();
 
 		rc.d3d->EndScene();
 	}

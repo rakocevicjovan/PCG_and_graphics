@@ -72,7 +72,7 @@ bool Model::LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx
 
 bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
 {
-	aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;	//or reversed! careful!
+	aiMatrix4x4 concatenatedTransform = parentTransform * node->mTransformation;
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];

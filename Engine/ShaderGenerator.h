@@ -59,21 +59,17 @@
 class ShaderGenerator
 {
 
-	// Kinda blows to initialize tbh... although it is better for performance
-	// But this is an offline tool who cares? Seems I do
 	struct OptionSet
 	{
 		std::vector<D3D_SHADER_MACRO> _macros;
 		std::vector<uint64_t> _bitmasks;
 	};
 
-	ShaderCompiler _shc;
-	std::set<uint64_t> _existing;
-
 public:
-	ShaderGenerator(ShaderCompiler& shc) : _shc(shc) {}
 
-	OptionSet getAllOptions()
+	ShaderGenerator(){}
+
+	static OptionSet getVsOptions()
 	{
 		// As far as I can tell from testing, what you pass to it does not matter one bit
 		// hlsl preprocessor can only check whether something is defined or not, and not the value...
@@ -105,24 +101,55 @@ public:
 
 
 
-	bool mix()
+	static void createShPerm(ID3DBlob* textBuffer, const std::vector<D3D_SHADER_MACRO>& permOptions, uint64_t total)
 	{
-		std::string filePath = "ShGen\\genVS.hlsl";
-		std::wstring filePathW = L"ShGen\\genVS.hlsl";	//microsoft pls...
-
 		HRESULT res;
-		ID3DBlob* textBuffer = nullptr;
 		ID3DBlob* preprocessedBuffer = nullptr;
 		ID3DBlob* errorMessage = nullptr;
 
-		ID3D11VertexShader* vertexShader;
-		ID3D11InputLayout* layout;
 
-		OptionSet optionSet = getAllOptions();
+		res = D3DPreprocess(textBuffer->GetBufferPointer(), textBuffer->GetBufferSize(),
+			nullptr, permOptions.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE,
+			&preprocessedBuffer, &errorMessage);
+
+		std::string finalFileName = "ShGen\\GeneratedVS\\vs_" + std::to_string(total) + ".hlsl";
+
+		FileUtils::writeAllBytes(finalFileName.c_str(),
+			preprocessedBuffer->GetBufferPointer(),
+			preprocessedBuffer->GetBufferSize());
+
+		if (preprocessedBuffer)
+		{
+			preprocessedBuffer->Release();
+			preprocessedBuffer = nullptr;
+		}
+
+		if (errorMessage)
+		{
+			errorMessage->Release();
+			errorMessage = nullptr;
+		}
+	}
+
+
+	// L"ShGen\\genVS.hlsl" and OptionSet optionSet = getVsOptions(); are defaults
+	static bool preprocessAllPermutations(const std::wstring& filePathW, OptionSet optionSet)	
+	{
+		std::set<uint64_t> _existing;
+		std::string filePath = "ShGen\\genVS.hlsl";
+
+		ID3DBlob* textBuffer = nullptr;
+		
+		if (FAILED(D3DReadFileToBlob(filePathW.c_str(), &textBuffer)))
+		{
+			OutputDebugStringA("Couldn't read shader template file.");
+			exit(2001);
+		}
+
 		UINT optionCount = optionSet._macros.size();
 
-		std::vector<D3D_SHADER_MACRO> permOptions;
-		permOptions.reserve(optionCount);
+		std::vector<D3D_SHADER_MACRO> matchingPermOptions;
+		matchingPermOptions.reserve(optionCount);
 
 		for (uint64_t i = 0; i < ( 1 << (optionCount) ); ++i)	//0 - 255, or rather 00000000 to 11111111 loop
 		{
@@ -140,7 +167,7 @@ public:
 				// If current option fits the bitmask, add it in
 				if (andResult == currentOptionBitmask)
 				{
-					permOptions.push_back(optionSet._macros[j]);
+					matchingPermOptions.push_back(optionSet._macros[j]);
 					permOptDebugString += optionSet._macros[j].Name;
 					permOptDebugString += " ";
 				}
@@ -149,86 +176,30 @@ public:
 			// I barely remember how this works but it should eliminate doubles?
 			if (_existing.count(total))
 			{
-				permOptions.clear();
+				matchingPermOptions.clear();
 				continue;
 			}
 			_existing.insert(total);
 
-			permOptions.push_back({ NULL, NULL });	// Required by d3d api
+			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
 
-			res = D3DReadFileToBlob(filePathW.c_str(), &textBuffer);
-			res = D3DPreprocess(textBuffer->GetBufferPointer(), textBuffer->GetBufferSize(), filePath.c_str(),
-				permOptions.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE, &preprocessedBuffer, &errorMessage);
-			
-			std::string finalFileName = "ShGen\\GeneratedVS\\vs_" + std::to_string(total) + ".hlsl";
-			
-			FileUtils::writeAllBytes(finalFileName.c_str(),
-				preprocessedBuffer->GetBufferPointer(),
-				preprocessedBuffer->GetBufferSize());
-			
-			/* Didn't test whether the above works, keep this until then
-			std::ofstream fout(finalFileName);
-			for (ULONG j = 0; j < preprocessedBuffer->GetBufferSize(); ++j)
-				fout << ((char*)(preprocessedBuffer->GetBufferPointer()))[j];
-			fout.close();
-			*/
+			createShPerm(textBuffer, matchingPermOptions, total);
 
-			preprocessedBuffer->Release();
-			preprocessedBuffer = nullptr;
-
-			textBuffer->Release();
-			textBuffer = nullptr;
-
-			errorMessage->Release();
-			errorMessage = nullptr;
+			matchingPermOptions.clear();
 
 			permOptDebugString += "\n";
 			OutputDebugStringA(permOptDebugString.c_str());	
 		}
 
+		if (textBuffer)
+		{
+			textBuffer->Release();
+			textBuffer = nullptr;
+		}
+
 		return true;
 	}
 };
-
-
-//initial key draft, just to brainstorm on
-struct ShaderOptions
-{
-	// VS keys
-	UINT v_in_tex : 1;
-	UINT v_in_nrm : 1;
-	UINT v_in_tan : 1;
-	UINT v_in_ins : 1;
-
-	// v_PO implies the same p_in, no need for more bits than that
-	UINT v_po_wps : 1;
-	UINT v_po_tex : 1;
-	UINT v_po_nrm : 1;
-	UINT v_po_tan : 1;
-
-	
-
-	// PS keys - This changes a lot with clustered shading in place, review!
-	UINT p_p_lightModel : 4;	//16 possible lighting models, should be plenty
-	UINT p_p_nrLights	: 3;	//up to 8 lights, if light model is none it means none will be used
-	UINT p_p_lightTypes : 3;	//directional, point, spot, area, volume, ambient... and what?
-
-	UINT p_p_ambient : 1;
-
-	UINT p_p_diffMap	: 1;
-	UINT p_p_normalMap	: 1;
-	UINT p_p_specMap	: 1;
-	UINT p_p_shinyMap	: 1;
-	UINT p_p_opacityMap : 1;
-	UINT p_p_displMap	: 1;
-	UINT p_p_aoMap		: 1;
-	UINT p_p_roughMap	: 1;
-	UINT p_p_metalMap	: 1;
-	UINT p_p_iorMap		: 1;
-
-	UINT p_p_distFog	: 1;
-	UINT p_p_gCorrected : 1;
-};	//well... thats just over 2 billion permutations... somehow I really don't think I need that many :V
 
 
 // Although these can be separate input options, there is no need for that. 

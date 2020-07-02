@@ -7,14 +7,14 @@
 #include "Model.h"
 #include "Audio.h"
 #include "LevelReader.h"
-#include "ProjectLoader.h"
+#include "Project.h"
 #include "StackAllocator.h"
 
 //intended for a level-based game... not going to do open world yet until I understand how to implement streaming well
 
 class ResourceManager
 {
-	ProjectLoader _projLoader;
+	Project _project;
 	LevelReader _levelReader;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
@@ -28,7 +28,7 @@ public:
 	void loadLevel(int i);
 	void popLevel(int i);
 
-	ProjectLoader& getProjectLoader() { return _projLoader; }
+	Project& getProject() { return _project; }
 
 	template <typename ResType>
 	ResType* getByName(const std::string& name)

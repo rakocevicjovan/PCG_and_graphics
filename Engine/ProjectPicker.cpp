@@ -1,73 +1,63 @@
 #include "ProjectPicker.h"
-
-#include "IMGUI/imgui.h"
-#include "IMGUI/imgui_impl_win32.h"
-#include "IMGUI/imgui_impl_dx11.h"
+#include "GuiBlocks.h"
+#include "GUI.h"
 
 
 
 bool ProjectPicker::Render()
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	GUI::beginFrame();
 
-	bool retValue = true;
+	bool done = true;
 
-	if (!projectPicked)
+	if (!_project)
 	{
-		ImGui::Begin("Choose a project to load");
-		ImGui::BeginGroup();
-		ImGui::Dummy(ImVec2(0.0f, 10.0f));
+		ImGui::Begin("Project picker");
 
-		if (!_projPath)
-			_projPath = new char[MAX_PATH_SIZE]();
+		ImGui::NewLine();
 
-		ImGui::InputText("Choose a project:", _projPath, MAX_PATH_SIZE);
+		inTextStdString("Choose a project", _projPath);
 
 		if (ImGui::Button("Load project"))
 		{ 
-			std::string temp = std::string(_projPath);
-			_projectLoader.loadProjFromConfig(temp);
-			projectPicked = true;
+			// Check if file exists yada yada
+			_project = new Project();
+			if (!_project->loadProjFromConfig(_projPath))
+			{
+				delete _project;
+				_project = nullptr;
+			}
 		}
 
-		ImGui::EndGroup();
 	}
-	else
+	else   // This should not be here, project should just open the editor and work from there.
 	{
 		ImGui::Begin("Choose a level to load");
-		ImGui::BeginGroup();
 
-		if (ImGui::BeginCombo("Levels associated with the chosen project:", current_item.data()))
+		auto levelList = _project->getLevelList();
+
+		if (ImGui::BeginCombo("Levels associated with the chosen project:", _currentItemName.data()))
 		{
-			for (int n = 0; n < _projectLoader.getLevelList().size(); ++n)
+			for (int n = 0; n < levelList.size(); ++n)
 			{
-				bool is_selected = (current_item == _projectLoader.getLevelList()[n]); // You can store your selection however you want, outside or inside your objects
+				auto level = levelList[n];
+				bool is_selected = (_currentItemName == level);
 				
-				if (ImGui::Selectable(_projectLoader.getLevelList()[n].data(), is_selected))
-					current_item = _projectLoader.getLevelList()[n];
+				if (ImGui::Selectable(level.data(), is_selected))
+					_currentItemName = level;
 
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+				if (is_selected)
+					ImGui::SetItemDefaultFocus(); 
 			}
 
 			ImGui::EndCombo();
 		}
 
-		if (ImGui::Button("Load level"))
-		{
-			delete _projPath;
-			_projPath = nullptr;
-			retValue = false;
-		}
-
-		ImGui::EndGroup();
+		done = !ImGui::Button("Load level");
 	}
-	
 	ImGui::End();
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-	return retValue;
+	GUI::endFrame();
+
+	return done;
 }

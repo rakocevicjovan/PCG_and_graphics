@@ -7,7 +7,7 @@ class ProjectPickerLevel : public Level
 	ProjectPicker pp;
 
 public:
-	ProjectPickerLevel(Systems& sys) : Level(sys), pp(sys._resMan.getProjectLoader()) {}
+	ProjectPickerLevel(Systems& sys) : Level(sys) {}
 	
 	void init(Systems& sys) override { _sys._inputManager.toggleMouseMode(); }
 

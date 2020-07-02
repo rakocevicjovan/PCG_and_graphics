@@ -16,7 +16,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 TDLevel::TDLevel(Systems& sys) 
 	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
-	_editor = Editor(S_WW, S_WH, S_RESMAN.getProjectLoader().getProjDir());
+	_editor = Editor(S_WW, S_WH, S_RESMAN.getProject().getProjDir());
 };
 
 
@@ -530,7 +530,7 @@ void TDLevel::draw(const RenderContext& rc)
 #endif
 
 
-	GUI::startGuiFrame();
+	GUI::beginFrame();
 
 	std::vector<GuiElement> guiElems =
 	{
@@ -565,7 +565,7 @@ void TDLevel::draw(const RenderContext& rc)
 	//_loaderGui.displayModel(S_DEVICE);
 
 	
-	GUI::endGuiFrame();
+	GUI::endFrame();
 
 	rc.d3d->EndScene();
 }
