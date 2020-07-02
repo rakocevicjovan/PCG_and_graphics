@@ -374,6 +374,7 @@
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
+    <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Curves.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
@@ -382,7 +383,9 @@
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="imnodes.h" />
+    <ClInclude Include="InputLayout.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="LoaderGUI.h" />

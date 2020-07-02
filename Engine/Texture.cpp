@@ -269,7 +269,6 @@ void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp,
 	catch (...)
 	{
 		OutputDebugStringA( ("Error writing texture to '" + targetFile + "'; ").c_str() );
-		return;
 	}
 }
 

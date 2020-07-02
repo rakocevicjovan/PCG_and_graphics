@@ -1,6 +1,6 @@
 #include "CubeMapper.h"
 #include "Camera.h"
-#include "DDSTextureLoader.h"
+#include "CubeMap.h"
 
 
 CubeMapper::CubeMapper(unsigned int edgeLength) : _edgeLength(edgeLength) {}
@@ -14,13 +14,9 @@ CubeMapper::~CubeMapper() {}
 void CubeMapper::init(ID3D11Device* device)
 {
 	// Create a texture (and a description) for the cube mapper, using misc_texturecube and 4 8-bit channels
-	D3D11_TEXTURE2D_DESC texDesc = createCubeMapDescription(_edgeLength, true);
+	D3D11_TEXTURE2D_DESC texDesc = CubeMap::createCubeMapDesc(_edgeLength, true, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	CubeMap::CreateCubeMap(device, texDesc, _texPtr);
 
-	if (FAILED(device->CreateTexture2D(&texDesc, 0, &_texPtr)))
-	{
-		OutputDebugStringA("Can't create cube map texture. \n");
-		exit(520);
-	}
 
 	// Create ONE resource view as a texturecube view (this handles six faces internally, so one is enough)
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
@@ -56,8 +52,7 @@ void CubeMapper::init(ID3D11Device* device)
 
 
 	// Create a depth stencil texture, same size as the original
-	D3D11_TEXTURE2D_DESC depthTexDesc;
-	ZeroMemory(&depthTexDesc, sizeof(depthTexDesc));
+	D3D11_TEXTURE2D_DESC depthTexDesc = {};
 	depthTexDesc.Width = _edgeLength;
 	depthTexDesc.Height = _edgeLength;
 	depthTexDesc.MipLevels = 1;
@@ -128,62 +123,4 @@ void CubeMapper::advance(ID3D11DeviceContext* dc, UINT i)
 Camera CubeMapper::getCameraAtIndex(unsigned int i)
 {
 	return Camera::CreateFromViewProjection(_cameras[i], _projMatrix);
-}
-
-
-
-// Utility function for skybox rendering. Loads the maps once, no render targets / depth stencil textures involved
-void CubeMapper::loadCubeMapFromFile(ID3D11Device* device, const std::string& filename, UINT edgeLength, ID3D11Texture2D*& texPtr, ID3D11ShaderResourceView*& shResView)
-{
-	D3D11_TEXTURE2D_DESC texDesc = createCubeMapDescription(edgeLength, false);
-
-	if (FAILED(device->CreateTexture2D(&texDesc, 0, &texPtr)))
-	{
-		OutputDebugStringA("Failed to create cube map texture. \n");
-		exit(520);
-	}
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
-	srvd.Format = texDesc.Format;
-	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	srvd.TextureCube.MipLevels = texDesc.MipLevels;
-	srvd.TextureCube.MostDetailedMip = 0;
-
-	if (FAILED(device->CreateShaderResourceView(texPtr, &srvd, &shResView)))
-	{
-		OutputDebugStringA("Failed to create shader resource view. \n");
-		exit(521);
-	}
-
-	std::wstring widestr = std::wstring(filename.begin(), filename.end());
-
-	if (FAILED(DirectX::CreateDDSTextureFromFileEx(device, widestr.c_str(), 0u, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE,
-				0u, D3D11_RESOURCE_MISC_TEXTURECUBE, false, (ID3D11Resource**)(texPtr), &(shResView), (DirectX::DDS_ALPHA_MODE*)nullptr)))
-	{
-		OutputDebugStringA("Failed to load dds texture \n");
-		exit(522);
-	}
-}
-
-
-
-D3D11_TEXTURE2D_DESC CubeMapper::createCubeMapDescription(UINT edgeLength, bool renderTarget, DXGI_FORMAT format)
-{
-	D3D11_TEXTURE2D_DESC texDesc;
-	ZeroMemory(&texDesc, sizeof(texDesc));
-	texDesc.Width = edgeLength;
-	texDesc.Height = edgeLength;
-	texDesc.MipLevels = 1;
-	texDesc.ArraySize = 6;
-	texDesc.Format = format;	//DXGI_FORMAT_R32G32B32A32_FLOAT
-	texDesc.CPUAccessFlags = 0;
-	texDesc.SampleDesc = { 1, 0 };
-	texDesc.Usage = D3D11_USAGE_DEFAULT;
-	texDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
-	texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	if (renderTarget)
-		texDesc.BindFlags |= D3D11_BIND_RENDER_TARGET;
-
-	return texDesc;
 }

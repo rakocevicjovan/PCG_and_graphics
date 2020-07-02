@@ -1,5 +1,4 @@
 #pragma once
-
 #include <d3d11.h>
 #include <vector>
 #include "Math.h"
@@ -35,7 +34,4 @@ public:
 	Camera getCameraAtIndex(unsigned int i);
 
 	inline ID3D11ShaderResourceView*& getShResView() { return _shResView; }
-
-	static void loadCubeMapFromFile(ID3D11Device* dev, const std::string& filename, UINT edgeLength, ID3D11Texture2D*& texPtr, ID3D11ShaderResourceView*& shResView);
-	static D3D11_TEXTURE2D_DESC createCubeMapDescription(UINT edgeLength, bool renderTarget, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM);
 };

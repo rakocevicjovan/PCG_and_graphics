@@ -922,6 +922,15 @@
     <ClInclude Include="Viewport.h">
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>Rendering\Low level</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeMap.h">
+      <Filter>Rendering\Low level</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
