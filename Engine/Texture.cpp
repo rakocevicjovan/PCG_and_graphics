@@ -321,9 +321,6 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 
 			float noiseVal = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
 			result.push_back(noiseVal);
-
-			//unsigned char uc = ((rgb + 1.f) * 0.5f) * 255;
-			//curData.push_back(uc);
 		}
 	}
 
@@ -334,10 +331,7 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 
 std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
 {
-	//std::vector<unsigned char> result;
 	std::vector<float> result;
-	
-	//result.reserve(w * h);
 	result.reserve(w * h);
 
 	float wInverse = 1.f / (float)w;
@@ -352,9 +346,6 @@ std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunari
 
 			float noiseVal = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
 			result.push_back(noiseVal);
-
-			//unsigned char uc = ((rgb + 1.f) * 0.5f) * 255;	works only if -1, 1 which is not the case
-			//curData.push_back(uc);
 		}
 	}
 

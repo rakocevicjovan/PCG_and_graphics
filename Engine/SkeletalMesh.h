@@ -94,10 +94,6 @@ public:
 	}
 
 
-
-	inline PointLight* getLight() const { return _baseMaterial.pLight; }
-
-
 	
 	void draw(ID3D11DeviceContext* dc)
 	{

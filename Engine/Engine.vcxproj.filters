@@ -892,9 +892,6 @@
     <ClInclude Include="Bone.h">
       <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
-    <ClInclude Include="Exporter.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="FBXLoader.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -930,6 +927,9 @@
     </ClInclude>
     <ClInclude Include="CubeMap.h">
       <Filter>Rendering\Low level</Filter>
+    </ClInclude>
+    <ClInclude Include="SerializableAsset.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

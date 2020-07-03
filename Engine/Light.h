@@ -1,6 +1,7 @@
 #pragma once
 #include "Math.h"
 #include "Cone.h"
+#include "CBuffer.h"
 #include <cmath>
 
 //#define INTENSITY_TO_RANGE(i) (sqrt(i / MIN_LIGHT))
@@ -120,7 +121,7 @@ struct DirectionalLight : LightData
 	
 	DirectionalLight(){}
 	
-	DirectionalLight(LightData ld, SVec4 dir) : LightData(ld), dir(dir){}
+	DirectionalLight(LightData ld, SVec4 dir) : LightData(ld), dir(dir) {}
 };
 
 
@@ -129,9 +130,27 @@ struct PointLight : LightData
 {
 	SVec4 pos;
 
+	ID3D11Buffer* _buffer;
+
 	PointLight(){}
 
 	PointLight(LightData ld, SVec4 pos) : LightData(ld), pos(pos) {}
+
+	// See how this feels to use then apply it to other lights if it's all right
+	void createCBuffer(ID3D11Device* device)
+	{
+		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(PointLight) - sizeof(_buffer)), _buffer);
+	}
+
+	void updateCBuffer(ID3D11DeviceContext* context)
+	{
+		CBuffer::updateWholeBuffer(context, _buffer, this, sizeof(PointLight) - sizeof(_buffer));
+	}
+
+	void bind(ID3D11DeviceContext* context, uint8_t slot = 0ul)
+	{
+		context->PSSetConstantBuffers(slot, 1, &_buffer);
+	}
 };
 
 
@@ -143,14 +162,3 @@ struct SpotLight : PointLight
 	SpotLight() {}
 	SpotLight(PointLight pl, SVec3 coneAxis, float dotProdMin) : PointLight(pl), coneAxisAngle(coneAxisAngle) {}
 };
-
-
-
-/* // Circumvents same signatures but I don't really like it
-	struct Angle { float theta; };
-	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, float cosTheta)
-		: PLight(rgb, intensity, pos), _dirCosTheta(Math::fromVec3(dir, cosTheta)) {}
-
-	SLight(const SVec3& rgb, float intensity, const SVec3& pos, const SVec3& dir, Angle thetaAngle)
-		: PLight(rgb, intensity, pos), _dirCosTheta(Math::fromVec3(dir, std::cosf(thetaAngle.theta))) {}
-*/

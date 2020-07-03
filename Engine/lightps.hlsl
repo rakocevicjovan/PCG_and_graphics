@@ -9,7 +9,6 @@ cbuffer LightBuffer : register(b0)
 	float3 slc;
 	float sli;
     float4 lightPosition;
-	float4 stupidThingIUsedToDo;
 };
 
 cbuffer PSPerFrameBuffer : register(b10)

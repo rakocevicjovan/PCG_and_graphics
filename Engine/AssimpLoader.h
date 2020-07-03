@@ -81,16 +81,11 @@ public:
 		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc });
 		saVS->describeBuffers({ WMBufferMeta });
 
-		D3D11_BUFFER_DESC lightBufferDesc = CBuffer::createDesc(sizeof(LightBuffer));
-		CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
-		lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
-
-		PixelShader* phong = new PixelShader(shc, L"lightPS.hlsl", regularSD, { lightBufferDesc });
-		phong->describeBuffers({ lightBufferMeta });
+		PixelShader* phong = new PixelShader(shc, L"lightPS.hlsl", regularSD, { });
+		//phong->describeBuffers({ lightBufferMeta });
 
 		_skelAnimMat.setVS(saVS);
 		_skelAnimMat.setPS(phong);
-		_skelAnimMat.pLight = &_pointLight;
 
 
 		VertexShader* basicVS = new VertexShader(shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
@@ -103,7 +98,6 @@ public:
 		terrain.CalculateTexCoords();
 		terrain.CalculateNormals();
 		floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
-		floorMesh->_baseMaterial.pLight = &_pointLight;
 		floorRenderable = Renderable(*floorMesh);
 		floorRenderable.mat->setVS(basicVS);
 		floorRenderable.mat->setPS(phong);

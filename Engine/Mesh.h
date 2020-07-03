@@ -56,10 +56,6 @@ public:
 
 
 
-	inline PointLight* getLight() const { return _baseMaterial.pLight; }	// @TODO remove
-
-
-
 	void draw(ID3D11DeviceContext* dc, PointLight* p)
 	{
 		//update and set cbuffers

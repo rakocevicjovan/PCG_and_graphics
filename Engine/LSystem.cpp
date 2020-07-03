@@ -474,7 +474,6 @@ namespace Procedural
 		dataPtr2->slc = dLight.slc;
 		dataPtr2->sli = dLight.sli;
 		dataPtr2->pos = dLight.pos;
-		dataPtr2->ePos = SVec4(eyePos.x, eyePos.y, eyePos.z, 1.0f);
 		dc->Unmap(s._lightBuffer, 0);
 		dc->PSSetConstantBuffers(0, 1, &s._lightBuffer);
 

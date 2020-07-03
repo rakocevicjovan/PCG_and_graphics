@@ -456,7 +456,6 @@ namespace Procedural
 		dataPtr2->slc = pointLight.slc;
 		dataPtr2->sli = pointLight.sli;
 		dataPtr2->pos = pointLight.pos;
-		dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
 		dc->Unmap(s._lightBuffer, 0);
 		dc->PSSetConstantBuffers(0, 1, &s._lightBuffer);
 

@@ -61,7 +61,6 @@ void TDLevel::init(Systems& sys)
 	floorMesh._textures.push_back(floorTex);
 
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
-	floorMesh._baseMaterial.pLight = &pLight;	
 	
 	floorRenderable = Renderable(floorMesh);
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
@@ -91,7 +90,6 @@ void TDLevel::init(Systems& sys)
 
 	Renderable dbgRenderable(S_RESMAN.getByName<Model>("Skysphere")->_meshes[0]);	//, _lightList[0]._posRange.w
 	dbgRenderable.mat = new Material(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), true);
-	dbgRenderable.mat->pLight = &pLight;
 
 	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
 	debugSphereActor._renderables.back()._transform = dbgSphMat;

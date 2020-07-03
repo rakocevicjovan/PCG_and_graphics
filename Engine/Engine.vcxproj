@@ -378,7 +378,6 @@
     <ClInclude Include="Curves.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
-    <ClInclude Include="Exporter.h" />
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="GUI.h" />
@@ -393,6 +392,7 @@
     <ClInclude Include="Project.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SerializableAsset.h" />
     <ClInclude Include="Serializer.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h">

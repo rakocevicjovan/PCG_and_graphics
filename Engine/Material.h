@@ -34,9 +34,6 @@ public:
 	//this could also belong in the vertex buffer... like stride and offset do
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	//atrocious, make this dynamic and all that... renderer will need a lot of work but it will come up some time
-	PointLight* pLight;
-
 	// Functions
 
 	Material();
@@ -47,7 +44,6 @@ public:
 	
 	inline VertexShader* getVS() const { return _vertexShader; }
 	inline PixelShader* getPS() const { return _pixelShader; }
-	inline PointLight* getLight() const { return pLight; }
 
 	void setVS(VertexShader* vs);
 	void setPS(PixelShader* ps);

@@ -4,7 +4,7 @@
 
 // Basically halves the class size with the option to use 8 bit enums...
 enum class CBUFFER_FIELD_TYPE : uint8_t		{ BOOL, FLOAT, FLOAT4, MATRIX4 };
-enum class CBUFFER_FIELD_CONTENT : uint8_t { TRANSFORM, P_LIGHT, CSM };
+enum class CBUFFER_FIELD_CONTENT : uint8_t { TRANSFORM, CSM };
 
 struct CBufferFieldDesc
 {

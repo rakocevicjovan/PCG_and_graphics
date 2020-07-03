@@ -4,7 +4,7 @@
 #include "GuiBlocks.h"
 #include "Texture.h"
 #include "FileBrowser.h"
-#include "Exporter.h"
+#include "AeonWriter.h"
 #include "AnimationEditor.h"
 #include "SkeletalModelInstance.h"
 #include "Model.h"
@@ -36,7 +36,7 @@ private:
 
 	bool _importConfigured;
 
-	Exporter _exporter;
+	AeonWriter _assetWriter;
 
 	// Put this into animEditor
 	int _currentAnim;
@@ -50,13 +50,21 @@ public:
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat, PointLight* pLight)
 	{
-		_currentAnim = 0;
-		_playbackSpeed = 1;
+		_importConfigured = false;
 
 		_path = path;
 		_device = device;
 		_skelAnimMat = defMat;
 		_pLight = pLight;
+
+		_pLight->createCBuffer(device);
+		ID3D11DeviceContext* context;
+		device->GetImmediateContext(&context);
+		_pLight->updateCBuffer(context);
+		_pLight->bind(context);
+
+		_currentAnim = 0;
+		_playbackSpeed = 1;
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
@@ -64,25 +72,23 @@ public:
 			aiProcess_GenSmoothNormals |
 			aiProcess_ConvertToLeftHanded;
 
-		_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	// This doesn't work...
+		// This doesn't work, allegedly because optimization flags are on
+		//_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	
 
 		_aiScene = AssimpWrapper::loadScene(_importer, path, pFlags);
 
 		if (!_aiScene)
 			return false;
 
-
-		_importConfigured = _impSkeleton = _impSkModel = _impModel = _impAnims = false;
-
 		_isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
 		_isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);
 		_hasAnimations = _aiScene->HasAnimations();
 
-		// Peak elegance programming... but it's simple and it works I guess :/
-		if (_isOnlySkeleton) _impSkeleton = true;
-		if (_isSkeletalModel) _impSkModel = true;
-		if (!_isOnlySkeleton && !_isSkeletalModel) _impModel = true;
-		if (_hasAnimations) _impAnims = true;
+		// Defaults so I don't have to tick them every time, usually you want everything
+		_impSkeleton = _isOnlySkeleton;
+		_impSkModel = _isSkeletalModel;
+		_impModel = !_isOnlySkeleton && !_isSkeletalModel;
+		_impAnims = _hasAnimations;
 
 		_externalTextures = AssimpWrapper::getExtTextureNames(_aiScene);
 
@@ -140,7 +146,6 @@ public:
 					{
 						skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
 						skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
-						skmesh._baseMaterial.pLight = _pLight;
 					}
 
 					_skModelInst.reset();
@@ -233,11 +238,11 @@ public:
 		ImGui::Text("Commands");
 
 		if (ImGui::Button("Export"))
-			_exporter.activate();
+			_assetWriter.activate();
 
-		if (_exporter.isActive())
+		if (_assetWriter.isActive())
 		{
-			if (_exporter.displayExportSettings())
+			if (_assetWriter.displayExportSettings())
 			{
 				//Gather settings, process them
 				if (_skModel.get())
@@ -472,7 +477,6 @@ public:
 				else
 				{
 					ImGui::Text("Path: %s", texPath.c_str());
-					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
 					ImGui::Text(" ( WARNING: NOT FOUND! )");
 					ImGui::PopStyleColor();
@@ -482,7 +486,9 @@ public:
 					if (FileUtils::findFile(modelFolderPath, texName, artistPls))
 					{
 						ImGui::Indent();
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.93, 0.82, 0.01, 1.));
 						ImGui::Text("Proposed path: %s", artistPls.path().string().c_str());
+						ImGui::PopStyleColor();
 						ImGui::Unindent();
 					}
 				}

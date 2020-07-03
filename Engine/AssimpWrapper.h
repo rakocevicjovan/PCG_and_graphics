@@ -11,10 +11,6 @@
 
 class AssimpWrapper
 {
-private:
-
-
-
 public:
 
 	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags)

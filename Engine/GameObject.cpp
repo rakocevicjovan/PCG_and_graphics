@@ -42,7 +42,6 @@ void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
 	{
 		r.mat->setVS(vs);
 		r.mat->setPS(ps);
-		r.mat->pLight = &pLight;		//this is awkward and I don't know how to do it properly right now...
 	}
 }
 

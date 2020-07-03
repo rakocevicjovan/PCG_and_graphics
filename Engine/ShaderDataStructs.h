@@ -51,7 +51,6 @@ struct LightBuffer
 	SVec3 slc;
 	float sli;
 	SVec4 pos;
-	SVec4 ePos;
 };
 
 
