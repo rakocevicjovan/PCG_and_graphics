@@ -131,7 +131,7 @@ public:
 				if (_impSkeleton)
 				{
 					_skeleton.reset();
-					_skeleton = std::unique_ptr<Skeleton>(new Skeleton());
+					_skeleton = std::make_unique<Skeleton>();
 					AssimpWrapper::loadOnlySkeleton(_aiScene, _aiScene->mRootNode, *_skeleton.get(), SMatrix::Identity);
 					_skeleton->_root = _skeleton->findBone(_aiScene->mRootNode->mName.C_Str());
 				}
@@ -237,18 +237,13 @@ public:
 	{		
 		ImGui::Text("Commands");
 
-		if (ImGui::Button("Export"))
+		if (ImGui::Button("Import as asset"))
 			_assetWriter.activate();
 
 		if (_assetWriter.isActive())
 		{
 			if (_assetWriter.displayExportSettings())
 			{
-				//Gather settings, process them
-				if (_skModel.get())
-				{
-					auto chunks = Serializer::serializeSkeletalModel(*_skModel.get());
-				}
 
 			}
 		}

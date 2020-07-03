@@ -44,13 +44,13 @@ public:
 
 
 
-	//template <typename VertexType>
-	VBuffer(ID3D11Device* device, std::vector<Vert3D>& vertices, UINT offset = 0u)
-		: _stride(sizeof(Vert3D)), _offset(offset)
+	template <typename VertexType>
+	VBuffer(ID3D11Device* device, std::vector<VertexType>& vertices, UINT offset = 0u)
+		: _stride(sizeof(VertexType)), _offset(offset)
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+		vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertices.size();
+		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;	// Used to be default, but faster?
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;

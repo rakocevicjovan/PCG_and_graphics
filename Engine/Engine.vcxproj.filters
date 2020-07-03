@@ -931,6 +931,9 @@
     <ClInclude Include="SerializableAsset.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="VertSignature.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

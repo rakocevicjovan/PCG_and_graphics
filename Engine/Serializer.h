@@ -1,14 +1,7 @@
 #pragma once
 #include "SkeletalModel.h"
 #include "Model.h"
-
-
-
-struct MemChunk
-{
-	std::unique_ptr<char[]> ptr;
-	UINT size;
-};
+#include "SerializableAsset.h"
 
 
 
@@ -39,7 +32,9 @@ public:
 
 		UINT ibs = indexCount * sizeof(UINT);
 		UINT vbs = vertexCount * sizeof(BonedVert3D);
-		//UINT tbs = texCount * sizeof(UINT);	// These will be indices... not sure how that's gonna work
+
+		// These will be handles of some kind... not sure how that's gonna work
+		//UINT tbs = texCount * sizeof(UINT);
 
 		UINT headerSize = 12;
 		UINT dataSize = ibs + vbs;		// + tbs

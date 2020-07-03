@@ -13,23 +13,13 @@ private:
 
 	bool _active;
 
-	void* outputItem;	// Boo hoo voidptr evil
-
-	bool doMod;
-	bool doSkel;
-	bool doTex;
-	bool doAnim;
-
 public:
 
 	std::string _exportPath;
 
 
 
-	AeonWriter() :
-		_active(false), doMod(true), doSkel(true), doTex(true), doAnim(true),
-		_exportPath("C:\\Users\\Senpai\\Desktop\\Test.txt")
-	{}
+	AeonWriter() : _active(false), _exportPath("C:\\Users\\Senpai\\Desktop\\Test.txt") {}
 
 
 
@@ -41,11 +31,6 @@ public:
 		{
 			// Settings
 			inTextStdString("Export path", _exportPath);
-
-			ImGui::Checkbox("Model", &doMod);
-			ImGui::Checkbox("Skeleton", &doSkel);
-			ImGui::Checkbox("Textures", &doTex);
-			ImGui::Checkbox("Animations", &doAnim);
 
 			// Controls
 			if (ImGui::Button("Close"))
@@ -78,7 +63,7 @@ public:
 		{
 			ImGui::Text("Are you sure you want to overwrite it?");
 
-			if (ImGui::Button("JUST DO IT!"))
+			if (ImGui::Button("Overwrite"))
 			{
 				ImGui::CloseCurrentPopup();
 				result = true;
@@ -98,7 +83,7 @@ public:
 
 	void exportAsset(MemChunk& mc)
 	{
-		FileUtils::writeAllBytes(_exportPath.c_str(), mc.ptr.get(), mc.size);
+		FileUtils::writeAllBytes(_exportPath.c_str(), mc._ptr.get(), mc._size);
 		deactivate();
 	}
 
