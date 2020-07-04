@@ -12,10 +12,11 @@
 #include "SkeletalMesh.h"
 #include "AnimationInstance.h"
 #include "Skeleton.h"
+#include "SerializableAsset.h"
 
 
 
-class SkeletalModel
+class SkeletalModel : public SerializableAsset
 {
 public:
 
@@ -113,7 +114,20 @@ public:
 
 		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
 		// Elision does happen... I was wondering
-		return SkeletalMesh(vertices, indices, locTextures, device, ind, transform);
+		return SkeletalMesh(vertices, indices, locTextures, device, transform);
 	}
 
+
+	// This is wrong for now, need to see how to support asset aggregates
+	MemChunk Serialize() override
+	{
+		std::vector<MemChunk> memChunks;
+
+		memChunks.reserve(_meshes.size());
+
+		for (int i = 0; i < _meshes.size(); ++i)
+			memChunks.push_back(_meshes[i].Serialize());
+
+		return std::move((memChunks[0]));
+	}
 };

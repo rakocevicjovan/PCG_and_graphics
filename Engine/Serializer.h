@@ -8,61 +8,6 @@
 class Serializer
 {
 public:
-	// Serialization functions for asset classes
-	static std::vector<MemChunk> serializeSkeletalModel(const SkeletalModel& skm)
-	{
-		std::vector<MemChunk> memChunks;
-
-		memChunks.reserve(skm._meshes.size());
-
-		for (int i = 0; i < skm._meshes.size(); ++i)
-			memChunks.push_back(serializeSkeletalMesh(skm._meshes[i]));
-
-		return memChunks;
-	}
-
-
-
-	static MemChunk serializeSkeletalMesh(const SkeletalMesh& mesh)
-	{
-		// Header data
-		UINT indexCount = mesh._indices.size();
-		UINT vertexCount = mesh._vertices.size();
-		//UINT texCount = mesh._textures.size();
-
-		UINT ibs = indexCount * sizeof(UINT);
-		UINT vbs = vertexCount * sizeof(BonedVert3D);
-
-		// These will be handles of some kind... not sure how that's gonna work
-		//UINT tbs = texCount * sizeof(UINT);
-
-		UINT headerSize = 12;
-		UINT dataSize = ibs + vbs;		// + tbs
-
-		UINT totalSize = headerSize + dataSize;
-
-		std::unique_ptr<char[]> result(new char[totalSize]);
-
-		UINT offset = 0u;	// Wrap in a helper if this works
-
-		memcpy(result.get() + offset, &indexCount, sizeof(UINT));
-		offset += sizeof(UINT);
-
-		memcpy(result.get() + offset, &vertexCount, sizeof(UINT));
-		offset += sizeof(UINT);
-
-		memcpy(result.get() + offset, &vertexCount, sizeof(UINT));
-		offset += sizeof(UINT);
-
-		memcpy(result.get() + offset, mesh._indices.data(), ibs);
-		offset += ibs;
-
-		memcpy(result.get() + offset, mesh._vertices.data(), vbs);
-		offset += vbs;
-
-		return { std::move(result), totalSize };
-	}
-
 
 
 	static MemChunk serializeTexture(const Texture& texture)

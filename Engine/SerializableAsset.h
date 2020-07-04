@@ -49,6 +49,11 @@ struct MemChunk
 		memcpy(_ptr.get() + offset, data, cpySize);
 		offset = newSize;
 	}
+
+	bool isFull(UINT offset)
+	{
+		return (offset == _size);
+	}
 };
 
 

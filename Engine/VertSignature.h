@@ -8,7 +8,8 @@ enum class VAttribSemantic : uint8_t
 	TEX_COORD,
 	NORMAL,
 	TANGENT,
-	COL
+	COL,
+	OTHER
 };
 
 
@@ -25,7 +26,8 @@ enum class VAttribType : uint8_t
 	UINT,
 	UINT2,
 	UINT3,
-	UINT4
+	UINT4,
+	TYPELESS
 };
 
 
@@ -33,12 +35,29 @@ struct VAttrib
 {
 	VAttribSemantic _semantic;
 	VAttribType _type;
-	uint8_t _numElements;	// pos would be _type = float, _numElements = 3 for example
+	uint8_t _size;
+	uint8_t _numElements;	// For multiple of same semantic type, say {TEX_COORD, float2, 4}
+
+	VAttrib() 
+		: _semantic(VAttribSemantic::POS), _type(VAttribType::FLOAT), _size(0u), _numElements(1u) { }
+
+	VAttrib(VAttribSemantic s, VAttribType t, uint8_t size, uint8_t numElements)
+		: _semantic(s), _type(t), _size(size), _numElements(numElements) {}
 };
 
 
 
-class VertSignature
+struct VertSignature
 {
 	std::vector<VAttrib> _attributes;
+
+	uint8_t getVertByteWidth()
+	{
+		uint8_t total = 0u;
+
+		for (auto attrib : _attributes)
+			total += (attrib._size * attrib._numElements);
+
+		return total;
+	}
 };

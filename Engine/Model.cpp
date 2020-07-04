@@ -101,7 +101,11 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 	faceTangents.reserve(aiMesh->mNumFaces);
 
 	bool hasTexCoords = aiMesh->HasTextureCoords(0);
+	UINT numTexChannels = aiMesh->GetNumUVChannels();	// Number of UV coordinate sets (channels)
+	UINT* numUVComponents = aiMesh->mNumUVComponents;	// Whether the channel contains 1, 2 or 3 values (U, UV, UVW)
+
 	bool hasNormals = aiMesh->HasNormals();
+
 	bool hasTangents = aiMesh->HasTangentsAndBitangents();
 
 	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, mesh._vertices);

@@ -92,7 +92,6 @@ Texture& Texture::operator=(const Texture& other)
 
 Texture::~Texture()
 {
-	
 	if (_dxID)
 		_dxID->Release();
 

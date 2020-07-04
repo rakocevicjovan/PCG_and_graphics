@@ -24,8 +24,6 @@ namespace Procedural { class Terrain; }
 class Mesh : public Resource, public SerializableAsset
 {
 	friend class Model;
-protected:
-
 public:
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	_vertices;
@@ -33,6 +31,7 @@ public:
 	std::vector<Texture> _textures;	//@TODO not sure what to do with this... who should own them?
 
 	SMatrix _transform;
+
 	Material _baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
@@ -103,28 +102,31 @@ public:
 		// Header data
 		UINT indexCount = _indices.size();
 		UINT vertexCount = _vertices.size();
-		UINT texCount = _textures.size();
 		UINT matID = 0u;
-		UINT headerSize = 16 + 64;
+		UINT headerSize = 3 * 4 + 64;
 
 		UINT ibs = indexCount * sizeof(UINT);
 		UINT vbs = vertexCount * sizeof(BonedVert3D);	// @TODO change when vertex changes
-		UINT tbs = texCount * sizeof(uint32_t);	// 4 billion textures per project lul
-		UINT dataSize = ibs + vbs + tbs;
+		UINT dataSize = ibs + vbs;
 
 		UINT totalSize = headerSize + dataSize;
 
+		UINT offset = 0u;
 		MemChunk byterinos(totalSize);
 
-		UINT offset = 0u;
 		byterinos.add(&indexCount, offset);
 		byterinos.add(&vertexCount, offset);
-		byterinos.add(&texCount, offset);
 		byterinos.add(&matID, offset);
+		byterinos.add(&_transform, offset);
 
 		byterinos.add(_indices, offset);
 		byterinos.add(_vertices, offset);
-		//byterinos.add(_); How to add these though? Not like I know them yet...
+
+		if (!byterinos.isFull(offset))
+		{
+			OutputDebugStringA("MESH SERIALIZATION WARNING: SIZE MISMATCH!");
+			exit(7646);
+		}
 
 		return byterinos;
 	}

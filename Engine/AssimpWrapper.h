@@ -43,22 +43,16 @@ public:
 	{
 		verts.reserve(aiMesh->mNumVertices);
 
-		UINT numTexChannels = aiMesh->GetNumUVChannels();	// Number of UV coordinate sets (channels)
-		UINT* numUVComponents = aiMesh->mNumUVComponents;	// Whether the channel contains 1, 2 or 3 values (U, UV, UVW)
-		
 		float maxDist = 0.f;
-
 		VertexType vertex;
 
 		for (unsigned int i = 0; i < aiMesh->mNumVertices; ++i)
 		{
-			//SVec3(aiMesh->mVertices[i].x, aiMesh->mVertices[i].y, aiMesh->mVertices[i].z);
-			vertex.pos = SVec3(&aiMesh->mVertices[i].x);	
-
-			// Should be normalized already?
-			vertex.normal = SVec3(&aiMesh->mNormals[i].x);
+			vertex.pos = SVec3(&aiMesh->mVertices[i].x);
 
 			vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x, aiMesh->mTextureCoords[0][i].y) : SVec2::Zero;
+
+			vertex.normal = SVec3(&aiMesh->mNormals[i].x);	// Should be normalized already?
 
 			verts.push_back(vertex);
 
@@ -66,7 +60,7 @@ public:
 			if (maxDist < curDist) maxDist = curDist;
 		}
 
-		return maxDist;
+		return sqrt(maxDist);
 	}
 
 

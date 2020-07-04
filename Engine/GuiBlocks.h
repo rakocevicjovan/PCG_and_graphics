@@ -91,7 +91,7 @@ static void displayMaterial(Material& mat)
 
 	ImGui::Separator();
 
-	ImGui::Text(std::string("Opaque: " + std::to_string(mat._opaque)).c_str());
+	ImGui::Checkbox("Opaque: ", &mat._opaque);
 
 	ImGui::EndGroup();
 }
@@ -100,7 +100,7 @@ static void displayMaterial(Material& mat)
 
 static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool dInds = false)
 {
-	ImGui::Text("Offset: ");
+	ImGui::Text("Offset matrix: ");
 	displayTransform(mesh._transform);
 
 	ImGui::Separator();

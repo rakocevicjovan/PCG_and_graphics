@@ -210,7 +210,7 @@ public:
 
 		if (ImGui::TreeNode("Textures"))
 		{
-			printSceneTextures();
+			printAiSceneTextures();
 			ImGui::TreePop();
 		}
 	}
@@ -504,7 +504,7 @@ public:
 		if(ImGui::TreeNode("Animation list"))
 		{
 			for (int i = 0; i < _aiScene->mNumAnimations; ++i)
-				printAnimation(_aiScene->mAnimations[i]);
+				printAiAnimation(_aiScene->mAnimations[i]);
 
 			ImGui::TreePop();
 		}
@@ -512,7 +512,7 @@ public:
 
 
 
-	void printAnimation(aiAnimation* sceneAnimation)
+	void printAiAnimation(aiAnimation* sceneAnimation)
 	{
 		int numChannels = sceneAnimation->mNumChannels;
 
@@ -526,7 +526,7 @@ public:
 
 				if (ImGui::TreeNode(channel->mNodeName.C_Str()))
 				{
-					printAnimationTrack(channel);
+					printAiAnimationTrack(channel);
 					ImGui::TreePop();
 				}
 			}
@@ -536,7 +536,7 @@ public:
 
 
 
-	void printAnimationTrack(aiNodeAnim* channel)
+	void printAiAnimationTrack(aiNodeAnim* channel)
 	{
 		ImGui::Text("Num scaling keys: %d", channel->mNumScalingKeys);
 		ImGui::Text("Num rotation keys: %d", channel->mNumRotationKeys);
@@ -576,7 +576,7 @@ public:
 
 
 
-	void printSceneTextures()
+	void printAiSceneTextures()
 	{
 		if (_aiScene->mTextures)
 		{

@@ -2,15 +2,15 @@
 
 #include "VBuffer.h"
 #include "IBuffer.h"
-#include <vector>
 #include "MeshDataStructs.h"
 #include "Math.h"
 #include "Geometry.h"
-#include "SkelAnimShader.h"
 #include "Material.h"
+#include "SerializableAsset.h"
+#include <vector>
 
 
-class SkeletalMesh
+class SkeletalMesh : public SerializableAsset
 {
 public:
 
@@ -23,17 +23,16 @@ public:
 
 	Material _baseMaterial;
 
-	unsigned int indexIntoModelMeshArray;
-
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
 
+	//unsigned int indexIntoModelMeshArray; // Wasn't necessary
 
 	SkeletalMesh(){}
 
 
 
-	SkeletalMesh(std::vector<BonedVert3D>& vertices, std::vector<unsigned int>& indices, std::vector<Texture>& textures, ID3D11Device* dvc, unsigned int ind, SMatrix& localTransform) 
+	SkeletalMesh(std::vector<BonedVert3D>& vertices, std::vector<unsigned int>& indices, std::vector<Texture>& textures, ID3D11Device* dvc, SMatrix& localTransform) 
 		: _vertices(std::move(vertices)), _indices(std::move(indices)), _textures(std::move(textures)), _localTransform(localTransform)
 	{
 		//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
@@ -42,7 +41,6 @@ public:
 			_baseMaterial._texDescription.push_back({ t._role, &t });
 		}
 
-		indexIntoModelMeshArray = ind;
 		setupSkeletalMesh(dvc);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 	}
 
@@ -123,4 +121,40 @@ public:
 		dc->DrawIndexed(_indexBuffer.getIdxCount(), 0, 0);
 	}
 	
+
+
+	MemChunk Serialize() override
+	{
+		// Header data
+		UINT indexCount = _indices.size();
+		UINT vertexCount = _vertices.size();
+		UINT materialID = 0u;
+		UINT headerSize = 3 * 4 + 2 * 64;
+
+		UINT ibs = indexCount * sizeof(UINT);
+		UINT vbs = vertexCount * sizeof(BonedVert3D);
+		UINT dataSize = ibs + vbs;		// + tbs
+
+		UINT totalSize = headerSize + dataSize;
+
+		UINT offset = 0u;
+		MemChunk byterinos(totalSize);
+
+		byterinos.add(&indexCount, offset);
+		byterinos.add(&vertexCount, offset);
+		byterinos.add(&materialID, offset);
+		byterinos.add(&_transform, offset);
+		byterinos.add(&_localTransform, offset);
+
+		byterinos.add(_indices, offset);
+		byterinos.add(_vertices, offset);
+
+		if (!byterinos.isFull(offset))
+		{
+			OutputDebugStringA("MESH SERIALIZATION WARNING: SIZE MISMATCH!");
+			exit(7646);
+		}
+
+		return byterinos;
+	}
 };

@@ -931,8 +931,11 @@
     <ClInclude Include="SerializableAsset.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="FlexVert.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
     <ClInclude Include="VertSignature.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
