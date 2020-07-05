@@ -121,13 +121,30 @@ public:
 	// This is wrong for now, need to see how to support asset aggregates
 	MemChunk Serialize() override
 	{
-		std::vector<MemChunk> memChunks;
+		UINT numMeshes = _meshes.size();
+		UINT numAnims = _anims.size();
+		UINT skelIndex = 0u;
+		UINT headerSize = 3 * 4 + 64;
 
-		memChunks.reserve(_meshes.size());
+		UINT meshIndex = 0u;
+		UINT animIndex = 0u;
+		UINT dataSize = (numMeshes + numAnims) * 4;
 
-		for (int i = 0; i < _meshes.size(); ++i)
-			memChunks.push_back(_meshes[i].Serialize());
+		UINT totalSize = headerSize + dataSize;
 
-		return std::move((memChunks[0]));
+		UINT offset = 0u;
+		MemChunk byterinos(totalSize);
+
+		byterinos.add(&numMeshes, offset);
+		byterinos.add(&numAnims, offset);
+		byterinos.add(&skelIndex, offset);
+
+		for (int i = 0; i < numMeshes; ++i)
+			byterinos.add(&meshIndex, offset);
+		
+		for (int i = 0; i < numAnims; ++i)
+			byterinos.add(&animIndex, offset);
+
+		return byterinos;
 	}
 };

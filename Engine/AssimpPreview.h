@@ -22,7 +22,6 @@ private:
 	// For 3d preview I need these... until a better system is in place at least
 	ID3D11Device* _device;
 	Material* _skelAnimMat;
-	PointLight* _pLight;
 
 	std::unique_ptr<SkeletalModel> _skModel;
 	std::unique_ptr<SkeletalModelInstance> _skModelInst;
@@ -30,10 +29,11 @@ private:
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
 
-	bool _isOnlySkeleton, _isSkeletalModel, _hasAnimations;
+	// Try this instead of above? Hmm
+	std::vector<std::unique_ptr<SerializableAsset>> _loadedAssets;
 
+	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
-
 	bool _importConfigured;
 
 	AeonWriter _assetWriter;
@@ -42,26 +42,21 @@ private:
 	int _currentAnim;
 	float _playbackSpeed;
 
+	float _previewScale;
+
 	std::vector<aiString> _externalTextures;
 
 public:
 
 
 
-	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat, PointLight* pLight)
+	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat)
 	{
 		_importConfigured = false;
 
 		_path = path;
 		_device = device;
 		_skelAnimMat = defMat;
-		_pLight = pLight;
-
-		_pLight->createCBuffer(device);
-		ID3D11DeviceContext* context;
-		device->GetImmediateContext(&context);
-		_pLight->updateCBuffer(context);
-		_pLight->bind(context);
 
 		_currentAnim = 0;
 		_playbackSpeed = 1;
@@ -80,15 +75,15 @@ public:
 		if (!_aiScene)
 			return false;
 
-		_isOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
-		_isSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);
+		_hasOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
+		_hasSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);
 		_hasAnimations = _aiScene->HasAnimations();
 
-		// Defaults so I don't have to tick them every time, usually you want everything
-		_impSkeleton = _isOnlySkeleton;
-		_impSkModel = _isSkeletalModel;
-		_impModel = !_isOnlySkeleton && !_isSkeletalModel;
+		// Checkbox defaults, usual case is to load everything
+		_impSkeleton = _hasOnlySkeleton;
+		_impSkModel = _hasSkeletalModel;
 		_impAnims = _hasAnimations;
+		_impModel = !_hasOnlySkeleton && !_hasSkeletalModel;
 
 		_externalTextures = AssimpWrapper::getExtTextureNames(_aiScene);
 
@@ -101,14 +96,14 @@ public:
 	{
 		if (ImGui::BeginChild("Import settings"))
 		{
-			if (_isOnlySkeleton)
+			if (_hasOnlySkeleton)
 			{
 				ImGui::Text("Scene contains a standalone skeleton.");
 				ImGui::Checkbox("Load skeleton", &_impSkeleton);
 			}
 			else
 			{
-				if (_isSkeletalModel)
+				if (_hasSkeletalModel)
 				{
 					ImGui::Text("Scene contains a rigged model.");
 					ImGui::Checkbox("Load rigged model", &_impSkModel);
@@ -234,7 +229,16 @@ public:
 
 
 	bool displayCommands()
-	{		
+	{
+		ImGui::BeginGroup();
+		ImGui::Text("Preview settings");
+
+		ImGui::SliderFloat("Model scale: (tbd)", &_previewScale, .1f, 100.f);
+		ImGui::InputInt("Animation to play: ", &_currentAnim);
+		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, -1.f, 1.f);
+
+		ImGui::EndGroup();
+
 		ImGui::Text("Commands");
 
 		if (ImGui::Button("Import as asset"))
@@ -244,11 +248,9 @@ public:
 		{
 			if (_assetWriter.displayExportSettings())
 			{
-
+				// Serialize this and that...
 			}
 		}
-
-		ImGui::InputInt("Animation to play: ", &_currentAnim);
 
 		if (ImGui::Button("Close"))
 			return false;

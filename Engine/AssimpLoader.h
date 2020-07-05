@@ -49,6 +49,12 @@ public:
 
 		_pointLight = PointLight(ld, SVec4(0., 300., 0., 1.));
 
+		_pointLight.createCBuffer(S_DEVICE);
+		ID3D11DeviceContext* context;
+		S_DEVICE->GetImmediateContext(&context);
+		_pointLight.updateCBuffer(context);
+		_pointLight.bind(context);
+
 		ShaderCompiler shc;
 
 		shc.init(const_cast<HWND*>(sys.getHWND()), S_DEVICE);	// Temporary
@@ -132,7 +138,7 @@ public:
 
 				if (!_previews.back()->
 					loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 
-						0u, &_skelAnimMat, &_pointLight))
+						0u, &_skelAnimMat))
 				{
 					_previews.pop_back();
 				}

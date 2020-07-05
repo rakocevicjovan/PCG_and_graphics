@@ -50,9 +50,20 @@ struct MemChunk
 		offset = newSize;
 	}
 
-	bool isFull(UINT offset)
+
+	inline bool isFull(UINT offset)
 	{
 		return (offset == _size);
+	}
+
+
+	inline void validateSize(UINT offset)
+	{
+		if (!isFull(offset))
+		{
+			OutputDebugStringA("SERIALIZATION WARNING: SIZE MISMATCH!");
+			throw;
+		}
 	}
 };
 

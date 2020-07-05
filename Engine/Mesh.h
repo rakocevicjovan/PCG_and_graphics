@@ -99,12 +99,13 @@ public:
 
 	MemChunk Serialize() override
 	{
-		// Header data
+		// Header data - fixed size
 		UINT indexCount = _indices.size();
 		UINT vertexCount = _vertices.size();
 		UINT matID = 0u;
 		UINT headerSize = 3 * 4 + 64;
 
+		// Content data - variable size
 		UINT ibs = indexCount * sizeof(UINT);
 		UINT vbs = vertexCount * sizeof(BonedVert3D);	// @TODO change when vertex changes
 		UINT dataSize = ibs + vbs;
