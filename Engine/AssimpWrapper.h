@@ -345,7 +345,8 @@ public:
 	{
 		const aiNode* result = nullptr;
 
-		// Make skeleton root account for all nodes before it (usually it's only root)
+		// Make skeleton root account for all nodes before it 
+		// Usually it's a direct child of root but not always
 		SMatrix nodeLocalTransform = aiMatToSMat(node->mTransformation);
 		pMat = nodeLocalTransform * pMat;
 

@@ -10,7 +10,7 @@
 #include <vector>
 
 
-class SkeletalMesh : public SerializableAsset
+class SkeletalMesh //: public SerializableAsset
 {
 public:
 
@@ -123,7 +123,7 @@ public:
 	
 
 
-	MemChunk Serialize() override
+	MemChunk Serialize() //override
 	{
 		// Header data
 		UINT indexCount = _indices.size();

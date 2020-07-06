@@ -68,10 +68,13 @@ struct MemChunk
 };
 
 
-
+/* 
+// This just complicates things, since different classes need different inputs, and although
+// it's possible to make it data driven, it would provide no gain as far as I can tell
 class SerializableAsset
 {
 public:
 
 	virtual MemChunk Serialize() = 0;
 };
+*/

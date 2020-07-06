@@ -16,7 +16,7 @@
 
 
 
-class SkeletalModel : public SerializableAsset
+class SkeletalModel //: public SerializableAsset
 {
 public:
 
@@ -119,7 +119,7 @@ public:
 
 
 	// This is wrong for now, need to see how to support asset aggregates
-	MemChunk Serialize() override
+	MemChunk Serialize() //override
 	{
 		UINT numMeshes = _meshes.size();
 		UINT numAnims = _anims.size();

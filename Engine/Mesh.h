@@ -21,7 +21,7 @@ typedef unsigned int UINT;
 namespace Procedural { class Terrain; }
 
 
-class Mesh : public Resource, public SerializableAsset
+class Mesh : public Resource	//, public SerializableAsset
 {
 	friend class Model;
 public:
@@ -97,7 +97,7 @@ public:
 
 
 
-	MemChunk Serialize() override
+	MemChunk Serialize() //override
 	{
 		// Header data - fixed size
 		UINT indexCount = _indices.size();

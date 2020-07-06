@@ -11,11 +11,12 @@ void Skeleton::loadFromAssimp(const aiScene* scene)
 		AssimpWrapper::addMissingBones(*this, boneNode, SMatrix::Identity);
 	}
 
-	const aiNode* skelRoot = AssimpWrapper::findSkeletonRoot(scene->mRootNode, *this, SMatrix());
+	// Swap with above and search to root? Should try it.
+	const aiNode* skelRootNode = AssimpWrapper::findSkeletonRoot(scene->mRootNode, *this, SMatrix());
 
 	// Otherwise, skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
-	if (skelRoot)
-		linkSkeletonHierarchy(skelRoot);
+	if (skelRootNode)
+		linkSkeletonHierarchy(skelRootNode);
 }
 
 
@@ -24,62 +25,39 @@ void Skeleton::linkSkeletonHierarchy(const aiNode* skelRootNode)
 {
 	_root = findBone(skelRootNode->mName.C_Str());
 
-	// Skip root itself, it has a bit of a special transform (local IS global... my bad there)
+	// Skip root itself, it already contains a concatenated transform
 	for (int i = 0; i < skelRootNode->mNumChildren; i++)
-	{
-		makeLikeATree(skelRootNode->mChildren[i], _root->_localMatrix);
-	}
-
-	//calcGlobalTransforms(*_root, SMatrix::Identity);
+		makeLikeATree(_root, skelRootNode->mChildren[i], _root->_localMatrix);
 }
 
 
-// Overwrites root's transform...
-void Skeleton::makeLikeATree(const aiNode* node, SMatrix concat)
+
+void Skeleton::makeLikeATree(Bone* parent, const aiNode* node, SMatrix concat)
 {
 	std::string nodeName(node->mName.data);
 
-	std::map<std::string, Bone>::iterator boneIterator = _boneMap.find(nodeName);
+	Bone* currentBone = findBone(nodeName);
 
-	SMatrix locNodeMat = AssimpWrapper::aiMatToSMat(node->mTransformation);
-
-	concat = locNodeMat * concat;
-
-	if (boneIterator != _boneMap.end())	// If node is a bone
-	{
-		Bone& currentBone = boneIterator->second;
-		currentBone._localMatrix = locNodeMat;
-		linkToParentBone(node, currentBone);
-	}
-
-	for (unsigned int i = 0; i < node->mNumChildren; ++i)
-		this->makeLikeATree(node->mChildren[i], concat);
-}
-
-
-
-// Concatenated matrix represents the global transform of a child node we are currently coming from
-void Skeleton::linkToParentBone(const aiNode* node, Bone& currentBone)
-{
-	aiNode* parent = node->mParent;
-
-	if (parent == nullptr)	// We are at root node
+	if (!currentBone)
 		return;
 
-	std::string parentName(node->mParent->mName.data);
+	SMatrix locNodeMat = AssimpWrapper::aiMatToSMat(node->mTransformation);
+	concat = locNodeMat * concat;
 
-	auto existingBone = _boneMap.find(parentName);
+	currentBone->_localMatrix = locNodeMat;
+	currentBone->parent = parent;
+	parent->offspring.push_back(currentBone);
 
-	if (existingBone != _boneMap.end())	// Found it, no need to go further
-	{
-		currentBone.parent = &(existingBone->second);
-		currentBone.parent->offspring.push_back(&currentBone);
-	}
+	for (unsigned int i = 0; i < node->mNumChildren; ++i)
+		this->makeLikeATree(currentBone, node->mChildren[i], concat);
 }
 
 
 
-/*void Skeleton::calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
+/*
+// calcGlobalTransforms(*_root, SMatrix::Identity); in linkSkeletonHierarchy
+// void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform); in header
+void Skeleton::calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform)
 {
 	bone._globalMatrix = bone._localMatrix * parentTransform;
 

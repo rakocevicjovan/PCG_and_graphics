@@ -24,6 +24,8 @@ public:
 	Bone* _root;
 	SMatrix _globalInverseTransform;
 
+	Skeleton() : _root(nullptr) {}
+
 
 
 	// Assumes influencing bones were loaded from the meshes already
@@ -31,19 +33,11 @@ public:
 
 
 
-	void makeLikeATree(const aiNode* node, SMatrix concat);
-
-
-
-	void linkToParentBone(const aiNode* node, Bone& currentBone);
+	void makeLikeATree(Bone* parent, const aiNode* node, SMatrix concat);
 
 
 
 	void linkSkeletonHierarchy(const aiNode* skelRoot);
-
-
-
-	//void calcGlobalTransforms(Bone& bone, const SMatrix& parentTransform);
 
 
 

@@ -29,9 +29,6 @@ private:
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
 
-	// Try this instead of above? Hmm
-	std::vector<std::unique_ptr<SerializableAsset>> _loadedAssets;
-
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
 	bool _importConfigured;
