@@ -219,18 +219,17 @@ public:
 			{
 				aiNodeAnim* channel = sceneAnimation->mChannels[j];
 
-				//create empty channel object, for our use not like assimp's
 				AnimChannel ac(channel->mNumPositionKeys, channel->mNumRotationKeys, channel->mNumScalingKeys);
-				ac.jointName = std::string(channel->mNodeName.C_Str());
+				ac._boneName = std::string(channel->mNodeName.C_Str());
 
 				for (int c = 0; c < channel->mNumScalingKeys; c++)
-					ac.sKeys.emplace_back(channel->mScalingKeys[c].mTime, SVec3(&channel->mScalingKeys[c].mValue.x));
+					ac._sKeys.emplace_back(channel->mScalingKeys[c].mTime, SVec3(&channel->mScalingKeys[c].mValue.x));
 
 				for (int b = 0; b < channel->mNumRotationKeys; b++)
-					ac.rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
+					ac._rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
 
 				for (int a = 0; a < channel->mNumPositionKeys; a++)
-					ac.pKeys.emplace_back(channel->mPositionKeys[a].mTime, SVec3(&channel->mPositionKeys[a].mValue.x));
+					ac._pKeys.emplace_back(channel->mPositionKeys[a].mTime, SVec3(&channel->mPositionKeys[a].mValue.x));
 
 				anim.addChannel(ac);
 			}

@@ -937,6 +937,9 @@
     <ClInclude Include="VertSignature.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="AnimChannel.h">
+      <Filter>Resources\SkelAnim</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

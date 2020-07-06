@@ -25,11 +25,11 @@ public:
 		{
 			const AnimChannel& ch = ac->second;
 
-			UINT pkfc = ch.pKeys.size();
-			UINT rkfc = ch.rKeys.size();
-			UINT skfc = ch.sKeys.size();
+			UINT pkfc = ch._pKeys.size();
+			UINT rkfc = ch._rKeys.size();
+			UINT skfc = ch._sKeys.size();
 
-			if (ImGui::TreeNode(ch.jointName.c_str()))
+			if (ImGui::TreeNode(ch._boneName.c_str()))
 			{
 				ImGui::Text("Nr. Pos KFs: %d", pkfc);
 				ImGui::Text("Nr. Rot KFs: %d", rkfc);
@@ -45,7 +45,7 @@ public:
 					*/
 
 					// Absolutely not a way to do this, really lame... Need a sequencer...
-					displayPositionKeyframe(ch.pKeys[i], i);
+					displayPositionKeyframe(ch._pKeys[i], i);
 
 				}
 

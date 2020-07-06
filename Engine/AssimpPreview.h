@@ -55,8 +55,9 @@ public:
 		_device = device;
 		_skelAnimMat = defMat;
 
+		_previewScale = 1.f;
 		_currentAnim = 0;
-		_playbackSpeed = 1;
+		_playbackSpeed = 1.f;
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |

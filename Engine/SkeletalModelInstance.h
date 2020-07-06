@@ -36,7 +36,7 @@ public:
 	}
 
 
-
+	// This is bad but temporary
 	void update(float dTime, UINT animIndex = 0u)
 	{
 		for (int i = 0; i < _animInstances.size(); ++i)

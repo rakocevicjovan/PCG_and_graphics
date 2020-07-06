@@ -362,6 +362,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationEditor.h" />
     <ClInclude Include="AnimationInstance.h" />
+    <ClInclude Include="AnimChannel.h" />
     <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="AssimpPreview.h" />
     <ClInclude Include="AssimpWrapper.h" />
