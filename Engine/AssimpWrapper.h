@@ -372,6 +372,22 @@ public:
 
 
 
+	static void findModelNode(const aiNode* node, SMatrix& meshRootTransform)
+	{
+		SMatrix locTrfm = aiMatToSMat(node->mTransformation);
+		meshRootTransform = locTrfm * meshRootTransform;
+
+		if (node->mNumMeshes > 0)
+			return;
+
+		for (int i = 0; i < node->mNumChildren; ++i)
+		{
+			findModelNode(node->mChildren[i], meshRootTransform);
+		}
+	}
+
+
+
 	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)
 	{
 		for (UINT i = 0; i < node->mNumMeshes; ++i)

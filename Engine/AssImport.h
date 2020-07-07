@@ -11,7 +11,7 @@
 
 
 
-class AssimpPreview
+class AssImport
 {
 private:
 
@@ -152,6 +152,12 @@ public:
 					_model.reset();
 					_model = std::make_unique<Model>();
 					_model->LoadFromScene(_device, _aiScene);
+
+					for (Mesh& mesh : _model->_meshes)
+					{
+						mesh._baseMaterial.setVS(_skelAnimMat->getVS());
+						mesh._baseMaterial.setPS(_skelAnimMat->getPS());
+					}
 				}
 
 				if (_impAnims)
@@ -247,6 +253,29 @@ public:
 			if (_assetWriter.displayExportSettings())
 			{
 				// Serialize this and that...
+
+				if (_model.get())
+				{
+					{
+						std::ofstream outFile("uCantBeCereal.txt");
+						cereal::BinaryOutputArchive xmlOut(outFile);
+						_model->_meshes[0].serialize(xmlOut, 1u);
+					}
+					/*
+					MemChunk mc = _model->_meshes[0].Serialize();
+					_assetWriter.exportAsset(mc);
+
+					std::ifstream ifs(_assetWriter._exportPath.c_str(), std::ios::binary | std::ios::ate);	// Construct with cursor "At-The-End"
+					std::ifstream::pos_type byteCount = ifs.tellg();
+					MemChunk imc = MemChunk(byteCount);
+					ifs.read(imc._ptr.get(), byteCount);
+
+					Mesh m;
+					m.deserialize(imc);
+					_model->_meshes[0] = m;
+					_model->_meshes[0].setupMesh(_device);
+					*/
+				}
 			}
 		}
 
@@ -260,11 +289,19 @@ public:
 
 	void draw(ID3D11DeviceContext* context, float dTime)
 	{
-		if (!_skModel)
-			return;
-
-		_skModelInst->update(dTime * _playbackSpeed, _currentAnim);
-		_skModelInst->draw(context);
+		if (_skModel)
+		{
+			_skModelInst->update(dTime * _playbackSpeed, _currentAnim);
+			_skModelInst->draw(context);
+		}
+		
+		if (_model)
+		{
+			for (Mesh& r : _model->_meshes)
+			{
+				r.draw(context);
+			}
+		}
 	}
 
 

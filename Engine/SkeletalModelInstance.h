@@ -7,10 +7,13 @@ class SkeletalModelInstance
 {
 public:
 
+	SkeletalModel* _skm;
+	SMatrix _transform;
+
 	CBuffer _skMatsBuffer;
 	std::vector<SMatrix> _skeletonMatrices;
 
-	SkeletalModel* _skm;
+	
 
 	std::vector<AnimationInstance> _animInstances;
 

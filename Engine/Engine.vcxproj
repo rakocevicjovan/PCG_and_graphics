@@ -69,26 +69,26 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x86;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x86;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(SolutionDir)Deps\libs\x86;$(DXSDK_DIR)Lib\x86;$(SolutionDir)Deps\Ozz\lib;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x86\debug;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x64;$(SolutionDir)Deps\Ozz\lib;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x64\debug;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(DXSDK_DIR)Utilities\bin\x86;$(SolutionDir)Deps\include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Utilities\bin\x86;$(SolutionDir)Deps\include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x86);$(SolutionDir)Deps\libs\x86;$(DXSDK_DIR)Lib\x86;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x86\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x86;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x64\release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -364,7 +364,7 @@
     <ClInclude Include="AnimationInstance.h" />
     <ClInclude Include="AnimChannel.h" />
     <ClInclude Include="AssimpLoader.h" />
-    <ClInclude Include="AssimpPreview.h" />
+    <ClInclude Include="AssImport.h" />
     <ClInclude Include="AssimpWrapper.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="Callable.h" />

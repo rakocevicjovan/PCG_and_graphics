@@ -1,6 +1,6 @@
 #pragma once
 #include "Level.h"
-#include "AssimpPreview.h"
+#include "AssImport.h"
 #include "Systems.h"
 #include "Scene.h"
 #include "GUI.h"
@@ -18,8 +18,8 @@ private:
 
 	FileBrowser _browser;
 
-	std::vector<std::unique_ptr<AssimpPreview>> _previews;
-	AssimpPreview* _curPreview;
+	std::vector<std::unique_ptr<AssImport>> _previews;
+	AssImport* _curPreview;
 
 	// For previewing models in 3d
 	Material _skelAnimMat;
@@ -134,7 +134,7 @@ public:
 		{
 			if (!alreadyLoaded(selected.value()))
 			{
-				_previews.push_back(std::make_unique<AssimpPreview>());
+				_previews.push_back(std::make_unique<AssImport>());
 
 				if (!_previews.back()->
 					loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 

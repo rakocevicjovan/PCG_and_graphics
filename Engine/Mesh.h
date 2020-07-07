@@ -14,11 +14,50 @@
 #include "Hull.h"
 #include "Geometry.h"
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+
 
 typedef unsigned int UINT;
 
 
 namespace Procedural { class Terrain; }
+
+
+// @TODO put these somewhere nice
+namespace cereal
+{
+	template<class Archive>
+	void serialize(Archive& archive, SMatrix& m)
+	{
+		archive(m.m);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, SVec2& vec2)
+	{
+		archive(vec2.x, vec2.y);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, SVec3& vec3)
+	{
+		archive(vec3.x, vec3.y, vec3.z);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, Vert3D& v)
+	{
+		archive(v.pos, v.texCoords, v.normal, v.tangent);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, BonedVert3D& v)
+	{
+		archive(v.pos, v.texCoords, v.normal, v.boneData);
+	}
+}
 
 
 class Mesh : public Resource	//, public SerializableAsset
@@ -59,7 +98,7 @@ public:
 
 
 
-	void draw(ID3D11DeviceContext* dc, PointLight* p)
+	void draw(ID3D11DeviceContext* dc)
 	{
 		//update and set cbuffers
 		_baseMaterial.getVS()->updateBuffersAuto(dc, *this);
@@ -107,7 +146,7 @@ public:
 
 		// Content data - variable size
 		UINT ibs = indexCount * sizeof(UINT);
-		UINT vbs = vertexCount * sizeof(BonedVert3D);	// @TODO change when vertex changes
+		UINT vbs = vertexCount * sizeof(Vert3D);	// @TODO change when vertex changes
 		UINT dataSize = ibs + vbs;
 
 		UINT totalSize = headerSize + dataSize;
@@ -130,5 +169,33 @@ public:
 		}
 
 		return byterinos;
+	}
+
+
+
+	template<class Archive>
+	void serialize(Archive& archive, UINT matIndex)
+	{
+		archive(_indices.size(), _vertices.size(), matIndex, _transform, _indices, _vertices);
+	}
+
+
+
+	void deserialize(MemChunk& memChunk)
+	{
+		UINT numInds = memChunk.get<UINT>(0);
+		UINT numVerts = memChunk.get<UINT>(4);
+
+		_indices.resize(numInds);
+		_vertices.resize(numVerts);
+
+		UINT matID = memChunk.get<UINT>(8);
+		_transform = memChunk.get<SMatrix>(12);
+
+		UINT indArrSize = sizeof(UINT) * numInds;
+		UINT vrtArrSize = sizeof(Vert3D) * numVerts;
+
+		memcpy(_indices.data(), memChunk.get<UINT*>(76), indArrSize);
+		memcpy(_vertices.data(), memChunk.get<Vert3D*>(76 + indArrSize), vrtArrSize);
 	}
 };

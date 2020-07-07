@@ -3,7 +3,7 @@
 
 typedef unsigned int UINT;
 
-// Almost a stack allocator, isn't it? ADD WILL FAIL for c-style arrays though...
+// Not using this right now
 struct MemChunk
 {
 	std::unique_ptr<char[]> _ptr;
@@ -13,7 +13,7 @@ struct MemChunk
 
 	MemChunk(std::unique_ptr<char[]> ptr, UINT size) : _ptr(std::move(ptr)), _size(size) {}
 
-	MemChunk(UINT size) : _ptr(std::unique_ptr<char[]>(new char[size]())), _size(size) {}
+	MemChunk(UINT size) : _ptr(std::make_unique<char[]>(size)), _size(size) {}
 	
 	
 
@@ -28,6 +28,13 @@ struct MemChunk
 	{
 		write(data.data(), sizeof(VecData) * data.size(), offset);
 	}
+
+	template <typename CArrData>
+	inline void add(const CArrData* data, UINT size, UINT& offset)
+	{
+		write(data, size, offset);
+	}
+
 
 
 	void write(const void* data, UINT cpySize, UINT& offset)
@@ -64,6 +71,14 @@ struct MemChunk
 			OutputDebugStringA("SERIALIZATION WARNING: SIZE MISMATCH!");
 			throw;
 		}
+	}
+
+	// Such a safe method. Not a huge chance of UB at all! No way...
+	template <typename T>
+	T get(UINT offset)
+	{
+		char* location = &_ptr.get()[offset];
+		return *reinterpret_cast<T*>(location);
 	}
 };
 

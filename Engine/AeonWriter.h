@@ -1,5 +1,4 @@
 #pragma once
-#include "AssimpPreview.h"
 #include "FileUtilities.h"
 #include "Serializer.h"
 #include <iostream>

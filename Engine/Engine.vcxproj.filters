@@ -868,9 +868,6 @@
     <ClInclude Include="LoaderGUI.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpPreview.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="FileBrowser.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -939,6 +936,9 @@
     </ClInclude>
     <ClInclude Include="AnimChannel.h">
       <Filter>Resources\SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="AssImport.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
