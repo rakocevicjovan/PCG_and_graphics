@@ -5,7 +5,7 @@
 #include "ShaderGenerator.h"
 
 
-Systems::Systems() : screenWidth(0), screenHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
+Systems::Systems() : _scrWidth(0), _scrHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
 
 Systems::~Systems(){}
 
@@ -20,7 +20,7 @@ bool Systems::Initialize()
 
 	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\genVS.hlsl", ShaderGenerator::getVsOptions());
 
-	InitializeWindows(screenWidth, screenHeight);
+	InitializeWindows(_scrWidth, _scrHeight);
 
 	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _hwnd, FULL_SCREEN))
 	{

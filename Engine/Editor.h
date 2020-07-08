@@ -15,7 +15,6 @@ private:
 	Actor* _selectedActor;
 
 	EditorLayout _layout;
-	float _w, _h;
 
 	FileBrowser _fileBrowser;
 
@@ -26,7 +25,7 @@ public:
 
 
 	Editor(float w, float h, const std::string& projRoot) 
-		: _w(w), _h(h), _layout(w, h), _fileBrowser(projRoot), _projRoot(projRoot), _selectedActor(nullptr)
+		: _layout(w, h), _fileBrowser(projRoot), _projRoot(projRoot), _selectedActor(nullptr)
 	{
 
 	}

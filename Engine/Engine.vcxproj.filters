@@ -144,6 +144,9 @@
     <Filter Include="Rendering\High level\Shader Files\Compute shaders">
       <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{c278ef57-f7c8-4adb-8269-1f4afb699284}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -226,9 +229,6 @@
     </ClCompile>
     <ClCompile Include="TDLevel.cpp">
       <Filter>TowerDefense</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio.cpp">
-      <Filter>Main systems</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Main systems</Filter>
@@ -407,6 +407,9 @@
     <ClCompile Include="imnodes.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Audio.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Systems.h">
@@ -429,9 +432,6 @@
     </ClInclude>
     <ClInclude Include="Volumetric.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio.h">
-      <Filter>Main systems</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Procedural</Filter>
@@ -939,6 +939,9 @@
     </ClInclude>
     <ClInclude Include="AssImport.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio.h">
+      <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

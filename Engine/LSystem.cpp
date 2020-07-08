@@ -31,7 +31,7 @@ namespace Procedural
 		if (_current == "")
 			_current.append(_axiom);
 
-		for (unsigned int i = 0; i < steps; i++)
+		for (UINT i = 0; i < steps; i++)
 		{
 			for (char c : _current)
 			{
@@ -176,7 +176,7 @@ namespace Procedural
 		sphere.GenSphere(1.f);
 		Geometry tempSphere = sphere;	//avoid recalculating everything for the sphere, just copy it, scale and translate
 
-		for (int i = 0; i < _current.size(); ++i)
+		for (UINT i = 0; i < _current.size(); ++i)
 		{
 			nextPos = pos;
 
@@ -200,7 +200,7 @@ namespace Procedural
 				tube.GenTube(radius, length, 8, 4, branchTipRadiusPercent);
 
 				//add tube
-				for (int i = 0; i < tube.positions.size(); ++i)
+				for (UINT i = 0; i < tube.positions.size(); ++i)
 				{
 					Math::RotateVecByMat(tube.positions[i], orientation);
 					Math::RotateVecByMat(tube.normals[i], orientation);
@@ -212,7 +212,7 @@ namespace Procedural
 
 				if (!isEnd)
 				{
-					for (int i = 0; i < sphere.positions.size(); ++i)
+					for (UINT i = 0; i < sphere.positions.size(); ++i)
 					{
 						tempSphere.positions[i] = sphere.positions[i] * branchTipRadiusPercent * radius;
 						tempSphere.positions[i] += nextPos;
@@ -332,7 +332,7 @@ namespace Procedural
 		
 		Model result;
 
-		for (int i = 0; i < _current.size(); ++i)
+		for (UINT i = 0; i < _current.size(); ++i)
 		{
 			nextPos = pos;
 
@@ -350,7 +350,7 @@ namespace Procedural
 			case 'S':	//create stalk
 
 				tempStalkMesh = stalkMesh;
-				for (int i = 0; i < stalkMesh._vertices.size(); ++i)
+				for (UINT i = 0; i < stalkMesh._vertices.size(); ++i)
 				{
 					tempStalkMesh._vertices[i].pos = SVec3::Transform(stalkMesh._vertices[i].pos, orientation);
 					tempStalkMesh._vertices[i].pos += nextPos;
@@ -361,7 +361,7 @@ namespace Procedural
 
 			case 'P':
 
-				for (int i = 0; i < petalMesh._vertices.size(); ++i)
+				for (UINT i = 0; i < petalMesh._vertices.size(); ++i)
 				{
 					tempPetalMesh._vertices[i].pos = SVec3::Transform(petalMesh._vertices[i].pos, orientation);
 					tempPetalMesh._vertices[i].pos += nextPos;

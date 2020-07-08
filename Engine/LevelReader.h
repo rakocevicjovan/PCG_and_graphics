@@ -20,10 +20,10 @@ enum class ResType
 
 struct ResourceDef
 {
-	int id;
-	std::string path;
-	std::string name;
-	ResType type;
+	int _ID;
+	std::string _path;
+	std::string _assetName;
+	ResType _resType;
 };
 
 

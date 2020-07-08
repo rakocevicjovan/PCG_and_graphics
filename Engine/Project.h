@@ -6,13 +6,14 @@
 
 struct ProjectDefinition
 {
-	unsigned int id;
-	int numLevels;
+	unsigned int _ID;
 	std::string _projectName;
 	std::string _projectPath;
 	std::string _description;
 	std::string _createdAt;
 	std::string _updatedAt;
+
+	int _numLevels;
 	std::vector<std::string> _levelList;
 };
 

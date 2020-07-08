@@ -35,7 +35,7 @@ private:
 	HWND _hwnd;
 	POINT _midWindow;
 
-	int screenWidth, screenHeight;
+	int _scrWidth, _scrHeight;
 	int _windowWidth = 1920, _windowHeight = 1080;
 
 public:
@@ -69,8 +69,8 @@ public:
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
-	inline UINT getScrW() const { return screenWidth;  }
-	inline UINT getScrH() const { return screenHeight; }
+	inline UINT getScrW() const { return _scrWidth;  }
+	inline UINT getScrH() const { return _scrHeight; }
 	inline UINT getWinW() const { return _windowWidth;  }
 	inline UINT getWinH() const { return _windowHeight; }
 

@@ -33,6 +33,7 @@ public:
 		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skMatsBuffer._cbPtr)))
 			return false;
 
+		// Jingle bells, code smells... Law of Demeter RIP
 		_skeletonMatrices.resize(_skm->_skeleton._boneMap.size());
 
 		return true;

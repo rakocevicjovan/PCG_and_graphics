@@ -2,7 +2,7 @@
 
 
 
-ResourceManager::ResourceManager()// : _stackAllocator(1024 * 1024 * 100)
+ResourceManager::ResourceManager()
 {
 }
 
@@ -36,7 +36,7 @@ void ResourceManager::loadLevel(int i)
 
 	for (int i = 0; i < resDefs.size(); ++i)
 	{
-		auto uMapItr = _resourceMap.find(resDefs[i].name);
+		auto uMapItr = _resourceMap.find(resDefs[i]._assetName);
 
 		//handle duplicates
 		if (uMapItr != _resourceMap.end())
@@ -45,21 +45,21 @@ void ResourceManager::loadLevel(int i)
 			continue;
 		}
 
-		if (resDefs[i].type == ResType::MESH)
+		if (resDefs[i]._resType == ResType::MESH)
 		{
 			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
 			//temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
-			static_cast<Model*>(temp)->LoadModel(_device, _project.getProjDir() + resDefs[i].path);
-			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
+			static_cast<Model*>(temp)->LoadModel(_device, _project.getProjDir() + resDefs[i]._path);
+			_resourceMap.insert(std::make_pair<>(resDefs[i]._assetName, temp));
 		}
-		else if (resDefs[i].type == ResType::TEXTURE)
+		else if (resDefs[i]._resType == ResType::TEXTURE)
 		{
-			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(_project.getProjDir() + resDefs[i].path);
+			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(_project.getProjDir() + resDefs[i]._path);
 			//temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Texture*>(temp)->SetUpAsResource(_device);
-			_resourceMap.insert(std::make_pair<>(resDefs[i].name, temp));
+			_resourceMap.insert(std::make_pair<>(resDefs[i]._assetName, temp));
 		}
 		
 	}

@@ -57,10 +57,10 @@ bool LevelReader::loadResourceDefs(const rapidjson::Document& levelDef)
 	ResourceDef ad;
 	for (rapidjson::Value::ConstValueIterator itr = assDefArr.Begin(); itr != assDefArr.End(); ++itr)
 	{
-		ad.id	= itr->FindMember("id")->value.GetInt();
-		ad.path = itr->FindMember("path")->value.GetString();
-		ad.name = itr->FindMember("name")->value.GetString();
-		ad.type = getResTypeFromString(itr->FindMember("resType")->value.GetString());
+		ad._ID	= itr->FindMember("id")->value.GetInt();
+		ad._path = itr->FindMember("path")->value.GetString();
+		ad._assetName = itr->FindMember("name")->value.GetString();
+		ad._resType = getResTypeFromString(itr->FindMember("resType")->value.GetString());
 		_resourceDefs.push_back(ad);
 	}
 	return true;
