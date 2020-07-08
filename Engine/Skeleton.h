@@ -31,12 +31,10 @@ public:
 	// Assumes influencing bones were loaded from the meshes already
 	void loadFromAssimp(const aiScene* scene);
 
+	void loadStandalone(const aiScene* aiScene);
 
 
 	void makeLikeATree(Bone* parent, const aiNode* node, SMatrix concat);
-
-
-
 	void linkSkeletonHierarchy(const aiNode* skelRoot);
 
 
@@ -63,7 +61,7 @@ public:
 
 
 
-	Bone* findBone(const std::string& name)		//std::map<std::string, Bone>::iterator
+	Bone* findBone(const std::string& name)
 	{
 		Bone* result = nullptr;
 

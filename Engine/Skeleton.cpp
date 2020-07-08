@@ -21,6 +21,14 @@ void Skeleton::loadFromAssimp(const aiScene* scene)
 
 
 
+void Skeleton::loadStandalone(const aiScene* aiScene)
+{
+	AssimpWrapper::loadOnlySkeleton(aiScene->mRootNode, *this, SMatrix::Identity);
+	_root = findBone(aiScene->mRootNode->mName.C_Str());
+}
+
+
+
 void Skeleton::linkSkeletonHierarchy(const aiNode* skelRootNode)
 {
 	_root = findBone(skelRootNode->mName.C_Str());

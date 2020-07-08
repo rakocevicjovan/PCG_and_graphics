@@ -257,10 +257,8 @@ public:
 			if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
 			{
 				boneIndex = skeleton._boneMap.size();
-				
-				SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
 
-				boneOffsetMat = boneOffsetMat;		/* * global.Invert() found this but it's not correct!*/
+				SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
 
 				Bone bone(boneIndex, boneName, boneOffsetMat);
 
@@ -427,7 +425,7 @@ public:
 
 
 
-	static void loadOnlySkeleton(const aiScene* scene, aiNode* node, Skeleton& skeleton, SMatrix parent)
+	static void loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix parent)
 	{
 		SMatrix locTf = aiMatToSMat(node->mTransformation);
 		parent = locTf * parent;
@@ -451,7 +449,7 @@ public:
 			bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
 
 		for (int i = 0; i < node->mNumChildren; ++i)
-			loadOnlySkeleton(scene, node->mChildren[i], skeleton, parent);
+			loadOnlySkeleton(node->mChildren[i], skeleton, parent);
 	}
 
 

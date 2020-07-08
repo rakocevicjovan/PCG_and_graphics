@@ -123,15 +123,12 @@ public:
 			{
 				if (_impSkeleton)
 				{
-					_skeleton.reset();
 					_skeleton = std::make_unique<Skeleton>();
-					AssimpWrapper::loadOnlySkeleton(_aiScene, _aiScene->mRootNode, *_skeleton.get(), SMatrix::Identity);
-					_skeleton->_root = _skeleton->findBone(_aiScene->mRootNode->mName.C_Str());
+					_skeleton->loadStandalone(_aiScene);
 				}
 
 				if (_impSkModel)
 				{
-					_skModel.reset();
 					_skModel = std::make_unique<SkeletalModel>();
 					_skModel->loadFromScene(_device, _aiScene);
 
@@ -141,7 +138,6 @@ public:
 						skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
 					}
 
-					_skModelInst.reset();
 					_skModelInst = std::make_unique<SkeletalModelInstance>();
 					_skModelInst->init(_device, _skModel.get());
 				}
@@ -149,7 +145,6 @@ public:
 				if (_impModel)
 				{
 					_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
-					_model.reset();
 					_model = std::make_unique<Model>();
 					_model->LoadFromScene(_device, _aiScene);
 
