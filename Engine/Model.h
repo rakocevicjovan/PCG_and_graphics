@@ -1,10 +1,13 @@
 #pragma once
+#include "AssimpWrapper.h"
 
 #include <string>
-#include <map>
 #include <vector>
 #include <d3d11.h>
-#include "AssimpWrapper.h"
+
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
 
 namespace Procedural { class Terrain; }
 
@@ -24,7 +27,8 @@ public:
 
 	SMatrix _transform;
 
-	Collider* collider;		//remove this eventually when game object becomes better defined... used model for it so far...
+	//remove this eventually when game object becomes better defined... used model for it so far...
+	Collider* collider;
 
 	Model() : collider(nullptr) {}
 	Model(const std::string& path);
@@ -36,14 +40,10 @@ public:
 
 	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1);
 	bool LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx = 1, float rUVy = 1);
-};
 
-
-/*
-class ModelInstance
-{
-public:
-	Model* model;
-	SMatrix transform;
+	template<class Archive>
+	void serialize(Archive& archive, std::vector<UINT>& _meshIndices)
+	{
+		archive(_transform, _meshes.size(), _meshIndices);
+	}
 };
-*/

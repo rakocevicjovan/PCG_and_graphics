@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 #include "Resource.h"
 #include "Texture.h"
@@ -18,7 +19,7 @@ class ResourceManager
 	LevelReader _levelReader;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
-	std::unordered_map<std::string, Resource*> _resourceMap;
+	std::unordered_map<std::string, std::unique_ptr<Resource>> _resourceMap;
 
 public:
 	ResourceManager();
@@ -33,6 +34,6 @@ public:
 	template <typename ResType>
 	ResType* getByName(const std::string& name)
 	{
-		return static_cast<ResType*>(_resourceMap[name]);
+		return static_cast<ResType*>(_resourceMap[name].get());
 	}
 };

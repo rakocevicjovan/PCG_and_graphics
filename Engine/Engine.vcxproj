@@ -395,7 +395,6 @@
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SerializableAsset.h" />
-    <ClInclude Include="Serializer.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="SkelAnimShader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

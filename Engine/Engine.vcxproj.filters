@@ -907,9 +907,6 @@
     <ClInclude Include="AssimpWrapper.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Serializer.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="Sampler.h">
       <Filter>Rendering\Low level</Filter>
     </ClInclude>

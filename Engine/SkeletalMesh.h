@@ -1,5 +1,4 @@
 #pragma once
-
 #include "VBuffer.h"
 #include "IBuffer.h"
 #include "MeshDataStructs.h"
@@ -10,7 +9,7 @@
 #include <vector>
 
 
-class SkeletalMesh //: public SerializableAsset
+class SkeletalMesh
 {
 public:
 

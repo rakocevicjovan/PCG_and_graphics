@@ -48,7 +48,6 @@ void ResourceManager::loadLevel(int i)
 		if (resDefs[i]._resType == ResType::MESH)
 		{
 			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
-			//temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Model*>(temp)->LoadModel(_device, _project.getProjDir() + resDefs[i]._path);
 			_resourceMap.insert(std::make_pair<>(resDefs[i]._assetName, temp));
@@ -56,14 +55,11 @@ void ResourceManager::loadLevel(int i)
 		else if (resDefs[i]._resType == ResType::TEXTURE)
 		{
 			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(_project.getProjDir() + resDefs[i]._path);
-			//temp->setPathName(resDefs[i].path, resDefs[i].name);
 			temp->incRef();
 			static_cast<Texture*>(temp)->SetUpAsResource(_device);
 			_resourceMap.insert(std::make_pair<>(resDefs[i]._assetName, temp));
 		}
-		
 	}
-
 }
 
 
@@ -71,12 +67,5 @@ void ResourceManager::loadLevel(int i)
 void ResourceManager::popLevel(int i)
 {
 	//but if I clear the stack they will get deleted indiscriminately... unsuitable
-	for (auto resPtr : _resourceMap)
-	{
-		if (!resPtr.second->isInUse())
-		{
-			delete resPtr.second;
-			resPtr.second = nullptr;
-		}
-	}
+	_resourceMap.clear();
 }

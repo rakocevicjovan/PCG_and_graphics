@@ -34,7 +34,14 @@ public:
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
 	
 	//static const size_t NUM_ROLES = 8u;
-	TextureRole _role;
+	TextureRole _role;	// @TODO This needs to get out of here! Belongs in materials!
+
+	template <typename Archive> 
+	void serialize(Archive& archive)
+	{
+		// Filename because I have an idea about it...
+		archive(w, h, n, _mdata, filename);
+	}
 
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);

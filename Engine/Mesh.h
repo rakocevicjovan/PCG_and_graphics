@@ -8,7 +8,6 @@
 #include "IBuffer.h"
 #include "Material.h"
 #include "Math.h"
-#include "SerializableAsset.h"
 
 #include "MeshDataStructs.h"
 #include "Hull.h"
@@ -77,8 +76,6 @@ public:
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
 
-	
-
 
 
 	// Useful constructors... but @TODO make a material instead of textures!
@@ -136,6 +133,17 @@ public:
 
 
 
+	template<class Archive>
+	void serialize(Archive& archive, UINT matIndex)
+	{
+		archive(_indices.size(), _vertices.size(), matIndex, _transform, _indices, _vertices);
+	}
+
+
+
+	/* 
+	// Old way, cumbersome and inflexible... and I cba writing an entire library for this
+	// to do it properly so will use Cereal (boost is a huge dependency)
 	MemChunk Serialize() //override
 	{
 		// Header data - fixed size
@@ -171,16 +179,6 @@ public:
 		return byterinos;
 	}
 
-
-
-	template<class Archive>
-	void serialize(Archive& archive, UINT matIndex)
-	{
-		archive(_indices.size(), _vertices.size(), matIndex, _transform, _indices, _vertices);
-	}
-
-
-
 	void deserialize(MemChunk& memChunk)
 	{
 		UINT numInds = memChunk.get<UINT>(0);
@@ -197,5 +195,5 @@ public:
 
 		memcpy(_indices.data(), memChunk.get<UINT*>(76), indArrSize);
 		memcpy(_vertices.data(), memChunk.get<Vert3D*>(76 + indArrSize), vrtArrSize);
-	}
+	}*/
 };
