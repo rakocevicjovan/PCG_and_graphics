@@ -134,9 +134,9 @@ public:
 
 
 	template<class Archive>
-	void serialize(Archive& archive, UINT matIndex)
+	void serialize(Archive& archive, UINT matID)
 	{
-		archive(_indices.size(), _vertices.size(), matIndex, _transform, _indices, _vertices);
+		archive(_indices.size(), _vertices.size(), matID, _transform, _indices, _vertices);
 	}
 
 

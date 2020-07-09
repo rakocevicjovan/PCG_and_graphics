@@ -147,6 +147,9 @@
     <Filter Include="Audio">
       <UniqueIdentifier>{c278ef57-f7c8-4adb-8269-1f4afb699284}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ImGui files">
+      <UniqueIdentifier>{8dbb0610-3cbd-4018-a0b0-c046ec56a6bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -178,24 +181,6 @@
     </ClCompile>
     <ClCompile Include="Illumination.cpp">
       <Filter>Old levels\Strife</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_demo.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_draw.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_impl_dx11.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_impl_win32.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="IMGUI\imgui_widgets.cpp">
-      <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="StrifeLevel.cpp">
       <Filter>Old levels\Strife</Filter>
@@ -404,11 +389,29 @@
     <ClCompile Include="Project.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
-    <ClCompile Include="imnodes.cpp">
-      <Filter>GUI</Filter>
-    </ClCompile>
     <ClCompile Include="Audio.cpp">
       <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui.cpp">
+      <Filter>GUI\ImGui files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_demo.cpp">
+      <Filter>GUI\ImGui files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_draw.cpp">
+      <Filter>GUI\ImGui files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_dx11.cpp">
+      <Filter>GUI\ImGui files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_win32.cpp">
+      <Filter>GUI\ImGui files</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_widgets.cpp">
+      <Filter>GUI\ImGui files</Filter>
+    </ClCompile>
+    <ClCompile Include="imnodes.cpp">
+      <Filter>GUI\ImGui files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -447,30 +450,6 @@
     </ClInclude>
     <ClInclude Include="Illumination.h">
       <Filter>Old levels\Strife</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imconfig.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_impl_dx11.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_impl_win32.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imgui_internal.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imstb_rectpack.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imstb_textedit.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="IMGUI\imstb_truetype.h">
-      <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="StrifeLevel.h">
       <Filter>Old levels\Strife</Filter>
@@ -820,9 +799,6 @@
     <ClInclude Include="SphereHull.h">
       <Filter>Collision\Hulls</Filter>
     </ClInclude>
-    <ClInclude Include="GUI.h">
-      <Filter>Rendering\High level</Filter>
-    </ClInclude>
     <ClInclude Include="ComputeShader.h">
       <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
@@ -862,9 +838,6 @@
     <ClInclude Include="EditorLayout.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="GuiBlocks.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="LoaderGUI.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -897,9 +870,6 @@
     </ClInclude>
     <ClInclude Include="AnimationEditor.h">
       <Filter>Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="imnodes.h">
-      <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModelInstance.h">
       <Filter>Resources\SkelAnim</Filter>
@@ -939,6 +909,39 @@
     </ClInclude>
     <ClInclude Include="Audio.h">
       <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imconfig.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_dx11.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_win32.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_internal.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="imnodes.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_rectpack.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_textedit.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_truetype.h">
+      <Filter>GUI\ImGui files</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiBlocks.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1008,11 +1011,11 @@
     <Text Include="shader-error.txt">
       <Filter>Rendering\High level\Shader Files</Filter>
     </Text>
-    <Text Include="IMGUI\LICENSE.txt">
-      <Filter>GUI</Filter>
-    </Text>
     <Text Include="SerializationDoc.txt">
       <Filter>Editor</Filter>
+    </Text>
+    <Text Include="IMGUI\LICENSE.txt">
+      <Filter>GUI\ImGui files</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>

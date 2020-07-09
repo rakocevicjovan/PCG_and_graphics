@@ -8,6 +8,9 @@
 #include "SerializableAsset.h"
 #include <vector>
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
 
 class SkeletalMesh
 {
@@ -121,39 +124,9 @@ public:
 	}
 	
 
-
-	MemChunk Serialize() //override
+	template <typename Archive>
+	void serialize(Archive& archive, UINT matID)
 	{
-		// Header data
-		UINT indexCount = _indices.size();
-		UINT vertexCount = _vertices.size();
-		UINT materialID = 0u;
-		UINT headerSize = 3 * 4 + 2 * 64;
-
-		UINT ibs = indexCount * sizeof(UINT);
-		UINT vbs = vertexCount * sizeof(BonedVert3D);
-		UINT dataSize = ibs + vbs;		// + tbs
-
-		UINT totalSize = headerSize + dataSize;
-
-		UINT offset = 0u;
-		MemChunk byterinos(totalSize);
-
-		byterinos.add(&indexCount, offset);
-		byterinos.add(&vertexCount, offset);
-		byterinos.add(&materialID, offset);
-		byterinos.add(&_transform, offset);
-		byterinos.add(&_localTransform, offset);
-
-		byterinos.add(_indices, offset);
-		byterinos.add(_vertices, offset);
-
-		if (!byterinos.isFull(offset))
-		{
-			OutputDebugStringA("MESH SERIALIZATION WARNING: SIZE MISMATCH!");
-			exit(7646);
-		}
-
-		return byterinos;
+		archive(_indices.size(), _vertices.size(), matID, _transform, _indices, _vertices);
 	}
 };

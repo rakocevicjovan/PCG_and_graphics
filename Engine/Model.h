@@ -1,5 +1,4 @@
 #pragma once
-#include "AssimpWrapper.h"
 
 #include <string>
 #include <vector>
@@ -9,7 +8,11 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
+#include "AssimpWrapper.h"
+
+
 namespace Procedural { class Terrain; }
+
 
 class Model : public Resource
 {
@@ -42,8 +45,8 @@ public:
 	bool LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx = 1, float rUVy = 1);
 
 	template<class Archive>
-	void serialize(Archive& archive, std::vector<UINT>& _meshIndices)
+	void serialize(Archive& archive, std::vector<UINT>& meshIndices)
 	{
-		archive(_transform, _meshes.size(), _meshIndices);
+		archive(_transform, _meshes.size(), meshIndices);
 	}
 };

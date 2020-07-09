@@ -1,13 +1,7 @@
 #pragma once
-
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <map>
 #include <vector>
-
 #include <d3d11.h>
+
 #include "AssimpWrapper.h"
 #include "SkeletalMesh.h"
 #include "AnimationInstance.h"
@@ -18,6 +12,11 @@
 
 class SkeletalModel //: public SerializableAsset
 {
+private:
+
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix globNodeTransform);
+	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy);
+
 public:
 
 	std::vector<SkeletalMesh> _meshes;
@@ -34,117 +33,16 @@ public:
 	~SkeletalModel();
 
 
-	bool loadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1, float rUVy = 1)
+	bool loadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1., float rUVy = 1.);
+	bool loadFromScene(ID3D11Device* dvc, const aiScene* scene, float rUVx = 1., float rUVy = 1.);
+
+	template <typename Archive>
+	void serialize(
+		Archive& ar, 
+		std::vector<UINT> meshIndices, 
+		std::vector<UINT> animIndices, 
+		UINT skelIndex)
 	{
-		_path = path;
-
-		assert(FileUtils::fileExists(path) && "File not accessible!");
-
-		unsigned int pFlags = 
-			aiProcessPreset_TargetRealtime_MaxQuality |
-			aiProcess_Triangulate |
-			aiProcess_GenSmoothNormals |
-			aiProcess_ConvertToLeftHanded |
-			aiProcess_LimitBoneWeights;
-
-		Assimp::Importer importer;
-
-		const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
-
-		if (!scene)
-			return false;
-		else
-			return loadFromScene(dvc, scene, rUVx, rUVy);
-	}
-
-
-
-	bool loadFromScene(ID3D11Device* dvc, const aiScene* scene, float rUVx = 1, float rUVy = 1)
-	{
-		_meshes.reserve(scene->mNumMeshes);
-
-		SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
-		_skeleton._globalInverseTransform = rootTransform.Invert();
-
-		processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
-
-		_skeleton.loadFromAssimp(scene);
-
-		AssimpWrapper::loadAnimations(scene, _anims);
-
-		return true;
-	}
-
-
-
-	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix globNodeTransform)
-	{
-		SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
-		globNodeTransform = locNodeTransform * globNodeTransform;
-		
-		for (unsigned int i = 0; i < node->mNumMeshes; i++)
-			_meshes.emplace_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform, rUVx, rUVy));
-
-		// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
-			this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy, globNodeTransform);
-
-		return true;
-	}
-
-
-
-	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy)
-	{
-		// Data to fill
-		std::vector<BonedVert3D> vertices;
-		std::vector<unsigned int> indices;
-		std::vector<Texture> locTextures;
-
-		bool hasTexCoords = mesh->HasTextureCoords(0);
-
-		float radius = AssimpWrapper::loadVertices(mesh, hasTexCoords, vertices);
-
-		AssimpWrapper::loadIndices(mesh, indices);
-
-		AssimpWrapper::loadMaterials(_path, scene, mesh, locTextures);
-
-		for (Texture& t : locTextures)
-			t.SetUpAsResource(device);
-
-		AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
-		// Elision does happen... I was wondering
-		return SkeletalMesh(vertices, indices, locTextures, device, transform);
-	}
-
-
-	// This is wrong for now, need to see how to support asset aggregates
-	MemChunk Serialize() //override
-	{
-		UINT numMeshes = _meshes.size();
-		UINT numAnims = _anims.size();
-		UINT skelIndex = 0u;
-		UINT headerSize = 3 * 4 + 64;
-
-		UINT meshIndex = 0u;
-		UINT animIndex = 0u;
-		UINT dataSize = (numMeshes + numAnims) * 4;
-
-		UINT totalSize = headerSize + dataSize;
-
-		UINT offset = 0u;
-		MemChunk byterinos(totalSize);
-
-		byterinos.add(&numMeshes, offset);
-		byterinos.add(&numAnims, offset);
-		byterinos.add(&skelIndex, offset);
-
-		for (int i = 0; i < numMeshes; ++i)
-			byterinos.add(&meshIndex, offset);
-		
-		for (int i = 0; i < numAnims; ++i)
-			byterinos.add(&animIndex, offset);
-
-		return byterinos;
+		archive(_transform, _meshes.size(), meshIndices, animIndices);
 	}
 };
