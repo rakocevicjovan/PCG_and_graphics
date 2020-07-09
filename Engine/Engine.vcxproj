@@ -392,6 +392,8 @@
     <ClInclude Include="LoaderGUI.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
+    <ClInclude Include="ResourceLedger.h" />
+    <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SerializableAsset.h" />

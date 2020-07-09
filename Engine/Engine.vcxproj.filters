@@ -37,10 +37,6 @@
     <Filter Include="AI\Steering">
       <UniqueIdentifier>{fb52adb5-581e-43f4-837f-315408e6648f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Main systems">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Interfaces">
       <UniqueIdentifier>{8cf5dbd4-d5b0-4454-a8b8-1549fab81550}</UniqueIdentifier>
     </Filter>
@@ -150,6 +146,10 @@
     <Filter Include="GUI\ImGui files">
       <UniqueIdentifier>{8dbb0610-3cbd-4018-a0b0-c046ec56a6bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -216,7 +216,7 @@
       <Filter>TowerDefense</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Main systems</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
       <Filter>Resources</Filter>
@@ -411,7 +411,7 @@
       <Filter>GUI\ImGui files</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
-      <Filter>Main systems</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -941,7 +941,13 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
-      <Filter>Main systems</Filter>
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceHandle.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceLedger.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

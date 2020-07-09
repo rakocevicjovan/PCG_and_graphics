@@ -248,29 +248,7 @@ public:
 			if (_assetWriter.displayExportSettings())
 			{
 				// Serialize this and that...
-
-				if (_model.get())
-				{
-					{
-						std::ofstream outFile("uCantBeCereal.txt");
-						cereal::BinaryOutputArchive xmlOut(outFile);
-						_model->_meshes[0].serialize(xmlOut, 1u);
-					}
-					/*
-					MemChunk mc = _model->_meshes[0].Serialize();
-					_assetWriter.exportAsset(mc);
-
-					std::ifstream ifs(_assetWriter._exportPath.c_str(), std::ios::binary | std::ios::ate);	// Construct with cursor "At-The-End"
-					std::ifstream::pos_type byteCount = ifs.tellg();
-					MemChunk imc = MemChunk(byteCount);
-					ifs.read(imc._ptr.get(), byteCount);
-
-					Mesh m;
-					m.deserialize(imc);
-					_model->_meshes[0] = m;
-					_model->_meshes[0].setupMesh(_device);
-					*/
-				}
+				writeAssets();
 			}
 		}
 
@@ -643,6 +621,19 @@ public:
 		else
 		{
 			ImGui::Text("No external textures found");
+		}
+	}
+
+
+
+	void writeAssets()
+	{
+		if (_impSkModel)
+		{
+			// Write out other items, get their IDs... yada yada
+			std::ofstream ofs(_assetWriter._exportPath);
+			cereal::BinaryOutputArchive archie(ofs);
+			_skModel.get()->serialize(archie, {0u}, {0u}, 0);
 		}
 	}
 
