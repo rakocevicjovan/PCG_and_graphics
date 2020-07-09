@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "rapidjson/document.h"
+#include "LevelReader.h"
 
 
 struct ProjectDefinition
@@ -24,6 +25,8 @@ class Project
 	std::string _projConfPath;
 	ProjectDefinition _projDef;
 
+	LevelReader _levelReader;
+
 public:
 
 	Project() : _projDef({}) {}
@@ -31,8 +34,10 @@ public:
 	const std::string& getProjDir() const;
 	const ProjectDefinition& getProjDef() const;
 	const std::vector<std::string>& getLevelList() const;
+	LevelReader& getLevelReader() { return _levelReader; }
 
 	bool loadProjFromConfig(const std::string& projConfPath);
 	bool loadProjectConfiguration(const rapidjson::Document& projConfDoc);
 	bool loadLevelList(const rapidjson::Document& projConfDoc);
+	
 };

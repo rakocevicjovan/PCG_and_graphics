@@ -48,6 +48,8 @@ bool Project::loadLevelList(const rapidjson::Document& projConfDoc)
 		_projDef._levelList.emplace_back(itr->FindMember("jsonDefPath")->value.GetString());
 	}
 
+	_levelReader.setProjectPath(getProjDir());
+
 	return true;
 }
 

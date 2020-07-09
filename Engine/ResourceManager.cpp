@@ -20,18 +20,17 @@ void ResourceManager::init(ID3D11Device* device)
 
 	//loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_project.loadProjFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
-	_levelReader.setProjectPath(_project.getProjDir());
 
 	_stackAllocator.init(1024 * 1024 * 30);
 }
 
 
 
-void ResourceManager::loadLevel(int i)
+void ResourceManager::loadLevel(UINT levelID)
 {
-	_levelReader.loadLevel(_project.getLevelList()[i]);
+	_project.getLevelReader().loadLevel(_project.getLevelList()[levelID]);
 
-	const std::vector<ResourceDef>& resDefs = _levelReader.getLevelResourceDefs();
+	const std::vector<ResourceDef>& resDefs = _project.getLevelReader().getLevelResourceDefs();
 	_resourceMap.reserve(resDefs.size());
 
 	for (int i = 0; i < resDefs.size(); ++i)
@@ -64,7 +63,7 @@ void ResourceManager::loadLevel(int i)
 
 
 
-void ResourceManager::popLevel(int i)
+void ResourceManager::popLevel(UINT levelID)
 {
 	//but if I clear the stack they will get deleted indiscriminately... unsuitable
 	_resourceMap.clear();
