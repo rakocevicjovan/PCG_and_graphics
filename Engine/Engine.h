@@ -23,7 +23,7 @@
 
 
 //centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
-class Systems
+class Engine
 {
 private:
 	bool Frame(float dTime);
@@ -39,30 +39,34 @@ private:
 	int _windowWidth = 1920, _windowHeight = 1080;
 
 public:
-	Systems();
-	~Systems();
+	Engine();
+	~Engine();
 
 	bool Initialize();
 	void Run();
 	void Shutdown();
 	
+	// Engine subsystems
 	InputManager _inputManager;
 	ResourceManager _resMan;
-	LevelManager* _levelMan;
 	CollisionEngine _colEngine;
 	Audio _audio;
 	GameClock _clock;
 	ctpl::thread_pool _threadPool;
 
-	Controller _defController;	// Here so we have something for camera controls in every level, move out eventually
-
-	//rendering
+	// Rendering
 	Renderer _renderer;
 	ShaderCompiler _shaderCompiler;
 	ShaderCache _shaderCache;
 	MaterialCache _matCache;
 
-	//extra rendering data - this should end up in the renderer and loaders ONLY @TODO
+	// This should be in game code really, it's up to it to define different states etc.
+	LevelManager* _levelMan;
+
+	// Here so we have something for camera controls in every level, move out eventually
+	Controller _defController;	
+
+	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 	D3D _D3D;
@@ -78,4 +82,4 @@ public:
 };
 
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-static Systems* ApplicationHandle = 0;
+static Engine* ApplicationHandle = 0;

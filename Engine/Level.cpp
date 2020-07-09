@@ -2,7 +2,7 @@
 
 
 
-Level::Level(Systems& sys) : _sys(sys) {}
+Level::Level(Engine& sys) : _sys(sys) {}
 
 
 

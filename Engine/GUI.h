@@ -19,6 +19,16 @@ class GUI
 {
 public:
 
+	static void initDxWin32(HWND hwnd, ID3D11Device* device, ID3D11DeviceContext* context)
+	{
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO();
+		ImGui_ImplWin32_Init(hwnd);
+		ImGui_ImplDX11_Init(device, context);
+		ImGui::StyleColorsDark();
+	}
+
 	static void beginFrame()
 	{
 		ImGui_ImplDX11_NewFrame();

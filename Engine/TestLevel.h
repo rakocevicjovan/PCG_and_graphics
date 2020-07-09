@@ -11,9 +11,9 @@ namespace SkelAnim
 class SkelAnimTestLevel : public Level
 {
 public:
-	SkelAnimTestLevel(Systems& sys) : Level(sys) {};
+	SkelAnimTestLevel(Engine& sys) : Level(sys) {};
 
-	void init(Systems& sys) override;
+	void init(Engine& sys) override;
 	void update(const RenderContext& rc) override;
 	void draw(const RenderContext& rc) override;
 

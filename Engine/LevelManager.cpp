@@ -8,7 +8,7 @@
 
 
 
-LevelManager::LevelManager(Systems& systems)
+LevelManager::LevelManager(Engine& systems)
 {	
 	//current = new ProjectPickerLevel(systems);	//boring to click through...
 	
@@ -26,7 +26,7 @@ LevelManager::~LevelManager() {}
 
 
 
-void LevelManager::advanceLevel(Systems& systems)
+void LevelManager::advanceLevel(Engine& systems)
 {
 	if (_levels.size() <= 1)
 		return;
@@ -39,7 +39,7 @@ void LevelManager::advanceLevel(Systems& systems)
 
 
 
-void LevelManager::handleInput(Systems& systems, float dTime)
+void LevelManager::handleInput(Engine& systems, float dTime)
 {
 	sinceLastInput += dTime;
 

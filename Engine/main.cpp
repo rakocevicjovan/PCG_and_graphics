@@ -1,10 +1,10 @@
-#include "Systems.h"
+#include "Engine.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
-	Systems* Sys;
+	Engine* Sys;
 	
-	Sys = new Systems;
+	Sys = new Engine;
 	if(!Sys)
 	{
 		std::cout << "SystemClass constructor failed." << std::endl;

@@ -5,7 +5,7 @@
 namespace Strife
 {
 
-	void StrifeLevel::init(Systems& sys)
+	void StrifeLevel::init(Engine& sys)
 	{
 
 		sceneTex.init(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);

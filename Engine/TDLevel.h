@@ -28,9 +28,9 @@
 class TDLevel : public Level
 {
 public:
-	TDLevel(Systems& sys);
+	TDLevel(Engine& sys);
 
-	void init(Systems& sys) override;
+	void init(Engine& sys) override;
 	void update(const RenderContext& rc) override;
 	void draw(const RenderContext& rc) override;
 	void freeLevelMemory();

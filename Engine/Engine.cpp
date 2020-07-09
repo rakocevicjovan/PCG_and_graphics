@@ -1,16 +1,17 @@
-#include "Systems.h"
+#include "Engine.h"
+#include "GUI.h"
 #include <string>
 #include <Mouse.h>
 
 #include "ShaderGenerator.h"
 
 
-Systems::Systems() : _scrWidth(0), _scrHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
+Engine::Engine() : _scrWidth(0), _scrHeight(0), _threadPool(std::thread::hardware_concurrency() - 1) {}
 
-Systems::~Systems(){}
+Engine::~Engine() {}
 
 
-bool Systems::Initialize()
+bool Engine::Initialize()
 {
 	// Testing grounds...
 
@@ -50,25 +51,19 @@ bool Systems::Initialize()
 	_shaderCache.init(&_shaderCompiler);
 	_matCache.init(&_shaderCache, &_resMan);
 	
-	_colEngine.init();
-	_colEngine.registerController(_defController);	//works both ways
+	//_colEngine.init();		//_colEngine.registerController(_defController);
 	_renderer._cam._controller = &_defController;
 
-	_levelMan = new LevelManager(*this);
+	GUI::initDxWin32(_hwnd, _device, _deviceContext);
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(_hwnd);
-	ImGui_ImplDX11_Init(_device, _deviceContext);
-	ImGui::StyleColorsDark();
+	_levelMan = new LevelManager(*this);
 
 	return true;
 }
 
 
 
-void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
+void Engine::InitializeWindows(int& screenWidth, int& screenHeight)
 {
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
@@ -145,7 +140,7 @@ void Systems::InitializeWindows(int& screenWidth, int& screenHeight)
 
 
 
-void Systems::Run()
+void Engine::Run()
 {
 	_clock.Reset();
 
@@ -175,7 +170,7 @@ void Systems::Run()
 
 
 
-bool Systems::Frame(float dTime)
+bool Engine::Frame(float dTime)
 {
 	if (_inputManager.isKeyDown(VK_ESCAPE))
 		return false;
@@ -196,7 +191,7 @@ bool Systems::Frame(float dTime)
 
 
 
-void Systems::OutputFPS(float dTime)
+void Engine::OutputFPS(float dTime)
 {
 	std::ostringstream ss;
 	ss << "Frame time: " << 1.0f / dTime << "\n";
@@ -206,7 +201,7 @@ void Systems::OutputFPS(float dTime)
 
 
 
-void Systems::Shutdown()
+void Engine::Shutdown()
 {
 	ShowCursor(true);
 
@@ -254,7 +249,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 
 
 
-LRESULT CALLBACK Systems::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK Engine::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	switch (message)
 	{

@@ -14,7 +14,7 @@ private:
 	Renderer& _renderer;
 	ShaderCache& _shCache;
 	MaterialCache& _matCache;
-	Systems& _sys;
+	Engine& _sys;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -41,7 +41,7 @@ public:
 	std::vector<Actor*> _actors;
 
 	Scene(
-		Systems& sys,
+		Engine& sys,
 		const AABB& scope, 
 		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:

@@ -15,7 +15,7 @@ namespace Strife
 	class StrifeLevel : public Level
 	{
 	public:
-		StrifeLevel(Systems& sys) : Level(sys) {};
+		StrifeLevel(Engine& sys) : Level(sys) {};
 		~StrifeLevel() {};
 
 		Model skybox, floor;
@@ -28,7 +28,7 @@ namespace Strife
 		CloudscapeDefinition csDef;
 
 		//load and draw all that jazz
-		void init(Systems& sys);
+		void init(Engine& sys);
 		void procGen();
 		void update(const RenderContext& rc);
 		void draw(const RenderContext& rc);

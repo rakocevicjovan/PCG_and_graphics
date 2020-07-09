@@ -1,7 +1,7 @@
 #pragma once
 #include "Level.h"
 #include "AssImport.h"
-#include "Systems.h"
+#include "Engine.h"
 #include "Scene.h"
 #include "GUI.h"
 #include "SkeletalModelInstance.h"
@@ -35,7 +35,7 @@ private:
 
 public:
 
-	AssimpLoader(Systems& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
+	AssimpLoader(Engine& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
 		_curPreview = nullptr;
@@ -43,7 +43,7 @@ public:
 
 
 
-	void init(Systems& sys) override
+	void init(Engine& sys) override
 	{
 		LightData ld = LightData(SVec3(1.), .2, SVec3(1.), .6, SVec3(1.), .7);
 

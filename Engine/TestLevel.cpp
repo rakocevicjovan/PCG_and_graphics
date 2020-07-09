@@ -4,7 +4,7 @@
 namespace SkelAnim
 {
 
-	void SkelAnimTestLevel::init(Systems& sys)
+	void SkelAnimTestLevel::init(Engine& sys)
 	{
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 		pLight = PointLight(lightData, SVec4(0, 500, 0, 1));

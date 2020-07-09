@@ -2,7 +2,7 @@
 #include <vector>
 
 class Level;
-class Systems;
+class Engine;
 class RenderContext;
 
 class LevelManager
@@ -12,11 +12,11 @@ class LevelManager
 	Level* current;
 
 public:
-	LevelManager(Systems& systems);
+	LevelManager(Engine& systems);
 	~LevelManager();
 
-	void advanceLevel(Systems& systems);
+	void advanceLevel(Engine& systems);
 	void updateAndDrawCurrent(RenderContext& renderContext);
-	void handleInput(Systems& systems, float dTime);
+	void handleInput(Engine& systems, float dTime);
 	Level* getCurrentLevel() { return current; }
 };

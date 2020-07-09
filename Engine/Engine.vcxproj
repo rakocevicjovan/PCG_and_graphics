@@ -320,7 +320,7 @@
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="SphereHull.cpp" />
     <ClCompile Include="StrifeLevel.cpp" />
-    <ClCompile Include="Systems.cpp" />
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="TDLevel.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainShader.cpp">
@@ -578,7 +578,7 @@
     <ClInclude Include="Steering.h" />
     <ClInclude Include="SteeringComponent.h" />
     <ClInclude Include="StrifeLevel.h" />
-    <ClInclude Include="Systems.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="TDGUI.h" />
     <ClInclude Include="TDLevel.h" />
     <ClInclude Include="Terrain.h" />

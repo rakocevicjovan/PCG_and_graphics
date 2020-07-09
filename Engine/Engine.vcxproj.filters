@@ -218,9 +218,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Main systems</Filter>
     </ClCompile>
-    <ClCompile Include="Systems.cpp">
-      <Filter>Main systems</Filter>
-    </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
@@ -413,11 +410,11 @@
     <ClCompile Include="imnodes.cpp">
       <Filter>GUI\ImGui files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Main systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Systems.h">
-      <Filter>Main systems</Filter>
-    </ClInclude>
     <ClInclude Include="Perlin.h">
       <Filter>Procedural</Filter>
     </ClInclude>
@@ -942,6 +939,9 @@
     </ClInclude>
     <ClInclude Include="GuiBlocks.h">
       <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Main systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

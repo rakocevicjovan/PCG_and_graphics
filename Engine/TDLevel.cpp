@@ -13,7 +13,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
 
-TDLevel::TDLevel(Systems& sys) 
+TDLevel::TDLevel(Engine& sys) 
 	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
 	_editor = Editor(S_WW, S_WH, S_RESMAN.getProject().getProjDir());
@@ -22,7 +22,7 @@ TDLevel::TDLevel(Systems& sys)
 
 
 ///INIT AND HELPERS
-void TDLevel::init(Systems& sys)
+void TDLevel::init(Engine& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 

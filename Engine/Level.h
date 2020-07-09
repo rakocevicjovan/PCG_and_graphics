@@ -1,5 +1,5 @@
 #pragma once
-#include "Systems.h"
+#include "Engine.h"
 #include "GameObject.h"
 #include "Terrain.h"
 #include "Perlin.h"
@@ -27,15 +27,15 @@ class LevelManager;
 class Level : public Observer
 {
 protected:
-	Systems& _sys;
+	Engine& _sys;
 
 	Camera _camera;
 
 public:
-	Level(Systems& sys);
+	Level(Engine& sys);
 	virtual ~Level() {};
 
-	virtual void init(Systems& sys) = 0;
+	virtual void init(Engine& sys) = 0;
 	virtual void update(const RenderContext& rc) = 0;
 	virtual void draw(const RenderContext& rc) = 0;
 
