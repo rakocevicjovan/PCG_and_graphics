@@ -38,6 +38,9 @@ private:
 	int _scrWidth, _scrHeight;
 	int _windowWidth = 1920, _windowHeight = 1080;
 
+	// Contains metadata of the project and lists of assets the project needs
+	Project _project;
+
 public:
 	Engine();
 	~Engine();
@@ -60,16 +63,18 @@ public:
 	ShaderCache _shaderCache;
 	MaterialCache _matCache;
 
+	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
+	ID3D11Device* _device;
+	ID3D11DeviceContext* _deviceContext;
+	D3D _D3D;
+
 	// This should be in game code really, it's up to it to define different states etc.
 	LevelManager* _levelMan;
 
 	// Here so we have something for camera controls in every level, move out eventually
 	Controller _defController;	
 
-	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
-	D3D _D3D;
+
 
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
@@ -77,6 +82,8 @@ public:
 	inline UINT getScrH() const { return _scrHeight; }
 	inline UINT getWinW() const { return _windowWidth;  }
 	inline UINT getWinH() const { return _windowHeight; }
+
+	Project& getProject() { return _project; }
 
 	inline const HWND* getHWND() const { return &_hwnd; }
 };

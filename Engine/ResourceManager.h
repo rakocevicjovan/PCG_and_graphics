@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <string>
 
 #include "Resource.h"
 #include "Texture.h"
@@ -15,20 +16,19 @@
 
 class ResourceManager
 {
-	Project _project;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
 	std::unordered_map<std::string, std::unique_ptr<Resource>> _resourceMap;
 
 public:
+
 	ResourceManager();
 	~ResourceManager();
 
 	void init(ID3D11Device*);
-	void loadLevel(UINT levelID);
+	void loadBatch(const std::string& projDir, const std::vector<ResourceDef>&);
 	void popLevel(UINT levelID);
-
-	Project& getProject() { return _project; }
+	void loadResourceLedger();
 
 	template <typename ResType>
 	ResType* getByName(const std::string& name)

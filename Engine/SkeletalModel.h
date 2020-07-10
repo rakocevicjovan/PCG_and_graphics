@@ -43,6 +43,6 @@ public:
 		std::vector<UINT> animIndices, 
 		UINT skelIndex)
 	{
-		archive(_transform, _meshes.size(), meshIndices, animIndices);
+		ar(_transform, _meshes.size(), meshIndices, animIndices);
 	}
 };

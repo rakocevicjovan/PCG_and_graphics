@@ -20,6 +20,7 @@
 #define S_SH		_sys.getScrH()
 #define S_WW		_sys.getWinW()
 #define S_WH		_sys.getWinH()
+#define PROJ		_sys.getProject()
 
 class LevelManager;
 

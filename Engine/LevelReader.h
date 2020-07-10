@@ -1,30 +1,10 @@
 #pragma once
-#include <string>
 #include <vector>
 #include <map>
 #include "rapidjson/document.h"
+#include "ResourceDef.h"
 
 
-enum class ResType
-{
-	MESH,
-	TEXTURE,
-	MATERIAL,
-	ANIMATION,
-	SKELETON,
-	SOUND,
-	UNSUPPORTED
-};
-
-
-
-struct ResourceDef
-{
-	int _ID;
-	std::string _path;
-	std::string _assetName;
-	ResType _resType;
-};
 
 
 

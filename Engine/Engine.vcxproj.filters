@@ -150,6 +150,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Resources\Shaders">
+      <UniqueIdentifier>{356d9f8d-5f76-4927-9b88-bd498853fe7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -287,9 +290,6 @@
     <ClCompile Include="QuadTree.cpp">
       <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderCache.cpp">
-      <Filter>Rendering\High level\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="ShaderSkybox.cpp">
       <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
@@ -412,6 +412,9 @@
     </ClCompile>
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCache.cpp">
+      <Filter>Resources\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -584,9 +587,6 @@
       <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCompiler.h">
-      <Filter>Rendering\High level\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderCache.h">
       <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="Observer.h">
@@ -948,6 +948,12 @@
     </ClInclude>
     <ClInclude Include="ResourceLedger.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceDef.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCache.h">
+      <Filter>Resources\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

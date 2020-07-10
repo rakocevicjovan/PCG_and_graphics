@@ -16,7 +16,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 TDLevel::TDLevel(Engine& sys) 
 	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 {
-	_editor = Editor(S_WW, S_WH, S_RESMAN.getProject().getProjDir());
+	_editor = Editor(S_WW, S_WH, PROJ.getProjDir());
 };
 
 
@@ -27,7 +27,7 @@ void TDLevel::init(Engine& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
 	/* Load everything up for the level. Preserve order of these functions three */
-	_sys._resMan.loadLevel(0);	// This actually is data driven :)
+	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
 	_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 

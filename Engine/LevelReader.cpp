@@ -10,16 +10,16 @@ LevelReader::LevelReader() {}
 
 bool LevelReader::loadLevel(const std::string& levelPath)
 {
-	rapidjson::Document sceneDef;
-	sceneDef.Parse(FileUtils::loadFileContents(_projectPath + levelPath).c_str());
+	rapidjson::Document levelDef;
+	levelDef.Parse(FileUtils::loadFileContents(_projectPath + levelPath).c_str());
 
-	if (!sceneDef.IsObject())
+	if (!levelDef.IsObject())
 		return false;
 	
-	if(!loadLevelDef(sceneDef))
+	if(!loadLevelDef(levelDef))
 		return false;
 	
-	if (!loadResourceDefs(sceneDef))
+	if (!loadResourceDefs(levelDef))
 		return false;
 
 	return true;

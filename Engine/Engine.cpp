@@ -56,6 +56,12 @@ bool Engine::Initialize()
 
 	GUI::initDxWin32(_hwnd, _device, _deviceContext);
 
+	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
+	_project.loadProjFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
+	
+	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
+		assert(false && "Failed to load level list.");
+
 	_levelMan = new LevelManager(*this);
 
 	return true;
