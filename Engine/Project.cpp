@@ -8,6 +8,7 @@ bool Project::loadProjFromConfig(const std::string& projConfPath)
 	_projConfPath = projConfPath;
 
 	rapidjson::Document projConfDoc;
+
 	projConfDoc.Parse(FileUtils::loadFileContents(_projConfPath).c_str());
 
 	if (!projConfDoc.IsObject())
@@ -20,7 +21,7 @@ bool Project::loadProjFromConfig(const std::string& projConfPath)
 
 bool Project::loadProjectConfiguration(const rapidjson::Document& projConfDoc)
 {
-	//load a bunch of variables relevant to the current project from the json file
+	// Load a bunch of variables relevant to the current project from the json file
 	_projDef._ID = projConfDoc.FindMember("id")->value.GetInt();
 	_projDef._projectName = projConfDoc.FindMember("name")->value.GetString();
 	_projDef._projectPath = projConfDoc.FindMember("folderPath")->value.GetString();

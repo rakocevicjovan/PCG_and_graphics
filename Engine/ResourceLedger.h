@@ -7,6 +7,16 @@
 // Holds handles to assets
 class ResourceLedger
 {
+	ResourceDef loadResourceDef()
+	{
+
+	}
+
+public:
 	std::unordered_map<std::string, ResourceDef> _resMap;
 	
+	void load(std::string& path)
+	{
+
+	}
 };

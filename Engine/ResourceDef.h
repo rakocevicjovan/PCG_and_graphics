@@ -1,6 +1,7 @@
 #pragma once
+#include <rapidjson/document.h>
 #include <string>
-
+#include <map>
 
 
 enum class ResType : uint8_t
@@ -23,4 +24,8 @@ struct ResourceDef
 	std::string _path;
 	std::string _assetName;
 	ResType _resType;
+
+	static ResourceDef Load(rapidjson::Value::ConstValueIterator itr);
+	static ResType getResTypeFromString(const std::string& str);
+	static const std::map<std::string, ResType> resTypeMap;
 };

@@ -1,10 +1,7 @@
 #pragma once
 #include <vector>
 #include <map>
-#include "rapidjson/document.h"
 #include "ResourceDef.h"
-
-
 
 
 
@@ -24,8 +21,6 @@ struct LevelDef
 class LevelReader
 {
 private:
-	static const std::map<std::string, ResType> resTypeMap;
-	ResType getResTypeFromString(const std::string& str);
 
 	std::string _projectPath;
 	LevelDef _ld;

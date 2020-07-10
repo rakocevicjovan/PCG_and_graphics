@@ -416,6 +416,9 @@
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Resources\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="ResourceDef.cpp">
+      <Filter>Resources\Resource classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

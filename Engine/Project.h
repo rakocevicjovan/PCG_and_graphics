@@ -39,5 +39,4 @@ public:
 	bool loadProjFromConfig(const std::string& projConfPath);
 	bool loadProjectConfiguration(const rapidjson::Document& projConfDoc);
 	bool loadLevelList(const rapidjson::Document& projConfDoc);
-	
 };

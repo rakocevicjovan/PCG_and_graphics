@@ -19,6 +19,7 @@
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 #include "MaterialCache.h"
+#include "Project.h"
 #include "VitThreadPool.h"
 
 
