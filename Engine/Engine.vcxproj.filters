@@ -949,14 +949,14 @@
     <ClInclude Include="ResourceHandle.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceLedger.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceDef.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCache.h">
       <Filter>Resources\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetLedger.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

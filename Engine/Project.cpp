@@ -53,24 +53,3 @@ bool Project::loadLevelList(const rapidjson::Document& projConfDoc)
 
 	return true;
 }
-
-
-
-const std::string& Project::getProjDir() const
-{
-	return _projDef._projectPath;
-}
-
-
-
-const ProjectDefinition& Project::getProjDef() const
-{
-	return _projDef;
-}
-
-
-
-const std::vector<std::string>& Project::getLevelList() const
-{
-	return _projDef._levelList;
-}

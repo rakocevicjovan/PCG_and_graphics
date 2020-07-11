@@ -67,6 +67,9 @@ bool Engine::Initialize()
 	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
 		assert(false && "Failed to load level list.");
 
+	_project._ledgerPath = "C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Ledger.json";
+	_resMan.loadAssetLedger(_project._ledgerPath);
+
 	_levelMan = new LevelManager(*this);
 
 	return true;

@@ -29,14 +29,16 @@ class Project
 
 public:
 
-	Project() : _projDef({}) {}
+	std::string _ledgerPath;
 
-	const std::string& getProjDir() const;
-	const ProjectDefinition& getProjDef() const;
-	const std::vector<std::string>& getLevelList() const;
-	LevelReader& getLevelReader() { return _levelReader; }
+	Project() : _projDef({}) {}
 
 	bool loadFromConfig(const std::string& projConfPath);
 	bool loadProjectConfiguration(const rapidjson::Document& projConfDoc);
 	bool loadLevelList(const rapidjson::Document& projConfDoc);
+
+	inline const std::string&				getProjDir() const { return _projDef._projectPath; };
+	inline const ProjectDefinition&			getProjDef() const { return _projDef; };
+	inline const std::vector<std::string>&	getLevelList() const { return _projDef._levelList; };
+	inline LevelReader&						getLevelReader() { return _levelReader; }
 };

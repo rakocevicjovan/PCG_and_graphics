@@ -394,7 +394,7 @@
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="ResourceDef.h" />
-    <ClInclude Include="ResourceLedger.h" />
+    <ClInclude Include="AssetLedger.h" />
     <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />

@@ -3,10 +3,9 @@
 #include "GameObject.h"
 #include "Terrain.h"
 #include "Perlin.h"
-#include "Controller.h"
-#include "InputManager.h"
 #include "Observer.h"
 
+// For lazy typers (read, me), easy access to engine subsystems and some data
 #define S_DEVICE	_sys._device
 #define S_CONTEXT	_sys._deviceContext
 #define S_RANDY		_sys._renderer

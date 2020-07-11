@@ -19,8 +19,9 @@ void ResourceManager::init(ID3D11Device* device)
 
 
 
-void ResourceManager::loadResourceLedger(std::string& path)
+void ResourceManager::loadAssetLedger(const std::string& path)
 {
+	_assetLedger.load(path);
 }
 
 

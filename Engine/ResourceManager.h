@@ -9,7 +9,7 @@
 #include "Model.h"
 #include "Audio.h"
 #include "LevelReader.h"
-#include "ResourceLedger.h"
+#include "AssetLedger.h"
 #include "StackAllocator.h"
 
 
@@ -17,7 +17,7 @@
 
 class ResourceManager
 {
-	ResourceLedger _resourceLedger;
+	AssetLedger _assetLedger;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
 	std::unordered_map<std::string, std::unique_ptr<Resource>> _resourceMap;
@@ -30,7 +30,7 @@ public:
 	void init(ID3D11Device*);
 	void loadBatch(const std::string& projDir, const std::vector<ResourceDef>&);
 	void popLevel(UINT levelID);
-	void loadResourceLedger(std::string& path);
+	void loadAssetLedger(const std::string& path);
 
 	template <typename ResType>
 	ResType* getByName(const std::string& name)

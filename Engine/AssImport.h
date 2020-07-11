@@ -631,7 +631,7 @@ public:
 		if (_impSkModel)
 		{
 			// Write out other items, get their IDs... yada yada
-			std::ofstream ofs(_assetWriter._exportPath);
+			std::ofstream ofs(_assetWriter._exportPath, std::ios::binary);
 			cereal::BinaryOutputArchive archie(ofs);
 			_skModel.get()->serialize(archie, {0u}, {0u}, 0);
 		}

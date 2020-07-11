@@ -1,7 +1,7 @@
 #pragma once
 #include <rapidjson/document.h>
-//#include <cereal/archives/json.hpp>
-//#include <cereal/types/string.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/string.hpp>
 #include <string>
 #include <map>
 
@@ -28,13 +28,27 @@ struct ResourceDef
 	ResType _resType;
 
 	static ResourceDef Load(rapidjson::Value::ConstValueIterator itr);
-	static ResType getResTypeFromString(const std::string& str);
-	static const std::map<std::string, ResType> resTypeMap;
-
-	/*
+	
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
 		ar(_ID, _path, _assetName, _resType);
-	}*/
+	}
+
+	inline bool operator==(const ResourceDef& other) const
+	{
+		return (_assetName == other._assetName && _ID == other._ID);
+	}
+
+	static ResType getResTypeFromString(const std::string& str);
+	static const std::map<std::string, ResType> resTypeMap;
+};
+
+
+template<> struct std::hash<ResourceDef>
+{
+	std::size_t operator()(const ResourceDef& rd) const noexcept
+	{
+		return std::hash<std::string>()(rd._assetName);
+	}
 };
