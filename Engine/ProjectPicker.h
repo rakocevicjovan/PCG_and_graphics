@@ -1,6 +1,5 @@
 #pragma once
 #include "Project.h"
-#include <array>
 
 class ProjectPicker
 {

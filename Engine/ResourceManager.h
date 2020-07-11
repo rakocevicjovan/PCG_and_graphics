@@ -17,7 +17,7 @@
 
 class ResourceManager
 {
-	ResourceLedger resourceLedger;
+	ResourceLedger _resourceLedger;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
 	std::unordered_map<std::string, std::unique_ptr<Resource>> _resourceMap;

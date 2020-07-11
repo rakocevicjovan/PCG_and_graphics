@@ -29,7 +29,7 @@ ResType ResourceDef::getResTypeFromString(const std::string& str)
 
 const std::map<std::string, ResType> ResourceDef::resTypeMap =
 {
-	{"model",		ResType::MESH},
+	{"model",		ResType::MODEL},
 	{"texture",		ResType::TEXTURE},
 	{"material",	ResType::MATERIAL},
 	{"skeleton",	ResType::SKELETON},

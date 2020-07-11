@@ -22,7 +22,7 @@ struct ProjectDefinition
 
 class Project
 {
-	std::string _projConfPath;
+	std::string _configPath;
 	ProjectDefinition _projDef;
 
 	LevelReader _levelReader;
@@ -36,7 +36,7 @@ public:
 	const std::vector<std::string>& getLevelList() const;
 	LevelReader& getLevelReader() { return _levelReader; }
 
-	bool loadProjFromConfig(const std::string& projConfPath);
+	bool loadFromConfig(const std::string& projConfPath);
 	bool loadProjectConfiguration(const rapidjson::Document& projConfDoc);
 	bool loadLevelList(const rapidjson::Document& projConfDoc);
 };

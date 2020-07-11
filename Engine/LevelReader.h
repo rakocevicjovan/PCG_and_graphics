@@ -30,6 +30,7 @@ private:
 	bool loadResourceDefs(const rapidjson::Document& sceneDef);
 
 public:
+
 	LevelReader();
 
 	void setProjectPath(const std::string& projectPath);
@@ -37,5 +38,6 @@ public:
 	bool loadLevel(const std::string& levelPath);
 	
 	const std::vector<ResourceDef>& getLevelResourceDefs();
+
 	void clearLevelResourceDefs();
 };

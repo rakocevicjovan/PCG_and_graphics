@@ -40,7 +40,7 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 			continue;
 		}
 
-		if (resDefs[i]._resType == ResType::MESH)
+		if (resDefs[i]._resType == ResType::MODEL)
 		{
 			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
 			temp->incRef();

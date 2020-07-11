@@ -3,13 +3,13 @@
 
 
 
-bool Project::loadProjFromConfig(const std::string& projConfPath)
+bool Project::loadFromConfig(const std::string& projConfPath)
 {
-	_projConfPath = projConfPath;
+	_configPath = projConfPath;
 
 	rapidjson::Document projConfDoc;
 
-	projConfDoc.Parse(FileUtils::loadFileContents(_projConfPath).c_str());
+	projConfDoc.Parse(FileUtils::loadFileContents(_configPath).c_str());
 
 	if (!projConfDoc.IsObject())
 		return false;

@@ -65,7 +65,7 @@ bool LevelReader::loadResourceDefs(const rapidjson::Document& levelDef)
 
 
 
-void LevelReader::setProjectPath(const std::string & projectPath)	//, const std::vector<std::string>& levelPaths
+void LevelReader::setProjectPath(const std::string & projectPath)
 {
 	_projectPath = projectPath;
 }
