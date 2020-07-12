@@ -1,4 +1,5 @@
 #pragma once
+#include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/unordered_set.hpp>
 #include <unordered_set>
@@ -22,13 +23,32 @@ class AssetLedger
 	}
 
 public:
+
+
+	const ResourceDef& getDef(uint32_t ID)
+	{
+
+	}
+
+	uint32_t addAsset(const ResourceDef& def)
+	{
+
+	}
+
+
+	void removeAsset(const ResourceDef& rDef)
+	{
+		_assetMap.erase(rDef);
+	}
 	
+
 	void load(const std::string& path)
 	{
 		std::ifstream ifs(path);
 		cereal::JSONInputArchive jiArch(ifs);
 		serialize(jiArch);
 	}
+
 
 	void save(const std::string& path)
 	{

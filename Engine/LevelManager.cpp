@@ -10,14 +10,14 @@
 
 LevelManager::LevelManager(Engine& systems)
 {	
-	//current = new ProjectPickerLevel(systems);	//boring to click through...
+	//_current = new ProjectPickerLevel(systems);	//boring to click through...
 	
-	//current = new TDLevel(systems);		
+	_current = new TDLevel(systems);		
 
-	current = new AssimpLoader(systems);
+	//_current = new AssimpLoader(systems);
 
-	current->init(systems);
-	_levels.push_back(current);
+	_current->init(systems);
+	_levels.push_back(_current);
 }
 
 
@@ -34,7 +34,7 @@ void LevelManager::advanceLevel(Engine& systems)
 	delete _levels[0];
 	_levels.erase(_levels.begin());
 	_levels[0]->init(systems);
-	current = _levels[0];
+	_current = _levels[0];
 }
 
 
@@ -46,7 +46,7 @@ void LevelManager::handleInput(Engine& systems, float dTime)
 	if (sinceLastInput < .33f)
 		return;
 
-	if (systems._inputManager.isKeyDown((short)'L') || current->finished)
+	if (systems._inputManager.isKeyDown((short)'L') || _current->finished)
 	{
 		advanceLevel(systems);
 		sinceLastInput = 0;
@@ -57,6 +57,6 @@ void LevelManager::handleInput(Engine& systems, float dTime)
 
 void LevelManager::updateAndDrawCurrent(RenderContext& renderContext)
 {
-	current->update(renderContext);
-	current->draw(renderContext);
+	_current->update(renderContext);
+	_current->draw(renderContext);
 }

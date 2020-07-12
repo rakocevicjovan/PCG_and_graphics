@@ -19,20 +19,12 @@ void ResourceManager::init(ID3D11Device* device)
 
 
 
-void ResourceManager::loadAssetLedger(const std::string& path)
-{
-	_assetLedger.load(path);
-}
-
-
-
 void ResourceManager::loadBatch(const std::string& projDir, const std::vector<ResourceDef>& resDefs)
 {
 	_resourceMap.reserve(resDefs.size());
 
-	for (int i = 0; i < resDefs.size(); ++i)
-	{
-		auto uMapItr = _resourceMap.find(resDefs[i]._assetName);
+	/*
+		auto uMapItr = _resourceMap.find(resDefs[i].key._assetName);
 
 		//handle duplicates
 		if (uMapItr != _resourceMap.end())
@@ -40,20 +32,23 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 			uMapItr->second->incRef();
 			continue;
 		}
+	*/
 
-		if (resDefs[i]._resType == ResType::MODEL)
+	for (int i = 0; i < resDefs.size(); ++i)
+	{
+		if (resDefs[i].val._resType == ResType::MODEL)
 		{
 			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
 			temp->incRef();
-			static_cast<Model*>(temp)->LoadModel(_device, projDir + resDefs[i]._path);
-			_resourceMap.insert(std::make_pair<>(resDefs[i]._assetName, temp));
+			static_cast<Model*>(temp)->LoadModel(_device, projDir + resDefs[i].val._path);
+			_resourceMap.insert(std::make_pair<>(resDefs[i].key._assetName, temp));
 		}
-		else if (resDefs[i]._resType == ResType::TEXTURE)
+		else if (resDefs[i].val._resType == ResType::TEXTURE)
 		{
-			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(projDir + resDefs[i]._path);
+			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(projDir + resDefs[i].val._path);
 			temp->incRef();
 			static_cast<Texture*>(temp)->SetUpAsResource(_device);
-			_resourceMap.insert(std::make_pair<>(resDefs[i]._assetName, temp));
+			_resourceMap.insert(std::make_pair<>(resDefs[i].key._assetName, temp));
 		}
 	}
 }

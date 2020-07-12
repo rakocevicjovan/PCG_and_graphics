@@ -31,7 +31,7 @@ public:
 
 
 
-	static void CreateCubeMap(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& texDesc, ID3D11Texture2D* texPtr)
+	static void CreateCubeMap(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& texDesc, ID3D11Texture2D*& texPtr)
 	{
 		if (FAILED(device->CreateTexture2D(&texDesc, 0, &texPtr)))
 		{

@@ -9,7 +9,7 @@ class LevelManager
 {
 	float sinceLastInput = 0.f;
 	std::vector<Level*> _levels;
-	Level* current;
+	Level* _current;
 
 public:
 	LevelManager(Engine& systems);
@@ -18,5 +18,5 @@ public:
 	void advanceLevel(Engine& systems);
 	void updateAndDrawCurrent(RenderContext& renderContext);
 	void handleInput(Engine& systems, float dTime);
-	Level* getCurrentLevel() { return current; }
+	Level* getCurrentLevel() { return _current; }
 };
