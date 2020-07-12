@@ -20,9 +20,9 @@ ResourceDef ResourceDef::Load(rapidjson::Value::ConstValueIterator itr)
 
 ResType ResourceDef::getResTypeFromString(const std::string& str)
 {
-	auto it = resTypeMap.find(str);
+	auto it = RES_TYPE_MAP.find(str);
 
-	if (it == resTypeMap.end())
+	if (it == RES_TYPE_MAP.end())
 		return ResType::UNSUPPORTED;
 
 	return it->second;
@@ -30,12 +30,12 @@ ResType ResourceDef::getResTypeFromString(const std::string& str)
 
 
 
-const std::map<std::string, ResType> ResourceDef::resTypeMap =
+const std::map<std::string, ResType> ResourceDef::RES_TYPE_MAP =
 {
-	{"model",		ResType::MODEL},
-	{"texture",		ResType::TEXTURE},
-	{"material",	ResType::MATERIAL},
-	{"skeleton",	ResType::SKELETON},
-	{"animation",	ResType::ANIMATION},
-	{"sound",		ResType::SOUND}
+	{"model",		ResType::MODEL		},
+	{"texture",		ResType::TEXTURE	},
+	{"material",	ResType::MATERIAL	},
+	{"skeleton",	ResType::SKELETON	},
+	{"animation",	ResType::ANIMATION	},
+	{"sound",		ResType::SOUND		}
 };

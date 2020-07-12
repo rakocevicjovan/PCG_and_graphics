@@ -4,6 +4,7 @@
 #include <cereal/types/string.hpp>
 #include <string>
 #include <map>
+#include "Fnv1Hash.h"
 
 
 enum class ResType : uint8_t
@@ -19,6 +20,8 @@ enum class ResType : uint8_t
 	SOUND,
 	UNSUPPORTED
 };
+
+
 
 struct ResourceDef
 {
@@ -49,7 +52,7 @@ struct ResourceDef
 	}
 
 	static ResType getResTypeFromString(const std::string& str);
-	static const std::map<std::string, ResType> resTypeMap;
+	static const std::map<std::string, ResType> RES_TYPE_MAP;
 };
 
 

@@ -383,6 +383,7 @@
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="FlexVert.h" />
+    <ClInclude Include="Fnv1Hash.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />

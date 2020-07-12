@@ -25,20 +25,28 @@ class AssetLedger
 public:
 
 
-	const ResourceDef& getDef(uint32_t ID)
+	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
+	{
+		ResourceDef rd{ fnv1hash(assName), assName, path, resType };
+
+		if (!_assetMap.insert(rd).second)
+		{
+			assert(false && "HASH COLLISION! Asset name: %s", assName);
+		}
+	}
+
+
+
+	const ResourceDef& get(uint32_t ID)
 	{
 
 	}
 
-	uint32_t addAsset(const ResourceDef& def)
+
+
+	void remove(uint32_t ID)
 	{
-
-	}
-
-
-	void removeAsset(const ResourceDef& rDef)
-	{
-		_assetMap.erase(rDef);
+		_assetMap.erase(ResourceDef{ID, 0});
 	}
 	
 
