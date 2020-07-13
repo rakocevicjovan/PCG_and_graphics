@@ -12,6 +12,23 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
+
+namespace cereal
+{
+	template<class Archive>
+	void serialize(Archive& archive, VertBoneData& bd)
+	{
+		archive(bd.ids, bd.weights);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, BonedVert3D& v)
+	{
+		archive(v.pos, v.texCoords, v.normal, v.boneData);
+	}
+}
+
+
 class SkeletalMesh
 {
 public:

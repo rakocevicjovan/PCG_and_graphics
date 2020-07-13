@@ -24,37 +24,13 @@ typedef unsigned int UINT;
 namespace Procedural { class Terrain; }
 
 
-// @TODO put these somewhere nice
+
 namespace cereal
 {
-	template<class Archive>
-	void serialize(Archive& archive, SMatrix& m)
-	{
-		archive(m.m);
-	}
-
-	template<class Archive>
-	void serialize(Archive& archive, SVec2& vec2)
-	{
-		archive(vec2.x, vec2.y);
-	}
-
-	template<class Archive>
-	void serialize(Archive& archive, SVec3& vec3)
-	{
-		archive(vec3.x, vec3.y, vec3.z);
-	}
-
 	template<class Archive>
 	void serialize(Archive& archive, Vert3D& v)
 	{
 		archive(v.pos, v.texCoords, v.normal, v.tangent);
-	}
-
-	template<class Archive>
-	void serialize(Archive& archive, BonedVert3D& v)
-	{
-		archive(v.pos, v.texCoords, v.normal, v.boneData);
 	}
 }
 

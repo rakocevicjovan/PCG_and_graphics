@@ -103,7 +103,7 @@ public:
 
 
 
-	static void loadMaterials(const std::string& path, const aiScene* scene, aiMesh* aiMesh, std::vector<Texture>& textures)
+	static void loadMeshMaterial(const std::string& path, const aiScene* scene, aiMesh* aiMesh, std::vector<Texture>& textures)
 	{
 		if (aiMesh->mMaterialIndex >= 0)
 		{

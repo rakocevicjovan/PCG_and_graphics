@@ -4,6 +4,10 @@
 #include "Light.h"
 #include "MeshDataStructs.h"
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+
 struct RoleTexturePair
 {
 	TextureRole _role;
@@ -27,15 +31,10 @@ public:
 	// determines whether it goes to the transparent or opaque queue
 	bool _opaque;
 
-	//determines how many textures are added by the shader itself
-	//won't ever have 256 textures so that's even too big but can't help it for now without bitsets, meh...
-	unsigned char texturesAdded = 0u;
-
 	//this could also belong in the vertex buffer... like stride and offset do
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	// Functions
-
 	Material();
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
 	~Material();
@@ -47,4 +46,10 @@ public:
 
 	void setVS(VertexShader* vs);
 	void setPS(PixelShader* ps);
+
+	template <typename Archive>
+	void serialize(Archive& ar, std::vector<UINT>& texIDs)
+	{
+		ar(0u, 0u, texIDs);
+	}
 };

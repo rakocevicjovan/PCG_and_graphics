@@ -73,12 +73,12 @@ bool Model::LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx
 bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
 {
 	aiMatrix4x4 concatenatedTransform = node->mTransformation * parentTransform;
+
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		unsigned int ind = _meshes.size();
 		_meshes.emplace_back();
-		processMesh(device, mesh, _meshes.back(), scene, ind, concatenatedTransform, rUVx, rUVy);
+		processMesh(device, mesh, _meshes.back(), scene, concatenatedTransform, rUVx, rUVy);
 		_meshes.back().setupMesh(device);
 	}
 
@@ -92,7 +92,7 @@ bool Model::processNode(ID3D11Device* device, aiNode* node, const aiScene* scene
 
 
 
-bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene *scene, unsigned int ind, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
+bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene *scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy)
 {
 	mesh._vertices.reserve(aiMesh->mNumVertices);
 	mesh._indices.reserve(aiMesh->mNumFaces * 3);
@@ -114,7 +114,7 @@ bool Model::processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const 
 
 	AssimpWrapper::loadTangents(aiMesh, mesh._vertices, faceTangents);
 
-	AssimpWrapper::loadMaterials(_path, scene, aiMesh, mesh._textures);
+	AssimpWrapper::loadMeshMaterial(_path, scene, aiMesh, mesh._textures);
 
 	
 	// Not true in the general case... it would require tool support with my own format for this!

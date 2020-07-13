@@ -2,6 +2,10 @@
 #include <d3d11.h>
 #include "SimpleMath.h"
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+
 using SMatrix	= DirectX::SimpleMath::Matrix;
 using SQuat		= DirectX::SimpleMath::Quaternion;
 using SVec2		= DirectX::SimpleMath::Vector2;
@@ -104,5 +108,34 @@ public:
 	static T lerp(const T a, const T b, const float t)
 	{
 		return (1 - t) * a + t * b;
+	}
+
+
+};
+
+namespace cereal
+{
+	template<class Archive>
+	void serialize(Archive& archive, SVec2& vec2)
+	{
+		archive(vec2.x, vec2.y);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, SVec3& vec3)
+	{
+		archive(vec3.x, vec3.y, vec3.z);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, SVec4& vec4)
+	{
+		archive(vec4.x, vec4.y, vec4.z);
+	}
+
+	template<class Archive>
+	void serialize(Archive& archive, SMatrix& m)
+	{
+		archive(m.m);
 	}
 };

@@ -26,7 +26,7 @@ SkeletalMesh SkeletalModel::processSkeletalMesh(ID3D11Device* device, aiMesh* me
 
 	AssimpWrapper::loadIndices(mesh, indices);
 
-	AssimpWrapper::loadMaterials(_path, scene, mesh, locTextures);
+	AssimpWrapper::loadMeshMaterial(_path, scene, mesh, locTextures);
 
 	for (Texture& t : locTextures)
 		t.SetUpAsResource(device);

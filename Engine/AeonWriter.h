@@ -44,7 +44,8 @@ public:
 					result = true;
 			}
 
-			result = displayOverwriteWarning();
+			if(!result)
+				result = displayOverwriteWarning();
 		}
 		ImGui::End();
 

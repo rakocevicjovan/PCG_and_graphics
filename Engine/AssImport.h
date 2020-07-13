@@ -202,7 +202,6 @@ public:
 		if (ImGui::TreeNode("Node tree"))
 		{
 			printaiNode(_aiScene->mRootNode, _aiScene, _aiScene->mRootNode->mTransformation);
-
 			ImGui::TreePop();
 		}
 
@@ -295,17 +294,22 @@ public:
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.6, 0., 1., 1.));
 
 			aiMatrix4x4 concatenatedTransform = node->mTransformation * parentTransform;
-			SMatrix concatSMat = AssimpWrapper::aiMatToSMat(concatenatedTransform);
 
-			if (ImGui::TreeNode("Concatenated transform: "))
+			if (ImGui::IsItemHovered())
 			{
+				ImGui::BeginTooltip();
+
+				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
+
+				SMatrix concatSMat = AssimpWrapper::aiMatToSMat(concatenatedTransform);
 				displayTransform(concatSMat);
 
 				SQuat squat = SQuat::CreateFromRotationMatrix(concatSMat);
 				ImGui::InputFloat4("Quat: ", &squat.x, 3, ImGuiInputTextFlags_ReadOnly);
 
-				ImGui::TreePop();
+				ImGui::EndTooltip();
 			}
+
 
 			ImGui::Text("Mesh count: %d", node->mNumMeshes);
 
@@ -318,13 +322,13 @@ public:
 					{
 						aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
+						ImGui::PushID(i);
 						if (ImGui::TreeNode("Mesh name and node index: %s (%d)", mesh->mName.C_Str(), i))
 						{
-							ImGui::PushID(i);
 							printAiMesh(mesh, concatenatedTransform);
-							ImGui::PopID();
 							ImGui::TreePop();
 						}
+						ImGui::PopID();
 
 					}
 					ImGui::TreePop();
@@ -366,34 +370,20 @@ public:
 		UINT numUVChannels = mesh->GetNumUVChannels();
 		UINT* numUVComponents = mesh->mNumUVComponents;
 
-		ImGui::BeginGroup();
-
-		ImGui::Text("UVs");
-
 		ImGui::Text("Nr. of UV channels: %d", numUVChannels);
-
 		ImGui::Text("Nr. of UV components per channel: ");
 
 		ImGui::Indent();
 		for (int i = 0; i < numUVChannels; i++)
-		{
-			ImGui::Text("%d: ", numUVComponents[i]);
-		}
+			ImGui::Text("%d: %d ", i, numUVComponents[i]);
 		ImGui::Unindent();
 
-		ImGui::EndGroup();
 		ImGui::NewLine();
 
-		UINT indexCount = 0u;
-
-		indexCount = mesh->mNumFaces * 3;	// Much quicker approximation, if assimp triangulation worked
-
-		ImGui::BeginGroup();
 		ImGui::Text("Vertex count: %d", mesh->mNumVertices);
-		ImGui::Text("Index count: %d", indexCount);
+		ImGui::Text("Index count: %d", mesh->mNumFaces * 3);	// I always use assimp's triangulate flag
 		ImGui::Text("Face count: %d", mesh->mNumFaces);
-		ImGui::Text("Has tangents and bitangents: %d", mesh->HasTangentsAndBitangents());
-		ImGui::EndGroup();
+		ImGui::Text("Has (bi)tan: %d", mesh->HasTangentsAndBitangents());
 
 		ImGui::NewLine();
 
@@ -404,42 +394,48 @@ public:
 
 	void printAiMaterial(aiMesh* mesh)
 	{
-		ImGui::Text("Material: ");
-		ImGui::Indent();
-
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.4, .5, .7, 1.));
 		if (mesh->mMaterialIndex >= 0)
 		{
-			aiMaterial* material = _aiScene->mMaterials[mesh->mMaterialIndex];
+			aiMaterial* aiMat = _aiScene->mMaterials[mesh->mMaterialIndex];
+
+			ImGui::Text("Material: %s", aiMat->GetName().C_Str());
 
 			// Diffuse maps
-			printMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+			printMaterialTextures(aiMat, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
 
 			// Normal maps
-			printMaterialTextures(material, aiTextureType_NORMALS, "texture_normal", NORMAL);
+			printMaterialTextures(aiMat, aiTextureType_NORMALS, "texture_normal", NORMAL);
 
 			// Specular maps
-			printMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+			printMaterialTextures(aiMat, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
 
 			// Shininess maps
-			printMaterialTextures(material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+			printMaterialTextures(aiMat, aiTextureType_SHININESS, "texture_shininess", SHININESS);
 
 			// Opacity maps
-			printMaterialTextures(material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
+			printMaterialTextures(aiMat, aiTextureType_OPACITY, "texture_opacity", OPACITY);
 
 			// Displacement maps
-			printMaterialTextures(material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+			printMaterialTextures(aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
 
 			// Ambient occlusion maps
-			printMaterialTextures(material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+			printMaterialTextures(aiMat, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
 
 			// Other maps
-			printMaterialTextures(material, aiTextureType_UNKNOWN, "texture_other", OTHER);
+			printMaterialTextures(aiMat, aiTextureType_UNKNOWN, "texture_other", OTHER);
 
 			// Weird properties... that I never really saw trigger
-			printMaterialTextures(material, aiTextureType_NONE, "texture_property", OTHER);
+			printMaterialTextures(aiMat, aiTextureType_NONE, "texture_property", OTHER);
+
+			ImGui::Unindent();
+		}
+		else
+		{
+			ImGui::Text("Material: none");
 		}
 
-		ImGui::Unindent();
+		ImGui::PopStyleColor();
 	}
 
 
@@ -631,7 +627,7 @@ public:
 	}
 
 
-
+	// This function sucks. In fact this entire class sucks. And the rest of the engine.
 	void writeAssets()
 	{
 		if (_impSkModel)
@@ -639,13 +635,23 @@ public:
 
 			for (int i = 0; i < _skModel->_meshes.size(); ++i)
 			{
-				std::ofstream ofs(_assetWriter._exportPath + "mesh" + std::to_string(i));
+				uint32_t matId;
+				{
+				Material* m = &_skModel->_meshes[i]._baseMaterial;
+				std::string matPath{ _assetWriter._exportPath + "//mat" + std::to_string(i) + ".aeon" };
+				std::ofstream matOfs(matPath, std::ios::binary);
+				cereal::BinaryOutputArchive matBoa(matOfs);
+				m->serialize(matBoa, std::vector<UINT>{0u});
+				matId = _ledger->add(matPath, matPath, ResType::TEXTURE);
+				}
+
+				std::string meshPath{ _assetWriter._exportPath + "//mesh" + std::to_string(i) + ".aeon"};
+				std::ofstream ofs(meshPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
-				_skModel->_meshes[i].serialize(boa, 0);
+				_skModel->_meshes[i].serialize(boa, matId);
 			}
 			
-			// Write out other items, get their IDs... yada yada
-			std::ofstream ofs(_assetWriter._exportPath, std::ios::binary);
+			std::ofstream ofs(_assetWriter._exportPath + "//skm.aeon", std::ios::binary);
 			cereal::BinaryOutputArchive archie(ofs);
 			_skModel.get()->serialize(archie, {0u}, {0u}, 0);
 		}

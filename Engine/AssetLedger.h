@@ -28,13 +28,15 @@ public:
 
 	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
 	{
-		ResourceDef rd{ fnv1hash(assName), assName, path, resType };
+		uint32_t result = fnv1hash(assName);
+		ResourceDef rd{ result, assName, path, resType };
 
 		if (!_assDefs.insert(rd).second)
 		{
 			// Heavy handed, needs a very visible warning though.
 			assert(false && "HASH COLLISION! Asset name: %s", assName);
 		}
+		return result;
 	}
 
 
