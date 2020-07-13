@@ -25,6 +25,7 @@ public:
 
 	static void Log(const std::string& line)
 	{
+		// Pretty damn sure this needs a lock
 		FileUtils::writeAllBytes("Logger.txt", line.data(), line.size() * sizeof(char), std::ios::app);
 	}
 

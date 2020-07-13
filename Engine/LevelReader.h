@@ -27,11 +27,10 @@ private:
 	std::vector<ResourceDef> _resourceDefs;
 
 	bool loadLevelDef(const rapidjson::Document& sceneDef);
+
 	bool loadResourceDefs(const rapidjson::Document& sceneDef);
 
 public:
-
-	LevelReader();
 
 	void setProjectPath(const std::string& projectPath);
 

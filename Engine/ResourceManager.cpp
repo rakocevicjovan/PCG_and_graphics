@@ -23,10 +23,10 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 {
 	_resourceMap.reserve(resDefs.size());
 
-	/*
+	/* Think about this later
 		auto uMapItr = _resourceMap.find(resDefs[i].key._assetName);
 
-		//handle duplicates
+		// Handle duplicates
 		if (uMapItr != _resourceMap.end())
 		{
 			uMapItr->second->incRef();

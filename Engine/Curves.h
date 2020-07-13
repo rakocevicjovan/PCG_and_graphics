@@ -31,9 +31,4 @@ namespace Curves
 			return a + b + c + d;
 		}
 	};
-
-	
-
-
-
 };

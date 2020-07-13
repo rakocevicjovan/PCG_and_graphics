@@ -17,7 +17,7 @@ public:
 
 
 
-	AeonWriter() : _active(false), _exportPath("C:\\Users\\Senpai\\Desktop\\Test.txt") {}
+	AeonWriter() : _active(false), _exportPath("C:\\Users\\Senpai\\Desktop\\AeonTest") {}
 
 
 

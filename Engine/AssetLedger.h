@@ -12,14 +12,15 @@
 
 class AssetLedger
 {
+private:
 	// Gigabrain implementation with 0 effort, 0 cache locality and maximum fragmentation
-	std::unordered_set<ResourceDef> _assetMap;	// _assSet just sounds weird doesn't it?
+	std::unordered_set<ResourceDef> _assDefs;
 
 	// This will write it all out at once, something I don't like one bit (might use sqlite)
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_assetMap);
+		ar(_assDefs);
 	}
 
 public:
@@ -29,26 +30,51 @@ public:
 	{
 		ResourceDef rd{ fnv1hash(assName), assName, path, resType };
 
-		if (!_assetMap.insert(rd).second)
+		if (!_assDefs.insert(rd).second)
 		{
+			// Heavy handed, needs a very visible warning though.
 			assert(false && "HASH COLLISION! Asset name: %s", assName);
 		}
 	}
 
 
 
-	const ResourceDef& get(uint32_t ID)
+	const ResourceDef* get(const std::string& assName)
 	{
+		get(fnv1hash(assName));
+	}
 
+
+
+	const ResourceDef* get(uint32_t ID)
+	{
+		auto iter = _assDefs.find(ResourceDef{ ID });
+		
+		if (iter != _assDefs.end())
+		{
+			return &(*iter);
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
+
+
+	void remove(const std::string& assName)
+	{
+		remove(fnv1hash(assName));
 	}
 
 
 
 	void remove(uint32_t ID)
 	{
-		_assetMap.erase(ResourceDef{ID, 0});
+		_assDefs.erase(ResourceDef{ID, 0});
 	}
-	
+
+
 
 	void load(const std::string& path)
 	{

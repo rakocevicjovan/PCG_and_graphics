@@ -14,6 +14,8 @@
 class AssImport
 {
 private:
+	ResourceManager* _resMan;
+	AssetLedger* _ledger;
 
 	std::string _path;
 	Assimp::Importer _importer;
@@ -47,8 +49,12 @@ public:
 
 
 
-	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat)
+	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat, 
+		ResourceManager* resMan)
 	{
+		_resMan = resMan;
+		_ledger = &resMan->_assetLedger;
+
 		_importConfigured = false;
 
 		_path = path;
@@ -630,6 +636,14 @@ public:
 	{
 		if (_impSkModel)
 		{
+
+			for (int i = 0; i < _skModel->_meshes.size(); ++i)
+			{
+				std::ofstream ofs(_assetWriter._exportPath + "mesh" + std::to_string(i));
+				cereal::BinaryOutputArchive boa(ofs);
+				_skModel->_meshes[i].serialize(boa, 0);
+			}
+			
 			// Write out other items, get their IDs... yada yada
 			std::ofstream ofs(_assetWriter._exportPath, std::ios::binary);
 			cereal::BinaryOutputArchive archie(ofs);

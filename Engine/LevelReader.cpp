@@ -6,10 +6,6 @@
 
 
 
-LevelReader::LevelReader() {}
-
-
-
 bool LevelReader::loadLevel(const std::string& levelPath)
 {
 	rapidjson::Document levelDef;

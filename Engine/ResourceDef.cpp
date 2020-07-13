@@ -7,6 +7,7 @@
 ResourceDef ResourceDef::Load(rapidjson::Value::ConstValueIterator itr)
 {
 	ResourceDef rd;
+
 	rd.key._ID = itr->FindMember("id")->value.GetInt();
 	rd.key._assetName = itr->FindMember("name")->value.GetString();
 

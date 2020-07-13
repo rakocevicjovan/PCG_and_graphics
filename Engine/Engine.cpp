@@ -69,7 +69,7 @@ bool Engine::Initialize()
 
 	_project._ledgerPath = "C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Ledger.json";
 	
-	_resMan.saveAssetLedger(_project._ledgerPath);
+	//_resMan.saveAssetLedger(_project._ledgerPath);
 	_resMan.loadAssetLedger(_project._ledgerPath);
 
 	_levelMan = new LevelManager(*this);

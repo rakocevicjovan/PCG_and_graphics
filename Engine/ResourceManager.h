@@ -17,12 +17,13 @@
 
 class ResourceManager
 {
-	AssetLedger _assetLedger;
 	StackAllocator _stackAllocator;
 	ID3D11Device* _device;
 	std::unordered_map<std::string, std::unique_ptr<Resource>> _resourceMap;
 
 public:
+
+	AssetLedger _assetLedger;
 
 	ResourceManager();
 	~ResourceManager();
@@ -30,14 +31,6 @@ public:
 	void init(ID3D11Device*);
 	void loadBatch(const std::string& projDir, const std::vector<ResourceDef>&);
 	void popLevel(UINT levelID);
-
-	void loadAssetLedger(const std::string& path){
-		_assetLedger.load(path);}
-
-	void saveAssetLedger(const std::string& path)
-	{
-		_assetLedger.save(path);
-	}
 
 	template <typename ResType>
 	ResType* getByName(const std::string& name)
