@@ -121,9 +121,7 @@ namespace cereal
 
 	template<class Ar> void serialize(Ar& ar, SVec3& vec3) { ar(vec3.x, vec3.y, vec3.z); }
 
-	template<class Ar> void serialize(Ar& ar, SVec4& vec4) { ar(vec4.x, vec4.y, vec4.z); }
-
-	template<class Ar> void serialize(Ar& ar, SVec4& vec4) { ar(vec4.x, vec4.y, vec4.z); }
+	template<class Ar> void serialize(Ar& ar, SVec4& vec4) { ar(vec4.x, vec4.y, vec4.z, vec4.w); }
 
 	template<class Ar> void serialize(Ar& ar, SQuat& quat) { ar(quat.x, quat.y, quat.z, quat.w); }
 

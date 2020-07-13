@@ -3,9 +3,13 @@
 #include <map>
 #include "Bone.h"
 
-#include "assimp\Importer.hpp"	
+#include "assimp\Importer.hpp"
 #include "assimp\scene.h"
-#include "assimp\postprocess.h" 
+#include "assimp\postprocess.h"
+
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/map.hpp>
 
 #include <optional>
 
@@ -71,5 +75,12 @@ public:
 			result = &(boneIter->second);
 
 		return result;
+	}
+
+	template <typename Archive>
+	void serialize(Archive& ar)
+	{
+		// Cereal won't support root because it's a raw ptr... handle this...
+		ar(_boneMap, _globalInverseTransform);
 	}
 };
