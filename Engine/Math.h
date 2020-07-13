@@ -113,29 +113,19 @@ public:
 
 };
 
+
+
 namespace cereal
 {
-	template<class Archive>
-	void serialize(Archive& archive, SVec2& vec2)
-	{
-		archive(vec2.x, vec2.y);
-	}
+	template<class Ar> void serialize(Ar& ar, SVec2& vec2) { ar(vec2.x, vec2.y); }
 
-	template<class Archive>
-	void serialize(Archive& archive, SVec3& vec3)
-	{
-		archive(vec3.x, vec3.y, vec3.z);
-	}
+	template<class Ar> void serialize(Ar& ar, SVec3& vec3) { ar(vec3.x, vec3.y, vec3.z); }
 
-	template<class Archive>
-	void serialize(Archive& archive, SVec4& vec4)
-	{
-		archive(vec4.x, vec4.y, vec4.z);
-	}
+	template<class Ar> void serialize(Ar& ar, SVec4& vec4) { ar(vec4.x, vec4.y, vec4.z); }
 
-	template<class Archive>
-	void serialize(Archive& archive, SMatrix& m)
-	{
-		archive(m.m);
-	}
+	template<class Ar> void serialize(Ar& ar, SVec4& vec4) { ar(vec4.x, vec4.y, vec4.z); }
+
+	template<class Ar> void serialize(Ar& ar, SQuat& quat) { ar(quat.x, quat.y, quat.z, quat.w); }
+
+	template<class Ar> void serialize(Ar& ar, SMatrix& m)  { ar(m.m); }
 };

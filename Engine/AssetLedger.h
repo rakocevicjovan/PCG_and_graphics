@@ -13,6 +13,7 @@
 class AssetLedger
 {
 private:
+	
 	// Gigabrain implementation with 0 effort, 0 cache locality and maximum fragmentation
 	std::unordered_set<ResourceDef> _assDefs;
 
@@ -24,6 +25,8 @@ private:
 	}
 
 public:
+
+	std::string _ledgerFilePath;
 
 
 	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
@@ -78,18 +81,25 @@ public:
 
 
 
-	void load(const std::string& path)
+	void load()
 	{
-		std::ifstream ifs(path);
+		std::ifstream ifs(_ledgerFilePath);
 		cereal::JSONInputArchive jiArch(ifs);
 		serialize(jiArch);
 	}
 
 
-	void save(const std::string& path)
+	void save()
 	{
-		std::ofstream ofs(path);
+		std::ofstream ofs(_ledgerFilePath);
 		cereal::JSONOutputArchive joArch(ofs);
 		serialize(joArch);
+	}
+
+
+	void purge()
+	{
+		_assDefs.clear();
+		save();
 	}
 };

@@ -2,6 +2,10 @@
 #include "Math.h"
 #include <vector>
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+
 
 struct PosFrame
 {
@@ -10,6 +14,8 @@ struct PosFrame
 
 	PosFrame() {}
 	PosFrame(float tick, SVec3 pos) : pos(pos), tick(tick) {}
+
+	template<class Archive> void serialize(Archive& ar) { ar(pos, tick); }
 };
 
 
@@ -20,6 +26,8 @@ struct RotFrame
 
 	RotFrame() {}
 	RotFrame(float tick, SQuat rot) : rot(rot), tick(tick) {}
+
+	template<class Archive> void serialize(Archive& ar) { ar(rot, tick); }
 };
 
 
@@ -30,6 +38,8 @@ struct SclFrame
 
 	SclFrame() {}
 	SclFrame(float tick, SVec3 scale) : scale(scale), tick(tick) {}
+
+	template<class Archive> void serialize(Archive& ar) { ar(scale, tick); }
 };
 
 
@@ -132,5 +142,11 @@ struct AnimChannel
 
 		return DirectX::XMMatrixAffineTransformation(scale, SVec3(0.f), quat, pos);
 	}
-};
 
+
+	template<class Archive>
+	void serialize(Archive& ar)
+	{
+		ar(_boneName, _rKeys, _pKeys, _sKeys);
+	}
+};

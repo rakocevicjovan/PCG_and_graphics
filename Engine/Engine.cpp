@@ -67,10 +67,12 @@ bool Engine::Initialize()
 	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
 		assert(false && "Failed to load level list.");
 
+	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Ledger.json";
-	
-	//_resMan.saveAssetLedger(_project._ledgerPath);
-	_resMan._assetLedger.load(_project._ledgerPath);
+	_resMan._assetLedger._ledgerFilePath = _project._ledgerPath;
+
+	//_resMan.saveAssetLedger();
+	_resMan._assetLedger.load();
 
 	_levelMan = new LevelManager(*this);
 

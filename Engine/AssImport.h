@@ -383,7 +383,7 @@ public:
 		ImGui::Text("Vertex count: %d", mesh->mNumVertices);
 		ImGui::Text("Index count: %d", mesh->mNumFaces * 3);	// I always use assimp's triangulate flag
 		ImGui::Text("Face count: %d", mesh->mNumFaces);
-		ImGui::Text("Has (bi)tan: %d", mesh->HasTangentsAndBitangents());
+		ImGui::Text("Has (bi)tangents: %d", mesh->HasTangentsAndBitangents());
 
 		ImGui::NewLine();
 
@@ -632,7 +632,7 @@ public:
 	{
 		if (_impSkModel)
 		{
-
+			std::vector<UINT> meshIDs;
 			for (int i = 0; i < _skModel->_meshes.size(); ++i)
 			{
 				uint32_t matId;
@@ -642,19 +642,40 @@ public:
 				std::ofstream matOfs(matPath, std::ios::binary);
 				cereal::BinaryOutputArchive matBoa(matOfs);
 				m->serialize(matBoa, std::vector<UINT>{0u});
-				matId = _ledger->add(matPath, matPath, ResType::TEXTURE);
+				matId = _ledger->add(matPath, matPath, ResType::MATERIAL);
 				}
 
 				std::string meshPath{ _assetWriter._exportPath + "//mesh" + std::to_string(i) + ".aeon"};
 				std::ofstream ofs(meshPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
 				_skModel->_meshes[i].serialize(boa, matId);
+				meshIDs.push_back(_ledger->add(meshPath, meshPath, ResType::SK_MESH));
+			}
+
+			std::vector<UINT> animIDs;
+			for (Animation& anim : _skModel->_anims)
+			{
+				std::string animPath{ _assetWriter._exportPath + "//" + anim.getName() + ".aeon" };
+				std::ofstream ofs(animPath, std::ios::binary);
+				cereal::BinaryOutputArchive boa(ofs);
+				anim.serialize(boa);
+				animIDs.push_back(_ledger->add(animPath, animPath, ResType::ANIMATION));
+			}
+
+			UINT skeletonID;
+			{
+				std::string skelPath{ _assetWriter._exportPath + "//skelly" + ".aeon" };
+				std::ofstream ofs(skelPath, std::ios::binary);
+				cereal::BinaryOutputArchive boa(ofs);
+				_skModel->_skeleton.serialize(boa);
+				skeletonID = _ledger->add(skelPath, skelPath, ResType::ANIMATION);
 			}
 			
 			std::ofstream ofs(_assetWriter._exportPath + "//skm.aeon", std::ios::binary);
 			cereal::BinaryOutputArchive archie(ofs);
-			_skModel.get()->serialize(archie, {0u}, {0u}, 0);
+			_skModel.get()->serialize(archie, meshIDs, animIDs, skeletonID);
 		}
+		_ledger->save();
 	}
 
 
