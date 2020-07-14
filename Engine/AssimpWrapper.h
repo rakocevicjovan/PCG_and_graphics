@@ -31,7 +31,7 @@ public:
 
 	static void postProcess(Assimp::Importer& imp, aiPostProcessSteps steps)
 	{
-		imp.ApplyPostProcessing(steps);	//aiProcess_CalcTangentSpace
+		imp.ApplyPostProcessing(steps);
 	}
 
 

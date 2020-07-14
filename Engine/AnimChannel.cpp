@@ -73,7 +73,7 @@ SMatrix AnimChannel::getInterpolatedTransform(float currentTick, float t) const
 			[](float rhs, RotFrame lhs) -> bool {return rhs < lhs.tick; });
 
 		SQuat rotPost = it->rot;
-		--it;
+		--it;	// Should be safe as upper_bound will never select the first element, tested it as well
 		SQuat rotPre = it->rot;
 		quat = SQuat::Slerp(rotPre, rotPost, t);
 

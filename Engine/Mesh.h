@@ -36,9 +36,8 @@ namespace cereal
 }
 
 
-class Mesh : public Resource	//, public SerializableAsset
+class Mesh : public Resource
 {
-	friend class Model;
 public:
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	_vertices;
