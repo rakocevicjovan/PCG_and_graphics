@@ -8,7 +8,7 @@ void Animation::getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const 
 	float currentTick = elapsed / _tickDuration;
 	float t = currentTick - (long)currentTick;
 	
-	const AnimChannel* channel = getAnimChannel(bone.name);
+	const AnimChannel* channel = getAnimChannel(bone._name);
 
 	SMatrix animTransform;
 
@@ -22,7 +22,7 @@ void Animation::getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const 
 	// Bind space to bone space, animate, apply global inverse
 	SMatrix finalMatrix = bone._offsetMatrix * nodeTransform * glInvT;
 
-	vec[bone.index] = finalMatrix;
+	vec[bone._index] = finalMatrix;
 
 	for (Bone* child : bone.offspring)
 		getTransformAtTime(*child, vec, nodeTransform, glInvT, elapsed);

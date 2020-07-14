@@ -419,6 +419,9 @@
     <ClCompile Include="ResourceDef.cpp">
       <Filter>Resources\Resource classes</Filter>
     </ClCompile>
+    <ClCompile Include="AnimChannel.cpp">
+      <Filter>Resources\SkelAnim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

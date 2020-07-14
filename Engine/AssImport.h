@@ -565,7 +565,7 @@ public:
 			return;
 		}
 
-		if (ImGui::TreeNode("N: %s ; Idx: %d", bone->name.c_str(), bone->index))
+		if (ImGui::TreeNode("N: %s ; Idx: %d", bone->_name.c_str(), bone->_index))
 		{
 			if (ImGui::IsItemHovered())
 			{
@@ -637,11 +637,10 @@ public:
 			{
 				uint32_t matId;
 				{
-				Material* m = &_skModel->_meshes[i]._baseMaterial;
 				std::string matPath{ _assetWriter._exportPath + "//mat" + std::to_string(i) + ".aeon" };
 				std::ofstream matOfs(matPath, std::ios::binary);
 				cereal::BinaryOutputArchive matBoa(matOfs);
-				m->serialize(matBoa, std::vector<UINT>{0u});
+				_skModel->_meshes[i]._baseMaterial.serialize(matBoa, std::vector<UINT>{0u});
 				matId = _ledger->add(matPath, matPath, ResType::MATERIAL);
 				}
 
@@ -667,7 +666,7 @@ public:
 				std::string skelPath{ _assetWriter._exportPath + "//skelly" + ".aeon" };
 				std::ofstream ofs(skelPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
-				_skModel->_skeleton.serialize(boa);
+				_skModel->_skeleton.save(boa);
 				skeletonID = _ledger->add(skelPath, skelPath, ResType::ANIMATION);
 			}
 			

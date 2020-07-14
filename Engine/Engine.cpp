@@ -72,6 +72,7 @@ bool Engine::Initialize()
 	_resMan._assetLedger._ledgerFilePath = _project._ledgerPath;
 
 	//_resMan.saveAssetLedger();
+	_resMan._assetLedger.purge();
 	_resMan._assetLedger.load();
 
 	_levelMan = new LevelManager(*this);

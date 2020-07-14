@@ -52,7 +52,9 @@ public:
 		}
 
 		if (_animInstances.size() > animIndex)	// Avoid crashing when no anim is loaded
+		{
 			_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton._root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton._globalInverseTransform);
+		}
 		else
 		{
 			for (SMatrix& mat : _skeletonMatrices)

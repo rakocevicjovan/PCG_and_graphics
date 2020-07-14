@@ -256,13 +256,11 @@ public:
 
 			if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
 			{
-				boneIndex = skeleton._boneMap.size();
+				boneIndex = skeleton.getBoneCount();
 
 				SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
 
-				Bone bone(boneIndex, boneName, boneOffsetMat);
-
-				skeleton._boneMap.insert({ boneName, bone });
+				skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
 			}
 
 
@@ -294,11 +292,11 @@ public:
 
 				if (boneIndex < 0)	// Bone wasn't added already, add it now
 				{
-					boneIndex = skeleton._boneMap.size();
+					boneIndex = skeleton.getBoneCount();
 					
 					SMatrix boneOffsetMat = aiMatToSMat(bone->mOffsetMatrix);
 
-					skeleton._boneMap.insert({ boneName, Bone(boneIndex, boneName, boneOffsetMat) });
+					skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
 				}
 			}
 		}
@@ -328,10 +326,10 @@ public:
 			return;
 
 		Bone newParentBone;
-		newParentBone.name = parentName;
-		newParentBone.index = skeleton._boneMap.size();
+		newParentBone._name = parentName;
+		newParentBone._index = skeleton.getBoneCount();
 		//newParentBone._offsetMatrix = AssimpWrapper::calculateOffsetMatrix(boneNode, meshGlobalMatrix);
-		auto boneIter = skeleton._boneMap.insert({ parentName, newParentBone });
+		auto boneIter = skeleton.insertBone(newParentBone);
 
 		addMissingBones(skeleton, parent, meshGlobalMatrix);
 	}
@@ -431,8 +429,8 @@ public:
 		parent = locTf * parent;
 
 		Bone bone;
-		bone.name = std::string(node->mName.C_Str());
-		bone.index = skeleton._boneMap.size();
+		bone._name = std::string(node->mName.C_Str());
+		bone._index = skeleton.getBoneCount();
 		bone._localMatrix = locTf;
 		// Does not account for mesh offset, that has to be added when attaching mesh to skeleton
 		bone._offsetMatrix = parent.Invert();	
@@ -443,7 +441,7 @@ public:
 			bone.parent = skeleton.findBone(parentName);
 		}
 	
-		auto iter = skeleton._boneMap.insert({ bone.name, bone });
+		auto iter = skeleton._boneMap.insert({ bone._name, bone });
 
 		if(bone.parent)	// Add links between parents and children, avoid crashing on root
 			bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching

@@ -175,6 +175,7 @@
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AnimChannel.cpp" />
     <ClCompile Include="ClusterManager.cpp">
       <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
       <FloatingPointExceptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

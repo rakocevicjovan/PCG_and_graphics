@@ -2,13 +2,16 @@
 #include "Math.h"
 #include <string>
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/map.hpp>
 
 class Bone
 {
 public:
 
-	int index;
-	std::string name;
+	int _index;
+	std::string _name;
 
 	SMatrix _offsetMatrix;
 	SMatrix _localMatrix;
@@ -20,5 +23,12 @@ public:
 	Bone() : parent(nullptr) {}
 
 	Bone(int index, std::string name, SMatrix offset)
-		: index(index), name(name), _offsetMatrix(offset), parent(nullptr) {}
+		: _index(index), _name(name), _offsetMatrix(offset), parent(nullptr) {}
+
+	// Again, can't serialize the tree because of pointers...
+	template <typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(_index, _name, _offsetMatrix, _localMatrix);
+	}
 };

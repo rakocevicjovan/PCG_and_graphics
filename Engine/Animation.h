@@ -90,6 +90,6 @@ public:
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_name, _channels, _ticks, _ticksPerSecond, _duration, _tickDuration)
+		ar(_name, _channels, _ticks, _ticksPerSecond, _duration, _tickDuration);
 	}
 };
