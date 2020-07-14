@@ -49,9 +49,6 @@
     <Filter Include="Old levels\__Picker">
       <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Old levels\SKTest">
-      <UniqueIdentifier>{c5cb4c3d-cd08-452c-b5eb-c13ee6cb3525}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TowerDefense">
       <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
     </Filter>
@@ -211,9 +208,6 @@
     </ClCompile>
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="TestLevel.cpp">
-      <Filter>Old levels\SKTest</Filter>
     </ClCompile>
     <ClCompile Include="TDLevel.cpp">
       <Filter>TowerDefense</Filter>
@@ -498,9 +492,6 @@
     </ClInclude>
     <ClInclude Include="BitMapper.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="TestLevel.h">
-      <Filter>Old levels\SKTest</Filter>
     </ClInclude>
     <ClInclude Include="TDLevel.h">
       <Filter>TowerDefense</Filter>

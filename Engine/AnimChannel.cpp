@@ -1,5 +1,5 @@
 #include "AnimChannel.h"
-
+#include <algorithm> 
 
 
 AnimChannel::AnimChannel(int p, int r, int s)
@@ -69,25 +69,49 @@ SMatrix AnimChannel::getInterpolatedTransform(float currentTick, float t) const
 	}
 	else
 	{
-		// Alternative method, not sure if it's faster but I suspect it is
-		auto it = std::lower_bound(_rKeys.begin(), _rKeys.end(), currentTick,
-			[](RotFrame lhs, float rhs) -> bool {return lhs.tick < rhs; });
-		
-		SQuat rotPre = it++->rot;
-		
-		if (it == _rKeys.end()) it = _rKeys.begin();	// homebrew ring buffer :V
+		auto it = std::upper_bound(_rKeys.begin(), _rKeys.end(), currentTick,
+			[](float rhs, RotFrame lhs) -> bool {return rhs < lhs.tick; });
 
 		SQuat rotPost = it->rot;
-		quat = Math::lerp(rotPre, rotPost, t);
+		--it;
+		SQuat rotPre = it->rot;
+		quat = SQuat::Slerp(rotPre, rotPost, t);
+
+		/*
+		for (UINT i = 0; i < numRCh; ++i)
+		{
+			int nextTick = i + 1 == numRCh ? 0 : i + 1;
+
+			if (currentTick < (float)_rKeys[nextTick].tick)
+			{
+				SQuat rotPre = _rKeys[i].rot;
+				SQuat rotPost = _rKeys[nextTick].rot;
+				quat = Math::lerp(rotPre, rotPost, t);
+				break;
+			}
+		}*/
 	}
-
-	/* Old way, I'd say a lot slower
-	SMatrix sMat = SMatrix::CreateScale(scale);
-	SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
-	SMatrix tMat = SMatrix::CreateTranslation(pos);
-
-	return (sMat * rMat * tMat);	// V * S * R * T
-	*/
 
 	return DirectX::XMMatrixAffineTransformation(scale, SVec3(0.f), quat, pos);
 }
+
+
+/* Alternative method, not sure if it's faster but I suspect it is
+auto it = std::lower_bound(_rKeys.begin(), _rKeys.end(), currentTick,
+	[](RotFrame lhs, float rhs) -> bool {return lhs.tick < rhs; });
+
+SQuat rotPre = it++->rot;
+
+if (it == _rKeys.end()) it = _rKeys.begin();	// homebrew ring buffer :V
+
+SQuat rotPost = it->rot;
+quat = Math::lerp(rotPre, rotPost, t);
+*/
+
+/* Old way to compose matrices, I'd say a lot slower
+SMatrix sMat = SMatrix::CreateScale(scale);
+SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
+SMatrix tMat = SMatrix::CreateTranslation(pos);
+
+return (sMat * rMat * tMat);	// V * S * R * T
+*/

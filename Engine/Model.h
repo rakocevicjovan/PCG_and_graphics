@@ -4,11 +4,11 @@
 #include <vector>
 #include <d3d11.h>
 
+#include "Mesh.h"
+
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
-
-#include "AssimpWrapper.h"
 
 
 namespace Procedural { class Terrain; }
@@ -18,9 +18,7 @@ class Model : public Resource
 {
 private:
 
-	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
-
-	bool processMesh(ID3D11Device* device, aiMesh* aiMesh, Mesh& mesh, const aiScene* scene, aiMatrix4x4 parentTransform, float rUVx, float rUVy);
+	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform);
 
 public:
 
@@ -38,11 +36,11 @@ public:
 	Model(const Collider& collider, ID3D11Device* device);
 	~Model();
 
-	// This should be inversed, model should not know about terrain
+	// Separate model and terrain completely, terrain needs a different way to render
 	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
 
-	bool LoadModel(ID3D11Device* device, const std::string& path, float rUVx = 1, float rUVy = 1);
-	bool LoadFromScene(ID3D11Device* device, const aiScene* scene, float rUVx = 1, float rUVy = 1);
+	bool LoadModel(ID3D11Device* device, const std::string& path);
+	bool LoadFromScene(ID3D11Device* device, const aiScene* scene);
 
 	template<class Archive>
 	void serialize(Archive& archive, std::vector<UINT>& meshIndices)

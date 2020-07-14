@@ -80,11 +80,3 @@ struct ColourHDR
 		_a = a;
 	}
 };
-
-
-
-static const UINT MAX_BONES = 96;
-struct BoneTransformBuffer
-{
-	std::vector<SMatrix> boneTransforms;
-};

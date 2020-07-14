@@ -1,7 +1,5 @@
 #pragma once
 #include "FileUtilities.h"
-
-#include "Mesh.h"
 #include "Texture.h"
 #include "Skeleton.h"
 #include "Animation.h"
@@ -263,7 +261,6 @@ public:
 				skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
 			}
 
-
 			// Load skinning data (up to four bone indices and four weights) into vertices
 			for (UINT j = 0; j < aiBone->mNumWeights; ++j)
 			{
@@ -314,7 +311,7 @@ public:
 	{
 		aiNode* parent = boneNode->mParent;
 
-		if (!parent)			// We are at root node, no way but down
+		if (!parent)			// We are at root node, no way but down (also prevents crashing below)
 			return;
 
 		if (!parent->mParent)	// Don't include the root node either... bit hacky but works out so far
@@ -423,17 +420,17 @@ public:
 
 
 
-	static void loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix parent)
+	static void loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix concat)
 	{
 		SMatrix locTf = aiMatToSMat(node->mTransformation);
-		parent = locTf * parent;
+		concat = locTf * concat;
 
 		Bone bone;
 		bone._name = std::string(node->mName.C_Str());
 		bone._index = skeleton.getBoneCount();
 		bone._localMatrix = locTf;
 		// Does not account for mesh offset, that has to be added when attaching mesh to skeleton
-		bone._offsetMatrix = parent.Invert();	
+		bone._offsetMatrix = concat.Invert();	
 
 		if (node->mParent)
 		{
@@ -447,7 +444,7 @@ public:
 			bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
 
 		for (int i = 0; i < node->mNumChildren; ++i)
-			loadOnlySkeleton(node->mChildren[i], skeleton, parent);
+			loadOnlySkeleton(node->mChildren[i], skeleton, concat);
 	}
 
 
@@ -542,7 +539,6 @@ public:
 
 		return myOffsetMatrix;
 	}
-
 
 
 

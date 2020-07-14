@@ -5,7 +5,6 @@
 #include <iostream>
 
 
-
 Mesh::Mesh() {}
 
 
@@ -121,6 +120,54 @@ Mesh::Mesh(const Hull* hull, ID3D11Device* device)
 Mesh::~Mesh()
 {
 	OutputDebugStringA("MESH DESTRUCT CALLED");
+}
+
+
+
+void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh , aiMatrix4x4 parentTransform, const std::string& path)
+{
+	_vertices.reserve(aiMesh->mNumVertices);
+	_indices.reserve(aiMesh->mNumFaces * 3);
+
+	std::vector<SVec3> faceTangents;
+	faceTangents.reserve(aiMesh->mNumFaces);
+
+	// Gather meta data
+	bool hasTexCoords = aiMesh->HasTextureCoords(0);
+	UINT numTexChannels = aiMesh->GetNumUVChannels();	// Number of UV coordinate sets (channels)
+	UINT* numUVComponents = aiMesh->mNumUVComponents;	// Whether the channel contains 1, 2 or 3 values (U, UV, UVW)
+
+	bool hasNormals = aiMesh->HasNormals();
+
+	bool hasTangents = aiMesh->HasTangentsAndBitangents();
+
+	// Load the bulky data
+	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
+
+	AssimpWrapper::loadIndices(aiMesh, _indices);
+
+	AssimpWrapper::loadTangents(aiMesh, _vertices, faceTangents);
+
+	AssimpWrapper::loadMeshMaterial(path, scene, aiMesh, _textures);
+
+
+	// Not true in the general case... it would require tool support with my own format for this!
+	// there is no robust way to infer whether a texture is transparent or not, as some textures use 
+	// 32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
+	// brute force checking could solve this but incurs a lot of overhead on load
+	// and randomized sampling is not reliable, so for now... we have this
+	_baseMaterial._opaque = true;
+
+	// We got through import shenanigans, these textures are valid and will be uploaded to the gpu
+	for (Texture& t : _textures)
+	{
+		t.SetUpAsResource(device);
+		_baseMaterial._texDescription.push_back({ t._role, &t });
+
+		//we can at least know it's transparent if it has an opacity map, better than nothing
+		if (t._role == OPACITY)
+			_baseMaterial._opaque = false;
+	}
 }
 
 

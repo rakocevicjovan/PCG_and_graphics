@@ -12,6 +12,7 @@
 #include "MeshDataStructs.h"
 #include "Hull.h"
 #include "Geometry.h"
+#include "AssimpWrapper.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -64,6 +65,8 @@ public:
 	Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true, bool hasTangents = true);
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(const Hull* hull, ID3D11Device* device);
+
+	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, aiMatrix4x4 parentTransform, const std::string& path);
 
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
