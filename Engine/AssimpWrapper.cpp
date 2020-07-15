@@ -93,4 +93,6 @@ std::vector<Mesh*> AssimpWrapper::loadAllMeshes(aiScene* scene)
 	{
 		loadMesh(scene->mMeshes[i]);
 	}
+
+	return result;
 }
