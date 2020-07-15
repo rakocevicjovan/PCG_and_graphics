@@ -416,6 +416,9 @@
     <ClCompile Include="AnimChannel.cpp">
       <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
+    <ClCompile Include="VertSignature.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -615,9 +618,6 @@
     </ClInclude>
     <ClInclude Include="InputContext.h">
       <Filter>Input</Filter>
-    </ClInclude>
-    <ClInclude Include="InputMapper.h">
-      <Filter>TowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="InputConstants.h">
       <Filter>Input</Filter>

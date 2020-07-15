@@ -31,8 +31,6 @@ private:
 	Renderable floorRenderable;
 	Actor terrainActor;
 
-
-
 public:
 
 	AssimpLoader(Engine& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)

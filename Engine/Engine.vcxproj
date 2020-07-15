@@ -345,6 +345,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="ToolGUI.cpp" />
+    <ClCompile Include="VertSignature.cpp" />
     <ClCompile Include="Volumetric.cpp" />
     <ClCompile Include="VolumetricScreen.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -421,7 +422,6 @@
     <ClInclude Include="IndustrialBuilding.h" />
     <ClInclude Include="InputContext.h" />
     <ClInclude Include="InputConstants.h" />
-    <ClInclude Include="InputMapper.h" />
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="QTObject.h" />
     <ClInclude Include="QuadTree.h" />
