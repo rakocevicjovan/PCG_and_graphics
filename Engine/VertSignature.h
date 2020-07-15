@@ -43,11 +43,12 @@ struct VAttrib
 	uint8_t _size;			// Needs to exist in order to support typeless... types...
 	uint8_t _numElements;	// For multiple of same semantic type, say {TEX_COORD, float2, 4}
 
-	VAttrib() 
-		: _semantic(VAttribSemantic::POS), _type(VAttribType::FLOAT3), _size(12u), _numElements(1u) {}
-
-	VAttrib(VAttribSemantic s, VAttribType t, uint8_t size, uint8_t numElements)
-		: _semantic(s), _type(t), _size(size), _numElements(numElements) {}
+	VAttrib(VAttribSemantic s, VAttribType t, uint8_t size = 0u, uint8_t numElements = 1u)
+		: _semantic(s), _type(t), _size(size), _numElements(numElements)
+	{
+		if (size == 0u)
+			size = VERT_TYPE_SIZE[static_cast<size_t>(t)];
+	}
 
 };
 
@@ -56,6 +57,10 @@ struct VAttrib
 struct VertSignature
 {
 	std::vector<VAttrib> _attributes;
+
+	void addAttribute(VAttrib attrib);
+	
+	void addAttribute(VAttribSemantic s, VAttribType t, uint8_t size = 0u, uint8_t numElements = 1u);
 
 	uint16_t getVertByteWidth();
 

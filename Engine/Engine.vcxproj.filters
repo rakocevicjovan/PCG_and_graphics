@@ -419,6 +419,9 @@
     <ClCompile Include="VertSignature.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="AssimpWrapper.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

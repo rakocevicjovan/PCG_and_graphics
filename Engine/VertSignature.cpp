@@ -1,4 +1,19 @@
 #include "VertSignature.h"
+#include <cassert>
+
+
+void VertSignature::addAttribute(VAttrib attrib)
+{
+	_attributes.push_back(attrib);
+}
+
+
+
+void VertSignature::addAttribute(VAttribSemantic s, VAttribType t, uint8_t size, uint8_t numElements)
+{
+	_attributes.emplace_back(s, t, size, numElements);
+}
+
 
 
 uint16_t VertSignature::getVertByteWidth()
@@ -27,6 +42,10 @@ uint16_t VertSignature::getOffsetOf(VAttribSemantic semantic, uint8_t index)
 		}
 		offset += attr._size * attr._numElements;
 	}
+
+#ifdef _DEBUG
+	assert((offset != getVertByteWidth()) && "Vertex attribute not found.");
+#endif
 
 	return offset;
 }

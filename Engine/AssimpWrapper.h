@@ -5,6 +5,7 @@
 #include "Animation.h"
 
 #include <set>
+#include <memory>
 
 
 class AssimpWrapper
@@ -547,4 +548,13 @@ public:
 
 
 	inline static SQuat aiQuatToSQuat(const aiQuaternion& aq) { return SQuat(aq.x, aq.y, aq.z, aq.w); }
+
+
+
+	// All the code below is trying to do things in "the good way TM"
+	class Mesh* loadMesh(aiMesh* aiMesh);	// Make unique ptrs...
+
+
+
+	std::vector<Mesh*> loadAllMeshes(aiScene* scene);
 };
