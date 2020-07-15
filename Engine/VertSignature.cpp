@@ -41,4 +41,3 @@ const std::vector<uint16_t> VERT_TYPE_SIZE =
 	4, 8, 16, 32,
 	0
 };
-
