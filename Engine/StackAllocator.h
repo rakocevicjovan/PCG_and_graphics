@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 
+
+// CLEAR DOES NOT FREE ANY EXTERNALLY ALLOCATED MEMORY!!! AS SIMPLE AS POSSIBLE TO HOLD PODs ONLY!
 class StackAllocator
 {
 	typedef uint8_t byte;
@@ -14,10 +16,7 @@ private:
 
 public:
 
-	explicit StackAllocator()			//(size_t size) : _stackSize(size)
-	{
-		_stackPtr = nullptr;
-	}
+	explicit StackAllocator() : _stackPtr(nullptr), _stackSize(0u), _head(0u) {}
 
 	StackAllocator(const StackAllocator&) = delete;
 
@@ -35,23 +34,22 @@ public:
 	{
 		_stackSize = size;
 		_stackPtr = new byte[_stackSize];
-		_head = 0;
+		_head = 0u;
 	}
 
 
 
 	inline byte* alloc(size_t size)
 	{
-		byte* toReturn = _stackPtr + _head;		//will return the pointer to the current head offset
-		_head += size;							//will increment the head offset for future allocations to not overwrite this
-		return toReturn;						//this pointer is used to rewind the stack and "free" memory
+		byte* address = getHeadPtr();	// Return the pointer to the current head offset
+		_head += size;					// Increment the head offset
+		return address;					// Can be used to rewind, but risky.
 	}
 
 
-
+	// Use at your own risk, must understand how stacks work. Still, it's an option
 	inline void rewind(byte* target)
 	{
-		//_stackPtr = target;
 		_head = target - _stackPtr;
 	}
 
@@ -63,16 +61,15 @@ public:
 	}
 
 
-	//DOES NOT FREE ANY EXTERNALLY ALLOCATED MEMORY!!! THAT'S UP TO THE DESTRUCTOR - EX: MESH HAS VECTORS
+
 	inline void clear()
 	{
 		_head = 0;
 	}
 
 
-	inline byte* getStackPtr() const
+	inline const byte const* getStackPtr() const
 	{
 		return _stackPtr;
 	}
-
 };

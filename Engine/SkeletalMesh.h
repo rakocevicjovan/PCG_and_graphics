@@ -5,7 +5,6 @@
 #include "Math.h"
 #include "Geometry.h"
 #include "Material.h"
-#include "SerializableAsset.h"
 #include <vector>
 
 #include <cereal/cereal.hpp>

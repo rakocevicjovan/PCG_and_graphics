@@ -889,9 +889,6 @@
     <ClInclude Include="CubeMap.h">
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
-    <ClInclude Include="SerializableAsset.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="FlexVert.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -957,6 +954,9 @@
     </ClInclude>
     <ClInclude Include="Fnv1Hash.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="MemChunk.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -80,14 +80,6 @@ public:
 
 
 
-	void exportAsset(MemChunk& mc)
-	{
-		FileUtils::writeAllBytes(_exportPath.c_str(), mc._ptr.get(), mc._size);
-		deactivate();
-	}
-
-
-
 	inline void activate() { _active = true; }
 
 	inline void deactivate() { _active = false; }

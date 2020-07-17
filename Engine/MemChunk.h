@@ -1,9 +1,11 @@
 #pragma once
+#include <vector>
 #include <memory>
+#include <debugapi.h>
 
 typedef unsigned int UINT;
 
-// Not using this right now
+
 struct MemChunk
 {
 	std::unique_ptr<char[]> _ptr;
@@ -69,7 +71,7 @@ struct MemChunk
 		if (!isFull(offset))
 		{
 			OutputDebugStringA("SERIALIZATION WARNING: SIZE MISMATCH!");
-			throw;
+			exit(360);	// No scope
 		}
 	}
 
@@ -81,15 +83,3 @@ struct MemChunk
 		return *reinterpret_cast<T*>(location);
 	}
 };
-
-
-/* 
-// This just complicates things, since different classes need different inputs, and although
-// it's possible to make it data driven, it would provide no gain as far as I can tell
-class SerializableAsset
-{
-public:
-
-	virtual MemChunk Serialize() = 0;
-};
-*/

@@ -367,6 +367,8 @@ public:
 
 	void printAiMesh(aiMesh* mesh, aiMatrix4x4 parentGlobal)
 	{
+		// Just because they are there doesn't mean they are useful, sadly... 
+		// It's infuriating how many issues need to be ironed out during import, like removing duplicates
 		UINT numUVChannels = mesh->GetNumUVChannels();
 		UINT* numUVComponents = mesh->mNumUVComponents;
 

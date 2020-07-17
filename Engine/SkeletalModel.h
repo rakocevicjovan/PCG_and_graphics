@@ -6,11 +6,10 @@
 #include "SkeletalMesh.h"
 #include "AnimationInstance.h"
 #include "Skeleton.h"
-#include "SerializableAsset.h"
 
 
 
-class SkeletalModel //: public SerializableAsset
+class SkeletalModel
 {
 private:
 
