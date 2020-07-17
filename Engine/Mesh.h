@@ -65,7 +65,7 @@ public:
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(const Hull* hull, ID3D11Device* device);
 
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, aiMatrix4x4 parentTransform, const std::string& path);
+	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path);
 
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?

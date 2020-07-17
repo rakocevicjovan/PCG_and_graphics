@@ -152,7 +152,7 @@ public:
 				{
 					_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
 					_model = std::make_unique<Model>();
-					_model->LoadFromScene(_device, _aiScene);
+					_model->loadFromAiScene(_device, _aiScene);
 
 					for (Mesh& mesh : _model->_meshes)
 					{

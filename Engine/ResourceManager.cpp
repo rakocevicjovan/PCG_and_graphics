@@ -40,7 +40,7 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 		{
 			Resource* temp = new (_stackAllocator.alloc(sizeof(Model))) Model();
 			temp->incRef();
-			static_cast<Model*>(temp)->LoadModel(_device, projDir + resDefs[i].val._path);
+			static_cast<Model*>(temp)->loadFromAssimp(_device, projDir + resDefs[i].val._path);
 			_resourceMap.insert(std::make_pair<>(resDefs[i].key._assetName, temp));
 		}
 		else if (resDefs[i].val._resType == ResType::TEXTURE)

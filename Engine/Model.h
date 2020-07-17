@@ -18,7 +18,7 @@ class Model : public Resource
 {
 private:
 
-	bool processNode(ID3D11Device* device, aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform);
+	bool processNode(ID3D11Device* device, aiNode* node, aiMatrix4x4 parentTransform);
 
 public:
 
@@ -39,8 +39,8 @@ public:
 	// Separate model and terrain completely, terrain needs a different way to render
 	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
 
-	bool LoadModel(ID3D11Device* device, const std::string& path);
-	bool LoadFromScene(ID3D11Device* device, const aiScene* scene);
+	bool loadFromAssimp(ID3D11Device* device, const std::string& path);
+	bool loadFromAiScene(ID3D11Device* device, const aiScene* scene);
 
 	template<class Archive>
 	void serialize(Archive& archive, std::vector<UINT>& meshIndices)

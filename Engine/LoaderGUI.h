@@ -23,7 +23,7 @@ public:
 			if (FileUtils::fileExists(_assetPath))
 			{
 				std::filesystem::directory_entry file(realPath);
-				_curModel.LoadModel(device, _assetPath);
+				_curModel.loadFromAssimp(device, _assetPath);
 			}	// else { pepehands(); }
 
 			_curMesh = nullptr;

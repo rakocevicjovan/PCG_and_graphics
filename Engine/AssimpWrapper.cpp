@@ -60,6 +60,8 @@ Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
 		vertSig.addAttribute(VAttribSemantic::BITANGENT, VAttribType::FLOAT3);
 	}
 
+	//Vertex signature obtained, get the data.
+
 	// Decide how to split/interleave the data somehow... it's gpu optimization and therefore
 	// a bigbrain matter but manageable if I decide on a few general use distributions
 	// For now, interleaved is fine

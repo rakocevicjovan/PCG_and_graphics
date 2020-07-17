@@ -124,7 +124,7 @@ Mesh::~Mesh()
 
 
 
-void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh , aiMatrix4x4 parentTransform, const std::string& path)
+void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path)
 {
 	_vertices.reserve(aiMesh->mNumVertices);
 	_indices.reserve(aiMesh->mNumFaces * 3);
