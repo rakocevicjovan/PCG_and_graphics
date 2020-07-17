@@ -2,6 +2,7 @@
 #include "Mesh.h"
 #include "Geometry.h"
 #include "Terrain.h"
+#include "Hull.h"
 #include <iostream>
 
 

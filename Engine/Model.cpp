@@ -65,7 +65,7 @@ bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene)
 {
 	_meshes.reserve(scene->mNumMeshes);
 
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
 		aiMesh* aiMesh = scene->mMeshes[i];
 		_meshes.emplace_back();
@@ -74,6 +74,7 @@ bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene)
 	}
 
 	processNode(device, scene->mRootNode, scene->mRootNode->mTransformation);
+
 	return true;
 }
 

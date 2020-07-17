@@ -5,6 +5,7 @@
 #include <d3d11.h>
 
 #include "Mesh.h"
+#include "Collider.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>

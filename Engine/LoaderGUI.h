@@ -64,8 +64,6 @@ private:
 
 		if (ImGui::Begin("Meta data", NULL, ImGuiWindowFlags_NoMove))
 		{
-			//ImGui::Text("Path: ");	ImGui::SameLine();	ImGui::Text(path.c_str());
-
 			res = inTextStdStringHint("Path", "Input absolute path to model (todo make rel to project)", path);
 		}
 		ImGui::End();

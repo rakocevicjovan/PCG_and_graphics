@@ -10,8 +10,6 @@
 #include "Math.h"
 
 #include "MeshDataStructs.h"
-#include "Hull.h"
-#include "Geometry.h"
 #include "AssimpWrapper.h"
 
 #include <cereal/cereal.hpp>
@@ -22,7 +20,8 @@
 typedef unsigned int UINT;
 
 
-namespace Procedural { class Terrain; }
+class Hull;
+namespace Procedural { class Geometry; class Terrain; }
 
 
 

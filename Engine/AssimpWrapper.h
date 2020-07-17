@@ -30,13 +30,6 @@ public:
 
 
 
-	static void postProcess(Assimp::Importer& imp, aiPostProcessSteps steps)
-	{
-		imp.ApplyPostProcessing(steps);
-	}
-
-
-
 	// returns bounding sphere radius
 	template <typename VertexType> static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
 	{
@@ -71,7 +64,6 @@ public:
 		{
 			face = aiMesh->mFaces[i];
 
-			//populate indices from faces
 			for (UINT j = 0; j < face.mNumIndices; ++j)
 				indices.emplace_back(face.mIndices[j]);
 		}
@@ -548,6 +540,9 @@ public:
 
 
 	inline static SQuat aiQuatToSQuat(const aiQuaternion& aq) { return SQuat(aq.x, aq.y, aq.z, aq.w); }
+
+
+	inline static void postProcess(Assimp::Importer& i, aiPostProcessSteps f) { i.ApplyPostProcessing(f); }
 
 
 

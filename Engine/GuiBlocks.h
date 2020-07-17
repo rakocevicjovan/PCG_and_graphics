@@ -109,8 +109,6 @@ static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool 
 	{
 		ImGui::Text("Material: ");
 		displayMaterial(mesh._baseMaterial);
-		
-
 		ImGui::Separator();
 	}
 	
@@ -118,13 +116,11 @@ static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool 
 	if (dVerts)
 	{
 		ImGui::ListBoxHeader("Vertices");
-
 		for (Vert3D& v : mesh._vertices)
 		{
 			displayVertex(v);
 			ImGui::Separator();
 		}
-
 		ImGui::ListBoxFooter();
 		ImGui::Separator();
 	}
