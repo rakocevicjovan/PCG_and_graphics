@@ -28,32 +28,32 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		aiMaterial* material = scene->mMaterials[index];
 
 		// Diffuse maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_DIFFUSE, DIFFUSE);
 
 		//  Normal maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_NORMALS, NORMAL);
 
 		// Specular maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_SPECULAR, SPECULAR);
 
 		// Shininess maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_SHININESS, SHININESS);
 
 		// Opacity maps - a bit of a special case, as it indicates that material is potentially transparent
-		if (loadMaterialTextures(path, textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY))
+		if (loadMaterialTextures(path, textures, scene, material, aiTextureType_OPACITY, OPACITY))
 			mat._opaque = false;
 
 		// Displacement maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_DISPLACEMENT, DISPLACEMENT);
 
 		// Ambient occlusion maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_AMBIENT, AMBIENT);
 
 		// Other maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_UNKNOWN, OTHER);
 
 		// Weird properties... that I never really saw trigger
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_NONE, "texture_property", OTHER);
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_NONE, OTHER);
 	}
 
 }
@@ -61,12 +61,11 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 
 
 bool AssimpWrapper::loadMaterialTextures(
-	std::string modelPath,
+	const std::string& modelPath,
 	std::vector<Texture>& textures,
 	const aiScene* scene,
 	aiMaterial *aiMat,
 	aiTextureType aiTexType,
-	std::string typeName,
 	TextureRole role)
 {
 	// Iterate all textures related to the material, keep the ones that can load

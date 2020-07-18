@@ -102,12 +102,11 @@ public:
 
 
 	static bool loadMaterialTextures(
-		std::string modelPath,
+		const std::string& modelPath,
 		std::vector<Texture>& textures,
 		const aiScene* scene,
 		aiMaterial *mat,
 		aiTextureType aiTexType,
-		std::string typeName,
 		TextureRole role);
 
 
