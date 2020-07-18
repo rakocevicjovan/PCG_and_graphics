@@ -56,7 +56,8 @@ namespace FileUtils
 
 	static bool findFile(const std::string& baseFolder, const std::string& fileName, std::filesystem::directory_entry& out)
 	{
-		for (std::filesystem::directory_entry dirEntry : std::filesystem::recursive_directory_iterator(baseFolder))
+		std::filesystem::recursive_directory_iterator rdi(baseFolder);
+		for (std::filesystem::directory_entry dirEntry : rdi)
 		{
 			if (dirEntry.path().filename() == fileName && dirEntry.is_regular_file())
 			{

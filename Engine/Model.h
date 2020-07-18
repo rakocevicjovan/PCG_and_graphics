@@ -41,7 +41,7 @@ public:
 	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
 
 	bool loadFromAssimp(ID3D11Device* device, const std::string& path);
-	bool loadFromAiScene(ID3D11Device* device, const aiScene* scene);
+	bool loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path);
 
 	template<class Archive>
 	void serialize(Archive& archive, std::vector<UINT>& meshIndices)

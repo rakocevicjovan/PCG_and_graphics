@@ -13,7 +13,7 @@ SkeletalModel::~SkeletalModel()
 
 
 
-SkeletalMesh SkeletalModel::processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy)
+SkeletalMesh SkeletalModel::processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform)
 {
 	// Data to fill
 	std::vector<BonedVert3D> vertices;
@@ -38,7 +38,7 @@ SkeletalMesh SkeletalModel::processSkeletalMesh(ID3D11Device* device, aiMesh* me
 
 
 
-bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path, float rUVx, float rUVy)
+bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
 {
 	_path = path;
 
@@ -58,19 +58,19 @@ bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path, float 
 	if (!scene)
 		return false;
 	else
-		return loadFromScene(dvc, scene, rUVx, rUVy);
+		return loadFromScene(dvc, scene);
 }
 
 
 
-bool SkeletalModel::loadFromScene(ID3D11Device* dvc, const aiScene* scene, float rUVx, float rUVy)
+bool SkeletalModel::loadFromScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path)
 {
 	_meshes.reserve(scene->mNumMeshes);
 
 	SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
 	_skeleton._globalInverseTransform = rootTransform.Invert();
 
-	processNode(dvc, scene->mRootNode, scene, rUVx, rUVy, SMatrix::Identity);
+	processNode(dvc, scene->mRootNode, scene, SMatrix::Identity);
 
 	_skeleton.loadFromAssimp(scene);
 
@@ -81,17 +81,17 @@ bool SkeletalModel::loadFromScene(ID3D11Device* dvc, const aiScene* scene, float
 
 
 
-bool SkeletalModel::processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix globNodeTransform)
+bool SkeletalModel::processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, SMatrix globNodeTransform)
 {
 	SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
 	globNodeTransform = locNodeTransform * globNodeTransform;
 
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		_meshes.emplace_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform, rUVx, rUVy));
+		_meshes.emplace_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform));
 
 	// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
-		this->processNode(dvc, node->mChildren[i], scene, rUVx, rUVy, globNodeTransform);
+		this->processNode(dvc, node->mChildren[i], scene, globNodeTransform);
 
 	return true;
 }

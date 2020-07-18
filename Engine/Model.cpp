@@ -61,7 +61,7 @@ bool Model::loadFromAssimp(ID3D11Device* device, const std::string& path)
 
 
 
-bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene)
+bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
 {
 	_meshes.reserve(scene->mNumMeshes);
 

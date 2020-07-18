@@ -136,7 +136,7 @@ public:
 				if (_impSkModel)
 				{
 					_skModel = std::make_unique<SkeletalModel>();
-					_skModel->loadFromScene(_device, _aiScene);
+					_skModel->loadFromScene(_device, _aiScene, _path);
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
@@ -152,12 +152,13 @@ public:
 				{
 					_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
 					_model = std::make_unique<Model>();
-					_model->loadFromAiScene(_device, _aiScene);
+					_model->loadFromAiScene(_device, _aiScene, _path);
 
 					for (Mesh& mesh : _model->_meshes)
 					{
-						mesh._baseMaterial.setVS(_skelAnimMat->getVS());
-						mesh._baseMaterial.setPS(_skelAnimMat->getPS());
+						// Not good, just use shader manager and pick the proper shaders instead of cowabunga
+						//mesh._baseMaterial.setVS(_skelAnimMat->getVS());
+						//mesh._baseMaterial.setPS(_skelAnimMat->getPS());
 					}
 				}
 

@@ -4,6 +4,110 @@
 #include <array>
 
 
+
+bool AssimpWrapper::loadMaterialTextures(
+	std::string modelPath,
+	std::vector<Texture>& textures,
+	const aiScene* scene,
+	aiMaterial *aiMat,
+	aiTextureType aiTexType,
+	std::string typeName,
+	TextureRole role)
+{
+	//iterate all textures of relevant related to the material
+	for (unsigned int i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
+	{
+		aiString aiTexPath;
+		aiMat->GetTexture(aiTexType, i, &aiTexPath);
+		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
+
+		// Assumes relative pathss
+		std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
+		std::string texPath = modelFolderPath + "/" + std::string(aiTexPath.data);
+
+		Texture curTexture;
+		curTexture._fileName = texPath;	// or texName, I really don't even know why either tbh
+		curTexture._role = role;
+
+		// Try to load from file
+		bool loaded = curTexture.LoadFromStoredPath();
+
+		// Load from file failed - texture is embedded (attempt to load from memory)
+		if (!loaded)
+		{
+			loaded = loadEmbeddedTexture(curTexture, scene, &aiTexPath);
+		}
+
+		// Not embedded either... Meaning wrong path. Try to apply the fix best you can...
+		if (!loaded)
+		{
+			
+			std::filesystem::directory_entry texFile;
+			if (FileUtils::findFile(modelFolderPath, texName, texFile))
+			{
+				std::string newPath(texFile.path().string());
+			}
+		}
+
+		// Load failed completely - most likely the data is corrupted or my library doesn't support it
+		if (!loaded)
+		{
+			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
+			continue;
+		}
+
+		textures.push_back(curTexture);	// Should try to do std::move when this is done
+	}
+	return true;
+}
+
+
+
+std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::string& path)
+{
+	std::vector<Material*> materials;
+	std::vector<Texture> textures;
+
+	for (int i = 0; i < scene->mNumMaterials; ++i)
+	{
+		Material* mat = new Material();
+		aiMaterial* aiMat = scene->mMaterials[i];
+
+		// Diffuse maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+
+		//  Normal maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_NORMALS, "texture_normal", NORMAL);
+
+		// Specular maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+
+		// Shininess maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+
+		// Opacity maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_OPACITY, "texture_opacity", OPACITY);
+
+		// Displacement maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+
+		// Ambient occlusion maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+
+		// Other maps
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_UNKNOWN, "texture_other", OTHER);
+
+		// Weird properties... that I never really saw trigger
+		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_NONE, "texture_property", OTHER);
+
+		materials.push_back(mat);
+	}
+
+	return materials;
+}
+
+
+
 // NOT COMPLETED YET, ALSO CHANGE FROM MESH TO SOME INTERMEDIATE TYPE
 Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
 {

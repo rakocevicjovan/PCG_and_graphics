@@ -13,8 +13,8 @@ class SkeletalModel
 {
 private:
 
-	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, float rUVx, float rUVy, SMatrix globNodeTransform);
-	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform, float rUVx, float rUVy);
+	bool processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, SMatrix globNodeTransform);
+	SkeletalMesh processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform);
 
 public:
 
@@ -32,8 +32,8 @@ public:
 	~SkeletalModel();
 
 
-	bool loadModel(ID3D11Device* dvc, const std::string& path, float rUVx = 1., float rUVy = 1.);
-	bool loadFromScene(ID3D11Device* dvc, const aiScene* scene, float rUVx = 1., float rUVy = 1.);
+	bool loadModel(ID3D11Device* dvc, const std::string& path);
+	bool loadFromScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path);
 
 	template <typename Archive>
 	void serialize(

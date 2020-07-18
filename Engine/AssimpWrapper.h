@@ -7,6 +7,9 @@
 #include <set>
 #include <memory>
 
+class Material;
+class Mesh;
+
 
 class AssimpWrapper
 {
@@ -96,6 +99,8 @@ public:
 
 	static void loadMeshMaterial(const std::string& path, const aiScene* scene, aiMesh* aiMesh, std::vector<Texture>& textures)
 	{
+		//Material* baseMat = new Material();
+
 		if (aiMesh->mMaterialIndex >= 0)
 		{
 			aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
@@ -133,45 +138,12 @@ public:
 
 	static bool loadMaterialTextures(
 		std::string modelPath,
-		std::vector<Texture>& textures, 
-		const aiScene* scene, 
+		std::vector<Texture>& textures,
+		const aiScene* scene,
 		aiMaterial *mat,
-		aiTextureType type, 
+		aiTextureType aiTexType,
 		std::string typeName,
-		TextureRole role)
-	{
-		//iterate all textures of relevant related to the material
-		for (unsigned int i = 0; i < mat->GetTextureCount(type); ++i)
-		{
-			aiString obtainedTexturePath;
-			mat->GetTexture(type, i, &obtainedTexturePath);
-
-			// Assumes relative paths
-			std::string texPath = modelPath.substr(0, modelPath.find_last_of("/\\")) + "/" + std::string(obtainedTexturePath.data);
-			Texture curTexture;
-			curTexture._fileName = texPath;
-			curTexture._role = role;
-
-			// Try to load from file
-			bool loaded = curTexture.LoadFromStoredPath();
-
-			// Load from file failed - embedded (attempt to load from memory) or corrupted
-			if (!loaded)
-			{
-				loaded = loadEmbeddedTexture(curTexture, scene, &obtainedTexturePath);
-			}
-
-			// Load failed completely - most likely the data is corrupted or my library doesn't support it
-			if (!loaded)
-			{
-				OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-				continue;
-			}
-
-			textures.push_back(curTexture);	// Should try to do std::move when this is done
-		}
-		return true;
-	}
+		TextureRole role);
 
 
 
@@ -538,7 +510,6 @@ public:
 	inline static SMatrix aiMatToSMat(const aiMatrix4x4& aiMat) { return SMatrix(&aiMat.a1).Transpose(); }
 
 
-
 	inline static SQuat aiQuatToSQuat(const aiQuaternion& aq) { return SQuat(aq.x, aq.y, aq.z, aq.w); }
 
 
@@ -547,7 +518,11 @@ public:
 
 
 	// All the code below is trying to do things in "the good way TM"
-	class Mesh* loadMesh(aiMesh* aiMesh);	// Make unique ptrs...
+	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
+
+
+
+	Mesh* loadMesh(aiMesh* aiMesh);	// Make unique ptrs...
 
 
 
