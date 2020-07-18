@@ -13,12 +13,6 @@ Mesh::Mesh() {}
 Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texes, ID3D11Device* device)
 	: _vertices(std::move(verts)), _indices(std::move(inds)), _textures(texes)
 {
-	//breaks if mesh moves... pretty bad but I shouldn't move it anyways...
-	for (auto& t : _textures)
-	{
-		_baseMaterial._texDescription.push_back({ t._role, &t });
-	}
-
 	setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
 }
 
@@ -149,7 +143,7 @@ void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* ai
 
 	AssimpWrapper::loadTangents(aiMesh, _vertices, faceTangents);
 
-	AssimpWrapper::loadMeshMaterial(path, scene, aiMesh, _textures);
+	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, _baseMaterial, _textures);
 
 
 	// Not true in the general case... it would require tool support with my own format for this!
@@ -159,15 +153,10 @@ void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* ai
 	// and randomized sampling is not reliable, so for now... we have this
 	_baseMaterial._opaque = true;
 
-	// We got through import shenanigans, these textures are valid and will be uploaded to the gpu
 	for (Texture& t : _textures)
 	{
 		t.SetUpAsResource(device);
-		_baseMaterial._texDescription.push_back({ t._role, &t });
-
-		//we can at least know it's transparent if it has an opacity map, better than nothing
-		if (t._role == OPACITY)
-			_baseMaterial._opaque = false;
+		//_baseMaterial._texDescription.push_back({ t._role, &t });
 	}
 }
 

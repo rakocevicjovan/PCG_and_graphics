@@ -22,10 +22,7 @@ public:
 	Renderable() {}
 
 	Renderable(Mesh& mesh) : mesh(&mesh), mat(&mesh._baseMaterial), _transform(mesh._transform)
-	{
-		for (Texture& t : mesh._textures)
-			mat->_texDescription.push_back({ t._role, &t });
-	}
+	{}
 
 
 

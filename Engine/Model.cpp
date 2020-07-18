@@ -56,13 +56,15 @@ bool Model::loadFromAssimp(ID3D11Device* device, const std::string& path)
 	if (!scene)
 		return false;
 
-	return loadFromAiScene(device, scene);
+	return loadFromAiScene(device, scene, path);
 }
 
 
 
 bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
 {
+	_path = path;
+
 	_meshes.reserve(scene->mNumMeshes);
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
@@ -73,25 +75,25 @@ bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const st
 		_meshes.back().setupMesh(device);
 	}
 
-	processNode(device, scene->mRootNode, scene->mRootNode->mTransformation);
+	processNode(scene->mRootNode, AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation));
 
 	return true;
 }
 
 
 
-bool Model::processNode(ID3D11Device* device, aiNode* node, aiMatrix4x4 parentTransform)
+bool Model::processNode(aiNode* node, SMatrix parentTransform)
 {
-	aiMatrix4x4 concatenatedTransform = node->mTransformation * parentTransform;
+	SMatrix concatenatedTransform = AssimpWrapper::aiMatToSMat(node->mTransformation) * parentTransform;
 
 	for (UINT i = 0; i < node->mNumMeshes; ++i)
 	{
-		_meshes[node->mMeshes[i]]._transform = AssimpWrapper::aiMatToSMat(parentTransform);
+		_meshes[node->mMeshes[i]]._transform = concatenatedTransform;
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; ++i)
 	{
-		processNode(device, node->mChildren[i], concatenatedTransform);
+		processNode(node->mChildren[i], concatenatedTransform);
 	}
 
 	return true;

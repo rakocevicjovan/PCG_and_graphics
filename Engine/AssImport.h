@@ -136,7 +136,7 @@ public:
 				if (_impSkModel)
 				{
 					_skModel = std::make_unique<SkeletalModel>();
-					_skModel->loadFromScene(_device, _aiScene, _path);
+					_skModel->loadFromAiScene(_device, _aiScene, _path);
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{

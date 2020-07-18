@@ -46,8 +46,7 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 
 Texture::Texture(const Texture& other)
-	: w(other.w), h(other.h), n(other.n), _mdata(other._mdata),
-	_fileName(other._fileName), _role(other._role), 
+	: w(other.w), h(other.h), n(other.n), _mdata(other._mdata), _fileName(other._fileName), 
 	_dxID(other._dxID), _srv(other._srv)
 {
 	if(_dxID)
@@ -61,8 +60,7 @@ Texture::Texture(const Texture& other)
 
 Texture::Texture(Texture&& other)
 	: w(other.w), h(other.h), n(other.n), _mdata(std::move(other._mdata)),
-	_fileName(std::move(other._fileName)), _role(other._role), 
-	_dxID(std::move(other._dxID)), _srv(std::move(other._srv))
+	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
 	// do not add refs because it's moved as opposed to copied
 	// Damage control :\ I'm not sure if this is well implemented so I need to know when I start using it
@@ -80,7 +78,6 @@ Texture& Texture::operator=(const Texture& other)
 	_mdata = other._mdata;
 
 	_fileName = other._fileName;
-	_role = other._role;
 
 	_dxID->AddRef();
 	_srv->AddRef();

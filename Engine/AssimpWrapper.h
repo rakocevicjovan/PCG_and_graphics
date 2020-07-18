@@ -97,42 +97,7 @@ public:
 
 
 
-	static void loadMeshMaterial(const std::string& path, const aiScene* scene, aiMesh* aiMesh, std::vector<Texture>& textures)
-	{
-		//Material* baseMat = new Material();
-
-		if (aiMesh->mMaterialIndex >= 0)
-		{
-			aiMaterial* material = scene->mMaterials[aiMesh->mMaterialIndex];
-
-			// Diffuse maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
-
-			//  Normal maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
-
-			// Specular maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
-
-			// Shininess maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
-
-			// Opacity maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY);
-
-			// Displacement maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
-
-			// Ambient occlusion maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
-
-			// Other maps
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
-
-			// Weird properties... that I never really saw trigger
-			loadMaterialTextures(path, textures, scene, material, aiTextureType_NONE, "texture_property", OTHER);
-		}
-	}
+	static void loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material& mat, std::vector<Texture>& textures);
 
 
 
@@ -147,22 +112,7 @@ public:
 
 
 
-	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str)
-	{
-		const aiTexture* aiTex = scene->GetEmbeddedTexture(str->C_Str());
-
-		if (!aiTex)
-			return false;
-
-		UINT texSize = aiTex->mWidth;
-
-		if (aiTex->mHeight != 0)	//compressed textures could have height value of 0
-			texSize *= aiTex->mHeight;
-
-		texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
-
-		return true;
-	}
+	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str);
 
 
 
@@ -203,7 +153,7 @@ public:
 
 
 
-	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton, SMatrix global)
+	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
 	{
 		if (!aiMesh.HasBones())
 			return;

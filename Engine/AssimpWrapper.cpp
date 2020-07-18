@@ -5,6 +5,61 @@
 
 
 
+std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::string& path)
+{
+	std::vector<Material*> materials;
+	std::vector<Texture> textures;
+
+	for (int i = 0; i < scene->mNumMaterials; ++i)
+	{
+		Material* mat = new Material();
+		loadMaterial(scene, i, path, *mat, textures);
+	}
+
+	return materials;
+}
+
+
+
+void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material& mat, std::vector<Texture>& textures)
+{
+	if (index >= 0 && index < scene->mNumMaterials)
+	{
+		aiMaterial* material = scene->mMaterials[index];
+
+		// Diffuse maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+
+		//  Normal maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_NORMALS, "texture_normal", NORMAL);
+
+		// Specular maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+
+		// Shininess maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_SHININESS, "texture_shininess", SHININESS);
+
+		// Opacity maps - a bit of a special case, as it indicates that material is potentially transparent
+		if (loadMaterialTextures(path, textures, scene, material, aiTextureType_OPACITY, "texture_opacity", OPACITY))
+			mat._opaque = false;
+
+		// Displacement maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+
+		// Ambient occlusion maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+
+		// Other maps
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_UNKNOWN, "texture_other", OTHER);
+
+		// Weird properties... that I never really saw trigger
+		loadMaterialTextures(path, textures, scene, material, aiTextureType_NONE, "texture_property", OTHER);
+	}
+
+}
+
+
+
 bool AssimpWrapper::loadMaterialTextures(
 	std::string modelPath,
 	std::vector<Texture>& textures,
@@ -14,39 +69,37 @@ bool AssimpWrapper::loadMaterialTextures(
 	std::string typeName,
 	TextureRole role)
 {
-	//iterate all textures of relevant related to the material
-	for (unsigned int i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
+	// Iterate all textures related to the material, keep the ones that can load
+	for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
 	{
+		Texture curTexture;
+
 		aiString aiTexPath;
 		aiMat->GetTexture(aiTexType, i, &aiTexPath);
 		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
 
-		// Assumes relative pathss
-		std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
-		std::string texPath = modelFolderPath + "/" + std::string(aiTexPath.data);
+		// Check if embedded first, not the most common case but faster to check anyways
+		bool loaded = loadEmbeddedTexture(curTexture, scene, &aiTexPath);
+		curTexture._fileName = texName;
 
-		Texture curTexture;
-		curTexture._fileName = texPath;	// or texName, I really don't even know why either tbh
-		curTexture._role = role;
-
-		// Try to load from file
-		bool loaded = curTexture.LoadFromStoredPath();
-
-		// Load from file failed - texture is embedded (attempt to load from memory)
+		// Not embedded, try to load from file
 		if (!loaded)
 		{
-			loaded = loadEmbeddedTexture(curTexture, scene, &aiTexPath);
-		}
+			// Assumes relative paths
+			std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
+			std::string texPath = modelFolderPath + "/" + std::string(aiTexPath.data);
 
-		// Not embedded either... Meaning wrong path. Try to apply the fix best you can...
-		if (!loaded)
-		{
-			
-			std::filesystem::directory_entry texFile;
-			if (FileUtils::findFile(modelFolderPath, texName, texFile))
+			// If path is faulty, try to find it in the model directory and subdirectories
+			if (!std::filesystem::exists(texPath))
 			{
-				std::string newPath(texFile.path().string());
+				std::filesystem::directory_entry texFile;
+				if (FileUtils::findFile(modelFolderPath, texName, texFile))
+					texPath = texFile.path().string();
 			}
+
+			curTexture._fileName = texPath;	// or texName, I really don't even know why either tbh
+
+			loaded = curTexture.LoadFromStoredPath();
 		}
 
 		// Load failed completely - most likely the data is corrupted or my library doesn't support it
@@ -63,47 +116,21 @@ bool AssimpWrapper::loadMaterialTextures(
 
 
 
-std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::string& path)
+bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str)
 {
-	std::vector<Material*> materials;
-	std::vector<Texture> textures;
+	const aiTexture* aiTex = scene->GetEmbeddedTexture(str->C_Str());
 
-	for (int i = 0; i < scene->mNumMaterials; ++i)
-	{
-		Material* mat = new Material();
-		aiMaterial* aiMat = scene->mMaterials[i];
+	if (!aiTex)
+		return false;
 
-		// Diffuse maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
+	UINT texSize = aiTex->mWidth;
 
-		//  Normal maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_NORMALS, "texture_normal", NORMAL);
+	if (aiTex->mHeight != 0)	//compressed textures could have height value of 0
+		texSize *= aiTex->mHeight;
 
-		// Specular maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
+	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
 
-		// Shininess maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_SHININESS, "texture_shininess", SHININESS);
-
-		// Opacity maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_OPACITY, "texture_opacity", OPACITY);
-
-		// Displacement maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
-
-		// Ambient occlusion maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
-
-		// Other maps
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_UNKNOWN, "texture_other", OTHER);
-
-		// Weird properties... that I never really saw trigger
-		loadMaterialTextures(path, textures, scene, aiMat, aiTextureType_NONE, "texture_property", OTHER);
-
-		materials.push_back(mat);
-	}
-
-	return materials;
+	return true;
 }
 
 

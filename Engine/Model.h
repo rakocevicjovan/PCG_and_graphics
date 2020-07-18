@@ -19,7 +19,7 @@ class Model : public Resource
 {
 private:
 
-	bool processNode(ID3D11Device* device, aiNode* node, aiMatrix4x4 parentTransform);
+	bool processNode(aiNode* node, SMatrix parentTransform);
 
 public:
 

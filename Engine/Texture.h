@@ -32,9 +32,6 @@ public:
 	ID3D11ShaderResourceView* _srv;
 
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
-	
-	//static const size_t NUM_ROLES = 8u;
-	TextureRole _role;	// @TODO This needs to get out of here! Belongs in materials!
 
 	template <typename Archive> 
 	void serialize(Archive& archive)

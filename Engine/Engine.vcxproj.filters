@@ -422,6 +422,9 @@
     <ClCompile Include="AssimpWrapper.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="SkeletalMesh.cpp">
+      <Filter>Resources\SkelAnim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

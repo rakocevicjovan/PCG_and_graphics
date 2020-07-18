@@ -7,33 +7,9 @@ SkeletalModel::SkeletalModel()
 }
 
 
+
 SkeletalModel::~SkeletalModel()
 {
-}
-
-
-
-SkeletalMesh SkeletalModel::processSkeletalMesh(ID3D11Device* device, aiMesh* mesh, const aiScene* scene, unsigned int ind, SMatrix transform)
-{
-	// Data to fill
-	std::vector<BonedVert3D> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Texture> locTextures;
-
-	bool hasTexCoords = mesh->HasTextureCoords(0);
-
-	float radius = AssimpWrapper::loadVertices(mesh, hasTexCoords, vertices);
-
-	AssimpWrapper::loadIndices(mesh, indices);
-
-	AssimpWrapper::loadMeshMaterial(_path, scene, mesh, locTextures);
-
-	for (Texture& t : locTextures)
-		t.SetUpAsResource(device);
-
-	AssimpWrapper::loadBonesAndSkinData(*mesh, vertices, _skeleton, transform);
-	// Elision does happen... I was wondering
-	return SkeletalMesh(vertices, indices, locTextures, device, transform);
 }
 
 
@@ -58,19 +34,28 @@ bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
 	if (!scene)
 		return false;
 	else
-		return loadFromScene(dvc, scene);
+		return loadFromAiScene(dvc, scene, path);
 }
 
 
 
-bool SkeletalModel::loadFromScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path)
+bool SkeletalModel::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
 {
+	_path = path;
 	_meshes.reserve(scene->mNumMeshes);
+
+	for (UINT i = 0; i < scene->mNumMeshes; ++i)
+	{
+		aiMesh* aiMesh = scene->mMeshes[i];
+		_meshes.emplace_back();
+		_meshes.back().loadFromAssimp(scene, device, aiMesh, _skeleton, path);
+		_meshes.back().setupSkeletalMesh(device);
+	}
 
 	SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
 	_skeleton._globalInverseTransform = rootTransform.Invert();
 
-	processNode(dvc, scene->mRootNode, scene, SMatrix::Identity);
+	processNode(scene->mRootNode, SMatrix::Identity);
 
 	_skeleton.loadFromAssimp(scene);
 
@@ -81,17 +66,19 @@ bool SkeletalModel::loadFromScene(ID3D11Device* dvc, const aiScene* scene, const
 
 
 
-bool SkeletalModel::processNode(ID3D11Device* dvc, aiNode* node, const aiScene* scene, SMatrix globNodeTransform)
+bool SkeletalModel::processNode(aiNode* node, SMatrix globNodeTransform)
 {
 	SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
 	globNodeTransform = locNodeTransform * globNodeTransform;
 
-	for (unsigned int i = 0; i < node->mNumMeshes; i++)
-		_meshes.emplace_back(processSkeletalMesh(dvc, scene->mMeshes[node->mMeshes[i]], scene, _meshes.size(), globNodeTransform));
+	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+	{
+		_meshes[node->mMeshes[i]]._localTransform = globNodeTransform;
+		_meshes[node->mMeshes[i]]._transform = globNodeTransform;
+	}
 
-	// After we've processed all of the meshes (if any) we then recursively process each of the children nodes
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
-		this->processNode(dvc, node->mChildren[i], scene, globNodeTransform);
+		this->processNode(node->mChildren[i], globNodeTransform);
 
 	return true;
 }
