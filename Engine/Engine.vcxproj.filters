@@ -961,6 +961,9 @@
     <ClInclude Include="AssetViews.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="AssetScanner.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -637,7 +637,7 @@ public:
 				std::ofstream ofs(skelPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
 				_skModel->_skeleton.save(boa);
-				skeletonID = _ledger->add(skelPath, skelPath, ResType::ANIMATION);
+				skeletonID = _ledger->add(skelPath, skelPath, ResType::SKELETON);
 			}
 			
 			std::ofstream ofs(_assetWriter._exportPath + "//skm.aeon", std::ios::binary);
