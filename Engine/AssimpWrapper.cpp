@@ -12,8 +12,8 @@ std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::s
 
 	for (int i = 0; i < scene->mNumMaterials; ++i)
 	{
-		Material* mat = new Material();
-		loadMaterial(scene, i, path, *mat, textures);
+		materials.push_back(new Material());
+		loadMaterial(scene, i, path, materials.back(), textures);
 	}
 
 	return materials;
@@ -21,39 +21,39 @@ std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::s
 
 
 
-void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material& mat, std::vector<Texture>& textures)
+void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material* mat, std::vector<Texture>& textures)
 {
 	if (index >= 0 && index < scene->mNumMaterials)
 	{
-		aiMaterial* material = scene->mMaterials[index];
+		aiMaterial* aiMat = scene->mMaterials[index];
 
 		// Diffuse maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_DIFFUSE, DIFFUSE);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DIFFUSE, DIFFUSE);
 
 		//  Normal maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_NORMALS, NORMAL);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NORMALS, NORMAL);
 
 		// Specular maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_SPECULAR, SPECULAR);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SPECULAR, SPECULAR);
 
 		// Shininess maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_SHININESS, SHININESS);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SHININESS, SHININESS);
 
 		// Opacity maps - a bit of a special case, as it indicates that material is potentially transparent
-		if (loadMaterialTextures(path, textures, scene, material, aiTextureType_OPACITY, OPACITY))
-			mat._opaque = false;
+		if (loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_OPACITY, OPACITY))
+			mat->_opaque = false;
 
 		// Displacement maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_DISPLACEMENT, DISPLACEMENT);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DISPLACEMENT);
 
 		// Ambient occlusion maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_AMBIENT, AMBIENT);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMBIENT);
 
 		// Other maps
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_UNKNOWN, OTHER);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_UNKNOWN, OTHER);
 
 		// Weird properties... that I never really saw trigger
-		loadMaterialTextures(path, textures, scene, material, aiTextureType_NONE, OTHER);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NONE, OTHER);
 	}
 
 }
@@ -65,6 +65,7 @@ bool AssimpWrapper::loadMaterialTextures(
 	std::vector<Texture>& textures,
 	const aiScene* scene,
 	aiMaterial *aiMat,
+	Material* mat,
 	aiTextureType aiTexType,
 	TextureRole role)
 {
@@ -109,6 +110,7 @@ bool AssimpWrapper::loadMaterialTextures(
 		}
 
 		textures.push_back(curTexture);	// Should try to do std::move when this is done
+		mat->_texDescription.push_back({ role, reinterpret_cast<Texture*>(textures.size() - 1) });	// Textures will relocate
 	}
 	return true;
 }

@@ -11,7 +11,7 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
-	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, _baseMaterial, _textures);
+	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_baseMaterial, _textures);
 
 	for (Texture& t : _textures)
 		t.SetUpAsResource(device);
@@ -20,9 +20,10 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 	_baseMaterial._opaque = true;
 
-	for (Texture& t : _textures)
+	for (RoleTexturePair& rtp : _baseMaterial._texDescription)
 	{
-		t.SetUpAsResource(device);
+		rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
+		rtp._tex->SetUpAsResource(device);
 	}
 }
 

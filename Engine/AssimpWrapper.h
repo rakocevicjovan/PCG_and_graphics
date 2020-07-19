@@ -97,7 +97,7 @@ public:
 
 
 
-	static void loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material& mat, std::vector<Texture>& textures);
+	static void loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material* mat, std::vector<Texture>& textures);
 
 
 
@@ -105,7 +105,8 @@ public:
 		const std::string& modelPath,
 		std::vector<Texture>& textures,
 		const aiScene* scene,
-		aiMaterial *mat,
+		aiMaterial *aiMat,
+		Material* mat,
 		aiTextureType aiTexType,
 		TextureRole role);
 

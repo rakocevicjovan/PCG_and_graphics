@@ -143,20 +143,20 @@ void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* ai
 
 	AssimpWrapper::loadTangents(aiMesh, _vertices, faceTangents);
 
-	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, _baseMaterial, _textures);
+	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_baseMaterial, _textures);
 
 
 	// Not true in the general case... it would require tool support with my own format for this!
 	// there is no robust way to infer whether a texture is transparent or not, as some textures use 
-	// 32 bits but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
+	// 4 channels but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
 	// brute force checking could solve this but incurs a lot of overhead on load
 	// and randomized sampling is not reliable, so for now... we have this
 	_baseMaterial._opaque = true;
 
-	for (Texture& t : _textures)
+	for (RoleTexturePair& rtp : _baseMaterial._texDescription)
 	{
-		t.SetUpAsResource(device);
-		//_baseMaterial._texDescription.push_back({ t._role, &t });
+		rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
+		rtp._tex->SetUpAsResource(device);
 	}
 }
 
