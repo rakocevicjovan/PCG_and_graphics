@@ -26,10 +26,9 @@ private:
 	PointLight _pointLight;
 
 	// Floor 
-	Procedural::Terrain terrain;
-	std::unique_ptr<Mesh> floorMesh;
-	Renderable floorRenderable;
-	Actor terrainActor;
+	std::unique_ptr<Mesh> _floorMesh;
+	Renderable _floorRenderable;
+	Actor _terrainActor;
 
 public:
 
@@ -95,18 +94,19 @@ public:
 		VertexShader* basicVS = new VertexShader(shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
 		basicVS->describeBuffers({ WMBufferMeta });
 
-		// Floor
+		// Generate the floor, assign a material and render
+		Procedural::Terrain terrain;
 		float _tSize = 500.f;
 		terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
 		terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 		terrain.CalculateTexCoords();
 		terrain.CalculateNormals();
-		floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
-		floorRenderable = Renderable(*floorMesh);
-		floorRenderable.mat->setVS(basicVS);
-		floorRenderable.mat->setPS(phong);
-		terrainActor.addRenderable(floorRenderable, 500);
-		terrainActor._collider.collidable = false;
+		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
+		_floorRenderable = Renderable(*_floorMesh);
+		_floorRenderable.mat->setVS(basicVS);
+		_floorRenderable.mat->setPS(phong);
+		_terrainActor.addRenderable(_floorRenderable, 500);
+		_terrainActor._collider.collidable = false;
 	}
 
 
@@ -119,7 +119,7 @@ public:
 	{
 		rc.d3d->ClearColourDepthBuffers();
 
-		S_RANDY.render(floorRenderable);
+		S_RANDY.render(_floorRenderable);
 
 		if(_curPreview)
 			_curPreview->draw(S_CONTEXT, rc.dTime);
@@ -143,28 +143,21 @@ public:
 
 
 		ImGui::Begin("Content");
-
-		ImGui::BeginTabBar("Loaded scenes");
-
-		ImGui::Separator();
+		ImGui::BeginTabBar("Loaded scenes", ImGuiTabBarFlags_AutoSelectNewTabs);
 		ImGui::NewLine();
 
-		for (int i = 0; i < _previews.size(); i++)
+		for (UINT i = 0; i < _previews.size(); i++)
 		{
 			std::string sceneName = _previews[i]->getPath().filename().string();
 			if (ImGui::BeginTabItem(sceneName.c_str()))
 			{
 				_curPreview = _previews[i].get();
 
-				ImGui::BeginChild(sceneName.c_str());
-
 				if(!_previews[i]->displayPreview(sceneName))
 				{
 					_previews.erase(_previews.begin() + i);
 					_curPreview = nullptr;
 				}
-
-				ImGui::EndChild();
 
 				ImGui::EndTabItem();
 			}

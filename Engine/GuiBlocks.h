@@ -98,17 +98,17 @@ static void displayMaterial(Material& mat)
 
 
 
-static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool dInds = false)
+static void displayMesh(Mesh* mesh, bool dMat = true, bool dVerts = false, bool dInds = false)
 {
 	ImGui::Text("Offset matrix: ");
-	displayTransform(mesh._transform);
+	displayTransform(mesh->_transform);
 
 	ImGui::Separator();
 
 	if (dMat)
 	{
 		ImGui::Text("Material: ");
-		displayMaterial(mesh._baseMaterial);
+		displayMaterial(mesh->_baseMaterial);
 		ImGui::Separator();
 	}
 	
@@ -116,7 +116,7 @@ static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool 
 	if (dVerts)
 	{
 		ImGui::ListBoxHeader("Vertices");
-		for (Vert3D& v : mesh._vertices)
+		for (Vert3D& v : mesh->_vertices)
 		{
 			displayVertex(v);
 			ImGui::Separator();
@@ -130,7 +130,7 @@ static void displayMesh(Mesh& mesh, bool dMat = true, bool dVerts = false, bool 
 	{
 		ImGui::Text("Indices: ");
 		std::stringstream result;
-		std::copy(mesh._indices.begin(), mesh._indices.end(), std::ostream_iterator<int>(result, " "));
+		std::copy(mesh->_indices.begin(), mesh->_indices.end(), std::ostream_iterator<int>(result, " "));
 		ImGui::TextWrapped(result.str().c_str());
 		ImGui::Separator();
 	}
@@ -152,7 +152,7 @@ static void displayRenderable(Renderable& r)
 
 	ImGui::Text("Mesh: ");
 	ImGui::PushID("mesh");
-	displayMesh(*r.mesh);
+	displayMesh(r.mesh);
 	ImGui::PopID();
 
 	ImGui::Text("Material");

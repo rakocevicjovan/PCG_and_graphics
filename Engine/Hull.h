@@ -6,7 +6,7 @@
 
 class Collider;
 
-enum BoundingVolumeType
+enum BoundingVolumeType : uint8_t
 {
 	BVT_AABB,
 	BVT_SPHERE

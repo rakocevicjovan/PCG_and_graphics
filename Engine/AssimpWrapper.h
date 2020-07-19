@@ -15,26 +15,19 @@ class AssimpWrapper
 {
 public:
 
-	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags)
-	{
-		assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
+	// New code, trying to do this in a better way
+	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
 
-		const aiScene* scene = importer.ReadFile(path, pFlags);
+	Mesh* loadMesh(aiMesh* aiMesh);	// Make unique ptrs...
 
-		if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			std::string errString("Assimp error: " + std::string(importer.GetErrorString()));
-			OutputDebugStringA(errString.c_str());
-			return nullptr;
-		}
-
-		return scene;
-	}
+	std::vector<Mesh*> loadAllMeshes(aiScene* scene);
 
 
+	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags);
 
 	// returns bounding sphere radius
-	template <typename VertexType> static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
+	template <typename VertexType> 
+	static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
 	{
 		verts.reserve(aiMesh->mNumVertices);
 
@@ -73,14 +66,14 @@ public:
 	}
 
 
-	// Template here as well? I need to think well about different vertex types
+
 	static void loadTangents(aiMesh* aiMesh, std::vector<Vert3D>& verts, std::vector<SVec3>& faceTangents)
 	{
 		aiFace face;
 		for (UINT i = 0; i < aiMesh->mNumFaces; ++i)
 		{
 			face = aiMesh->mFaces[i];
-			faceTangents.emplace_back(calculateTangent(verts, face));	// Calculate tangents for faces
+			faceTangents.emplace_back(calcFaceTangent(verts, face));	// Calculate tangents for faces
 		}
 
 		for (unsigned int i = 0; i < aiMesh->mNumFaces; ++i)
@@ -99,8 +92,6 @@ public:
 
 	static void loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material* mat, std::vector<Texture>& textures);
 
-
-
 	static bool loadMaterialTextures(
 		const std::string& modelPath,
 		std::vector<Texture>& textures,
@@ -110,371 +101,50 @@ public:
 		aiTextureType aiTexType,
 		TextureRole role);
 
-
-
 	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str);
 
+	static void loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims);
 
-
-	static void loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims)
-	{
-		if (!scene->HasAnimations())
-			return;
-
-		for (int i = 0; i < scene->mNumAnimations; ++i)
-		{
-			auto sceneAnimation = scene->mAnimations[i];
-			int numChannels = sceneAnimation->mNumChannels;
-
-			Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
-
-			for (int j = 0; j < numChannels; ++j)
-			{
-				aiNodeAnim* channel = sceneAnimation->mChannels[j];
-
-				AnimChannel ac(channel->mNumPositionKeys, channel->mNumRotationKeys, channel->mNumScalingKeys);
-				ac._boneName = std::string(channel->mNodeName.C_Str());
-
-				for (int c = 0; c < channel->mNumScalingKeys; c++)
-					ac._sKeys.emplace_back(channel->mScalingKeys[c].mTime, SVec3(&channel->mScalingKeys[c].mValue.x));
-
-				for (int b = 0; b < channel->mNumRotationKeys; b++)
-					ac._rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
-
-				for (int a = 0; a < channel->mNumPositionKeys; a++)
-					ac._pKeys.emplace_back(channel->mPositionKeys[a].mTime, SVec3(&channel->mPositionKeys[a].mValue.x));
-
-				anim.addChannel(ac);
-			}
-
-			outAnims.push_back(anim);
-		}
-	}
-
-
-
-	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
-	{
-		if (!aiMesh.HasBones())
-			return;
-
-		for (UINT i = 0; i < aiMesh.mNumBones; ++i)
-		{
-			aiBone* aiBone = aiMesh.mBones[i];
-
-			std::string boneName(aiBone->mName.data);
-
-			// Connect bone indices to vertex skinning data
-			int boneIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
-
-			if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
-			{
-				boneIndex = skeleton.getBoneCount();
-
-				SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
-
-				skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
-			}
-
-			// Load skinning data (up to four bone indices and four weights) into vertices
-			for (UINT j = 0; j < aiBone->mNumWeights; ++j)
-			{
-				UINT vertID = aiBone->mWeights[j].mVertexId;
-				float weight = aiBone->mWeights[j].mWeight;
-				verts[vertID].AddBoneData(boneIndex, weight);
-			}
-		}
-	}
-
+	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton);
 
 	// Loads bones with direct influnce on vertices
-	static void loadBones(const aiScene* scene, const aiNode* node, Skeleton& skeleton)
-	{
-		for (int i = 0; i < node->mNumMeshes; ++i)	// Iterate through meshes in a node
-		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+	static void loadBones(const aiScene* scene, const aiNode* node, Skeleton& skeleton);
 
-			for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
-			{
-				aiBone* bone = mesh->mBones[j];
+	// Seeks upwards from every existing bone, adding intermediate nodes as bones
+	static void addMissingBones(Skeleton& skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix);
 
-				std::string boneName(bone->mName.data);
+	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat);
 
-				int boneIndex = skeleton.getBoneIndex(boneName);	// Check if this bone is already added
+	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames);
 
-				if (boneIndex < 0)	// Bone wasn't added already, add it now
-				{
-					boneIndex = skeleton.getBoneCount();
-					
-					SMatrix boneOffsetMat = aiMatToSMat(bone->mOffsetMatrix);
-
-					skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
-				}
-			}
-		}
-
-		for (UINT i = 0; i < node->mNumChildren; ++i)	// Repeat recursively
-		{
-			loadBones(scene, node->mChildren[i], skeleton);
-		}
-	}
-
-
-
-	// Seeks upwards from every existing bone, filling in intermediate nodes
-	static void addMissingBones(Skeleton& skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
-	{
-		aiNode* parent = boneNode->mParent;
-
-		if (!parent)			// We are at root node, no way but down (also prevents crashing below)
-			return;
-
-		if (!parent->mParent)	// Don't include the root node either... bit hacky but works out so far
-			return;
-
-		std::string parentName(parent->mName.C_Str());
-
-		if (skeleton.boneExists(parentName))	// Parent is already a bone, terminate
-			return;
-
-		Bone newParentBone;
-		newParentBone._name = parentName;
-		newParentBone._index = skeleton.getBoneCount();
-		//newParentBone._offsetMatrix = AssimpWrapper::calculateOffsetMatrix(boneNode, meshGlobalMatrix);
-		auto boneIter = skeleton.insertBone(newParentBone);
-
-		addMissingBones(skeleton, parent, meshGlobalMatrix);
-	}
-
-
-
-	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
-	{
-		const aiNode* result = nullptr;
-
-		// Make skeleton root account for all nodes before it 
-		// Usually it's a direct child of root but not always
-		SMatrix nodeLocalTransform = aiMatToSMat(node->mTransformation);
-		pMat = nodeLocalTransform * pMat;
-
-		Bone* bone = skeleton.findBone(node->mName.C_Str());
-
-		if (bone)
-		{
-			bone->_localMatrix = pMat;	//pMat;
-			result = node;
-		}
-		else
-		{
-			for (int i = 0; i < node->mNumChildren; ++i)
-			{
-				result = findSkeletonRoot(node->mChildren[i], skeleton, pMat);
-
-				if (result)
-					break;
-			}
-		}
-
-		return result;
-	}
-
-
-
-	static void findModelNode(const aiNode* node, SMatrix& meshRootTransform)
-	{
-		SMatrix locTrfm = aiMatToSMat(node->mTransformation);
-		meshRootTransform = locTrfm * meshRootTransform;
-
-		if (node->mNumMeshes > 0)
-			return;
-
-		for (int i = 0; i < node->mNumChildren; ++i)
-		{
-			findModelNode(node->mChildren[i], meshRootTransform);
-		}
-	}
-
-
-
-	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)
-	{
-		for (UINT i = 0; i < node->mNumMeshes; ++i)
-		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-			for (UINT i = 0; i < mesh->mNumBones; ++i)
-			{
-				aiBone* bone = mesh->mBones[i];
-				boneNames.insert(std::string(bone->mName.C_Str()));
-			}
-		}
-
-		for (UINT i = 0; i < node->mNumChildren; ++i)
-		{
-			loadAllBoneNames(scene, node->mChildren[i], boneNames);
-		}
-	}
-
-
-
-	static bool containsRiggedMeshes(const aiScene* scene)
-	{
-		for (int i = 0; i < scene->mNumMeshes; ++i)
-			if (scene->mMeshes[i]->HasBones())
-				return true;
-
-		return false;
-	}
-
-
-
-	static bool isOnlySkeleton(const aiScene* scene)
-	{
-		return (scene->mNumMeshes == 0);
-	}
-
-
-
-	static void loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix concat)
-	{
-		SMatrix locTf = aiMatToSMat(node->mTransformation);
-		concat = locTf * concat;
-
-		Bone bone;
-		bone._name = std::string(node->mName.C_Str());
-		bone._index = skeleton.getBoneCount();
-		bone._localMatrix = locTf;
-		// Does not account for mesh offset, that has to be added when attaching mesh to skeleton
-		bone._offsetMatrix = concat.Invert();	
-
-		if (node->mParent)
-		{
-			std::string parentName(node->mParent->mName.C_Str());
-			bone.parent = skeleton.findBone(parentName);
-		}
-	
-		auto iter = skeleton._boneMap.insert({ bone._name, bone });
-
-		if(bone.parent)	// Add links between parents and children, avoid crashing on root
-			bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
-
-		for (int i = 0; i < node->mNumChildren; ++i)
-			loadOnlySkeleton(node->mChildren[i], skeleton, concat);
-	}
-
-
-
-	static std::vector<aiString> getExtTextureNames(const aiScene* scene)
-	{
-		std::vector<aiString> result;
-
-		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-		{
-			aiMaterial* mat = scene->mMaterials[i];
-			result.push_back(aiString(std::string("Mat: ") + mat->GetName().C_Str()));
-
-			for (int j = aiTextureType::aiTextureType_NONE; j <= aiTextureType_UNKNOWN; ++j)
-			{
-				aiTextureType curType = static_cast<aiTextureType>(j);
-				UINT curCount = mat->GetTextureCount(curType);
-
-				for (UINT k = 0; k < curCount; ++k)
-				{
-					aiString texPath;
-					mat->GetTexture(curType, k, &texPath);
-
-					const aiTexture* aiTex = scene->GetEmbeddedTexture(texPath.C_Str());
-
-					if (!aiTex)	// Only interested in external for this function
-						result.push_back(texPath);
-				}
-			}
-		}
-		return result;
-	}
+	static void loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix concat);
 
 
 	// Helpers
+	static std::vector<aiString> getExtTextureNames(const aiScene* scene);
 
-	static SVec3 calculateTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
-	{
-		if (face.mNumIndices < 3) return SVec3(0, 0, 0);
+	static SVec3 calcFaceTangent(const std::vector<Vert3D>& vertices, const aiFace& face);
 
-		SVec3 tangent;
-		SVec3 edge1, edge2;
-		SVec2 duv1, duv2;
+	static aiNode* findModelNode(aiNode* node, SMatrix& meshRootTransform);
 
-		//Find first texture coordinate edge 2d vector
-		Vert3D v0 = vertices[face.mIndices[0]];
-		Vert3D v1 = vertices[face.mIndices[1]];
-		Vert3D v2 = vertices[face.mIndices[2]];
+	static SMatrix getNodeGlobalTransform(const aiNode* node);
 
-		edge1 = v0.pos - v2.pos;
-		edge2 = v2.pos - v1.pos;
-
-		duv1 = v0.texCoords - v2.texCoords;
-		duv2 = v2.texCoords - v1.texCoords;
-
-		float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
-
-		//Find tangent using both tex coord edges and position edges
-		tangent.x = (duv1.y * edge1.x - duv2.y * edge2.x) * f;
-		tangent.y = (duv1.y * edge1.y - duv2.y * edge2.y) * f;
-		tangent.z = (duv1.y * edge1.z - duv2.y * edge2.z) * f;
-
-		tangent.Normalize();
-
-		return tangent;
-	}
+	static bool containsRiggedMeshes(const aiScene* scene);
 
 
-
-	inline static SMatrix getNodeGlobalTransform(const aiNode* node)
-	{
-		const aiNode* current = node;
-		SMatrix concat = SMatrix::Identity;		// c * p * pp * ppp * pppp...
-
-		while (current)
-		{
-			SMatrix localTransform = aiMatToSMat(current->mTransformation);
-			concat *= localTransform;
-			current = current->mParent;
-		}
-
-		return concat;
-	}
-
-
+	// Short helpers, inlined
+	inline static bool isOnlySkeleton(const aiScene* scene)
+	{ return (scene->mNumMeshes == 0); }
 
 	inline static SMatrix calculateOffsetMatrix(const aiNode* boneNode, SMatrix meshGlobalMat)
-	{
-		SMatrix boneNodeGlobalTransform = getNodeGlobalTransform(boneNode);
+	{ return meshGlobalMat * getNodeGlobalTransform(boneNode).Invert(); }
 
-		SMatrix myOffsetMatrix = meshGlobalMat * boneNodeGlobalTransform.Invert();
+	inline static SMatrix aiMatToSMat(const aiMatrix4x4& aiMat)
+	{ return SMatrix(&aiMat.a1).Transpose(); }
 
-		return myOffsetMatrix;
-	}
+	inline static SQuat aiQuatToSQuat(const aiQuaternion& aq)
+	{ return SQuat(aq.x, aq.y, aq.z, aq.w); }
 
-
-
-	inline static SMatrix aiMatToSMat(const aiMatrix4x4& aiMat) { return SMatrix(&aiMat.a1).Transpose(); }
-
-
-	inline static SQuat aiQuatToSQuat(const aiQuaternion& aq) { return SQuat(aq.x, aq.y, aq.z, aq.w); }
-
-
-	inline static void postProcess(Assimp::Importer& i, aiPostProcessSteps f) { i.ApplyPostProcessing(f); }
-
-
-
-	// All the code below is trying to do things in "the good way TM"
-	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
-
-
-
-	Mesh* loadMesh(aiMesh* aiMesh);	// Make unique ptrs...
-
-
-
-	std::vector<Mesh*> loadAllMeshes(aiScene* scene);
+	inline static void postProcess(Assimp::Importer& i, aiPostProcessSteps f)
+	{ i.ApplyPostProcessing(f); }
 };

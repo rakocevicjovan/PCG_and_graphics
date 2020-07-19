@@ -1,7 +1,7 @@
 #pragma once
 #include "Model.h"
 #include "FileUtilities.h"
-#include "GuiBlocks.h"
+#include "AssetViews.h"
 #include "Texture.h"
 #include "FileBrowser.h"
 #include "AeonWriter.h"
@@ -22,14 +22,17 @@ private:
 	const aiScene* _aiScene;
 
 	// For 3d preview I need these... until a better system is in place at least
+	std::unique_ptr<SkeletalModelInstance> _skModelInst;
 	ID3D11Device* _device;
 	Material* _skelAnimMat;
 
+	// Things that might get loaded
 	std::unique_ptr<SkeletalModel> _skModel;
-	std::unique_ptr<SkeletalModelInstance> _skModelInst;
 	std::unique_ptr<Model> _model;
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
+	std::vector<Texture> _textures;
+
 
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
@@ -221,14 +224,9 @@ public:
 	{
 		ImGui::Text("Parsed assets");
 
-		if (_skeleton.get() || _skModel.get())
-		{
-			if (ImGui::TreeNode("Skeleton"))
-			{
-				printBoneHierarchy(_skeleton.get() ? _skeleton->_root : _skModel->_skeleton._root);
-				ImGui::TreePop();
-			}
-		}
+		if (_skeleton.get())
+			AssetViews::printSkeleton(_skeleton.get());
+		
 	}
 
 
@@ -556,37 +554,6 @@ public:
 		ImGui::Text("Num scaling keys: %d", channel->mNumScalingKeys);
 		ImGui::Text("Num rotation keys: %d", channel->mNumRotationKeys);
 		ImGui::Text("Num position keys: %d", channel->mNumPositionKeys);
-	}
-
-
-
-	void printBoneHierarchy(Bone* bone)
-	{
-		if (!bone)
-		{
-			ImGui::Text("Bone is nullptr");
-			return;
-		}
-
-		if (ImGui::TreeNode("N: %s ; Idx: %d", bone->_name.c_str(), bone->_index))
-		{
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::BeginTooltip();
-				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
-				displayTransform(bone->_localMatrix);
-
-				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
-				displayTransform(bone->_offsetMatrix);
-				ImGui::EndTooltip();
-			}
-			/*if (ImGui::TreeNode("Transformations")) { ImGui::TreePop(); }*/
-
-			for (Bone* cBone : bone->offspring)
-				printBoneHierarchy(cBone);
-
-			ImGui::TreePop();
-		}
 	}
 
 

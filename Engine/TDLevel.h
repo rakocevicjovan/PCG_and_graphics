@@ -21,7 +21,6 @@
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
 #include "Editor.h"
-#include "LoaderGUI.h"
 
 
 
@@ -102,8 +101,6 @@ private:
 	Economy _eco;
 
 	Editor _editor;
-	LoaderGUI _loaderGui;
-	//AssimpPreview _loader;
 
 #define DEBUG_OCTREE_NOT
 

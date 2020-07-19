@@ -838,9 +838,6 @@
     <ClInclude Include="EditorLayout.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="LoaderGUI.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="FileBrowser.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -960,6 +957,9 @@
     </ClInclude>
     <ClInclude Include="MemChunk.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetViews.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

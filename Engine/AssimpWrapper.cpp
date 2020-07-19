@@ -5,6 +5,181 @@
 
 
 
+const aiScene* AssimpWrapper::loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags)
+{
+	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
+
+	const aiScene* scene = importer.ReadFile(path, pFlags);
+
+	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::string errString("Assimp error: " + std::string(importer.GetErrorString()));
+		OutputDebugStringA(errString.c_str());
+		return nullptr;
+	}
+
+	return scene;
+}
+
+
+
+std::vector<Mesh*> AssimpWrapper::loadAllMeshes(aiScene* scene)
+{
+	UINT numMeshes = scene->mNumMeshes;
+
+	std::vector<Mesh*> result;
+	result.reserve(numMeshes);
+
+	for (int i = 0; i < numMeshes; ++i)
+	{
+		loadMesh(scene->mMeshes[i]);
+	}
+
+	return result;
+}
+
+
+
+// NOT COMPLETED YET, ALSO CHANGE FROM MESH TO SOME INTERMEDIATE TYPE
+Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
+{
+	Mesh* mesh = new Mesh();
+
+	// Generate mesh vertex signature by inspecting the contents of aiMesh.
+	VertSignature vertSig;
+
+	// Can this even not?
+	if (aiMesh->HasPositions())
+		vertSig.addAttribute(VAttribSemantic::POS, VAttribType::FLOAT3);
+
+	// Texture coordinates, slightly more involved but still simple, preserves original layout.
+	UINT numUVChannels = aiMesh->GetNumUVChannels();
+
+	UINT prevNumComponents = 0u;	// Will never be equal to the actual data the first time.
+	VAttribType uvwType;
+
+	for (int i = 0; i < numUVChannels; ++i)
+	{
+		UINT uvw = aiMesh->mNumUVComponents[i];
+
+		if (uvw != prevNumComponents)
+		{
+			// The "You are fired." version :V
+			//uvwType = (uvw == 1) ? VAttribType::FLOAT : ((uvw == 2) ? VAttribType::FLOAT2 : VAttribType::FLOAT3);
+
+			// Cool but requires FLOAT# enums to be contiguous, which they probably will be regardless
+			//uvwType = static_cast<VAttribType>(static_cast<UINT>(VAttribType::FLOAT) + uvw);
+
+			switch (uvw)
+			{
+			case 1: uvwType = VAttribType::FLOAT;	break;
+			case 2: uvwType = VAttribType::FLOAT2;	break;
+			case 3: uvwType = VAttribType::FLOAT3;	break;
+			}
+
+			vertSig.addAttribute(VAttribSemantic::TEX_COORD, uvwType);
+		}
+		else
+		{
+			++(vertSig._attributes.back()._numElements);
+		}
+	}
+
+	// Normals, quite simple.
+	if (aiMesh->HasNormals())
+		vertSig.addAttribute(VAttribSemantic::NORMAL, VAttribType::FLOAT3);
+
+	// Assimp ensures these two attributes both exist if either does.
+	if (aiMesh->HasTangentsAndBitangents())
+	{
+		vertSig.addAttribute(VAttribSemantic::TANGENT, VAttribType::FLOAT3);
+		vertSig.addAttribute(VAttribSemantic::BITANGENT, VAttribType::FLOAT3);
+	}
+
+	//Vertex signature obtained, get the data.
+
+	// Decide how to split/interleave the data somehow... it's gpu optimization and therefore
+	// a bigbrain matter but manageable if I decide on a few general use distributions
+	// For now, interleaved is fine
+
+	UINT vertByteWidth = vertSig.getVertByteWidth();
+	UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
+
+	std::vector<uint8_t> vertPool;
+	vertPool.reserve(vertPoolSize);
+
+
+	// Pack interleaved, starting with positions
+	if (aiMesh->HasPositions())
+	{
+		UINT posOffset = vertSig.getOffsetOf(VAttribSemantic::POS);
+		uint8_t* dst = vertPool.data() + posOffset;
+		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
+		{
+			memcpy(dst, &aiMesh->mVertices[i], sizeof(aiVector3D));
+			dst += vertByteWidth;
+		}
+	}
+
+
+	// There are potentially multiple texture coordinate channels, to be stored at an accumulating offset
+	// Initial offset is the offset to first channel, all channels will always be contiguous per vertex
+	UINT tcOffset = vertSig.getOffsetOf(VAttribSemantic::TEX_COORD);
+
+	for (UINT i = 0; i < numUVChannels; ++i)
+	{
+		// Each tc set can have a size of 1, 2 or 3 floats (u, uv, uvw) which is copied every time
+		UINT tcByteWidth = aiMesh->mNumUVComponents[i] * sizeof(float);
+
+		// The offset of this texture coordinate channel in the first vertex is specified here
+		uint8_t* dst = vertPool.data() + tcOffset;
+
+		for (UINT j = 0; j < aiMesh->mNumVertices; ++j)
+		{
+			memcpy(dst, &aiMesh->mTextureCoords[i][j], tcByteWidth);
+			dst += vertByteWidth;
+		}
+		// For every new set, we shift the offset again by the size of the previously written set
+		tcOffset += tcByteWidth;
+	}
+
+
+	if (aiMesh->HasNormals())
+	{
+		UINT nrmOffset = vertSig.getOffsetOf(VAttribSemantic::NORMAL);
+		uint8_t* dst = vertPool.data() + nrmOffset;
+		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
+		{
+			memcpy(dst, &aiMesh->mNormals[i], sizeof(aiVector3D));
+			dst += vertByteWidth;
+		}
+	}
+
+
+	if (aiMesh->HasTangentsAndBitangents())
+	{
+		UINT tanOffset = vertSig.getOffsetOf(VAttribSemantic::TANGENT);
+		uint8_t* dst = vertPool.data() + tanOffset;
+		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
+		{
+			memcpy(dst, &aiMesh->mTangents[i], sizeof(aiVector3D));
+			dst += vertByteWidth;
+		}
+
+		UINT btOffset = vertSig.getOffsetOf(VAttribSemantic::BITANGENT);
+		dst = vertPool.data() + btOffset;
+		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
+		{
+			memcpy(dst, &aiMesh->mBitangents[i], sizeof(aiVector3D));
+			dst += vertByteWidth;
+		}
+	}
+
+	return mesh;
+}
+
+
+
 std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::string& path)
 {
 	std::vector<Material*> materials;
@@ -136,157 +311,322 @@ bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, 
 
 
 
-// NOT COMPLETED YET, ALSO CHANGE FROM MESH TO SOME INTERMEDIATE TYPE
-Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
+void AssimpWrapper::loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims)
 {
-	Mesh* mesh = new Mesh();
+	if (!scene->HasAnimations())
+		return;
 
-	// Generate mesh vertex signature by inspecting the contents of aiMesh.
-	VertSignature vertSig;
-
-	// Can this even not?
-	if (aiMesh->HasPositions())
-		vertSig.addAttribute(VAttribSemantic::POS, VAttribType::FLOAT3);
-	
-	// Texture coordinates, slightly more involved but still simple, preserves original layout.
-	UINT numUVChannels = aiMesh->GetNumUVChannels();
-
-	UINT prevNumComponents = 0u;	// Will never be equal to the actual data the first time.
-	VAttribType uvwType;
-
-	for (int i = 0; i < numUVChannels; ++i)
+	for (int i = 0; i < scene->mNumAnimations; ++i)
 	{
-		UINT uvw = aiMesh->mNumUVComponents[i];
+		auto sceneAnimation = scene->mAnimations[i];
+		int numChannels = sceneAnimation->mNumChannels;
 
-		if (uvw != prevNumComponents)
+		Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
+
+		for (int j = 0; j < numChannels; ++j)
 		{
-			// The "You are fired." version :V
-			//uvwType = (uvw == 1) ? VAttribType::FLOAT : ((uvw == 2) ? VAttribType::FLOAT2 : VAttribType::FLOAT3);
-			
-			// Cool but requires FLOAT# enums to be contiguous, which they probably will be regardless
-			//uvwType = static_cast<VAttribType>(static_cast<UINT>(VAttribType::FLOAT) + uvw);
+			aiNodeAnim* channel = sceneAnimation->mChannels[j];
 
-			switch (uvw)
-			{
-			case 1: uvwType = VAttribType::FLOAT ;	break;
-			case 2: uvwType = VAttribType::FLOAT2;	break;
-			case 3: uvwType = VAttribType::FLOAT3;	break;
-			}
+			AnimChannel ac(channel->mNumPositionKeys, channel->mNumRotationKeys, channel->mNumScalingKeys);
+			ac._boneName = std::string(channel->mNodeName.C_Str());
 
-			vertSig.addAttribute(VAttribSemantic::TEX_COORD, uvwType);
+			for (int c = 0; c < channel->mNumScalingKeys; c++)
+				ac._sKeys.emplace_back(channel->mScalingKeys[c].mTime, SVec3(&channel->mScalingKeys[c].mValue.x));
+
+			for (int b = 0; b < channel->mNumRotationKeys; b++)
+				ac._rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
+
+			for (int a = 0; a < channel->mNumPositionKeys; a++)
+				ac._pKeys.emplace_back(channel->mPositionKeys[a].mTime, SVec3(&channel->mPositionKeys[a].mValue.x));
+
+			anim.addChannel(ac);
 		}
-		else
-		{
-			++(vertSig._attributes.back()._numElements);
-		}
+
+		outAnims.push_back(anim);
 	}
-
-	// Normals, quite simple.
-	if (aiMesh->HasNormals())
-		vertSig.addAttribute(VAttribSemantic::NORMAL, VAttribType::FLOAT3);
-
-	// Assimp ensures these two attributes both exist if either does.
-	if (aiMesh->HasTangentsAndBitangents())
-	{
-		vertSig.addAttribute(VAttribSemantic::TANGENT, VAttribType::FLOAT3);
-		vertSig.addAttribute(VAttribSemantic::BITANGENT, VAttribType::FLOAT3);
-	}
-
-	//Vertex signature obtained, get the data.
-
-	// Decide how to split/interleave the data somehow... it's gpu optimization and therefore
-	// a bigbrain matter but manageable if I decide on a few general use distributions
-	// For now, interleaved is fine
-
-	UINT vertByteWidth = vertSig.getVertByteWidth();
-	UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
-
-	std::vector<uint8_t> vertPool;
-	vertPool.reserve(vertPoolSize);
-
-
-	// Pack interleaved, starting with positions
-	if (aiMesh->HasPositions())
-	{
-		UINT posOffset = vertSig.getOffsetOf(VAttribSemantic::POS);
-		uint8_t* dst = vertPool.data() + posOffset;
-		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
-		{
-			memcpy(dst, &aiMesh->mVertices[i], sizeof(aiVector3D));
-			dst += vertByteWidth;
-		}
-	}
-
-
-	// There are potentially multiple texture coordinate channels, to be stored at an accumulating offset
-	// Initial offset is the offset to first channel, all channels will always be contiguous per vertex
-	UINT tcOffset = vertSig.getOffsetOf(VAttribSemantic::TEX_COORD);
-
-	for (UINT i = 0; i < numUVChannels; ++i)
-	{
-		// Each tc set can have a size of 1, 2 or 3 floats (u, uv, uvw) which is copied every time
-		UINT tcByteWidth = aiMesh->mNumUVComponents[i] * sizeof(float);
-
-		// The offset of this texture coordinate channel in the first vertex is specified here
-		uint8_t* dst = vertPool.data() + tcOffset;
-
-		for (UINT j = 0; j < aiMesh->mNumVertices; ++j)
-		{
-			memcpy(dst, &aiMesh->mTextureCoords[i][j], tcByteWidth);
-			dst += vertByteWidth;
-		}
-		// For every new set, we shift the offset again by the size of the previously written set
-		tcOffset += tcByteWidth;
-	}
-
-
-	if (aiMesh->HasNormals())
-	{
-		UINT nrmOffset = vertSig.getOffsetOf(VAttribSemantic::NORMAL);
-		uint8_t* dst = vertPool.data() + nrmOffset;
-		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
-		{
-			memcpy(dst, &aiMesh->mNormals[i], sizeof(aiVector3D));
-			dst += vertByteWidth;
-		}
-	}
-
-
-	if (aiMesh->HasTangentsAndBitangents())
-	{
-		UINT tanOffset = vertSig.getOffsetOf(VAttribSemantic::TANGENT);
-		uint8_t* dst = vertPool.data() + tanOffset;
-		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
-		{
-			memcpy(dst, &aiMesh->mTangents[i], sizeof(aiVector3D));
-			dst += vertByteWidth;
-		}
-
-		UINT btOffset = vertSig.getOffsetOf(VAttribSemantic::BITANGENT);
-		dst = vertPool.data() + btOffset;
-		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
-		{
-			memcpy(dst, &aiMesh->mBitangents[i], sizeof(aiVector3D));
-			dst += vertByteWidth;
-		}
-	}
-
-	return mesh;
 }
 
 
 
-std::vector<Mesh*> AssimpWrapper::loadAllMeshes(aiScene* scene)
+void AssimpWrapper::loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
 {
-	UINT numMeshes = scene->mNumMeshes;
+	if (!aiMesh.HasBones())
+		return;
 
-	std::vector<Mesh*> result;
-	result.reserve(numMeshes);
-
-	for (int i = 0; i < numMeshes; ++i)
+	for (UINT i = 0; i < aiMesh.mNumBones; ++i)
 	{
-		loadMesh(scene->mMeshes[i]);
+		aiBone* aiBone = aiMesh.mBones[i];
+
+		std::string boneName(aiBone->mName.data);
+
+		// Connect bone indices to vertex skinning data
+		int boneIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
+
+		if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
+		{
+			boneIndex = skeleton.getBoneCount();
+
+			SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
+
+			skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
+		}
+
+		// Load skinning data (up to four bone indices and four weights) into vertices
+		for (UINT j = 0; j < aiBone->mNumWeights; ++j)
+		{
+			UINT vertID = aiBone->mWeights[j].mVertexId;
+			float weight = aiBone->mWeights[j].mWeight;
+			verts[vertID].AddBoneData(boneIndex, weight);
+		}
+	}
+}
+
+
+
+void AssimpWrapper::loadBones(const aiScene* scene, const aiNode* node, Skeleton& skeleton)
+{
+	for (int i = 0; i < node->mNumMeshes; ++i)	// Iterate through meshes in a node
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+		for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
+		{
+			aiBone* bone = mesh->mBones[j];
+
+			std::string boneName(bone->mName.data);
+
+			int boneIndex = skeleton.getBoneIndex(boneName);	// Check if this bone is already added
+
+			if (boneIndex < 0)	// Bone wasn't added already, add it now
+			{
+				boneIndex = skeleton.getBoneCount();
+
+				SMatrix boneOffsetMat = aiMatToSMat(bone->mOffsetMatrix);
+
+				skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
+			}
+		}
+	}
+
+	for (UINT i = 0; i < node->mNumChildren; ++i)	// Repeat recursively
+	{
+		loadBones(scene, node->mChildren[i], skeleton);
+	}
+}
+
+
+
+void AssimpWrapper::addMissingBones(Skeleton& skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
+{
+	aiNode* parent = boneNode->mParent;
+
+	if (!parent)			// We are at root node, no way but down (also prevents crashing below)
+		return;
+
+	if (!parent->mParent)	// Don't include the root node either... bit hacky but works out so far
+		return;
+
+	std::string parentName(parent->mName.C_Str());
+
+	if (skeleton.boneExists(parentName))	// Parent is already a bone, terminate
+		return;
+
+	Bone newParentBone;
+	newParentBone._name = parentName;
+	newParentBone._index = skeleton.getBoneCount();
+	//newParentBone._offsetMatrix = AssimpWrapper::calculateOffsetMatrix(boneNode, meshGlobalMatrix);
+	auto boneIter = skeleton.insertBone(newParentBone);
+
+	addMissingBones(skeleton, parent, meshGlobalMatrix);
+}
+
+
+
+const aiNode* AssimpWrapper::findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
+{
+	const aiNode* result = nullptr;
+
+	// Make skeleton root account for all nodes before it 
+	// Usually it's a direct child of root but not always
+	SMatrix nodeLocalTransform = aiMatToSMat(node->mTransformation);
+	pMat = nodeLocalTransform * pMat;
+
+	Bone* bone = skeleton.findBone(node->mName.C_Str());
+
+	if (bone)
+	{
+		bone->_localMatrix = pMat;	//pMat;
+		result = node;
+	}
+	else
+	{
+		for (int i = 0; i < node->mNumChildren; ++i)
+		{
+			result = findSkeletonRoot(node->mChildren[i], skeleton, pMat);
+
+			if (result)
+				break;
+		}
 	}
 
 	return result;
+}
+
+
+
+void AssimpWrapper::loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)
+{
+	for (UINT i = 0; i < node->mNumMeshes; ++i)
+	{
+		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+		for (UINT i = 0; i < mesh->mNumBones; ++i)
+		{
+			aiBone* bone = mesh->mBones[i];
+			boneNames.insert(std::string(bone->mName.C_Str()));
+		}
+	}
+
+	for (UINT i = 0; i < node->mNumChildren; ++i)
+	{
+		loadAllBoneNames(scene, node->mChildren[i], boneNames);
+	}
+}
+
+
+
+void AssimpWrapper::loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix concat)
+{
+	SMatrix locTf = aiMatToSMat(node->mTransformation);
+	concat = locTf * concat;
+
+	Bone bone;
+	bone._name = std::string(node->mName.C_Str());
+	bone._index = skeleton.getBoneCount();
+	bone._localMatrix = locTf;
+	// Does not account for mesh offset, that has to be added when attaching mesh to skeleton
+	bone._offsetMatrix = concat.Invert();
+
+	if (node->mParent)
+	{
+		std::string parentName(node->mParent->mName.C_Str());
+		bone.parent = skeleton.findBone(parentName);
+	}
+
+	auto iter = skeleton._boneMap.insert({ bone._name, bone });
+
+	if (bone.parent)	// Add links between parents and children, avoid crashing on root
+		bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
+
+	for (int i = 0; i < node->mNumChildren; ++i)
+		loadOnlySkeleton(node->mChildren[i], skeleton, concat);
+}
+
+
+
+// Helpers
+std::vector<aiString> AssimpWrapper::getExtTextureNames(const aiScene* scene)
+{
+	std::vector<aiString> result;
+
+	for (UINT i = 0; i < scene->mNumMaterials; ++i)
+	{
+		aiMaterial* mat = scene->mMaterials[i];
+		result.push_back(aiString(std::string("Mat: ") + mat->GetName().C_Str()));
+
+		for (int j = aiTextureType::aiTextureType_NONE; j <= aiTextureType_UNKNOWN; ++j)
+		{
+			aiTextureType curType = static_cast<aiTextureType>(j);
+			UINT curCount = mat->GetTextureCount(curType);
+
+			for (UINT k = 0; k < curCount; ++k)
+			{
+				aiString texPath;
+				mat->GetTexture(curType, k, &texPath);
+
+				const aiTexture* aiTex = scene->GetEmbeddedTexture(texPath.C_Str());
+
+				if (!aiTex)	// Only interested in external for this function
+					result.push_back(texPath);
+			}
+		}
+	}
+	return result;
+}
+
+
+
+SVec3 AssimpWrapper::calcFaceTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
+{
+	if (face.mNumIndices < 3) return SVec3(0, 0, 0);
+
+	SVec3 tangent;
+	SVec3 edge1, edge2;
+	SVec2 duv1, duv2;
+
+	//Find first texture coordinate edge 2d vector
+	Vert3D v0 = vertices[face.mIndices[0]];
+	Vert3D v1 = vertices[face.mIndices[1]];
+	Vert3D v2 = vertices[face.mIndices[2]];
+
+	edge1 = v0.pos - v2.pos;
+	edge2 = v2.pos - v1.pos;
+
+	duv1 = v0.texCoords - v2.texCoords;
+	duv2 = v2.texCoords - v1.texCoords;
+
+	float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
+
+	//Find tangent using both tex coord edges and position edges
+	tangent.x = (duv1.y * edge1.x - duv2.y * edge2.x) * f;
+	tangent.y = (duv1.y * edge1.y - duv2.y * edge2.y) * f;
+	tangent.z = (duv1.y * edge1.z - duv2.y * edge2.z) * f;
+
+	tangent.Normalize();
+
+	return tangent;
+}
+
+
+
+aiNode* AssimpWrapper::findModelNode(aiNode* node, SMatrix& meshRootTransform)
+{
+	SMatrix locTrfm = aiMatToSMat(node->mTransformation);
+	meshRootTransform = locTrfm * meshRootTransform;
+
+	if (node->mNumMeshes > 0)
+		return node;
+
+	for (int i = 0; i < node->mNumChildren; ++i)
+	{
+		findModelNode(node->mChildren[i], meshRootTransform);
+	}
+}
+
+
+
+SMatrix AssimpWrapper::getNodeGlobalTransform(const aiNode* node)
+{
+	const aiNode* current = node;
+	SMatrix concat = SMatrix::Identity;		// c * p * pp * ppp * pppp...
+
+	while (current)
+	{
+		SMatrix localTransform = aiMatToSMat(current->mTransformation);
+		concat *= localTransform;
+		current = current->mParent;
+	}
+
+	return concat;
+}
+
+
+
+bool AssimpWrapper::containsRiggedMeshes(const aiScene* scene)
+{
+	for (int i = 0; i < scene->mNumMeshes; ++i)
+		if (scene->mMeshes[i]->HasBones())
+			return true;
+
+	return false;
 }

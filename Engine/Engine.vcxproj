@@ -394,7 +394,7 @@
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
-    <ClInclude Include="LoaderGUI.h" />
+    <ClInclude Include="AssetViews.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="ResourceDef.h" />
