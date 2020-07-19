@@ -12,10 +12,10 @@ void Animation::getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const 
 
 	SMatrix animTransform;
 
-	if (channel)
-		animTransform = channel->getInterpolatedTransform(currentTick, t);	// Animation found, replace local mat
-	else
-		animTransform = bone._localMatrix;		// No animation channels for this bone right now, use default
+	if (channel)	// Animation found, replace local mattrix
+		animTransform = channel->getInterpolatedTransform(currentTick, t);	
+	else			// No animation channels found, use local matrix
+		animTransform = bone._localMatrix;
 
 	SMatrix nodeTransform = animTransform * parentMatrix;
 
@@ -24,6 +24,6 @@ void Animation::getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const 
 
 	vec[bone._index] = finalMatrix;
 
-	for (Bone* child : bone.offspring)
+	for (Bone* child : bone._children)
 		getTransformAtTime(*child, vec, nodeTransform, glInvT, elapsed);
 }

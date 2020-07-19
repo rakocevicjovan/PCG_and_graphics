@@ -11,6 +11,8 @@ enum class VAttribSemantic : uint8_t
 	TANGENT,
 	BITANGENT,
 	COL,
+	B_IDX,
+	B_WEIGHT,
 	OTHER
 };
 

@@ -2,16 +2,15 @@
 #include "AssimpWrapper.h"
 
 
-// Assumes some bones were loaded already
+// Assumes influencing bones were loaded already
 void Skeleton::loadFromAssimp(const aiScene* scene)
 {
 	for (auto namedBone : _boneMap)
 	{
 		aiNode* boneNode = scene->mRootNode->FindNode(namedBone.first.c_str());
-		AssimpWrapper::addMissingBones(*this, boneNode, SMatrix::Identity);
+		AssimpWrapper::addMissingBones(this, boneNode, SMatrix::Identity);
 	}
 
-	// Swap with above and search to root? Should try it.
 	const aiNode* skelRootNode = AssimpWrapper::findSkeletonRoot(scene->mRootNode, *this, SMatrix());
 
 	// Otherwise, skeleton is stored in another file and this is just a rigged model. Might happen? Not sure.
@@ -53,8 +52,8 @@ void Skeleton::makeLikeATree(Bone* parent, const aiNode* node, SMatrix concat)
 	concat = locNodeMat * concat;
 
 	currentBone->_localMatrix = locNodeMat;
-	currentBone->parent = parent;
-	parent->offspring.push_back(currentBone);
+	currentBone->_parent = parent;
+	parent->_children.push_back(currentBone);
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
 		this->makeLikeATree(currentBone, node->mChildren[i], concat);

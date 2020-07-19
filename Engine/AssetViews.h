@@ -37,7 +37,7 @@ public:
 				ImGui::EndTooltip();
 			}
 
-			for (Bone* cBone : bone->offspring)
+			for (Bone* cBone : bone->_children)
 				printBoneHierarchy(cBone);
 
 			ImGui::TreePop();

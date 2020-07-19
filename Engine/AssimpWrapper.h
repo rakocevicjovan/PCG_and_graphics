@@ -7,6 +7,7 @@
 #include <set>
 #include <memory>
 
+class SkeletalModel;
 class Material;
 class Mesh;
 
@@ -111,7 +112,7 @@ public:
 	static void loadBones(const aiScene* scene, const aiNode* node, Skeleton& skeleton);
 
 	// Seeks upwards from every existing bone, adding intermediate nodes as bones
-	static void addMissingBones(Skeleton& skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix);
+	static void addMissingBones(Skeleton* skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix);
 
 	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat);
 
@@ -147,4 +148,9 @@ public:
 
 	inline static void postProcess(Assimp::Importer& i, aiPostProcessSteps f)
 	{ i.ApplyPostProcessing(f); }
+
+
+	// Trying out another way...
+
+	//void loadSkeletalModel(SkeletalModel* skm, Skeleton* skelly, std::vector<Animation*> anims);
 };

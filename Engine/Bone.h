@@ -17,13 +17,13 @@ public:
 	SMatrix _localMatrix;
 	//SMatrix _globalMatrix; was useful for debugging, not any more really
 
-	Bone* parent = nullptr;
-	std::vector<Bone*> offspring;
+	Bone* _parent = nullptr;
+	std::vector<Bone*> _children;
 
-	Bone() : parent(nullptr) {}
+	Bone() : _parent(nullptr) {}
 
 	Bone(int index, std::string name, SMatrix offset)
-		: _index(index), _name(name), _offsetMatrix(offset), parent(nullptr) {}
+		: _index(index), _name(name), _offsetMatrix(offset), _parent(nullptr) {}
 
 	// Again, can't serialize the tree because of pointers...
 	template <typename Archive>

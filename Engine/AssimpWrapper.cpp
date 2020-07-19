@@ -1,6 +1,7 @@
 #include "AssimpWrapper.h"
 #include "Mesh.h"
 #include "VertSignature.h"
+#include "SkeletalModel.h"
 #include <array>
 
 
@@ -96,6 +97,13 @@ Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
 		vertSig.addAttribute(VAttribSemantic::BITANGENT, VAttribType::FLOAT3);
 	}
 
+	// For skeletal meshes, this is needed. Doesn't work yet
+	if (aiMesh->HasBones())
+	{
+		vertSig.addAttribute(VAttribSemantic::B_IDX, VAttribType::UINT4);
+		vertSig.addAttribute(VAttribSemantic::B_WEIGHT, VAttribType::FLOAT4);
+	}
+
 	//Vertex signature obtained, get the data.
 
 	// Decide how to split/interleave the data somehow... it's gpu optimization and therefore
@@ -174,6 +182,27 @@ Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
 			dst += vertByteWidth;
 		}
 	}
+
+	/* Won't work well until we have bone indices, which means passing a skeleton yada yada
+	if (aiMesh->HasBones())
+	{
+		UINT biOffset = vertSig.getOffsetOf(VAttribSemantic::B_IDX);
+
+		for (UINT i = 0; i < aiMesh->mNumBones; ++i)
+		{
+			aiBone* aiBone = aiMesh->mBones[i];
+			for (UINT j = 0; j < aiBone->mNumWeights; ++j)
+			{
+				UINT vertID = aiBone->mWeights[j].mVertexId;
+				float weight = aiBone->mWeights[j].mWeight;
+
+				uint8_t* dst = vertPool.data() + biOffset + vertID * vertByteWidth;
+
+				verts[vertID].AddBoneData(boneIndex, weight);
+			}
+		}
+	}
+	*/
 
 	return mesh;
 }
@@ -359,10 +388,10 @@ void AssimpWrapper::loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<Boned
 
 		std::string boneName(aiBone->mName.data);
 
-		// Connect bone indices to vertex skinning data
-		int boneIndex = skeleton.getBoneIndex(boneName);	// Find a bone with a matching name in the skeleton
+		// Find a bone with a matching name in the skeleton
+		int boneIndex = skeleton.getBoneIndex(boneName);
 
-		if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it, then use its index for skinning		
+		if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it
 		{
 			boneIndex = skeleton.getBoneCount();
 
@@ -416,7 +445,7 @@ void AssimpWrapper::loadBones(const aiScene* scene, const aiNode* node, Skeleton
 
 
 
-void AssimpWrapper::addMissingBones(Skeleton& skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
+void AssimpWrapper::addMissingBones(Skeleton* skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
 {
 	aiNode* parent = boneNode->mParent;
 
@@ -428,14 +457,14 @@ void AssimpWrapper::addMissingBones(Skeleton& skeleton, const aiNode* boneNode, 
 
 	std::string parentName(parent->mName.C_Str());
 
-	if (skeleton.boneExists(parentName))	// Parent is already a bone, terminate
+	if (skeleton->boneExists(parentName))	// Parent is already a bone, terminate
 		return;
 
 	Bone newParentBone;
 	newParentBone._name = parentName;
-	newParentBone._index = skeleton.getBoneCount();
+	newParentBone._index = skeleton->getBoneCount();
 	//newParentBone._offsetMatrix = AssimpWrapper::calculateOffsetMatrix(boneNode, meshGlobalMatrix);
-	auto boneIter = skeleton.insertBone(newParentBone);
+	auto boneIter = skeleton->insertBone(newParentBone);
 
 	addMissingBones(skeleton, parent, meshGlobalMatrix);
 }
@@ -510,13 +539,13 @@ void AssimpWrapper::loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix c
 	if (node->mParent)
 	{
 		std::string parentName(node->mParent->mName.C_Str());
-		bone.parent = skeleton.findBone(parentName);
+		bone._parent = skeleton.findBone(parentName);
 	}
 
 	auto iter = skeleton._boneMap.insert({ bone._name, bone });
 
-	if (bone.parent)	// Add links between parents and children, avoid crashing on root
-		bone.parent->offspring.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
+	if (bone._parent)	// Add links between parents and children, avoid crashing on root
+		bone._parent->_children.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
 
 	for (int i = 0; i < node->mNumChildren; ++i)
 		loadOnlySkeleton(node->mChildren[i], skeleton, concat);

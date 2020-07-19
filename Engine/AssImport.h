@@ -141,6 +141,12 @@ public:
 					_skModel = std::make_unique<SkeletalModel>();
 					_skModel->loadFromAiScene(_device, _aiScene, _path);
 
+					_skeleton->loadFromAssimp(_aiScene);
+					_skModel->_skeleton = _skeleton.get();
+
+					AssimpWrapper::loadAnimations(_aiScene, _anims);
+					
+
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
 						skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
@@ -636,7 +642,7 @@ public:
 				std::string skelPath{ _assetWriter._exportPath + "//skelly" + ".aeon" };
 				std::ofstream ofs(skelPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
-				_skModel->_skeleton.save(boa);
+				_skModel->_skeleton->save(boa);
 				skeletonID = _ledger->add(skelPath, skelPath, ResType::SKELETON);
 			}
 			

@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 #include <d3d11.h>
-
-#include "AssimpWrapper.h"
 #include "SkeletalMesh.h"
 #include "AnimationInstance.h"
 #include "Skeleton.h"
@@ -25,7 +23,7 @@ public:
 	
 	std::vector<Animation> _anims;
 
-	Skeleton _skeleton;
+	Skeleton* _skeleton;
 
 	SkeletalModel();
 	
