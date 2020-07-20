@@ -11,7 +11,9 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
-	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_baseMaterial, _textures);
+	// This doesn't belong here!
+	UINT matIndex = aiMesh->mMaterialIndex;
+	AssimpWrapper::loadMaterial(scene, matIndex, path, &_baseMaterial, _textures);
 
 	for (Texture& t : _textures)
 		t.SetUpAsResource(device);

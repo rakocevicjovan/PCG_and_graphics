@@ -55,7 +55,7 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 
 
 
-void ResourceManager::popLevel(UINT levelID)
+void ResourceManager::unloadBatch(UINT levelID)
 {
 	//but if I clear the stack they will get deleted indiscriminately... unsuitable
 	_resourceMap.clear();

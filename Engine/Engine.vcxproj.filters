@@ -150,6 +150,12 @@
     <Filter Include="Rendering\Shader Files\Compute shaders">
       <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Alternative">
+      <UniqueIdentifier>{7b66370a-9f5d-4499-be93-99d11d287dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset loaders">
+      <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -419,11 +425,11 @@
     <ClCompile Include="VertSignature.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="AssimpWrapper.cpp">
-      <Filter>Resources</Filter>
-    </ClCompile>
     <ClCompile Include="SkeletalMesh.cpp">
       <Filter>Resources\SkelAnim</Filter>
+    </ClCompile>
+    <ClCompile Include="AssimpWrapper.cpp">
+      <Filter>Asset loaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -838,29 +844,17 @@
     <ClInclude Include="EditorLayout.h">
       <Filter>Editor</Filter>
     </ClInclude>
-    <ClInclude Include="FileBrowser.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="AnimationInstance.h">
       <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Skeleton.h">
       <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpLoader.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="AeonWriter.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="Project.h">
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="Bone.h">
       <Filter>Resources\SkelAnim</Filter>
-    </ClInclude>
-    <ClInclude Include="FBXLoader.h">
-      <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="Curves.h">
       <Filter>Utils</Filter>
@@ -897,9 +891,6 @@
     </ClInclude>
     <ClInclude Include="AnimChannel.h">
       <Filter>Resources\SkelAnim</Filter>
-    </ClInclude>
-    <ClInclude Include="AssImport.h">
-      <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="Audio.h">
       <Filter>Audio</Filter>
@@ -961,8 +952,32 @@
     <ClInclude Include="AssetViews.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh2.h">
+      <Filter>Alternative</Filter>
+    </ClInclude>
+    <ClInclude Include="AssImport.h">
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpLoader.h">
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="FBXLoader.h">
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="FileBrowser.h">
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="AeonWriter.h">
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
     <ClInclude Include="AssetScanner.h">
-      <Filter>Editor</Filter>
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLoader.h">
+      <Filter>Asset loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonLoader.h">
+      <Filter>Asset loaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1033,12 +1048,10 @@
     <Text Include="shader-error.txt">
       <Filter>Rendering\Shader Files</Filter>
     </Text>
-    <Text Include="SerializationDoc.txt">
-      <Filter>Editor</Filter>
-    </Text>
     <Text Include="IMGUI\LICENSE.txt">
       <Filter>GUI\ImGui files</Filter>
     </Text>
+    <Text Include="SerializationDoc.txt" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="volumAirPS.hlsl">

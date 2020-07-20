@@ -1,17 +1,6 @@
 #include "SkeletalModel.h"
 
 
-SkeletalModel::SkeletalModel()
-{
-}
-
-
-
-SkeletalModel::~SkeletalModel()
-{
-}
-
-
 
 bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
 {

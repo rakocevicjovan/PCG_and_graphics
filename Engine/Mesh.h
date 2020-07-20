@@ -18,8 +18,6 @@
 
 
 typedef unsigned int UINT;
-
-
 class Hull;
 namespace Procedural { class Geometry; class Terrain; }
 

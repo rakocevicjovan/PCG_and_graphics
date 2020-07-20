@@ -25,9 +25,6 @@ public:
 
 	Skeleton* _skeleton;
 
-	SkeletalModel();
-	
-	~SkeletalModel();
 
 	bool loadModel(ID3D11Device* dvc, const std::string& path);
 	

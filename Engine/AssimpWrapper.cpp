@@ -463,7 +463,6 @@ void AssimpWrapper::addMissingBones(Skeleton* skeleton, const aiNode* boneNode, 
 	Bone newParentBone;
 	newParentBone._name = parentName;
 	newParentBone._index = skeleton->getBoneCount();
-	//newParentBone._offsetMatrix = AssimpWrapper::calculateOffsetMatrix(boneNode, meshGlobalMatrix);
 	auto boneIter = skeleton->insertBone(newParentBone);
 
 	addMissingBones(skeleton, parent, meshGlobalMatrix);

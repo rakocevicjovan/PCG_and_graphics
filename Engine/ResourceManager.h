@@ -30,7 +30,7 @@ public:
 
 	void init(ID3D11Device*);
 	void loadBatch(const std::string& projDir, const std::vector<ResourceDef>&);
-	void popLevel(UINT levelID);
+	void unloadBatch(UINT levelID);
 
 	template <typename ResType>
 	ResType* getByName(const std::string& name)

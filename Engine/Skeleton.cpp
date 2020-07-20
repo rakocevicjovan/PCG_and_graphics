@@ -5,6 +5,7 @@
 // Assumes influencing bones were loaded already
 void Skeleton::loadFromAssimp(const aiScene* scene)
 {
+	// Ok, this worked so far by pure luck, it's actually incorrect
 	for (auto namedBone : _boneMap)
 	{
 		aiNode* boneNode = scene->mRootNode->FindNode(namedBone.first.c_str());
