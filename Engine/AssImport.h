@@ -8,6 +8,7 @@
 #include "AnimationEditor.h"
 #include "SkeletalModelInstance.h"
 #include "Model.h"
+#include "SkeletonLoader.h"
 
 
 
@@ -72,7 +73,8 @@ public:
 			aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
-			aiProcess_ConvertToLeftHanded;
+			aiProcess_ConvertToLeftHanded |
+			aiProcess_PopulateArmatureData;
 
 		// This doesn't work, allegedly because optimization flags are on
 		//_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	
@@ -132,26 +134,27 @@ public:
 			{
 				if (_impSkeleton)
 				{
-					_skeleton = std::make_unique<Skeleton>();
-					_skeleton->loadStandalone(_aiScene);
+					SkeletonLoader skLoader;
+					_skeleton = std::make_unique<Skeleton>(skLoader.loadStandalone(_aiScene));
 				}
 
 				if (_impSkModel)
 				{
+					SkeletonLoader skLoader;
+					_skeleton = std::make_unique<Skeleton>(*skLoader.loadSkeleton(_aiScene));
+					
 					_skModel = std::make_unique<SkeletalModel>();
+					_skModel->_skeleton = _skeleton.get();
 					_skModel->loadFromAiScene(_device, _aiScene, _path);
 
-					_skeleton->loadFromAssimp(_aiScene);
-					_skModel->_skeleton = _skeleton.get();
-
 					AssimpWrapper::loadAnimations(_aiScene, _anims);
-					
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
 						skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
 						skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
 					}
+					_skModel->_anims = _anims;
 
 					_skModelInst = std::make_unique<SkeletalModelInstance>();
 					_skModelInst->init(_device, _skModel.get());
@@ -642,7 +645,7 @@ public:
 				std::string skelPath{ _assetWriter._exportPath + "//skelly" + ".aeon" };
 				std::ofstream ofs(skelPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
-				_skModel->_skeleton->save(boa);
+				//_skModel->_skeleton->save(boa);
 				skeletonID = _ledger->add(skelPath, skelPath, ResType::SKELETON);
 			}
 			

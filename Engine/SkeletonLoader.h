@@ -5,28 +5,35 @@
 
 class SkeletonLoader
 {
-	Skeleton* _skeleton;
-
+private:
 	std::set<aiBone*> _bones;
+	std::set<aiNode*> _boneNodes;
 
-	std::set<aiNode*> _nodes;
 
 
-	bool loadSkeleton(aiScene* scene)
+	void findInfluenceBones(const aiScene* scene, std::set<aiBone*>& boneSet)
 	{
-		//if (!AssimpWrapper::containsRiggedMeshes(scene)) return false;
-
-		aiNode* rootNode = scene->mRootNode;
-
-		findInfluenceBones(scene, rootNode, _bones);
-
-
-		std::vector<aiNode*> temp(_bones.size());
-
-		for (aiBone* bone : _bones)
+		for (UINT i = 0; i < scene->mNumMeshes; ++i)
 		{
-			temp.push_back(bone->mNode);
-			_nodes.insert(bone->mNode);
+			aiMesh* mesh = scene->mMeshes[i];
+
+			for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
+				if (mesh->mBones[j])
+					boneSet.insert(mesh->mBones[j]);
+		}
+	}
+
+
+
+	void findAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& nodes)
+	{
+		std::vector<aiNode*> temp;
+		temp.reserve(aiBones.size());
+
+		for (aiBone* aiBone : aiBones)
+		{
+			temp.push_back(aiBone->mNode);
+			nodes.insert(aiBone->mNode);
 		}
 
 		for (aiNode* node : temp)
@@ -37,56 +44,104 @@ class SkeletonLoader
 			{
 				if (parent->mParent != nullptr)
 				{
-					if (!_nodes.insert(parent).second)	// Exit if already added
+					if (!nodes.insert(parent).second)	// Exit if already added
 						break;
 				}
 				parent = parent->mParent;
 			}
 		}
-
-		aiNode* skelRoot = findSkeletonRoot(rootNode);
-
-		if (!skelRoot)
-			return false;
-
-		return true;
 	}
 
 
 
-	void findInfluenceBones(aiScene* scene, aiNode* node, std::set<aiBone*>& boneSet)
+	aiNode* findSkeletonRoot(aiNode* node, const std::set<aiNode*>& boneNodes)
 	{
-		for (int i = 0; i < node->mNumMeshes; ++i)	// Iterate through meshes in a node
-		{
-			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+		aiNode* result = nullptr;
 
-			for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
+		auto nodeFound = boneNodes.find(node);
+
+		if (nodeFound != boneNodes.end())
+		{
+			result = *nodeFound;
+		}
+		else
+		{
+			for (UINT i = 0; i < node->mNumChildren; ++i)
 			{
-				boneSet.insert(mesh->mBones[i]);
+				result = findSkeletonRoot(node->mChildren[i], boneNodes);
+				if (result)
+					break;
 			}
 		}
 
-		for (UINT i = 0; i < node->mNumChildren; ++i)
-		{
-			findInfluenceBones(scene, node, boneSet);
-		}
+		return result;
 	}
 
 
 
-	aiNode* findSkeletonRoot(aiNode* node)
+	void makeLikeATree(aiNode* node, std::vector<Bone>& boneVec, Bone* parent)
 	{
-		aiNode* rootNode = nullptr;
-
-		auto nodeFound = _nodes.find(node);
-		if (nodeFound != _nodes.end())
-		{
-			rootNode = *nodeFound;
+		if (_boneNodes.count(node) == 0)
 			return;
+
+		Bone bone;
+		bone._index = boneVec.size();
+		bone._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
+		bone._name = node->mName.C_Str();
+
+		// A bit slow but it's not too important given the usual data size and this being offline
+		for (aiBone* aiBone : _bones)
+		{
+			if (aiBone->mNode == node)
+			{
+				bone._offsetMatrix = AssimpWrapper::aiMatToSMat(aiBone->mOffsetMatrix);
+			}
 		}
 
-		for (int i = 0; i < node->mNumChildren; ++i)
-			findSkeletonRoot(node->mChildren[i]);
+		bone._parent = parent;
+
+		boneVec.push_back(bone);
+
+		if (bone._parent)
+			bone._parent->_children.push_back(&boneVec.back());
+
+
+		for (UINT i = 0; i < node->mNumChildren; ++i)
+			makeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index]);
+	}
+
+
+public:
+
+	Skeleton* loadSkeleton(const aiScene* scene)
+	{
+		aiNode* sceneRoot = scene->mRootNode;
+
+		findInfluenceBones(scene, _bones);
+
+		findAllBoneNodes(_bones, _boneNodes);
+
+		// Find the closest aiNode to the root
+		aiNode* skelRoot = findSkeletonRoot(sceneRoot, _boneNodes);
+
+		if (!skelRoot)
+			return nullptr;
+
+		Skeleton* skeleton = new Skeleton();
+		skeleton->_bones.reserve(_bones.size());
+
+		makeLikeATree(skelRoot, skeleton->_bones, nullptr);
+
+		return skeleton;
+	}
+
+
+
+	Skeleton* loadStandalone(const aiScene* scene)
+	{
+		// Rework this as above, tbd
+		Skeleton* skelly = new Skeleton;
+		return skelly;
 	}
 };
 

@@ -10,7 +10,7 @@ public:
 	{
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			printBoneHierarchy(skeleton->_root);
+			printBoneHierarchy(&skeleton->_bones[0]);	//_root
 			ImGui::TreePop();
 		}
 	}
@@ -21,24 +21,29 @@ public:
 	{
 		if (!bone)
 		{
-			ImGui::Text("Bone is nullptr");
+			ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Bone is nullptr");
 			return;
 		}
 
-		if (ImGui::TreeNode("N: %s ; Idx: %d", bone->_name.c_str(), bone->_index))
+		
+		if (ImGui::TreeNode(bone->_name.c_str()))
 		{
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
-				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
+
+				ImGui::Text("Local matrix");
 				displayTransform(bone->_localMatrix);
-				ImGui::TextColored(ImVec4(0., 0., 1., 1.), "Inverse offset matrix");
+
+				ImGui::Text("Inverse offset matrix");
 				displayTransform(bone->_offsetMatrix);
+
 				ImGui::EndTooltip();
 			}
 
 			for (Bone* cBone : bone->_children)
 				printBoneHierarchy(cBone);
+				
 
 			ImGui::TreePop();
 		}

@@ -31,7 +31,7 @@ std::vector<Mesh*> AssimpWrapper::loadAllMeshes(aiScene* scene)
 	std::vector<Mesh*> result;
 	result.reserve(numMeshes);
 
-	for (int i = 0; i < numMeshes; ++i)
+	for (UINT i = 0; i < numMeshes; ++i)
 	{
 		loadMesh(scene->mMeshes[i]);
 	}
@@ -393,11 +393,11 @@ void AssimpWrapper::loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<Boned
 
 		if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it
 		{
-			boneIndex = skeleton.getBoneCount();
+			boneIndex = skeleton._bones.size();//getBoneCount();
 
 			SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
 
-			skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
+			skeleton._bones.push_back(Bone(boneIndex, boneName, boneOffsetMat));
 		}
 
 		// Load skinning data (up to four bone indices and four weights) into vertices
@@ -412,42 +412,9 @@ void AssimpWrapper::loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<Boned
 
 
 
-void AssimpWrapper::loadBones(const aiScene* scene, const aiNode* node, Skeleton& skeleton)
-{
-	for (int i = 0; i < node->mNumMeshes; ++i)	// Iterate through meshes in a node
-	{
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-		for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
-		{
-			aiBone* bone = mesh->mBones[j];
-
-			std::string boneName(bone->mName.data);
-
-			int boneIndex = skeleton.getBoneIndex(boneName);	// Check if this bone is already added
-
-			if (boneIndex < 0)	// Bone wasn't added already, add it now
-			{
-				boneIndex = skeleton.getBoneCount();
-
-				SMatrix boneOffsetMat = aiMatToSMat(bone->mOffsetMatrix);
-
-				skeleton.insertBone(Bone(boneIndex, boneName, boneOffsetMat));
-			}
-		}
-	}
-
-	for (UINT i = 0; i < node->mNumChildren; ++i)	// Repeat recursively
-	{
-		loadBones(scene, node->mChildren[i], skeleton);
-	}
-}
-
-
-
 void AssimpWrapper::addMissingBones(Skeleton* skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
 {
-	aiNode* parent = boneNode->mParent;
+	/*aiNode* parent = boneNode->mParent;
 
 	if (!parent)			// We are at root node, no way but down (also prevents crashing below)
 		return;
@@ -463,9 +430,10 @@ void AssimpWrapper::addMissingBones(Skeleton* skeleton, const aiNode* boneNode, 
 	Bone newParentBone;
 	newParentBone._name = parentName;
 	newParentBone._index = skeleton->getBoneCount();
-	auto boneIter = skeleton->insertBone(newParentBone);
+	skeleton->insertBone(newParentBone);
 
 	addMissingBones(skeleton, parent, meshGlobalMatrix);
+	*/
 }
 
 
@@ -479,7 +447,7 @@ const aiNode* AssimpWrapper::findSkeletonRoot(const aiNode* node, Skeleton& skel
 	SMatrix nodeLocalTransform = aiMatToSMat(node->mTransformation);
 	pMat = nodeLocalTransform * pMat;
 
-	Bone* bone = skeleton.findBone(node->mName.C_Str());
+	Bone* bone = &skeleton._bones[0];	//skeleton.findBone(node->mName.C_Str());
 
 	if (bone)
 	{
@@ -519,35 +487,6 @@ void AssimpWrapper::loadAllBoneNames(const aiScene* scene, aiNode* node, std::se
 	{
 		loadAllBoneNames(scene, node->mChildren[i], boneNames);
 	}
-}
-
-
-
-void AssimpWrapper::loadOnlySkeleton(aiNode* node, Skeleton& skeleton, SMatrix concat)
-{
-	SMatrix locTf = aiMatToSMat(node->mTransformation);
-	concat = locTf * concat;
-
-	Bone bone;
-	bone._name = std::string(node->mName.C_Str());
-	bone._index = skeleton.getBoneCount();
-	bone._localMatrix = locTf;
-	// Does not account for mesh offset, that has to be added when attaching mesh to skeleton
-	bone._offsetMatrix = concat.Invert();
-
-	if (node->mParent)
-	{
-		std::string parentName(node->mParent->mName.C_Str());
-		bone._parent = skeleton.findBone(parentName);
-	}
-
-	auto iter = skeleton._boneMap.insert({ bone._name, bone });
-
-	if (bone._parent)	// Add links between parents and children, avoid crashing on root
-		bone._parent->_children.push_back(&iter.first->second);	// Looks awful but ayy... faster than searching
-
-	for (int i = 0; i < node->mNumChildren; ++i)
-		loadOnlySkeleton(node->mChildren[i], skeleton, concat);
 }
 
 

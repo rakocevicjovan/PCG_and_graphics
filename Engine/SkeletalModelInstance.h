@@ -34,8 +34,8 @@ public:
 			return false;
 
 		// Jingle bells, code smells... Law of Demeter RIP
-		_skeletonMatrices.resize(_skm->_skeleton->_boneMap.size());
-
+		//_skeletonMatrices.resize(_skm->_skeleton->_boneMap.size());
+		_skeletonMatrices.resize(_skm->_skeleton->_bones.size());
 		return true;
 	}
 
@@ -53,7 +53,7 @@ public:
 
 		if (_animInstances.size() > animIndex)	// Avoid crashing when no anim is loaded
 		{
-			_animInstances[animIndex].getTransformAtTime(*_skm->_skeleton->_root, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton->_globalInverseTransform);
+			_animInstances[animIndex].getTransformAtTime(_skm->_skeleton->_bones[0], _skeletonMatrices, SMatrix::Identity, _skm->_skeleton->_globalInverseTransform);
 		}
 		else
 		{
@@ -70,7 +70,7 @@ public:
 	void draw(ID3D11DeviceContext* context)
 	{
 		_skMatsBuffer.updateWholeBuffer(
-			context, _skMatsBuffer._cbPtr, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_boneMap.size());
+			context, _skMatsBuffer._cbPtr, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_bones.size());
 
 		context->VSSetConstantBuffers(1, 1, &_skMatsBuffer._cbPtr);
 
