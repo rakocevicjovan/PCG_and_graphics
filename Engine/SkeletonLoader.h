@@ -1,6 +1,7 @@
 #pragma once
 #include "AssimpWrapper.h"
-
+#include <stack>
+#include <memory>
 
 
 class SkeletonLoader
@@ -105,15 +106,39 @@ private:
 		if (bone._parent)
 			bone._parent->_children.push_back(&boneVec.back());
 
-
 		for (UINT i = 0; i < node->mNumChildren; ++i)
 			makeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index]);
 	}
 
 
+
+	void loadNodesAsBones(aiNode* node, std::vector<Bone>& bones, Bone* parent)
+	{
+		Bone b;
+		b._name = node->mName.C_Str();
+		b._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
+		b._index = bones.size();
+		b._parent = parent;
+		// Offset matrices are not present, they depend on the model we attach this to
+		bones.push_back(b);
+
+		Bone* thisBone = &bones.back();
+		
+		if (parent)
+			parent->_children.push_back(thisBone);
+
+		parent = thisBone;
+
+		for (UINT i = 0; i < node->mNumChildren; ++i)
+		{
+			loadNodesAsBones(node->mChildren[i], bones, parent);
+		}
+	}
+
+
 public:
 
-	Skeleton* loadSkeleton(const aiScene* scene)
+	std::unique_ptr<Skeleton> loadSkeleton(const aiScene* scene)
 	{
 		aiNode* sceneRoot = scene->mRootNode;
 
@@ -127,7 +152,7 @@ public:
 		if (!skelRoot)
 			return nullptr;
 
-		Skeleton* skeleton = new Skeleton();
+		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
 		skeleton->_bones.reserve(_bones.size());
 
 		makeLikeATree(skelRoot, skeleton->_bones, nullptr);
@@ -137,10 +162,16 @@ public:
 
 
 
-	Skeleton* loadStandalone(const aiScene* scene)
+	std::unique_ptr<Skeleton> loadStandalone(const aiScene* scene)
 	{
-		// Rework this as above, tbd
-		Skeleton* skelly = new Skeleton;
+		std::unique_ptr<Skeleton> skelly = std::make_unique<Skeleton>();
+
+		UINT boneCount = AssimpWrapper::countChildren(scene->mRootNode) + 1;
+		
+		skelly->_bones.reserve(boneCount);
+
+		loadNodesAsBones(scene->mRootNode, skelly->_bones, nullptr);
+
 		return skelly;
 	}
 };

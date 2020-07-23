@@ -131,6 +131,8 @@ public:
 
 	static bool containsRiggedMeshes(const aiScene* scene);
 
+	static UINT countChildren(const aiNode* node);
+
 
 	// Short helpers, inlined
 	inline static bool isOnlySkeleton(const aiScene* scene)

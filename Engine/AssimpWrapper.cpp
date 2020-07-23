@@ -597,3 +597,17 @@ bool AssimpWrapper::containsRiggedMeshes(const aiScene* scene)
 
 	return false;
 }
+
+
+
+UINT AssimpWrapper::countChildren(const aiNode* node)
+{
+	UINT numChildren = node->mNumChildren;
+
+	UINT result = numChildren;
+
+	for (UINT i = 0; i < numChildren; ++i)
+		result += countChildren(node->mChildren[i]);
+
+	return result;
+}
