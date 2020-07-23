@@ -134,14 +134,12 @@ public:
 			{
 				if (_impSkeleton)
 				{
-					SkeletonLoader skLoader;
-					_skeleton = skLoader.loadStandalone(_aiScene);
+					_skeleton = SkeletonLoader::loadStandalone(_aiScene);
 				}
 
 				if (_impSkModel)
 				{
-					SkeletonLoader skLoader;
-					_skeleton = skLoader.loadSkeleton(_aiScene);
+					_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
 					
 					_skModel = std::make_unique<SkeletalModel>();
 					_skModel->_skeleton = _skeleton.get();

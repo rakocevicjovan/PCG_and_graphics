@@ -153,7 +153,7 @@
     <Filter Include="Alternative">
       <UniqueIdentifier>{7b66370a-9f5d-4499-be93-99d11d287dae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset loaders">
+    <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -429,7 +429,7 @@
       <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="AssimpWrapper.cpp">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -956,28 +956,28 @@
       <Filter>Alternative</Filter>
     </ClInclude>
     <ClInclude Include="AssImport.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="AssimpLoader.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="FBXLoader.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="FileBrowser.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="AeonWriter.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="AssetScanner.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="MeshLoader.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonLoader.h">
-      <Filter>Asset loaders</Filter>
+      <Filter>Asset importing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,12 +7,8 @@
 class SkeletonLoader
 {
 private:
-	std::set<aiBone*> _bones;
-	std::set<aiNode*> _boneNodes;
 
-
-
-	void findInfluenceBones(const aiScene* scene, std::set<aiBone*>& boneSet)
+	static void findInfluenceBones(const aiScene* scene, std::set<aiBone*>& boneSet)
 	{
 		for (UINT i = 0; i < scene->mNumMeshes; ++i)
 		{
@@ -26,7 +22,7 @@ private:
 
 
 
-	void findAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& nodes)
+	static void findAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& nodes)
 	{
 		std::vector<aiNode*> temp;
 		temp.reserve(aiBones.size());
@@ -55,7 +51,7 @@ private:
 
 
 
-	aiNode* findSkeletonRoot(aiNode* node, const std::set<aiNode*>& boneNodes)
+	static aiNode* findSkeletonRoot(aiNode* node, const std::set<aiNode*>& boneNodes)
 	{
 		aiNode* result = nullptr;
 
@@ -80,9 +76,10 @@ private:
 
 
 
-	void makeLikeATree(aiNode* node, std::vector<Bone>& boneVec, Bone* parent)
+	static void makeLikeATree(aiNode* node, std::vector<Bone>& boneVec, Bone* parent,
+		const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
 	{
-		if (_boneNodes.count(node) == 0)
+		if (boneNodes.count(node) == 0)
 			return;
 
 		Bone bone;
@@ -91,7 +88,7 @@ private:
 		bone._name = node->mName.C_Str();
 
 		// A bit slow but it's not too important given the usual data size and this being offline
-		for (aiBone* aiBone : _bones)
+		for (aiBone* aiBone : bones)
 		{
 			if (aiBone->mNode == node)
 			{
@@ -107,12 +104,12 @@ private:
 			bone._parent->_children.push_back(&boneVec.back());
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
-			makeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index]);
+			makeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index], boneNodes, bones);
 	}
 
 
 
-	void loadNodesAsBones(aiNode* node, std::vector<Bone>& bones, Bone* parent)
+	static void loadNodesAsBones(aiNode* node, std::vector<Bone>& bones, Bone* parent)
 	{
 		Bone b;
 		b._name = node->mName.C_Str();
@@ -138,31 +135,35 @@ private:
 
 public:
 
-	std::unique_ptr<Skeleton> loadSkeleton(const aiScene* scene)
+	static std::unique_ptr<Skeleton> loadSkeleton(const aiScene* scene)
 	{
+		std::set<aiNode*> boneNodes;
+		std::set<aiBone*> bones;
+		
+
 		aiNode* sceneRoot = scene->mRootNode;
 
-		findInfluenceBones(scene, _bones);
+		findInfluenceBones(scene, bones);
 
-		findAllBoneNodes(_bones, _boneNodes);
+		findAllBoneNodes(bones, boneNodes);
 
 		// Find the closest aiNode to the root
-		aiNode* skelRoot = findSkeletonRoot(sceneRoot, _boneNodes);
+		aiNode* skelRoot = findSkeletonRoot(sceneRoot, boneNodes);
 
 		if (!skelRoot)
 			return nullptr;
 
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
-		skeleton->_bones.reserve(_bones.size());
+		skeleton->_bones.reserve(bones.size());
 
-		makeLikeATree(skelRoot, skeleton->_bones, nullptr);
+		makeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
 
 		return skeleton;
 	}
 
 
 
-	std::unique_ptr<Skeleton> loadStandalone(const aiScene* scene)
+	static std::unique_ptr<Skeleton> loadStandalone(const aiScene* scene)
 	{
 		std::unique_ptr<Skeleton> skelly = std::make_unique<Skeleton>();
 
