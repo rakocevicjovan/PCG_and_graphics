@@ -14,7 +14,7 @@ bool ProjectPicker::Render()
 
 		ImGui::NewLine();
 
-		inTextStdString("Choose a project", _projPath);
+		GuiBlocks::inTextStdString("Choose a project", _projPath);
 
 		if (ImGui::Button("Load project"))
 		{ 

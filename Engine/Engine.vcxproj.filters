@@ -949,9 +949,6 @@
     <ClInclude Include="MemChunk.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="AssetViews.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh2.h">
       <Filter>Alternative</Filter>
     </ClInclude>
@@ -978,6 +975,9 @@
     </ClInclude>
     <ClInclude Include="SkeletonLoader.h">
       <Filter>Asset importing</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetViews.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

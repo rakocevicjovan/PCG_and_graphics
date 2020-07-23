@@ -52,7 +52,7 @@ public:
 
 			if(tempBadPath) ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
 			
-			if (inTextStdStringHint("Path", "Search for assets", _searchedString))
+			if (GuiBlocks::inTextStdStringHint("Path", "Search for assets", _searchedString))
 				seek();
 
 			if (tempBadPath) ImGui::PopStyleColor();

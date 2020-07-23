@@ -18,13 +18,10 @@ public:
 	std::vector<SkeletalMesh> _meshes;
 
 	std::string _path;
-
-	SMatrix _transform;
 	
 	std::vector<Animation> _anims;
 
 	Skeleton* _skeleton;
-
 
 	bool loadModel(ID3D11Device* dvc, const std::string& path);
 	
@@ -37,6 +34,6 @@ public:
 		std::vector<UINT> animIndices, 
 		UINT skelIndex)
 	{
-		ar(_transform, _meshes.size(), meshIndices, animIndices);	//_meshes
+		ar(_meshes.size(), meshIndices, animIndices);	//_meshes
 	}
 };

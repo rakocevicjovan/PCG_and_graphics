@@ -1,16 +1,5 @@
 #include "Math.h"
 
-Math::Math()
-{
-	
-}
-
-
-Math::~Math()
-{
-}
-
-
 
 void Math::RotateVecByQuat(SVec3& vec, const SQuat& rotator)
 {
@@ -67,6 +56,13 @@ void Math::SetTranslation(SMatrix& transform, const SVec3& displacement)
 void Math::Scale(SMatrix& transform, const SVec3& xyz_factors)
 {
 	transform = transform * SMatrix::CreateScale(xyz_factors);
+}
+
+void Math::SetScale(SMatrix& transform, const SVec3& xyz)
+{
+	transform._11 = xyz.x;
+	transform._22 = xyz.y;
+	transform._33 = xyz.z;
 }
 
 void Math::CreatePerspectiveMatrix(SMatrix& projectionMatrix, float fov, float ar, float n, float f)

@@ -69,7 +69,7 @@ public:
 		{
 			if (_selectedActor)
 			{
-				displayActor(*_selectedActor);
+				GuiBlocks::displayActor(*_selectedActor);
 			}
 		}
 		ImGui::End();

@@ -19,12 +19,7 @@ static const float PI = 3.1415926f;
 
 class Math
 {
-
 public:
-	
-	Math();
-
-	~Math();
 
 	static void RotateVecByQuat(SVec3& vec, const SQuat& rotator);
 
@@ -43,6 +38,8 @@ public:
 	static void SetTranslation(SMatrix& transform, const SVec3& displacement);
 
 	static void Scale(SMatrix& transform, const SVec3& xyz_factors);
+
+	static void SetScale(SMatrix& transform, const SVec3& xyz_factors);
 
 	static void CreatePerspectiveMatrix(SMatrix& projectionMatrix, float fov, float ar, float n, float f);
 
@@ -69,6 +66,7 @@ public:
 	static SVec3 floor3(const SVec3& in);
 
 	static float fract(const float in);
+
 	static SVec3 fract3(const SVec3& in);
 
 	inline static void setHeight(SMatrix& mat, float h)
@@ -80,7 +78,6 @@ public:
 	{
 		return SVec4(v.x, v.y, v.z, w);
 	}
-
 
 	// This could all be wrong, I'm a bit rusty on space transitions since I haven't touched them in a while
 	inline static SVec4 clipSpaceToViewSpace(const SVec4& clipSpace, const SMatrix& invProjMatrix)
@@ -96,8 +93,6 @@ public:
 		SVec4 viewSpace = clipSpaceToViewSpace(clipSpace, invProj);
 		return (viewSpace / viewSpace.w);
 	}
-
-
 	// @WARNING just use taylor not sure if I got this right...
 	inline static float sinBhaskara(float x)
 	{

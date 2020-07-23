@@ -28,7 +28,7 @@ public:
 		if (ImGui::Begin("Export panel"))
 		{
 			// Settings
-			inTextStdString("Export path", _exportPath);
+			GuiBlocks::inTextStdString("Export path", _exportPath);
 
 			// Controls
 			if (ImGui::Button("Close"))

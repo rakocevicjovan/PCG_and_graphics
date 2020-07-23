@@ -66,7 +66,4 @@ public:
 		ImGui::Image(srv, ImVec2(sX, sY));
 		ImGui::End();
 	}
-
-
-
 };

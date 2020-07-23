@@ -137,22 +137,27 @@ public:
 					_skeleton = SkeletonLoader::loadStandalone(_aiScene);
 				}
 
+				if (_impAnims)
+				{
+					AssimpWrapper::loadAnimations(_aiScene, _anims);
+				}
+
 				if (_impSkModel)
 				{
+					_skModel = std::make_unique<SkeletalModel>();
 					_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
 					
-					_skModel = std::make_unique<SkeletalModel>();
 					_skModel->_skeleton = _skeleton.get();
 					_skModel->loadFromAiScene(_device, _aiScene, _path);
 
 					AssimpWrapper::loadAnimations(_aiScene, _anims);
+					_skModel->_anims = _anims;
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
 						skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
 						skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
 					}
-					_skModel->_anims = _anims;
 
 					_skModelInst = std::make_unique<SkeletalModelInstance>();
 					_skModelInst->init(_device, _skModel.get());
@@ -170,11 +175,6 @@ public:
 						//mesh._baseMaterial.setVS(_skelAnimMat->getVS());
 						//mesh._baseMaterial.setPS(_skelAnimMat->getPS());
 					}
-				}
-
-				if (_impAnims)
-				{
-					AssimpWrapper::loadAnimations(_aiScene, _anims);
 				}
 
 				_importConfigured = true;
@@ -233,7 +233,8 @@ public:
 
 		if (_skeleton.get())
 			AssetViews::printSkeleton(_skeleton.get());
-		
+
+		//if (_skModel.get()){}
 	}
 
 
@@ -276,6 +277,7 @@ public:
 		if (_skModel)
 		{
 			_skModelInst->update(dTime * _playbackSpeed, _currentAnim);
+			Math::SetScale(_skModelInst->_transform, SVec3(_previewScale));
 			_skModelInst->draw(context);
 		}
 		
@@ -308,7 +310,7 @@ public:
 				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
 
 				SMatrix concatSMat = AssimpWrapper::aiMatToSMat(concatenatedTransform);
-				displayTransform(concatSMat);
+				GuiBlocks::displayTransform(concatSMat);
 
 				SQuat squat = SQuat::CreateFromRotationMatrix(concatSMat);
 				ImGui::InputFloat4("Quat: ", &squat.x, 3, ImGuiInputTextFlags_ReadOnly);
@@ -329,7 +331,7 @@ public:
 						aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
 						ImGui::PushID(i);
-						if (ImGui::TreeNode("Mesh name and node index: %s (%d)", mesh->mName.C_Str(), i))
+						if (ImGui::TreeNode("Mesh name and node index: %s (%d)", mesh->mName.data, i))
 						{
 							printAiMesh(mesh, concatenatedTransform);
 							ImGui::TreePop();
