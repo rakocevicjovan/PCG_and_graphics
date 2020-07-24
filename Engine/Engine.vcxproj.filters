@@ -156,6 +156,9 @@
     <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering\0ShGen">
+      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -733,9 +736,6 @@
     <ClInclude Include="VolumetricScreen.h">
       <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderGenerator.h">
-      <Filter>Rendering\High level\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="TextureRole.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
@@ -979,6 +979,9 @@
     <ClInclude Include="AssetViews.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderGenerator.h">
+      <Filter>Rendering\0ShGen</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1165,9 +1168,6 @@
     <FxCompile Include="CookTorrancePS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders\PBR</Filter>
     </FxCompile>
-    <FxCompile Include="ShGen\genVS.hlsl">
-      <Filter>Rendering\Shader Files</Filter>
-    </FxCompile>
     <FxCompile Include="csmVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
@@ -1185,6 +1185,12 @@
     </FxCompile>
     <FxCompile Include="ClusteredPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_proto.hlsl">
+      <Filter>Rendering\0ShGen</Filter>
+    </FxCompile>
+    <FxCompile Include="ShGen\VS_proto.hlsl">
+      <Filter>Rendering\0ShGen</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

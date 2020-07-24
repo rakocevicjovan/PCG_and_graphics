@@ -4,99 +4,65 @@
 #include <algorithm>
 #include <set>
 
-/*
-//Vertex shader options:
-	
-	Basically... these are not separate options, and they can be co dependent - no input/processing for x means no output x either etc.
 
-	Input Layout:
-		PER VERTEX
-		- pos - always
-		- tex coords - consider suporting several sets although I didn't need it so far
-		- normals
-		- tangents
-		PER INSTANCE
-		- matrix (might have to rethink this but lets keep it simple for now)
-		- animation matrix array
 
-	Process:
-		- SV_POSITION - always
-		- world pos		//required quite often
-		- tex coords	//not required for shadow pass
-		- normals		//not required for GUI
-		- tangents		//used only for normal mapping in PS?
-		- skinning
-	Output Layout:
-		- SV_POSITION 
-		- world pos
-		- tex coords
-		- normals
-		- tangents
+#pragma pack(show)
+#pragma pack(push, 1)
+enum SHG_VS_SETTINGS : uint32_t
+{
+	SHG_VS_TEXCOORDS	= (1 << 0),
+	SHG_VS_NORMALS		= (1 << 1),
+	SHG_VS_COLOUR		= (1 << 2),
+	SHG_VS_TANGENT		= (1 << 3 | SHG_VS_NORMALS),
+	SHG_VS_BITANGENT	= (1 << 4 | SHG_VS_NORMALS | SHG_VS_TANGENT),
+	SHG_VS_SKINIDXWGT	= (1 << 5),
+	SHG_VS_INSTANCING	= (1 << 7),
+	SHG_VS_WORLD_POS	= (1 << 8)
+};
 
-// Skip geometry unless it becomes relevant... I use it so rarely that it can be done by hand rather than complicating the generator
-
-// Pixel shader options (oooh boy...)
-
-	Input Layout:
-		- same as VS output, unless there is a GS thrown in...
-
-	Process:
-		- lighting method (Lambert, Phong, Blinn-Phong, Cook-Torrance, none...) - 4 bits should be ok... I guess?
-		- lights - number, types... (this could get out of hand even with an 4/8 light max...)
-		!!! GUESS WHO GOT CLUSTERED SHADING, ABOVE IS SOLVED
-		- Shadow maps - how many, if any
-		- Diffuse - color or texture
-		- Specular - specular power, specular texture, shininess texture
-		- Distance fog - yes or no
-		- Gamma corrected - yes or no
-
-	OutputType:
-		- data type per channel, number of channels
-*/
+enum SHG_PS_SETTINGS : uint32_t
+{
+	SHG_PS_LIGHTMODEL	= (1 << 0),
+	SHG_PS_ALPHA		= (1 << 1),
+	SHG_PS_NORMALMAP	= (1 << 2),
+	SHG_PS_FOG			= (1 << 3),
+	SHG_PS_SHADOW		= (1 << 4),
+	SHG_PS_GAMMA		= (1 << 5)
+};
+#pragma pack(pop)
 
 
 
 class ShaderGenerator
 {
-
-	struct OptionSet
+	struct ShaderOption
 	{
-		std::vector<D3D_SHADER_MACRO> _macros;
-		std::vector<uint64_t> _bitmasks;
+		D3D_SHADER_MACRO _macro;
+		uint64_t _bitmask;
 	};
 
 public:
 
-	ShaderGenerator(){}
-
-	static OptionSet getVsOptions()
+	static std::vector<ShaderOption> getVsOptions()
 	{
-		// As far as I can tell from testing, what you pass to it does not matter one bit
-		// hlsl preprocessor can only check whether something is defined or not, and not the value...
-		//D3D_SHADER_MACRO example = { "name", "definition" };
+		// HLSL preprocessor only checks for macro name, and not the value?
+		return
+		{ 
+			{{ "TEX", "true" }, SHG_VS_SETTINGS::SHG_VS_TEXCOORDS	},
+			{{ "NRM", "true" }, SHG_VS_SETTINGS::SHG_VS_NORMALS		},
+			{{ "COL", "true" }, SHG_VS_SETTINGS::SHG_VS_COLOUR		},
+			{{ "TAN", "true" }, SHG_VS_SETTINGS::SHG_VS_TANGENT		},
+			{{ "BTN", "true" }, SHG_VS_SETTINGS::SHG_VS_BITANGENT	},
+			{{ "SIW", "true" }, SHG_VS_SETTINGS::SHG_VS_SKINIDXWGT	},
+			{{ "INS", "true" }, SHG_VS_SETTINGS::SHG_VS_INSTANCING	},
+			{{ "WPS", "true" }, SHG_VS_SETTINGS::SHG_VS_WORLD_POS	}
+		};
+	}
 
-		// Assumes that instance data is a matrix, not very flexible
-		D3D_SHADER_MACRO i_ins = { "INS", "true" };
 
-		D3D_SHADER_MACRO o_wps = { "WPS", "true" };	
-		D3D_SHADER_MACRO o_tex = { "TEX", "true" };
-		D3D_SHADER_MACRO o_nrm = { "NRM", "true" };
-		D3D_SHADER_MACRO o_tan = { "TAN", "true" };
 
-		uint64_t instanced	= 1 << 0;
-		uint64_t texCoords	= 1 << 1;
-		uint64_t normals	= 1 << 2;
-		uint64_t worldPos	= 1 << 3;
-		uint64_t tangents	= 1 << 4 | normals;
-
-		std::vector<D3D_SHADER_MACRO> macros =	{ i_ins,	 o_tex,		o_nrm,		o_wps,		o_tan };
-
-		std::vector<uint64_t> bitmasks =		{ instanced, texCoords, normals,	worldPos,	tangents };
-
-		//11111 is the current bit mask
-		OptionSet result = { macros, bitmasks };
-
-		return result;
+	static std::vector<ShaderOption> getPsOptions()
+	{
 	}
 
 
@@ -106,7 +72,6 @@ public:
 		HRESULT res;
 		ID3DBlob* preprocessedBuffer = nullptr;
 		ID3DBlob* errorMessage = nullptr;
-
 
 		res = D3DPreprocess(textBuffer->GetBufferPointer(), textBuffer->GetBufferSize(),
 			nullptr, permOptions.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -132,11 +97,11 @@ public:
 	}
 
 
-	// L"ShGen\\genVS.hlsl" and OptionSet optionSet = getVsOptions(); are defaults
-	static bool preprocessAllPermutations(const std::wstring& filePathW, OptionSet optionSet)	
+
+	static bool preprocessAllPermutations(const std::wstring& filePathW, std::vector<ShaderOption>& optionSet)	
 	{
 		std::set<uint64_t> _existing;
-		std::string filePath = "ShGen\\genVS.hlsl";
+		std::string filePath = "ShGen\\VS_proto.hlsl";
 
 		ID3DBlob* textBuffer = nullptr;
 		
@@ -146,49 +111,56 @@ public:
 			exit(2001);
 		}
 
-		UINT optionCount = optionSet._macros.size();
+		UINT optionCount = optionSet.size();
 
 		std::vector<D3D_SHADER_MACRO> matchingPermOptions;
 		matchingPermOptions.reserve(optionCount);
 
-		for (uint64_t i = 0; i < ( 1 << (optionCount) ); ++i)	//0 - 255, or rather 00000000 to 11111111 loop
+		std::string permOptDebugString;
+		permOptDebugString.reserve(50);
+
+		UINT counter = 0u;
+
+		for (uint64_t i = 0; i < ( 1 << (optionCount) ); ++i)
 		{
 			uint64_t total = 0;
-			std::string permOptDebugString;
+			permOptDebugString = std::to_string(++counter) + ": POS ";
 
 			// Iterate through all options and add macros of those that are in this permutation to
 			// the list of the macros passed to the shader compiler
-			for (int j = 0; j < optionCount; ++j)
+			for (UINT j = 0; j < optionCount; ++j)
 			{
-				uint64_t currentOptionBitmask = optionSet._bitmasks[j];
+				uint64_t currentOptionBitmask = optionSet[j]._bitmask;
 				uint64_t andResult = currentOptionBitmask & i;
-				total += andResult;
 
 				// If current option fits the bitmask, add it in
 				if (andResult == currentOptionBitmask)
 				{
-					matchingPermOptions.push_back(optionSet._macros[j]);
-					permOptDebugString += optionSet._macros[j].Name;
+					matchingPermOptions.push_back(optionSet[j]._macro);
+					permOptDebugString += optionSet[j]._macro.Name;
 					permOptDebugString += " ";
+
+					total += andResult;
 				}
 			}
 
 			// I barely remember how this works but it should eliminate doubles?
-			if (_existing.count(total))
+			if (!_existing.insert(total).second)
 			{
 				matchingPermOptions.clear();
+				permOptDebugString.clear();
 				continue;
 			}
-			_existing.insert(total);
 
 			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
 
 			createShPerm(textBuffer, matchingPermOptions, total);
 
-			matchingPermOptions.clear();
-
 			permOptDebugString += "\n";
 			OutputDebugStringA(permOptDebugString.c_str());	
+
+			matchingPermOptions.clear();
+			permOptDebugString.clear();
 		}
 
 		if (textBuffer)

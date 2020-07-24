@@ -139,7 +139,6 @@ public:
 	{
 		std::set<aiNode*> boneNodes;
 		std::set<aiBone*> bones;
-		
 
 		aiNode* sceneRoot = scene->mRootNode;
 

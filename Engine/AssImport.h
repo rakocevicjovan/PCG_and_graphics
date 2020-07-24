@@ -71,9 +71,9 @@ public:
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
+			aiProcess_ConvertToLeftHanded |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
-			aiProcess_ConvertToLeftHanded |
 			aiProcess_PopulateArmatureData;
 
 		// This doesn't work, allegedly because optimization flags are on
@@ -132,7 +132,7 @@ public:
 
 			if (ImGui::Button("Import selected"))
 			{
-				if (_impSkeleton)
+				if (_impSkeleton || _impSkModel)
 				{
 					_skeleton = SkeletonLoader::loadStandalone(_aiScene);
 				}
@@ -144,9 +144,6 @@ public:
 
 				if (_impSkModel)
 				{
-					_skModel = std::make_unique<SkeletalModel>();
-					_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
-					
 					_skModel->_skeleton = _skeleton.get();
 					_skModel->loadFromAiScene(_device, _aiScene, _path);
 

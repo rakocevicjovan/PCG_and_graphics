@@ -13,8 +13,6 @@ public:
 	CBuffer _skMatsBuffer;
 	std::vector<SMatrix> _skeletonMatrices;
 
-	
-
 	std::vector<AnimationInstance> _animInstances;
 
 	SkeletalModelInstance() : _skm(nullptr) {}
