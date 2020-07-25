@@ -253,6 +253,9 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		// Ambient occlusion maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMBIENT);
 
+		// Metallic maps
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_METALNESS, METALLIC);
+
 		// Other maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_UNKNOWN, OTHER);
 

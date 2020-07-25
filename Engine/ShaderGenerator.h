@@ -41,6 +41,14 @@ class ShaderGenerator
 		uint64_t _bitmask;
 	};
 
+	struct Option
+	{
+		std::string name;
+		//std::vector<std::string> values;
+		UINT _offset;
+		UINT _numBits = 1;
+	};
+
 public:
 
 	static std::vector<ShaderOption> getVsOptions()
@@ -48,14 +56,14 @@ public:
 		// HLSL preprocessor only checks for macro name, and not the value?
 		return
 		{ 
-			{{ "TEX", "true" }, SHG_VS_SETTINGS::SHG_VS_TEXCOORDS	},
-			{{ "NRM", "true" }, SHG_VS_SETTINGS::SHG_VS_NORMALS		},
-			{{ "COL", "true" }, SHG_VS_SETTINGS::SHG_VS_COLOUR		},
-			{{ "TAN", "true" }, SHG_VS_SETTINGS::SHG_VS_TANGENT		},
-			{{ "BTN", "true" }, SHG_VS_SETTINGS::SHG_VS_BITANGENT	},
-			{{ "SIW", "true" }, SHG_VS_SETTINGS::SHG_VS_SKINIDXWGT	},
-			{{ "INS", "true" }, SHG_VS_SETTINGS::SHG_VS_INSTANCING	},
-			{{ "WPS", "true" }, SHG_VS_SETTINGS::SHG_VS_WORLD_POS	}
+			{{ "TEX", "" }, SHG_VS_TEXCOORDS	},
+			{{ "NRM", "" }, SHG_VS_NORMALS		},
+			{{ "COL", "" }, SHG_VS_COLOUR		},
+			{{ "TAN", "" }, SHG_VS_TANGENT		},
+			{{ "BTN", "" }, SHG_VS_BITANGENT	},
+			{{ "SIW", "" }, SHG_VS_SKINIDXWGT	},
+			{{ "INS", "" }, SHG_VS_INSTANCING	},
+			{{ "WPS", "" }, SHG_VS_WORLD_POS	}
 		};
 	}
 
@@ -63,6 +71,149 @@ public:
 
 	static std::vector<ShaderOption> getPsOptions()
 	{
+		return
+		{
+			{{ "", "" }, SHG_PS_LIGHTMODEL },
+			{{ "", "" }, SHG_PS_ALPHA },
+			{{ "", "" }, SHG_PS_NORMALMAP},
+			{{ "", "" }, SHG_PS_FOG},
+			{{ "", "" }, SHG_PS_SHADOW},
+			{{ "", "" }, SHG_PS_GAMMA}
+		};
+	}
+
+
+	static bool preprocessAllPermutations(const std::wstring& filePathW, std::vector<ShaderOption>& optionSet)	
+	{
+		std::set<uint64_t> _existing;
+
+		ID3DBlob* textBuffer = nullptr;
+		
+		if (FAILED(D3DReadFileToBlob(filePathW.c_str(), &textBuffer)))
+		{
+			OutputDebugStringA("Couldn't read shader template file.");
+			exit(2001);
+		}
+
+		std::vector<Option> options
+		{
+			{"TEX", 0	},
+			{"NRM", 1	},
+			{"COL", 2	},
+			{"TAN", 3	},
+			{"BTN", 4	},
+			{"SIW", 5	},
+			{"INS", 6	},
+			{"WPS", 7	}
+		};
+
+		UINT optionCount = optionSet.size();
+
+		std::vector<D3D_SHADER_MACRO> matchingPermOptions;
+		matchingPermOptions.reserve(optionCount);
+
+		std::string debugString;
+		debugString.reserve(100);
+
+		UINT counter = 0u;
+
+		for (uint64_t i = 0; i < ( 1 << optionCount); ++i)
+		{
+			uint64_t total = CreatePermFromKey(i, options, textBuffer);
+			/*
+			uint64_t total = 0;
+			debugString = std::to_string(++counter) + ": POS ";
+
+			// Iterate through all options and add suitable macros to 
+			// the list of the macros passed to the shader compiler
+			for (UINT j = 0; j < optionCount; ++j)
+			{
+				uint64_t requestedOption = optionSet[j]._bitmask;
+				uint64_t andResult = requestedOption & i;
+
+				// If current option fits the bitmask, add it in
+				if (andResult == requestedOption)
+				{
+					matchingPermOptions.push_back(optionSet[j]._macro);
+					debugString += optionSet[j]._macro.Name;
+					debugString += " ";
+
+					total += andResult;
+				}
+			}
+
+			// I barely remember how this works but it should eliminate doubles?
+			if (!_existing.insert(total).second)
+			{
+				matchingPermOptions.clear();
+				debugString.clear();
+				continue;
+			}
+
+			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
+
+			createShPerm(textBuffer, matchingPermOptions, total);
+
+			debugString += "\n";
+			OutputDebugStringA(debugString.c_str());	
+
+			matchingPermOptions.clear();
+			debugString.clear();
+			*/
+		}
+
+		if (textBuffer)
+		{
+			textBuffer->Release();
+			textBuffer = nullptr;
+		}
+
+		return true;
+	}
+
+
+
+	static uint64_t CreatePermFromKey(uint64_t key, std::vector<Option>& options, ID3DBlob*& textBuffer)
+	{
+		UINT optionCount = options.size();
+		uint64_t total = 0;
+
+		std::vector<D3D_SHADER_MACRO> matchingPermOptions;
+		matchingPermOptions.reserve(optionCount);
+
+		std::string permOptDebugString;
+		permOptDebugString.reserve(100);
+
+		permOptDebugString = "POS ";
+
+		for (UINT j = 0; j < optionCount; ++j)
+		{
+			Option& o = options[j];
+
+			uint32_t shifted = key >> o._offset;
+			uint32_t bitMask = (~(~0u << o._numBits));
+
+			uint32_t result = shifted & bitMask;
+
+			// If current option fits the bitmask, add it in
+			if (result > 0)
+			{
+				D3D_SHADER_MACRO d3dshm{ o.name.c_str(), std::to_string(result).c_str() };
+				matchingPermOptions.push_back(d3dshm);
+				permOptDebugString += o.name;
+				permOptDebugString += " ";
+			}
+			total += (result << o._offset);
+		}
+
+		matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
+
+		createShPerm(textBuffer, matchingPermOptions, total);
+
+		permOptDebugString += "\n";
+		OutputDebugStringA(permOptDebugString.c_str());
+
+		return total;
 	}
 
 
@@ -95,88 +246,4 @@ public:
 			errorMessage = nullptr;
 		}
 	}
-
-
-
-	static bool preprocessAllPermutations(const std::wstring& filePathW, std::vector<ShaderOption>& optionSet)	
-	{
-		std::set<uint64_t> _existing;
-		std::string filePath = "ShGen\\VS_proto.hlsl";
-
-		ID3DBlob* textBuffer = nullptr;
-		
-		if (FAILED(D3DReadFileToBlob(filePathW.c_str(), &textBuffer)))
-		{
-			OutputDebugStringA("Couldn't read shader template file.");
-			exit(2001);
-		}
-
-		UINT optionCount = optionSet.size();
-
-		std::vector<D3D_SHADER_MACRO> matchingPermOptions;
-		matchingPermOptions.reserve(optionCount);
-
-		std::string permOptDebugString;
-		permOptDebugString.reserve(50);
-
-		UINT counter = 0u;
-
-		for (uint64_t i = 0; i < ( 1 << (optionCount) ); ++i)
-		{
-			uint64_t total = 0;
-			permOptDebugString = std::to_string(++counter) + ": POS ";
-
-			// Iterate through all options and add macros of those that are in this permutation to
-			// the list of the macros passed to the shader compiler
-			for (UINT j = 0; j < optionCount; ++j)
-			{
-				uint64_t currentOptionBitmask = optionSet[j]._bitmask;
-				uint64_t andResult = currentOptionBitmask & i;
-
-				// If current option fits the bitmask, add it in
-				if (andResult == currentOptionBitmask)
-				{
-					matchingPermOptions.push_back(optionSet[j]._macro);
-					permOptDebugString += optionSet[j]._macro.Name;
-					permOptDebugString += " ";
-
-					total += andResult;
-				}
-			}
-
-			// I barely remember how this works but it should eliminate doubles?
-			if (!_existing.insert(total).second)
-			{
-				matchingPermOptions.clear();
-				permOptDebugString.clear();
-				continue;
-			}
-
-			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
-
-			createShPerm(textBuffer, matchingPermOptions, total);
-
-			permOptDebugString += "\n";
-			OutputDebugStringA(permOptDebugString.c_str());	
-
-			matchingPermOptions.clear();
-			permOptDebugString.clear();
-		}
-
-		if (textBuffer)
-		{
-			textBuffer->Release();
-			textBuffer = nullptr;
-		}
-
-		return true;
-	}
 };
-
-
-// Although these can be separate input options, there is no need for that. 
-// If the shader requires tex coordinate output, it must have them (generally speaking) as input anyways...
-// therefore we save on the number of permutations - same for normals and tangents
-//D3D_SHADER_MACRO i_tex = { "TEX", "true" };	
-//D3D_SHADER_MACRO i_nrm = { "NRM", "true" };
-//D3D_SHADER_MACRO i_tan = { "TAN", "true" };

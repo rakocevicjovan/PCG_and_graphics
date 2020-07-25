@@ -12,9 +12,10 @@ enum TextureRole
 	OPACITY = 4,
 	DISPLACEMENT = 5,
 	AMBIENT = 6,
-	OTHER = 7,
-	NUM_ROLES = 8
-};	//NUM_ROLES should always be last, it's used as the size of array of texture roles in shader classes
+	METALLIC = 7,
+	OTHER = 8,
+	NUM_ROLES = 9
+};	//NUM_ROLES is used as the size of array of texture roles in shader classes
 
 
 static const std::map<TextureRole, char const*> TEX_ROLE_MAP = { 
