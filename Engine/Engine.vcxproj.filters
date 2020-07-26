@@ -976,11 +976,11 @@
     <ClInclude Include="SkeletonLoader.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="AssetViews.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
       <Filter>Rendering\0ShGen</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetViews.h">
+      <Filter>Asset importing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

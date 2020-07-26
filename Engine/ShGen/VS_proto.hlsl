@@ -26,9 +26,11 @@ struct VertexInputType
 {
 	float4 position : POSITION;
 
-#ifdef TEX
-	float2 tex : TEXCOORD0;
+#if TEX > 0
+	float2 tex[TEX] : TEXCOORD0;
 #endif
+
+
 
 #ifdef NRM
 	float3 normal : NORMAL;
@@ -37,6 +39,8 @@ struct VertexInputType
 #ifdef TAN
 	float3 tangent : TANGENT;
 #endif
+
+#ifdef 
 
 #ifdef INS
 	matrix insWorldMatrix : WORLDMATRIX;
@@ -50,7 +54,7 @@ struct PixelInputType
 	float4 position : SV_POSITION;
 
 #ifdef TEX
-	float2 tex : TEXCOORD0;
+	float2 tex : TEXCOORD0[TEX];
 #endif
 
 #ifdef NRM

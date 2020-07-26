@@ -3,6 +3,7 @@
 #include "FileUtilities.h"
 #include <algorithm>
 #include <set>
+#include <string>
 
 
 
@@ -10,14 +11,16 @@
 #pragma pack(push, 1)
 enum SHG_VS_SETTINGS : uint32_t
 {
-	SHG_VS_TEXCOORDS	= (1 << 0),
-	SHG_VS_NORMALS		= (1 << 1),
+	SHG_VS_TEXCOORDS	= (1 << 0 | 1 << 1 | 1<< 2),
+	SHG_VS_NORMALS		= (1 << 3),
+	/*
 	SHG_VS_COLOUR		= (1 << 2),
 	SHG_VS_TANGENT		= (1 << 3 | SHG_VS_NORMALS),
 	SHG_VS_BITANGENT	= (1 << 4 | SHG_VS_NORMALS | SHG_VS_TANGENT),
 	SHG_VS_SKINIDXWGT	= (1 << 5),
 	SHG_VS_INSTANCING	= (1 << 7),
 	SHG_VS_WORLD_POS	= (1 << 8)
+	*/
 };
 
 enum SHG_PS_SETTINGS : uint32_t
@@ -35,35 +38,43 @@ enum SHG_PS_SETTINGS : uint32_t
 
 class ShaderGenerator
 {
-	struct ShaderOption
-	{
-		D3D_SHADER_MACRO _macro;
-		uint64_t _bitmask;
-	};
-
-	struct Option
+	/*struct ShaderOption
 	{
 		std::string name;
-		//std::vector<std::string> values;
-		UINT _offset;
-		UINT _numBits = 1;
+		uint64_t _bitmask;
+	};*/
+
+	struct ShaderOption
+	{
+		std::string name;
+		uint16_t _offset;
+		uint16_t _numBits = 1;
+		uint16_t _maxVal = 1;
+		//uint64_t depMask;
 	};
 
 public:
 
 	static std::vector<ShaderOption> getVsOptions()
 	{
-		// HLSL preprocessor only checks for macro name, and not the value?
 		return
 		{ 
-			{{ "TEX", "" }, SHG_VS_TEXCOORDS	},
-			{{ "NRM", "" }, SHG_VS_NORMALS		},
-			{{ "COL", "" }, SHG_VS_COLOUR		},
-			{{ "TAN", "" }, SHG_VS_TANGENT		},
-			{{ "BTN", "" }, SHG_VS_BITANGENT	},
-			{{ "SIW", "" }, SHG_VS_SKINIDXWGT	},
-			{{ "INS", "" }, SHG_VS_INSTANCING	},
-			{{ "WPS", "" }, SHG_VS_WORLD_POS	}
+			{"TEX", 0, 3, 4},
+			{"NRM", 3	},
+			{"COL", 4	},
+			{"TAN", 5	},
+			{"BTN", 6	},
+			{"SIW", 7	},
+			{"INS", 8	},
+			{"WPS", 9	}
+			/*
+			{{ "COL" }, SHG_VS_COLOUR		},
+			{{ "TAN" }, SHG_VS_TANGENT		},
+			{{ "BTN" }, SHG_VS_BITANGENT	},
+			{{ "SIW" }, SHG_VS_SKINIDXWGT	},
+			{{ "INS" }, SHG_VS_INSTANCING	},
+			{{ "WPS" }, SHG_VS_WORLD_POS	}
+			*/
 		};
 	}
 
@@ -72,42 +83,47 @@ public:
 	static std::vector<ShaderOption> getPsOptions()
 	{
 		return
-		{
-			{{ "", "" }, SHG_PS_LIGHTMODEL },
-			{{ "", "" }, SHG_PS_ALPHA },
-			{{ "", "" }, SHG_PS_NORMALMAP},
-			{{ "", "" }, SHG_PS_FOG},
-			{{ "", "" }, SHG_PS_SHADOW},
-			{{ "", "" }, SHG_PS_GAMMA}
+		{ 
+			{ "LMOD",	0, 3 },
+			{ "ALPHA",	3	 },
+			{ "NMAP",	4, 1 },
+			{ "FOG",	5	 },
+			{ "SHADOW", 6	 },
+			{ "GAMMA",	7	 }
+			/*
+			{{ "" }, SHG_PS_LIGHTMODEL },
+			{{ "" }, SHG_PS_ALPHA },
+			{{ "" }, SHG_PS_NORMALMAP},
+			{{ "" }, SHG_PS_FOG},
+			{{ "" }, SHG_PS_SHADOW},
+			{{ "" }, SHG_PS_GAMMA}
+			*/
 		};
 	}
 
 
-	static bool preprocessAllPermutations(const std::wstring& filePathW, std::vector<ShaderOption>& optionSet)	
+	static bool preprocessAllPermutations(
+		const std::wstring& ogFilePathW, 
+		const std::string& outDirPath
+		/*,std::vector<ShaderOption>& optionSet*/)	
 	{
-		std::set<uint64_t> _existing;
+		std::set<uint64_t> existingKeys;
 
 		ID3DBlob* textBuffer = nullptr;
 		
-		if (FAILED(D3DReadFileToBlob(filePathW.c_str(), &textBuffer)))
+		if (FAILED(D3DReadFileToBlob(ogFilePathW.c_str(), &textBuffer)))
 		{
-			OutputDebugStringA("Couldn't read shader template file.");
+			OutputDebugStringA("Shader prototype not accessible.");
 			exit(2001);
 		}
 
-		std::vector<Option> options
-		{
-			{"TEX", 0	},
-			{"NRM", 1	},
-			{"COL", 2	},
-			{"TAN", 3	},
-			{"BTN", 4	},
-			{"SIW", 5	},
-			{"INS", 6	},
-			{"WPS", 7	}
-		};
+		std::vector<ShaderOption> options = getVsOptions();
 
-		UINT optionCount = optionSet.size();
+		UINT optionCount = options.size();
+		UINT bitCount = 0u;
+
+		for (UINT i = 0; i < options.size(); ++i)
+			bitCount += options[i]._numBits;
 
 		std::vector<D3D_SHADER_MACRO> matchingPermOptions;
 		matchingPermOptions.reserve(optionCount);
@@ -117,49 +133,9 @@ public:
 
 		UINT counter = 0u;
 
-		for (uint64_t i = 0; i < ( 1 << optionCount); ++i)
+		for (uint64_t i = 0; i < ( 1 << bitCount); ++i)
 		{
-			uint64_t total = CreatePermFromKey(i, options, textBuffer);
-			/*
-			uint64_t total = 0;
-			debugString = std::to_string(++counter) + ": POS ";
-
-			// Iterate through all options and add suitable macros to 
-			// the list of the macros passed to the shader compiler
-			for (UINT j = 0; j < optionCount; ++j)
-			{
-				uint64_t requestedOption = optionSet[j]._bitmask;
-				uint64_t andResult = requestedOption & i;
-
-				// If current option fits the bitmask, add it in
-				if (andResult == requestedOption)
-				{
-					matchingPermOptions.push_back(optionSet[j]._macro);
-					debugString += optionSet[j]._macro.Name;
-					debugString += " ";
-
-					total += andResult;
-				}
-			}
-
-			// I barely remember how this works but it should eliminate doubles?
-			if (!_existing.insert(total).second)
-			{
-				matchingPermOptions.clear();
-				debugString.clear();
-				continue;
-			}
-
-			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
-
-			createShPerm(textBuffer, matchingPermOptions, total);
-
-			debugString += "\n";
-			OutputDebugStringA(debugString.c_str());	
-
-			matchingPermOptions.clear();
-			debugString.clear();
-			*/
+			CreatePermFromKey(outDirPath, textBuffer, options, i, existingKeys);
 		}
 
 		if (textBuffer)
@@ -173,7 +149,12 @@ public:
 
 
 
-	static uint64_t CreatePermFromKey(uint64_t key, std::vector<Option>& options, ID3DBlob*& textBuffer)
+	static void CreatePermFromKey(
+		const std::string& outDirPath,
+		ID3DBlob*& textBuffer,
+		const std::vector<ShaderOption>& options,
+		uint64_t key,
+		std::set<uint64_t>& existingKeys)
 	{
 		UINT optionCount = options.size();
 		uint64_t total = 0;
@@ -186,39 +167,50 @@ public:
 
 		permOptDebugString = "POS ";
 
+		std::list<std::string> valStrings;
+
 		for (UINT j = 0; j < optionCount; ++j)
 		{
-			Option& o = options[j];
+			const ShaderOption& so = options[j];
 
-			uint32_t shifted = key >> o._offset;
-			uint32_t bitMask = (~(~0u << o._numBits));
-
-			uint32_t result = shifted & bitMask;
+			uint64_t shifted = key >> so._offset;
+			uint64_t bitMask = (~(~0u << so._numBits));
+			uint64_t result = shifted & bitMask;
 
 			// If current option fits the bitmask, add it in
-			if (result > 0)
+			if (result > 0 && result <= so._maxVal)
 			{
-				D3D_SHADER_MACRO d3dshm{ o.name.c_str(), std::to_string(result).c_str() };
+				valStrings.push_back(std::to_string(result));
+				D3D_SHADER_MACRO d3dshm{ so.name.c_str(), valStrings.back().c_str()};
 				matchingPermOptions.push_back(d3dshm);
-				permOptDebugString += o.name;
+				permOptDebugString += so.name + std::to_string(result);
 				permOptDebugString += " ";
+				total += (result << so._offset);
 			}
-			total += (result << o._offset);
+		}
+
+		if (!existingKeys.insert(total).second)
+		{
+			return;
 		}
 
 		matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
 
-		createShPerm(textBuffer, matchingPermOptions, total);
+		createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, total);
 
 		permOptDebugString += "\n";
 		OutputDebugStringA(permOptDebugString.c_str());
 
-		return total;
+		return;
 	}
 
 
 
-	static void createShPerm(ID3DBlob* textBuffer, const std::vector<D3D_SHADER_MACRO>& permOptions, uint64_t total)
+	static void createShPerm(
+		const std::string& outDirPath,
+		ID3DBlob* textBuffer, 
+		const std::vector<D3D_SHADER_MACRO>& permOptions, 
+		uint64_t total)
 	{
 		HRESULT res;
 		ID3DBlob* preprocessedBuffer = nullptr;
@@ -228,7 +220,12 @@ public:
 			nullptr, permOptions.data(), D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			&preprocessedBuffer, &errorMessage);
 
-		std::string finalFileName = "ShGen\\GeneratedVS\\vs_" + std::to_string(total) + ".hlsl";
+		if (FAILED(res))
+		{
+			OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
+		}
+
+		std::string finalFileName = outDirPath + std::to_string(total) + ".hlsl";
 
 		FileUtils::writeAllBytes(finalFileName.c_str(),
 			preprocessedBuffer->GetBufferPointer(),
@@ -247,3 +244,73 @@ public:
 		}
 	}
 };
+
+
+// Older code
+/*
+std::vector<ShaderOption> options
+		{
+			// VS settings
+			{"TEX", 0	},
+			{"NRM", 1	},
+			{"COL", 2	},
+			{"TAN", 3	},
+			{"BTN", 4	},
+			{"SIW", 5	},
+			{"INS", 6	},
+			{"WPS", 7	}
+			// PS settings
+			{ "LMOD",	0, 3 },
+			{ "ALPHA",	3	 },
+			{ "NMAP",	4, 1 },
+			{ "FOG",	5	 },
+			{ "SHADOW", 6	 },
+			{ "GAMMA",	7	 }
+		};
+
+
+					uint64_t total = 0;
+			std::list<std::string> valueStrings;
+			debugString = std::to_string(++counter) + ": POS ";
+
+			// Iterate through all options and add suitable macros to
+			// the list of the macros passed to the shader compiler
+			for (UINT j = 0; j < optionCount; ++j)
+			{
+				ShaderOption& so = options[j];
+				uint64_t requestedOption = so._bitmask;
+				uint64_t andResult = requestedOption & i;
+
+				// If current option fits the bitmask, add it in
+				if (andResult > 0)
+				{
+					valueStrings.push_back(std::to_string(andResult));
+
+					D3D_SHADER_MACRO macro{ so.name.c_str(), valueStrings.back().c_str()};
+
+					matchingPermOptions.push_back(macro);
+					debugString += so.name;
+					debugString += std::to_string(andResult) + " ";
+
+					total += andResult;
+				}
+			}
+
+			// I barely remember how this works but it should eliminate doubles?
+			if (!existingKeys.insert(total).second)
+			{
+				matchingPermOptions.clear();
+				debugString.clear();
+				continue;
+			}
+
+			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
+
+			createShPerm(outDirPath, textBuffer, matchingPermOptions, total);
+
+			debugString += "\n";
+			OutputDebugStringA(debugString.c_str());
+
+			matchingPermOptions.clear();
+			debugString.clear();
+*/

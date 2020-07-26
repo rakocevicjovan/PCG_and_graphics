@@ -24,7 +24,8 @@ bool Engine::Initialize()
 	//loader.init();
 	//loader.parse("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\ArmyPilot\\ArmyPilot.fbx");
 
-	ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", ShaderGenerator::getVsOptions());
+	ShaderGenerator::preprocessAllPermutations(
+		L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
 
 	InitializeWindows(_scrWidth, _scrHeight);
 
