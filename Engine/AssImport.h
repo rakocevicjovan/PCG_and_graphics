@@ -132,7 +132,7 @@ public:
 
 			if (ImGui::Button("Import selected"))
 			{
-				if (_impSkeleton || _impSkModel)
+				if (_impSkeleton)
 				{
 					_skeleton = SkeletonLoader::loadStandalone(_aiScene);
 				}
@@ -144,7 +144,10 @@ public:
 
 				if (_impSkModel)
 				{
+					_skModel = std::make_unique<SkeletalModel>();
+					_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
 					_skModel->_skeleton = _skeleton.get();
+
 					_skModel->loadFromAiScene(_device, _aiScene, _path);
 
 					AssimpWrapper::loadAnimations(_aiScene, _anims);
