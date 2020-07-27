@@ -1,5 +1,6 @@
 #pragma once
 #include "Mesh.h"
+#include "SkeletalMesh.h"
 #include "GameObject.h"
 #include "IMGUI/imgui.h"
 #include <d3d11.h>
@@ -52,6 +53,8 @@ namespace GuiBlocks
 
 		ImGui::Text("Shaders: ");
 
+		ImGui::Indent();
+
 		VertexShader* vs = mat.getVS();
 		if (vs)
 		{
@@ -74,9 +77,11 @@ namespace GuiBlocks
 			ImGui::Text("None loaded");
 		}
 
-		ImGui::Separator();
+		ImGui::Unindent();
 
 		ImGui::Text("Textures");
+		ImGui::Indent();
+
 		for (int i = 0; i < mat._texDescription.size(); i++)
 		{
 			ImGui::Text(TEX_ROLE_MAP.at(mat._texDescription[i]._role));
@@ -84,7 +89,7 @@ namespace GuiBlocks
 			ImGui::Text(mat._texDescription[i]._tex->getName().c_str());
 		}
 
-		ImGui::Separator();
+		ImGui::Unindent();
 
 		ImGui::Checkbox("Opaque: ", &mat._opaque);
 
@@ -129,6 +134,30 @@ namespace GuiBlocks
 			ImGui::TextWrapped(result.str().c_str());
 			ImGui::Separator();
 		}
+	}
+
+
+
+	static void displaySkMesh(SkeletalMesh* mesh)
+	{
+		ImGui::Text("Transform: ");
+		ImGui::Indent();
+		displayTransform(mesh->_transform);
+		ImGui::Unindent();
+		ImGui::NewLine();
+
+		ImGui::Text("Stats: ");
+		ImGui::Indent();
+		ImGui::Text("Vertex count: %d", mesh->_vertices.size());
+		ImGui::Text("Index count:  %d", mesh->_indices.size());
+		ImGui::Unindent();
+		ImGui::NewLine();
+
+		ImGui::Text("Material: ");
+		ImGui::Indent();
+		displayMaterial(mesh->_baseMaterial);
+		ImGui::Unindent();
+		ImGui::NewLine();
 	}
 
 

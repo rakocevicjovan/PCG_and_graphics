@@ -233,8 +233,20 @@ public:
 
 		if (_skeleton.get())
 			AssetViews::printSkeleton(_skeleton.get());
-
-		//if (_skModel.get()){}
+		
+		if (_skModel.get())
+		{
+			for (UINT i = 0; i < _skModel->_meshes.size(); ++i)
+			{
+				ImGui::PushID(i);
+				if (ImGui::TreeNode(&i, "Mesh %d", i))
+				{
+					GuiBlocks::displaySkMesh(&_skModel->_meshes[i]);
+					ImGui::TreePop();
+				}
+				ImGui::PopID();
+			}
+		}
 	}
 
 
