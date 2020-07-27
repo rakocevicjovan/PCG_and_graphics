@@ -27,6 +27,7 @@ static std::array<UINT, 3> CLUSTER_GRID_DIMS = { 30, 17, 16 };
 #define VS_PER_FRAME_CBUFFER_REGISTER 11u
 
 // For pixel shaders
+#define PS_PER_CAMERA_CBUFFER_REGISTER 9u
 #define PS_PER_FRAME_CBUFFER_REGISTER 10u
 
 #define PS_CSM_CBUFFER_REGISTER 11u
@@ -59,6 +60,15 @@ struct VSPerFrameBuffer
 };
 
 
+struct PSPerCameraBuffer
+{
+	float w;
+	float h;
+	float n;
+	float f;
+};
+
+
 struct PSPerFrameBuffer
 {
 	SVec4 eyePos;
@@ -73,6 +83,8 @@ class Renderer
 {
 private:
 
+	float _windowWidth;
+	float _windowHeight;
 	float _fieldOfView;
 	float _aspectRatio;
 	float _elapsed = 0.f;
@@ -83,6 +95,7 @@ private:
 
 	ID3D11Buffer* _VSperCamBuffer;
 	ID3D11Buffer* _VSperFrameBuffer;
+	ID3D11Buffer* _PSperCamBuffer;
 	ID3D11Buffer* _PSperFrameBuffer;
 
 	void updateRenderContext(float dTime);

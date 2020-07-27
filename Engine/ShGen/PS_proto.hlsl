@@ -1,15 +1,6 @@
 #include "Light.hlsli"
 #include "Clustering.hlsli"
 
-cbuffer PSPerCameraBuffer : register(b9)
-{
-	float scr_w;
-	float scr_h;
-	float zNear;
-	float zFar;
-}
-
-
 cbuffer PSPerFrameBuffer : register(b10)
 {
 	float4 eyePos;
@@ -18,6 +9,10 @@ cbuffer PSPerFrameBuffer : register(b10)
 	float2 padding;
 }
 
+cbuffer PSPerCameraBuffer : register(b11)
+{
+
+}
 
 struct PLight
 {

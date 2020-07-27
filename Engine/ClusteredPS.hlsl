@@ -1,6 +1,16 @@
 #include "Light.hlsli"
 #include "Clustering.hlsli"
 
+
+cbuffer PSPerCameraBuffer : register(b9)
+{
+	float scr_w;
+	float scr_h;
+	float zNear;
+	float zFar;
+}
+
+
 cbuffer PSPerFrameBuffer : register(b10)
 {
 	float4 eyePos;
@@ -30,7 +40,7 @@ struct PLight
 
 StructuredBuffer<PLight> lightBuffer : register(t15);
 StructuredBuffer<uint> lightIndexBuffer : register(t16);
-StructuredBuffer<uint2> offsetGrid : register(t17);		
+StructuredBuffer<uint2> offsetGrid : register(t17);
 
 void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout float3 lightContrib)
 {

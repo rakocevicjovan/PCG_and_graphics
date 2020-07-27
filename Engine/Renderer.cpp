@@ -8,7 +8,16 @@ Renderer::Renderer()
 
 
 
-Renderer::~Renderer() {}
+Renderer::~Renderer()
+{
+	_deviceContext->Release();
+	_device->Release();
+
+	_VSperCamBuffer->Release();
+	_VSperFrameBuffer->Release();
+	_PSperCamBuffer->Release();
+	_PSperFrameBuffer->Release();
+}
 
 
 
@@ -20,9 +29,12 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 	_deviceContext = d3d.GetDeviceContext();
 
 	// Setup the projection matrix.
-	_fieldOfView = PI / 3.0f;
-	_aspectRatio = (float)windowWidth / (float)windowHeight;
+	_windowWidth = windowWidth;
+	_windowHeight = windowHeight;
 
+	_aspectRatio = _windowWidth / _windowHeight;
+	_fieldOfView = PI / 3.0f;
+	
 	_cam = Camera(SMatrix::Identity, _fieldOfView, _aspectRatio, NEAR_PLANE, FAR_PLANE);
 
 	_clusterManager = std::make_unique<ClusterManager>(CLUSTER_GRID_DIMS, (1 << 16), _device);	//30 * 17 * 16 = 8160 nodes
@@ -39,9 +51,13 @@ bool Renderer::createGlobalBuffers()
 	CBuffer::updateWholeBuffer(_deviceContext, _VSperCamBuffer, &pT, sizeof(VSPerCameraBuffer));
 	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &_VSperCamBuffer);
 
-
 	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(VSPerFrameBuffer)), _VSperFrameBuffer);
 	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &_VSperFrameBuffer);
+
+	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(PSPerCameraBuffer)), _PSperCamBuffer);
+	PSPerCameraBuffer pspcb{ _windowWidth, _windowHeight, _cam._frustum._zn, _cam._frustum._zf};
+	CBuffer::updateWholeBuffer(_deviceContext, _PSperCamBuffer, &pspcb, sizeof(PSPerCameraBuffer));
+	_deviceContext->PSSetConstantBuffers(PS_PER_CAMERA_CBUFFER_REGISTER, 1, &_PSperCamBuffer);
 
 	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(PSPerFrameBuffer)), _PSperFrameBuffer);
 	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &_PSperFrameBuffer);

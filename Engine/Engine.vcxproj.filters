@@ -982,6 +982,9 @@
     <ClInclude Include="AssetViews.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderManager.h">
+      <Filter>Rendering\High level\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
