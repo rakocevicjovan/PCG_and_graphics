@@ -1,4 +1,5 @@
 #pragma once
+#include "Shader.h"
 #include <unordered_map>
 
 enum LightModel
@@ -18,8 +19,20 @@ struct ShaderDescription
 };
 
 
+struct ShaderPack
+{
+	VertexShader* vs;
+	PixelShader* ps;
+};
+
+
 
 class ShaderManager
 {
-	//std::map<uint64_t, 
+	std::map<uint64_t, ShaderPack> _shaderMap;
+
+public:
+
+	
+
 };

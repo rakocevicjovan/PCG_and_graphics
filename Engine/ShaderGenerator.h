@@ -50,7 +50,7 @@ class ShaderGenerator
 		uint16_t _offset;
 		uint16_t _numBits = 1;
 		uint16_t _maxVal = 1;
-		//uint64_t depMask;
+		uint64_t depMask = (~0ul);
 	};
 
 public:
@@ -62,8 +62,8 @@ public:
 			{"TEX", 0, 3, 4},
 			{"NRM", 3	},
 			{"COL", 4	},
-			{"TAN", 5	},
-			{"BTN", 6	},
+			{"TAN", 5, 1, 1, (1ul << 3)	},
+			{"BTN", 6, 1, 1, (1ul << 5 | 1ul << 3)	},
 			{"SIW", 7	},
 			{"INS", 8	},
 			{"WPS", 9	}
@@ -165,7 +165,7 @@ public:
 		std::string permOptDebugString;
 		permOptDebugString.reserve(100);
 
-		permOptDebugString = "POS ";
+		permOptDebugString = std::to_string(key) + " POS ";
 
 		std::list<std::string> valStrings;
 
@@ -178,7 +178,12 @@ public:
 			uint64_t result = shifted & bitMask;
 
 			// If current option fits the bitmask, add it in
-			if (result > 0 && result <= so._maxVal)
+			bool hasDependency{ so.depMask != (~0u) };
+
+			bool dependency = (!hasDependency) ? 
+				true : ((so.depMask & key) == so.depMask);
+		
+			if (result > 0 && result <= so._maxVal && dependency)
 			{
 				valStrings.push_back(std::to_string(result));
 				D3D_SHADER_MACRO d3dshm{ so.name.c_str(), valStrings.back().c_str()};
