@@ -985,6 +985,9 @@
     <ClInclude Include="ShaderManager.h">
       <Filter>Rendering\High level\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="MatLoader.h">
+      <Filter>Asset importing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -63,7 +63,7 @@ void TDLevel::init(Engine& sys)
 	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("lightVS"));
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("clusterPS"));	//clusterDebugPS
 
 	terrainActor.addRenderable(floorRenderable, 500);

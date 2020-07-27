@@ -1,5 +1,6 @@
 #include "AssimpWrapper.h"
 #include "Mesh.h"
+#include "Skeleton.h"
 #include "VertSignature.h"
 #include "SkeletalModel.h"
 #include <array>
@@ -154,13 +155,13 @@ Mesh* AssimpWrapper::loadMesh(aiMesh* aiMesh)
 
 	if (aiMesh->HasNormals())
 	{
-		UINT nrmOffset = vertSig.getOffsetOf(VAttribSemantic::NORMAL);
-		uint8_t* dst = vertPool.data() + nrmOffset;
-		for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
-		{
-			memcpy(dst, &aiMesh->mNormals[i], sizeof(aiVector3D));
-			dst += vertByteWidth;
-		}
+	UINT nrmOffset = vertSig.getOffsetOf(VAttribSemantic::NORMAL);
+	uint8_t* dst = vertPool.data() + nrmOffset;
+	for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
+	{
+		memcpy(dst, &aiMesh->mNormals[i], sizeof(aiVector3D));
+		dst += vertByteWidth;
+	}
 	}
 
 
@@ -231,6 +232,7 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 	{
 		aiMaterial* aiMat = scene->mMaterials[index];
 
+		// Textures
 		// Diffuse maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DIFFUSE, DIFFUSE);
 
@@ -262,7 +264,6 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		// Weird properties... that I never really saw trigger
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NONE, OTHER);
 	}
-
 }
 
 

@@ -1,7 +1,6 @@
 #pragma once
 #include "FileUtilities.h"
 #include "Texture.h"
-#include "Skeleton.h"
 #include "Animation.h"
 
 #include <set>
@@ -11,6 +10,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+class Skeleton;
 class SkeletalModel;
 class Material;
 class Mesh;

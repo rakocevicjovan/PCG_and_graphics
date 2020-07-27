@@ -1,6 +1,9 @@
 #include "Constants.hlsli"
 #include "Light.hlsli"
 
+// This shader is an absolute mess by now
+// Strip out useful parts into helper function file PBR.hlsli
+
 cbuffer LightBuffer : register(b0)
 {
 	float3 alc;
@@ -76,8 +79,8 @@ float ndfGGXTR(float3 n, float3 h, float a)		//normal, halfway vector, roughness
 
 
 //Can work for both metals and dielectricts but its hacky... I don't like it.
-//F0 = ( (ni1 - ni2) / (ni1 + ni2) ) ^ 2 - should not be calculated in the shader though... just a reference
-float3 fresnelSchlick(float cosTheta, float3 f0)	//can pass float cosTheta or float3 h, float3 v,...
+//f0 = ( (ni1 - ni2) / (ni1 + ni2) ) ^ 2 - should not be calculated in the shader though... just a reference
+float3 fresnelSchlick(float cosTheta, float3 f0)
 {
 	cosTheta = min(cosTheta, 1.0);
 	return max(f0 + (float3(1., 1., 1.) - f0) * pow(1. - cosTheta, 5.), 0.);
@@ -175,7 +178,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	#define F_F0 0.04f
 	float3 f0 = float3(F_F0, F_F0, F_F0);
 	f0 = lerp(f0, albedo, metallic);	//metals have tinted reflections
-	//f0 += 5. * + sin( 2. * elapsed);
 
 	// Per light based properties
 	float3 toLight = lightPosition.xyz - input.worldPos.xyz;
@@ -187,10 +189,9 @@ float4 main(PixelInputType input) : SV_TARGET
 	float attenuation = 1.f / (lightDist * lightDist);		//square falloff
 	float3 radiance = slc * 20000.f * attenuation;
 
+	// Aww yeah it's all coming together
 
-	//aww yeah it's all coming together
-
-	// tutorial says to multiply by N dot L but really?? Seems like it's already been accounted for to me...
+	// Tutorial says to multiply by N dot L but really?? Seems like it's already been accounted for to me...
 	float3 colour = brdfCookTorrance(n, toEye, h, toLight, roughness, albedo, metallic, f0) * radiance * saturate(dot(n, toLight));
 
 	colour = colour / (colour + float3(1., 1., 1.));

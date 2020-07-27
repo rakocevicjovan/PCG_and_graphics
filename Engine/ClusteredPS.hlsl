@@ -25,7 +25,6 @@ struct PixelInputType
 	float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
 	float4 worldPos : WPOS;
-	float depth : ZDEPTH;
 };
 
 Texture2D shaderTexture : register(t0);
