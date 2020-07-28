@@ -9,6 +9,7 @@
 #include "SkeletalModelInstance.h"
 #include "Model.h"
 #include "SkeletonLoader.h"
+#include "ShaderManager.h"
 
 
 
@@ -242,6 +243,7 @@ public:
 				if (ImGui::TreeNode(&i, "Mesh %d", i))
 				{
 					GuiBlocks::displaySkMesh(&_skModel->_meshes[i]);
+					ShaderManager::displayShaderPicker();
 					ImGui::TreePop();
 				}
 				ImGui::PopID();

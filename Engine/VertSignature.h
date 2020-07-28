@@ -69,6 +69,16 @@ struct VertSignature
 	uint16_t getVertByteWidth();
 
 	uint16_t getOffsetOf(VAttribSemantic semantic, uint8_t index = 0u);
+
+	inline bool hasBones() const
+	{
+		for (const auto& a : _attributes)
+		{
+			if (a._semantic == VAttribSemantic::B_IDX || a._semantic == VAttribSemantic::B_WEIGHT)
+				return true;
+		}
+		return false;
+	}
 };
 
 

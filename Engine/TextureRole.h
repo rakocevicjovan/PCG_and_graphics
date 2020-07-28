@@ -1,8 +1,7 @@
 #pragma once
 #include <map>
 
-//used as indices into the array where the values indicate texture slot in shaders
-//last one indicates nr of textures used by the shader
+// Used as indices into the array of values that indicate texture registers in shaders
 enum TextureRole
 {
 	DIFFUSE = 0,
@@ -18,13 +17,15 @@ enum TextureRole
 };	//NUM_ROLES is used as the size of array of texture roles in shader classes
 
 
-static const std::map<TextureRole, char const*> TEX_ROLE_MAP = { 
-	{DIFFUSE, "Diffuse"}, 
-	{NORMAL, "NORMAL"},
-	{SPECULAR, "Specular"},
-	{SHININESS, "Shininess"},
-	{OPACITY, "Opacity"},
-	{DISPLACEMENT, "Displacement"},
-	{AMBIENT, "Ambient"},
-	{OTHER, "Other"},
+static const std::map<TextureRole, const char*> TEX_ROLE_MAP
+{ 
+	{DIFFUSE,		"Diffuse"}, 
+	{NORMAL,		"NORMAL"},
+	{SPECULAR,		"Specular"},
+	{SHININESS,		"Shininess"},
+	{OPACITY,		"Opacity"},
+	{DISPLACEMENT,	"Displacement"},
+	{AMBIENT,		"Ambient"},
+	{METALLIC,		"Metallic"},
+	{OTHER,			"Other"}
 };

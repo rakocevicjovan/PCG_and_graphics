@@ -37,7 +37,7 @@ float3 gammaCorrect(in float3 colour, in float gammaFactor)	//convenient overloa
 }
 
 
-//exponential fog from Inigo Quilez
+// Exponential fog from Inigo Quilez
 float3 applyFog(in float3  rgb,		// original color of the pixel
 	in float distance,				// camera to point distance
 	in float3  rayDir,				// camera to point vector

@@ -39,7 +39,7 @@ struct PixelInputType
 #if NRM
 	float3 normal : NORMAL;
 #endif
-#if WPS
+#if LIT > 0
 	float4 worldPos : WPOS;
 #endif
 #if DEPTH
@@ -50,10 +50,11 @@ struct PixelInputType
 // Samplers
 SamplerState Sampler : register(s0);
 
-
+#define TEX_REG 't'
+#define T(a) TEX_REG##a
 // TEXTURES BEGIN
 #if TEX_DIF
-Texture2D diffuseMap : register(t0);
+Texture2D diffuseMap : register(T(TEX_DIF));	// Hope this is the right syntax
 #endif
 
 #if TEX_NRM
@@ -111,8 +112,10 @@ float4 main(PixelInputType input) : SV_TARGET
 	float4 colour = diffuseMap.Sample(Sampler, input.tex);
 #endif
 	
-#ifdef LIT && WPOS	// lit implies WPOS, fix this
-	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
+#ifdef (LIT > 0)
+	float3 viewDir = input.worldPos.xyz - eyePos.xy;
+	float distToPoint = length(viewDir);
+	viewDir /= distToPoint;
 
 	// Light code using clustered shading
 	float viewDepth = zToViewSpace(input.position.z, zNear, zFar);
@@ -133,6 +136,10 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	// fake ambient/directional
 	colour.xyz *= max(lightContrib, float3(.1, .1, .1));
+#endif
+
+#ifdef FOG
+	// My current fog function is not general purpose, make one and add
 #endif
 
 #ifdef GAMMA
