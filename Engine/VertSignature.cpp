@@ -58,8 +58,8 @@ uint16_t VertSignature::getOffsetOf(VAttribSemantic semantic, uint8_t index)
 // Typeless stores 0 therefore a proper size must be passed in.
 const std::vector<uint16_t> VAttrib::VERT_TYPE_SIZE =
 {
-	4, 8, 16, 32,
-	4, 8, 16, 32,
-	4, 8, 16, 32,
+	4, 8, 12, 16,
+	4, 8, 12, 16,
+	4, 8, 12, 16,
 	0
 };

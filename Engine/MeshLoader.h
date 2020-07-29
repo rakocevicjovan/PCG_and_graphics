@@ -14,6 +14,7 @@ class MeshLoader
 	std::vector<Texture> _textures;
 
 
+public:
 
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path)
 	{
@@ -38,7 +39,7 @@ class MeshLoader
 
 
 
-	VertSignature createVertSignature(aiMesh* aiMesh)
+	static VertSignature createVertSignature(aiMesh* aiMesh)
 	{
 		VertSignature vertSig;
 
@@ -107,7 +108,6 @@ class MeshLoader
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
 
-		std::vector<uint8_t> vertPool;
 		vertPool.resize(vertPoolSize);	// Memcpy doesn't increase size() so we hackerino
 		
 		// Pack interleaved, starting with positions

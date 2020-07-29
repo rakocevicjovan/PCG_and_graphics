@@ -11,6 +11,7 @@
 
 #include "MeshDataStructs.h"
 #include "AssimpWrapper.h"
+#include "VertSignature.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -36,6 +37,8 @@ namespace cereal
 class Mesh : public Resource
 {
 public:
+	VertSignature _vertSig;
+
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<Vert3D>	_vertices;
 	std::vector<UINT> _indices;

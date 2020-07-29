@@ -242,8 +242,9 @@ public:
 				ImGui::PushID(i);
 				if (ImGui::TreeNode(&i, "Mesh %d", i))
 				{
-					GuiBlocks::displaySkMesh(&_skModel->_meshes[i]);
-					ShaderManager::displayShaderPicker();
+					SkeletalMesh* skm = &_skModel->_meshes[i];
+					GuiBlocks::displaySkMesh(skm);
+					ShaderManager::displayShaderPicker(skm->_vertSig, &skm->_baseMaterial);
 					ImGui::TreePop();
 				}
 				ImGui::PopID();

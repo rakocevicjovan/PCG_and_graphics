@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <vector>
-#include <d3d11_4.h>
+#include <d3d11.h>
 
 enum class VAttribSemantic : uint8_t
 {
@@ -53,7 +53,6 @@ struct VAttrib
 
 		_size = elemByteSize;
 	}
-
 };
 
 
@@ -70,13 +69,13 @@ struct VertSignature
 
 	uint16_t getOffsetOf(VAttribSemantic semantic, uint8_t index = 0u);
 
-	inline bool hasBones() const
+	// This currently can't work with tex coordinates being U/UV/UVW
+	inline bool countAttribute(VAttribSemantic vertAttribSemantic) const
 	{
-		for (const auto& a : _attributes)
-		{
-			if (a._semantic == VAttribSemantic::B_IDX || a._semantic == VAttribSemantic::B_WEIGHT)
-				return true;
-		}
+		UINT result = 0u;
+		for (const auto& vertAttrib : _attributes)
+			if (vertAttrib._semantic == vertAttribSemantic)
+				return vertAttrib._numElements;
 		return false;
 	}
 };

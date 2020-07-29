@@ -5,6 +5,7 @@
 #include "Math.h"
 #include "Material.h"
 #include "AssimpWrapper.h"
+#include "VertSignature.h"
 
 #include <vector>
 #include <string>
@@ -38,6 +39,7 @@ namespace cereal
 class SkeletalMesh
 {
 public:
+	VertSignature _vertSig;
 
 	std::vector<BonedVert3D> _vertices;
 	std::vector<UINT> _indices;

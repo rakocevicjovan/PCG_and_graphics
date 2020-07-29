@@ -2,7 +2,7 @@
 #include <map>
 
 // Used as indices into the array of values that indicate texture registers in shaders
-enum TextureRole
+enum TextureRole : uint8_t
 {
 	DIFFUSE = 0,
 	NORMAL = 1,
@@ -12,8 +12,9 @@ enum TextureRole
 	DISPLACEMENT = 5,
 	AMBIENT = 6,
 	METALLIC = 7,
-	OTHER = 8,
-	NUM_ROLES = 9
+	ROUGHNESS = 8,
+	OTHER = 9,
+	NUM_ROLES = 10
 };	//NUM_ROLES is used as the size of array of texture roles in shader classes
 
 

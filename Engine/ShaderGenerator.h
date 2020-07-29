@@ -15,61 +15,69 @@ static const char* PS_PERMUTATIONS = "ShGen\\GeneratedPS\\";
 static const char* NATURAL_PERMS = "ShGen\\Natty\\";
 
 
+struct ShaderOption
+{
+	std::string name;
+	uint16_t _offset;
+	uint16_t _numBits = 1;
+	uint16_t _maxVal = 1;
+	uint64_t depMask = (~0ul);
+};
+
+
+// Hardcoded, but rarely changes and it's the easiest way to expose it
+
+// VS options
+static const ShaderOption SHG_OPT_TEX { "TEX", 0, 3, 4 };
+static const ShaderOption SHG_OPT_NRM { "NRM", 3 };
+static const ShaderOption SHG_OPT_COL { "COL", 4 };
+static const ShaderOption SHG_OPT_TAN { "TAN", 5, 1, 1, (1ul << 3) };
+static const ShaderOption SHG_OPT_BTN { "BTN", 6, 1, 1, (1ul << 5 | 1ul << 3) };
+static const ShaderOption SHG_OPT_SIW { "SIW", 7 };
+static const ShaderOption SHG_OPT_INS { "INS", 8 };
+static const ShaderOption SHG_OPT_WPS { "WPS", 9 };
+
+// PS options
+#define PS_O 10u // Horrible but aight for now
+static const ShaderOption SHG_OPT_LMOD	{ "LMOD",	PS_O + 0, 2 };
+static const ShaderOption SHG_OPT_ALPHA	{ "ALPHA",	PS_O + 2 };
+static const ShaderOption SHG_OPT_FOG	{ "FOG",	PS_O + 3 };
+static const ShaderOption SHG_OPT_SHD	{ "SHADOW",	PS_O + 4 };
+static const ShaderOption SHG_OPT_GAMMA	{ "GAMMA",	PS_O + 5 };
+
+// PS texture options, each 1 bit (crazy number of permutations already)
+#define PS_T_O PS_O + 6u
+static const ShaderOption SHG_TX_DIF { "DIF", PS_T_O + 0 };
+static const ShaderOption SHG_TX_NRM { "NRM", PS_T_O + 1 };
+static const ShaderOption SHG_TX_SPC { "SPC", PS_T_O + 2 };
+static const ShaderOption SHG_TX_SHN { "SHN", PS_T_O + 3 };
+static const ShaderOption SHG_TX_OPC { "OPC", PS_T_O + 4 };
+static const ShaderOption SHG_TX_DPM { "DPM", PS_T_O + 5 };
+static const ShaderOption SHG_TX_AMB { "AMB", PS_T_O + 6 };
+static const ShaderOption SHG_TX_MTL { "MTL", PS_T_O + 7 };
+static const ShaderOption SHG_TX_RGH { "RGH", PS_T_O + 8 };
+static const ShaderOption SHG_TX_OTR { "OTR", PS_T_O + 9 };
+
 
 class ShaderGenerator
 {
-	/*struct ShaderOption
-	{
-		std::string name;
-		uint64_t _bitmask;
-	};*/
-
-	struct ShaderOption
-	{
-		std::string name;
-		uint16_t _offset;
-		uint16_t _numBits = 1;
-		uint16_t _maxVal = 1;
-		uint64_t depMask = (~0ul);
-	};
-
 public:
 
 	static std::vector<ShaderOption> getVsOptions()
 	{
 		return
 		{ 
-			{"TEX", 0, 3, 4},
-			{"NRM", 3	},
-			{"COL", 4	},
-			{"TAN", 5, 1, 1, (1ul << 3)	},
-			{"BTN", 6, 1, 1, (1ul << 5 | 1ul << 3)	},
-			{"SIW", 7	},
-			{"INS", 8	},
-			{"WPS", 9	}
+			SHG_OPT_TEX, SHG_OPT_NRM, SHG_OPT_COL, SHG_OPT_TAN,
+			SHG_OPT_BTN, SHG_OPT_SIW, SHG_OPT_INS, SHG_OPT_WPS
 		};
 	}
-
 
 
 	static std::vector<ShaderOption> getPsOptions()
 	{
 		return
 		{ 
-			{"LMOD",	0, 3 },
-			{"ALPHA",	3	 },
-			{"NMAP",	4, 1 },
-			{"FOG",		5	 },
-			{"SHADOW",	6	 },
-			{"GAMMA",	7	 }
-			/*
-			{{ "" }, SHG_PS_LIGHTMODEL },
-			{{ "" }, SHG_PS_ALPHA },
-			{{ "" }, SHG_PS_NORMALMAP},
-			{{ "" }, SHG_PS_FOG},
-			{{ "" }, SHG_PS_SHADOW},
-			{{ "" }, SHG_PS_GAMMA}
-			*/
+			SHG_OPT_LMOD, SHG_OPT_ALPHA, SHG_OPT_FOG, SHG_OPT_SHD, SHG_OPT_GAMMA
 		};
 	}
 
@@ -88,73 +96,3 @@ public:
 		const std::vector<D3D_SHADER_MACRO>& permOptions,
 		uint64_t total);
 };
-
-
-// Older code
-/*
-std::vector<ShaderOption> options
-		{
-			// VS settings
-			{"TEX", 0	},
-			{"NRM", 1	},
-			{"COL", 2	},
-			{"TAN", 3	},
-			{"BTN", 4	},
-			{"SIW", 5	},
-			{"INS", 6	},
-			{"WPS", 7	}
-			// PS settings
-			{ "LMOD",	0, 3 },
-			{ "ALPHA",	3	 },
-			{ "NMAP",	4, 1 },
-			{ "FOG",	5	 },
-			{ "SHADOW", 6	 },
-			{ "GAMMA",	7	 }
-		};
-
-
-					uint64_t total = 0;
-			std::list<std::string> valueStrings;
-			debugString = std::to_string(++counter) + ": POS ";
-
-			// Iterate through all options and add suitable macros to
-			// the list of the macros passed to the shader compiler
-			for (UINT j = 0; j < optionCount; ++j)
-			{
-				ShaderOption& so = options[j];
-				uint64_t requestedOption = so._bitmask;
-				uint64_t andResult = requestedOption & i;
-
-				// If current option fits the bitmask, add it in
-				if (andResult > 0)
-				{
-					valueStrings.push_back(std::to_string(andResult));
-
-					D3D_SHADER_MACRO macro{ so.name.c_str(), valueStrings.back().c_str()};
-
-					matchingPermOptions.push_back(macro);
-					debugString += so.name;
-					debugString += std::to_string(andResult) + " ";
-
-					total += andResult;
-				}
-			}
-
-			// I barely remember how this works but it should eliminate doubles?
-			if (!existingKeys.insert(total).second)
-			{
-				matchingPermOptions.clear();
-				debugString.clear();
-				continue;
-			}
-
-			matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
-
-			createShPerm(outDirPath, textBuffer, matchingPermOptions, total);
-
-			debugString += "\n";
-			OutputDebugStringA(debugString.c_str());
-
-			matchingPermOptions.clear();
-			debugString.clear();
-*/

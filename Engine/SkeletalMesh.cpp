@@ -1,10 +1,12 @@
 #include "SkeletalMesh.h"
 #include "AssimpWrapper.h"
-
+#include "MeshLoader.h"
 
 
 void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, Skeleton& skeleton, const std::string& path)
 {
+	_vertSig = MeshLoader::createVertSignature(aiMesh);
+
 	bool hasTexCoords = aiMesh->HasTextureCoords(0);
 
 	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
