@@ -32,13 +32,8 @@ float4 main(VertexInputType input) : SV_POSITION
 {
 	input.position.w = 1.0f;
 
-	//matrix LMVPMatrix = mul(worldMatrix, lvpMatrix);	//careful with ordering
-
 	float4 CSPOS = mul(input.position, worldMatrix);
 	CSPOS = mul(CSPOS, lvpMatrix);
-	
-	//float4 VSPOS = mul(WSPOS, viewMatrix);
-	//float4 CSPOS = mul(VSPOS, projectionMatrix);
 
 	return CSPOS;
 }

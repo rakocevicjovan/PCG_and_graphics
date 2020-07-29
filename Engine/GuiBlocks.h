@@ -84,7 +84,7 @@ namespace GuiBlocks
 
 		for (int i = 0; i < mat._texDescription.size(); i++)
 		{
-			ImGui::Text(TEX_ROLE_MAP.at(mat._texDescription[i]._role));
+			ImGui::Text(TEX_ROLE_NAMES.at(mat._texDescription[i]._role));
 			ImGui::SameLine();
 			ImGui::Text(mat._texDescription[i]._tex->getName().c_str());
 		}

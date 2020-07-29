@@ -1,7 +1,7 @@
 struct PixelInputType
 {
     float4 position : SV_POSITION;
-    float4 depthPosition : TEXTURE0;	// Do I reaaaally need this? Think not!
+    float4 depthPosition : TEXTURE0;
 };
 
 

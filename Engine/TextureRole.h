@@ -1,5 +1,5 @@
 #pragma once
-#include <map>
+#include <vector>
 
 // Used as indices into the array of values that indicate texture registers in shaders
 enum TextureRole : uint8_t
@@ -18,15 +18,16 @@ enum TextureRole : uint8_t
 };	//NUM_ROLES is used as the size of array of texture roles in shader classes
 
 
-static const std::map<TextureRole, const char*> TEX_ROLE_MAP
+static const std::vector<const char*> TEX_ROLE_NAMES
 { 
-	{DIFFUSE,		"Diffuse"}, 
-	{NORMAL,		"NORMAL"},
-	{SPECULAR,		"Specular"},
-	{SHININESS,		"Shininess"},
-	{OPACITY,		"Opacity"},
-	{DISPLACEMENT,	"Displacement"},
-	{AMBIENT,		"Ambient"},
-	{METALLIC,		"Metallic"},
-	{OTHER,			"Other"}
+	{ "Diffuse"		}, 
+	{ "NORMAL"		},
+	{ "Specular"	},
+	{ "Shininess"	},
+	{ "Opacity"		},
+	{ "Displacement"},
+	{ "Ambient"		},
+	{ "Metallic"	},
+	{ "Roughness"	},
+	{ "Other"		}
 };

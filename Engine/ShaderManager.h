@@ -1,11 +1,10 @@
 #pragma once
 #include "Shader.h"
+#include "ShaderCache.h"
 #include "ShaderGenerator.h"
 #include "GuiBlocks.h"
 #include "VertSignature.h"
 #include "Material.h"
-#include <unordered_map>
-#include <map>
 
 
 
@@ -42,8 +41,6 @@ static const std::map<TextureRole, const ShaderOption*> TEX_ROLE_TO_SHADER_OPTIO
 
 class ShaderManager
 {
-	std::map<uint64_t, ShaderPack> _shaderMap;
-
 public:
 
 	inline static void addToKey(VertSignature& vertSig, uint64_t& key, 
@@ -105,7 +102,7 @@ public:
 		};
 
 		// Default lambert
-		LightModelIndex* selected = &lmiOptions[1];
+		static LightModelIndex* selected = &lmiOptions[1];
 
 		if (ImGui::Begin("Shader picker"))
 		{
@@ -120,7 +117,6 @@ public:
 			}
 		}
 
-
 		shaderKey |= (selected->index << SHG_OPT_LMOD._offset);
 
 		encodeVertexData(vertSig, shaderKey);
@@ -130,7 +126,8 @@ public:
 
 		if (ImGui::Button("Create shader"))
 		{
-			ImGui::Text("Generated");	// Placeholder, tbd
+			ShaderGenerator::CreatePermFromKey(ShaderGenerator::vsAllOptions, shaderKey);
+			ShaderGenerator::CreatePermFromKey(ShaderGenerator::psAllOptions, shaderKey);
 		}
 
 		ImGui::End();

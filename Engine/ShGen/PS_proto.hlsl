@@ -34,6 +34,15 @@ struct PixelInputType
 #if NRM
 	float3 normal : NORMAL;
 #endif
+#ifdef COL
+	float3 colour : COLOUR;
+#endif
+#ifdef TAN
+	float3 tangent : TANGENT;
+#endif
+#ifdef BTN
+	float3 bitangent : BITANGENT;
+#endif
 #if WPS
 	float4 worldPos : WPOS;
 #endif

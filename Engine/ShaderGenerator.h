@@ -63,36 +63,32 @@ class ShaderGenerator
 {
 public:
 
-	static std::vector<ShaderOption> getVsOptions()
-	{
-		return
-		{ 
-			SHG_OPT_TEX, SHG_OPT_NRM, SHG_OPT_COL, SHG_OPT_TAN,
-			SHG_OPT_BTN, SHG_OPT_SIW, SHG_OPT_INS, SHG_OPT_WPS
-		};
-	}
+	static const std::vector<ShaderOption> vsAllOptions;
+	static const std::vector<ShaderOption> psAllOptions;
 
+	static bool preprocessAllPermutations(
+		const std::wstring& ogFilePathW, const std::string& outDirPath);
 
-	static std::vector<ShaderOption> getPsOptions()
-	{
-		return
-		{ 
-			SHG_OPT_LMOD, SHG_OPT_ALPHA, SHG_OPT_FOG, SHG_OPT_SHD, SHG_OPT_GAMMA
-		};
-	}
-
-
-	static bool preprocessAllPermutations(const std::wstring& ogFilePathW, const std::string& outDirPath);
-
-
+	// This one is used in loop generation, the other one standalone
 	static void CreatePermFromKey(
 		const std::string& outDirPath, ID3DBlob*& textBuffer,
 		const std::vector<ShaderOption>& options, uint64_t key, std::set<uint64_t>& existingKeys);
 
+	static void CreatePermFromKey(
+		const std::vector<ShaderOption>& options, 
+		uint64_t key,
+		const std::string& protoShaderPath = VS_PROTOSHADER,
+		const std::string& outDirPath = NATURAL_PERMS);
+
+	static inline std::vector<D3D_SHADER_MACRO> ParseKey(
+		const std::vector<ShaderOption>& options, uint64_t key, uint64_t& total);
 
 	static void createShPerm(
 		const std::string& outDirPath,
 		ID3DBlob* textBuffer,
 		const std::vector<D3D_SHADER_MACRO>& permOptions,
 		uint64_t total);
+
+
+	
 };

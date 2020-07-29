@@ -15,7 +15,7 @@ bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW,
 		exit(2001);
 	}
 
-	std::vector<ShaderOption> options = getVsOptions();
+	const std::vector<ShaderOption>& options = vsAllOptions;
 
 	UINT optionCount = options.size();
 	UINT bitCount = 0u;
@@ -54,11 +54,55 @@ void ShaderGenerator::CreatePermFromKey(
 	uint64_t key,
 	std::set<uint64_t>& existingKeys)
 {
-	UINT optionCount = options.size();
-	uint64_t total = 0;
+	uint64_t total = 0ul;
+	auto matchingPermOptions = ParseKey(options, key, total);
 
-	std::vector<D3D_SHADER_MACRO> matchingPermOptions;
-	matchingPermOptions.reserve(optionCount);
+	if (!existingKeys.insert(total).second)
+		return;
+
+	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, total);
+}
+
+
+
+
+
+
+
+
+
+void ShaderGenerator::CreatePermFromKey(
+	const std::vector<ShaderOption>& options,
+	uint64_t key,
+	const std::string& protoShaderPath,
+	const std::string& outDirPath)
+{
+	std::wstring psp(protoShaderPath.begin(), protoShaderPath.end());
+	
+	ID3DBlob* textBuffer = nullptr;
+	if (FAILED(D3DReadFileToBlob(psp.c_str(), &textBuffer)))
+	{
+		OutputDebugStringA("Shader prototype not accessible.");
+		exit(2001);
+	}
+
+	uint64_t total = 0ul;
+	auto matchingPermOptions = ParseKey(options, key, total);
+
+	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, total);
+
+	textBuffer->Release();
+}
+
+
+
+inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
+	const std::vector<ShaderOption>& options, uint64_t key, uint64_t& total)
+{
+	UINT optionCount = options.size();
+
+	std::vector<D3D_SHADER_MACRO> matchedOptions;
+	matchedOptions.reserve(optionCount);
 
 	std::string permOptDebugString;
 	permOptDebugString.reserve(100);
@@ -70,41 +114,27 @@ void ShaderGenerator::CreatePermFromKey(
 	for (UINT j = 0; j < optionCount; ++j)
 	{
 		const ShaderOption& so = options[j];
-
-		uint64_t shifted = key >> so._offset;
-		uint64_t bitMask = (~(~0u << so._numBits));
-		uint64_t result = shifted & bitMask;
+		uint64_t result = (key >> so._offset) &  (~(~0u << so._numBits));
 
 		// If current option fits the bitmask, add it in
 		bool hasDependency{ so.depMask != (~0u) };
-
-		bool dependency = (!hasDependency) ?
-			true : ((so.depMask & key) == so.depMask);
+		bool dependency = (!hasDependency) ? true : ((so.depMask & key) == so.depMask);
 
 		if (result > 0 && result <= so._maxVal && dependency)
 		{
 			valStrings.push_back(std::to_string(result));
-			D3D_SHADER_MACRO d3dshm{ so.name.c_str(), valStrings.back().c_str() };
-			matchingPermOptions.push_back(d3dshm);
-			permOptDebugString += so.name + std::to_string(result);
-			permOptDebugString += " ";
+			matchedOptions.push_back({ so.name.c_str(), valStrings.back().c_str() });
 			total += (result << so._offset);
+			permOptDebugString += so.name + std::to_string(result) + " ";
 		}
 	}
 
-	if (!existingKeys.insert(total).second)
-	{
-		return;
-	}
-
-	matchingPermOptions.push_back({ NULL, NULL });	// Required by d3d api
-
-	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, total);
+	matchedOptions.push_back({ NULL, NULL });	// Required by d3d api
 
 	permOptDebugString += "\n";
 	OutputDebugStringA(permOptDebugString.c_str());
 
-	return;
+	return matchedOptions;
 }
 
 
@@ -143,3 +173,16 @@ void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* text
 		errorMessage = nullptr;
 	}
 }
+
+
+
+const std::vector<ShaderOption> ShaderGenerator::vsAllOptions
+{
+	SHG_OPT_TEX, SHG_OPT_NRM, SHG_OPT_COL, SHG_OPT_TAN,
+	SHG_OPT_BTN, SHG_OPT_SIW, SHG_OPT_INS, SHG_OPT_WPS
+};
+
+const std::vector<ShaderOption> ShaderGenerator::psAllOptions
+{
+	SHG_OPT_LMOD, SHG_OPT_ALPHA, SHG_OPT_FOG, SHG_OPT_SHD, SHG_OPT_GAMMA
+};
