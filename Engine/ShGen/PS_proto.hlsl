@@ -56,61 +56,64 @@ struct PixelInputType
 // Samplers
 SamplerState Sampler : register(s0);
 
-#define T(a) 't'##a
+// Once I implement this, instead of fixed registry indices i can use these
+// #define T(a) t##a
+// T(TEX_DIF_REG) 
+// Also, the index of texture coordinates used by each texture will be defined as UVCH_<TYPE>
+
 // TEXTURES BEGIN
 #if TEX_DIF
-Texture2D diffuseMap : register(T(TEX_DIF));	// Hope this is the right syntax
+Texture2D diffuseMap : register(t0);
+#line 66
 #endif
-
 #if TEX_NRM
 Texture2D normalMap : register(t1);
+#line 67
 #endif
-
 #if TEX_SPC
 Texture2D specularMap : register(t2);
+#line 68
 #endif
-
 #if TEX_SHN
 Texture2D shininessMap : register(t3);
 #endif
-
 #if TEX_OCT
 Texture2D opacityMap : register(t4);
 #endif
-
 #if TEX_DPM
 Texture2D displacementMap : register(t5);
 #endif
-
 #if TEX_AOM
 Texture2D ambientOcclusionMap : register(t6);
 #endif
-
 #if TEX_MTL
 Texture2D metallicMap : register(t7);
+#endif
+#if TEX_RGH
+Texture2D roughnessMap : register(t8);
 #endif
 
 // These are not supported on load because they are usually generated
 #if TEX_RFL
-Texture2D reflectionMap : register(t8);
+Texture2D reflectionMap : register(t9);
 #endif
 
 #if TEX_RFR
-Texture2D refractionMap : register(t9);
+Texture2D refractionMap : register(t10);
 #endif
 // TEXTURES END
-
-// This must be provided by the material if required
-//static const float SpecularPower = 8.f;
 
 void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout float3 lightContrib);
 
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-	// Independent of lights, determined once
-#ifdef NRM
-	input.normal = normalize(input.normal);
+#if NRM > 0
+	input.normal = normalize(input.normal);	// Might not be needed before map
+// Does NOT use passed in bitangents yet, ignores them @TODO
+#if TEX_NRM > 0 && TAN > 0 && TEX > 0	// Dependencies are already set!
+	mapNormals(Sampler, normalMap, input.tex, input.tangent, input.normal);
+#endif
 #endif
 
 #if TEX > 0
@@ -169,10 +172,31 @@ void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout 
 	float diffIntensity = max(dot(input.normal, -lightDir), 0.0f);
 	float3 diffuse = lightColour * diffIntensity;
 
-	//calculate specular light
+	//calculate specular light (none for lambert materials)
+#if LIT > 1
 	float3 reflection = normalize(reflect(-lightDir, input.normal));
-	float specIntensity = pow(saturate(dot(reflection, viewDir)), 8.f);
-	float3 specular = lightColour * specIntensity * diffIntensity;
 
-	lightContrib += ((diffuse + specular) * intensity);
+	float3 specularPower;
+#if TEX_SPC > 0
+	specularPower = specularMap.Sample(Sampler, input.tex).rgb;
+#else
+	specularPower = (float3)(1.f);	// Make this a possible param
+#endif
+
+	float shininess;
+#if TEX_SHN > 0
+	shininess = shininessMap.Sample(Sampler, input.tex).r;
+#else
+	shininess = 8.f;
+#endif
+
+	// Could be dot reflection light dir
+	float specIntensity = pow(saturate(dot(reflection, viewDir)), shininess);
+	float3 specular = lightColour * specIntensity * specularPower;
+	//specular *= diffIntensity; Is this needed?
+
+	diffuse += specular;
+#endif;
+
+	lightContrib += (diffuse * intensity);
 }

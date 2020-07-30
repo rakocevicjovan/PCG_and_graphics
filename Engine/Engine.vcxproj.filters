@@ -1198,5 +1198,8 @@
     <FxCompile Include="ShGen\VS_proto.hlsl">
       <Filter>Rendering\0ShGen</Filter>
     </FxCompile>
+    <FxCompile Include="ShGen\PS_proto.hlsl">
+      <Filter>Rendering\0ShGen</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
