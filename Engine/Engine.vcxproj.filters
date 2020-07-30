@@ -1195,9 +1195,6 @@
     <FxCompile Include="ClusteredPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PS_proto.hlsl">
-      <Filter>Rendering\0ShGen</Filter>
-    </FxCompile>
     <FxCompile Include="ShGen\VS_proto.hlsl">
       <Filter>Rendering\0ShGen</Filter>
     </FxCompile>
