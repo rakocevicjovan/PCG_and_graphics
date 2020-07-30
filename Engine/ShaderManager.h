@@ -46,8 +46,9 @@ public:
 	inline static void addToKey(VertSignature& vertSig, uint64_t& key, 
 		VAttribSemantic semantic, const ShaderOption& shOpt)
 	{
-		UINT semanticElementCount = vertSig.countAttribute(semantic);
-		key |= (semanticElementCount << shOpt._offset);
+		UINT elemCount = vertSig.countAttribute(semantic);
+		elemCount = min(elemCount, shOpt._maxVal);
+		key |= (elemCount << shOpt._offset);
 	}
 
 
@@ -79,7 +80,7 @@ public:
 
 	static void displayShaderPicker(VertSignature vertSig, Material* mat)
 	{
-		static uint64_t shaderKey{ 0 };
+		uint64_t shaderKey{ 0 };
 
 		enum SHG_LIGHT_MODEL : uint8_t
 		{
@@ -126,8 +127,7 @@ public:
 
 		if (ImGui::Button("Create shader"))
 		{
-			ShaderGenerator::CreatePermFromKey(ShaderGenerator::vsAllOptions, shaderKey);
-			ShaderGenerator::CreatePermFromKey(ShaderGenerator::psAllOptions, shaderKey);
+			ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
 		}
 
 		ImGui::End();

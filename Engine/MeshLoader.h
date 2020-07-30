@@ -78,6 +78,7 @@ public:
 			{
 				++(vertSig._attributes.back()._numElements);
 			}
+			prevNumComponents = uvw;
 		}
 
 		// Normals, quite simple.

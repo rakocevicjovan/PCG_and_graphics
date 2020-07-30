@@ -70,13 +70,13 @@ struct VertSignature
 	uint16_t getOffsetOf(VAttribSemantic semantic, uint8_t index = 0u);
 
 	// This currently can't work with tex coordinates being U/UV/UVW
-	inline bool countAttribute(VAttribSemantic vertAttribSemantic) const
+	inline UINT countAttribute(VAttribSemantic vertAttribSemantic) const
 	{
 		UINT result = 0u;
 		for (const auto& vertAttrib : _attributes)
 			if (vertAttrib._semantic == vertAttribSemantic)
 				return vertAttrib._numElements;
-		return false;
+		return result;
 	}
 };
 

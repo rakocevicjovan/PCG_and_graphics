@@ -15,21 +15,13 @@ bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW,
 		exit(2001);
 	}
 
-	const std::vector<ShaderOption>& options = vsAllOptions;
+	const std::vector<ShaderOption>& options = AllOptions;
 
 	UINT optionCount = options.size();
 	UINT bitCount = 0u;
 
 	for (UINT i = 0; i < options.size(); ++i)
 		bitCount += options[i]._numBits;
-
-	std::vector<D3D_SHADER_MACRO> matchingPermOptions;
-	matchingPermOptions.reserve(optionCount);
-
-	std::string debugString;
-	debugString.reserve(100);
-
-	UINT counter = 0u;
 
 	for (uint64_t i = 0; i < (1 << bitCount); ++i)
 	{
@@ -54,50 +46,46 @@ void ShaderGenerator::CreatePermFromKey(
 	uint64_t key,
 	std::set<uint64_t>& existingKeys)
 {
+	std::list<std::string> values;
 	uint64_t total = 0ul;
-	auto matchingPermOptions = ParseKey(options, key, total);
+	auto matchingPermOptions = ParseKey(options, key, values, total);
 
 	if (!existingKeys.insert(total).second)
 		return;
 
-	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, total);
+	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, "vs", total);
 }
 
 
 
-
-
-
-
-
-
-void ShaderGenerator::CreatePermFromKey(
-	const std::vector<ShaderOption>& options,
-	uint64_t key,
-	const std::string& protoShaderPath,
-	const std::string& outDirPath)
+void ShaderGenerator::CreatePermFromKey(const std::vector<ShaderOption>& options, uint64_t key)
 {
-	std::wstring psp(protoShaderPath.begin(), protoShaderPath.end());
-	
-	ID3DBlob* textBuffer = nullptr;
-	if (FAILED(D3DReadFileToBlob(psp.c_str(), &textBuffer)))
+	ID3DBlob* protoVSbuffer = nullptr;
+	ID3DBlob* protoPSbuffer = nullptr;
+
+	if (FAILED(D3DReadFileToBlob(VS_PROTOSHADER, &protoVSbuffer)) || 
+		FAILED(D3DReadFileToBlob(PS_PROTOSHADER, &protoPSbuffer)))
 	{
-		OutputDebugStringA("Shader prototype not accessible.");
+		OutputDebugStringA("Shader prototype(s) not accessible.");
 		exit(2001);
 	}
 
+	std::list<std::string> values;
 	uint64_t total = 0ul;
-	auto matchingPermOptions = ParseKey(options, key, total);
+	auto matchingPermOptions = ParseKey(options, key, values, total);
 
-	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, total);
+	createShPerm(NATURAL_PERMS, protoVSbuffer, matchingPermOptions, "vs", total);
+	createShPerm(NATURAL_PERMS, protoPSbuffer, matchingPermOptions, "ps", total);
 
-	textBuffer->Release();
+	protoVSbuffer->Release();
+	protoPSbuffer->Release();
 }
 
 
 
 inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
-	const std::vector<ShaderOption>& options, uint64_t key, uint64_t& total)
+	const std::vector<ShaderOption>& options, uint64_t key,
+	std::list<std::string>& values, uint64_t& total)
 {
 	UINT optionCount = options.size();
 
@@ -108,8 +96,6 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
 	permOptDebugString.reserve(100);
 
 	permOptDebugString = std::to_string(key) + " POS ";
-
-	std::list<std::string> valStrings;
 
 	for (UINT j = 0; j < optionCount; ++j)
 	{
@@ -122,8 +108,8 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
 
 		if (result > 0 && result <= so._maxVal && dependency)
 		{
-			valStrings.push_back(std::to_string(result));
-			matchedOptions.push_back({ so.name.c_str(), valStrings.back().c_str() });
+			values.push_back(std::to_string(result));
+			matchedOptions.push_back({ so.name.c_str(), values.back().c_str() });
 			total += (result << so._offset);
 			permOptDebugString += so.name + std::to_string(result) + " ";
 		}
@@ -140,7 +126,7 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
 
 
 void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* textBuffer,
-	const std::vector<D3D_SHADER_MACRO>& permOptions, uint64_t total)
+	const std::vector<D3D_SHADER_MACRO>& permOptions, const char* type, uint64_t total)
 {
 	HRESULT res;
 	ID3DBlob* preprocessedBuffer = nullptr;
@@ -155,7 +141,7 @@ void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* text
 		OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
 	}
 
-	std::string finalFileName = outDirPath + std::to_string(total) + ".hlsl";
+	std::string finalFileName = outDirPath + std::to_string(total) + type + ".hlsl";
 
 	FileUtils::writeAllBytes(finalFileName.c_str(),
 		preprocessedBuffer->GetBufferPointer(),
@@ -172,17 +158,18 @@ void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* text
 		errorMessage->Release();
 		errorMessage = nullptr;
 	}
+	sizeof(ShaderOption);
 }
 
 
 
-const std::vector<ShaderOption> ShaderGenerator::vsAllOptions
+const std::vector<ShaderOption> ShaderGenerator::AllOptions
 {
 	SHG_OPT_TEX, SHG_OPT_NRM, SHG_OPT_COL, SHG_OPT_TAN,
-	SHG_OPT_BTN, SHG_OPT_SIW, SHG_OPT_INS, SHG_OPT_WPS
-};
-
-const std::vector<ShaderOption> ShaderGenerator::psAllOptions
-{
-	SHG_OPT_LMOD, SHG_OPT_ALPHA, SHG_OPT_FOG, SHG_OPT_SHD, SHG_OPT_GAMMA
+	SHG_OPT_BTN, SHG_OPT_SIW, SHG_OPT_INS, 
+	// Pixel shader options
+	SHG_OPT_LMOD, SHG_OPT_ALPHA, SHG_OPT_FOG, SHG_OPT_SHD, SHG_OPT_GAMMA,
+	// Texture options
+	SHG_TX_DIF, SHG_TX_NRM, SHG_TX_SPC, SHG_TX_SHN, SHG_TX_OPC,
+	SHG_TX_DPM, SHG_TX_AMB, SHG_TX_MTL, SHG_TX_RGH, SHG_TX_OTR
 };

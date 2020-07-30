@@ -1,6 +1,15 @@
 #include "Light.hlsli"
 #include "Clustering.hlsli"
 
+cbuffer PSPerCameraBuffer : register(b9)
+{
+	float scr_w;
+	float scr_h;
+	float zNear;
+	float zFar;
+}
+
+
 cbuffer PSPerFrameBuffer : register(b10)
 {
 	float4 eyePos;
@@ -9,10 +18,6 @@ cbuffer PSPerFrameBuffer : register(b10)
 	float2 padding;
 }
 
-cbuffer PSPerCameraBuffer : register(b11)
-{
-
-}
 
 struct PLight
 {
@@ -43,73 +48,131 @@ struct PixelInputType
 #ifdef BTN
 	float3 bitangent : BITANGENT;
 #endif
-#if WPS
+#if LIT > 0
 	float4 worldPos : WPOS;
-#endif
-#if DEPTH
-	float depth : ZDEPTH;
 #endif
 };
 
 // Samplers
-SamplerState SampleType;
+SamplerState Sampler : register(s0);
 
-// Textures
-Texture2D shaderTexture : register(t0);
+#define T(a) 't'##a
+// TEXTURES BEGIN
+#if TEX_DIF
+Texture2D diffuseMap : register(T(TEX_DIF));	// Hope this is the right syntax
+#endif
 
-static const float SpecularPower = 8.f;
+#if TEX_NRM
+Texture2D normalMap : register(t1);
+#endif
+
+#if TEX_SPC
+Texture2D specularMap : register(t2);
+#endif
+
+#if TEX_SHN
+Texture2D shininessMap : register(t3);
+#endif
+
+#if TEX_OCT
+Texture2D opacityMap : register(t4);
+#endif
+
+#if TEX_DPM
+Texture2D displacementMap : register(t5);
+#endif
+
+#if TEX_AOM
+Texture2D ambientOcclusionMap : register(t6);
+#endif
+
+#if TEX_MTL
+Texture2D metallicMap : register(t7);
+#endif
+
+// These are not supported on load because they are usually generated
+#if TEX_RFL
+Texture2D reflectionMap : register(t8);
+#endif
+
+#if TEX_RFR
+Texture2D refractionMap : register(t9);
+#endif
+// TEXTURES END
+
+// This must be provided by the material if required
+//static const float SpecularPower = 8.f;
+
+void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout float3 lightContrib);
+
 
 float4 main(PixelInputType input) : SV_TARGET
 {
-	input.normal = normalize(input.normal);
-
-	// Don't hardcode this, provide in a buffer
-	float n = 1.;
-	float f = 1000.;
-	float viewDepth = zToViewSpace(input.position.z, n, f);
-	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, n, f);
-	//uint3 xyz = getClusterIndexTriplet(input.position.xy, viewDepth, n, f);
-
 	// Independent of lights, determined once
-	float4 colour = shaderTexture.Sample(SampleType, input.tex);	// texture colour
-	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);	// view vector
+#ifdef NRM
+	input.normal = normalize(input.normal);
+#endif
 
-	uint minOffset;
-	uint maxOffset;
+#if TEX > 0
+	float4 colour = diffuseMap.Sample(Sampler, input.tex);
+#endif
+	
+#ifdef (LIT > 0)
+	float3 viewDir = input.worldPos.xyz - eyePos.xy;
+	float distToPoint = length(viewDir);
+	viewDir /= distToPoint;
 
-	minOffset = offsetGrid[clusterIndex].x;
-	maxOffset = offsetGrid[clusterIndex + 1].x;
+	// Light code using clustered shading
+	float viewDepth = zToViewSpace(input.position.z, zNear, zFar);
+	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, n, f);
+
+	uint minOffset = offsetGrid[clusterIndex].x;
+	uint maxOffset = offsetGrid[clusterIndex + 1].x;
 
 	// Process lights
 	float3 lightContrib = float3(0., 0., 0.);
 
-	PLight pl;
-
-
 	for (uint i = minOffset; i < maxOffset; i++)
 	{
 		uint indices = lightIndexBuffer[i];
-		pl = lightBuffer[indices];
+		PLight pl = lightBuffer[indices];
 		calcColour(pl, input, viewDir, lightContrib);
-
-		// When I fix the artefact and get back to this, try using 16 bit indices
-		//uint firstIndex  = indices >> 16;				// get top half, shift bottom half to oblivion
-		//pl = lightBuffer[firstIndex];
-		//calcColour(pl, input, viewDir, lightContrib);
-
-		//uint secondIndex = (indices & 0x0000FFFF);	// mask out top half, get bottom half
-		//pl = lightBuffer[secondIndex];
-		//calcColour(pl, input, viewDir, lightContrib);
-
-		//lightContrib = (float3)(span);
 	}
 
-	//colour.xyz = (float3)((maxOffset - minOffset) / 3.);
+	// fake ambient/directional
+	colour.xyz *= max(lightContrib, float3(.1, .1, .1));
+#endif
 
-	colour.xyz = max(lightContrib, float3(1., 1., 1.) * 0.1);	// fake ambient/directional		//  * colour.xyz
-	//colour.xyz = (lightContrib + float3(1., 1., 1.) * 0.1);
+#ifdef FOG
+	// My current fog function is not general purpose, make one and add
+#endif
 
-	//colour.rgb = gammaCorrect(colour.xyz, 1.0f / 2.2f);
+#ifdef GAMMA
+	colour.rgb = gammaCorrect(colour.xyz, 1.0f / 2.2f);
+#endif
 
 	return colour;
+}
+
+
+void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout float3 lightContrib)
+{
+	float3 lightColour = pl.rgbi.rgb;
+
+	float3 lightDir = input.worldPos.xyz - pl.posRange.xyz;
+	float dist = length(lightDir);
+	lightDir /= dist;
+
+	float intensity = pl.rgbi.w / (dist * dist);	// Square fallof, apparently correct but a bit aggressive maybe?
+
+	//calculate diffuse light
+	float diffIntensity = max(dot(input.normal, -lightDir), 0.0f);
+	float3 diffuse = lightColour * diffIntensity;
+
+	//calculate specular light
+	float3 reflection = normalize(reflect(-lightDir, input.normal));
+	float specIntensity = pow(saturate(dot(reflection, viewDir)), 8.f);
+	float3 specular = lightColour * specIntensity * diffIntensity;
+
+	lightContrib += ((diffuse + specular) * intensity);
 }
