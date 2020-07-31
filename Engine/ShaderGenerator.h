@@ -87,7 +87,7 @@ private:
 
 	static void EncodeVertexData(const VertSignature& vertSig, uint64_t& key);
 
-	static void EncodeTextureData(std::vector<RoleTexturePair>& texData, uint64_t& key);
+	static void EncodeTextureData(std::vector<TextureMetaData>& texData, uint64_t& key);
 
 public:
 

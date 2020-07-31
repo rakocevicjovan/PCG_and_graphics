@@ -82,11 +82,11 @@ namespace GuiBlocks
 		ImGui::Text("Textures");
 		ImGui::Indent();
 
-		for (int i = 0; i < mat._texDescription.size(); i++)
+		for (int i = 0; i < mat._texMetaData.size(); i++)
 		{
-			ImGui::Text(TEX_ROLE_NAMES.at(mat._texDescription[i]._role));
+			ImGui::Text(TEX_ROLE_NAMES.at(mat._texMetaData[i]._role));
 			ImGui::SameLine();
-			ImGui::Text(mat._texDescription[i]._tex->getName().c_str());
+			ImGui::Text(mat._texMetaData[i]._tex->getName().c_str());
 		}
 
 		ImGui::Unindent();

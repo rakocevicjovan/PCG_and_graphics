@@ -83,6 +83,7 @@ public:
 			ShaderCompiler shc;
 			shc.init(device);
 
+			// VS
 			ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
 			auto vertInLayElements = vertSig.createVertInLayElements();
 
@@ -92,11 +93,14 @@ public:
 			std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>
 				(shc, vsPathW, vertInLayElements, std::vector<D3D11_BUFFER_DESC>{});
 			
+			// PS
+			D3D11_SAMPLER_DESC samplerDesc
+			{};
 			std::string psPath(NATURAL_PERMS + std::to_string(shaderKey) + "ps.hlsl");
 			std::wstring psPathW(psPath.begin(), psPath.end());
 
 			std::unique_ptr<PixelShader> ps = std::make_unique<PixelShader>
-				(shc, psPathW, D3D11_SAMPLER_DESC{}, std::vector<D3D11_BUFFER_DESC>{});
+				(shc, psPathW, , std::vector<D3D11_BUFFER_DESC>{});
 			
 			shc.compileVS(vsPathW, vertInLayElements, vs->_vsPtr, vs->_layout);
 			shc.compilePS(psPathW, ps->_psPtr);

@@ -25,9 +25,9 @@ void ShaderGenerator::EncodeVertexData(const VertSignature& vertSig, uint64_t& k
 
 
 
-void ShaderGenerator::EncodeTextureData(std::vector<RoleTexturePair>& texData, uint64_t& key)
+void ShaderGenerator::EncodeTextureData(std::vector<TextureMetaData>& texData, uint64_t& key)
 {
-	for (const RoleTexturePair& rtp : texData)
+	for (const TextureMetaData& rtp : texData)
 	{
 		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(rtp._role);
 		if (iter != TEX_ROLE_TO_SHADER_OPTION.end())
@@ -45,7 +45,7 @@ ShaderKey ShaderGenerator::CreateShaderKey(UINT lmIndex, const VertSignature& ve
 
 	shaderKey |= (lmIndex << SHG_OPT_LMOD._offset);
 	EncodeVertexData(vertSig, shaderKey);
-	EncodeTextureData(mat->_texDescription, shaderKey);
+	EncodeTextureData(mat->_texMetaData, shaderKey);
 
 	return shaderKey;
 }

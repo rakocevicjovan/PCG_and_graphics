@@ -1,6 +1,16 @@
 #pragma once
 #include <vector>
 
+enum TextureMapMode : uint8_t
+{
+	WRAP,
+	MIRROR,
+	CLAMP,
+	BORDER,
+	MIRROR_ONCE	// Available in DX11 but assimp doesn't support it
+};
+
+
 // Used as indices into the array of values that indicate texture registers in shaders
 enum TextureRole : uint8_t
 {

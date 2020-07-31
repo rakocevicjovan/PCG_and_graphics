@@ -60,7 +60,7 @@ void TDLevel::init(Engine& sys)
 	floorTex.SetUpAsResource(S_DEVICE);
 	floorMesh._textures.push_back(floorTex);
 
-	floorMesh._baseMaterial._texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
+	floorMesh._baseMaterial._texMetaData.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
 	
 	floorRenderable = Renderable(floorMesh);
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("lightVS"));
@@ -94,7 +94,7 @@ void TDLevel::init(Engine& sys)
 	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
 	debugSphereActor._renderables.back()._transform = dbgSphMat;
 
-	debugSphereActor._renderables[0].mat->_texDescription.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
+	debugSphereActor._renderables[0].mat->_texMetaData.push_back({ TextureRole::DIFFUSE, &floorMesh._textures.back() });
 	
 	///
 

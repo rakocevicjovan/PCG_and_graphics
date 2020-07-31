@@ -274,13 +274,27 @@ bool AssimpWrapper::loadMaterialTextures(
 	aiTextureType aiTexType,
 	TextureRole role)
 {
+	static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
+	{
+		{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
+		{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
+		{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
+		{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
+	};
+
 	// Iterate all textures related to the material, keep the ones that can load
 	for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
 	{
 		Texture curTexture;
 
 		aiString aiTexPath;
-		aiMat->GetTexture(aiTexType, i, &aiTexPath);
+		UINT uvIndex = 0u;
+		aiTextureMapMode aiMapMode = aiTextureMapMode_Wrap;
+
+		aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapMode);
+		
+		TextureMapMode mapMode = TEXMAPMODE_MAP.at(aiMapMode);
+
 		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
 
 		// Check if embedded first, not the most common case but faster to check anyways
@@ -315,7 +329,12 @@ bool AssimpWrapper::loadMaterialTextures(
 		}
 
 		textures.push_back(curTexture);	// Should try to do std::move when this is done
-		mat->_texDescription.push_back({ role, reinterpret_cast<Texture*>(textures.size() - 1) });	// Textures will relocate
+		mat->_texMetaData.push_back({ 
+			role, 
+			reinterpret_cast<Texture*>(textures.size() - 1),
+			mapMode,
+			static_cast<uint8_t>(uvIndex)
+			});	// Textures will relocate
 	}
 	return true;
 }

@@ -30,7 +30,7 @@ public:
 
 		_material->_opaque = true;
 
-		for (RoleTexturePair& rtp : _material->_texDescription)
+		for (TextureMetaData& rtp : _material->_texMetaData)
 		{
 			rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
 			rtp._tex->SetUpAsResource(device);

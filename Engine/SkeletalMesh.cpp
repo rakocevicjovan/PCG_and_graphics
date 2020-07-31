@@ -24,7 +24,7 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 	_baseMaterial._opaque = true;
 
-	for (RoleTexturePair& rtp : _baseMaterial._texDescription)
+	for (TextureMetaData& rtp : _baseMaterial._texMetaData)
 	{
 		rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
 		rtp._tex->SetUpAsResource(device);

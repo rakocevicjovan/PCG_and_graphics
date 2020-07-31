@@ -8,10 +8,12 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
-struct RoleTexturePair
+struct TextureMetaData
 {
 	TextureRole _role;
 	Texture* _tex;
+	TextureMapMode _mapMode = TextureMapMode::WRAP;
+	uint8_t _uvIndex = 0u;
 };
 
 //contains everything that the attached shaders need to be set to run... I guess?
@@ -26,7 +28,7 @@ protected:
 public:
 
 	//second most important sorting criteria
-	std::vector<RoleTexturePair> _texDescription;
+	std::vector<TextureMetaData> _texMetaData;
 	
 	// determines whether it goes to the transparent or opaque queue
 	bool _opaque;
@@ -46,6 +48,32 @@ public:
 
 	void setVS(VertexShader* vs);
 	void setPS(PixelShader* ps);
+
+
+
+	D3D11_SAMPLER_DESC createSamplerDesc(UINT i) const
+	{
+		static const std::map<TextureMapMode, D3D11_TEXTURE_ADDRESS_MODE> ADDR_MODE_MAP
+		{
+			{CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP},
+			{WRAP, D3D11_TEXTURE_ADDRESS_WRAP},
+			{MIRROR, D3D11_TEXTURE_ADDRESS_MIRROR},
+			{MIRROR_ONCE, D3D11_TEXTURE_ADDRESS_MIRROR_ONCE},
+			{BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
+		};
+
+		const TextureMetaData& tmd = _texMetaData[i];
+
+		// Uses default for now, but make it a setting eventually.
+		D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+		D3D11_TEXTURE_ADDRESS_MODE tam = ADDR_MODE_MAP.at(tmd._mapMode);
+
+		return Sampler::createSamplerDesc(filter, D3D11_COMPARISON_ALWAYS, 0., 
+			D3D11_FLOAT32_MAX, tam, tam, tam);	// goes the drum...
+	}
+
+
 
 	template <typename Archive>
 	void serialize(Archive& ar, std::vector<UINT>& texIDs)

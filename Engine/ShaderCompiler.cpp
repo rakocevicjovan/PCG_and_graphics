@@ -185,9 +185,9 @@ void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename,
 	std::string filePathNarrow(filePath.begin(), filePath.end());
 	if (!errorMessage)
 	{
-		//MessageBox(*_hwnd, filePath.c_str(), L"Shader file not found.", MB_OK);
 		std::string errMsg = "Shader file not found: " + filePathNarrow;
 		OutputDebugStringA(errMsg.c_str());
+		__debugbreak();
 		return;
 	}
 
@@ -198,7 +198,7 @@ void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename,
 	errorMessage->Release();
 	errorMessage = nullptr;
 
-	//MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
 	std::string errMsg = "Error compiling shader.  Check shader-error.txt for message.";
+	__debugbreak();
 	OutputDebugStringA(errMsg.c_str());
 }
