@@ -6,9 +6,8 @@ ShaderCompiler::ShaderCompiler() {}
 
 
 
-void ShaderCompiler::ShaderCompiler::init(HWND* hwnd, ID3D11Device* device)
+void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 {
-	_hwnd = hwnd;
 	_device = device;
 }
 
@@ -22,7 +21,7 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 	{
-		outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
+		outputError(errorMessage, *(filePath.c_str()), filePath);
 		return false;
 	}
 
@@ -58,7 +57,7 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 	{
-		outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
+		outputError(errorMessage, *(filePath.c_str()), filePath);
 		return false;
 	}
 
@@ -86,7 +85,7 @@ bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShade
 
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 	{
-		outputError(errorMessage, *_hwnd, *(filePath.c_str()), filePath);
+		outputError(errorMessage, *(filePath.c_str()), filePath);
 		return false;
 	}
 
@@ -181,11 +180,14 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& 
 
 
 
-void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename, const std::wstring& filePath) const
+void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const
 {
+	std::string filePathNarrow(filePath.begin(), filePath.end());
 	if (!errorMessage)
 	{
-		MessageBox(*_hwnd, filePath.c_str(), L"Shader file not found.", MB_OK);
+		//MessageBox(*_hwnd, filePath.c_str(), L"Shader file not found.", MB_OK);
+		std::string errMsg = "Shader file not found: " + filePathNarrow;
+		OutputDebugStringA(errMsg.c_str());
 		return;
 	}
 
@@ -196,5 +198,7 @@ void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shad
 	errorMessage->Release();
 	errorMessage = nullptr;
 
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
+	//MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", &shaderFilename, MB_OK);
+	std::string errMsg = "Error compiling shader.  Check shader-error.txt for message.";
+	OutputDebugStringA(errMsg.c_str());
 }

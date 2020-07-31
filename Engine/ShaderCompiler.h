@@ -52,13 +52,13 @@ private:
 	HWND* _hwnd;
 	ID3D11Device* _device;
 
-	void ShaderCompiler::outputError(ID3D10Blob* errorMessage, HWND hwnd, WCHAR shaderFilename, const std::wstring& filePath) const;
+	void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const;
 
 public:
 
 	ShaderCompiler();
 
-	void ShaderCompiler::init(HWND* hwnd, ID3D11Device* device);
+	void ShaderCompiler::init(ID3D11Device* device);
 
 	bool compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const;
 	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData = nullptr) const;

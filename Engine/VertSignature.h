@@ -31,7 +31,10 @@ enum class VAttribType : uint8_t
 	UINT2,
 	UINT3,
 	UINT4,
-	TYPELESS
+	TYPELESS,
+	TYPELESS1,
+	TYPELESS2,
+	TYPELESS3
 };
 
 
@@ -69,6 +72,8 @@ struct VertSignature
 
 	uint16_t getOffsetOf(VAttribSemantic semantic, uint8_t index = 0u);
 
+	std::vector<D3D11_INPUT_ELEMENT_DESC> createVertInLayElements();
+
 	// This currently can't work with tex coordinates being U/UV/UVW
 	inline UINT countAttribute(VAttribSemantic vertAttribSemantic) const
 	{
@@ -82,26 +87,36 @@ struct VertSignature
 
 
 
-// THIS IS NOT INTENDED TO WORK FROM THIS CLASS, IT'S OUT OF SCOPE, BUT HANDY TO HAVE VISIBLE
-/*
-void createInLayDesc()
+static const std::vector<const char*> VERTSIG_TO_SEMANTIC
 {
-	std::vector<D3D11_INPUT_ELEMENT_DESC> layout;
+	"POSITION",
+	"TEXCOORD",
+	"NORMAL",
+	"TANGENT",
+	"BITANGENT",
+	"COLOUR",
+	"B_IDX",
+	"B_WGT"
+};
 
-	for (int i = 0; i < _attributes.size(); ++i)
-	{
-		const auto& attr = _attributes[i];
 
-		D3D11_INPUT_ELEMENT_DESC ied
-		{
-			"PLACEHOLDER",					// Get from static vector (uint is index, O(1) looup)
-			0,								// Handle multiple elements with the same semantic (mat4)
-			DXGI_FORMAT_R32G32B32_FLOAT, 	// Get from static vector
-			0,								// Support multiple buffers at once, supported: [0, 15]
-			D3D11_APPEND_ALIGNED_ELEMENT,	// Automagical...
-			D3D11_INPUT_PER_VERTEX_DATA,	// Per vertex or per instance data
-			0								// Advance
-		};
-	}
-}
-*/
+// Currently only uses 32 bits for everything, might want to reduce it
+static const std::vector<DXGI_FORMAT> VERTSIG_TO_DXGIFORMAT
+{
+	DXGI_FORMAT_R32_FLOAT,
+	DXGI_FORMAT_R32G32_FLOAT,
+	DXGI_FORMAT_R32G32B32_FLOAT,
+	DXGI_FORMAT_R32G32B32A32_FLOAT,
+	DXGI_FORMAT_R32_SINT,
+	DXGI_FORMAT_R32G32_SINT,
+	DXGI_FORMAT_R32G32B32_SINT,
+	DXGI_FORMAT_R32G32B32A32_SINT,
+	DXGI_FORMAT_R32_UINT,
+	DXGI_FORMAT_R32G32_UINT,
+	DXGI_FORMAT_R32G32B32_UINT,
+	DXGI_FORMAT_R32G32B32A32_UINT,
+	DXGI_FORMAT_R32_TYPELESS,
+	DXGI_FORMAT_R32G32_TYPELESS,
+	DXGI_FORMAT_R32G32B32_TYPELESS,
+	DXGI_FORMAT_R32G32B32A32_TYPELESS
+};

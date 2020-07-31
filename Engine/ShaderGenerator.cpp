@@ -3,57 +3,51 @@
 
 
 
-bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW, const std::string& outDirPath)
+void ShaderGenerator::addToKey(const VertSignature& vertSig, uint64_t& key,
+	VAttribSemantic semantic, const ShaderOption& shOpt)
 {
-	std::set<uint64_t> existingKeys;
-
-	ID3DBlob* textBuffer = nullptr;
-
-	if (FAILED(D3DReadFileToBlob(ogFilePathW.c_str(), &textBuffer)))
-	{
-		OutputDebugStringA("Shader prototype not accessible.");
-		exit(2001);
-	}
-
-	const std::vector<ShaderOption>& options = AllOptions;
-
-	UINT optionCount = options.size();
-	UINT bitCount = 0u;
-
-	for (UINT i = 0; i < options.size(); ++i)
-		bitCount += options[i]._numBits;
-
-	for (uint64_t i = 0; i < (1 << bitCount); ++i)
-	{
-		CreatePermFromKey(outDirPath, textBuffer, options, i, existingKeys);
-	}
-
-	if (textBuffer)
-	{
-		textBuffer->Release();
-		textBuffer = nullptr;
-	}
-
-	return true;
+	UINT elemCount = vertSig.countAttribute(semantic);
+	elemCount = min(elemCount, shOpt._maxVal);
+	key |= (elemCount << shOpt._offset);
 }
 
 
 
-void ShaderGenerator::CreatePermFromKey(
-	const std::string& outDirPath,
-	ID3DBlob*& textBuffer,
-	const std::vector<ShaderOption>& options,
-	uint64_t key,
-	std::set<uint64_t>& existingKeys)
+void ShaderGenerator::EncodeVertexData(const VertSignature& vertSig, uint64_t& key)
 {
-	std::list<std::string> values;
-	uint64_t total = 0ul;
-	auto matchingPermOptions = ParseKey(options, key, values, total);
+	addToKey(vertSig, key, VAttribSemantic::TEX_COORD, SHG_OPT_TEX);
+	addToKey(vertSig, key, VAttribSemantic::COL, SHG_OPT_COL);
+	addToKey(vertSig, key, VAttribSemantic::NORMAL, SHG_OPT_NRM);
+	addToKey(vertSig, key, VAttribSemantic::TANGENT, SHG_OPT_TAN);
+	addToKey(vertSig, key, VAttribSemantic::BITANGENT, SHG_OPT_BTN);
+	addToKey(vertSig, key, VAttribSemantic::B_IDX, SHG_OPT_SIW);
+}
 
-	if (!existingKeys.insert(total).second)
-		return;
 
-	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, "vs", total);
+
+void ShaderGenerator::EncodeTextureData(std::vector<RoleTexturePair>& texData, uint64_t& key)
+{
+	for (const RoleTexturePair& rtp : texData)
+	{
+		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(rtp._role);
+		if (iter != TEX_ROLE_TO_SHADER_OPTION.end())
+			key |= (1 << iter->second->_offset);
+		else
+			OutputDebugStringA("Matching shader option for texture type not found.");
+	}
+}
+
+
+
+ShaderKey ShaderGenerator::CreateShaderKey(UINT lmIndex, const VertSignature& vertSig, Material* mat)
+{
+	ShaderKey shaderKey{0ul};
+
+	shaderKey |= (lmIndex << SHG_OPT_LMOD._offset);
+	EncodeVertexData(vertSig, shaderKey);
+	EncodeTextureData(mat->_texDescription, shaderKey);
+
+	return shaderKey;
 }
 
 
@@ -163,6 +157,61 @@ void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* text
 
 
 
+bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW, const std::string& outDirPath)
+{
+	std::set<uint64_t> existingKeys;
+
+	ID3DBlob* textBuffer = nullptr;
+
+	if (FAILED(D3DReadFileToBlob(ogFilePathW.c_str(), &textBuffer)))
+	{
+		OutputDebugStringA("Shader prototype not accessible.");
+		exit(2001);
+	}
+
+	const std::vector<ShaderOption>& options = AllOptions;
+
+	UINT optionCount = options.size();
+	UINT bitCount = 0u;
+
+	for (UINT i = 0; i < options.size(); ++i)
+		bitCount += options[i]._numBits;
+
+	for (uint64_t i = 0; i < (1 << bitCount); ++i)
+	{
+		CreatePermFromKey(outDirPath, textBuffer, options, i, existingKeys);
+	}
+
+	if (textBuffer)
+	{
+		textBuffer->Release();
+		textBuffer = nullptr;
+	}
+
+	return true;
+}
+
+
+
+void ShaderGenerator::CreatePermFromKey(
+	const std::string& outDirPath,
+	ID3DBlob*& textBuffer,
+	const std::vector<ShaderOption>& options,
+	uint64_t key,
+	std::set<uint64_t>& existingKeys)
+{
+	std::list<std::string> values;
+	uint64_t total = 0ul;
+	auto matchingPermOptions = ParseKey(options, key, values, total);
+
+	if (!existingKeys.insert(total).second)
+		return;
+
+	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, "vs", total);
+}
+
+
+
 const std::vector<ShaderOption> ShaderGenerator::AllOptions
 {
 	SHG_OPT_TEX, SHG_OPT_NRM, SHG_OPT_COL, SHG_OPT_TAN,
@@ -171,5 +220,5 @@ const std::vector<ShaderOption> ShaderGenerator::AllOptions
 	SHG_OPT_LMOD, SHG_OPT_ALPHA, SHG_OPT_FOG, SHG_OPT_SHD, SHG_OPT_GAMMA,
 	// Texture options
 	SHG_TX_DIF, SHG_TX_NRM, SHG_TX_SPC, SHG_TX_SHN, SHG_TX_OPC,
-	SHG_TX_DPM, SHG_TX_AMB, SHG_TX_MTL, SHG_TX_RGH, SHG_TX_OTR
+	SHG_TX_DPM, SHG_TX_AMB, SHG_TX_MTL, SHG_TX_RGH, SHG_TX_RFL, SHG_TX_RFR
 };

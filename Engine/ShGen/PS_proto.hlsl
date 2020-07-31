@@ -111,7 +111,7 @@ float4 main(PixelInputType input) : SV_TARGET
 #if NRM > 0
 	input.normal = normalize(input.normal);	// Might not be needed before map
 // Does NOT use passed in bitangents yet, ignores them @TODO
-#if TEX_NRM > 0 && TAN > 0 && TEX > 0	// Dependencies are already set!
+#if TEX_NRM > 0 && TAN > 0 && TEX > 0	// Dependencies are already resolved tbh
 	mapNormals(Sampler, normalMap, input.tex, input.tangent, input.normal);
 #endif
 #endif

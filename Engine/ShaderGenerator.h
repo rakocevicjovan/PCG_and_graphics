@@ -1,9 +1,14 @@
 #pragma once
 #include "ShaderCompiler.h"
 #include "FileUtilities.h"
-#include <algorithm>
+#include "Material.h"
+#include "VertSignature.h"
+#include <map>
 #include <set>
 #include <string>
+
+
+typedef uint64_t ShaderKey;
 
 // Constants for external code to have some default paths
 static const wchar_t* VS_PROTOSHADER = L"ShGen\\VS_proto.hlsl";
@@ -54,28 +59,49 @@ static const ShaderOption SHG_TX_DPM { "TEX_DPM", PS_T_O + 5 };
 static const ShaderOption SHG_TX_AMB { "TEX_AMB", PS_T_O + 6 };
 static const ShaderOption SHG_TX_MTL { "TEX_MTL", PS_T_O + 7 };
 static const ShaderOption SHG_TX_RGH { "TEX_RGH", PS_T_O + 8 };
-static const ShaderOption SHG_TX_OTR { "TEX_OTR", PS_T_O + 9 };
+static const ShaderOption SHG_TX_RFL { "TEX_RFL", PS_T_O + 9 };
+static const ShaderOption SHG_TX_RFR { "TEX_RFR", PS_T_O + 10 };
+
+static const std::map<TextureRole, const ShaderOption*> TEX_ROLE_TO_SHADER_OPTION
+{
+	{ DIFFUSE, &SHG_TX_DIF		},
+	{ NORMAL,  &SHG_TX_NRM		},
+	{ SPECULAR, &SHG_TX_SPC		},
+	{ SHININESS, &SHG_TX_SHN	},
+	{ OPACITY, &SHG_TX_OPC		},
+	{ DISPLACEMENT, &SHG_TX_DPM	},
+	{ AMBIENT, &SHG_TX_AMB		},
+	{ METALLIC, &SHG_TX_MTL		},
+	{ ROUGHNESS, &SHG_TX_RGH	},
+	{ REFLECTION, &SHG_TX_RFL	},
+	{ REFRACTION, &SHG_TX_RFR	}
+};
+
 
 
 class ShaderGenerator
 {
+private:
+	static void addToKey(const VertSignature& vertSig, uint64_t& key,
+		VAttribSemantic semantic, const ShaderOption& shOpt);
+
+	static void EncodeVertexData(const VertSignature& vertSig, uint64_t& key);
+
+	static void EncodeTextureData(std::vector<RoleTexturePair>& texData, uint64_t& key);
+
 public:
 
 	static const std::vector<ShaderOption> AllOptions;
 
-	static bool preprocessAllPermutations(
-		const std::wstring& ogFilePathW, const std::string& outDirPath);
-
-	// This one is used in loop generation, the other one standalone
-	static void CreatePermFromKey(
-		const std::string& outDirPath, ID3DBlob*& textBuffer,
-		const std::vector<ShaderOption>& options, uint64_t key, std::set<uint64_t>& existingKeys);
+	static ShaderKey CreateShaderKey(UINT lmIndex, const VertSignature& vertSig, Material* mat);
 
 	static void CreatePermFromKey(const std::vector<ShaderOption>& options, uint64_t key);
 
 	static inline std::vector<D3D_SHADER_MACRO> ParseKey(
-		const std::vector<ShaderOption>& options, uint64_t key, 
-		std::list<std::string>& values, uint64_t& total);
+		const std::vector<ShaderOption>& options, 
+		uint64_t key, 
+		std::list<std::string>& values, 
+		uint64_t& total);
 
 	static void createShPerm(
 		const std::string& outDirPath,
@@ -83,4 +109,28 @@ public:
 		const std::vector<D3D_SHADER_MACRO>& permOptions,
 		const char* type,
 		uint64_t total);
+
+	// Neat for testing but there could be too many to use this practically
+	static bool preprocessAllPermutations(
+		const std::wstring& ogFilePathW, const std::string& outDirPath);
+
+	// This one is used in loop generation, the other one standalone
+	static void CreatePermFromKey(
+		const std::string& outDirPath,
+		ID3DBlob*& textBuffer,
+		const std::vector<ShaderOption>& options,
+		uint64_t key,
+		std::set<uint64_t>& existingKeys);
+
+
+	static void CreateVertInLay(const VertSignature& vertSig)
+	{
+		std::vector<D3D11_INPUT_ELEMENT_DESC> vertInLay;
+
+		for (const VAttrib& va : vertSig._attributes)
+		{
+
+		}
+
+	}
 };

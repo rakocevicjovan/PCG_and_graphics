@@ -5,6 +5,7 @@
 #include "GuiBlocks.h"
 #include "VertSignature.h"
 #include "Material.h"
+#include <memory>
 
 
 
@@ -23,79 +24,34 @@ struct ShaderPack
 	PixelShader* ps;
 };
 
-static const std::map<TextureRole, const ShaderOption*> TEX_ROLE_TO_SHADER_OPTION
-{
-	{ DIFFUSE, &SHG_TX_DIF		},
-	{ NORMAL,  &SHG_TX_NRM		},
-	{ SPECULAR, &SHG_TX_SPC		},
-	{ SHININESS, &SHG_TX_SHN	},
-	{ OPACITY, &SHG_TX_OPC		},
-	{ DISPLACEMENT, &SHG_TX_DPM	},
-	{ AMBIENT, &SHG_TX_AMB		},
-	{ METALLIC, &SHG_TX_MTL		},
-	{ ROUGHNESS, &SHG_TX_RGH	},
-	{ OTHER, nullptr			} //Can be loaded but not used in generation
-};
-
 
 
 class ShaderManager
 {
+private:
+
+	enum SHG_LIGHT_MODEL : uint8_t
+	{
+		SHG_LM_NONE = 0u,
+		SHG_LM_LAMBERT = 1u,
+		SHG_LM_PHONG = 2u
+	};
+
+	struct LightModelIndex
+	{
+		std::string name;
+		SHG_LIGHT_MODEL index;
+	};
+
+
 public:
 
-	inline static void addToKey(VertSignature& vertSig, uint64_t& key, 
-		VAttribSemantic semantic, const ShaderOption& shOpt)
-	{
-		UINT elemCount = vertSig.countAttribute(semantic);
-		elemCount = min(elemCount, shOpt._maxVal);
-		key |= (elemCount << shOpt._offset);
-	}
 
-
-	static void encodeVertexData(VertSignature vertSig, uint64_t& key)
-	{
-		addToKey(vertSig, key, VAttribSemantic::TEX_COORD, SHG_OPT_TEX);
-		addToKey(vertSig, key, VAttribSemantic::COL, SHG_OPT_COL);
-		addToKey(vertSig, key, VAttribSemantic::NORMAL, SHG_OPT_NRM);
-		addToKey(vertSig, key, VAttribSemantic::TANGENT, SHG_OPT_TAN);
-		addToKey(vertSig, key, VAttribSemantic::BITANGENT, SHG_OPT_BTN);
-		addToKey(vertSig, key, VAttribSemantic::B_IDX, SHG_OPT_SIW);
-	}
-
-
-
-	static void encodeTextureData(std::vector<RoleTexturePair>& texData, uint64_t& key)
-	{
-		for (const RoleTexturePair& rtp : texData)
-		{
-			auto iter = TEX_ROLE_TO_SHADER_OPTION.find(rtp._role);
-			if (iter != TEX_ROLE_TO_SHADER_OPTION.end())
-				key |= (1 << iter->second->_offset);
-			else
-				OutputDebugStringA("Matching shader option for texture type not found.");
-		}
-	}
-
-
-
-	static void displayShaderPicker(VertSignature vertSig, Material* mat)
+	static void displayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device)
 	{
 		uint64_t shaderKey{ 0 };
 
-		enum SHG_LIGHT_MODEL : uint8_t
-		{
-			SHG_LM_NONE = 0u,
-			SHG_LM_LAMBERT = 1u,
-			SHG_LM_PHONG = 2u
-		};
-
-		struct LightModelIndex
-		{
-			std::string name;
-			SHG_LIGHT_MODEL index;
-		};
-
-		static std::vector<LightModelIndex> lmiOptions
+		static const std::vector<LightModelIndex> lmiOptions
 		{
 			{ "NONE",		SHG_LM_NONE},
 			{ "LAMBERT",	SHG_LM_LAMBERT},
@@ -103,7 +59,7 @@ public:
 		};
 
 		// Default lambert
-		static LightModelIndex* selected = &lmiOptions[1];
+		static const LightModelIndex* selected = &lmiOptions[1];
 
 		if (ImGui::Begin("Shader picker"))
 		{
@@ -118,16 +74,32 @@ public:
 			}
 		}
 
-		shaderKey |= (selected->index << SHG_OPT_LMOD._offset);
-
-		encodeVertexData(vertSig, shaderKey);
-		encodeTextureData(mat->_texDescription, shaderKey);
+		shaderKey = ShaderGenerator::CreateShaderKey(selected->index, vertSig, mat);
 
 		ImGui::Text("Key: %lu", shaderKey);
 
 		if (ImGui::Button("Create shader"))
 		{
+			ShaderCompiler shc;
+			shc.init(device);
+
 			ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
+			auto vertInLayElements = vertSig.createVertInLayElements();
+
+			std::string vsPath(NATURAL_PERMS + std::to_string(shaderKey) + "vs.hlsl");
+			std::wstring vsPathW(vsPath.begin(), vsPath.end());
+
+			std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>
+				(shc, vsPathW, vertInLayElements, std::vector<D3D11_BUFFER_DESC>{});
+			
+			std::string psPath(NATURAL_PERMS + std::to_string(shaderKey) + "ps.hlsl");
+			std::wstring psPathW(psPath.begin(), psPath.end());
+
+			std::unique_ptr<PixelShader> ps = std::make_unique<PixelShader>
+				(shc, psPathW, D3D11_SAMPLER_DESC{}, std::vector<D3D11_BUFFER_DESC>{});
+			
+			shc.compileVS(vsPathW, vertInLayElements, vs->_vsPtr, vs->_layout);
+			shc.compilePS(psPathW, ps->_psPtr);
 		}
 
 		ImGui::End();

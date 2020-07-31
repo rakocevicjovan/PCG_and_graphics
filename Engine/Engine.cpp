@@ -52,7 +52,7 @@ bool Engine::Initialize()
 	//loads in the td game and first level for now... cba going through the selection each time
 	_resMan.init(_device);
 
-	_shaderCompiler.init(&_hwnd, _device);
+	_shaderCompiler.init(_device);
 	_shaderCache.init(&_shaderCompiler);
 	_matCache.init(&_shaderCache, &_resMan);
 	

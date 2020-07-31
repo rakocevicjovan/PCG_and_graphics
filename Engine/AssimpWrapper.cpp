@@ -260,9 +260,6 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 
 		// Other maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_UNKNOWN, OTHER);
-
-		// Weird properties... that I never really saw trigger
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NONE, OTHER);
 	}
 }
 

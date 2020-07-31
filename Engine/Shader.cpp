@@ -8,11 +8,7 @@
 
 
 
-UINT Shader::ID_COUNTER = 0u;
-
-
-
-Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions) :_id(ID_COUNTER++)
+Shader::Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions)
 {
 	_path = path;
 	_cbuffers.resize(descriptions.size());

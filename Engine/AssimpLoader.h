@@ -54,7 +54,7 @@ public:
 
 		ShaderCompiler shc;
 
-		shc.init(const_cast<HWND*>(sys.getHWND()), S_DEVICE);	// Temporary
+		shc.init(S_DEVICE);	// Temporary
 
 		std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_layout =
 		{

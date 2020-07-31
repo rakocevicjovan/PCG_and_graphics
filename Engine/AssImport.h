@@ -244,7 +244,7 @@ public:
 				{
 					SkeletalMesh* skm = &_skModel->_meshes[i];
 					GuiBlocks::displaySkMesh(skm);
-					ShaderManager::displayShaderPicker(skm->_vertSig, &skm->_baseMaterial);
+					ShaderManager::displayShaderPicker(skm->_vertSig, &skm->_baseMaterial, _device);
 					ImGui::TreePop();
 				}
 				ImGui::PopID();

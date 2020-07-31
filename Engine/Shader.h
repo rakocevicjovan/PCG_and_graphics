@@ -19,11 +19,10 @@ struct TexLayout
 class Shader
 {
 protected:
-	static UINT ID_COUNTER;
 	Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
-	const UINT _id;
+	UINT _id;
 	SHADER_TYPE _type;
 	std::wstring _path;
 
@@ -33,10 +32,7 @@ public:
 	//set manually, similar to reflected data minus the texture bind slots
 	std::vector<CBuffer> _cbuffers;
 
-	
-
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
-	// which does mean that they have to be in successive texture registers per type but this is not a problem
 	TexLayout _textureRegisters[TextureRole::NUM_ROLES];
 
 	// alternative to the automatic system, for custom data
@@ -64,6 +60,14 @@ public:
 		const std::wstring& path, 
 		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, 
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
+
+	~VertexShader()
+	{
+		if (_vsPtr)
+		{
+			_vsPtr->Release();
+		}
+	}
 
 	void setBuffers(ID3D11DeviceContext* cont);
 
@@ -105,6 +109,14 @@ public:
 		const std::wstring& path,
 		const D3D11_SAMPLER_DESC& samplerDesc,
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
+
+	~PixelShader()
+	{
+		if (_psPtr)
+		{
+			_psPtr->Release();
+		}
+	}
 
 	void setBuffers(ID3D11DeviceContext* cont);
 

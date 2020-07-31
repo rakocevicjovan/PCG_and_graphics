@@ -113,9 +113,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resources\Shaders">
-      <UniqueIdentifier>{356d9f8d-5f76-4927-9b88-bd498853fe7f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shader Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -416,9 +413,6 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderCache.cpp">
-      <Filter>Resources\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceDef.cpp">
       <Filter>Resources\Resource classes</Filter>
     </ClCompile>
@@ -436,6 +430,9 @@
     </ClCompile>
     <ClCompile Include="ShaderGenerator.cpp">
       <Filter>Rendering\0ShGen</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderCache.cpp">
+      <Filter>Rendering\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -940,9 +937,6 @@
     <ClInclude Include="ResourceDef.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderCache.h">
-      <Filter>Resources\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="AssetLedger.h">
       <Filter>Resources</Filter>
     </ClInclude>
@@ -990,6 +984,9 @@
     </ClInclude>
     <ClInclude Include="MatLoader.h">
       <Filter>Asset importing</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderCache.h">
+      <Filter>Rendering\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
