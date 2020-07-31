@@ -28,14 +28,14 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 	// Create the vertex shader from the buffer.
 	if (FAILED(_device->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &vertexShader)))
 	{
-		MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex shader.", MB_OK);
+		OutputDebugStringA("Failed to create vertex shader.");
 		return false;
 	}
 
 	// Create the layout related to the vertex shader.
 	if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
 	{
-		MessageBox(*_hwnd, filePath.c_str(), L"Failed to create vertex input layout.", MB_OK);
+		OutputDebugStringA("Failed to create vertex input layout.");
 		return false;
 	}
 
@@ -63,7 +63,7 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 
 	if (FAILED(_device->CreatePixelShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &pixelShader)))
 	{
-		MessageBox(*_hwnd, filePath.c_str(), L"Failed to create pixel shader.", MB_OK);
+		OutputDebugStringA("Failed to create pixel shader.");
 		return false;
 	}
 
@@ -91,7 +91,7 @@ bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShade
 
 	if (FAILED(_device->CreateGeometryShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &geometryShader)))
 	{
-		MessageBox(*_hwnd, filePath.c_str(), L"Failed to create geometry shader.", MB_OK);
+		OutputDebugStringA("Failed to create geometry shader.");
 		return false;
 	}
 

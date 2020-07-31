@@ -112,12 +112,12 @@ float4 main(PixelInputType input) : SV_TARGET
 	input.normal = normalize(input.normal);	// Might not be needed before map
 // Does NOT use passed in bitangents yet, ignores them @TODO
 #if TEX_NRM > 0 && TAN > 0 && TEX > 0	// Dependencies are already resolved tbh
-	mapNormals(Sampler, normalMap, input.tex, input.tangent, input.normal);
+	mapNormals(Sampler, normalMap, input.tex[0], input.tangent, input.normal);
 #endif
 #endif
 
 #if TEX > 0
-	float4 colour = diffuseMap.Sample(Sampler, input.tex);
+	float4 colour = diffuseMap.Sample(Sampler, input.tex[0]);
 #endif
 	
 #ifdef (LIT > 0)
@@ -178,14 +178,14 @@ void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout 
 
 	float3 specularPower;
 #if TEX_SPC > 0
-	specularPower = specularMap.Sample(Sampler, input.tex).rgb;
+	specularPower = specularMap.Sample(Sampler, input.tex[0]).rgb;
 #else
 	specularPower = (float3)(1.f);	// Make this a possible param
 #endif
 
 	float shininess;
 #if TEX_SHN > 0
-	shininess = shininessMap.Sample(Sampler, input.tex).r;
+	shininess = shininessMap.Sample(Sampler, input.tex[0]).r;
 #else
 	shininess = 8.f;
 #endif

@@ -49,7 +49,6 @@ class ShaderCompiler
 {
 private:
 
-	HWND* _hwnd;
 	ID3D11Device* _device;
 
 	void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const;
