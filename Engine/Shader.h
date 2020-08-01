@@ -59,14 +59,14 @@ public:
 		const ShaderCompiler& shc, 
 		const std::wstring& path, 
 		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, 
-		const std::vector<D3D11_BUFFER_DESC>& descriptions);
+		const std::vector<D3D11_BUFFER_DESC>& descriptions = {});
 
 	~VertexShader()
 	{
-		if (_vsPtr)
-		{
+		if(_vsPtr)
 			_vsPtr->Release();
-		}
+		if(_layout)
+			_layout->Release();
 	}
 
 	void setBuffers(ID3D11DeviceContext* cont);
@@ -102,20 +102,22 @@ class PixelShader : public Shader
 {
 public:
 	ID3D11PixelShader* _psPtr;
-	ID3D11SamplerState* _sState;
+	std::vector<ID3D11SamplerState*> _sStates;
 
 	PixelShader(
 		const ShaderCompiler& shc,
 		const std::wstring& path,
-		const D3D11_SAMPLER_DESC& samplerDesc,
-		const std::vector<D3D11_BUFFER_DESC>& descriptions);
+		const std::vector<D3D11_SAMPLER_DESC>& samplerDescs,
+		const std::vector<D3D11_BUFFER_DESC>& descriptions = {});
 
 	~PixelShader()
 	{
 		if (_psPtr)
-		{
 			_psPtr->Release();
-		}
+
+		for (auto& ss : _sStates)
+			if (ss)
+				ss->Release();
 	}
 
 	void setBuffers(ID3D11DeviceContext* cont);

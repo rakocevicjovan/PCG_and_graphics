@@ -146,7 +146,7 @@ void Renderer::render(const Renderable& r) const
 	_deviceContext->VSSetShader(r.mat->getVS()->_vsPtr, NULL, 0);
 	_deviceContext->PSSetShader(r.mat->getPS()->_psPtr, NULL, 0);
 	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
-	_deviceContext->PSSetSamplers(0, 1, &r.mat->getPS()->_sState);
+	_deviceContext->PSSetSamplers(0, 1, &r.mat->getPS()->_sStates[0]);
 
 	r.mat->bindTextures(_deviceContext);
 

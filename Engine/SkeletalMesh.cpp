@@ -94,7 +94,7 @@ void SkeletalMesh::draw(ID3D11DeviceContext* dc)
 	dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
 	dc->VSSetShader(_baseMaterial.getVS()->_vsPtr, NULL, 0);
 	dc->PSSetShader(_baseMaterial.getPS()->_psPtr, NULL, 0);
-	dc->PSSetSamplers(0, 1, &_baseMaterial.getPS()->_sState);
+	dc->PSSetSamplers(0, 1, &_baseMaterial.getPS()->_sStates[0]);
 
 	_baseMaterial.bindTextures(dc);
 

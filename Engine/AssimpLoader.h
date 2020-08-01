@@ -84,7 +84,7 @@ public:
 		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc });
 		saVS->describeBuffers({ WMBufferMeta });
 
-		PixelShader* phong = new PixelShader(shc, L"lightPS.hlsl", regularSD, { });
+		PixelShader* phong = new PixelShader(shc, L"lightPS.hlsl", { regularSD }, { });
 		//phong->describeBuffers({ lightBufferMeta });
 
 		_skelAnimMat.setVS(saVS);

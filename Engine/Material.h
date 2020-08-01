@@ -2,11 +2,13 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Light.h"
+#include "Sampler.h"
 #include "MeshDataStructs.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
+#include <map>
 
 struct TextureMetaData
 {
@@ -51,7 +53,7 @@ public:
 
 
 
-	D3D11_SAMPLER_DESC createSamplerDesc(UINT i) const
+	std::vector<D3D11_SAMPLER_DESC> createSamplerDesc() const
 	{
 		static const std::map<TextureMapMode, D3D11_TEXTURE_ADDRESS_MODE> ADDR_MODE_MAP
 		{
@@ -62,15 +64,21 @@ public:
 			{BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
 		};
 
-		const TextureMetaData& tmd = _texMetaData[i];
+		std::vector<D3D11_SAMPLER_DESC> result;
+		result.reserve(_texMetaData.size());
 
-		// Uses default for now, but make it a setting eventually.
+		// Uses default for now, but make it a setting eventually
 		D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 
-		D3D11_TEXTURE_ADDRESS_MODE tam = ADDR_MODE_MAP.at(tmd._mapMode);
+		for (UINT i = 0; i < _texMetaData.size(); ++i)
+		{
+			const TextureMetaData& tmd = _texMetaData[i];
+			D3D11_TEXTURE_ADDRESS_MODE tam = ADDR_MODE_MAP.at(tmd._mapMode);
+			result.push_back(Sampler::createSamplerDesc(filter, D3D11_COMPARISON_ALWAYS, 0.,
+				D3D11_FLOAT32_MAX, tam, tam, tam));	// goes the drum...
+		}
 
-		return Sampler::createSamplerDesc(filter, D3D11_COMPARISON_ALWAYS, 0., 
-			D3D11_FLOAT32_MAX, tam, tam, tam);	// goes the drum...
+		return result;
 	}
 
 

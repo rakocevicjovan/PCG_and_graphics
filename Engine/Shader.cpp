@@ -56,13 +56,20 @@ void VertexShader::setBuffers(ID3D11DeviceContext* cont)
 PixelShader::PixelShader(
 	const ShaderCompiler& shc,
 	const std::wstring& path,
-	const D3D11_SAMPLER_DESC& samplerDesc,
+	const std::vector<D3D11_SAMPLER_DESC>& samplerDescs,
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(shc, path, descriptions)
 {
 	_type = SHADER_TYPE::PS;
 	shc.compilePS(path, _psPtr, &_refShMetaData);
-	Sampler::setUp(shc.getDevice(), &samplerDesc, _sState);
+	
+	UINT numSamplers = samplerDescs.size();
+	_sStates.resize(numSamplers);
+
+	for (UINT i = 0; i < numSamplers; ++i)
+	{
+		Sampler::setUp(shc.getDevice(), &samplerDescs[i], _sStates[i]);
+	}
 }
 
 

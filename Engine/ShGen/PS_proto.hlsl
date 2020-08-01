@@ -48,7 +48,7 @@ struct PixelInputType
 #ifdef BTN
 	float3 bitangent : BITANGENT;
 #endif
-#if LIT > 0
+#if LMOD > 0
 	float4 worldPos : WPOS;
 #endif
 };
@@ -62,43 +62,43 @@ SamplerState Sampler : register(s0);
 // Also, the index of texture coordinates used by each texture will be defined as UVCH_<TYPE>
 
 // TEXTURES BEGIN
-#if TEX_DIF
+#if TEX_DIF > 0
 Texture2D diffuseMap : register(t0);
 #line 66
 #endif
-#if TEX_NRM
+#if TEX_NRM > 0
 Texture2D normalMap : register(t1);
 #line 67
 #endif
-#if TEX_SPC
+#if TEX_SPC > 0
 Texture2D specularMap : register(t2);
 #line 68
 #endif
-#if TEX_SHN
+#if TEX_SHN > 0
 Texture2D shininessMap : register(t3);
 #endif
-#if TEX_OCT
+#if TEX_OCT > 0
 Texture2D opacityMap : register(t4);
 #endif
-#if TEX_DPM
+#if TEX_DPM > 0
 Texture2D displacementMap : register(t5);
 #endif
-#if TEX_AOM
+#if TEX_AOM > 0
 Texture2D ambientOcclusionMap : register(t6);
 #endif
-#if TEX_MTL
+#if TEX_MTL > 0
 Texture2D metallicMap : register(t7);
 #endif
-#if TEX_RGH
+#if TEX_RGH > 0
 Texture2D roughnessMap : register(t8);
 #endif
 
 // These are not supported on load because they are usually generated
-#if TEX_RFL
+#if TEX_RFL > 0
 Texture2D reflectionMap : register(t9);
 #endif
 
-#if TEX_RFR
+#if TEX_RFR > 0
 Texture2D refractionMap : register(t10);
 #endif
 // TEXTURES END
@@ -116,18 +116,24 @@ float4 main(PixelInputType input) : SV_TARGET
 #endif
 #endif
 
-#if TEX > 0
-	float4 colour = diffuseMap.Sample(Sampler, input.tex[0]);
+	float4 colour = (float4)(1.);
+
+#if TEX_DIF > 0
+	colour = diffuseMap.Sample(Sampler, input.tex[0]);
+#endif
+
+#if COLOUR > 0
+	colour.xyz = input.colour;
 #endif
 	
-#ifdef (LIT > 0)
-	float3 viewDir = input.worldPos.xyz - eyePos.xy;
+#ifdef (LMOD > 0)
+	float3 viewDir = input.worldPos.xyz - eyePos.xyz;
 	float distToPoint = length(viewDir);
 	viewDir /= distToPoint;
 
 	// Light code using clustered shading
 	float viewDepth = zToViewSpace(input.position.z, zNear, zFar);
-	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, n, f);
+	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, zNear, zFar);
 
 	uint minOffset = offsetGrid[clusterIndex].x;
 	uint maxOffset = offsetGrid[clusterIndex + 1].x;
@@ -173,7 +179,7 @@ void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout 
 	float3 diffuse = lightColour * diffIntensity;
 
 	//calculate specular light (none for lambert materials)
-#if LIT > 1
+#if LMOD > 1
 	float3 reflection = normalize(reflect(-lightDir, input.normal));
 
 	float3 specularPower;

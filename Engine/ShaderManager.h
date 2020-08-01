@@ -90,20 +90,22 @@ public:
 			std::string vsPath(NATURAL_PERMS + std::to_string(shaderKey) + "vs.hlsl");
 			std::wstring vsPathW(vsPath.begin(), vsPath.end());
 
-			std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>
+			VertexShader* vs = new VertexShader
 				(shc, vsPathW, vertInLayElements, std::vector<D3D11_BUFFER_DESC>{});
 			
 			// PS
-			D3D11_SAMPLER_DESC samplerDesc
-			{};
+			auto samplerDescriptions = mat->createSamplerDesc();
 			std::string psPath(NATURAL_PERMS + std::to_string(shaderKey) + "ps.hlsl");
 			std::wstring psPathW(psPath.begin(), psPath.end());
 
-			std::unique_ptr<PixelShader> ps = std::make_unique<PixelShader>
-				(shc, psPathW, , std::vector<D3D11_BUFFER_DESC>{});
+			PixelShader* ps = new PixelShader
+				(shc, psPathW, samplerDescriptions, std::vector<D3D11_BUFFER_DESC>{});
 			
 			shc.compileVS(vsPathW, vertInLayElements, vs->_vsPtr, vs->_layout);
 			shc.compilePS(psPathW, ps->_psPtr);
+
+			mat->setVS(vs);
+			mat->setPS(ps);
 		}
 
 		ImGui::End();

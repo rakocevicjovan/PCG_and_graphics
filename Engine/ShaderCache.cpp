@@ -135,30 +135,30 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	/// PIXEL SHADERS
 
 	// Phong
-	PixelShader* phong = new PixelShader(*_shc, L"lightPS.hlsl", regularSD, { lightBufferDesc });
+	PixelShader* phong = new PixelShader(*_shc, L"lightPS.hlsl", { regularSD }, { lightBufferDesc });
 	phong->describeBuffers({ lightBufferMeta });
 	addPixShader("phongPS", phong);
 
 	// Skybox ps, special sampler, no lights
-	PixelShader* skyboxPS = new PixelShader(*_shc, L"skyboxPS.hlsl", skbyoxSD, {});
+	PixelShader* skyboxPS = new PixelShader(*_shc, L"skyboxPS.hlsl", { skbyoxSD }, {});
 	addPixShader("skyboxPS", skyboxPS);
 
 	// PBR shader
-	PixelShader* CookTorrance = new PixelShader(*_shc, L"CookTorrancePS.hlsl", regularSD, { lightBufferDesc });
+	PixelShader* CookTorrance = new PixelShader(*_shc, L"CookTorrancePS.hlsl", { regularSD }, { lightBufferDesc });
 	CookTorrance->describeBuffers({lightBufferMeta});
 	addPixShader("CookTorrancePS", CookTorrance);
 
 	//PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});	addPixShader("hudPS", hudPS);
 
 	// CSM Scene shader
-	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", regularSD, { lightBufferDesc });
+	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", { regularSD }, { lightBufferDesc });
 	csmScenePs->describeBuffers({ lightBufferMeta });
 	addPixShader("csmScenePS", csmScenePs);
 
-	PixelShader* clusterDebugPs = new PixelShader(*_shc, L"clusterDebug.hlsl", regularSD, {});
+	PixelShader* clusterDebugPs = new PixelShader(*_shc, L"clusterDebug.hlsl", { regularSD }, {});
 	addPixShader("clusterDebugPS", clusterDebugPs);
 
-	PixelShader* clusterPs = new PixelShader(*_shc, L"ClusteredPS.hlsl", regularSD, {});
+	PixelShader* clusterPs = new PixelShader(*_shc, L"ClusteredPS.hlsl", { regularSD }, {});
 	addPixShader("clusterPS", clusterPs);
 }
 
