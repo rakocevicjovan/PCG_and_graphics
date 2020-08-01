@@ -87,6 +87,7 @@ namespace GuiBlocks
 			ImGui::Text(TEX_ROLE_NAMES.at(mat._texMetaData[i]._role));
 			ImGui::SameLine();
 			ImGui::Text(mat._texMetaData[i]._tex->getName().c_str());
+			ImGui::Image(mat._texMetaData[i]._tex->_srv, ImVec2(300, 300));
 		}
 
 		ImGui::Unindent();

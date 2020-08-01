@@ -60,9 +60,8 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		// Shininess maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SHININESS, SHININESS);
 
-		// Opacity maps - a bit of a special case, as it indicates that material is potentially transparent
-		if (loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_OPACITY, OPACITY))
-			mat->_opaque = false;
+		// Opacity maps
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_OPACITY, OPACITY);
 
 		// Displacement maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DISPLACEMENT);

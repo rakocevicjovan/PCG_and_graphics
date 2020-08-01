@@ -54,17 +54,7 @@ public:
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
 
-	//unsigned int indexIntoModelMeshArray; // Wasn't necessary
-
 	SkeletalMesh() {}
-
-
-	/*
-	SkeletalMesh(std::vector<BonedVert3D>& vertices, std::vector<unsigned int>& indices, std::vector<Texture>& textures, ID3D11Device* dvc, SMatrix& localTransform)
-		: _vertices(std::move(vertices)), _indices(std::move(indices)), _textures(std::move(textures)), _localTransform(localTransform)
-	{
-		setupSkeletalMesh(dvc);
-	}*/
 
 	
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, Skeleton& skeleton, const std::string& path);

@@ -30,16 +30,19 @@ enum TextureRole : uint8_t
 };	//NUM_ROLES is used as the size of array of texture roles in shader classes
 
 
+// MUST match up with order and number of TextureRole enum
 static const std::vector<const char*> TEX_ROLE_NAMES
 { 
-	{ "Diffuse"		}, 
-	{ "NORMAL"		},
-	{ "Specular"	},
-	{ "Shininess"	},
-	{ "Opacity"		},
-	{ "Displacement"},
-	{ "Ambient"		},
-	{ "Metallic"	},
-	{ "Roughness"	},
-	{ "Other"		}
+	"Diffuse", 
+	"Normal",
+	"Specular",
+	"Shininess",
+	"Opacity",
+	"Displacement",
+	"Ambient",
+	"Metallic",
+	"Roughness",
+	"Reflection",
+	"Refraction",
+	"Other"
 };
