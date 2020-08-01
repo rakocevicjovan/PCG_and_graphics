@@ -64,11 +64,11 @@ PixelShader::PixelShader(
 	shc.compilePS(path, _psPtr, &_refShMetaData);
 	
 	UINT numSamplers = samplerDescs.size();
-	_sStates.resize(numSamplers);
+	_samplers.resize(numSamplers);
 
 	for (UINT i = 0; i < numSamplers; ++i)
 	{
-		Sampler::setUp(shc.getDevice(), &samplerDescs[i], _sStates[i]);
+		Sampler::setUp(shc.getDevice(), &samplerDescs[i], _samplers[i]);
 	}
 }
 

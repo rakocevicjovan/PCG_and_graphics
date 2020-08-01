@@ -77,7 +77,7 @@ Texture2D specularMap : register(t2);
 #if TEX_SHN > 0
 Texture2D shininessMap : register(t3);
 #endif
-#if TEX_OCT > 0
+#if TEX_OPC > 0
 Texture2D opacityMap : register(t4);
 #endif
 #if TEX_DPM > 0
@@ -120,6 +120,10 @@ float4 main(PixelInputType input) : SV_TARGET
 
 #if TEX_DIF > 0
 	colour = diffuseMap.Sample(Sampler, input.tex[0]);
+#endif
+
+#if TEX_OPC > 0
+	colour.w = opacityMap.Sample(Sampler, input.tex[0]);
 #endif
 
 #if COLOUR > 0

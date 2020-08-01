@@ -46,7 +46,7 @@ public:
 		context->VSSetShader(_r.mat->getVS()->_vsPtr, NULL, 0);
 		context->PSSetShader(_r.mat->getPS()->_psPtr, NULL, 0);
 		context->IASetInputLayout(_r.mat->getVS()->_layout);
-		context->PSSetSamplers(0, 1, &_r.mat->getPS()->_sStates[0]);
+		_r.mat->setSamplers(context);
 
 		context->PSSetShaderResources(0, 1, &_shResView);
 

@@ -83,6 +83,14 @@ public:
 
 
 
+	void setSamplers(ID3D11DeviceContext* devCon)
+	{
+		for (UINT i = 0; i < _pixelShader->_samplers.size(); ++i)
+			devCon->PSSetSamplers(i, 1, &getPS()->_samplers[i]);
+	}
+
+
+
 	template <typename Archive>
 	void serialize(Archive& ar, std::vector<UINT>& texIDs)
 	{

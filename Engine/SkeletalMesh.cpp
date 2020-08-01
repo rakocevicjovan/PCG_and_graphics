@@ -39,8 +39,10 @@ bool SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT res;
 
+	UINT vertByteWidth = _vertSig.getVertByteWidth();	//vertByteWidth * 
+
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(BonedVert3D) * _vertices.size();
+	vertexBufferDesc.ByteWidth = _vertices.size();	// It's already a pool
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
@@ -50,7 +52,7 @@ bool SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	_vertexBuffer._stride = sizeof(BonedVert3D);
+	_vertexBuffer._stride = vertByteWidth;
 	_vertexBuffer._offset = 0u;
 
 	res = dvc->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer.ptrVar());
@@ -58,7 +60,7 @@ bool SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
 		return false;
 
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned int) * _indices.size();
+	indexBufferDesc.ByteWidth = sizeof(UINT) * _indices.size();
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
@@ -94,8 +96,7 @@ void SkeletalMesh::draw(ID3D11DeviceContext* dc)
 	dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
 	dc->VSSetShader(_baseMaterial.getVS()->_vsPtr, NULL, 0);
 	dc->PSSetShader(_baseMaterial.getPS()->_psPtr, NULL, 0);
-	dc->PSSetSamplers(0, 1, &_baseMaterial.getPS()->_sStates[0]);
-
+	_baseMaterial.setSamplers(dc);
 	_baseMaterial.bindTextures(dc);
 
 	//could sort by this as well... should be fairly uniform though

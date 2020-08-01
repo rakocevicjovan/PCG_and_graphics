@@ -117,9 +117,6 @@ public:
 		PixelShader* ps = new PixelShader
 		(shc, psPathW, samplerDescriptions, std::vector<D3D11_BUFFER_DESC>{});
 
-		shc.compileVS(vsPathW, vertInLayElements, vs->_vsPtr, vs->_layout);
-		shc.compilePS(psPathW, ps->_psPtr);
-
 		mat->setVS(vs);
 		mat->setPS(ps);
 	}

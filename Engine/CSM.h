@@ -297,7 +297,7 @@ public:
 
 		// Bind usual textures
 		r.mat->bindTextures(context);
-		context->PSSetSamplers(0, 1, &r.mat->getPS()->_sStates[0]);
+		r.mat->setSamplers(context);
 
 		// Bind shadow map array
 		context->PSSetShaderResources(11, 1, &_shadowResView);

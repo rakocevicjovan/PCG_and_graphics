@@ -102,7 +102,7 @@ class PixelShader : public Shader
 {
 public:
 	ID3D11PixelShader* _psPtr;
-	std::vector<ID3D11SamplerState*> _sStates;
+	std::vector<ID3D11SamplerState*> _samplers;
 
 	PixelShader(
 		const ShaderCompiler& shc,
@@ -115,9 +115,9 @@ public:
 		if (_psPtr)
 			_psPtr->Release();
 
-		for (auto& ss : _sStates)
-			if (ss)
-				ss->Release();
+		for (auto& s : _samplers)
+			if (s)
+				s->Release();
 	}
 
 	void setBuffers(ID3D11DeviceContext* cont);
