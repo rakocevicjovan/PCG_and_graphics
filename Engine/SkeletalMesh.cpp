@@ -7,9 +7,9 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 {
 	_vertSig = MeshLoader::createVertSignature(aiMesh);
 
-	bool hasTexCoords = aiMesh->HasTextureCoords(0);
-
-	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
+	//float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
+	MeshLoader meshLoader;
+	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, skeleton);
 
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
@@ -20,7 +20,7 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 	for (Texture& t : _textures)
 		t.SetUpAsResource(device);
 
-	AssimpWrapper::loadBonesAndSkinData(*aiMesh, _vertices, skeleton);
+	//AssimpWrapper::loadBonesAndSkinData(*aiMesh, _vertices, skeleton);
 
 	_baseMaterial._opaque = true;
 

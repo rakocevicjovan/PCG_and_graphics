@@ -16,7 +16,7 @@ public:
 	std::vector<Bone> _bones;
 
 	// Slow, but not used at runtime and really convenient
-	int getBoneIndex(const std::string& name);
+	int getBoneIndex(const std::string& name) const;
 
 	inline UINT getBoneCount() { return _bones.size(); }
 

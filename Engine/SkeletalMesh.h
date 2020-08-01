@@ -41,7 +41,8 @@ class SkeletalMesh
 public:
 	VertSignature _vertSig;
 
-	std::vector<BonedVert3D> _vertices;
+	//std::vector<BonedVert3D> _vertices;
+	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
 	std::vector<Texture> _textures;
 
@@ -58,12 +59,12 @@ public:
 	SkeletalMesh() {}
 
 
-
+	/*
 	SkeletalMesh(std::vector<BonedVert3D>& vertices, std::vector<unsigned int>& indices, std::vector<Texture>& textures, ID3D11Device* dvc, SMatrix& localTransform)
 		: _vertices(std::move(vertices)), _indices(std::move(indices)), _textures(std::move(textures)), _localTransform(localTransform)
 	{
 		setupSkeletalMesh(dvc);
-	}
+	}*/
 
 	
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, Skeleton& skeleton, const std::string& path);

@@ -80,34 +80,47 @@ public:
 
 		if (ImGui::Button("Create shader"))
 		{
-			ShaderCompiler shc;
-			shc.init(device);
-
-			// VS
-			ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
-			auto vertInLayElements = vertSig.createVertInLayElements();
-
-			std::string vsPath(NATURAL_PERMS + std::to_string(shaderKey) + "vs.hlsl");
-			std::wstring vsPathW(vsPath.begin(), vsPath.end());
-
-			VertexShader* vs = new VertexShader
-				(shc, vsPathW, vertInLayElements, std::vector<D3D11_BUFFER_DESC>{});
-			
-			// PS
-			auto samplerDescriptions = mat->createSamplerDesc();
-			std::string psPath(NATURAL_PERMS + std::to_string(shaderKey) + "ps.hlsl");
-			std::wstring psPathW(psPath.begin(), psPath.end());
-
-			PixelShader* ps = new PixelShader
-				(shc, psPathW, samplerDescriptions, std::vector<D3D11_BUFFER_DESC>{});
-			
-			shc.compileVS(vsPathW, vertInLayElements, vs->_vsPtr, vs->_layout);
-			shc.compilePS(psPathW, ps->_psPtr);
-
-			mat->setVS(vs);
-			mat->setPS(ps);
+			CreateShader(device, shaderKey, vertSig, mat);
 		}
 
 		ImGui::End();
+	}
+
+
+
+	static void CreateShader(ID3D11Device* device, uint64_t shaderKey, 
+		VertSignature vertSig, Material* mat)
+	{
+		ShaderCompiler shc;
+		shc.init(device);
+
+		// VS
+		D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(WMBuffer));
+		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
+		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
+
+		ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
+		auto vertInLayElements = vertSig.createVertInLayElements();
+
+		std::string vsPath(NATURAL_PERMS + std::to_string(shaderKey) + "vs.hlsl");
+		std::wstring vsPathW(vsPath.begin(), vsPath.end());
+
+		VertexShader* vs = new VertexShader
+		(shc, vsPathW, vertInLayElements, { WMBufferDesc });
+		vs->describeBuffers({ WMBufferMeta });
+
+		// PS
+		auto samplerDescriptions = mat->createSamplerDesc();
+		std::string psPath(NATURAL_PERMS + std::to_string(shaderKey) + "ps.hlsl");
+		std::wstring psPathW(psPath.begin(), psPath.end());
+
+		PixelShader* ps = new PixelShader
+		(shc, psPathW, samplerDescriptions, std::vector<D3D11_BUFFER_DESC>{});
+
+		shc.compileVS(vsPathW, vertInLayElements, vs->_vsPtr, vs->_layout);
+		shc.compilePS(psPathW, ps->_psPtr);
+
+		mat->setVS(vs);
+		mat->setPS(ps);
 	}
 };

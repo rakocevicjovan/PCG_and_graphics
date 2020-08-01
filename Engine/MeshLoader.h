@@ -2,6 +2,7 @@
 #include "AssimpWrapper.h"
 #include "Mesh.h"
 #include "VertSignature.h"
+#include "Skeleton.h"
 
 class MeshLoader
 {
@@ -16,11 +17,11 @@ class MeshLoader
 
 public:
 
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path)
+	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path, const Skeleton& skeleton)
 	{
 		_vertSig = createVertSignature(aiMesh);
 
-		loadVertData(_vertSig, _vertPool, aiMesh);
+		loadVertData(_vertSig, _vertPool, aiMesh, skeleton);
 
 		AssimpWrapper::loadIndices(aiMesh, _indices);
 
@@ -103,8 +104,8 @@ public:
 	}
 
 
-
-	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh)
+	 //@TODO rework this so it's private, mesh should just call above
+	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton& skeleton)
 	{
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
@@ -186,19 +187,21 @@ public:
 			for (UINT i = 0; i < aiMesh->mNumBones; ++i)
 			{
 				aiBone* aiBone = aiMesh->mBones[i];
+				UINT boneIndex = skeleton.getBoneIndex(std::string(aiBone->mName.C_Str()));
 
 				for (UINT j = 0; j < aiBone->mNumWeights; ++j)
 				{
-					UINT vertID = aiBone->mWeights[j].mVertexId;
 					float weight = aiBone->mWeights[j].mWeight;
 
-					uint8_t* dst = vertPool.data() + biOffset + vertID * vertByteWidth;
-
-					// verts[vertID].AddBoneData(boneIndex, weight);
+					UINT vertID = aiBone->mWeights[j].mVertexId;
+					UINT vertByteOffset = vertID * vertByteWidth;
+					
+					uint8_t* boneDataPtr = vertPool.data() + biOffset + vertByteOffset;
+					VertBoneData* vbd = reinterpret_cast<VertBoneData*>(boneDataPtr);
+					vbd->addBoneData(boneIndex, weight);
 				}
 			}
 		}
-		
 	}
 
 };

@@ -20,8 +20,22 @@ struct Vert3D
 
 struct VertBoneData 
 {
+	
 	UINT ids[4] = { 0, 0, 0, 0 };
 	float weights[4] = { 0, 0, 0, 0 };
+
+	void addBoneData(UINT boneID, float weight)
+	{
+		for (unsigned int i = 0; i < 4; ++i)
+		{
+			if (weights[i] <= 0.0001f)
+			{
+				ids[i] = boneID;
+				weights[i] = weight;
+				return;
+			}
+		}
+	}
 };
 
 

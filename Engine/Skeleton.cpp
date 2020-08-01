@@ -1,7 +1,7 @@
 #include "Skeleton.h"
 
 
-int Skeleton::getBoneIndex(const std::string& name)
+int Skeleton::getBoneIndex(const std::string& name) const
 {
 	for (int i = 0; i < _bones.size(); ++i)
 	{

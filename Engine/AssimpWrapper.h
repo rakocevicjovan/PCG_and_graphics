@@ -23,11 +23,6 @@ public:
 	// New code, trying to do this in a better way
 	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
 
-	Mesh* loadMesh(aiMesh* aiMesh);	// Make unique ptrs...
-
-	std::vector<Mesh*> loadAllMeshes(aiScene* scene);
-
-
 	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags);
 
 	// returns bounding sphere radius
