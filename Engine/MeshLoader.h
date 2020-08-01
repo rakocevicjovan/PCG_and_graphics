@@ -17,7 +17,7 @@ class MeshLoader
 
 public:
 
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path, const Skeleton& skeleton)
+	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path, const Skeleton* skeleton = nullptr)
 	{
 		_vertSig = createVertSignature(aiMesh);
 
@@ -105,7 +105,7 @@ public:
 
 
 	 //@TODO rework this so it's private, mesh should just call above
-	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton& skeleton)
+	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton)
 	{
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
@@ -180,14 +180,14 @@ public:
 		}
 
 		// Won't work well until we have bone indices, which means passing a skeleton yada yada
-		if (aiMesh->HasBones())
+		if (aiMesh->HasBones() && skeleton)
 		{
 			UINT biOffset = vertSig.getOffsetOf(VAttribSemantic::B_IDX);
 
 			for (UINT i = 0; i < aiMesh->mNumBones; ++i)
 			{
 				aiBone* aiBone = aiMesh->mBones[i];
-				UINT boneIndex = skeleton.getBoneIndex(std::string(aiBone->mName.C_Str()));
+				UINT boneIndex = skeleton->getBoneIndex(std::string(aiBone->mName.C_Str()));
 
 				for (UINT j = 0; j < aiBone->mNumWeights; ++j)
 				{

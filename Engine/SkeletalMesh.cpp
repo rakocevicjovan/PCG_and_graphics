@@ -9,7 +9,7 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 	//float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
 	MeshLoader meshLoader;
-	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, skeleton);
+	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, &skeleton);
 
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 

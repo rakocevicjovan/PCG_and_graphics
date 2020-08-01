@@ -122,8 +122,10 @@ public:
 		S_RANDY.render(_floorRenderable);
 
 		rc.d3d->TurnOnAlphaBlending();
+		//rc.d3d->setDSSNoTest();
 		if(_curPreview)
 			_curPreview->draw(S_CONTEXT, rc.dTime);
+		//rc.d3d->setDSSLess();
 		rc.d3d->TurnOffAlphaBlending();
 
 		GUI::beginFrame();

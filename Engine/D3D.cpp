@@ -216,10 +216,11 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	depthStencilDesc.DepthEnable = false;
 	depthStencilDesc.StencilEnable = false;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_ALWAYS;
 	result = _device->CreateDepthStencilState(&depthStencilDesc, &_depthStencilNoDepthTest);
 
 	// Set the depth stencil state.
-	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 1);
+	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 0);
 
 	// Initialize the depth stencil view.
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
@@ -270,7 +271,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = 0x0f; //D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; //D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	result = _device->CreateBlendState(&blendDesc, &_blendState);
 	if (FAILED(result))
@@ -419,16 +420,16 @@ void D3D::setRSWireframe()
 
 void D3D::setDSSNoTest()
 {
-	_deviceContext->OMSetDepthStencilState(_depthStencilNoDepthTest, 1);
+	_deviceContext->OMSetDepthStencilState(_depthStencilNoDepthTest, 0);
 }
 
 
 void D3D::setDSSLessEquals()
 {
-	_deviceContext->OMSetDepthStencilState(_depthStencilLessEquals, 1);
+	_deviceContext->OMSetDepthStencilState(_depthStencilLessEquals, 0);
 }
 
 
 void D3D::setDSSLess(){
-	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 1);
+	_deviceContext->OMSetDepthStencilState(_depthStencilLess, 0);
 }

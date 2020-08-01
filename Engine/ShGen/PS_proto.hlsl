@@ -123,8 +123,10 @@ float4 main(PixelInputType input) : SV_TARGET
 #endif
 
 #if TEX_OPC > 0
-	colour.w = opacityMap.Sample(Sampler, input.tex[0]);
+	colour.w = opacityMap.Sample(Sampler, input.tex[0]).r;
 #endif
+
+	//if (colour.w < 0.000001f) discard;
 
 #if COLOUR > 0
 	colour.xyz = input.colour;
