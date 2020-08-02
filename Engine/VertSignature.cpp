@@ -47,7 +47,7 @@ uint16_t VertSignature::getOffsetOf(VAttribSemantic semantic, uint8_t index)
 	}
 
 #ifdef _DEBUG
-	assert(offset != getVertByteWidth() && "Vertex attribute not found.");
+	//assert(offset != getVertByteWidth() && "Vertex attribute not found.");
 #endif
 
 	return offset;

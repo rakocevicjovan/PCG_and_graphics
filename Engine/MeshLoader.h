@@ -127,25 +127,29 @@ public:
 
 		// There are potentially multiple texture coordinate channels, to be stored at an accumulating offset
 		// Initial offset is the offset to first channel, all channels will always be contiguous per vertex
-		UINT tcOffset = vertSig.getOffsetOf(VAttribSemantic::TEX_COORD);
-		UINT numUVChannels = aiMesh->GetNumUVChannels();
-
-		for (UINT i = 0; i < numUVChannels; ++i)
+		if (vertSig.countAttribute(VAttribSemantic::TEX_COORD))
 		{
-			// Each tc set can have a size of 1, 2 or 3 floats (u, uv, uvw) which is copied every time
-			UINT tcByteWidth = aiMesh->mNumUVComponents[i] * sizeof(float);
+			UINT tcOffset = vertSig.getOffsetOf(VAttribSemantic::TEX_COORD);
+			UINT numUVChannels = aiMesh->GetNumUVChannels();
 
-			// The offset of this texture coordinate channel in the first vertex is specified here
-			uint8_t* dst = vertPool.data() + tcOffset;
-
-			for (UINT j = 0; j < aiMesh->mNumVertices; ++j)
+			for (UINT i = 0; i < numUVChannels; ++i)
 			{
-				memcpy(dst, &aiMesh->mTextureCoords[i][j], tcByteWidth);
-				dst += vertByteWidth;
+				// Each tc set can have a size of 1, 2 or 3 floats (u, uv, uvw) which is copied every time
+				UINT tcByteWidth = aiMesh->mNumUVComponents[i] * sizeof(float);
+
+				// The offset of this texture coordinate channel in the first vertex is specified here
+				uint8_t* dst = vertPool.data() + tcOffset;
+
+				for (UINT j = 0; j < aiMesh->mNumVertices; ++j)
+				{
+					memcpy(dst, &aiMesh->mTextureCoords[i][j], tcByteWidth);
+					dst += vertByteWidth;
+				}
+				// For every new set, we shift the offset again by the size of the previously written set
+				tcOffset += tcByteWidth;
 			}
-			// For every new set, we shift the offset again by the size of the previously written set
-			tcOffset += tcByteWidth;
 		}
+		
 
 
 		if (aiMesh->HasNormals())

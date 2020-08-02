@@ -153,7 +153,7 @@ public:
 			return nullptr;
 
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
-		skeleton->_bones.reserve(bones.size());
+		skeleton->_bones.reserve(boneNodes.size());
 
 		makeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
 
