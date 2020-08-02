@@ -173,6 +173,7 @@ HitResult CollisionEngine::resolvePlayerCollision(const SMatrix& playerTransform
 
 Hull* CollisionEngine::genBoxHull(Mesh* mesh, const SMatrix& transform, Collider* c)
 {
+	/*
 	float minX, minY, minZ, maxX, maxY, maxZ;
 	auto pos = mesh->_vertices[0].pos;
 
@@ -199,7 +200,8 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh, const SMatrix& transform, Collider
 	aabb->maxPoint = SVec3(maxX, maxY, maxZ);
 
 	aabb->_collider = c;
-
+	*/
+	AABB* aabb = new AABB();
 	return aabb;
 }
 
@@ -207,6 +209,7 @@ Hull* CollisionEngine::genBoxHull(Mesh* mesh, const SMatrix& transform, Collider
 
 Hull* CollisionEngine::genSphereHull(Mesh* mesh, const SMatrix& transform, Collider* collider)
 {
+	/*
 	SVec3 center;
 	float radius = 0.f;
 	for (const Vert3D& v : mesh->_vertices)
@@ -221,6 +224,7 @@ Hull* CollisionEngine::genSphereHull(Mesh* mesh, const SMatrix& transform, Colli
 	SphereHull* sh = new SphereHull;
 	sh->ctr = center;
 	sh->r = radius;
-
+	*/
+	SphereHull* sh = new SphereHull();
 	return sh;
 }

@@ -37,10 +37,12 @@ namespace cereal
 class Mesh : public Resource
 {
 public:
+
 	VertSignature _vertSig;
 
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
-	std::vector<Vert3D>	_vertices;
+	//std::vector<Vert3D>	_vertices;
+	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
 	std::vector<Texture> _textures;	//@TODO not sure what to do with this... who should own them?
 
@@ -55,8 +57,7 @@ public:
 
 
 	// Useful constructors... but @TODO make a material instead of textures!
-	Mesh();
-	Mesh(std::vector<Vert3D> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, ID3D11Device* device);
+	Mesh() {};
 	~Mesh();
 
 	// Not so sure, seems like heavy coupling for no reason really!
@@ -81,7 +82,6 @@ public:
 
 		_baseMaterial.getPS()->updateBuffersAuto(dc, *this);
 		_baseMaterial.getPS()->setBuffers(dc);
-
 
 		//set shaders and similar geebees
 		dc->IASetInputLayout(_baseMaterial.getVS()->_layout);

@@ -3,23 +3,19 @@
 #include "Geometry.h"
 #include "Terrain.h"
 #include "Hull.h"
-#include <iostream>
-
-
-Mesh::Mesh() {}
-
-
-
-Mesh::Mesh(std::vector<Vert3D> verts, std::vector<unsigned int> inds, std::vector<Texture> texes, ID3D11Device* device)
-	: _vertices(std::move(verts)), _indices(std::move(inds)), _textures(texes)
-{
-	setupMesh(device);	// Now that we have all the required data, set the vertex buffers and its attribute pointers.
-}
+#include "MeshLoader.h"
 
 
 
 Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 {
+	_vertSig._attributes = 
+	{
+		{VAttribSemantic::POS, VAttribType::FLOAT3, 1u, 0u },
+		{VAttribSemantic::TEX_COORD, VAttribType::FLOAT2, 1u, 0u },
+		{VAttribSemantic::NORMAL, VAttribType::FLOAT3, 1u, 0u },
+		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}
+	};
 	terrain.populateMesh(_vertices, _indices, _textures);
 	_transform = SMatrix::CreateTranslation(terrain.getOffset());
 	setupMesh(device);
@@ -50,11 +46,21 @@ Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
 	bottomRight.pos = SVec3(originX + width, originY, z);
 	bottomRight.texCoords = SVec2(1.f, 0.f);
 
-	_vertices.push_back(topLeft);
-	_vertices.push_back(topRight);
-	_vertices.push_back(bottomLeft);
-	_vertices.push_back(bottomRight);
+	// Redundant attributes here, but not a high priority
+	_vertSig._attributes =
+	{
+		{VAttribSemantic::POS, VAttribType::FLOAT3, 1u, 0u },
+		{VAttribSemantic::TEX_COORD, VAttribType::FLOAT2, 1u, 0u },
+		{VAttribSemantic::NORMAL, VAttribType::FLOAT3, 1u, 0u },
+		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}
+	};
 
+	_vertices.resize(4 * sizeof(Vert3D));
+	memcpy(_vertices.data(), &topLeft, sizeof(Vert3D));
+	memcpy(_vertices.data(), &topRight, sizeof(Vert3D));
+	memcpy(_vertices.data(), &bottomLeft, sizeof(Vert3D));
+	memcpy(_vertices.data(), &bottomRight, sizeof(Vert3D));
+	
 	_indices = std::vector<unsigned int>{ 0u, 1u, 2u, 2u, 1u, 3u };
 
 	setupMesh(device);
@@ -64,6 +70,7 @@ Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
 
 Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool hasTangents)
 {
+	/**
 	_vertices.reserve(g.positions.size());
 	Vert3D v;
 
@@ -81,12 +88,14 @@ Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool
 
 	if(setUp)
 		setupMesh(device);
+	*/
 }
 
 
 
 Mesh::Mesh(const Hull* hull, ID3D11Device* device)
 {
+	/*
 	const AABB*  aabb = reinterpret_cast<const AABB*>(hull);
 
 	SVec3 sizes = (aabb->maxPoint - aabb->minPoint);
@@ -108,6 +117,7 @@ Mesh::Mesh(const Hull* hull, ID3D11Device* device)
 	_indices = g.indices;
 
 	setupMesh(device);
+	*/
 }
 
 
@@ -121,27 +131,21 @@ Mesh::~Mesh()
 
 void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path)
 {
-	_vertices.reserve(aiMesh->mNumVertices);
-	_indices.reserve(aiMesh->mNumFaces * 3);
 
 	std::vector<SVec3> faceTangents;
 	faceTangents.reserve(aiMesh->mNumFaces);
+	
+	_vertSig = MeshLoader::createVertSignature(aiMesh);
+	MeshLoader meshLoader;
+	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, nullptr);
 
-	// Gather meta data
-	bool hasTexCoords = aiMesh->HasTextureCoords(0);
-	UINT numTexChannels = aiMesh->GetNumUVChannels();	// Number of UV coordinate sets (channels)
-	UINT* numUVComponents = aiMesh->mNumUVComponents;	// Whether the channel contains 1, 2 or 3 values (U, UV, UVW)
-
-	bool hasNormals = aiMesh->HasNormals();
-
-	bool hasTangents = aiMesh->HasTangentsAndBitangents();
 
 	// Load the bulky data
-	float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
-
+	//float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
+	_indices.reserve(aiMesh->mNumFaces * 3);
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
-	AssimpWrapper::loadTangents(aiMesh, _vertices, faceTangents);
+	//AssimpWrapper::loadTangents(aiMesh, _vertices, faceTangents);
 
 	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_baseMaterial, _textures);
 
@@ -164,7 +168,7 @@ void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* ai
 
 bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
 {
-	_vertexBuffer = VBuffer(device, _vertices, 0u);
+	_vertexBuffer = VBuffer(device, _vertices, _vertSig, 0u);
 	_indexBuffer = IBuffer(device, _indices);
 
 	//this ABSOLUTELY needs to happen!

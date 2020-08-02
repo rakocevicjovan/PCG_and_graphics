@@ -1,5 +1,6 @@
 #pragma once
 #include "MeshDataStructs.h"
+#include "VertSignature.h"
 #include <d3d11.h>
 
 
@@ -43,13 +44,38 @@ public:
 	}
 
 
+	VBuffer(ID3D11Device* device, std::vector<uint8_t>& vertices, VertSignature vs, UINT offset = 0u)
+	{
+		_stride = vs.getVertByteWidth();
+		_offset = offset;
 
-	template <typename VertexType>
-	VBuffer(ID3D11Device* device, std::vector<VertexType>& vertices, UINT offset = 0u)
-		: _stride(sizeof(VertexType)), _offset(offset)
+		D3D11_BUFFER_DESC vertexBufferDesc;
+		vertexBufferDesc.ByteWidth = vertices.size();
+		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;	// Faster than default?
+		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vertexBufferDesc.CPUAccessFlags = 0;
+		vertexBufferDesc.MiscFlags = 0;
+		vertexBufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA vertexData;
+		vertexData.pSysMem = vertices.data();
+		vertexData.SysMemPitch = 0;
+		vertexData.SysMemSlicePitch = 0;
+
+		if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vbPtr)))
+		{
+			OutputDebugStringA("Failed to create vertex buffer.");
+			exit(1001);
+		}
+	}
+
+
+
+	VBuffer(ID3D11Device* device, std::vector<Vert3D>& vertices, UINT offset = 0u)
+		: _stride(sizeof(Vert3D)), _offset(offset)
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
-		vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
 		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;	// Used to be default, but faster?
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;

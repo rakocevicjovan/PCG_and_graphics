@@ -207,11 +207,13 @@ namespace Procedural
 	{
 		Mesh aligned = m;
 
+		/* // Change to fit the new vertex type
 		for (auto& v : aligned._vertices)
 		{
 			v.pos.x += mc.x * _cellSize;
 			v.pos.z += mc.z * _cellSize;
 		}
+		*/
 
 		aligned.setupMesh(device);
 

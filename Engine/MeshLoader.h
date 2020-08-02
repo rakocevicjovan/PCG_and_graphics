@@ -105,7 +105,7 @@ public:
 
 
 	 //@TODO rework this so it's private, mesh should just call above
-	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton)
+	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton = nullptr)
 	{
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;

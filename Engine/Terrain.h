@@ -92,9 +92,10 @@ namespace Procedural
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, Phong& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
 
-		void populateMesh(std::vector<Vert3D>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
+		void populateMesh(std::vector<uint8_t>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
 		{
-			verts = vertices;
+			verts.resize(vertices.size() * sizeof(Vert3D));
+			memcpy(verts.data(), vertices.data(), verts.size());
 			inds = indices;
 			tex = textures;
 		}

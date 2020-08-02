@@ -14,7 +14,7 @@ struct TextureMetaData
 {
 	TextureRole _role;
 	Texture* _tex;
-	TextureMapMode _mapMode = TextureMapMode::WRAP;
+	TextureMapMode _mapMode[3] = { TextureMapMode::WRAP };
 	uint8_t _uvIndex = 0u;
 };
 
@@ -73,9 +73,16 @@ public:
 		for (UINT i = 0; i < _texMetaData.size(); ++i)
 		{
 			const TextureMetaData& tmd = _texMetaData[i];
-			D3D11_TEXTURE_ADDRESS_MODE tam = ADDR_MODE_MAP.at(tmd._mapMode);
+
+			D3D11_TEXTURE_ADDRESS_MODE tam[3];
+
+			for (UINT j = 0; j < 3; ++j)
+			{
+				tam[j] = ADDR_MODE_MAP.at(tmd._mapMode[j]);
+			}
+
 			result.push_back(Sampler::createSamplerDesc(filter, D3D11_COMPARISON_ALWAYS, 0.,
-				D3D11_FLOAT32_MAX, tam, tam, tam));	// goes the drum...
+				D3D11_FLOAT32_MAX, tam[0], tam[1], tam[2]));	// goes the drum...
 		}
 
 		return result;

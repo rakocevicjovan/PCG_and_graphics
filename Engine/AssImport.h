@@ -26,7 +26,6 @@ private:
 	// For 3d preview I need these... until a better system is in place at least
 	std::unique_ptr<SkeletalModelInstance> _skModelInst;
 	ID3D11Device* _device;
-	Material* _skelAnimMat;
 
 	// Things that might get loaded
 	std::unique_ptr<SkeletalModel> _skModel;
@@ -54,7 +53,7 @@ public:
 
 
 
-	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, Material* defMat, 
+	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, 
 		ResourceManager* resMan)
 	{
 		_resMan = resMan;
@@ -64,7 +63,6 @@ public:
 
 		_path = path;
 		_device = device;
-		_skelAnimMat = defMat;
 
 		_previewScale = 1.f;
 		_currentAnim = 0;
@@ -156,8 +154,8 @@ public:
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
-						skmesh._baseMaterial.setVS(_skelAnimMat->getVS());
-						skmesh._baseMaterial.setPS(_skelAnimMat->getPS());
+						uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, skmesh._vertSig, &skmesh._baseMaterial);
+						ShaderManager::CreateShader(_device, shaderKey, skmesh._vertSig, &skmesh._baseMaterial);
 					}
 
 					_skModelInst = std::make_unique<SkeletalModelInstance>();
@@ -172,9 +170,8 @@ public:
 
 					for (Mesh& mesh : _model->_meshes)
 					{
-						// Not good, just use shader manager and pick the proper shaders instead of cowabunga
-						//mesh._baseMaterial.setVS(_skelAnimMat->getVS());
-						//mesh._baseMaterial.setPS(_skelAnimMat->getPS());
+						uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, mesh._vertSig, &mesh._baseMaterial);
+						ShaderManager::CreateShader(_device, shaderKey, mesh._vertSig, &mesh._baseMaterial);
 					}
 				}
 
@@ -250,6 +247,22 @@ public:
 				ImGui::PopID();
 			}
 		}
+
+		if (_model.get())
+		{
+			for (UINT i = 0; i < _model->_meshes.size(); ++i)
+			{
+				ImGui::PushID(i);
+				if (ImGui::TreeNode(&i, "Mesh %d", i))
+				{
+					Mesh* mesh = &_model->_meshes[i];
+					GuiBlocks::displayMesh(mesh);
+					ShaderManager::displayShaderPicker(mesh->_vertSig, &mesh->_baseMaterial, _device);
+					ImGui::TreePop();
+				}
+				ImGui::PopID();
+			}
+		}
 	}
 
 
@@ -300,6 +313,7 @@ public:
 		{
 			for (Mesh& r : _model->_meshes)
 			{
+				Math::SetScale(r._transform, SVec3(_previewScale));
 				r.draw(context);
 			}
 		}

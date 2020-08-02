@@ -87,6 +87,7 @@ struct PixelInputType
 PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
+	output.position.w = 1.f;
 
 	float4x4 totalMatrix = worldMatrix;
 

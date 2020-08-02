@@ -279,6 +279,7 @@ namespace Procedural
 		finalMesh._textures.emplace_back(device, "../Textures/Bark/normal.jpg");
 		int totalVerts = 0, totalInds = 0;
 
+		/* // Change to fit the new vertex type type
 		for (auto&m : tree._meshes)
 		{
 			totalVerts += m._vertices.size();
@@ -299,7 +300,7 @@ namespace Procedural
 		//finalMesh.setupMesh(device);
 		tree._meshes.clear();
 		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh._textures, device);
-		
+		*/
 		return tree;
 	}
 
@@ -339,7 +340,8 @@ namespace Procedural
 			char c = _current[i];
 			
 			SVec3 rotated = SVec3::Transform(dir, orientation);
-
+			
+			/* // Change to fit the new vertex type
 			switch (c)
 			{
 			case 'D':	//advance a floor up
@@ -394,7 +396,7 @@ namespace Procedural
 				//std::cout << c << std::endl;
 				break;
 			}
-
+			*/
 			pos = nextPos;
 		}
 

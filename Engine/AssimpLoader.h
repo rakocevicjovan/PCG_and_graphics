@@ -138,7 +138,7 @@ public:
 			{
 				_previews.push_back(std::make_unique<AssImport>());
 
-				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u, &_skelAnimMat, &S_RESMAN))
+				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u, &S_RESMAN))
 				{
 					_previews.pop_back();
 				}

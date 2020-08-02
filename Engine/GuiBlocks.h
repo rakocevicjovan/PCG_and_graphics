@@ -99,7 +99,7 @@ namespace GuiBlocks
 
 
 
-	static void displayMesh(Mesh* mesh, bool dMat = true, bool dVerts = false, bool dInds = false)
+	static void displayMesh(Mesh* mesh, bool dMat = true)
 	{
 		ImGui::Text("Offset matrix: ");
 		displayTransform(mesh->_transform);
@@ -110,29 +110,6 @@ namespace GuiBlocks
 		{
 			ImGui::Text("Material: ");
 			displayMaterial(mesh->_baseMaterial);
-			ImGui::Separator();
-		}
-
-
-		if (dVerts)
-		{
-			ImGui::ListBoxHeader("Vertices");
-			for (Vert3D& v : mesh->_vertices)
-			{
-				displayVertex(v);
-				ImGui::Separator();
-			}
-			ImGui::ListBoxFooter();
-			ImGui::Separator();
-		}
-
-
-		if (dInds)
-		{
-			ImGui::Text("Indices: ");
-			std::stringstream result;
-			std::copy(mesh->_indices.begin(), mesh->_indices.end(), std::ostream_iterator<int>(result, " "));
-			ImGui::TextWrapped(result.str().c_str());
 			ImGui::Separator();
 		}
 	}

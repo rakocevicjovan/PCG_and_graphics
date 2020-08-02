@@ -103,11 +103,15 @@ bool AssimpWrapper::loadMaterialTextures(
 
 		aiString aiTexPath;
 		UINT uvIndex = 0u;
-		aiTextureMapMode aiMapMode = aiTextureMapMode_Wrap;
+		aiTextureMapMode aiMapModes[3] = { aiTextureMapMode_Wrap};
 
-		aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapMode);
+		aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
 		
-		TextureMapMode mapMode = TEXMAPMODE_MAP.at(aiMapMode);
+		TextureMapMode mapModes[3];
+		for (aiTextureMapMode atmm : aiMapModes)
+		{
+			mapModes[i] = TEXMAPMODE_MAP.at(atmm);
+		}
 
 		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
 
@@ -143,10 +147,11 @@ bool AssimpWrapper::loadMaterialTextures(
 		}
 
 		textures.push_back(curTexture);	// Should try to do std::move when this is done
+		
 		mat->_texMetaData.push_back({ 
 			role, 
 			reinterpret_cast<Texture*>(textures.size() - 1),
-			mapMode,
+			{mapModes[0], mapModes[1], mapModes[2]},
 			static_cast<uint8_t>(uvIndex)
 			});	// Textures will relocate
 	}

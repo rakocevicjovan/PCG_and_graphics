@@ -137,6 +137,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float distToPoint = length(viewDir);
 	viewDir /= distToPoint;
 
+
 	// Light code using clustered shading
 	float viewDepth = zToViewSpace(input.position.z, zNear, zFar);
 	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, zNear, zFar);
@@ -144,7 +145,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	uint minOffset = offsetGrid[clusterIndex].x;
 	uint maxOffset = offsetGrid[clusterIndex + 1].x;
 
-	// Process lights
+
 	float3 lightContrib = float3(0., 0., 0.);
 
 	for (uint i = minOffset; i < maxOffset; i++)
@@ -153,9 +154,10 @@ float4 main(PixelInputType input) : SV_TARGET
 		PLight pl = lightBuffer[indices];
 		calcColour(pl, input, viewDir, lightContrib);
 	}
-
+	
 	// fake ambient/directional
 	colour.xyz *= max(lightContrib, float3(.1, .1, .1));
+
 #endif
 
 #ifdef FOG

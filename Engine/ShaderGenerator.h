@@ -121,16 +121,4 @@ public:
 		const std::vector<ShaderOption>& options,
 		uint64_t key,
 		std::set<uint64_t>& existingKeys);
-
-
-	static void CreateVertInLay(const VertSignature& vertSig)
-	{
-		std::vector<D3D11_INPUT_ELEMENT_DESC> vertInLay;
-
-		for (const VAttrib& va : vertSig._attributes)
-		{
-
-		}
-
-	}
 };
