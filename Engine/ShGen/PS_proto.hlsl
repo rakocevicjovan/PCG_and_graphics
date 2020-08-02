@@ -1,6 +1,17 @@
 #include "Light.hlsli"
 #include "Clustering.hlsli"
 
+cbuffer LightBuffer : register(b0)
+{
+	float3 alc;
+	float ali;
+	float3 dlc;
+	float dli;
+	float3 slc;
+	float sli;
+	float4 lightPosition;
+};
+
 cbuffer PSPerCameraBuffer : register(b9)
 {
 	float scr_w;
@@ -123,10 +134,10 @@ float4 main(PixelInputType input) : SV_TARGET
 #endif
 
 #if TEX_OPC > 0
-	colour.w = opacityMap.Sample(Sampler, input.tex[0]).r;
+	//colour.w = opacityMap.Sample(Sampler, input.tex[0]).r;
 #endif
 
-	//if (colour.w < 0.000001f) discard;
+	if (colour.w < 0.000001f) discard;
 
 #if COLOUR > 0
 	colour.xyz = input.colour;
@@ -139,6 +150,7 @@ float4 main(PixelInputType input) : SV_TARGET
 
 
 	// Light code using clustered shading
+	/*
 	float viewDepth = zToViewSpace(input.position.z, zNear, zFar);
 	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, zNear, zFar);
 
@@ -157,6 +169,20 @@ float4 main(PixelInputType input) : SV_TARGET
 	
 	// fake ambient/directional
 	colour.xyz *= max(lightContrib, float3(.1, .1, .1));
+	*/
+
+	// Usual way
+	float4 ambient = calcAmbient(alc, ali);
+
+	//calculate diffuse light
+	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
+
+	float diffIntensity = 0.f;
+	float4 diffuse = calcDiffuse(-lightDir, input.normal, dlc, dli, diffIntensity);
+
+	//calculate specular light
+	float4 specular = calcSpecularPhong(-lightDir, input.normal, slc, sli, viewDir, diffIntensity, 8.f);
+	colour = (ambient + diffuse) * colour + specular;
 
 #endif
 

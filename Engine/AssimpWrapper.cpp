@@ -103,15 +103,13 @@ bool AssimpWrapper::loadMaterialTextures(
 
 		aiString aiTexPath;
 		UINT uvIndex = 0u;
-		aiTextureMapMode aiMapModes[3] = { aiTextureMapMode_Wrap};
+		aiTextureMapMode aiMapModes[3] {aiTextureMapMode_Wrap, aiTextureMapMode_Wrap , aiTextureMapMode_Wrap };
 
 		aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
 		
 		TextureMapMode mapModes[3];
-		for (aiTextureMapMode atmm : aiMapModes)
-		{
-			mapModes[i] = TEXMAPMODE_MAP.at(atmm);
-		}
+		for (UINT j = 0; j < 3; ++j)
+			mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
 
 		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
 

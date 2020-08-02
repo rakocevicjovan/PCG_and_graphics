@@ -187,7 +187,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	depthStencilDesc.StencilEnable = true;
 	depthStencilDesc.StencilReadMask = 0xFF;
 	depthStencilDesc.StencilWriteMask = 0xFF;
@@ -389,7 +389,7 @@ void D3D::D3D::TurnOnAlphaBlending()
 {
 	float blendFactor[4] = { 0.5f, 0.5f, 0.5f, 0.5f };
 
-	_deviceContext->OMSetBlendState(_blendState, blendFactor, 0xffffffff);
+	_deviceContext->OMSetBlendState(_blendState, nullptr, 0xffffffff);
 }
 
 
