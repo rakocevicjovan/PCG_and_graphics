@@ -233,50 +233,21 @@ public:
 			AssetViews::printSkeleton(_skeleton.get());
 		
 		if (_skModel.get())
-		{
-			for (UINT i = 0; i < _skModel->_meshes.size(); ++i)
-			{
-				ImGui::PushID(i);
-				if (ImGui::TreeNode(&i, "Mesh %d", i))
-				{
-					SkeletalMesh* skm = &_skModel->_meshes[i];
-					GuiBlocks::displaySkMesh(skm);
-					ShaderManager::displayShaderPicker(skm->_vertSig, &skm->_baseMaterial, _device);
-					ImGui::TreePop();
-				}
-				ImGui::PopID();
-			}
-		}
+			AssetViews::printSkModel(_skModel.get());
 
 		if (_model.get())
-		{
-			for (UINT i = 0; i < _model->_meshes.size(); ++i)
-			{
-				ImGui::PushID(i);
-				if (ImGui::TreeNode(&i, "Mesh %d", i))
-				{
-					Mesh* mesh = &_model->_meshes[i];
-					GuiBlocks::displayMesh(mesh);
-					ShaderManager::displayShaderPicker(mesh->_vertSig, &mesh->_baseMaterial, _device);
-					ImGui::TreePop();
-				}
-				ImGui::PopID();
-			}
-		}
+			AssetViews::printModel(_model.get());
 	}
 
 
 
 	bool displayCommands()
 	{
-		ImGui::BeginGroup();
 		ImGui::Text("Preview settings");
 
 		ImGui::SliderFloat("Model scale: (tbd)", &_previewScale, .1f, 100.f);
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, -1.f, 1.f);
-
-		ImGui::EndGroup();
 
 		ImGui::Text("Commands");
 

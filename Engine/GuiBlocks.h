@@ -47,6 +47,31 @@ namespace GuiBlocks
 
 
 
+	static void displayShaders(VertexShader* vs, PixelShader* ps)
+	{
+		ImGui::Text("Shaders: ");
+
+		ImGui::Indent();
+
+		if (vs)
+		{
+			std::string vsName(vs->_path.begin(), vs->_path.end());
+			ImGui::Text(vsName.c_str());
+		}
+		else
+			ImGui::Text("None loaded");
+
+		if (ps)
+		{
+			std::string psName(ps->_path.begin(), ps->_path.end());
+			ImGui::Text(psName.c_str());
+		}
+		else
+			ImGui::Text("None loaded");
+	}
+
+
+
 	static void displayMaterial(Material& mat)
 	{
 		ImGui::BeginGroup();
@@ -71,31 +96,6 @@ namespace GuiBlocks
 		ImGui::Checkbox("Opaque: ", &mat._opaque);
 
 		ImGui::EndGroup();
-	}
-
-
-
-	static void displayShaders(VertexShader* vs, PixelShader* ps)
-	{
-		ImGui::Text("Shaders: ");
-
-		ImGui::Indent();
-
-		if (vs)
-		{
-			std::string vsName(vs->_path.begin(), vs->_path.end());
-			ImGui::Text(vsName.c_str());
-		}
-		else
-			ImGui::Text("None loaded");
-
-		if (ps)
-		{
-			std::string psName(ps->_path.begin(), ps->_path.end());
-			ImGui::Text(psName.c_str());
-		}
-		else
-			ImGui::Text("None loaded");
 	}
 
 

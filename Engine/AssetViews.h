@@ -49,6 +49,41 @@ public:
 
 
 
+	static void printSkModel(SkeletalModel* skModel)
+	{
+		for (UINT i = 0; i < skModel->_meshes.size(); ++i)
+		{
+			ImGui::PushID(i);
+			if (ImGui::TreeNode(&i, "Mesh %d", i))
+			{
+				SkeletalMesh* skm = &skModel->_meshes[i];
+				GuiBlocks::displaySkMesh(skm);
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+		}
+	}
+
+
+
+	static void printModel(Model* model)
+	{
+		for (UINT i = 0; i < model->_meshes.size(); ++i)
+		{
+			ImGui::PushID(i);
+			if (ImGui::TreeNode(&i, "Mesh %d", i))
+			{
+				Mesh* mesh = &model->_meshes[i];
+				GuiBlocks::displayMesh(mesh);
+				ShaderManager::displayShaderPicker(mesh->_vertSig, &mesh->_baseMaterial, _device);
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
+		}
+	}
+
+
+
 	static void editMaterial(Material& mat)
 	{
 
