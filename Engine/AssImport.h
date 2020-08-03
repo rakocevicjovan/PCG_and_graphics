@@ -16,8 +16,8 @@
 class AssImport
 {
 private:
-	ResourceManager* _resMan;
-	AssetLedger* _ledger;
+	ResourceManager* _pResMan;
+	AssetLedger* _pLedger;
 
 	std::string _path;
 	Assimp::Importer _importer;
@@ -56,8 +56,8 @@ public:
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, 
 		ResourceManager* resMan)
 	{
-		_resMan = resMan;
-		_ledger = &resMan->_assetLedger;
+		_pResMan = resMan;
+		_pLedger = &resMan->_assetLedger;
 
 		_importConfigured = false;
 
@@ -649,14 +649,14 @@ public:
 				std::ofstream matOfs(matPath, std::ios::binary);
 				cereal::BinaryOutputArchive matBoa(matOfs);
 				_skModel->_meshes[i]._baseMaterial.serialize(matBoa, std::vector<UINT>{0u});
-				matId = _ledger->add(matPath, matPath, ResType::MATERIAL);
+				matId = _pLedger->add(matPath, matPath, ResType::MATERIAL);
 				}
 
 				std::string meshPath{ _assetWriter._exportPath + "//mesh" + std::to_string(i) + ".aeon"};
 				std::ofstream ofs(meshPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
 				_skModel->_meshes[i].serialize(boa, matId);
-				meshIDs.push_back(_ledger->add(meshPath, meshPath, ResType::SK_MESH));
+				meshIDs.push_back(_pLedger->add(meshPath, meshPath, ResType::SK_MESH));
 			}
 
 			std::vector<UINT> animIDs;
@@ -666,7 +666,7 @@ public:
 				std::ofstream ofs(animPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
 				anim.serialize(boa);
-				animIDs.push_back(_ledger->add(animPath, animPath, ResType::ANIMATION));
+				animIDs.push_back(_pLedger->add(animPath, animPath, ResType::ANIMATION));
 			}
 
 			UINT skeletonID;
@@ -675,14 +675,14 @@ public:
 				std::ofstream ofs(skelPath, std::ios::binary);
 				cereal::BinaryOutputArchive boa(ofs);
 				//_skModel->_skeleton->save(boa);
-				skeletonID = _ledger->add(skelPath, skelPath, ResType::SKELETON);
+				skeletonID = _pLedger->add(skelPath, skelPath, ResType::SKELETON);
 			}
 			
 			std::ofstream ofs(_assetWriter._exportPath + "//skm.aeon", std::ios::binary);
 			cereal::BinaryOutputArchive archie(ofs);
 			_skModel.get()->serialize(archie, meshIDs, animIDs, skeletonID);
 		}
-		_ledger->save();
+		_pLedger->save();
 	}
 
 

@@ -14,10 +14,11 @@
 
 struct TextureMetaData
 {
-	TextureRole _role;
 	Texture* _tex;
-	TextureMapMode _mapMode[3] = { TextureMapMode::WRAP };
+	TextureRole _role;
+	TextureMapMode _mapMode[3] = { TextureMapMode::WRAP, TextureMapMode::WRAP, TextureMapMode::WRAP };
 	uint8_t _uvIndex = 0u;
+	uint8_t _regIndex = 0u;	// Decouple from role later
 };
 
 
@@ -41,14 +42,13 @@ public:
 	// This could also belong in the vertex buffer... like stride and offset do
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	// Functions
+
 	Material();
 
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
 
-	~Material();
 
-	void bindTextures(ID3D11DeviceContext* context);
+	void bindTextures(ID3D11DeviceContext* context) const;
 	
 	std::vector<D3D11_SAMPLER_DESC> createSamplerDescs() const;
 

@@ -46,3 +46,13 @@ static const std::vector<const char*> TEX_ROLE_NAMES
 	"Refraction",
 	"Other"
 };
+
+
+static const std::vector<const char*> TEX_MAPMODE_NAMES
+{
+	"Wrap",
+	"Mirror",
+	"Clamp",
+	"Border",
+	"MirrorOnce"
+};

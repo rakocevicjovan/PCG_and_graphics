@@ -15,6 +15,8 @@ private:
 
 	std::filesystem::path _curDirPath;
 
+	std::filesystem::path _projRootPath;	// QoL
+
 	std::deque<std::filesystem::path> _pathHistory;
 
 	std::vector<std::filesystem::directory_entry> _contents;
@@ -27,13 +29,14 @@ public:
 
 
 
-	FileBrowser(const std::string& rootFolder)
+	FileBrowser(const std::string& rootFolder) 
+		: _curDirPath(std::filesystem::path(rootFolder))
 	{
-		_curDirPath = std::filesystem::path(rootFolder);
-
-		openDir(_curDirPath);
+		_projRootPath = _curDirPath;
 
 		_searchedString = _curDirPath.string();
+
+		openDir(_curDirPath);
 
 		_pathHistory.push_front(_curDirPath);
 
@@ -73,6 +76,12 @@ public:
 
 			if (ImGui::Button("Refresh"))
 				refreshContentList();
+
+			if (ImGui::Button("Project root"))
+			{
+				_searchedString = _projRootPath.string();
+				seek();
+			}
 			
 			selected = printContentList();
 		}

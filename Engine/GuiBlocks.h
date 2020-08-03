@@ -35,14 +35,14 @@ namespace GuiBlocks
 
 
 
-	static void displayTexture(ID3D11ShaderResourceView* texSrv, const std::string& path, float w, float h, int n)
+	static void displayTexture(const Texture& t)
 	{
-		ImGui::Text(path.c_str());
+		ImGui::Text(t.getName().c_str());
 
-		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", w, h, n);
+		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t.getW(), t.getH(), t.getN());
 
-		if (texSrv != nullptr)
-			ImGui::Image(texSrv, ImVec2(512., 512.));
+		if (t._srv)
+			ImGui::Image(t._srv, ImVec2(256., 256.));
 	}
 
 
@@ -51,31 +51,7 @@ namespace GuiBlocks
 	{
 		ImGui::BeginGroup();
 
-		ImGui::Text("Shaders: ");
-
-		ImGui::Indent();
-
-		VertexShader* vs = mat.getVS();
-		if (vs)
-		{
-			std::string vsName(vs->_path.begin(), vs->_path.end());
-			ImGui::Text(vsName.c_str());
-		}
-		else
-		{
-			ImGui::Text("None loaded");
-		}
-
-		PixelShader* ps = mat.getPS();
-		if (ps)
-		{
-			std::string psName(ps->_path.begin(), ps->_path.end());
-			ImGui::Text(psName.c_str());
-		}
-		else
-		{
-			ImGui::Text("None loaded");
-		}
+		displayShaders(mat.getVS(), mat.getPS());
 
 		ImGui::Unindent();
 
@@ -95,6 +71,31 @@ namespace GuiBlocks
 		ImGui::Checkbox("Opaque: ", &mat._opaque);
 
 		ImGui::EndGroup();
+	}
+
+
+
+	static void displayShaders(VertexShader* vs, PixelShader* ps)
+	{
+		ImGui::Text("Shaders: ");
+
+		ImGui::Indent();
+
+		if (vs)
+		{
+			std::string vsName(vs->_path.begin(), vs->_path.end());
+			ImGui::Text(vsName.c_str());
+		}
+		else
+			ImGui::Text("None loaded");
+
+		if (ps)
+		{
+			std::string psName(ps->_path.begin(), ps->_path.end());
+			ImGui::Text(psName.c_str());
+		}
+		else
+			ImGui::Text("None loaded");
 	}
 
 
