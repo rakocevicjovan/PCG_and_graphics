@@ -9,8 +9,8 @@ struct EditorLayout
 	ImVec2 _previewPos;
 	ImVec2 _previewSize;
 
-	ImVec2 _assetListPos;
-	ImVec2 _assetListSize;
+	ImVec2 _fileBrowserPos;
+	ImVec2 _fileBrowserSize;
 
 
 	EditorLayout() {}
@@ -24,7 +24,7 @@ struct EditorLayout
 		_previewPos		= ImVec2(0.     , 0.);
 		_previewSize	= ImVec2(w * .2, h * 0.75);
 
-		_assetListPos	= ImVec2(0., h * 0.75);
-		_assetListSize	= ImVec2(w , h * 0.25);
+		_fileBrowserPos	= ImVec2(0., h * 0.75);
+		_fileBrowserSize	= ImVec2(w , h * 0.25);
 	}
 };

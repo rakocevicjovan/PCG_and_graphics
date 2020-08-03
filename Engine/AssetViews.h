@@ -75,7 +75,6 @@ public:
 			{
 				Mesh* mesh = &model->_meshes[i];
 				GuiBlocks::displayMesh(mesh);
-				ShaderManager::displayShaderPicker(mesh->_vertSig, &mesh->_baseMaterial, _device);
 				ImGui::TreePop();
 			}
 			ImGui::PopID();

@@ -611,47 +611,7 @@ public:
 	{
 		if (_impSkModel)
 		{
-			std::vector<UINT> meshIDs;
-			for (int i = 0; i < _skModel->_meshes.size(); ++i)
-			{
-				uint32_t matId;
-				{
-				std::string matPath{ _assetWriter._exportPath + "//mat" + std::to_string(i) + ".aeon" };
-				std::ofstream matOfs(matPath, std::ios::binary);
-				cereal::BinaryOutputArchive matBoa(matOfs);
-				_skModel->_meshes[i]._baseMaterial.serialize(matBoa, std::vector<UINT>{0u});
-				matId = _pLedger->add(matPath, matPath, ResType::MATERIAL);
-				}
-
-				std::string meshPath{ _assetWriter._exportPath + "//mesh" + std::to_string(i) + ".aeon"};
-				std::ofstream ofs(meshPath, std::ios::binary);
-				cereal::BinaryOutputArchive boa(ofs);
-				_skModel->_meshes[i].serialize(boa, matId);
-				meshIDs.push_back(_pLedger->add(meshPath, meshPath, ResType::SK_MESH));
-			}
-
-			std::vector<UINT> animIDs;
-			for (Animation& anim : _skModel->_anims)
-			{
-				std::string animPath{ _assetWriter._exportPath + "//" + anim.getName() + ".aeon" };
-				std::ofstream ofs(animPath, std::ios::binary);
-				cereal::BinaryOutputArchive boa(ofs);
-				anim.serialize(boa);
-				animIDs.push_back(_pLedger->add(animPath, animPath, ResType::ANIMATION));
-			}
-
-			UINT skeletonID;
-			{
-				std::string skelPath{ _assetWriter._exportPath + "//skelly" + ".aeon" };
-				std::ofstream ofs(skelPath, std::ios::binary);
-				cereal::BinaryOutputArchive boa(ofs);
-				//_skModel->_skeleton->save(boa);
-				skeletonID = _pLedger->add(skelPath, skelPath, ResType::SKELETON);
-			}
-			
-			std::ofstream ofs(_assetWriter._exportPath + "//skm.aeon", std::ios::binary);
-			cereal::BinaryOutputArchive archie(ofs);
-			_skModel.get()->serialize(archie, meshIDs, animIDs, skeletonID);
+			_assetWriter.writeAsset(_skModel.get(), _pLedger);
 		}
 		_pLedger->save();
 	}

@@ -13,7 +13,8 @@
 class AssetLedger
 {
 private:
-	
+	bool _dirty;
+
 	// Gigabrain implementation with 0 effort, 0 cache locality and maximum fragmentation
 	std::unordered_set<ResourceDef> _assDefs;
 
@@ -28,6 +29,16 @@ public:
 
 	std::string _ledgerFilePath;
 
+	AssetLedger() : _dirty(false) {}
+
+
+	~AssetLedger()
+	{
+		if(_dirty)
+			save();	// Is this smart? Hopefully
+	}
+
+
 
 	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
 	{
@@ -39,44 +50,44 @@ public:
 			// Heavy handed, needs a very visible warning though.
 			assert(false && "HASH COLLISION! Asset name: %s", assName);
 		}
+
+		_dirty = true;
+
 		return result;
 	}
 
 
 
-	const ResourceDef* get(const std::string& assName)
+	inline const ResourceDef* get(const std::string& assName) const
 	{
 		get(fnv1hash(assName));
 	}
 
 
 
-	const ResourceDef* get(uint32_t ID)
+	inline const ResourceDef* get(uint32_t ID) const
 	{
 		auto iter = _assDefs.find(ResourceDef{ ID });
 		
 		if (iter != _assDefs.end())
-		{
 			return &(*iter);
-		}
 		else
-		{
 			return nullptr;
-		}
 	}
 
 
 
-	void remove(const std::string& assName)
+	inline void remove(const std::string& assName)
 	{
 		remove(fnv1hash(assName));
 	}
 
 
 
-	void remove(uint32_t ID)
+	inline void remove(uint32_t ID)
 	{
-		_assDefs.erase(ResourceDef{ID, 0});
+		if(_assDefs.erase(ResourceDef{ID, 0}))
+			_dirty = true;
 	}
 
 

@@ -12,8 +12,6 @@ private:
 
 	std::string _projRoot;
 
-	Actor* _selectedActor;
-
 	EditorLayout _layout;
 
 	FileBrowser _fileBrowser;
@@ -25,17 +23,19 @@ public:
 
 
 	Editor(float w, float h, const std::string& projRoot) 
-		: _layout(w, h), _fileBrowser(projRoot), _projRoot(projRoot), _selectedActor(nullptr)
+		: _layout(w, h), _fileBrowser(projRoot), _projRoot(projRoot)
 	{
 
 	}
 
 
 
-	void display(std::vector<Actor*>& actors)	//std::vector<GameObject>& objects	//std::vector<Actor*>& actors;
+	void display(std::vector<Actor*>& actors)
 	{
-		ImGui::SetNextWindowPos(_layout._assetListPos);
-		ImGui::SetNextWindowSize(_layout._assetListSize);
+		Actor* _selectedActor;	// Move entire function somewhere else
+
+		ImGui::SetNextWindowPos(_layout._fileBrowserPos);
+		ImGui::SetNextWindowSize(_layout._fileBrowserSize);
 
 		_fileBrowser.display();
 

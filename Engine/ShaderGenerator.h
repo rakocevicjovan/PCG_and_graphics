@@ -41,7 +41,7 @@ static const ShaderOption SHG_OPT_SIW { "SIW", 7 };
 static const ShaderOption SHG_OPT_INS { "INS", 8 };
 
 // PS options
-#define PS_O 9u // Horrible but aight for now
+constexpr UINT PS_O = 9u; // Horrible but aight for now;
 static const ShaderOption SHG_OPT_LMOD	{ "LMOD",	PS_O + 0, 2 };
 static const ShaderOption SHG_OPT_ALPHA	{ "ALPHA",	PS_O + 2 };
 static const ShaderOption SHG_OPT_FOG	{ "FOG",	PS_O + 3 };
@@ -49,7 +49,7 @@ static const ShaderOption SHG_OPT_SHD	{ "SHADOW",	PS_O + 4 };
 static const ShaderOption SHG_OPT_GAMMA	{ "GAMMA",	PS_O + 5 };
 
 // 10 texture options, each 1 bit (crazy number of permutations already)
-#define PS_T_O PS_O + 6u
+constexpr UINT PS_T_O = PS_O + 6u;
 static const ShaderOption SHG_TX_DIF { "TEX_DIF", PS_T_O + 0 };
 static const ShaderOption SHG_TX_NRM { "TEX_NRM", PS_T_O + 1 };
 static const ShaderOption SHG_TX_SPC { "TEX_SPC", PS_T_O + 2 };
