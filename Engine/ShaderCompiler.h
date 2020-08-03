@@ -63,8 +63,11 @@ public:
 	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData = nullptr) const;
 	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const;
 
-	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
+	ID3D11VertexShader* loadCompiledVS(ID3D10Blob* shaderBuffer) const;
+	ID3D11PixelShader* loadCompiledPS(ID3D10Blob* shaderBuffer) const;
+	ID3D11GeometryShader* loadCompiledGS(ID3D10Blob* shaderBuffer) const;
 
+	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
 
 	ID3D11Device* getDevice() const { return _device; }
 };

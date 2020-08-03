@@ -92,4 +92,33 @@ namespace FileUtils
 		std::ofstream writer(filename, flags);
 		writer.write(static_cast<const char*>(content), size);
 	}
+
+
+
+	static bool getRecursiveIterator(const std::filesystem::path& dirPath, std::filesystem::recursive_directory_iterator& iter)
+	{
+		if (std::filesystem::is_directory(dirPath))
+		{
+			iter = std::filesystem::recursive_directory_iterator(dirPath);
+		}
+		return false;
+	}
+
+
+
+	static std::vector<std::filesystem::directory_entry> getFilesByExt
+	(const std::filesystem::path& dir, const std::filesystem::path& ext)
+	{
+		std::vector<std::filesystem::directory_entry> files;
+		std::filesystem::recursive_directory_iterator rdi;
+		if(getRecursiveIterator(dir, rdi))
+		{
+			for (auto file : rdi)
+			{
+				if (file.path().extension() == ext)
+					files.push_back(file);
+			}
+		}
+		return files;
+	}
 }

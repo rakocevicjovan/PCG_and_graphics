@@ -150,11 +150,11 @@
     <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\0ShGen">
-      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Rendering\Shaders">
       <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shaders\0ShGen">
+      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -429,7 +429,7 @@
       <Filter>Asset importing</Filter>
     </ClCompile>
     <ClCompile Include="ShaderGenerator.cpp">
-      <Filter>Rendering\0ShGen</Filter>
+      <Filter>Rendering\Shaders\0ShGen</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\Shaders</Filter>
@@ -974,7 +974,7 @@
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
-      <Filter>Rendering\0ShGen</Filter>
+      <Filter>Rendering\Shaders\0ShGen</Filter>
     </ClInclude>
     <ClInclude Include="AssetViews.h">
       <Filter>Asset importing</Filter>
@@ -1196,10 +1196,10 @@
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="ShGen\VS_proto.hlsl">
-      <Filter>Rendering\0ShGen</Filter>
+      <Filter>Rendering\Shaders\0ShGen</Filter>
     </FxCompile>
     <FxCompile Include="ShGen\PS_proto.hlsl">
-      <Filter>Rendering\0ShGen</Filter>
+      <Filter>Rendering\Shaders\0ShGen</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
