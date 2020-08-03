@@ -110,7 +110,7 @@ public:
 		vs->describeBuffers({ WMBufferMeta });
 
 		// PS
-		auto samplerDescriptions = mat->createSamplerDesc();
+		auto samplerDescriptions = mat->createSamplerDescs();
 		std::string psPath(NATURAL_PERMS + std::to_string(shaderKey) + "ps.hlsl");
 		std::wstring psPathW(psPath.begin(), psPath.end());
 

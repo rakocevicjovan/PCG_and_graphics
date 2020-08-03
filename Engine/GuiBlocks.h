@@ -223,8 +223,8 @@ namespace GuiBlocks
 	}
 
 
-
-	static bool contextMenu()	// Doesn't do anything, just a syntax refresher ( imagine having documentation )
+	// Doesn't do anything, syntax refresher (imagine having documentation)
+	static bool contextMenu()
 	{
 		if (ImGui::BeginPopupContextItem("Bruh"))	// ImGui::BeginPopupContextWindow();
 		{

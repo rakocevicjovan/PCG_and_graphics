@@ -10,6 +10,8 @@
 #include <cereal/types/vector.hpp>
 #include <map>
 
+
+
 struct TextureMetaData
 {
 	TextureRole _role;
@@ -18,85 +20,51 @@ struct TextureMetaData
 	uint8_t _uvIndex = 0u;
 };
 
-//contains everything that the attached shaders need to be set to run... I guess?
+
+
 class Material
 {
 protected:
 
-	//most important sorting criteria
+	// Most important sorting criteria
 	VertexShader* _vertexShader;
 	PixelShader* _pixelShader;
 
 public:
 
-	//second most important sorting criteria
+	// Second most important sorting criteria
 	std::vector<TextureMetaData> _texMetaData;
 	
-	// determines whether it goes to the transparent or opaque queue
+	// Determines whether it goes to the transparent or opaque queue
 	bool _opaque;
 
-	//this could also belong in the vertex buffer... like stride and offset do
+	// This could also belong in the vertex buffer... like stride and offset do
 	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	// Functions
 	Material();
+
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
+
 	~Material();
 
 	void bindTextures(ID3D11DeviceContext* context);
 	
+	std::vector<D3D11_SAMPLER_DESC> createSamplerDescs() const;
+
 	inline VertexShader* getVS() const { return _vertexShader; }
+
 	inline PixelShader* getPS() const { return _pixelShader; }
 
-	void setVS(VertexShader* vs);
-	void setPS(PixelShader* ps);
+	inline void setVS(VertexShader* vs) { _vertexShader = vs; }
 
+	inline void setPS(PixelShader* ps) { _pixelShader = ps; }
 
-
-	std::vector<D3D11_SAMPLER_DESC> createSamplerDesc() const
-	{
-		static const std::map<TextureMapMode, D3D11_TEXTURE_ADDRESS_MODE> ADDR_MODE_MAP
-		{
-			{CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP},
-			{WRAP, D3D11_TEXTURE_ADDRESS_WRAP},
-			{MIRROR, D3D11_TEXTURE_ADDRESS_MIRROR},
-			{MIRROR_ONCE, D3D11_TEXTURE_ADDRESS_MIRROR_ONCE},
-			{BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
-		};
-
-		std::vector<D3D11_SAMPLER_DESC> result;
-		result.reserve(_texMetaData.size());
-
-		// Uses default for now, but make it a setting eventually
-		D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-
-		for (UINT i = 0; i < _texMetaData.size(); ++i)
-		{
-			const TextureMetaData& tmd = _texMetaData[i];
-
-			D3D11_TEXTURE_ADDRESS_MODE tam[3];
-
-			for (UINT j = 0; j < 3; ++j)
-			{
-				tam[j] = ADDR_MODE_MAP.at(tmd._mapMode[j]);
-			}
-
-			result.push_back(Sampler::createSamplerDesc(filter, D3D11_COMPARISON_ALWAYS, 0.,
-				D3D11_FLOAT32_MAX, tam[0], tam[1], tam[2]));	// goes the drum...
-		}
-
-		return result;
-	}
-
-
-
-	void setSamplers(ID3D11DeviceContext* devCon)
+	inline void bindSamplers(ID3D11DeviceContext* context)
 	{
 		for (UINT i = 0; i < _pixelShader->_samplers.size(); ++i)
-			devCon->PSSetSamplers(i, 1, &getPS()->_samplers[i]);
+			context->PSSetSamplers(i, 1, &_pixelShader->_samplers[i]);
 	}
-
-
 
 	template <typename Archive>
 	void serialize(Archive& ar, std::vector<UINT>& texIDs)

@@ -46,4 +46,11 @@ public:
 			ImGui::TreePop();
 		}
 	}
+
+
+
+	static void editMaterial(Material& mat)
+	{
+
+	}
 };

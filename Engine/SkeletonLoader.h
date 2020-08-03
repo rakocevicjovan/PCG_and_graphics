@@ -24,12 +24,12 @@ private:
 
 	static void findAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& nodes)
 	{
-		std::vector<aiNode*> temp;
-		temp.reserve(aiBones.size());
+		std::set<aiNode*> temp;
+		//temp.reserve(aiBones.size()); if vector but keep it as set
 
 		for (aiBone* aiBone : aiBones)
 		{
-			temp.push_back(aiBone->mNode);
+			temp.insert(aiBone->mNode);
 			nodes.insert(aiBone->mNode);
 		}
 
