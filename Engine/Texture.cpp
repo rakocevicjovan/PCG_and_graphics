@@ -64,7 +64,7 @@ Texture::Texture(Texture&& other)
 {
 	// do not add refs because it's moved as opposed to copied
 	// Damage control :\ I'm not sure if this is well implemented so I need to know when I start using it
-	assert(false);	
+	//assert(false);	
 }
 
 

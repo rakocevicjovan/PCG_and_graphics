@@ -73,6 +73,7 @@ public:
 			aiProcess_ConvertToLeftHanded |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
+			aiProcess_TransformUVCoords |
 			aiProcess_PopulateArmatureData;
 
 		// This doesn't work, allegedly because optimization flags are on

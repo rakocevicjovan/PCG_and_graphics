@@ -9,7 +9,7 @@
 class BitMapper{
 
 public:
-	BitMapper(Texture tex);
+	BitMapper(Texture& tex);
 	~BitMapper();
 
 	void init(int smoothness, float widthScale, float lengthScale, float heightScale);
@@ -20,7 +20,7 @@ public:
 		
 	double xScale, yScale, zScale;
 
-	Texture t;
+	Texture& _t;
 
 	std::vector<std::vector<std::pair<int, SVec3>>> inVertMap;
 	std::vector<std::pair<int, SVec3>> vertexNormals;

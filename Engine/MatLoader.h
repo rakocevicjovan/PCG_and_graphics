@@ -8,6 +8,13 @@ class MatLoader
 	// Function signatures be wildin
 	typedef std::vector<Material*> MatVec;
 	typedef std::vector<Texture> TexVec;
+
+	struct TempTexData
+	{
+		aiString _path;
+		TextureMetaData _tmd;
+	};
+
 public:
 
 	static MatVec LoadAllMaterials(const aiScene* scene, const std::string& path)
@@ -21,7 +28,7 @@ public:
 
 
 
-	static Material LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& path, TexVec textures)
+	static Material LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& path, TexVec& textures)
 	{
 		Material* mat = new Material();
 		
@@ -110,37 +117,137 @@ public:
 			reflectiveColour = aiColor4D(0., 0., 0., 1.);
 		}
 
+
+		struct TexTypePair
+		{
+			aiTextureType _aiType;
+			TextureRole role;
+		};
+
 		// Textures
-		// Diffuse maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DIFFUSE, DIFFUSE);
+		static const std::vector<std::pair< aiTextureType, TextureRole>> ASSIMP_TEX_TYPES
+		{
+			{ aiTextureType_DIFFUSE, DIFFUSE},
+			{ aiTextureType_NORMALS, NORMAL},
+			{ aiTextureType_SPECULAR, SPECULAR},
+			{ aiTextureType_SHININESS, SHININESS},
+			{ aiTextureType_OPACITY, OPACITY},
+			//{ aiTextureType_EMISSIVE, EMISSIVE},
+			{ aiTextureType_DISPLACEMENT, DISPLACEMENT},
+			{ aiTextureType_LIGHTMAP, AMBIENT},
+			{ aiTextureType_REFLECTION, REFLECTION},
+			// PBR
+			{ aiTextureType_BASE_COLOR, REFRACTION},
+			//{ aiTextureType_EMISSION_COLOR, EMISSIVE},
+			{ aiTextureType_METALNESS, METALLIC},
+			{ aiTextureType_DIFFUSE_ROUGHNESS, ROUGHNESS},
+			{ aiTextureType_AMBIENT_OCCLUSION, AMBIENT},
+			// Mystery meat
+			{ aiTextureType_UNKNOWN, OTHER }
+		};
 
-		//  Normal maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NORMALS, NORMAL);
+		for (int i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
+		{
+			AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
+		}
 
-		// Specular maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SPECULAR, SPECULAR);
-
-		// Shininess maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SHININESS, SHININESS);
-
-		// Opacity maps - a bit of a special case, as it indicates that material is potentially transparent
-		if (AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_OPACITY, OPACITY))
-			mat->_opaque = false;
-
-		// Displacement maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DISPLACEMENT);
-
-		// Ambient occlusion maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMBIENT);
-
-		// Metallic maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_METALNESS, METALLIC);
-
-		// Other maps
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_UNKNOWN, OTHER);
-
-		// Weird properties... that I never really saw trigger
-		AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NONE, OTHER);
 	}
 
+
+
+	void loadMetaData(std::vector<TempTexData>& tempTexData,
+		aiMaterial *aiMat, aiTextureType aiTexType, TextureRole role)
+	{
+		static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
+		{
+			{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
+			{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
+			{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
+			{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
+		};
+
+		// Iterate all textures related to the material, keep the ones that can load
+		for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
+		{
+			aiString aiTexPath;
+			UINT uvIndex = 0u;
+			aiTextureMapMode aiMapModes[3]{ aiTextureMapMode_Wrap, aiTextureMapMode_Wrap , aiTextureMapMode_Wrap };
+
+			aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
+
+			TextureMapMode mapModes[3];
+			for (UINT j = 0; j < 3; ++j)
+				mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
+
+			tempTexData.push_back(
+			{
+				aiTexPath,
+				{
+					nullptr,
+					role,
+					{ mapModes[0], mapModes[1], mapModes[2] },
+					static_cast<uint8_t>(uvIndex),
+					0u
+				}
+			});
+		}
+	}
+
+
+	// @TODO only load unique textures to separate container, point from materials
+	static std::vector<Texture*> LoadTextures
+	(aiScene* scene, const std::string& modelPath, std::vector<TempTexData>& ttdVec)
+	{
+		std::vector<Texture*> pTexVec;
+
+		for (UINT i = 0; i < ttdVec.size(); ++i)
+		{
+			TempTexData& ttd = ttdVec[i];
+
+			std::string texName(aiScene::GetShortFilename(ttd._path.C_Str()));
+
+			const aiTexture* aiTex = scene->GetEmbeddedTexture(ttd._path.C_Str());
+
+			Texture* curTex = new Texture();
+			curTex->_fileName = texName;
+
+			bool loaded = false;
+
+			// Check if embedded first
+			if (aiTex)
+			{
+				loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, &ttd._path);
+			}
+
+			// Not embedded, try to load from file
+			if (!loaded)
+			{
+				// Assumes relative paths
+				std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
+				std::string texPath = modelFolderPath + "/" + std::string(ttd._path.data);
+
+				// If path is faulty, try to find it in the model directory and subdirectories
+				if (!std::filesystem::exists(texPath))
+				{
+					std::filesystem::directory_entry texFile;
+					if (FileUtils::findFile(modelFolderPath, texName, texFile))
+						texPath = texFile.path().string();
+				}
+
+				curTex->_fileName = texPath;	// or texName, I really don't even know why either tbh
+
+				loaded = curTex->LoadFromStoredPath();
+			}
+
+			// Load failed completely - most likely the data is corrupted or my library doesn't support it
+			if (!loaded)
+			{
+				OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
+				continue;
+			}
+
+			ttd._tmd._tex = curTex;
+			pTexVec.push_back(curTex);
+		}
+	}
 };

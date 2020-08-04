@@ -43,7 +43,7 @@ public:
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
-	Texture(const Texture& other);
+	Texture(const Texture& other);	// delete eventually?
 	Texture(Texture&& other);
 	Texture& Texture::operator=(const Texture& rhs);
 	~Texture();

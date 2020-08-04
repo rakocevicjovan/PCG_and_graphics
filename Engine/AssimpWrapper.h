@@ -101,19 +101,11 @@ public:
 		aiTextureType aiTexType,
 		TextureRole role);
 
-	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str);
+	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, const aiString* str);
 
 	static void loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims);
 
-	static void loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton);
-
-	// Seeks upwards from every existing bone, adding intermediate nodes as bones
-	static void addMissingBones(Skeleton* skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix);
-
-	static const aiNode* findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat);
-
 	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames);
-
 
 	// Helpers
 	static std::vector<aiString> getExtTextureNames(const aiScene* scene);

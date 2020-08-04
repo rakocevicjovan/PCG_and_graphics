@@ -16,8 +16,8 @@ void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, 
 	ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 {
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* shaderBuffer = nullptr;
+	ID3DBlob* errorMessage = nullptr;
+	ID3DBlob* shaderBuffer = nullptr;
 
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 	{
@@ -25,15 +25,14 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 		return false;
 	}
 
-	// Create the vertex shader from the buffer.
-	if (FAILED(_device->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &vertexShader)))
-	{
-		OutputDebugStringA("Failed to create vertex shader.");
-		return false;
-	}
+	vertexShader = loadCompiledVS(shaderBuffer);
 
 	// Create the layout related to the vertex shader.
-	vertexShader = loadCompiledVS(shaderBuffer);
+	if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
+	{
+		OutputDebugStringA("Failed to create vertex input layout.");
+		return false;
+	}
 
 	// Release the shader buffer since it's no longer needed
 	shaderBuffer->Release();
@@ -45,8 +44,8 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* shaderBuffer = nullptr;
+	ID3DBlob* errorMessage = nullptr;
+	ID3DBlob* shaderBuffer = nullptr;
 
 	//useful flags
 	//D3DCOMPILE_WARNINGS_ARE_ERRORS
@@ -72,8 +71,8 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 
 bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const
 {
-	ID3D10Blob* errorMessage = nullptr;
-	ID3D10Blob* shaderBuffer = nullptr;
+	ID3DBlob* errorMessage = nullptr;
+	ID3DBlob* shaderBuffer = nullptr;
 
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
 	{
@@ -90,7 +89,7 @@ bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShade
 
 
 
-ID3D11VertexShader* ShaderCompiler::loadCompiledVS(ID3D10Blob* shaderBuffer) const
+ID3D11VertexShader* ShaderCompiler::loadCompiledVS(ID3DBlob* shaderBuffer) const
 {
 	ID3D11VertexShader* result;
 	if (FAILED(_device->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &result)))
@@ -103,7 +102,7 @@ ID3D11VertexShader* ShaderCompiler::loadCompiledVS(ID3D10Blob* shaderBuffer) con
 
 
 
-ID3D11PixelShader* ShaderCompiler::loadCompiledPS(ID3D10Blob* shaderBuffer) const
+ID3D11PixelShader* ShaderCompiler::loadCompiledPS(ID3DBlob* shaderBuffer) const
 {
 	ID3D11PixelShader* result;
 	if (FAILED(_device->CreatePixelShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &result)))
@@ -116,7 +115,7 @@ ID3D11PixelShader* ShaderCompiler::loadCompiledPS(ID3D10Blob* shaderBuffer) cons
 
 
 
-ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3D10Blob* shaderBuffer) const
+ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3DBlob* shaderBuffer) const
 {
 	ID3D11GeometryShader* result;
 	if (FAILED(_device->CreateGeometryShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &result)))
@@ -129,7 +128,7 @@ ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3D10Blob* shaderBuffer) c
 
 
 
-bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData)
+bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData)
 {
 	ID3D11ShaderReflection* reflection = NULL;
 
@@ -206,7 +205,7 @@ bool ShaderCompiler::reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& 
 
 
 
-void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const
+void ShaderCompiler::outputError(ID3DBlob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const
 {
 	std::string filePathNarrow(filePath.begin(), filePath.end());
 	if (!errorMessage)

@@ -144,7 +144,7 @@ bool AssimpWrapper::loadMaterialTextures(
 			continue;
 		}
 
-		textures.push_back(curTexture);	// Should try to do std::move when this is done
+		textures.push_back(std::move(curTexture));	// Should try to do std::move when this is done
 		
 		mat->_texMetaData.push_back({ 
 			reinterpret_cast<Texture*>(textures.size() - 1),
@@ -158,7 +158,7 @@ bool AssimpWrapper::loadMaterialTextures(
 
 
 
-bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, aiString* str)
+bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, const aiString* str)
 {
 	const aiTexture* aiTex = scene->GetEmbeddedTexture(str->C_Str());
 
@@ -210,99 +210,6 @@ void AssimpWrapper::loadAnimations(const aiScene* scene, std::vector<Animation>&
 
 		outAnims.push_back(anim);
 	}
-}
-
-
-
-void AssimpWrapper::loadBonesAndSkinData(const aiMesh& aiMesh, std::vector<BonedVert3D>& verts, Skeleton& skeleton)
-{
-	if (!aiMesh.HasBones())
-		return;
-
-	for (UINT i = 0; i < aiMesh.mNumBones; ++i)
-	{
-		aiBone* aiBone = aiMesh.mBones[i];
-
-		std::string boneName(aiBone->mName.data);
-
-		// Find a bone with a matching name in the skeleton
-		int boneIndex = skeleton.getBoneIndex(boneName);
-
-		if (boneIndex < 0)	// Bone doesn't exist in our skeleton data yet, add it
-		{
-			boneIndex = skeleton._bones.size();//getBoneCount();
-
-			SMatrix boneOffsetMat = aiMatToSMat(aiBone->mOffsetMatrix);
-
-			skeleton._bones.push_back(Bone(boneIndex, boneName, boneOffsetMat));
-		}
-
-		// Load skinning data (up to four bone indices and four weights) into vertices
-		for (UINT j = 0; j < aiBone->mNumWeights; ++j)
-		{
-			UINT vertID = aiBone->mWeights[j].mVertexId;
-			float weight = aiBone->mWeights[j].mWeight;
-			verts[vertID].AddBoneData(boneIndex, weight);
-		}
-	}
-}
-
-
-
-void AssimpWrapper::addMissingBones(Skeleton* skeleton, const aiNode* boneNode, SMatrix meshGlobalMatrix)
-{
-	/*aiNode* parent = boneNode->mParent;
-
-	if (!parent)			// We are at root node, no way but down (also prevents crashing below)
-		return;
-
-	if (!parent->mParent)	// Don't include the root node either... bit hacky but works out so far
-		return;
-
-	std::string parentName(parent->mName.C_Str());
-
-	if (skeleton->boneExists(parentName))	// Parent is already a bone, terminate
-		return;
-
-	Bone newParentBone;
-	newParentBone._name = parentName;
-	newParentBone._index = skeleton->getBoneCount();
-	skeleton->insertBone(newParentBone);
-
-	addMissingBones(skeleton, parent, meshGlobalMatrix);
-	*/
-}
-
-
-
-const aiNode* AssimpWrapper::findSkeletonRoot(const aiNode* node, Skeleton& skeleton, SMatrix pMat)
-{
-	const aiNode* result = nullptr;
-
-	// Make skeleton root account for all nodes before it 
-	// Usually it's a direct child of root but not always
-	SMatrix nodeLocalTransform = aiMatToSMat(node->mTransformation);
-	pMat = nodeLocalTransform * pMat;
-
-	Bone* bone = &skeleton._bones[0];	//skeleton.findBone(node->mName.C_Str());
-
-	if (bone)
-	{
-		bone->_localMatrix = pMat;	//pMat;
-		result = node;
-	}
-	else
-	{
-		for (int i = 0; i < node->mNumChildren; ++i)
-		{
-			result = findSkeletonRoot(node->mChildren[i], skeleton, pMat);
-
-			if (result)
-				break;
-		}
-	}
-
-	return result;
 }
 
 

@@ -6,7 +6,7 @@
 
 
 
-	BitMapper::BitMapper(Texture tex) : t(tex)
+	BitMapper::BitMapper(Texture& tex) : _t(tex)
 	{
 	}
 
@@ -50,22 +50,22 @@
 
 	bool BitMapper::createTerrain() {
 
-		if (!t.LoadFromStoredPath())
+		if (!_t.LoadFromStoredPath())
 			return false;
 
-		if (t.getW() % 2 != 0 || t.getH() % 2 != 0) {
+		if (_t.getW() % 2 != 0 || _t.getH() % 2 != 0) {
 			std::cout << "Bitmap's width and height have to be even numbers." << std::endl;
 			return false;
 		}
 
-		int size = t.getW() * t.getH() * t.getN();
+		int size = _t.getW() * _t.getH() * _t.getN();
 
 		std::vector<int> colours;
-		colours.reserve(t.getN());
+		colours.reserve(_t.getN());
 
-		inVertMap.resize(t.getH());
+		inVertMap.resize(_t.getH());
 		for (auto vec : inVertMap) {
-			vec.reserve(t.getW());
+			vec.reserve(_t.getW());
 		}
 
 
@@ -74,11 +74,11 @@
 		float z;
 
 		//go through the data set filled with groups of rgba (number of channels could vary of course) per pixel and conver them to std::vectors
-		for (int i = 0; i < size; i += t.getN()) {
+		for (int i = 0; i < size; i += _t.getN()) {
 
 			//fill up the colours std::vector
-			for (int j = 0; j < t.getN(); j++)
-				colours.push_back(t.getData()[i + j]);
+			for (int j = 0; j < _t.getN(); j++)
+				colours.push_back(_t.getData()[i + j]);
 
 			//check if the pixel is grayscale, if not, normalize the colours and construct the position std::vector for the vertex
 			if (isGrayscale(colours))
@@ -90,26 +90,26 @@
 
 			//indices are one indexed so I will increment it here, not that it really matters but just to keep it consistent
 			x++;
-			inVertMap[y].push_back(std::make_pair(y*t.getW() + x, currentVertex));
+			inVertMap[y].push_back(std::make_pair(y*_t.getW() + x, currentVertex));
 
 			//Update everything for the next pixel->vertex conversion
 			colours.clear();
 
-			if (x == t.getW()) {
+			if (x == _t.getW()) {
 				x = 0;
 				y++;
 			}
 
 			// this should honestly never happen...
-			if (y == t.getH())
+			if (y == _t.getH())
 				break;
 		}
 
 
 		//fill face vectors, calculate face normals
-		faces.resize(t.getH() - 1);
+		faces.resize(_t.getH() - 1);
 		for (auto fRow : faces)
-			fRow.reserve((t.getW() - 1) * 2);
+			fRow.reserve((_t.getW() - 1) * 2);
 		
 		int faceRow = 0;
 		int columnCounter = 0;
@@ -143,7 +143,7 @@
 
 				columnCounter++;
 
-				if (columnCounter == t.getW()) {
+				if (columnCounter == _t.getW()) {
 					faceRow++;
 					columnCounter = 0;
 				}
@@ -152,7 +152,7 @@
 		}
 
 		//calculate vertex normals from face normals
-		vertexNormals.reserve(t.getH() * t.getW());
+		vertexNormals.reserve(_t.getH() * _t.getW());
 
 		int vertexRow = 0;
 
@@ -165,7 +165,7 @@
 			{
 				nRow = faces[vertexRow];
 			} 
-			else if (vertexRow == t.getH() - 1) 
+			else if (vertexRow == _t.getH() - 1)
 			{
 				pRow = faces[vertexRow - 1];
 			} 
