@@ -182,7 +182,10 @@ float4 main(PixelInputType input) : SV_TARGET
 
 	//calculate specular light
 	float4 specular = calcSpecularPhong(-lightDir, input.normal, slc, sli, viewDir, diffIntensity, 8.f);
-	colour = (ambient + diffuse) * colour + specular;
+#if TEX_SPC > 0
+	specular.rgb *= specularMap.Sample(Sampler, input.tex[0]).rgb;
+#endif
+	colour = (ambient + diffuse + specular) * colour;	// + specular
 
 #endif
 

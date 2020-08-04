@@ -121,8 +121,10 @@ public:
 
 		S_RANDY.render(_floorRenderable);
 
+		//rc.d3d->TurnOnAlphaBlending(); encode to material
 		if(_curPreview)
 			_curPreview->draw(S_CONTEXT, rc.dTime);
+		//rc.d3d->TurnOffAlphaBlending();
 
 		GUI::beginFrame();
 

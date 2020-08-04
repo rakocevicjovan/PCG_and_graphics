@@ -28,7 +28,7 @@ public:
 
 
 
-	static Material LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& path, TexVec& textures)
+	static Material LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& modelPath, TexVec& textures)
 	{
 		Material* mat = new Material();
 		
@@ -127,35 +127,49 @@ public:
 		// Textures
 		static const std::vector<std::pair< aiTextureType, TextureRole>> ASSIMP_TEX_TYPES
 		{
-			{ aiTextureType_DIFFUSE, DIFFUSE},
-			{ aiTextureType_NORMALS, NORMAL},
-			{ aiTextureType_SPECULAR, SPECULAR},
-			{ aiTextureType_SHININESS, SHININESS},
-			{ aiTextureType_OPACITY, OPACITY},
-			//{ aiTextureType_EMISSIVE, EMISSIVE},
-			{ aiTextureType_DISPLACEMENT, DISPLACEMENT},
-			{ aiTextureType_LIGHTMAP, AMBIENT},
-			{ aiTextureType_REFLECTION, REFLECTION},
+			{ aiTextureType_DIFFUSE,			DIFFUSE },
+			{ aiTextureType_NORMALS,			NORMAL },
+			{ aiTextureType_SPECULAR,			SPECULAR },
+			{ aiTextureType_SHININESS,			SHININESS },
+			{ aiTextureType_OPACITY,			OPACITY },
+			//{ aiTextureType_EMISSIVE,			EMISSIVE },
+			{ aiTextureType_DISPLACEMENT,		DISPLACEMENT },
+			{ aiTextureType_LIGHTMAP,			AMBIENT },
+			{ aiTextureType_REFLECTION,			REFLECTION },
 			// PBR
-			{ aiTextureType_BASE_COLOR, REFRACTION},
-			//{ aiTextureType_EMISSION_COLOR, EMISSIVE},
-			{ aiTextureType_METALNESS, METALLIC},
-			{ aiTextureType_DIFFUSE_ROUGHNESS, ROUGHNESS},
-			{ aiTextureType_AMBIENT_OCCLUSION, AMBIENT},
+			{ aiTextureType_BASE_COLOR,			REFRACTION },
+			//{ aiTextureType_EMISSION_COLOR,	EMISSIVE },
+			{ aiTextureType_METALNESS,			METALLIC },
+			{ aiTextureType_DIFFUSE_ROUGHNESS,	ROUGHNESS },
+			{ aiTextureType_AMBIENT_OCCLUSION,	AMBIENT },
 			// Mystery meat
-			{ aiTextureType_UNKNOWN, OTHER }
+			{ aiTextureType_UNKNOWN,			OTHER }
 		};
+
+		
+		std::vector<TempTexData> tempTexData;
 
 		for (int i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
 		{
-			AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
+			// Slightly improved old implementation
+			//AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
+			LoadMetaData(tempTexData, aiMat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
 		}
 
+		// Identify unique textures, bit slow but who cares it's import code
+		std::set<aiString> uniqueTextures;
+
+		for (auto& ttd : tempTexData)
+			uniqueTextures.insert(ttd._path);
+
+		// Load unique textures
+		LoadUniqueTextures(scene, modelPath, uniqueTextures);
+		//
 	}
 
 
 
-	void loadMetaData(std::vector<TempTexData>& tempTexData,
+	static void LoadMetaData(std::vector<TempTexData>& tempTexData,
 		aiMaterial *aiMat, aiTextureType aiTexType, TextureRole role)
 	{
 		static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
@@ -194,39 +208,29 @@ public:
 	}
 
 
-	// @TODO only load unique textures to separate container, point from materials
-	static std::vector<Texture*> LoadTextures
-	(aiScene* scene, const std::string& modelPath, std::vector<TempTexData>& ttdVec)
+
+	static std::vector<Texture*> LoadUniqueTextures
+	(const aiScene* scene, const std::string& modelPath, std::set<aiString>& uniqueTextures)
 	{
 		std::vector<Texture*> pTexVec;
 
-		for (UINT i = 0; i < ttdVec.size(); ++i)
+		for (const aiString& texPath : uniqueTextures)
 		{
-			TempTexData& ttd = ttdVec[i];
-
-			std::string texName(aiScene::GetShortFilename(ttd._path.C_Str()));
-
-			const aiTexture* aiTex = scene->GetEmbeddedTexture(ttd._path.C_Str());
-
 			Texture* curTex = new Texture();
+			std::string texName(aiScene::GetShortFilename(texPath.C_Str()));
 			curTex->_fileName = texName;
 
-			bool loaded = false;
-
 			// Check if embedded first
-			if (aiTex)
-			{
-				loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, &ttd._path);
-			}
+			bool loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, &texPath);
 
 			// Not embedded, try to load from file
 			if (!loaded)
 			{
 				// Assumes relative paths
 				std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
-				std::string texPath = modelFolderPath + "/" + std::string(ttd._path.data);
+				std::string texPath = modelFolderPath + "/" + std::string(texPath.data);
 
-				// If path is faulty, try to find it in the model directory and subdirectories
+				// Path is faulty, try to find it under model directory
 				if (!std::filesystem::exists(texPath))
 				{
 					std::filesystem::directory_entry texFile;
@@ -234,19 +238,17 @@ public:
 						texPath = texFile.path().string();
 				}
 
-				curTex->_fileName = texPath;	// or texName, I really don't even know why either tbh
-
-				loaded = curTex->LoadFromStoredPath();
+				loaded = curTex->LoadFromFile(texPath);
 			}
 
-			// Load failed completely - most likely the data is corrupted or my library doesn't support it
+			// Load failed, likely the data is corrupted or stb doesn't support it
 			if (!loaded)
 			{
+				delete curTex;
+				curTex = nullptr;
 				OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-				continue;
 			}
 
-			ttd._tmd._tex = curTex;
 			pTexVec.push_back(curTex);
 		}
 	}
