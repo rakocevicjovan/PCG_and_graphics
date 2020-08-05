@@ -16,7 +16,7 @@ void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, 
 	ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 {
-	ID3DBlob* shaderBuffer = getCompiledBlob(filePath, "vs_5_0");
+	ID3DBlob* shaderBuffer = compileToBlob(filePath, "vs_5_0");
 	vertexShader = loadCompiledVS(shaderBuffer);
 
 	// Create the layout related to the vertex shader.
@@ -36,7 +36,7 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
-	ID3DBlob* shaderBuffer = getCompiledBlob(filePath, "ps_5_0");
+	ID3DBlob* shaderBuffer = compileToBlob(filePath, "ps_5_0");
 	pixelShader = loadCompiledPS(shaderBuffer);
 	shaderBuffer->Release();
 	return pixelShader;
@@ -50,7 +50,7 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 
 bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const
 {
-	ID3DBlob* shaderBuffer = getCompiledBlob(filePath, "gs_5_0");
+	ID3DBlob* shaderBuffer = compileToBlob(filePath, "gs_5_0");
 	geometryShader = loadCompiledGS(shaderBuffer);
 	shaderBuffer->Release();
 	return geometryShader;
@@ -97,7 +97,7 @@ ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3DBlob* shaderBuffer) con
 
 
 
-ID3DBlob* ShaderCompiler::getCompiledBlob(const std::wstring& filePath, const char* shaderModel) const
+ID3DBlob* ShaderCompiler::compileToBlob(const std::wstring& filePath, const char* shaderModel) const
 {
 	ID3DBlob* shaderBlob;
 	ID3DBlob* errorMessage;
@@ -109,6 +109,15 @@ ID3DBlob* ShaderCompiler::getCompiledBlob(const std::wstring& filePath, const ch
 		return false;
 	}
 
+	return shaderBlob;
+}
+
+
+
+ID3DBlob* ShaderCompiler::loadCompiledBlob(const std::wstring& filePath) const
+{
+	ID3DBlob* shaderBlob;
+	D3DReadFileToBlob(filePath.c_str(), &shaderBlob);
 	return shaderBlob;
 }
 

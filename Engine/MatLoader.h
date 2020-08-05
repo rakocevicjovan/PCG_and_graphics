@@ -133,7 +133,7 @@ public:
 			{ aiTextureType_SHININESS,			SHININESS },
 			{ aiTextureType_OPACITY,			OPACITY },
 			//{ aiTextureType_EMISSIVE,			EMISSIVE },
-			{ aiTextureType_DISPLACEMENT,		DISPLACEMENT },
+			{ aiTextureType_DISPLACEMENT,		DPCM },
 			{ aiTextureType_LIGHTMAP,			AMBIENT },
 			{ aiTextureType_REFLECTION,			REFLECTION },
 			// PBR

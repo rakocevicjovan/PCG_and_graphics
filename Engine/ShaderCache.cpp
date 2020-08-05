@@ -198,15 +198,3 @@ bool ShaderCache::addPixShader(const std::string& name, PixelShader* ps)
 {
 	return _psMap.insert(std::unordered_map<std::string, PixelShader*>::value_type(name, ps)).second;
 }
-
-
-// Might be better in a separate class but it's okay here too
-void ShaderCache::scanForShaders(const std::string& path)
-{
-	auto shaderFiles = FileUtils::getFilesByExt(path, "hlsl");
-
-	for (auto& file : shaderFiles)
-	{
-		// Load shaders, can't work yet...
-	}
-}

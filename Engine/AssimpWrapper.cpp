@@ -64,7 +64,7 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_OPACITY, OPACITY);
 
 		// Displacement maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DISPLACEMENT);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DPCM);
 
 		// Ambient occlusion maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMBIENT);

@@ -43,8 +43,66 @@ private:
 		SHG_LIGHT_MODEL index;
 	};
 
+	ShaderCache* _shCache;
+	ID3D11Device* _device;
+
 
 public:
+
+	ShaderManager() {}
+
+	void init(ID3D11Device* device)
+	{
+		_device = device;
+	}
+
+
+
+	// Might be better in a separate class but it's okay here too
+	void loadExisting(const std::string& path)
+	{
+		ShaderCompiler shc;
+		shc.init(_device);
+
+		auto shaderFiles = FileUtils::getFilesByExt(path, "hlsl");
+
+		for (auto& file : shaderFiles)
+		{
+			const std::string& filename = file.path().filename().string();
+			UINT division = filename.find('.');
+			uint64_t key = std::stoi(filename.substr(0, division));
+			std::string shTypeStr = filename.substr( division - 3, 2);
+			
+			std::wstring wFileName(filename.begin(), filename.end());
+
+			ID3DBlob* shaderBuffer = shc.loadCompiledBlob(wFileName);
+
+			// Load shaders, can't work yet...
+			if (shTypeStr == "vs")
+			{
+				VertexShader* vs = new VertexShader();
+				vs->_vsPtr = shc.loadCompiledVS(shaderBuffer);
+				vs->_id = key;
+				vs->_path = wFileName;
+				vs->_type = SHADER_TYPE::VS;
+				
+				// These need to be loaded too :\
+
+				//vs->_layout 
+				// Not sure if I can serialize it given it's a gpu object but
+				// it can be recreated from std::vector<D3D11_INPUT_ELEMENT_DESC>
+				//_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &vs->_layout
+				
+				//vs->_cbuffers
+				// This is recreatable from constant buffer metadata struct
+
+				_shCache->addVertShader(filename, vs);
+			}
+
+			 shaderBuffer->Release();
+		}
+	}
+
 
 
 	static void displayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device)

@@ -5,7 +5,7 @@
 #include "TextureRole.h"
 
 
-enum class SHADER_TYPE { VS, GS, PS, TS, HS };
+enum class SHADER_TYPE : uint8_t { VS, GS, PS, TS, HS };
 
 
 struct TexLayout
@@ -19,10 +19,11 @@ struct TexLayout
 class Shader
 {
 protected:
+	Shader() {}
 	Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
-	UINT _id;
+	uint64_t _id;
 	SHADER_TYPE _type;
 	std::wstring _path;
 
@@ -54,6 +55,8 @@ class VertexShader : public Shader
 public:
 	ID3D11VertexShader* _vsPtr;
 	ID3D11InputLayout* _layout;
+
+	VertexShader() : _vsPtr(nullptr), _layout(nullptr) {}
 
 	VertexShader(
 		const ShaderCompiler& shc, 
@@ -103,6 +106,8 @@ class PixelShader : public Shader
 public:
 	ID3D11PixelShader* _psPtr;
 	std::vector<ID3D11SamplerState*> _samplers;
+
+	PixelShader() : _psPtr(nullptr) {}
 
 	PixelShader(
 		const ShaderCompiler& shc,

@@ -20,8 +20,4 @@ public:
 
 	//@TODO obviously, this is to be replaced, sooner the better
 	void createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
-
-	// New stuff
-
-	void scanForShaders(const std::string& path);
 };

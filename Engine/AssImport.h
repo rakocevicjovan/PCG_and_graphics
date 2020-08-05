@@ -172,6 +172,7 @@ public:
 					for (Mesh& mesh : _model->_meshes)
 					{
 						uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, mesh._vertSig, &mesh._baseMaterial);
+
 						ShaderManager::CreateShader(_device, shaderKey, mesh._vertSig, &mesh._baseMaterial);
 					}
 				}
@@ -428,7 +429,7 @@ public:
 			printMaterialTextures(aiMat, aiTextureType_OPACITY, "texture_opacity", OPACITY);
 
 			// Displacement maps
-			printMaterialTextures(aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DISPLACEMENT);
+			printMaterialTextures(aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DPCM);
 
 			// Ambient occlusion maps
 			printMaterialTextures(aiMat, aiTextureType_AMBIENT, "texture_AO", AMBIENT);

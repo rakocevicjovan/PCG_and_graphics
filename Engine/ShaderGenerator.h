@@ -69,7 +69,7 @@ static const std::map<TextureRole, const ShaderOption*> TEX_ROLE_TO_SHADER_OPTIO
 	{ SPECULAR, &SHG_TX_SPC		},
 	{ SHININESS, &SHG_TX_SHN	},
 	{ OPACITY, &SHG_TX_OPC		},
-	{ DISPLACEMENT, &SHG_TX_DPM	},
+	{ DPCM, &SHG_TX_DPM	},
 	{ AMBIENT, &SHG_TX_AMB		},
 	{ METALLIC, &SHG_TX_MTL		},
 	{ ROUGHNESS, &SHG_TX_RGH	},

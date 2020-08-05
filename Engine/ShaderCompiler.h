@@ -67,7 +67,8 @@ public:
 	ID3D11PixelShader* loadCompiledPS(ID3DBlob* shaderBuffer) const;
 	ID3D11GeometryShader* loadCompiledGS(ID3DBlob* shaderBuffer) const;
 
-	ID3DBlob* getCompiledBlob(const std::wstring& filePath, const char* shaderModel) const;
+	ID3DBlob* compileToBlob(const std::wstring& filePath, const char* shaderModel) const;
+	ID3DBlob* loadCompiledBlob(const std::wstring& filePath) const;
 
 	static bool reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
 

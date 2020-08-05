@@ -42,6 +42,7 @@ public:
 
 	void init(Engine& sys) override
 	{
+		// Create point light for scene preview
 		LightData ld = LightData(SVec3(1.), .2, SVec3(1.), .6, SVec3(1.), .7);
 
 		_pointLight = PointLight(ld, SVec4(0., 300., 0., 1.));
@@ -51,48 +52,7 @@ public:
 		S_DEVICE->GetImmediateContext(&context);
 		_pointLight.updateCBuffer(context);
 		_pointLight.bind(context);
-
-		ShaderCompiler shc;
-
-		shc.init(S_DEVICE);	// Temporary
-
-		std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_layout =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		};
-
-		std::vector<D3D11_INPUT_ELEMENT_DESC> ptn_biw_layout =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,			0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL"  , 0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "BONE_ID" , 0, DXGI_FORMAT_R32G32B32A32_UINT,		0, 32, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "BONE_W"  , 0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		};
-
-		D3D11_SAMPLER_DESC regularSD = Sampler::createSamplerDesc();
-
-		D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(WMBuffer));
-		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
-		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
-
-		//D3D11_BUFFER_DESC BoneBufferDesc = ShaderCompiler::createBufferDesc(sizeof(SMatrix) * 96);
-		//CBufferMeta BoneBufferMeta(1, BoneBufferDesc.ByteWidth);
-
-		VertexShader* saVS = new VertexShader(shc, L"AnimaVS.hlsl", ptn_biw_layout, { WMBufferDesc });
-		saVS->describeBuffers({ WMBufferMeta });
-
-		PixelShader* phong = new PixelShader(shc, L"lightPS.hlsl", { regularSD }, { });
-		//phong->describeBuffers({ lightBufferMeta });
-
-		_skelAnimMat.setVS(saVS);
-		_skelAnimMat.setPS(phong);
-
-
-		VertexShader* basicVS = new VertexShader(shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
-		basicVS->describeBuffers({ WMBufferMeta });
+	
 
 		// Generate the floor, assign a material and render
 		Procedural::Terrain terrain;
@@ -101,10 +61,14 @@ public:
 		terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 		terrain.CalculateTexCoords();
 		terrain.CalculateNormals();
+
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
+		uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, _floorMesh->_vertSig, &_floorMesh->_baseMaterial);
+		ShaderManager::CreateShader(S_DEVICE, shaderKey, _floorMesh->_vertSig, &_floorMesh->_baseMaterial);
+
 		_floorRenderable = Renderable(*_floorMesh);
-		_floorRenderable.mat->setVS(basicVS);
-		_floorRenderable.mat->setPS(phong);
+		//_floorRenderable.mat->setVS();
+		//_floorRenderable.mat->setPS();
 		_terrainActor.addRenderable(_floorRenderable, 500);
 		_terrainActor._collider.collidable = false;
 	}
