@@ -16,15 +16,7 @@ void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, 
 	ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 {
-	ID3DBlob* errorMessage = nullptr;
-	ID3DBlob* shaderBuffer = nullptr;
-
-	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
-	{
-		outputError(errorMessage, *(filePath.c_str()), filePath);
-		return false;
-	}
-
+	ID3DBlob* shaderBuffer = getCompiledBlob(filePath, "vs_5_0");
 	vertexShader = loadCompiledVS(shaderBuffer);
 
 	// Create the layout related to the vertex shader.
@@ -44,46 +36,23 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 
 bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
-	ID3DBlob* errorMessage = nullptr;
-	ID3DBlob* shaderBuffer = nullptr;
-
-	//useful flags
-	//D3DCOMPILE_WARNINGS_ARE_ERRORS
-
-	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
-	{
-		outputError(errorMessage, *(filePath.c_str()), filePath);
-		return false;
-	}
-
+	ID3DBlob* shaderBuffer = getCompiledBlob(filePath, "ps_5_0");
 	pixelShader = loadCompiledPS(shaderBuffer);
+	shaderBuffer->Release();
+	return pixelShader;
 
 	//not used just yet... but tested, works great
 	//if(shMetaData != nullptr)
 		//reflect(shaderBuffer, *shMetaData);
-
-	shaderBuffer->Release();
-
-	return pixelShader;
 }
 
 
 
 bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const
 {
-	ID3DBlob* errorMessage = nullptr;
-	ID3DBlob* shaderBuffer = nullptr;
-
-	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "gs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBuffer, &errorMessage)))
-	{
-		outputError(errorMessage, *(filePath.c_str()), filePath);
-		return false;
-	}
-
+	ID3DBlob* shaderBuffer = getCompiledBlob(filePath, "gs_5_0");
 	geometryShader = loadCompiledGS(shaderBuffer);
-
 	shaderBuffer->Release();
-
 	return geometryShader;
 }
 
@@ -124,6 +93,23 @@ ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3DBlob* shaderBuffer) con
 		return nullptr;
 	}
 	return result;
+}
+
+
+
+ID3DBlob* ShaderCompiler::getCompiledBlob(const std::wstring& filePath, const char* shaderModel) const
+{
+	ID3DBlob* shaderBlob;
+	ID3DBlob* errorMessage;
+
+	//D3DCOMPILE_WARNINGS_ARE_ERRORS
+	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", shaderModel, D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBlob, &errorMessage)))
+	{
+		outputError(errorMessage, *(filePath.c_str()), filePath);
+		return false;
+	}
+
+	return shaderBlob;
 }
 
 

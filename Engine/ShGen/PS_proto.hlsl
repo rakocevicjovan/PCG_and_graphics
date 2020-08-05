@@ -104,7 +104,7 @@ Texture2D metallicMap : register(t7);
 Texture2D roughnessMap : register(t8);
 #endif
 
-// These are not supported on load because they are usually generated
+// These are may be generated
 #if TEX_RFL > 0
 Texture2D reflectionMap : register(t9);
 #endif

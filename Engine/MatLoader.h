@@ -164,7 +164,8 @@ public:
 
 		// Load unique textures
 		LoadUniqueTextures(scene, modelPath, uniqueTextures);
-		//
+		
+		// Associate textures to materials - here?
 	}
 
 

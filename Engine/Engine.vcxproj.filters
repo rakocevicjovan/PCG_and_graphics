@@ -1055,6 +1055,9 @@
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="ToneMapping.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">

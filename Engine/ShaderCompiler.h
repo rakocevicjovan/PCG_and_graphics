@@ -51,7 +51,7 @@ private:
 
 	ID3D11Device* _device;
 
-	void ShaderCompiler::outputError(ID3D10Blob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const;
+	void ShaderCompiler::outputError(ID3DBlob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const;
 
 public:
 
@@ -63,11 +63,13 @@ public:
 	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData = nullptr) const;
 	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const;
 
-	ID3D11VertexShader* loadCompiledVS(ID3D10Blob* shaderBuffer) const;
-	ID3D11PixelShader* loadCompiledPS(ID3D10Blob* shaderBuffer) const;
-	ID3D11GeometryShader* loadCompiledGS(ID3D10Blob* shaderBuffer) const;
+	ID3D11VertexShader* loadCompiledVS(ID3DBlob* shaderBuffer) const;
+	ID3D11PixelShader* loadCompiledPS(ID3DBlob* shaderBuffer) const;
+	ID3D11GeometryShader* loadCompiledGS(ID3DBlob* shaderBuffer) const;
 
-	static bool reflect(ID3D10Blob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
+	ID3DBlob* getCompiledBlob(const std::wstring& filePath, const char* shaderModel) const;
+
+	static bool reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
 
 	ID3D11Device* getDevice() const { return _device; }
 };
