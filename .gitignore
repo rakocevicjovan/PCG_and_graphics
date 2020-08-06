@@ -30,6 +30,7 @@ Deps/Assimp_build_2017
 Engine/ShGen/GeneratedVS
 Engine/ShGen/GeneeratedPS
 Engine/ShGen/Natty
+Engine/ShGen/Compiled
 
 # Visual Studio 2015 cache/options directory
 .vs/
