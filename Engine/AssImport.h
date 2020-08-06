@@ -18,6 +18,7 @@ class AssImport
 private:
 	ResourceManager* _pResMan;
 	AssetLedger* _pLedger;
+	ShaderManager* _pShMan;
 
 	std::string _path;
 	Assimp::Importer _importer;
@@ -155,8 +156,8 @@ public:
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
-						uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, skmesh._vertSig, &skmesh._baseMaterial);
-						ShaderManager::CreateShader(_device, shaderKey, skmesh._vertSig, &skmesh._baseMaterial);
+						//uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, skmesh._vertSig, &skmesh._baseMaterial);
+						//ShaderManager::CreateShader(_device, shaderKey, skmesh._vertSig, &skmesh._baseMaterial);
 					}
 
 					_skModelInst = std::make_unique<SkeletalModelInstance>();
@@ -171,9 +172,8 @@ public:
 
 					for (Mesh& mesh : _model->_meshes)
 					{
-						uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, mesh._vertSig, &mesh._baseMaterial);
+						//ShaderManager::CreateShader(_device, mesh._vertSig, &mesh._baseMaterial);
 
-						ShaderManager::CreateShader(_device, shaderKey, mesh._vertSig, &mesh._baseMaterial);
 					}
 				}
 

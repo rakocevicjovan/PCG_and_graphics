@@ -20,7 +20,7 @@ class Shader
 {
 protected:
 	Shader() {}
-	Shader(const ShaderCompiler& shc, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
+	Shader(ID3D11Device* device, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
 	uint64_t _id;
@@ -63,6 +63,13 @@ public:
 		const std::wstring& path, 
 		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc, 
 		const std::vector<D3D11_BUFFER_DESC>& descriptions = {});
+
+	VertexShader(
+		ID3D11Device* device,
+		ID3DBlob* compiledBlob,
+		const std::wstring& path,
+		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc,
+		const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 	~VertexShader()
 	{

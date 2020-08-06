@@ -14,9 +14,10 @@ typedef uint64_t ShaderKey;
 static const wchar_t* VS_PROTOSHADER = L"ShGen\\VS_proto.hlsl";
 static const wchar_t* PS_PROTOSHADER = L"ShGen\\PS_proto.hlsl";
 
-static const char* VS_PERMUTATIONS = "ShGen\\GeneratedVS\\";
-static const char* PS_PERMUTATIONS = "ShGen\\GeneratedPS\\";
-static const char* NATURAL_PERMS =	 "ShGen\\Natty\\";
+static const char* VS_PERMUTATIONS	= "ShGen\\GeneratedVS\\";
+static const char* PS_PERMUTATIONS	= "ShGen\\GeneratedPS\\";
+static const char* NATURAL_PERMS	= "ShGen\\Natty\\";
+static const char* NATURAL_COMPS	= "ShGen\\Compiled\\";
 
 
 struct ShaderOption
@@ -93,7 +94,7 @@ public:
 
 	static const std::vector<ShaderOption> AllOptions;
 
-	static ShaderKey CreateShaderKey(UINT lmIndex, const VertSignature& vertSig, Material* mat);
+	static ShaderKey CreateShaderKey(const VertSignature& vertSig, Material* mat, UINT lmIndex);
 
 	static void CreatePermFromKey(const std::vector<ShaderOption>& options, uint64_t key);
 

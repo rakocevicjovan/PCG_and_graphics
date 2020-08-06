@@ -39,7 +39,7 @@ void ShaderGenerator::EncodeTextureData(std::vector<TextureMetaData>& texData, u
 
 
 
-ShaderKey ShaderGenerator::CreateShaderKey(UINT lmIndex, const VertSignature& vertSig, Material* mat)
+ShaderKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, Material* mat, UINT lmIndex)
 {
 	ShaderKey shaderKey{0ul};
 

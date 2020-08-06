@@ -38,12 +38,13 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 {
 	ID3DBlob* shaderBuffer = compileToBlob(filePath, "ps_5_0");
 	pixelShader = loadCompiledPS(shaderBuffer);
-	shaderBuffer->Release();
-	return pixelShader;
 
 	//not used just yet... but tested, works great
 	//if(shMetaData != nullptr)
-		//reflect(shaderBuffer, *shMetaData);
+	//reflect(shaderBuffer, *shMetaData);
+
+	shaderBuffer->Release();
+	return pixelShader;
 }
 
 
@@ -96,7 +97,7 @@ ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3DBlob* shaderBuffer) con
 }
 
 
-
+// Remember to release it after use
 ID3DBlob* ShaderCompiler::compileToBlob(const std::wstring& filePath, const char* shaderModel) const
 {
 	ID3DBlob* shaderBlob;
@@ -110,6 +111,11 @@ ID3DBlob* ShaderCompiler::compileToBlob(const std::wstring& filePath, const char
 	}
 
 	return shaderBlob;
+}
+
+inline void ShaderCompiler::PersistBlob(const std::wstring & filePath, ID3DBlob * blob)
+{
+	D3DWriteBlobToFile(blob, filePath.c_str(), true);
 }
 
 
