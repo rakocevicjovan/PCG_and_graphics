@@ -45,11 +45,16 @@ VertexShader::VertexShader(
 	ID3D11Device* device,
 	ID3DBlob* compiledBlob, 
 	const std::wstring& path,
-	const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc,
+	const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay,
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(device, path, descriptions)
 {
 	_type = SHADER_TYPE::VS;
+	if (FAILED(device->CreateVertexShader(compiledBlob->GetBufferPointer(), compiledBlob->GetBufferSize(), NULL, &_vsPtr)))
+		__debugbreak();
+
+	if (FAILED(device->CreateInputLayout(inLay.data(), inLay.size(), compiledBlob->GetBufferPointer(), compiledBlob->GetBufferSize(), &_layout)))
+		__debugbreak();
 }
 
 

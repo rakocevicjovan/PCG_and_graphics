@@ -38,13 +38,19 @@ void load(cereal::JSONInputArchive& ar, D3D11_INPUT_ELEMENT_DESC& ied, std::stri
 		static_cast<UINT>(ied.InputSlotClass), ied.InstanceDataStepRate);
 	ied.SemanticName = str->c_str();
 }
+*/
 
-template<typename Archive>
-void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
+template<typename Archive> void serialize(Archive& ar, VAttrib& va)
+{
+	ar(static_cast<UINT>(va._semantic), static_cast<UINT>(va._type), va._size, va._numElements);
+}
+
+
+template<typename Archive> void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
 {
 	ar(bd.ByteWidth, static_cast<UINT>(bd.Usage),
 		bd.BindFlags, bd.CPUAccessFlags, bd.MiscFlags, bd.StructureByteStride);
-}*/
+}
 
 struct ShaderPack
 {
@@ -69,7 +75,7 @@ private:
 
 
 	ID3D11Device* _pDevice;
-	ShaderCache* _shCache;
+	ShaderCache* _pShCache;
 
 	std::map<uint64_t, ShaderPack> _existingShaders;
 
@@ -77,19 +83,17 @@ public:
 
 	ShaderManager() {}
 
-	void init(ID3D11Device* device)
+	void init(ID3D11Device* device, ShaderCache* cache)
 	{
 		_pDevice = device;
+		_pShCache = cache;
 	}
 
 
 
 	void loadExistingKeys(const std::string& path)
 	{
-		ShaderCompiler shc;
-		shc.init(_pDevice);
-
-		auto shaderFiles = FileUtils::getFilesByExt(path, "hlsl");
+		auto shaderFiles = FileUtils::getFilesByExt(path, "cmp");
 
 		for (auto& file : shaderFiles)
 		{
@@ -97,49 +101,10 @@ public:
 
 			UINT division = filename.find('.');
 
-			uint64_t key = std::stoi(filename.substr(0, division));
-			
-			loadFromKey(key);
+			uint64_t key = std::stoull(filename.substr(0, division));
+
+			_existingShaders.insert({ key, ShaderPack{ nullptr, nullptr } });
 		}
-	}
-
-
-
-	void loadFromKey(uint64_t shaderKey)
-	{
-		/*
-		std::string shTypeStr = filename.substr(division - 3, 2);
-
-		std::wstring wFileName(filename.begin(), filename.end());
-
-		ID3DBlob* shaderBlob = shc.loadCompiledBlob(wFileName);
-		if (FAILED(D3DWriteBlobToFile(shaderBlob, wFileName.c_str(), true)))
-		{
-			__debugbreak();
-		}
-
-		// Load shaders, can't work yet...
-		if (shTypeStr == "vs")
-		{
-			VertexShader* vs = new VertexShader();
-			vs->_vsPtr = shc.loadCompiledVS(shaderBlob);
-			vs->_id = shaderKey;
-			vs->_path = wFileName;
-			vs->_type = SHADER_TYPE::VS;
-
-			// These need to be loaded too :\
-
-			//vs->_layout 
-			// Not sure if I can serialize it given it's a gpu object but
-			// it can be recreated from std::vector<D3D11_INPUT_ELEMENT_DESC>
-			//_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &vs->_layout
-
-			//vs->_cbuffers
-			// This is recreatable from constant buffer metadata struct
-
-			_shCache->addVertShader(filename, vs);
-		}
-		*/
 	}
 
 
@@ -174,30 +139,71 @@ public:
 
 
 
+	void loadFromKey(uint64_t shaderKey)
+	{
+		/*
+		std::string shTypeStr = filename.substr(division - 3, 2);
+
+		std::wstring wFileName(filename.begin(), filename.end());
+
+		ID3DBlob* shaderBlob = shc.loadCompiledBlob(wFileName);
+		if (FAILED(D3DWriteBlobToFile(shaderBlob, wFileName.c_str(), true)))
+		{
+			__debugbreak();
+		}
+
+		// Load shaders, can't work yet...
+		if (shTypeStr == "vs")
+		{
+			VertexShader* vs = new VertexShader();
+			vs->_vsPtr = shc.loadCompiledVS(shaderBlob);
+			vs->_id = shaderKey;
+			vs->_path = wFileName;
+			vs->_type = SHADER_TYPE::VS;
+
+			// These need to be loaded too :\
+
+			//vs->_layout
+			// Not sure if I can serialize it given it's a gpu object but
+			// it can be recreated from std::vector<D3D11_INPUT_ELEMENT_DESC>
+			//_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &vs->_layout
+
+			//vs->_cbuffers
+			// This is recreatable from constant buffer metadata struct
+
+			_shCache->addVertShader(filename, vs);
+		}
+		*/
+	}
+
+
+
 	static void CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat)
 	{
-		ShaderCompiler shc;
-		shc.init(device);
+		ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
+		auto vertInLayElements = vertSig.createVertInLayElements();
 
 		// VS
 		D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(WMBuffer));
 		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
 		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
 
-		ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
-		auto vertInLayElements = vertSig.createVertInLayElements();
-
 		std::string vsPath(NATURAL_PERMS + std::to_string(shaderKey) + "vs.hlsl");
 		std::wstring vsPathW(vsPath.begin(), vsPath.end());
 
-		VertexShader* vs = new VertexShader
-		(shc, vsPathW, vertInLayElements, { WMBufferDesc });
-		vs->describeBuffers({ WMBufferMeta });
-
+		// Old way, not really good for this
+		ShaderCompiler shc;
+		shc.init(device);
+		//VertexShader* vs = new VertexShader(shc, vsPathW, vertInLayElements, { WMBufferDesc });
+		
+		// New way, keep the blob and persist everything for reuse
 		ID3DBlob* vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
-		shc.loadCompiledVS(vsBlob);
+		ID3D11VertexShader* d3dvs = shc.loadCompiledVS(vsBlob);
 		std::string cmpVsPath(NATURAL_COMPS + std::to_string(shaderKey) + "vs.cmp");
-		PersistVertexShader(cmpVsPath.c_str(), vsBlob, vertInLayElements, { WMBufferDesc });
+		PersistVertexShader(cmpVsPath.c_str(), vsBlob, vertSig, { WMBufferDesc });
+
+		VertexShader* vs = new VertexShader(device, vsBlob, vsPathW, vertInLayElements, { WMBufferDesc });
+		vs->describeBuffers({ WMBufferMeta });
 		vsBlob->Release();
 
 		// PS
@@ -215,18 +221,17 @@ public:
 
 	static void PersistVertexShader(
 		const char* path, 
-		ID3DBlob* blob, // TFW d3d calls aren't const correct...
-		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLayDesc, 
+		ID3DBlob* blob, // d3d calls not const correct...
+		const VertSignature& vertSig, 
 		const std::vector<D3D11_BUFFER_DESC>& constantBufferDescs)
 	{
-		std::ofstream ofs(path);
-		cereal::JSONOutputArchive ar(ofs);
-
 		// Cereal can't serialize a pointer so persist as string
 		char* begin = static_cast<char*>(blob->GetBufferPointer());
 		std::string blobString(begin, blob->GetBufferSize());
 
-		ar(blobString, inLayDesc, constantBufferDescs);
+		std::ofstream ofs(path);
+		cereal::JSONOutputArchive ar(ofs);
+		ar(blobString, vertSig._attributes, constantBufferDescs);
 	}
 
 

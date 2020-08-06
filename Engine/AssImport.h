@@ -55,10 +55,11 @@ public:
 
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, 
-		ResourceManager* resMan)
+		ResourceManager* resMan, ShaderManager* shMan)
 	{
 		_pResMan = resMan;
 		_pLedger = &resMan->_assetLedger;
+		_pShMan = shMan;
 
 		_importConfigured = false;
 
@@ -156,8 +157,9 @@ public:
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
-						//uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, skmesh._vertSig, &skmesh._baseMaterial);
+						//uint64_t shaderKey = ShaderGenerator::CreateShaderKey(skmesh._vertSig, &skmesh._baseMaterial, 1);
 						//ShaderManager::CreateShader(_device, shaderKey, skmesh._vertSig, &skmesh._baseMaterial);
+						_pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
 					}
 
 					_skModelInst = std::make_unique<SkeletalModelInstance>();

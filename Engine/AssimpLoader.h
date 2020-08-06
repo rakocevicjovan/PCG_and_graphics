@@ -13,6 +13,7 @@
 class AssimpLoader : public Level
 {
 private:
+	ShaderManager _shMan;	// Temporarily here, make be engine-wide
 
 	Scene _scene;
 
@@ -42,6 +43,10 @@ public:
 
 	void init(Engine& sys) override
 	{
+		// Move later
+		_shMan.init(sys._device, &sys._shaderCache);
+		_shMan.loadExistingKeys(NATURAL_COMPS);
+
 		// Create point light for scene preview
 		LightData ld = LightData(SVec3(1.), .2, SVec3(1.), .6, SVec3(1.), .7);
 
@@ -63,7 +68,7 @@ public:
 		terrain.CalculateNormals();
 
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
-		uint64_t shaderKey = ShaderGenerator::CreateShaderKey(1, _floorMesh->_vertSig, &_floorMesh->_baseMaterial);
+		uint64_t shaderKey = ShaderGenerator::CreateShaderKey(_floorMesh->_vertSig, &_floorMesh->_baseMaterial, 1u);
 		ShaderManager::CreateShader(S_DEVICE, shaderKey, _floorMesh->_vertSig, &_floorMesh->_baseMaterial);
 
 		_floorRenderable = Renderable(*_floorMesh);
@@ -100,7 +105,7 @@ public:
 			{
 				_previews.push_back(std::make_unique<AssImport>());
 
-				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u, &S_RESMAN))
+				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u, &S_RESMAN, &_shMan))
 				{
 					_previews.pop_back();
 				}
