@@ -17,7 +17,7 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 	ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 {
 	ID3DBlob* shaderBuffer = compileToBlob(filePath, "vs_5_0");
-	vertexShader = loadCompiledVS(shaderBuffer);
+	vertexShader = blobToVS(shaderBuffer);
 
 	// Create the layout related to the vertex shader.
 	if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)))
@@ -37,7 +37,7 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
 	ID3DBlob* shaderBuffer = compileToBlob(filePath, "ps_5_0");
-	pixelShader = loadCompiledPS(shaderBuffer);
+	pixelShader = blobToPS(shaderBuffer);
 
 	//not used just yet... but tested, works great
 	//if(shMetaData != nullptr)
@@ -52,17 +52,17 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const
 {
 	ID3DBlob* shaderBuffer = compileToBlob(filePath, "gs_5_0");
-	geometryShader = loadCompiledGS(shaderBuffer);
+	geometryShader = blobToGS(shaderBuffer);
 	shaderBuffer->Release();
 	return geometryShader;
 }
 
 
 
-ID3D11VertexShader* ShaderCompiler::loadCompiledVS(ID3DBlob* shaderBuffer) const
+ID3D11VertexShader* ShaderCompiler::blobToVS(ID3DBlob* shaderBlob) const
 {
 	ID3D11VertexShader* result;
-	if (FAILED(_device->CreateVertexShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &result)))
+	if (FAILED(_device->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &result)))
 	{
 		OutputDebugStringA("Failed to create vertex shader.");
 		return nullptr;
@@ -72,10 +72,10 @@ ID3D11VertexShader* ShaderCompiler::loadCompiledVS(ID3DBlob* shaderBuffer) const
 
 
 
-ID3D11PixelShader* ShaderCompiler::loadCompiledPS(ID3DBlob* shaderBuffer) const
+ID3D11PixelShader* ShaderCompiler::blobToPS(ID3DBlob* shaderBlob) const
 {
 	ID3D11PixelShader* result;
-	if (FAILED(_device->CreatePixelShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &result)))
+	if (FAILED(_device->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &result)))
 	{
 		OutputDebugStringA("Failed to create pixel shader.");
 		return nullptr;
@@ -85,10 +85,10 @@ ID3D11PixelShader* ShaderCompiler::loadCompiledPS(ID3DBlob* shaderBuffer) const
 
 
 
-ID3D11GeometryShader* ShaderCompiler::loadCompiledGS(ID3DBlob* shaderBuffer) const
+ID3D11GeometryShader* ShaderCompiler::blobToGS(ID3DBlob* shaderBlob) const
 {
 	ID3D11GeometryShader* result;
-	if (FAILED(_device->CreateGeometryShader(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), NULL, &result)))
+	if (FAILED(_device->CreateGeometryShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), NULL, &result)))
 	{
 		OutputDebugStringA("Failed to create geometry shader.");
 		return nullptr;
@@ -122,7 +122,7 @@ inline void ShaderCompiler::PersistBlob(const std::wstring & filePath, ID3DBlob 
 
 
 
-ID3DBlob* ShaderCompiler::loadCompiledBlob(const std::wstring& filePath) const
+ID3DBlob* ShaderCompiler::loadBlobFromFile(const std::wstring& filePath) const
 {
 	ID3DBlob* shaderBlob;
 	D3DReadFileToBlob(filePath.c_str(), &shaderBlob);

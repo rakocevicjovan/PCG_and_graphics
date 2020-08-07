@@ -3,7 +3,7 @@
 
 
 
-void ShaderGenerator::addToKey(const VertSignature& vertSig, uint64_t& key,
+void ShaderGenerator::AddToKey(const VertSignature& vertSig, uint64_t& key, 
 	VAttribSemantic semantic, const ShaderOption& shOpt)
 {
 	UINT elemCount = vertSig.countAttribute(semantic);
@@ -15,17 +15,17 @@ void ShaderGenerator::addToKey(const VertSignature& vertSig, uint64_t& key,
 
 void ShaderGenerator::EncodeVertexData(const VertSignature& vertSig, uint64_t& key)
 {
-	addToKey(vertSig, key, VAttribSemantic::TEX_COORD, SHG_OPT_TEX);
-	addToKey(vertSig, key, VAttribSemantic::COL, SHG_OPT_COL);
-	addToKey(vertSig, key, VAttribSemantic::NORMAL, SHG_OPT_NRM);
-	addToKey(vertSig, key, VAttribSemantic::TANGENT, SHG_OPT_TAN);
-	addToKey(vertSig, key, VAttribSemantic::BITANGENT, SHG_OPT_BTN);
-	addToKey(vertSig, key, VAttribSemantic::B_IDX, SHG_OPT_SIW);
+	AddToKey(vertSig, key, VAttribSemantic::TEX_COORD, SHG_OPT_TEX);
+	AddToKey(vertSig, key, VAttribSemantic::COL, SHG_OPT_COL);
+	AddToKey(vertSig, key, VAttribSemantic::NORMAL, SHG_OPT_NRM);
+	AddToKey(vertSig, key, VAttribSemantic::TANGENT, SHG_OPT_TAN);
+	AddToKey(vertSig, key, VAttribSemantic::BITANGENT, SHG_OPT_BTN);
+	AddToKey(vertSig, key, VAttribSemantic::B_IDX, SHG_OPT_SIW);
 }
 
 
 
-void ShaderGenerator::EncodeTextureData(std::vector<TextureMetaData>& texData, uint64_t& key)
+void ShaderGenerator::EncodeTextureData(const std::vector<TextureMetaData>& texData, uint64_t& key)
 {
 	for (const TextureMetaData& rtp : texData)
 	{
@@ -39,7 +39,7 @@ void ShaderGenerator::EncodeTextureData(std::vector<TextureMetaData>& texData, u
 
 
 
-ShaderKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, Material* mat, UINT lmIndex)
+ShaderKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, const Material* mat, UINT lmIndex)
 {
 	ShaderKey shaderKey{0ul};
 
@@ -67,10 +67,10 @@ void ShaderGenerator::CreatePermFromKey(const std::vector<ShaderOption>& options
 
 	std::list<std::string> values;
 	uint64_t total = 0ul;
-	auto matchingPermOptions = ParseKey(options, key, values, total);
+	auto matchingPermOptions = ParseKeyToOptions(options, key, values, total);
 
-	CreateShPerm(NATURAL_PERMS, protoVSbuffer, matchingPermOptions, "vs", total);
-	CreateShPerm(NATURAL_PERMS, protoPSbuffer, matchingPermOptions, "ps", total);
+	CreateShPerm(NATURAL_PERMS, protoVSbuffer, matchingPermOptions, L"vs", total);
+	CreateShPerm(NATURAL_PERMS, protoPSbuffer, matchingPermOptions, L"ps", total);
 
 	protoVSbuffer->Release();
 	protoPSbuffer->Release();
@@ -78,7 +78,7 @@ void ShaderGenerator::CreatePermFromKey(const std::vector<ShaderOption>& options
 
 
 
-inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
+inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKeyToOptions(
 	const std::vector<ShaderOption>& options, uint64_t key, std::list<std::string>& values, uint64_t& total)
 {
 	UINT optionCount = options.size();
@@ -119,8 +119,8 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
 
 
 
-void ShaderGenerator::CreateShPerm(const std::string& outDirPath, ID3DBlob* textBuffer,
-	const std::vector<D3D_SHADER_MACRO>& permOptions, const char* type, uint64_t total)
+void ShaderGenerator::CreateShPerm(const std::wstring& outDirPath, ID3DBlob* textBuffer,
+	const std::vector<D3D_SHADER_MACRO>& permOptions, const wchar_t* type, uint64_t total)
 {
 	HRESULT res;
 	ID3DBlob* preprocessedBuffer = nullptr;
@@ -135,7 +135,7 @@ void ShaderGenerator::CreateShPerm(const std::string& outDirPath, ID3DBlob* text
 		OutputDebugStringA(reinterpret_cast<const char*>(errorMessage->GetBufferPointer()));
 	}
 
-	std::string finalFileName = outDirPath + std::to_string(total) + type + ".hlsl";
+	std::wstring finalFileName = outDirPath + std::to_wstring(total) + type + L".hlsl";
 
 	FileUtils::writeAllBytes(finalFileName.c_str(),
 		preprocessedBuffer->GetBufferPointer(),
@@ -152,7 +152,7 @@ void ShaderGenerator::CreateShPerm(const std::string& outDirPath, ID3DBlob* text
 
 
 
-bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW, const std::string& outDirPath)
+bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW, const std::wstring& outDirPath)
 {
 	std::set<uint64_t> existingKeys;
 
@@ -189,7 +189,7 @@ bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW,
 
 
 void ShaderGenerator::CreatePermFromKey(
-	const std::string& outDirPath,
+	const std::wstring& outDirPath,
 	ID3DBlob*& textBuffer,
 	const std::vector<ShaderOption>& options,
 	uint64_t key,
@@ -197,12 +197,12 @@ void ShaderGenerator::CreatePermFromKey(
 {
 	std::list<std::string> values;
 	uint64_t total = 0ul;
-	auto matchingPermOptions = ParseKey(options, key, values, total);
+	auto matchingPermOptions = ParseKeyToOptions(options, key, values, total);
 
 	if (!existingKeys.insert(total).second)
 		return;
 
-	CreateShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, "vs", total);
+	CreateShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, L"vs", total);
 }
 
 

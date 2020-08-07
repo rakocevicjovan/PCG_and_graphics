@@ -63,13 +63,13 @@ public:
 	bool compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData = nullptr) const;
 	bool compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const;
 
-	ID3D11VertexShader* loadCompiledVS(ID3DBlob* shaderBuffer) const;
-	ID3D11PixelShader* loadCompiledPS(ID3DBlob* shaderBuffer) const;
-	ID3D11GeometryShader* loadCompiledGS(ID3DBlob* shaderBuffer) const;
+	ID3D11VertexShader*		blobToVS(ID3DBlob* shaderBlob) const;
+	ID3D11PixelShader*		blobToPS(ID3DBlob* shaderBlob) const;
+	ID3D11GeometryShader*	blobToGS(ID3DBlob* shaderBlob) const;
 
-	ID3DBlob* compileToBlob(const std::wstring& filePath, const char* shaderModel) const;
+	[[nodiscard]] ID3DBlob* compileToBlob(const std::wstring& filePath, const char* shaderModel) const;
 	inline static void PersistBlob(const std::wstring & filePath, ID3DBlob* blob);
-	ID3DBlob* loadCompiledBlob(const std::wstring& filePath) const;
+	ID3DBlob* loadBlobFromFile(const std::wstring& filePath) const;
 
 	static bool reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData);
 

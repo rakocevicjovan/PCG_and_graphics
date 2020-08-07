@@ -13,11 +13,12 @@ typedef uint64_t ShaderKey;
 // Constants for external code to have some default paths
 static const wchar_t* VS_PROTOSHADER = L"ShGen\\VS_proto.hlsl";
 static const wchar_t* PS_PROTOSHADER = L"ShGen\\PS_proto.hlsl";
+static const wchar_t* NATURAL_COMPS  = L"ShGen\\Compiled\\";
+static const wchar_t* NATURAL_PERMS = L"ShGen\\Natty\\";
 
 static const char* VS_PERMUTATIONS	= "ShGen\\GeneratedVS\\";
 static const char* PS_PERMUTATIONS	= "ShGen\\GeneratedPS\\";
-static const char* NATURAL_PERMS	= "ShGen\\Natty\\";
-static const wchar_t* NATURAL_COMPS	= L"ShGen\\Compiled\\";
+
 
 
 struct ShaderOption
@@ -83,41 +84,41 @@ static const std::map<TextureRole, const ShaderOption*> TEX_ROLE_TO_SHADER_OPTIO
 class ShaderGenerator
 {
 private:
-	static void addToKey(const VertSignature& vertSig, uint64_t& key,
+	static void AddToKey(const VertSignature& vertSig, uint64_t& key,
 		VAttribSemantic semantic, const ShaderOption& shOpt);
 
 	static void EncodeVertexData(const VertSignature& vertSig, uint64_t& key);
 
-	static void EncodeTextureData(std::vector<TextureMetaData>& texData, uint64_t& key);
+	static void EncodeTextureData(const std::vector<TextureMetaData>& texData, uint64_t& key);
 
 public:
 
 	static const std::vector<ShaderOption> AllOptions;
 
-	static ShaderKey CreateShaderKey(const VertSignature& vertSig, Material* mat, UINT lmIndex);
+	static ShaderKey CreateShaderKey(const VertSignature& vertSig, const Material* mat, UINT lmIndex);
 
 	static void CreatePermFromKey(const std::vector<ShaderOption>& options, uint64_t key);
 
-	static inline std::vector<D3D_SHADER_MACRO> ParseKey(
+	static inline std::vector<D3D_SHADER_MACRO> ParseKeyToOptions(
 		const std::vector<ShaderOption>& options, 
 		uint64_t key, 
 		std::list<std::string>& values, 
 		uint64_t& total);
 
 	static void CreateShPerm(
-		const std::string& outDirPath,
+		const std::wstring& outDirPath,
 		ID3DBlob* textBuffer,
 		const std::vector<D3D_SHADER_MACRO>& permOptions,
-		const char* type,
+		const wchar_t* type,
 		uint64_t total);
 
 	// Neat for testing but there could be too many to use this practically
 	static bool preprocessAllPermutations(
-		const std::wstring& ogFilePathW, const std::string& outDirPath);
+		const std::wstring& ogFilePathW, const std::wstring& outDirPath);
 
 	// This one is used in loop generation, the other one standalone
 	static void CreatePermFromKey(
-		const std::string& outDirPath,
+		const std::wstring& outDirPath,
 		ID3DBlob*& textBuffer,
 		const std::vector<ShaderOption>& options,
 		uint64_t key,

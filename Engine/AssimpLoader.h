@@ -70,7 +70,9 @@ public:
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
 		//uint64_t shaderKey = ShaderGenerator::CreateShaderKey(_floorMesh->_vertSig, &_floorMesh->_baseMaterial, 1u);
 		//ShaderManager::CreateShader(S_DEVICE, shaderKey, _floorMesh->_vertSig, &_floorMesh->_baseMaterial);
-		_shMan.getShaderAuto(_floorMesh->_vertSig, &_floorMesh->_baseMaterial);
+		auto shPack = _shMan.getShaderAuto(_floorMesh->_vertSig, &_floorMesh->_baseMaterial);
+		_floorMesh->_baseMaterial.setVS(shPack->vs);
+		_floorMesh->_baseMaterial.setPS(shPack->ps);
 
 		_floorRenderable = Renderable(*_floorMesh);
 		//_floorRenderable.mat->setVS();

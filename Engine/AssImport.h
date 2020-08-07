@@ -159,9 +159,9 @@ public:
 					{
 						//uint64_t shaderKey = ShaderGenerator::CreateShaderKey(skmesh._vertSig, &skmesh._baseMaterial, 1);
 						//ShaderManager::CreateShader(_device, shaderKey, skmesh._vertSig, &skmesh._baseMaterial);
-						_pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
-						//_pShMan->getVS();
-						//_pShMan->getPS();
+						auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
+						skmesh._baseMaterial.setVS(shPack->vs);
+						skmesh._baseMaterial.setPS(shPack->ps);
 					}
 
 					_skModelInst = std::make_unique<SkeletalModelInstance>();
@@ -176,8 +176,9 @@ public:
 
 					for (Mesh& mesh : _model->_meshes)
 					{
-						//ShaderManager::CreateShader(_device, mesh._vertSig, &mesh._baseMaterial);
-
+						auto shPack = _pShMan->getShaderAuto(mesh._vertSig, &mesh._baseMaterial);
+						mesh._baseMaterial.setVS(shPack->vs);
+						mesh._baseMaterial.setPS(shPack->ps);
 					}
 				}
 

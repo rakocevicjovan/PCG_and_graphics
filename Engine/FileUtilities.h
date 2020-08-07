@@ -87,7 +87,7 @@ namespace FileUtils
 
 
 
-	static void writeAllBytes(char const* filename, const void* content, const size_t size, int flags = std::ios::out | std::ios::binary)
+	static void writeAllBytes(std::filesystem::path filename, const void* content, const size_t size, int flags = std::ios::out | std::ios::binary)
 	{
 		std::ofstream writer(filename, flags);
 		writer.write(static_cast<const char*>(content), size);
