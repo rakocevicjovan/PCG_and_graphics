@@ -113,6 +113,8 @@ ID3DBlob* ShaderCompiler::compileToBlob(const std::wstring& filePath, const char
 	return shaderBlob;
 }
 
+
+
 inline void ShaderCompiler::PersistBlob(const std::wstring & filePath, ID3DBlob * blob)
 {
 	D3DWriteBlobToFile(blob, filePath.c_str(), true);
@@ -206,10 +208,10 @@ bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& sh
 
 
 
-void ShaderCompiler::outputError(ID3DBlob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const
+void ShaderCompiler::outputError(ID3DBlob* errBlob, WCHAR shaderFilename, const std::wstring& filePath) const
 {
 	std::string filePathNarrow(filePath.begin(), filePath.end());
-	if (!errorMessage)
+	if (!errBlob)
 	{
 		std::string errMsg = "Shader file not found: " + filePathNarrow;
 		OutputDebugStringA(errMsg.c_str());
@@ -217,12 +219,10 @@ void ShaderCompiler::outputError(ID3DBlob* errorMessage, WCHAR shaderFilename, c
 		return;
 	}
 
-	FileUtils::writeAllBytes("shader-error.txt",
-		errorMessage->GetBufferPointer(),
-		errorMessage->GetBufferSize());
+	FileUtils::writeAllBytes("shader-error.txt", errBlob->GetBufferPointer(), errBlob->GetBufferSize());
 
-	errorMessage->Release();
-	errorMessage = nullptr;
+	errBlob->Release();
+	errBlob = nullptr;
 
 	std::string errMsg = "Error compiling shader.  Check shader-error.txt for message.";
 	__debugbreak();

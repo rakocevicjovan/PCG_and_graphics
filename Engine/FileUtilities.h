@@ -100,6 +100,7 @@ namespace FileUtils
 		if (std::filesystem::is_directory(dirPath))
 		{
 			iter = std::filesystem::recursive_directory_iterator(dirPath);
+			return true;
 		}
 		return false;
 	}

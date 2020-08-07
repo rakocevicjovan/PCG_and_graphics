@@ -43,17 +43,18 @@ VertexShader::VertexShader(
 
 VertexShader::VertexShader(
 	ID3D11Device* device,
-	ID3DBlob* compiledBlob, 
+	void* ptr,
+	UINT size,
 	const std::wstring& path,
 	const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay,
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(device, path, descriptions)
 {
 	_type = SHADER_TYPE::VS;
-	if (FAILED(device->CreateVertexShader(compiledBlob->GetBufferPointer(), compiledBlob->GetBufferSize(), NULL, &_vsPtr)))
+	if (FAILED(device->CreateVertexShader(ptr, size, NULL, &_vsPtr)))
 		__debugbreak();
 
-	if (FAILED(device->CreateInputLayout(inLay.data(), inLay.size(), compiledBlob->GetBufferPointer(), compiledBlob->GetBufferSize(), &_layout)))
+	if (FAILED(device->CreateInputLayout(inLay.data(), inLay.size(), ptr, size, &_layout)))
 		__debugbreak();
 }
 
@@ -85,9 +86,28 @@ PixelShader::PixelShader(
 	_samplers.resize(numSamplers);
 
 	for (UINT i = 0; i < numSamplers; ++i)
-	{
 		Sampler::setUp(shc.getDevice(), &samplerDescs[i], _samplers[i]);
-	}
+}
+
+PixelShader::PixelShader(
+	ID3D11Device* device,
+	void* ptr,
+	UINT size,
+	const std::wstring& path,
+	const std::vector<D3D11_SAMPLER_DESC>& samplerDescs,
+	const std::vector<D3D11_BUFFER_DESC>& descriptions)
+	: Shader(device, path, descriptions)
+{
+	_type = SHADER_TYPE::PS;
+
+	if (FAILED(device->CreatePixelShader(ptr, size, NULL, &_psPtr)))
+		__debugbreak();
+
+	UINT numSamplers = samplerDescs.size();
+	_samplers.resize(numSamplers);
+
+	for (UINT i = 0; i < numSamplers; ++i)
+		Sampler::setUp(device, &samplerDescs[i], _samplers[i]);
 }
 
 

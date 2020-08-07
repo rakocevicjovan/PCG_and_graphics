@@ -22,6 +22,23 @@ struct ShaderDescription
 };
 
 
+
+struct VS_FileFormat
+{
+	std::string blobString;
+	VertSignature vertSig;
+	std::vector<D3D11_BUFFER_DESC> cbDescs;
+};
+
+
+
+struct PS_FileFormat
+{
+	std::string blobString;
+	std::vector<D3D11_SAMPLER_DESC> sDescs;
+};
+
+
 /*
 void save(cereal::JSONInputArchive& ar, D3D11_INPUT_ELEMENT_DESC& ied)
 {
@@ -52,10 +69,19 @@ template<typename Archive> void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
 		bd.BindFlags, bd.CPUAccessFlags, bd.MiscFlags, bd.StructureByteStride);
 }
 
+
+template<typename Archive> void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
+{
+	ar(sd.AddressU, sd.AddressV, sd.AddressW, sd.BorderColor, sd.ComparisonFunc, 
+		sd.Filter, sd.MaxAnisotropy, sd.MaxLOD, sd.MinLOD, sd.MipLODBias);
+}
+
+
+
 struct ShaderPack
 {
-	VertexShader* vs;
-	PixelShader* ps;
+	VertexShader* vs = nullptr;
+	PixelShader* ps = nullptr;
 };
 
 
@@ -91,9 +117,9 @@ public:
 
 
 
-	void loadExistingKeys(const std::string& path)
+	void loadExistingKeys(const std::wstring& path)
 	{
-		auto shaderFiles = FileUtils::getFilesByExt(path, "cmp");
+		auto shaderFiles = FileUtils::getFilesByExt(path, ".cmp");
 
 		for (auto& file : shaderFiles)
 		{
@@ -109,71 +135,55 @@ public:
 
 
 
-	void getShaderAuto(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM)
+	inline ShaderPack* getShaderAuto(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM)
 	{
 		// return something...
-		getShaderByKey(ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel));
+		return getShaderByKey(ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel));
 	}
 
 
 
-	void getShaderByKey(uint64_t shaderKey)
+	ShaderPack* getShaderByKey(ShaderKey shaderKey)
 	{
-		// Check if exists, then if loaded, load if needed, create if needed, return
+		// Check if exists, check if loaded, create/load if needed, return
 		auto it = _existingShaders.find(shaderKey);
 		
-		if (it != _existingShaders.end())
+		if (it != _existingShaders.end())	// Exists
 		{
 			ShaderPack& sp = it->second;
-			if (sp.vs == nullptr)
-			{
-				loadFromKey(shaderKey);
-			}
+			if (sp.vs == nullptr)	// VS not loaded, load
+				sp.vs = static_cast<VertexShader*>(loadFromKey(shaderKey, L"vs.cmp"));
+			if (!sp.ps)				// PS not loaded, load
+				sp.ps = static_cast<PixelShader*>(loadFromKey(shaderKey, L"ps.cmp"));
+
+			return &it->second;
 		}
-		else
+		else	// Does not exist, create and add to existing
 		{
 			// Not quite, this has to be changed
 			ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
+
+			auto inserted = _existingShaders.insert({ shaderKey, {nullptr, nullptr} });
+			return &(inserted.first->second);
 		}
 	}
 
 
 
-	void loadFromKey(uint64_t shaderKey)
+	Shader* loadFromKey(ShaderKey shaderKey, const wchar_t* ext)
 	{
-		/*
-		std::string shTypeStr = filename.substr(division - 3, 2);
-
-		std::wstring wFileName(filename.begin(), filename.end());
-
-		ID3DBlob* shaderBlob = shc.loadCompiledBlob(wFileName);
-		if (FAILED(D3DWriteBlobToFile(shaderBlob, wFileName.c_str(), true)))
-		{
-			__debugbreak();
-		}
+		std::wstring wFileName = NATURAL_COMPS + std::to_wstring(shaderKey) + ext;
 
 		// Load shaders, can't work yet...
-		if (shTypeStr == "vs")
+		if (ext == L"vs.cmp")
 		{
-			VertexShader* vs = new VertexShader();
-			vs->_vsPtr = shc.loadCompiledVS(shaderBlob);
-			vs->_id = shaderKey;
-			vs->_path = wFileName;
-			vs->_type = SHADER_TYPE::VS;
-
-			// These need to be loaded too :\
-
-			//vs->_layout
-			// Not sure if I can serialize it given it's a gpu object but
-			// it can be recreated from std::vector<D3D11_INPUT_ELEMENT_DESC>
-			//_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &vs->_layout
-
-			//vs->_cbuffers
-			// This is recreatable from constant buffer metadata struct
-
-			_shCache->addVertShader(filename, vs);
+			return loadVertexShader(wFileName, shaderKey);
 		}
-		*/
+		if (ext == L"ps.cmp")
+		{
+			return loadPixelShader(wFileName, shaderKey);
+		}
+		return nullptr;
 	}
 
 
@@ -199,10 +209,11 @@ public:
 		// New way, keep the blob and persist everything for reuse
 		ID3DBlob* vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
 		ID3D11VertexShader* d3dvs = shc.loadCompiledVS(vsBlob);
-		std::string cmpVsPath(NATURAL_COMPS + std::to_string(shaderKey) + "vs.cmp");
+		std::wstring cmpVsPath(NATURAL_COMPS + std::to_wstring(shaderKey) + L"vs.cmp");
 		PersistVertexShader(cmpVsPath.c_str(), vsBlob, vertSig, { WMBufferDesc });
 
-		VertexShader* vs = new VertexShader(device, vsBlob, vsPathW, vertInLayElements, { WMBufferDesc });
+		VertexShader* vs = new VertexShader(device, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
+			vsPathW, vertInLayElements, { WMBufferDesc });
 		vs->describeBuffers({ WMBufferMeta });
 		vsBlob->Release();
 
@@ -220,14 +231,13 @@ public:
 
 
 	static void PersistVertexShader(
-		const char* path, 
+		const wchar_t* path, 
 		ID3DBlob* blob, // d3d calls not const correct...
 		const VertSignature& vertSig, 
 		const std::vector<D3D11_BUFFER_DESC>& constantBufferDescs)
 	{
-		// Cereal can't serialize a pointer so persist as string
-		char* begin = static_cast<char*>(blob->GetBufferPointer());
-		std::string blobString(begin, blob->GetBufferSize());
+		// Cereal can't serialize a pointer so persist as string, annoying really...
+		std::string blobString(static_cast<char*>(blob->GetBufferPointer()), blob->GetBufferSize());
 
 		std::ofstream ofs(path);
 		cereal::JSONOutputArchive ar(ofs);
@@ -236,37 +246,70 @@ public:
 
 
 
-	static void LoadVertexShader(std::string path)
+	VertexShader* loadVertexShader(const std::wstring& path, ShaderKey shaderKey)
 	{
+		// Temporary data loaded from a file to reconstruct the shader
+		VS_FileFormat vsff;
 		std::ifstream ifs(path);
 		cereal::JSONInputArchive ar(ifs);
+		ar(vsff.blobString, vsff.vertSig._attributes, vsff.cbDescs);
 
+		auto inLay = vsff.vertSig.createVertInLayElements();
+
+		VertexShader* vs = new VertexShader(_pDevice, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
+		vs->_id = shaderKey;
+
+		_existingShaders.at(shaderKey).vs = vs;
+		return vs;
+	}
+
+
+
+	static void PersistPixelShader(
+		const wchar_t* path,
+		ID3DBlob* blob,
+		std::vector<D3D11_SAMPLER_DESC>& sDescs,
+		const std::vector<D3D11_BUFFER_DESC>& cbDescs)
+	{
+		std::string blobString(static_cast<char*>(blob->GetBufferPointer()), blob->GetBufferSize());
+
+		std::ofstream ofs(path);
+		cereal::JSONOutputArchive ar(ofs);
+		ar(blobString, sDescs, cbDescs);
+	}
+
+
+
+	PixelShader* loadPixelShader(const std::wstring& path, ShaderKey shaderKey)
+	{
 		std::string blobString;
-		ar(blobString);
-
-		std::vector<D3D11_INPUT_ELEMENT_DESC> ieDescs;
+		std::vector<D3D11_SAMPLER_DESC> sDescs;
 		std::vector<D3D11_BUFFER_DESC> cbDescs;
 
-		std::string* a;
-		//load(ar)
+		std::ifstream ifs(path);
+		cereal::JSONInputArchive ar(ifs);
+		ar(blobString, sDescs, cbDescs);
 
-		//ar(cbDescs);
+		PixelShader* ps = new PixelShader(_pDevice, blobString.data(), blobString.size(), path, sDescs, cbDescs);
+		ps->_id = shaderKey;
+
+		_existingShaders.at(shaderKey).ps = ps;
+		return ps;
 	}
 
 
 
 
-	// For UI
-	struct LightModelIndex
-	{
-		std::string name;
-		SHG_LIGHT_MODEL index;
-	};
-
 
 
 	static void displayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device)
 	{
+		// For UI
+		struct LightModelIndex
+		{
+			std::string name;
+			SHG_LIGHT_MODEL index;
+		};
 		uint64_t shaderKey{ 0 };
 
 		static const std::vector<LightModelIndex> lmiOptions

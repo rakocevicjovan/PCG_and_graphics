@@ -48,6 +48,8 @@ struct VAttrib
 	uint8_t _size;			// Needs to exist in order to support typeless... types...
 	uint8_t _numElements;	// For multiple of same semantic type, say {TEX_COORD, float2, 4}
 
+	VAttrib() {}
+
 	VAttrib(VAttribSemantic s, VAttribType t, uint8_t numElements = 1u, uint8_t elemByteSize = 0u)
 		: _semantic(s), _type(t), _numElements(numElements)
 	{

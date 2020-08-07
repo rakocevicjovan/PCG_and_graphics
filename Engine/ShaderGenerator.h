@@ -17,7 +17,7 @@ static const wchar_t* PS_PROTOSHADER = L"ShGen\\PS_proto.hlsl";
 static const char* VS_PERMUTATIONS	= "ShGen\\GeneratedVS\\";
 static const char* PS_PERMUTATIONS	= "ShGen\\GeneratedPS\\";
 static const char* NATURAL_PERMS	= "ShGen\\Natty\\";
-static const char* NATURAL_COMPS	= "ShGen\\Compiled\\";
+static const wchar_t* NATURAL_COMPS	= L"ShGen\\Compiled\\";
 
 
 struct ShaderOption
@@ -104,7 +104,7 @@ public:
 		std::list<std::string>& values, 
 		uint64_t& total);
 
-	static void createShPerm(
+	static void CreateShPerm(
 		const std::string& outDirPath,
 		ID3DBlob* textBuffer,
 		const std::vector<D3D_SHADER_MACRO>& permOptions,

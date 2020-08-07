@@ -66,9 +66,10 @@ public:
 
 	VertexShader(
 		ID3D11Device* device,
-		ID3DBlob* compiledBlob,
+		void* ptr,
+		UINT size,
 		const std::wstring& path,
-		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inputLayoutDesc,
+		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay,
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 	~VertexShader()
@@ -121,6 +122,15 @@ public:
 		const std::wstring& path,
 		const std::vector<D3D11_SAMPLER_DESC>& samplerDescs,
 		const std::vector<D3D11_BUFFER_DESC>& descriptions = {});
+
+	PixelShader(
+		ID3D11Device* device,
+		void* ptr,
+		UINT size,
+		const std::wstring& path,
+		const std::vector<D3D11_SAMPLER_DESC>& samplerDescs,
+		const std::vector<D3D11_BUFFER_DESC>& descriptions
+	);
 
 	~PixelShader()
 	{

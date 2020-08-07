@@ -54,6 +54,7 @@ ShaderKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, Materia
 
 void ShaderGenerator::CreatePermFromKey(const std::vector<ShaderOption>& options, uint64_t key)
 {
+	// Consider keeping in memory, would improve performance a lot
 	ID3DBlob* protoVSbuffer = nullptr;
 	ID3DBlob* protoPSbuffer = nullptr;
 
@@ -68,8 +69,8 @@ void ShaderGenerator::CreatePermFromKey(const std::vector<ShaderOption>& options
 	uint64_t total = 0ul;
 	auto matchingPermOptions = ParseKey(options, key, values, total);
 
-	createShPerm(NATURAL_PERMS, protoVSbuffer, matchingPermOptions, "vs", total);
-	createShPerm(NATURAL_PERMS, protoPSbuffer, matchingPermOptions, "ps", total);
+	CreateShPerm(NATURAL_PERMS, protoVSbuffer, matchingPermOptions, "vs", total);
+	CreateShPerm(NATURAL_PERMS, protoPSbuffer, matchingPermOptions, "ps", total);
 
 	protoVSbuffer->Release();
 	protoPSbuffer->Release();
@@ -78,8 +79,7 @@ void ShaderGenerator::CreatePermFromKey(const std::vector<ShaderOption>& options
 
 
 inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
-	const std::vector<ShaderOption>& options, uint64_t key,
-	std::list<std::string>& values, uint64_t& total)
+	const std::vector<ShaderOption>& options, uint64_t key, std::list<std::string>& values, uint64_t& total)
 {
 	UINT optionCount = options.size();
 
@@ -119,7 +119,7 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKey(
 
 
 
-void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* textBuffer,
+void ShaderGenerator::CreateShPerm(const std::string& outDirPath, ID3DBlob* textBuffer,
 	const std::vector<D3D_SHADER_MACRO>& permOptions, const char* type, uint64_t total)
 {
 	HRESULT res;
@@ -142,16 +142,11 @@ void ShaderGenerator::createShPerm(const std::string& outDirPath, ID3DBlob* text
 		preprocessedBuffer->GetBufferSize());
 
 	if (preprocessedBuffer)
-	{
 		preprocessedBuffer->Release();
-		preprocessedBuffer = nullptr;
-	}
 
 	if (errorMessage)
-	{
 		errorMessage->Release();
-		errorMessage = nullptr;
-	}
+
 	sizeof(ShaderOption);
 }
 
@@ -207,7 +202,7 @@ void ShaderGenerator::CreatePermFromKey(
 	if (!existingKeys.insert(total).second)
 		return;
 
-	createShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, "vs", total);
+	CreateShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, "vs", total);
 }
 
 
