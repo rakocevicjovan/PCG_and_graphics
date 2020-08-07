@@ -8,7 +8,7 @@
 #include <memory>
 
 #include <cereal/cereal.hpp>
-#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 
@@ -39,33 +39,15 @@ struct PS_FileFormat
 };
 
 
-/*
-void save(cereal::JSONInputArchive& ar, D3D11_INPUT_ELEMENT_DESC& ied)
-{
-	std::string semName(ied.SemanticName);
-	ar(semName, ied.SemanticIndex,
-		static_cast<UINT>(ied.Format), ied.InputSlot, ied.AlignedByteOffset,
-		static_cast<UINT>(ied.InputSlotClass), ied.InstanceDataStepRate);
-}
-
-void load(cereal::JSONInputArchive& ar, D3D11_INPUT_ELEMENT_DESC& ied, std::string* str)
-{
-	ar(*str, ied.SemanticIndex,
-		static_cast<UINT>(ied.Format), ied.InputSlot, ied.AlignedByteOffset,
-		static_cast<UINT>(ied.InputSlotClass), ied.InstanceDataStepRate);
-	ied.SemanticName = str->c_str();
-}
-*/
-
 template<typename Archive> void serialize(Archive& ar, VAttrib& va)
 {
-	ar(static_cast<UINT>(va._semantic), static_cast<UINT>(va._type), va._size, va._numElements);
+	ar(va._semantic, va._type, va._size, va._numElements);
 }
 
 
 template<typename Archive> void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
 {
-	ar(bd.ByteWidth, static_cast<UINT>(bd.Usage),
+	ar(bd.ByteWidth, bd.Usage,
 		bd.BindFlags, bd.CPUAccessFlags, bd.MiscFlags, bd.StructureByteStride);
 }
 
@@ -170,7 +152,7 @@ public:
 		}
 
 		// Does not exist, create and add to existing
-			return nullptr;
+		return nullptr;
 	}
 
 
@@ -247,8 +229,8 @@ public:
 		// Cereal can't serialize a pointer so persist as string, annoying really...
 		std::string blobString(static_cast<char*>(blob->GetBufferPointer()), blob->GetBufferSize());
 
-		std::ofstream ofs(path);
-		cereal::JSONOutputArchive ar(ofs);
+		std::ofstream ofs(path, std::ios::binary);
+		cereal::BinaryOutputArchive ar(ofs);
 		ar(blobString, vertSig._attributes, constantBufferDescs);
 	}
 
@@ -258,14 +240,21 @@ public:
 	{
 		// Temporary data loaded from a file to reconstruct the shader
 		VS_FileFormat vsff;
-		std::ifstream ifs(path);
-		cereal::JSONInputArchive ar(ifs);
-		ar(vsff.blobString, vsff.vertSig._attributes, vsff.cbDescs);
+		
+		{
+			std::ifstream ifs(path, std::ios::binary);
+			cereal::BinaryInputArchive ar(ifs);
+			ar(vsff.blobString, vsff.vertSig._attributes, vsff.cbDescs);
+		}
 
 		auto inLay = vsff.vertSig.createVertInLayElements();
 
 		VertexShader* vs = new VertexShader(_pDevice, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
+		// Bootleg solution, need to be persisting these better in the first place
+		CBufferMeta WMBufferMeta(0, 64u);
+		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
 		vs->_id = shaderKey;
+		vs->describeBuffers({ WMBufferMeta });
 
 		_existingShaders.at(shaderKey).vs = vs;
 		return vs;
@@ -281,8 +270,8 @@ public:
 	{
 		std::string blobString(static_cast<char*>(blob->GetBufferPointer()), blob->GetBufferSize());
 
-		std::ofstream ofs(path);
-		cereal::JSONOutputArchive ar(ofs);
+		std::ofstream ofs(path, std::ios::binary);
+		cereal::BinaryOutputArchive ar(ofs);
 		ar(blobString, sDescs, cbDescs);
 	}
 
@@ -294,9 +283,11 @@ public:
 		std::vector<D3D11_SAMPLER_DESC> sDescs;
 		std::vector<D3D11_BUFFER_DESC> cbDescs;
 
-		std::ifstream ifs(path);
-		cereal::JSONInputArchive ar(ifs);
-		ar(blobString, sDescs, cbDescs);
+		{
+			std::ifstream ifs(path, std::ios::binary);
+			cereal::BinaryInputArchive ar(ifs);
+			ar(blobString, sDescs, cbDescs);
+		}
 
 		PixelShader* ps = new PixelShader(_pDevice, blobString.data(), blobString.size(), path, sDescs, cbDescs);
 		ps->_id = shaderKey;

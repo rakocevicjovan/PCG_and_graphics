@@ -14,7 +14,7 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 		{VAttribSemantic::POS, VAttribType::FLOAT3, 1u, 0u },
 		{VAttribSemantic::TEX_COORD, VAttribType::FLOAT2, 1u, 0u },
 		{VAttribSemantic::NORMAL, VAttribType::FLOAT3, 1u, 0u },
-		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}
+		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}	// Not sure if true
 	};
 	terrain.populateMesh(_vertices, _indices, _textures);
 	_transform = SMatrix::CreateTranslation(terrain.getOffset());

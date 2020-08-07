@@ -75,8 +75,6 @@ public:
 		_floorMesh->_baseMaterial.setPS(shPack->ps);
 
 		_floorRenderable = Renderable(*_floorMesh);
-		//_floorRenderable.mat->setVS();
-		//_floorRenderable.mat->setPS();
 		_terrainActor.addRenderable(_floorRenderable, 500);
 		_terrainActor._collider.collidable = false;
 	}
