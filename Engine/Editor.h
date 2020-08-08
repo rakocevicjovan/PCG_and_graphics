@@ -24,6 +24,11 @@ public:
 
 	Editor(float w, float h, const std::string& projRoot) 
 		: _layout(w, h), _fileBrowser(projRoot), _projRoot(projRoot)
+	{}
+
+
+
+	void display()
 	{
 
 	}

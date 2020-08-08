@@ -1,5 +1,4 @@
 #include "Octree.h"
-//big include lists everywhere brought to you by wonky design inc.
 #include "Collider.h"
 #include "GameObject.h"
 
@@ -48,11 +47,12 @@ void Octree::deleteNode(OctNode*& pNode)
 }
 
 
-//once per frame deallocate what's not required... fairly fast with a pool allocator
+// Once per frame deallocate what's not required... fairly fast with a pool allocator
 void Octree::lazyTrim()
 {
 	trimNode(_rootNode);
 }
+
 
 
 void Octree::trimNode(OctNode*& pNode)
@@ -71,28 +71,28 @@ void Octree::trimNode(OctNode*& pNode)
 
 bool Octree::isEmpty(OctNode* pNode) const
 {
-	//hulls not empty, no need to check the children
+	// Contains collider hulls, no need to check the children
 	if (!pNode->_hulls.empty())
 		return false;
 
-	//hulls are empty, check children
+	// Contains no hulls directly, check children
 	for (int i = 0; i < 8; ++i)
 		if (pNode->_children[i] != nullptr)
 			return false;
 
-	//empy is still true if and only if all children are nullptr and hulls list is empty
+	// Node is considered empty if and only if all children are nullptr and hulls list is empty
 	return true;
 }
 
 
 
-AABB Octree::createBoxByIndex(int i, const AABB& parentBox) const
+AABB Octree::createBoxByIndex(UINT i, const AABB& parentBox) const
 {
 	SVec3 offset;
 	SVec3 step = parentBox.getHalfSize() * 0.5f;
-	offset.x = ((i & 1) ? step.x : -step.x);		//if odd, go right, if even, go left
-	offset.y = ((i & 2) ? step.y : -step.y);		//pair down, pair up, pair down, pair up
-	offset.z = ((i & 4) ? step.z : -step.z);		//four forward, four back
+	offset.x = ((i & 1u) ? step.x : -step.x);		// If odd go right, if even go left
+	offset.y = ((i & 2u) ? step.y : -step.y);		// Pair down, pair up, pair down, pair up
+	offset.z = ((i & 4u) ? step.z : -step.z);		// Four back, four forward
 
 	return AABB(parentBox.getPosition() + offset, step);
 }
@@ -101,8 +101,9 @@ AABB Octree::createBoxByIndex(int i, const AABB& parentBox) const
 
 int Octree::getIndexByPosition(const AABB& parentBox, const SVec3& pos) const
 {
-	SVec3 offset = parentBox.getPosition() - pos;
-	return ((offset.x > 0 ? 1 : 0) + (offset.y > 0 ? 2 : 0) + (offset.z > 0 ? 4 : 0));	//kinda reverse of createBoxByIndex
+	SVec3 offToParent = parentBox.getPosition() - pos;
+	// Right gets odd, up gets 2, foward gets 4, bitmask goes from 000 nbl to 111 ftr
+	return (offToParent.x > 0) * 1. + (offToParent.y > 0) * 2 + (offToParent.z > 0) * 4;
 }
 
 
@@ -133,7 +134,7 @@ OctNode* Octree::preallocateNode(SVec3 center, SVec3 size, int stopDepth, OctNod
 
 void Octree::insertObject(SphereHull* pSpHull)
 {
-	_hullCount++;
+	++_hullCount;
 	insertObjectIntoNode(_rootNode, pSpHull);
 }
 
@@ -168,17 +169,16 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 			++_nodeCount;
 		}
 		insertObjectIntoNode(pNode->_children[index], pSpHull, ++depth);
+		return;
 	}
-	else
-	{
-		//from the book
-		// Straddling, or no child node to descend into, so link object into linked list at this node
-		//pObject->pNextObject = pNode->pObjList;
-		//pNode->pObjList = pObject;
 
-		//I did this another way because im using std::list<SphereHull*> instead of my object wrapper for hull
-		pNode->_hulls.push_back(pSpHull);
-	}
+	// From the book
+	// Straddling, or no child node to descend into, so link object into linked list at this node
+	// pObject->pNextObject = pNode->pObjList;
+	// pNode->pObjList = pObject;
+
+	// I did this another way because im using std::list<SphereHull*> instead of my object wrapper for hull
+	pNode->_hulls.push_back(pSpHull);
 }
 
 
@@ -187,7 +187,7 @@ bool Octree::removeObject(SphereHull* pSpHull)
 {
 	if (removeObjectFromNode(_rootNode, pSpHull))
 	{
-		_hullCount--;
+		--_hullCount;
 		return true;
 	}
 	return false;
@@ -207,7 +207,7 @@ bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 	int index = getIndexByPosition(pNode->_box, pSpHull->getPosition());
 
 	bool straddle = 0;
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; ++i)
 	{
 		float delta = pSpHull->getPosition().at(i) - pNode->_box.getPosition().at(i);	//distance - node middle to sphere middle
 		if (abs(delta) < pNode->_box.getHalfSize().at(i) + pSpHull->r)
@@ -279,14 +279,13 @@ void Octree::testAllCollisions(OctNode *pNode)
 	{
 		for (SphereHull* spA : ancestorStack[n]->_hulls)	// Check all hulls in ancestors...
 		{
-
-			// Exit early if either is not collidable
+			// Exit early if either is not collidable (@TODO INDIRECTION HERE CAN BE COSTLIER THAN CHECK!)
 			if (!(spA->_collider->collidable))	
 				continue;
 
 			for (SphereHull* spB : pNode->_hulls)			// ...against hulls in the current node
 			{
-				// Prevent self-collision. Book says break but that is incorrect
+				// Prevent self-collision. Book says break but that is incorrect (confirmed by errata)
 				if (spA == spB)	
 					continue;
 
@@ -347,7 +346,7 @@ void Octree::getNodeAABB(OctNode* pNode, std::vector<AABB>& AABBVector)
 }
 
 
-//Needs full length ray! This fn converts the given ray to a line segment internally for now
+// Needs full length ray! This fn converts the given ray to a line segment internally for now
 void Octree::rayCastTree(const SRay& ray, std::list<SphereHull*>& spl) const
 {
 	rayCastNode(_rootNode, SRay(ray.position, ray.position + ray.direction), ray, spl);

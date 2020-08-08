@@ -65,7 +65,7 @@ private:
 	void rayCastNode(const OctNode* pNode, const SRay& lineSeg, const SRay& ray, std::list<SphereHull*>& spl) const;
 
 	int getIndexByPosition(const AABB& parentBox, const SVec3& pos) const;
-	AABB createBoxByIndex(int i, const AABB& parentBox) const ;
+	AABB createBoxByIndex(UINT i, const AABB& parentBox) const ;
 
 public:
 	Octree(const AABB& worldBounds, UINT maxDepth);
