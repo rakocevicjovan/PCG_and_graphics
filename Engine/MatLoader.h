@@ -15,11 +15,14 @@ class MatLoader
 		TextureMetaData _tmd;
 	};
 
+
 public:
 
 	static MatVec LoadAllMaterials(const aiScene* scene, const std::string& path)
 	{
 		MatVec materials;
+		materials.reserve(scene->mNumMaterials);
+
 		TexVec textures;
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
@@ -32,97 +35,7 @@ public:
 	{
 		Material* mat = new Material();
 		
-		// I really don't know what the hell to do with all the properties
-		// Could put them in a blob but then not sure how to interpret them...
-
-		aiString matName;
-		if (aiMat->Get(AI_MATKEY_NAME, matName) != aiReturn_SUCCESS)
-			matName = "not found";
-
-		bool twoSided;
-		if (aiMat->Get(AI_MATKEY_TWOSIDED, twoSided) != aiReturn_SUCCESS)
-			twoSided = false;
-
-		aiTextureOp blendFunc;
-		if (aiMat->Get(AI_MATKEY_BLEND_FUNC, blendFunc) != aiReturn_SUCCESS)
-			blendFunc = aiTextureOp_Multiply;
-
-		float opacity;
-		if (aiMat->Get(AI_MATKEY_OPACITY, opacity) != aiReturn_SUCCESS)
-			opacity = 1.f;
-
-		float transparencyFactor;
-		if (aiMat->Get(AI_MATKEY_TRANSPARENCYFACTOR, transparencyFactor) != aiReturn_SUCCESS)
-		{
-			transparencyFactor = 0.f;
-		}
-
-		float shininess;	// Uh which is which...
-		if (aiMat->Get(AI_MATKEY_SHININESS, shininess) != aiReturn_SUCCESS)
-		{
-			shininess = 0.f;
-		}
-
-		float specularIntensity;
-		if (aiMat->Get(AI_MATKEY_SHININESS_STRENGTH, specularIntensity) != aiReturn_SUCCESS)
-		{
-			specularIntensity = 0.f;
-		}
-
-		float reflectivity;
-		if (aiMat->Get(AI_MATKEY_REFLECTIVITY, reflectivity) != aiReturn_SUCCESS)
-		{
-			reflectivity = 0.f;
-		}
-
-		float refractionIndex;	// I guess, who the f uses REFRACTI
-		if (aiMat->Get(AI_MATKEY_REFRACTI, refractionIndex) != aiReturn_SUCCESS)
-		{
-			refractionIndex = 1.f;
-		}
-
-		aiColor4D diffuseColour;
-		if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColour) != aiReturn_SUCCESS)
-		{
-			diffuseColour = aiColor4D(.5f);
-		}
-
-		aiColor4D ambientColour;
-		if (aiMat->Get(AI_MATKEY_COLOR_AMBIENT, ambientColour) != aiReturn_SUCCESS)
-		{
-			ambientColour = aiColor4D(.5);
-		}
-
-		aiColor4D specColour;
-		if (aiMat->Get(AI_MATKEY_COLOR_SPECULAR, specColour) != aiReturn_SUCCESS)
-		{
-			specColour = aiColor4D(.5, .5, .5, 1.);
-		}
-
-		aiColor4D emissiveColour;
-		if (aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveColour) != aiReturn_SUCCESS)
-		{
-			emissiveColour = aiColor4D(0., 0., 0., 1.);
-		}
-
-		aiColor4D transColour;
-		if (aiMat->Get(AI_MATKEY_COLOR_TRANSPARENT, transColour) != aiReturn_SUCCESS)
-		{
-			transColour = aiColor4D(0.f);
-		}
-
-		aiColor4D reflectiveColour;
-		if (aiMat->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColour) != aiReturn_SUCCESS)
-		{
-			reflectiveColour = aiColor4D(0., 0., 0., 1.);
-		}
-
-
-		struct TexTypePair
-		{
-			aiTextureType _aiType;
-			TextureRole role;
-		};
+		loadParameterBlob(aiMat);
 
 		// Textures
 		static const std::vector<std::pair< aiTextureType, TextureRole>> ASSIMP_TEX_TYPES
@@ -149,14 +62,12 @@ public:
 		
 		std::vector<TempTexData> tempTexData;
 
-		for (int i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
+		for (UINT i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
 		{
-			// Slightly improved old implementation
-			//AssimpWrapper::loadMaterialTextures(path, textures, scene, aiMat, mat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
 			LoadMetaData(tempTexData, aiMat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
 		}
 
-		// Identify unique textures, bit slow but who cares it's import code
+		// Identify unique textures, bit slow but it's import code...
 		std::set<aiString> uniqueTextures;
 
 		for (auto& ttd : tempTexData)
@@ -252,5 +163,96 @@ public:
 
 			pTexVec.push_back(curTex);
 		}
+	}
+
+
+
+	static void loadParameterBlob(aiMaterial* aiMat)
+	{
+		// Limit to those I want to support, make them shader key options (probs along with textures)
+		// Also return a blob or stick it into Material*, currently does nothing
+
+		aiString matName;
+		if (aiMat->Get(AI_MATKEY_NAME, matName) != aiReturn_SUCCESS)
+			matName = "not found";
+
+		bool twoSided;
+		if (aiMat->Get(AI_MATKEY_TWOSIDED, twoSided) != aiReturn_SUCCESS)
+			twoSided = false;
+
+		aiTextureOp blendFunc;
+		if (aiMat->Get(AI_MATKEY_BLEND_FUNC, blendFunc) != aiReturn_SUCCESS)
+			blendFunc = aiTextureOp_Multiply;
+
+		float opacity;
+		if (aiMat->Get(AI_MATKEY_OPACITY, opacity) != aiReturn_SUCCESS)
+			opacity = 1.f;
+
+		float transparencyFactor;
+		if (aiMat->Get(AI_MATKEY_TRANSPARENCYFACTOR, transparencyFactor) != aiReturn_SUCCESS)
+		{
+			transparencyFactor = 0.f;
+		}
+
+		float shininess;	// Uh which is which...
+		if (aiMat->Get(AI_MATKEY_SHININESS, shininess) != aiReturn_SUCCESS)
+		{
+			shininess = 0.f;
+		}
+
+		float specularIntensity;
+		if (aiMat->Get(AI_MATKEY_SHININESS_STRENGTH, specularIntensity) != aiReturn_SUCCESS)
+		{
+			specularIntensity = 0.f;
+		}
+
+		float reflectivity;
+		if (aiMat->Get(AI_MATKEY_REFLECTIVITY, reflectivity) != aiReturn_SUCCESS)
+		{
+			reflectivity = 0.f;
+		}
+
+		float refractionIndex;	// I guess, who the f uses REFRACTI
+		if (aiMat->Get(AI_MATKEY_REFRACTI, refractionIndex) != aiReturn_SUCCESS)
+		{
+			refractionIndex = 1.f;
+		}
+
+		aiColor4D diffuseColour;
+		if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColour) != aiReturn_SUCCESS)
+		{
+			diffuseColour = aiColor4D(.5f);
+		}
+
+		aiColor4D ambientColour;
+		if (aiMat->Get(AI_MATKEY_COLOR_AMBIENT, ambientColour) != aiReturn_SUCCESS)
+		{
+			ambientColour = aiColor4D(.5);
+		}
+
+		aiColor4D specColour;
+		if (aiMat->Get(AI_MATKEY_COLOR_SPECULAR, specColour) != aiReturn_SUCCESS)
+		{
+			specColour = aiColor4D(.5, .5, .5, 1.);
+		}
+
+		aiColor4D emissiveColour;
+		if (aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveColour) != aiReturn_SUCCESS)
+		{
+			emissiveColour = aiColor4D(0., 0., 0., 1.);
+		}
+
+		aiColor4D transColour;
+		if (aiMat->Get(AI_MATKEY_COLOR_TRANSPARENT, transColour) != aiReturn_SUCCESS)
+		{
+			transColour = aiColor4D(0.f);
+		}
+
+		aiColor4D reflectiveColour;
+		if (aiMat->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColour) != aiReturn_SUCCESS)
+		{
+			reflectiveColour = aiColor4D(0., 0., 0., 1.);
+		}
+
 	}
 };

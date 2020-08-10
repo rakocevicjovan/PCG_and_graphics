@@ -103,7 +103,7 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseKeyToOptions(
 		if (result > 0 && result <= so._maxVal && dependency)
 		{
 			values.push_back(std::to_string(result));
-			matchedOptions.push_back({ so.name.c_str(), values.back().c_str() });
+			matchedOptions.push_back({ so.name, values.back().c_str() });
 			total += (result << so._offset);
 			permOptDebugString += so.name + std::to_string(result) + " ";
 		}
