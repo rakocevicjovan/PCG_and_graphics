@@ -17,14 +17,29 @@ namespace Procedural
 
 class Texture : public Resource
 {
+private:
+
 	friend class Procedural::TextureGen;
-protected:
-	//width, height, channels and actual image data
-	//doesn't have to be retained after loading unless we need to operate on the texture on the CPU side
-	int w, h, n;
+
+	static inline std::vector<DXGI_FORMAT> N_TO_FORMAT_DX11
+	{
+		DXGI_FORMAT_R8_UNORM,
+		DXGI_FORMAT_R8G8_UNORM,
+		DXGI_FORMAT_R8G8B8A8_UNORM,	// Thanks once again Microsoft, for trusting me this much
+		DXGI_FORMAT_R8G8B8A8_UNORM
+	};
+
 	
-	//unsigned char* _data;	with this a texture is 64 bytes so probably should use eventually...
+protected:
+	//width, height, channels
+	int _w, _h, _nc;
+	
+	// Image data, shouldn't be retained on the cpu in general
 	std::shared_ptr<unsigned char> _mdata;
+
+	static int GetFormatFromFile(const char* filename);
+	static int GetFormatFromMemory(const unsigned char* data, size_t size);
+	void loadFromFile(const char* filename);
 
 public:
 	//needs to be retained for GPU use
@@ -37,32 +52,32 @@ public:
 	void serialize(Archive& archive)
 	{
 		// Filename because I have an idea about it...
-		archive(w, h, n, _mdata, filename);
+		archive(_w, _h, _nc, _mdata, filename);
 	}
 
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
-	Texture(const Texture& other);	// delete eventually?
+	Texture(const Texture& other);
 	Texture(Texture&& other);
 	Texture& Texture::operator=(const Texture& rhs);
 	~Texture();
 
-	bool LoadFromStoredPath();
-	bool LoadFromFile(std::string path);
-	bool LoadFromMemory(const unsigned char* texture, size_t size);
+	bool loadFromStoredPath();
+	bool loadFromPath(const char* path);
+	bool LoadFromMemory(const unsigned char* data, size_t size);
 	void LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
 
-	bool SetUpAsResource(ID3D11Device* device, DXGI_FORMAT f = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
+	bool SetUpAsResource(ID3D11Device* device);
 
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
 	
 	ID3D11ShaderResourceView* getTextureResourceView() { return _srv; }
 
-	inline int getW() const { return w; } 
-	inline int getH() const { return h; }
-	inline int getN() const { return n; }
+	inline int getW() const { return _w; } 
+	inline int getH() const { return _h; }
+	inline int getN() const { return _nc; }
 	inline const unsigned char* getData() const { return _mdata.get(); }	//data can't be modified, only read
 	inline std::string getName() const { return _fileName; }
 
@@ -70,7 +85,7 @@ public:
 
 
 	//weird...
-	static std::vector<float> Texture::LoadAsFloatVec(const std::string& path);
+	static std::vector<float> LoadAsFloatVec(const std::string& path);
 
 
 	//easier desc creation (hopefully... textures aren't quite so uniformly created in general)

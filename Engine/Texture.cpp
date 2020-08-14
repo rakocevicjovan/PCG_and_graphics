@@ -24,7 +24,7 @@ Texture::Texture() : _dxID(nullptr), _srv(nullptr) {}
 
 Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _srv(nullptr)
 {
-	if (!LoadFromStoredPath())
+	if (!loadFromStoredPath())
 	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 		return;
@@ -37,7 +37,7 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 
 Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _srv(nullptr)
 {
-	if (!LoadFromStoredPath())
+	if (!loadFromStoredPath())
 	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 	}
@@ -46,7 +46,7 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 
 Texture::Texture(const Texture& other)
-	: w(other.w), h(other.h), n(other.n), _mdata(other._mdata), _fileName(other._fileName), 
+	: _w(other._w), _h(other._h), _nc(other._nc), _mdata(other._mdata), _fileName(other._fileName), 
 	_dxID(other._dxID), _srv(other._srv)
 {
 	if(_dxID)
@@ -59,7 +59,7 @@ Texture::Texture(const Texture& other)
 
 
 Texture::Texture(Texture&& other)
-	: w(other.w), h(other.h), n(other.n), _mdata(std::move(other._mdata)),
+	: _w(other._w), _h(other._h), _nc(other._nc), _mdata(std::move(other._mdata)),
 	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
 	// do not add refs because it's moved as opposed to copied
@@ -71,9 +71,9 @@ Texture::Texture(Texture&& other)
 
 Texture& Texture::operator=(const Texture& other)
 {
-	w = other.w;
-	h = other.h;
-	n = other.n;
+	_w = other._w;
+	_h = other._h;
+	_nc = other._nc;
 
 	_mdata = other._mdata;
 
@@ -98,12 +98,40 @@ Texture::~Texture()
 
 
 
-bool Texture::LoadFromStoredPath()
+// Handle DirectX BS where it doesn't allow to pass 3 byte tex and automatically pad...
+int Texture::GetFormatFromFile(const char* filename)
+{
+	int w, h, n;
+	stbi_info(filename, &w, &h, &n);	//_nc is our format but holds this temporarily
+	return n == 3 ? 4 : 0;
+}
+
+
+
+int Texture::GetFormatFromMemory(const unsigned char* data, size_t size)
+{
+	int w, h, n;
+	stbi_info_from_memory(data, size, &w, &h, &n);
+	return n == 3 ? 4 : 0;
+}
+
+
+
+void Texture::loadFromFile(const char* filename)
+{
+	int fileFormat;
+	int desiredFormat = GetFormatFromFile(filename);
+	_mdata = std::shared_ptr<unsigned char>(stbi_load(filename, &_w, &_h, &fileFormat, desiredFormat));
+	_nc = fileFormat == 3 ? 4 : fileFormat;
+}
+
+
+
+bool Texture::loadFromStoredPath()
 {
 	try
 	{
-		_mdata = std::shared_ptr<unsigned char>(stbi_load(_fileName.c_str(), &w, &h, &n, 4));
-		//_data = stbi_load(_fileName.c_str(), &w, &h, &n, 4);	// careful with 4
+		loadFromFile(_fileName.c_str());
 		return (_mdata.get() != nullptr);
 	}
 	catch (...)
@@ -115,14 +143,13 @@ bool Texture::LoadFromStoredPath()
 
 
 
-bool Texture::LoadFromFile(std::string path)
+bool Texture::loadFromPath(const char* path)
 {
 	_fileName = path;
 
 	try
 	{
-		_mdata = std::shared_ptr<unsigned char>(stbi_load(path.c_str(), &w, &h, &n, 4));
-		//_data = stbi_load(path.c_str(), &w, &h, &n, 4);	//4?
+		loadFromFile(path);
 		return (_mdata.get() != nullptr);
 	}
 	catch (...)
@@ -141,8 +168,8 @@ std::vector<float> Texture::LoadAsFloatVec(const std::string& path)
 	{
 		int tw, th, tn;
 
-		//alas... can't think of a way to avoid a copy if I want a vector, but this is rarely used so it's ok I guess
-		temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 0);
+		// Staying as it is to avoid reworking strife level but should remove the copy.
+		temp = stbi_loadf(path.c_str(), &tw, &th, &tn, 4);
 		std::vector<float> result(temp, temp + tw * th * tn);
 
 		delete temp;
@@ -165,8 +192,10 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 {
 	try
 	{
-		_mdata = std::shared_ptr<unsigned char>(stbi_load_from_memory(data, size, &w, &h, &n, 4));
-		//_data = stbi_load_from_memory(data, size, &w, &h, &n, 4);
+		int fileFormat;
+		int desiredFormat = GetFormatFromMemory(data, size);
+		_mdata = std::shared_ptr<unsigned char>(stbi_load_from_memory(data, size, &_w, &_h, &fileFormat, desiredFormat));
+		_nc = fileFormat == 3 ? 4 : fileFormat;
 
 		return (_mdata.get() != nullptr);
 	}
@@ -181,13 +210,13 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 
 bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 {
-	w = perlin._w;
-	h = perlin._h;
+	_w = perlin._w;
+	_h = perlin._h;
+	_nc = 1;
 	
 	_mdata = std::shared_ptr<unsigned char>(perlin.getUCharVector().data());
-	//_data = perlin.getUCharVector().data();
 
-	return SetUpAsResource(device, DXGI_FORMAT::DXGI_FORMAT_R8_UNORM);
+	return SetUpAsResource(device);
 }
 
 
@@ -208,14 +237,16 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 
 
 
-bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format) 
+bool Texture::SetUpAsResource(ID3D11Device* device) 
 {
+	DXGI_FORMAT inferredFormat = N_TO_FORMAT_DX11[_nc - 1];
+
 	D3D11_TEXTURE2D_DESC desc;
-	desc.Width = w;
-	desc.Height = h;
+	desc.Width = _w;
+	desc.Height = _h;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.Format = format;
+	desc.Format = inferredFormat;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -223,8 +254,8 @@ bool Texture::SetUpAsResource(ID3D11Device* device, DXGI_FORMAT format)
 	desc.CPUAccessFlags = 0;
 	desc.MiscFlags = 0;
 
-	//for now only supports this but I should make a map/table of sorts really... @TODO
-	UINT pixelWidth = format == DXGI_FORMAT::DXGI_FORMAT_R8_UNORM ? 1 : 4;
+	// For now always uses 1 byte per channel textures, @todo add byte width flag as well
+	UINT pixelWidth = _nc;
 
 	D3D11_SUBRESOURCE_DATA texData;
 	texData.pSysMem = (void *)(_mdata.get());

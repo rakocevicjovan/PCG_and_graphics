@@ -157,6 +157,20 @@ public:
 
 		makeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
 
+		// This should be done theoretically, fixes bee, breaks bobbert... idk what to do
+		/*
+		aiNode* temp = skelRoot;
+		SMatrix rootMatrix = SMatrix::Identity;
+		while (temp)
+		{
+			rootMatrix *= AssimpWrapper::aiMatToSMat(temp->mTransformation);
+			temp = temp->mParent;
+		}
+
+		skeleton->_bones[0]._localMatrix = rootMatrix;
+		*/
+		
+
 		return skeleton;
 	}
 

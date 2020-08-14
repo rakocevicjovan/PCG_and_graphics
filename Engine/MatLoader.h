@@ -150,7 +150,7 @@ public:
 						texPath = texFile.path().string();
 				}
 
-				loaded = curTex->LoadFromFile(texPath);
+				loaded = curTex->loadFromPath(texPath);
 			}
 
 			// Load failed, likely the data is corrupted or stb doesn't support it

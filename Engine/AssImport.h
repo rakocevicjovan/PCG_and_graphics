@@ -147,18 +147,16 @@ public:
 				if (_impSkModel)
 				{
 					_skModel = std::make_unique<SkeletalModel>();
+
 					_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
 					_skModel->_skeleton = _skeleton.get();
 
 					_skModel->loadFromAiScene(_device, _aiScene, _path);
 
-					AssimpWrapper::loadAnimations(_aiScene, _anims);
-					_skModel->_anims = _anims;
+					_skModel->_anims = _anims;	// Bad, shouldn't own them in the first place
 
 					for (SkeletalMesh& skmesh : _skModel->_meshes)
 					{
-						//uint64_t shaderKey = ShaderGenerator::CreateShaderKey(skmesh._vertSig, &skmesh._baseMaterial, 1);
-						//ShaderManager::CreateShader(_device, shaderKey, skmesh._vertSig, &skmesh._baseMaterial);
 						auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
 						skmesh._baseMaterial.setVS(shPack->vs);
 						skmesh._baseMaterial.setPS(shPack->ps);
@@ -254,7 +252,7 @@ public:
 
 		ImGui::SliderFloat("Model scale: (tbd)", &_previewScale, .1f, 100.f);
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
-		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, -1.f, 1.f);
+		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, 0.f, 1.f);
 
 		ImGui::Text("Commands");
 
@@ -274,6 +272,18 @@ public:
 			return false;
 
 		return true;
+	}
+
+
+
+	// Eeeeehhhh... weird way to do it.
+	void writeAssets()
+	{
+		if (_impSkModel)
+		{
+			_assetWriter.writeAsset(_skModel.get(), _pLedger);
+		}
+		_pLedger->save();
 	}
 
 
@@ -610,17 +620,6 @@ public:
 		{
 			ImGui::Text("No external textures found");
 		}
-	}
-
-
-	// This function sucks. In fact this entire class sucks. And the rest of the engine.
-	void writeAssets()
-	{
-		if (_impSkModel)
-		{
-			_assetWriter.writeAsset(_skModel.get(), _pLedger);
-		}
-		_pLedger->save();
 	}
 
 

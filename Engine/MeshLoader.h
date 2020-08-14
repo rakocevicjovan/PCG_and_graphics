@@ -183,7 +183,7 @@ public:
 			}
 		}
 
-		// Won't work well until we have bone indices, which means passing a skeleton yada yada
+
 		if (aiMesh->HasBones() && skeleton)
 		{
 			UINT biOffset = vertSig.getOffsetOf(VAttribSemantic::B_IDX);

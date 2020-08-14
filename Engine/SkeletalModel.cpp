@@ -34,20 +34,19 @@ bool SkeletalModel::loadFromAiScene(ID3D11Device* device, const aiScene* scene, 
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
-		aiMesh* aiMesh = scene->mMeshes[i];
 		_meshes.emplace_back();
-		_meshes.back().loadFromAssimp(scene, device, aiMesh, *_skeleton, path);
-		_meshes.back().setupSkeletalMesh(device);
+
+		aiMesh* aiMesh = scene->mMeshes[i];
+		
+		_meshes[i].loadFromAssimp(scene, device, aiMesh, *_skeleton, path);
+		_meshes[i].setupSkeletalMesh(device);
 	}
 
-	SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
-	//_skeleton->_globalInverseTransform = rootTransform.Invert();
+	// Not sure why is it inverted in tutorials I've seen
+	//SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
+	//rootTransform = rootTransform.Invert();
 
 	processNode(scene->mRootNode, SMatrix::Identity);
-
-	//_skeleton->loadFromAssimp(scene);
-
-	//AssimpWrapper::loadAnimations(scene, _anims);
 
 	return true;
 }
