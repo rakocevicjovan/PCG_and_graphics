@@ -151,7 +151,7 @@ void Renderer::render(const Renderable& r) const
 	r.mat->bindTextures(_deviceContext);
 
 	// Could sort by this as well... should be fairly uniform though
-	_deviceContext->IASetPrimitiveTopology(r.mat->primitiveTopology);
+	_deviceContext->IASetPrimitiveTopology(r.mat->_primitiveTopology);
 
 	// Packing vertex buffers together could be a good idea eventually
 	UINT stride = r.mesh->getStride();

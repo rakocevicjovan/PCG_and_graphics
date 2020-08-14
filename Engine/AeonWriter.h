@@ -84,14 +84,15 @@ public:
 	void writeAsset(SkeletalModel* _skModel, AssetLedger* _pLedger)
 	{
 		std::vector<UINT> meshIDs;
-		for (int i = 0; i < _skModel->_meshes.size(); ++i)
+		for (UINT i = 0; i < _skModel->_meshes.size(); ++i)
 		{
 			uint32_t matId;
+
 			{
 				std::string matPath{ _exportPath + "//mat" + std::to_string(i) + ".aeon" };
 				std::ofstream matOfs(matPath, std::ios::binary);
 				cereal::BinaryOutputArchive matBoa(matOfs);
-				_skModel->_meshes[i]._baseMaterial.serialize(matBoa, std::vector<UINT>{0u});
+				_skModel->_meshes[i]._baseMaterial.save(matBoa, {0u});
 				matId = _pLedger->add(matPath, matPath, ResType::MATERIAL);
 			}
 

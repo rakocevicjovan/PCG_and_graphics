@@ -35,14 +35,14 @@ namespace GuiBlocks
 
 
 
-	static void displayTexture(const Texture& t)
+	static void displayTexture(const Texture* t)
 	{
-		ImGui::Text(t.getName().c_str());
+		ImGui::Text(t->getName().c_str());
 
-		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t.getW(), t.getH(), t.getN());
+		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t->getW(), t->getH(), t->getN());
 
-		if (t._srv)
-			ImGui::Image(t._srv, ImVec2(256., 256.));
+		if (t->_srv)
+			ImGui::Image(t->_srv, ImVec2(256., 256.));
 	}
 
 

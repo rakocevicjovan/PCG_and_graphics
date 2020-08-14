@@ -1,6 +1,5 @@
 #include "AssimpWrapper.h"
 #include "Mesh.h"
-#include "Skeleton.h"
 #include "VertSignature.h"
 #include "SkeletalModel.h"
 #include <array>

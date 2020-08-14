@@ -8,6 +8,7 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
 #include <map>
 
 
@@ -19,6 +20,22 @@ struct TextureMetaData
 	TextureMapMode _mapMode[3] = { TextureMapMode::WRAP, TextureMapMode::WRAP, TextureMapMode::WRAP };
 	uint8_t _uvIndex = 0u;
 	uint8_t _regIndex = 0u;	// Decouple from role later
+
+
+	template <typename Archive>
+	void save(Archive& ar)
+	{
+		ar(_tex->_fileName(), _role, _mapMode, _uvIndex, _regIndex);
+	}
+
+	template <typename Archive>
+	void load(Archive& ar, int someKindOfTextureCache)
+	{
+		std::string texFileName;
+		ar(texFileName, _role, _mapMode, _uvIndex, _regIndex);
+
+		//someKindOfTextureCache.getTexture(texFileName);
+	}
 };
 
 
@@ -40,13 +57,12 @@ public:
 	bool _opaque;
 
 	// This could also belong in the vertex buffer... like stride and offset do
-	D3D11_PRIMITIVE_TOPOLOGY primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 
 	Material();
 
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
-
 
 	void bindTextures(ID3D11DeviceContext* context) const;
 	
@@ -66,9 +82,20 @@ public:
 			context->PSSetSamplers(i, 1, &_pixelShader->_samplers[i]);
 	}
 
+
+
 	template <typename Archive>
-	void serialize(Archive& ar, std::vector<UINT>& texIDs)
+	void save(Archive& ar, const std::vector<UINT>& texIDs) const
 	{
-		ar(0u, 0u, texIDs);
+		//ar(_vertexShader->_id, _pixelShader->_id, _opaque, _primitiveTopology,
+		//_texMetaData.size(), _texMetaData);
+		ar(_vertexShader->_id, _pixelShader->_id, _opaque);
+	}
+
+	template <typename Archive>
+	void load(Archive& ar)
+	{
+
+		ar(_vertexShader->_id, _pixelShader->_id);
 	}
 };

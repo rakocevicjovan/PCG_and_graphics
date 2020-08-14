@@ -91,7 +91,7 @@ public:
 		_baseMaterial.bindTextures(dc);
 
 		//could sort by this as well... should be fairly uniform though
-		dc->IASetPrimitiveTopology(_baseMaterial.primitiveTopology);
+		dc->IASetPrimitiveTopology(_baseMaterial._primitiveTopology);
 
 		//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
 		dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);

@@ -50,7 +50,7 @@ public:
 
 		context->PSSetShaderResources(0, 1, &_shResView);
 
-		context->IASetPrimitiveTopology(_r.mat->primitiveTopology);
+		context->IASetPrimitiveTopology(_r.mat->_primitiveTopology);
 
 		unsigned int stride = _r.mesh->_vertexBuffer._stride;
 		unsigned int offset = _r.mesh->_vertexBuffer._offset;

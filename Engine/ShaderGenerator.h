@@ -14,7 +14,7 @@ typedef uint64_t ShaderKey;
 inline const wchar_t* VS_PROTOSHADER = L"ShGen\\VS_proto.hlsl";
 inline const wchar_t* PS_PROTOSHADER = L"ShGen\\PS_proto.hlsl";
 inline const wchar_t* NATURAL_COMPS  = L"ShGen\\Compiled\\";
-inline const wchar_t* NATURAL_PERMS = L"ShGen\\Natty\\";
+inline const wchar_t* NATURAL_PERMS  = L"ShGen\\Natty\\";
 
 inline const char* VS_PERMUTATIONS	= "ShGen\\GeneratedVS\\";
 inline const char* PS_PERMUTATIONS	= "ShGen\\GeneratedPS\\";

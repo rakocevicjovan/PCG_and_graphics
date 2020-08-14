@@ -13,13 +13,13 @@
 #include <cereal/types/string.hpp>
 
 
-
+/*
 struct ShaderDescription
 {
 	uint16_t vsKey;
 	uint8_t texRegisters[16];
 	uint64_t texUVIndex : 48;
-};
+};*/
 
 
 
@@ -91,7 +91,7 @@ public:
 
 	ShaderManager() {}
 
-	void init(ID3D11Device* device, ShaderCache* cache)
+	inline void init(ID3D11Device* device, ShaderCache* cache)
 	{
 		_pDevice = device;
 		_pShCache = cache;
@@ -99,127 +99,29 @@ public:
 
 
 
-	void loadExistingKeys(const std::wstring& path)
-	{
-		auto shaderFiles = FileUtils::getFilesByExt(path, ".cmp");
-
-		for (auto& file : shaderFiles)
-		{
-			const std::string& filename = file.path().filename().string();
-
-			UINT division = filename.find('.');
-
-			uint64_t key = std::stoull(filename.substr(0, division));
-
-			_existingShaders.insert({ key, ShaderPack{ nullptr, nullptr } });
-		}
-	}
+	void loadExistingKeys(const std::wstring& path);
 
 
 
-	ShaderPack* getShaderAuto(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM)
-	{
-		ShaderKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
-
-		ShaderPack* shPack = getShaderByKey(shaderKey);
-
-		if (shPack)
-			return shPack;
-
-		ShaderPack newPack = CreateShader(_pDevice, shaderKey, vertSig, mat);
-
-		auto inserted = _existingShaders.insert({ shaderKey, newPack });
-
-		return &(inserted.first->second);
-	}
+	ShaderPack* getShaderAuto(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
 
 
 
-	ShaderPack* getShaderByKey(ShaderKey shaderKey)
-	{
-		// Check if exists, check if loaded, create/load if needed, return
-		auto it = _existingShaders.find(shaderKey);
-		
-		if (it != _existingShaders.end())	// Exists
-		{
-			ShaderPack& sp = it->second;
-			if (sp.vs == nullptr)	// VS not loaded, load
-				sp.vs = static_cast<VertexShader*>(loadFromKey(shaderKey, L"vs.cmp"));
-			if (!sp.ps)				// PS not loaded, load
-				sp.ps = static_cast<PixelShader*>(loadFromKey(shaderKey, L"ps.cmp"));
-
-			return &it->second;
-		}
-
-		// Does not exist, create and add to existing
-		return nullptr;
-	}
+	ShaderPack* getShaderByKey(ShaderKey shaderKey);
 
 
 
-	Shader* loadFromKey(ShaderKey shaderKey, const wchar_t* ext)
-	{
-		std::wstring wFileName = NATURAL_COMPS + std::to_wstring(shaderKey) + ext;
-
-		// Load shaders, can't work yet...
-		if (ext == L"vs.cmp")
-		{
-			return loadVertexShader(wFileName, shaderKey);
-		}
-		if (ext == L"ps.cmp")
-		{
-			return loadPixelShader(wFileName, shaderKey);
-		}
-		return nullptr;
-	}
+	Shader* loadFromKey(ShaderKey shaderKey, const wchar_t* ext);
 
 
 
-	static ShaderPack CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat)
-	{
-		ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
-
-		ShaderCompiler shc;
-		shc.init(device);
-
-		// VS
-		std::wstring vsPathW(NATURAL_PERMS + std::to_wstring(shaderKey) + L"vs.hlsl");
-		std::wstring cmpVsPath(NATURAL_COMPS + std::to_wstring(shaderKey) + L"vs.cmp");
-
-		ID3DBlob* vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
-		ID3D11VertexShader* d3dvs = shc.blobToVS(vsBlob);
-
-		auto vertInLayElements = vertSig.createVertInLayElements();
-		D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(WMBuffer));
-		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
-		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
-		
-		PersistVertexShader(cmpVsPath.c_str(), vsBlob, vertSig, { WMBufferDesc });
-
-		VertexShader* vs = new VertexShader(device, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
-			vsPathW, vertInLayElements, { WMBufferDesc });
-		vs->describeBuffers({ WMBufferMeta });
-		vsBlob->Release();
-
-		// PS
-		std::wstring psPathW(NATURAL_PERMS + std::to_wstring(shaderKey) + L"ps.hlsl");
-		std::wstring cmpPsPath(NATURAL_COMPS + std::to_wstring(shaderKey) + L"ps.cmp");
-
-		ID3DBlob* psBlob = shc.compileToBlob(psPathW, "ps_5_0");
-		ID3D11PixelShader* d3dps = shc.blobToPS(psBlob);
-
-		auto samplerDescriptions = mat->createSamplerDescs();
-		
-		PixelShader* ps = new PixelShader(device, psBlob->GetBufferPointer(), psBlob->GetBufferSize(),
-			psPathW, samplerDescriptions, {});
-		
-		PersistPixelShader(cmpPsPath.c_str(), psBlob, samplerDescriptions, {});
-		psBlob->Release();
-
-		return ShaderPack{ vs, ps };
-	}
+	static ShaderPack CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat);
 
 
+
+
+
+	// These should probably be separated out
 	static void PersistVertexShader(
 		const wchar_t* path, 
 		ID3DBlob* blob, // d3d calls not const correct...
@@ -252,7 +154,7 @@ public:
 		VertexShader* vs = new VertexShader(_pDevice, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
 		// Bootleg solution, need to be persisting these better in the first place
 		CBufferMeta WMBufferMeta(0, 64u);
-		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
+		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix));
 		vs->_id = shaderKey;
 		vs->describeBuffers({ WMBufferMeta });
 

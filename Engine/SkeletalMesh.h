@@ -17,8 +17,9 @@
 /*
 class aiMesh;
 class aiScene;
-class Skeleton;
 */
+class Skeleton;
+
 
 namespace cereal
 {

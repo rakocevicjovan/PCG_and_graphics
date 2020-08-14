@@ -10,7 +10,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-class Skeleton;
 class SkeletalModel;
 class Material;
 class Mesh;
@@ -24,32 +23,6 @@ public:
 	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
 
 	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags);
-
-	// returns bounding sphere radius
-	template <typename VertexType> 
-	static float loadVertices(aiMesh* aiMesh, bool hasTexCoords, std::vector<VertexType>& verts)
-	{
-		verts.reserve(aiMesh->mNumVertices);
-
-		float maxDist = 0.f;
-		VertexType vertex;
-
-		for (unsigned int i = 0; i < aiMesh->mNumVertices; ++i)
-		{
-			vertex.pos = SVec3(&aiMesh->mVertices[i].x);
-
-			vertex.texCoords = hasTexCoords ? SVec2(aiMesh->mTextureCoords[0][i].x, aiMesh->mTextureCoords[0][i].y) : SVec2::Zero;
-
-			vertex.normal = SVec3(&aiMesh->mNormals[i].x);	// Should be normalized already?
-
-			verts.push_back(vertex);
-
-			float curDist = vertex.pos.LengthSquared();
-			if (maxDist < curDist) maxDist = curDist;
-		}
-
-		return sqrt(maxDist);
-	}
 
 
 

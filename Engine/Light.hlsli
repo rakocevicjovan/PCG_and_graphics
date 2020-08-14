@@ -59,7 +59,7 @@ float3 applyFog(in float3  rgb,		// original color of the pixel
 void mapNormals(in SamplerState Sampler, in Texture2D normalMap, in float2 texCoords, in float3 tangent, inout float3 normal)
 {
 	//sample normal from the map
-	float4 texNormal = normalMap.Sample(Sampler, texCoords);
+	float3 texNormal = normalMap.Sample(Sampler, texCoords).xyz;
 	texNormal = 2.0f * texNormal - 1.f;
 	tangent = normalize(tangent - dot(tangent, normal) * normal);
 	float3 bitangent = cross(normal, tangent);

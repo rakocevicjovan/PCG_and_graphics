@@ -268,7 +268,7 @@ public:
 		CBuffer::updateWholeBuffer(context, _wmBuffer, &transformTranspose, sizeof(SMatrix));
 		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
 
-		context->IASetPrimitiveTopology(r.mat->primitiveTopology);
+		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
 		context->IASetInputLayout(_inLay);
 
 		UINT stride = r.mesh->getStride();
@@ -303,7 +303,7 @@ public:
 		context->PSSetShaderResources(11, 1, &_shadowResView);
 
 		context->IASetInputLayout(r.mat->getVS()->_layout);
-		context->IASetPrimitiveTopology(r.mat->primitiveTopology);
+		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
 
 		UINT stride = r.mesh->getStride();
 		UINT offset = r.mesh->getOffset();
