@@ -103,7 +103,7 @@ int Texture::GetFormatFromFile(const char* filename)
 {
 	int w, h, n;
 	stbi_info(filename, &w, &h, &n);	//_nc is our format but holds this temporarily
-	return n == 3 ? 4 : 0;
+	return n == 3 ? 4 : n;
 }
 
 
@@ -112,17 +112,17 @@ int Texture::GetFormatFromMemory(const unsigned char* data, size_t size)
 {
 	int w, h, n;
 	stbi_info_from_memory(data, size, &w, &h, &n);
-	return n == 3 ? 4 : 0;
+	return n == 3 ? 4 : n;
 }
 
 
 
 void Texture::loadFromFile(const char* filename)
 {
-	int fileFormat;
+	int fileFormat;	// For debugging purposes, I'd like to see this as well
 	int desiredFormat = GetFormatFromFile(filename);
 	_mdata = std::shared_ptr<unsigned char>(stbi_load(filename, &_w, &_h, &fileFormat, desiredFormat));
-	_nc = fileFormat == 3 ? 4 : fileFormat;
+	_nc = desiredFormat;
 }
 
 
@@ -195,7 +195,7 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 		int fileFormat;
 		int desiredFormat = GetFormatFromMemory(data, size);
 		_mdata = std::shared_ptr<unsigned char>(stbi_load_from_memory(data, size, &_w, &_h, &fileFormat, desiredFormat));
-		_nc = fileFormat == 3 ? 4 : fileFormat;
+		_nc = desiredFormat;
 
 		return (_mdata.get() != nullptr);
 	}
