@@ -13,7 +13,7 @@
 class AssimpLoader : public Level
 {
 private:
-	ShaderManager _shMan;	// Temporarily here, make be engine-wide
+	ShaderManager _shMan;	// Temporarily here, make it engine-wide
 
 	Scene _scene;
 

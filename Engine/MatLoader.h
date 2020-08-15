@@ -1,65 +1,74 @@
 #pragma once
 #include "Material.h"
 #include "AssimpWrapper.h"
+#include <memory>
 
 
 class MatLoader
 {
-	// Function signatures be wildin
-	typedef std::vector<Material*> MatVec;
-	typedef std::vector<Texture> TexVec;
+private:
+
+	static inline const std::vector<std::pair< aiTextureType, TextureRole>> ASSIMP_TEX_TYPES
+	{
+		{ aiTextureType_DIFFUSE,			DIFFUSE },
+		{ aiTextureType_NORMALS,			NORMAL },
+		{ aiTextureType_SPECULAR,			SPECULAR },
+		{ aiTextureType_SHININESS,			SHININESS },
+		{ aiTextureType_OPACITY,			OPACITY },
+		//{ aiTextureType_EMISSIVE,			EMISSIVE },
+		{ aiTextureType_DISPLACEMENT,		DPCM },
+		{ aiTextureType_LIGHTMAP,			AMBIENT },
+		{ aiTextureType_REFLECTION,			REFLECTION },
+		// PBR
+		{ aiTextureType_BASE_COLOR,			REFRACTION },
+		//{ aiTextureType_EMISSION_COLOR,	EMISSIVE },
+		{ aiTextureType_METALNESS,			METALLIC },
+		{ aiTextureType_DIFFUSE_ROUGHNESS,	ROUGHNESS },
+		{ aiTextureType_AMBIENT_OCCLUSION,	AMBIENT },
+		// Mystery meat
+		{ aiTextureType_UNKNOWN,			OTHER }
+	};
+
+	inline static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
+	{
+		{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
+		{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
+		{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
+		{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
+	};
 
 	struct TempTexData
 	{
-		aiString _path;
+		std::string _path;
 		TextureMetaData _tmd;
 	};
 
 
 public:
 
-	static MatVec LoadAllMaterials(const aiScene* scene, const std::string& path)
+	static std::vector<Material*> LoadAllMaterials(const aiScene* scene, const std::string& path)
 	{
-		MatVec materials;
+		std::vector<Material*> materials;
 		materials.reserve(scene->mNumMaterials);
 
-		TexVec textures;
+		std::vector<Texture> textures;
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
 			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], path, textures));
+		
+		return materials;
 	}
 
 
 
-	static Material LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& modelPath, TexVec& textures)
+	static Material* LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& modelPath, std::vector<Texture>& textures)
 	{
 		Material* mat = new Material();
 		
-		loadParameterBlob(aiMat);
+		// Parameters - once I decide what to support, parse and load into a cbuffer
+		//loadParameterBlob(aiMat);
 
 		// Textures
-		static const std::vector<std::pair< aiTextureType, TextureRole>> ASSIMP_TEX_TYPES
-		{
-			{ aiTextureType_DIFFUSE,			DIFFUSE },
-			{ aiTextureType_NORMALS,			NORMAL },
-			{ aiTextureType_SPECULAR,			SPECULAR },
-			{ aiTextureType_SHININESS,			SHININESS },
-			{ aiTextureType_OPACITY,			OPACITY },
-			//{ aiTextureType_EMISSIVE,			EMISSIVE },
-			{ aiTextureType_DISPLACEMENT,		DPCM },
-			{ aiTextureType_LIGHTMAP,			AMBIENT },
-			{ aiTextureType_REFLECTION,			REFLECTION },
-			// PBR
-			{ aiTextureType_BASE_COLOR,			REFRACTION },
-			//{ aiTextureType_EMISSION_COLOR,	EMISSIVE },
-			{ aiTextureType_METALNESS,			METALLIC },
-			{ aiTextureType_DIFFUSE_ROUGHNESS,	ROUGHNESS },
-			{ aiTextureType_AMBIENT_OCCLUSION,	AMBIENT },
-			// Mystery meat
-			{ aiTextureType_UNKNOWN,			OTHER }
-		};
-
-		
 		std::vector<TempTexData> tempTexData;
 
 		for (UINT i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
@@ -67,37 +76,42 @@ public:
 			LoadMetaData(tempTexData, aiMat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
 		}
 
+		mat->_texMetaData.resize(tempTexData.size());
+
+		for (UINT i = 0; i < tempTexData.size(); ++i)
+		{
+			mat->_texMetaData[i] = tempTexData[i]._tmd;
+		}
+		
+
 		// Identify unique textures, bit slow but it's import code...
-		std::set<aiString> uniqueTextures;
+		std::set<std::string> unqTexNames;
 
 		for (auto& ttd : tempTexData)
-			uniqueTextures.insert(ttd._path);
+			unqTexNames.insert(ttd._path);
 
-		// Load unique textures
-		LoadUniqueTextures(scene, modelPath, uniqueTextures);
-		
+		// Load unique textures, this won't be unique between materials though :/
+
+		for (const std::string& texPath : unqTexNames)
+		{
+			loadTexture(scene, modelPath, texPath.c_str());
+		}
+
 		// Associate textures to materials - here?
+
+		return mat;
 	}
 
 
 
-	static void LoadMetaData(std::vector<TempTexData>& tempTexData,
-		aiMaterial *aiMat, aiTextureType aiTexType, TextureRole role)
+	static void LoadMetaData(std::vector<TempTexData>& tempTexData, aiMaterial *aiMat, aiTextureType aiTexType, TextureRole role)
 	{
-		static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
-		{
-			{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
-			{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
-			{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
-			{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
-		};
-
 		// Iterate all textures related to the material, keep the ones that can load
 		for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
 		{
 			aiString aiTexPath;
 			UINT uvIndex = 0u;
-			aiTextureMapMode aiMapModes[3]{ aiTextureMapMode_Wrap, aiTextureMapMode_Wrap , aiTextureMapMode_Wrap };
+			aiTextureMapMode aiMapModes[]{ aiTextureMapMode_Wrap, aiTextureMapMode_Wrap, aiTextureMapMode_Wrap };
 
 			aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
 
@@ -107,7 +121,7 @@ public:
 
 			tempTexData.push_back(
 			{
-				aiTexPath,
+				aiTexPath.C_Str(),
 				{
 					nullptr,
 					role,
@@ -121,48 +135,42 @@ public:
 
 
 
-	static std::vector<Texture*> LoadUniqueTextures
-	(const aiScene* scene, const std::string& modelPath, std::set<aiString>& uniqueTextures)
+	static Texture* loadTexture(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
 	{
-		std::vector<Texture*> pTexVec;
+		Texture* curTex = new Texture();
+		const char* texName = aiScene::GetShortFilename(texPath.c_str());
+		curTex->_fileName = texName;
 
-		for (const aiString& texPath : uniqueTextures)
+		// Check if embedded first
+		bool loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, texPath.c_str());
+
+		// Not embedded, try to load from file
+		if (!loaded)
 		{
-			Texture* curTex = new Texture();
-			std::string texName(aiScene::GetShortFilename(texPath.C_Str()));
-			curTex->_fileName = texName;
+			// Assumes relative paths
+			std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
+			std::string texPath = modelFolderPath + "/" + texPath;
 
-			// Check if embedded first
-			bool loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, &texPath);
-
-			// Not embedded, try to load from file
-			if (!loaded)
+			// Path is faulty, try to find it under model directory
+			if (!std::filesystem::exists(texPath))
 			{
-				// Assumes relative paths
-				std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
-				std::string texPath = modelFolderPath + "/" + std::string(texPath.data);
-
-				// Path is faulty, try to find it under model directory
-				if (!std::filesystem::exists(texPath))
-				{
-					std::filesystem::directory_entry texFile;
-					if (FileUtils::findFile(modelFolderPath, texName, texFile))
-						texPath = texFile.path().string();
-				}
-
-				loaded = curTex->loadFromPath(texPath);
+				std::filesystem::directory_entry texFile;
+				if (FileUtils::findFile(modelFolderPath, texName, texFile))
+					texPath = texFile.path().string();
 			}
 
-			// Load failed, likely the data is corrupted or stb doesn't support it
-			if (!loaded)
-			{
-				delete curTex;
-				curTex = nullptr;
-				OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-			}
-
-			pTexVec.push_back(curTex);
+			loaded = curTex->loadFromPath(texPath.c_str());
 		}
+
+		// Load failed, likely the data is corrupted or stb doesn't support it
+		if (!loaded)
+		{
+			delete curTex;
+			curTex = nullptr;
+			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
+		}
+
+		return curTex;
 	}
 
 
@@ -190,69 +198,47 @@ public:
 
 		float transparencyFactor;
 		if (aiMat->Get(AI_MATKEY_TRANSPARENCYFACTOR, transparencyFactor) != aiReturn_SUCCESS)
-		{
 			transparencyFactor = 0.f;
-		}
 
 		float shininess;	// Uh which is which...
 		if (aiMat->Get(AI_MATKEY_SHININESS, shininess) != aiReturn_SUCCESS)
-		{
 			shininess = 0.f;
-		}
 
 		float specularIntensity;
 		if (aiMat->Get(AI_MATKEY_SHININESS_STRENGTH, specularIntensity) != aiReturn_SUCCESS)
-		{
 			specularIntensity = 0.f;
-		}
 
 		float reflectivity;
 		if (aiMat->Get(AI_MATKEY_REFLECTIVITY, reflectivity) != aiReturn_SUCCESS)
-		{
 			reflectivity = 0.f;
-		}
 
 		float refractionIndex;	// I guess, who the f uses REFRACTI
 		if (aiMat->Get(AI_MATKEY_REFRACTI, refractionIndex) != aiReturn_SUCCESS)
-		{
 			refractionIndex = 1.f;
-		}
 
 		aiColor4D diffuseColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColour) != aiReturn_SUCCESS)
-		{
 			diffuseColour = aiColor4D(.5f);
-		}
 
 		aiColor4D ambientColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_AMBIENT, ambientColour) != aiReturn_SUCCESS)
-		{
 			ambientColour = aiColor4D(.5);
-		}
 
 		aiColor4D specColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_SPECULAR, specColour) != aiReturn_SUCCESS)
-		{
 			specColour = aiColor4D(.5, .5, .5, 1.);
-		}
 
 		aiColor4D emissiveColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, emissiveColour) != aiReturn_SUCCESS)
-		{
 			emissiveColour = aiColor4D(0., 0., 0., 1.);
-		}
 
 		aiColor4D transColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_TRANSPARENT, transColour) != aiReturn_SUCCESS)
-		{
 			transColour = aiColor4D(0.f);
-		}
 
 		aiColor4D reflectiveColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColour) != aiReturn_SUCCESS)
-		{
 			reflectiveColour = aiColor4D(0., 0., 0., 1.);
-		}
 
 	}
 };

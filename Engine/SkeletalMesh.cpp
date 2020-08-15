@@ -13,14 +13,14 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
-	// This doesn't belong here!
+	// Use this index to associate the mesh material with the loaded material.
 	UINT matIndex = aiMesh->mMaterialIndex;
+
+	// This doesn't belong here!
 	AssimpWrapper::loadMaterial(scene, matIndex, path, &_baseMaterial, _textures);
 
 	for (Texture& t : _textures)
 		t.SetUpAsResource(device);
-
-	//AssimpWrapper::loadBonesAndSkinData(*aiMesh, _vertices, skeleton);
 
 	_baseMaterial._opaque = true;
 

@@ -48,8 +48,6 @@ bool Engine::Initialize()
 		return false;
 	}
 
-
-	//loads in the td game and first level for now... cba going through the selection each time
 	_resMan.init(_device);
 
 	_shaderCompiler.init(_device);

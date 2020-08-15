@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
-#include <d3d11.h>
 #include <vector>
 #include <memory>
 #include "Resource.h"
 #include "TextureRole.h"
+
+#include <d3d11.h>
+#include <dxgiformat.h>
 
 
 
@@ -25,7 +27,7 @@ private:
 	{
 		DXGI_FORMAT_R8_UNORM,
 		DXGI_FORMAT_R8G8_UNORM,
-		DXGI_FORMAT_R8G8B8A8_UNORM,	// Thanks once again Microsoft, for trusting me this much
+		DXGI_FORMAT_R8G8B8A8_UNORM,	// Thanks once again Microsoft
 		DXGI_FORMAT_R8G8B8A8_UNORM
 	};
 

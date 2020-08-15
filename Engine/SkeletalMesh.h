@@ -42,7 +42,6 @@ class SkeletalMesh
 public:
 	VertSignature _vertSig;
 
-	//std::vector<BonedVert3D> _vertices;
 	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
 	std::vector<Texture> _textures;
@@ -65,6 +64,7 @@ public:
 
 
 	void draw(ID3D11DeviceContext* dc);
+
 	
 
 	template <typename Archive>

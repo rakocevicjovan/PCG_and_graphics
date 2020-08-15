@@ -113,7 +113,7 @@ bool AssimpWrapper::loadMaterialTextures(
 		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
 
 		// Check if embedded first, not the most common case but faster to check anyways
-		bool loaded = loadEmbeddedTexture(curTexture, scene, &aiTexPath);
+		bool loaded = loadEmbeddedTexture(curTexture, scene, aiTexPath.C_Str());
 		curTexture._fileName = texName;
 
 		// Not embedded, try to load from file
@@ -157,9 +157,9 @@ bool AssimpWrapper::loadMaterialTextures(
 
 
 
-bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, const aiString* str)
+bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, const char* str)
 {
-	const aiTexture* aiTex = scene->GetEmbeddedTexture(str->C_Str());
+	const aiTexture* aiTex = scene->GetEmbeddedTexture(str);
 
 	if (!aiTex)
 		return false;

@@ -74,7 +74,7 @@ public:
 		aiTextureType aiTexType,
 		TextureRole role);
 
-	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, const aiString* str);
+	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, const char* str);
 
 	static void loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims);
 

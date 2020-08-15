@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "SkeletonLoader.h"
 #include "ShaderManager.h"
+#include "MatLoader.h"
 
 
 
@@ -134,56 +135,64 @@ public:
 
 			if (ImGui::Button("Import selected"))
 			{
-				if (_impSkeleton)
-				{
-					_skeleton = SkeletonLoader::loadStandalone(_aiScene);
-				}
-
-				if (_impAnims)
-				{
-					AssimpWrapper::loadAnimations(_aiScene, _anims);
-				}
-
-				if (_impSkModel)
-				{
-					_skModel = std::make_unique<SkeletalModel>();
-
-					_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
-					_skModel->_skeleton = _skeleton.get();
-
-					_skModel->loadFromAiScene(_device, _aiScene, _path);
-
-					_skModel->_anims = _anims;	// Bad, shouldn't own them in the first place
-
-					for (SkeletalMesh& skmesh : _skModel->_meshes)
-					{
-						auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
-						skmesh._baseMaterial.setVS(shPack->vs);
-						skmesh._baseMaterial.setPS(shPack->ps);
-					}
-
-					_skModelInst = std::make_unique<SkeletalModelInstance>();
-					_skModelInst->init(_device, _skModel.get());
-				}
-
-				if (_impModel)
-				{
-					_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
-					_model = std::make_unique<Model>();
-					_model->loadFromAiScene(_device, _aiScene, _path);
-
-					for (Mesh& mesh : _model->_meshes)
-					{
-						auto shPack = _pShMan->getShaderAuto(mesh._vertSig, &mesh._baseMaterial);
-						mesh._baseMaterial.setVS(shPack->vs);
-						mesh._baseMaterial.setPS(shPack->ps);
-					}
-				}
-
+				importSelectedAssets();
 				_importConfigured = true;
 			}
 		}
 		ImGui::EndChild();
+	}
+
+
+
+	void importSelectedAssets()
+	{
+		if (_impSkeleton)
+		{
+			_skeleton = SkeletonLoader::loadStandalone(_aiScene);
+		}
+
+		if (_impAnims)
+		{
+			AssimpWrapper::loadAnimations(_aiScene, _anims);
+		}
+
+		MatLoader::LoadAllMaterials(_aiScene, _path);
+
+		if (_impSkModel)
+		{
+			_skModel = std::make_unique<SkeletalModel>();
+
+			_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
+			_skModel->_skeleton = _skeleton.get();
+
+			_skModel->loadFromAiScene(_device, _aiScene, _path);
+
+			_skModel->_anims = _anims;	// Bad, shouldn't own them in the first place
+
+			for (SkeletalMesh& skmesh : _skModel->_meshes)
+			{
+				auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
+				skmesh._baseMaterial.setVS(shPack->vs);
+				skmesh._baseMaterial.setPS(shPack->ps);
+			}
+
+			_skModelInst = std::make_unique<SkeletalModelInstance>();
+			_skModelInst->init(_device, _skModel.get());
+		}
+
+		if (_impModel)
+		{
+			_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
+			_model = std::make_unique<Model>();
+			_model->loadFromAiScene(_device, _aiScene, _path);
+
+			for (Mesh& mesh : _model->_meshes)
+			{
+				auto shPack = _pShMan->getShaderAuto(mesh._vertSig, &mesh._baseMaterial);
+				mesh._baseMaterial.setVS(shPack->vs);
+				mesh._baseMaterial.setPS(shPack->ps);
+			}
+		}
 	}
 
 
