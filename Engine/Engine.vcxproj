@@ -182,6 +182,7 @@
       <FloatingPointExceptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </FloatingPointExceptions>
     </ClCompile>
+    <ClCompile Include="DXT.cpp" />
     <ClCompile Include="imnodes.cpp" />
     <ClCompile Include="Project.cpp" />
     <ClCompile Include="ResourceDef.cpp" />
@@ -384,6 +385,7 @@
     <ClInclude Include="CSM.h" />
     <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Curves.h" />
+    <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
     <ClInclude Include="FBXLoader.h" />

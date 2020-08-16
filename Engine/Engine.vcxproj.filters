@@ -437,6 +437,9 @@
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Rendering\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="DXT.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -996,6 +999,9 @@
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="DXT.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

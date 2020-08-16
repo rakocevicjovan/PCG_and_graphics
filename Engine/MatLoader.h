@@ -4,11 +4,14 @@
 #include <memory>
 
 
+
 class MatLoader
 {
 private:
 
-	static inline const std::vector<std::pair< aiTextureType, TextureRole>> ASSIMP_TEX_TYPES
+	typedef std::pair< aiTextureType, TextureRole> TEX_TYPE_ROLE;
+
+	static inline const std::vector<TEX_TYPE_ROLE> ASSIMP_TEX_TYPES
 	{
 		{ aiTextureType_DIFFUSE,			DIFFUSE },
 		{ aiTextureType_NORMALS,			NORMAL },
@@ -43,25 +46,53 @@ private:
 		TextureMetaData _tmd;
 	};
 
-
 public:
 
-	static std::vector<Material*> LoadAllMaterials(const aiScene* scene, const std::string& path)
+
+
+	static std::vector<Material*> LoadAllMaterials(const aiScene* scene, const std::string& modPath)
 	{
 		std::vector<Material*> materials;
 		materials.reserve(scene->mNumMaterials);
 
-		std::vector<Texture> textures;
-
+		// Parse all assimp materials pertaining to textures
+		std::vector<TempTexData> tempTexData;
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], path, textures));
+		{
+			aiMaterial* aiMat = scene->mMaterials[i];
+
+			for (UINT j = 0; j < ASSIMP_TEX_TYPES.size(); ++j)
+			{
+				tempTexData.push_back(GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i]));
+			}
+		}
+
+		// Filter out duplicate texture paths
+		std::set<std::string> unqTexPaths;
+
+		for (UINT i = 0; i < tempTexData.size(); ++i)
+		{
+			unqTexPaths.insert(tempTexData[i]._path);
+		}
+
+		// Load unique textures
+		std::vector<Texture*> textures;
+
+		for (const std::string& path : unqTexPaths)
+		{
+			textures.push_back(LoadTexture(scene, modPath, path));
+		}
+
+		// Associate materials and textures...
+		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], modPath, textures));
 		
 		return materials;
 	}
 
 
 
-	static Material* LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& modelPath, std::vector<Texture>& textures)
+	static Material* LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& modelPath, std::vector<Texture*>& textures)
 	{
 		Material* mat = new Material();
 		
@@ -72,9 +103,8 @@ public:
 		std::vector<TempTexData> tempTexData;
 
 		for (UINT i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
-		{
-			LoadMetaData(tempTexData, aiMat, ASSIMP_TEX_TYPES[i].first, ASSIMP_TEX_TYPES[i].second);
-		}
+			tempTexData.push_back(GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i]));
+
 
 		mat->_texMetaData.resize(tempTexData.size());
 
@@ -94,7 +124,7 @@ public:
 
 		for (const std::string& texPath : unqTexNames)
 		{
-			loadTexture(scene, modelPath, texPath.c_str());
+			textures.push_back(LoadTexture(scene, modelPath, texPath.c_str()));
 		}
 
 		// Associate textures to materials - here?
@@ -104,38 +134,38 @@ public:
 
 
 
-	static void LoadMetaData(std::vector<TempTexData>& tempTexData, aiMaterial *aiMat, aiTextureType aiTexType, TextureRole role)
+	static TempTexData GetTexMetaData(aiMaterial *aiMat, TEX_TYPE_ROLE ttr)
 	{
 		// Iterate all textures related to the material, keep the ones that can load
-		for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
+		for (UINT i = 0; i < aiMat->GetTextureCount(ttr.first); ++i)
 		{
 			aiString aiTexPath;
 			UINT uvIndex = 0u;
-			aiTextureMapMode aiMapModes[]{ aiTextureMapMode_Wrap, aiTextureMapMode_Wrap, aiTextureMapMode_Wrap };
+			aiTextureMapMode aiMapModes[3]{ aiTextureMapMode_Wrap, aiTextureMapMode_Wrap, aiTextureMapMode_Wrap };
 
-			aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
+			aiMat->GetTexture(ttr.first, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
 
 			TextureMapMode mapModes[3];
 			for (UINT j = 0; j < 3; ++j)
 				mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
 
-			tempTexData.push_back(
+			return
 			{
 				aiTexPath.C_Str(),
 				{
 					nullptr,
-					role,
+					ttr.second,
 					{ mapModes[0], mapModes[1], mapModes[2] },
 					static_cast<uint8_t>(uvIndex),
 					0u
 				}
-			});
+			};
 		}
 	}
 
 
 
-	static Texture* loadTexture(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
+	static Texture* LoadTexture(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
 	{
 		Texture* curTex = new Texture();
 		const char* texName = aiScene::GetShortFilename(texPath.c_str());

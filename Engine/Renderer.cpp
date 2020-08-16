@@ -143,12 +143,7 @@ void Renderer::render(const Renderable& r) const
 	r.setBuffers(_deviceContext);
 
 	// Set shaders and similar geebees
-	_deviceContext->VSSetShader(r.mat->getVS()->_vsPtr, NULL, 0);
-	_deviceContext->PSSetShader(r.mat->getPS()->_psPtr, NULL, 0);
-	_deviceContext->IASetInputLayout(r.mat->getVS()->_layout);
-	r.mat->bindSamplers(_deviceContext);
-
-	r.mat->bindTextures(_deviceContext);
+	r.mat->bind(_deviceContext);
 
 	// Could sort by this as well... should be fairly uniform though
 	_deviceContext->IASetPrimitiveTopology(r.mat->_primitiveTopology);

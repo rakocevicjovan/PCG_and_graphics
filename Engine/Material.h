@@ -17,7 +17,7 @@ struct TextureMetaData
 {
 	Texture* _tex;
 	TextureRole _role;
-	TextureMapMode _mapMode[3] = { TextureMapMode::WRAP, TextureMapMode::WRAP, TextureMapMode::WRAP };
+	std::array<TextureMapMode, 3> _mapMode = { TextureMapMode::WRAP, TextureMapMode::WRAP, TextureMapMode::WRAP };
 	uint8_t _uvIndex = 0u;
 	uint8_t _regIndex = 0u;	// Decouple from role later
 
@@ -64,6 +64,15 @@ public:
 
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
 
+	void bind(ID3D11DeviceContext* context)
+	{
+		context->VSSetShader(getVS()->_vsPtr, NULL, 0);
+		context->PSSetShader(getPS()->_psPtr, NULL, 0);
+		context->IASetInputLayout(getVS()->_layout);
+		bindSamplers(context);
+		bindTextures(context);
+	}
+
 	void bindTextures(ID3D11DeviceContext* context) const;
 	
 	std::vector<D3D11_SAMPLER_DESC> createSamplerDescs() const;
@@ -80,6 +89,11 @@ public:
 	{
 		for (UINT i = 0; i < _pixelShader->_samplers.size(); ++i)
 			context->PSSetSamplers(i, 1, &_pixelShader->_samplers[i]);
+	}
+
+	inline void addMaterialTexture(Texture* t, TextureRole role, std::array<TextureMapMode, 3> tmm, UINT uvIndex = 0u)
+	{
+		_texMetaData.push_back({t, role, tmm, uvIndex, 0u});
 	}
 
 

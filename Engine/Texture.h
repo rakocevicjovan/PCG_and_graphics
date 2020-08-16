@@ -16,21 +16,20 @@ namespace Procedural
 	class TextureGen;
 }
 
+inline const std::vector<DXGI_FORMAT> N_TO_FORMAT_DX11
+{
+	DXGI_FORMAT_R8_UNORM,
+	DXGI_FORMAT_R8G8_UNORM,
+	DXGI_FORMAT_R8G8B8A8_UNORM,	// Thanks once again Microsoft
+	DXGI_FORMAT_R8G8B8A8_UNORM
+};
+
 
 class Texture : public Resource
 {
 private:
 
 	friend class Procedural::TextureGen;
-
-	static inline std::vector<DXGI_FORMAT> N_TO_FORMAT_DX11
-	{
-		DXGI_FORMAT_R8_UNORM,
-		DXGI_FORMAT_R8G8_UNORM,
-		DXGI_FORMAT_R8G8B8A8_UNORM,	// Thanks once again Microsoft
-		DXGI_FORMAT_R8G8B8A8_UNORM
-	};
-
 	
 protected:
 	//width, height, channels
