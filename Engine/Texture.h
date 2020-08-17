@@ -52,8 +52,8 @@ public:
 	template <typename Archive> 
 	void serialize(Archive& archive)
 	{
-		// Filename because I have an idea about it...
-		archive(_w, _h, _nc, _mdata, filename);
+		// Filename could be serialized for hot reload.
+		archive(_w, _h, _nc, _mdata);
 	}
 
 	Texture();

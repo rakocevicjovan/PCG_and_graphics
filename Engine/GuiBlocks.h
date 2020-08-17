@@ -209,7 +209,7 @@ namespace GuiBlocks
 
 
 
-	static bool inTextStdString(char* label, std::string& inoutString)
+	static bool inputStdString(char* label, std::string& inoutString)
 	{
 		return (ImGui::InputText(label, inoutString.data(), inoutString.capacity() + 1,
 			ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
@@ -222,6 +222,36 @@ namespace GuiBlocks
 			return 0;
 		}, &inoutString));
 	}
+
+
+
+	static bool displayOverwriteWarning(const char* filePath)
+	{
+		bool result;
+
+		if (ImGui::BeginPopup("File already exists!"))
+		{
+			ImGui::Text("File path: \"%s\"", filePath);
+			ImGui::Text("Are you sure you want to overwrite it?");
+
+			if (ImGui::Button("Overwrite"))
+			{
+				ImGui::CloseCurrentPopup();
+				result = true;
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("No"))
+			{
+				ImGui::CloseCurrentPopup();
+				result = false;
+			}
+			ImGui::EndPopup();
+		}
+		return result;
+	}
+
 
 
 	// Doesn't do anything, syntax refresher (imagine having documentation)

@@ -91,7 +91,7 @@ public:
 			context->PSSetSamplers(i, 1, &_pixelShader->_samplers[i]);
 	}
 
-	inline void addMaterialTexture(Texture* t, TextureRole role, std::array<TextureMapMode, 3> tmm, UINT uvIndex = 0u)
+	inline void addMaterialTexture(Texture* t, TextureRole role, std::array<TextureMapMode, 3> tmm, uint8_t uvIndex = 0u)
 	{
 		_texMetaData.push_back({t, role, tmm, uvIndex, 0u});
 	}

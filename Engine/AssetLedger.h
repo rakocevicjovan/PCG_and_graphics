@@ -39,10 +39,10 @@ public:
 
 
 
-	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
+	uint32_t add(const std::string& path, ResType resType)
 	{
-		uint32_t nameHash = fnv1hash(assName);
-		ResourceDef rd{ nameHash, assName, path, resType };
+		uint32_t nameHash = fnv1hash(path.c_str());
+		ResourceDef rd{ nameHash, path, resType };
 
 		if (!_assDefs.insert(rd).second)
 		{
@@ -59,7 +59,7 @@ public:
 
 	inline const ResourceDef* get(const std::string& assName) const
 	{
-		get(fnv1hash(assName));
+		get(fnv1hash(assName.c_str()));
 	}
 
 
@@ -78,7 +78,7 @@ public:
 
 	inline void remove(const std::string& assName)
 	{
-		remove(fnv1hash(assName));
+		remove(fnv1hash(assName.c_str()));
 	}
 
 

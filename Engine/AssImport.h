@@ -4,7 +4,6 @@
 #include "AssetViews.h"
 #include "Texture.h"
 #include "FileBrowser.h"
-#include "AeonWriter.h"
 #include "AnimationEditor.h"
 #include "SkeletalModelInstance.h"
 #include "Model.h"
@@ -22,6 +21,7 @@ private:
 	ShaderManager* _pShMan;
 
 	std::string _path;
+	std::string _importPath = "C:\\Users\\Senpai\\Desktop\\AeonTest\\";
 	Assimp::Importer _importer;
 	const aiScene* _aiScene;
 
@@ -41,12 +41,9 @@ private:
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
 	bool _importConfigured;
 
-	AeonWriter _assetWriter;
-
 	// Put this into animEditor
 	int _currentAnim;
 	float _playbackSpeed;
-
 	float _previewScale;
 
 	std::vector<aiString> _externalTextures;
@@ -146,14 +143,39 @@ public:
 
 	void importSelectedAssets()
 	{
+		UINT skeletonID;
+		std::vector<UINT> animIDs;
+		std::vector<UINT> texIDs;
+		std::vector<UINT> matIDs;
+
+
 		if (_impSkeleton)
 		{
 			_skeleton = SkeletonLoader::loadStandalone(_aiScene);
+			std::string skeletonPath{ _importPath + "//skelly" + ".aeon" };
+			std::ofstream ofs(skeletonPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			_skeleton.get()->serialize(boa);
+			skeletonID = _pLedger->add(skeletonPath, ResType::SKELETON);
 		}
 
 		if (_impAnims)
 		{
 			AssimpWrapper::loadAnimations(_aiScene, _anims);
+
+			for (UINT i = 0; i < _anims.size(); ++i)
+			{
+				Animation& anim = _anims[i];
+
+				std::string animName = anim.getName();
+				if(animName.size() == 0)	// Do this during import?
+					animName = "anim" + std::to_string(i);
+				std::string animPath{ _importPath + "//" + animName + ".aeon" };
+				std::ofstream ofs(animPath, std::ios::binary);
+				cereal::BinaryOutputArchive boa(ofs);
+				anim.serialize(boa);
+				animIDs.push_back(_pLedger->add(animPath, ResType::ANIMATION));
+			}
 		}
 
 		MatLoader::LoadAllMaterials(_aiScene, _path);
@@ -265,14 +287,10 @@ public:
 
 		ImGui::Text("Commands");
 
-		if (ImGui::Button("Import as asset"))
-			_assetWriter.activate();
-
-		if (_assetWriter.isActive())
+		if (ImGui::Button("Import as .aeon"))
 		{
-			if (_assetWriter.displayExportSettings())
+			if (FileUtils::fileExists(_importPath))	// Add extra checks
 			{
-				// Serialize this and that...
 				writeAssets();
 			}
 		}
@@ -288,10 +306,6 @@ public:
 	// Eeeeehhhh... weird way to do it.
 	void writeAssets()
 	{
-		if (_impSkModel)
-		{
-			_assetWriter.writeAsset(_skModel.get(), _pLedger);
-		}
 		_pLedger->save();
 	}
 

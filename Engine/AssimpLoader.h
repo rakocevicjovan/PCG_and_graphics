@@ -6,6 +6,8 @@
 #include "GUI.h"
 #include "SkeletalModelInstance.h"
 #include "Sampler.h"
+#include "ShaderManager.h"
+#include "TextureCache.h"
 #include <memory>
 
 
@@ -13,7 +15,10 @@
 class AssimpLoader : public Level
 {
 private:
-	ShaderManager _shMan;	// Temporarily here, make it engine-wide
+	// Temporarily here
+	ShaderManager _shMan;	
+	//TextureCache _texCache;
+	// move to engine, behind asset manager facade or renderer... still not sure
 
 	Scene _scene;
 

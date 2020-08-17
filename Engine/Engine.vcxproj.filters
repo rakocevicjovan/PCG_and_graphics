@@ -964,9 +964,6 @@
     <ClInclude Include="FileBrowser.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="AeonWriter.h">
-      <Filter>Asset importing</Filter>
-    </ClInclude>
     <ClInclude Include="AssetScanner.h">
       <Filter>Asset importing</Filter>
     </ClInclude>

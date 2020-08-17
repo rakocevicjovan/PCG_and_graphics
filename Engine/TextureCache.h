@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include <string>
 #include <memory>
 //#include <unordered_map>// Map allows proper autocomplete in the editor
 #include <map>	
@@ -15,15 +16,17 @@ private:
 
 public:
 
-
-	bool addTexture(const std::string& name, Texture* t)
+	
+	bool addTexture(std::string& name, Texture* tex)
 	{
-		auto insertResult = _textures.insert({ name, std::make_unique<Texture>(t) });
+		std::unique_ptr<Texture> upTexture;
+		upTexture.reset(tex);
+		auto insertResult = _textures.insert(std::make_pair(name, std::move(upTexture)));
 		return insertResult.second;
 	}
 
 
-
+	
 	void getTexture(const std::string& name)
 	{
 
@@ -37,4 +40,6 @@ public:
 		auto iter = _textures.equal_range(name);
 		return iter;
 	}
+	
+	
 };

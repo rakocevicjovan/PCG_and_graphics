@@ -52,23 +52,31 @@ public:
 
 	static std::vector<Material*> LoadAllMaterials(
 		const aiScene* scene, 
-		const std::string& modPath)
+		const std::string& modPath,
+		AssetLedger& pLedger)
 	{
 		std::vector<Material*> materials;
 		materials.reserve(scene->mNumMaterials);
 
 		std::set<std::string> unqTexPaths;
-		std::vector<Texture*> textures;
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
 			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], unqTexPaths));
 
 		// Identify unique textures, bit slow but it's import code...
 
+		/*
 		for (const std::string& texPath : unqTexPaths)
 		{
-			textures.push_back(LoadTexture(scene, modPath, texPath.c_str()));
+			Texture* tex = LoadTexture(scene, modPath, texPath.c_str());
+
+			// Apply DXT compression once I learn more about it, but by calling a function
+
+			//std::ofstream ofs("wat");
+			//cereal::BinaryOutputArchive boa(ofs);
+			//tex->serialize(boa);
 		}
+		*/
 		
 		// Great, now what? There's no texture manager yet, we don't know where they will be
 		// Or how to refer to them from the material without a legit system in place
@@ -89,7 +97,9 @@ public:
 		std::vector<TempTexData> tempTexData;
 
 		for (UINT i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
-			tempTexData.push_back(GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i]));
+		{
+			GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i], tempTexData);
+		}
 
 		mat->_texMetaData.resize(tempTexData.size());
 
@@ -104,7 +114,7 @@ public:
 
 
 
-	static TempTexData GetTexMetaData(const aiMaterial *aiMat, TEX_TYPE_ROLE ttr)
+	static void GetTexMetaData(const aiMaterial *aiMat, TEX_TYPE_ROLE ttr, std::vector<TempTexData>& ttd)
 	{
 		// Iterate all textures related to the material, keep the ones that can load
 		for (UINT i = 0; i < aiMat->GetTextureCount(ttr.first); ++i)
@@ -119,7 +129,7 @@ public:
 			for (UINT j = 0; j < 3; ++j)
 				mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
 
-			return
+			ttd.push_back(
 			{
 				aiTexPath.C_Str(),
 				{
@@ -129,7 +139,7 @@ public:
 					static_cast<uint8_t>(uvIndex),
 					0u
 				}
-			};
+			});
 		}
 	}
 

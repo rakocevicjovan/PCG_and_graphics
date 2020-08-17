@@ -4,25 +4,18 @@
 
 
 // Magic numbers, magic magic numbers...
-constexpr static uint32_t FNV1_OFFSET_BASIS = 0x811C9DC5;
-constexpr static uint32_t FNV1_PRIME = 0x01000193;
+inline constexpr uint32_t FNV1_SEED = 0x811C9DC5;
+inline constexpr uint32_t FNV1_PRIME = 0x01000193;
 
 
-static inline uint32_t fnv1hash(std::string str)
+static inline uint32_t fnv1hash(const char* str)
 {
-	uint32_t hash = FNV1_OFFSET_BASIS;
-	unsigned int len = str.length();
-
-	for (unsigned int i = 0; i < len; ++i)
+	uint32_t hash = FNV1_SEED;
+	const char* c = str;
+	while(*c)
 	{
+		hash ^= *c++;
 		hash *= FNV1_PRIME;
-		hash ^= (str[i]);
 	}
-
 	return hash;
-}
-
-constexpr static inline uint32_t fnv1_CT(char const*const aString, const uint32_t val = FNV1_OFFSET_BASIS)
-{
-	return (aString[0] == '\0') ? val : fnv1_CT(&aString[1], (val * FNV1_PRIME) ^ uint32_t(aString[0]));
 }
