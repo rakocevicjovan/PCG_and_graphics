@@ -620,7 +620,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="TextureGen.h" />
-    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TextureRole.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="ThreadPoolTest.h" />

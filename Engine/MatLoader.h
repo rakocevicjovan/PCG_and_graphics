@@ -50,49 +50,35 @@ public:
 
 
 
-	static std::vector<Material*> LoadAllMaterials(const aiScene* scene, const std::string& modPath)
+	static std::vector<Material*> LoadAllMaterials(
+		const aiScene* scene, 
+		const std::string& modPath)
 	{
 		std::vector<Material*> materials;
 		materials.reserve(scene->mNumMaterials);
 
-		// Parse all assimp materials pertaining to textures
-		std::vector<TempTexData> tempTexData;
-		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-		{
-			aiMaterial* aiMat = scene->mMaterials[i];
-
-			for (UINT j = 0; j < ASSIMP_TEX_TYPES.size(); ++j)
-			{
-				tempTexData.push_back(GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i]));
-			}
-		}
-
-		// Filter out duplicate texture paths
 		std::set<std::string> unqTexPaths;
-
-		for (UINT i = 0; i < tempTexData.size(); ++i)
-		{
-			unqTexPaths.insert(tempTexData[i]._path);
-		}
-
-		// Load unique textures
 		std::vector<Texture*> textures;
 
-		for (const std::string& path : unqTexPaths)
-		{
-			textures.push_back(LoadTexture(scene, modPath, path));
-		}
-
-		// Associate materials and textures...
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], modPath, textures));
+			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], unqTexPaths));
+
+		// Identify unique textures, bit slow but it's import code...
+
+		for (const std::string& texPath : unqTexPaths)
+		{
+			textures.push_back(LoadTexture(scene, modPath, texPath.c_str()));
+		}
 		
+		// Great, now what? There's no texture manager yet, we don't know where they will be
+		// Or how to refer to them from the material without a legit system in place
+
 		return materials;
 	}
 
 
 
-	static Material* LoadMaterial(const aiScene* scene, aiMaterial* aiMat, const std::string& modelPath, std::vector<Texture*>& textures)
+	static Material* LoadMaterial(const aiScene* scene, const aiMaterial* aiMat, std::set<std::string> unqTexPaths)
 	{
 		Material* mat = new Material();
 		
@@ -105,36 +91,20 @@ public:
 		for (UINT i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
 			tempTexData.push_back(GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i]));
 
-
 		mat->_texMetaData.resize(tempTexData.size());
 
 		for (UINT i = 0; i < tempTexData.size(); ++i)
 		{
 			mat->_texMetaData[i] = tempTexData[i]._tmd;
+			unqTexPaths.insert(tempTexData[i]._path);
 		}
-		
-
-		// Identify unique textures, bit slow but it's import code...
-		std::set<std::string> unqTexNames;
-
-		for (auto& ttd : tempTexData)
-			unqTexNames.insert(ttd._path);
-
-		// Load unique textures, this won't be unique between materials though :/
-
-		for (const std::string& texPath : unqTexNames)
-		{
-			textures.push_back(LoadTexture(scene, modelPath, texPath.c_str()));
-		}
-
-		// Associate textures to materials - here?
 
 		return mat;
 	}
 
 
 
-	static TempTexData GetTexMetaData(aiMaterial *aiMat, TEX_TYPE_ROLE ttr)
+	static TempTexData GetTexMetaData(const aiMaterial *aiMat, TEX_TYPE_ROLE ttr)
 	{
 		// Iterate all textures related to the material, keep the ones that can load
 		for (UINT i = 0; i < aiMat->GetTextureCount(ttr.first); ++i)

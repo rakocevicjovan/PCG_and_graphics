@@ -997,11 +997,11 @@
     <ClInclude Include="AssimpWrapper.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="DXT.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureCache.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

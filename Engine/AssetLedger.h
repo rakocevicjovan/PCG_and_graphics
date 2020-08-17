@@ -1,13 +1,12 @@
 #pragma once
+#include "ResourceHandle.h"	// TBD, should act as a proxy as well?
+#include "ResourceDef.h"
 #include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/unordered_set.hpp>
 #include <unordered_set>
 #include <string>
 #include <fstream>
-#include "ResourceHandle.h"	// TBD, should act as a proxy as well?
-#include "ResourceDef.h"
-
 
 
 class AssetLedger
@@ -42,8 +41,8 @@ public:
 
 	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
 	{
-		uint32_t result = fnv1hash(assName);
-		ResourceDef rd{ result, assName, path, resType };
+		uint32_t nameHash = fnv1hash(assName);
+		ResourceDef rd{ nameHash, assName, path, resType };
 
 		if (!_assDefs.insert(rd).second)
 		{
@@ -53,7 +52,7 @@ public:
 
 		_dirty = true;
 
-		return result;
+		return nameHash;
 	}
 
 
@@ -92,6 +91,15 @@ public:
 
 
 
+	void save()
+	{
+		std::ofstream ofs(_ledgerFilePath);
+		cereal::JSONOutputArchive joArch(ofs);
+		serialize(joArch);
+	}
+
+
+
 	void load()
 	{
 		std::ifstream ifs(_ledgerFilePath);
@@ -99,13 +107,6 @@ public:
 		serialize(jiArch);
 	}
 
-
-	void save()
-	{
-		std::ofstream ofs(_ledgerFilePath);
-		cereal::JSONOutputArchive joArch(ofs);
-		serialize(joArch);
-	}
 
 
 	void purge()

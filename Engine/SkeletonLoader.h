@@ -157,7 +157,7 @@ public:
 
 		makeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
 
-		// This should be done theoretically, fixes bee, breaks bobbert... idk what to do
+		// This might need to be done theoretically, fixes bee, breaks bobbert... idk what to do
 		/*
 		aiNode* temp = skelRoot;
 		SMatrix rootMatrix = SMatrix::Identity;
@@ -169,7 +169,6 @@ public:
 
 		skeleton->_bones[0]._localMatrix = rootMatrix;
 		*/
-		
 
 		return skeleton;
 	}
