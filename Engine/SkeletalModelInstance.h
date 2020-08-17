@@ -21,7 +21,7 @@ public:
 	{
 		_skm = skm;
 
-		for (Animation& anim : skm->_anims)
+		for (Animation* anim : skm->_anims)
 			_animInstances.emplace_back(anim);
 
 		UINT numBones = 144;

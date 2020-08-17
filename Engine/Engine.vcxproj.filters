@@ -215,9 +215,6 @@
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="TDLevel.cpp">
-      <Filter>TowerDefense</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -439,6 +436,9 @@
     </ClCompile>
     <ClCompile Include="DXT.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="TDLevel.cpp">
+      <Filter>TowerDefense</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

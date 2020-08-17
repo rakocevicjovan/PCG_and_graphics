@@ -19,7 +19,7 @@ public:
 
 	std::string _path;
 	
-	std::vector<Animation> _anims;
+	std::vector<Animation*> _anims;
 
 	Skeleton* _skeleton;
 

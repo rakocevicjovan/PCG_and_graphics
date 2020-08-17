@@ -12,7 +12,7 @@ public:
 
 
 
-	AnimationInstance(const Animation& anim) : _anim(&anim), _elapsed(0.f) {}
+	AnimationInstance(const Animation* anim) : _anim(anim), _elapsed(0.f) {}
 
 
 

@@ -2,7 +2,6 @@
 #include "Texture.h"
 #include <string>
 #include <memory>
-//#include <unordered_map>// Map allows proper autocomplete in the editor
 #include <map>	
 
 class TextureCache
@@ -12,6 +11,7 @@ private:
 	typedef std::map<std::string, std::unique_ptr<Texture>>::iterator TexMapIter;
 	typedef std::pair<TexMapIter, TexMapIter> TexMapRange;
 
+	// Map allows proper autocomplete in the editor, as opposed to unordered_map
 	std::map<std::string, std::unique_ptr<Texture>> _textures;
 
 public:
@@ -27,9 +27,12 @@ public:
 
 
 	
-	void getTexture(const std::string& name)
+	Texture* getTexture(const std::string& name)
 	{
-
+		auto iter = _textures.find(name);
+		if (iter != _textures.end())
+			return iter->second.get();
+		return nullptr;
 	}
 
 

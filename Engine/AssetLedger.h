@@ -39,10 +39,10 @@ public:
 
 
 
-	uint32_t add(const std::string& path, ResType resType)
+	uint32_t add(const std::string& assName, const std::string& path, ResType resType)
 	{
 		uint32_t nameHash = fnv1hash(path.c_str());
-		ResourceDef rd{ nameHash, path, resType };
+		ResourceDef rd{ nameHash, assName, path, resType };
 
 		if (!_assDefs.insert(rd).second)
 		{

@@ -328,7 +328,9 @@
     <ClCompile Include="SphereHull.cpp" />
     <ClCompile Include="StrifeLevel.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="TDLevel.cpp" />
+    <ClCompile Include="TDLevel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainShader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -597,7 +599,9 @@
     <ClInclude Include="StrifeLevel.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="TDGUI.h" />
-    <ClInclude Include="TDLevel.h" />
+    <ClInclude Include="TDLevel.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainShader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

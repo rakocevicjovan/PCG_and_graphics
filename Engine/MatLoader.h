@@ -50,10 +50,7 @@ public:
 
 
 
-	static std::vector<Material*> LoadAllMaterials(
-		const aiScene* scene, 
-		const std::string& modPath,
-		AssetLedger& pLedger)
+	static std::vector<Material*> LoadAllMaterials(const aiScene* scene, const std::string& modPath)
 	{
 		std::vector<Material*> materials;
 		materials.reserve(scene->mNumMaterials);

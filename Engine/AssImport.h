@@ -143,39 +143,14 @@ public:
 
 	void importSelectedAssets()
 	{
-		UINT skeletonID;
-		std::vector<UINT> animIDs;
-		std::vector<UINT> texIDs;
-		std::vector<UINT> matIDs;
-
-
 		if (_impSkeleton)
 		{
 			_skeleton = SkeletonLoader::loadStandalone(_aiScene);
-			std::string skeletonPath{ _importPath + "//skelly" + ".aeon" };
-			std::ofstream ofs(skeletonPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
-			_skeleton.get()->serialize(boa);
-			skeletonID = _pLedger->add(skeletonPath, ResType::SKELETON);
 		}
 
 		if (_impAnims)
 		{
 			AssimpWrapper::loadAnimations(_aiScene, _anims);
-
-			for (UINT i = 0; i < _anims.size(); ++i)
-			{
-				Animation& anim = _anims[i];
-
-				std::string animName = anim.getName();
-				if(animName.size() == 0)	// Do this during import?
-					animName = "anim" + std::to_string(i);
-				std::string animPath{ _importPath + "//" + animName + ".aeon" };
-				std::ofstream ofs(animPath, std::ios::binary);
-				cereal::BinaryOutputArchive boa(ofs);
-				anim.serialize(boa);
-				animIDs.push_back(_pLedger->add(animPath, ResType::ANIMATION));
-			}
 		}
 
 		MatLoader::LoadAllMaterials(_aiScene, _path);
@@ -189,7 +164,10 @@ public:
 
 			_skModel->loadFromAiScene(_device, _aiScene, _path);
 
-			_skModel->_anims = _anims;	// Bad, shouldn't own them in the first place
+			for (Animation& anim : _anims)
+			{
+				_skModel->_anims.push_back(&anim);	// Bad, shouldn't own them in the first place
+			}
 
 			for (SkeletalMesh& skmesh : _skModel->_meshes)
 			{
@@ -291,7 +269,7 @@ public:
 		{
 			if (FileUtils::fileExists(_importPath))	// Add extra checks
 			{
-				writeAssets();
+				persistAssets();
 			}
 		}
 
@@ -304,8 +282,36 @@ public:
 
 
 	// Eeeeehhhh... weird way to do it.
-	void writeAssets()
+	void persistAssets()
 	{
+		UINT skeletonID;
+		std::vector<UINT> animIDs;
+		std::vector<UINT> texIDs;
+		std::vector<UINT> matIDs;
+
+		if (_skeleton.get())
+		{
+			std::string skeletonPath{ _importPath + "//skelly" + ".aeon" };
+			std::ofstream ofs(skeletonPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			_skeleton.get()->serialize(boa);
+			skeletonID = _pLedger->add("", skeletonPath, ResType::SKELETON);
+		}
+
+		for (UINT i = 0; i < _anims.size(); ++i)
+		{
+			Animation& anim = _anims[i];
+
+			std::string animName = anim.getName();
+			if (animName.size() == 0)	// Do this during import?
+				animName = "anim" + std::to_string(i);
+			std::string animPath{ _importPath + "//" + animName + ".aeon" };
+			std::ofstream ofs(animPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			anim.serialize(boa);
+			animIDs.push_back(_pLedger->add("", animPath, ResType::ANIMATION));
+		}
+
 		_pLedger->save();
 	}
 

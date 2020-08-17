@@ -25,21 +25,30 @@ enum class ResType : uint8_t
 
 struct ResourceDef
 {
-	uint32_t _ID;	// Consider a bigger ID, but it's better to split into ledger per type
-	std::string _path;
-	ResType _resType;
+	struct RDKey
+	{
+		uint32_t _ID;	// Consider a bigger ID, or possibly make resType a part of the ID
+		std::string _assetName;
+	} key;
+	
+	struct RDVal
+	{
+		std::string _path;
+		ResType _resType;
+	} val;
+	
 
 	static ResourceDef Load(rapidjson::Value::ConstValueIterator itr);
 	
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_ID, _assetName, _path, _resType);
+		ar(key._ID, key._assetName, val._path, val._resType);
 	}
 
 	inline bool operator==(const ResourceDef& other) const
 	{
-		return (_ID == other._ID);
+		return (key._ID == other.key._ID);
 	}
 
 	static ResType getResTypeFromString(const std::string& str);
@@ -52,6 +61,6 @@ template<> struct std::hash<ResourceDef>
 	std::size_t operator()(const ResourceDef& rd) const noexcept
 	{
 		//return std::hash<std::string>()(rd.key._assetName);
-		return rd._ID; // I already use a hashed value so just use that.
+		return rd.key._ID; // I already use a hashed value so just use that.
 	}
 };
