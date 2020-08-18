@@ -66,7 +66,7 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DPCM);
 
 		// Ambient occlusion maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMBIENT);
+		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMB_OCCLUSION);
 
 		// Metallic maps
 		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_METALNESS, METALLIC);
@@ -153,6 +153,30 @@ bool AssimpWrapper::loadMaterialTextures(
 			0u});	// Textures will relocate
 	}
 	return true;
+}
+
+
+
+std::vector<std::string> AssimpWrapper::loadTextureNames(const aiScene * scene)
+{
+	std::vector<std::string> result;
+
+	for (UINT i = 0; i < scene->mNumMaterials; ++i)
+	{
+		const aiMaterial* aiMat = scene->mMaterials[i];
+		for (TEX_TYPE_ROLE ttr : ASSIMP_TEX_TYPES)
+		{
+			UINT numTexThisType = aiMat->GetTextureCount(ttr.first);
+			
+			for (UINT i = 0; i < numTexThisType; ++i)
+			{
+				aiString str;
+				aiMat->GetTexture(ttr.first, i, &str);
+				result.push_back(std::string(str.C_Str()));
+			}
+		}
+	}
+	return result;
 }
 
 

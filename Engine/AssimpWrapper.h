@@ -3,7 +3,9 @@
 #include "Texture.h"
 #include "Animation.h"
 
+#include <vector>
 #include <set>
+#include <map>
 #include <memory>
 
 #include <assimp/Importer.hpp>
@@ -18,6 +20,37 @@ class Mesh;
 class AssimpWrapper
 {
 public:
+
+	typedef std::pair< aiTextureType, TextureRole> TEX_TYPE_ROLE;
+
+	static inline const std::vector<TEX_TYPE_ROLE> ASSIMP_TEX_TYPES
+	{
+		{ aiTextureType_DIFFUSE,			DIFFUSE },
+		{ aiTextureType_NORMALS,			NORMAL },
+		{ aiTextureType_SPECULAR,			SPECULAR },
+		{ aiTextureType_SHININESS,			SHININESS },
+		{ aiTextureType_OPACITY,			OPACITY },
+		//{ aiTextureType_EMISSIVE,			EMISSIVE },
+		{ aiTextureType_DISPLACEMENT,		DPCM },
+		{ aiTextureType_LIGHTMAP,			AMB_OCCLUSION },
+		{ aiTextureType_REFLECTION,			REFLECTION },
+		// PBR
+		{ aiTextureType_BASE_COLOR,			REFRACTION },
+		//{ aiTextureType_EMISSION_COLOR,	EMISSIVE },
+		{ aiTextureType_METALNESS,			METALLIC },
+		{ aiTextureType_DIFFUSE_ROUGHNESS,	ROUGHNESS },
+		{ aiTextureType_AMBIENT_OCCLUSION,	AMB_OCCLUSION },
+		// Mystery meat
+		{ aiTextureType_UNKNOWN,			OTHER }
+	};
+
+	inline static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
+	{
+		{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
+		{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
+		{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
+		{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
+	};
 
 	// New code, trying to do this in a better way
 	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
@@ -73,6 +106,8 @@ public:
 		Material* mat,
 		aiTextureType aiTexType,
 		TextureRole role);
+
+	static std::vector<std::string> loadTextureNames(const aiScene* scene);
 
 	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, const char* str);
 

@@ -19,6 +19,7 @@ private:
 	ResourceManager* _pResMan;
 	AssetLedger* _pLedger;
 	ShaderManager* _pShMan;
+	TextureCache* _pTexCache;
 
 	std::string _path;
 	std::string _importPath = "C:\\Users\\Senpai\\Desktop\\AeonTest\\";
@@ -34,6 +35,7 @@ private:
 	std::unique_ptr<Model> _model;
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
+	std::vector<Material> _mats;
 	std::vector<Texture> _textures;
 
 
@@ -153,7 +155,7 @@ public:
 			AssimpWrapper::loadAnimations(_aiScene, _anims);
 		}
 
-		MatLoader::LoadAllMaterials(_aiScene, _path);
+		_mats = MatLoader::LoadAllMaterials(_aiScene, _path, _pTexCache);
 
 		if (_impSkModel)
 		{
@@ -476,7 +478,7 @@ public:
 			printMaterialTextures(aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DPCM);
 
 			// Ambient occlusion maps
-			printMaterialTextures(aiMat, aiTextureType_AMBIENT, "texture_AO", AMBIENT);
+			printMaterialTextures(aiMat, aiTextureType_AMBIENT, "texture_AO", AMB_OCCLUSION);
 
 			// Other maps
 			printMaterialTextures(aiMat, aiTextureType_UNKNOWN, "texture_other", OTHER);

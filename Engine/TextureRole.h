@@ -20,7 +20,7 @@ enum TextureRole : uint8_t
 	SHININESS	= 3,
 	OPACITY		= 4,
 	DPCM		= 5,
-	AMBIENT		= 6,
+	AMB_OCCLUSION		= 6,
 	METALLIC	= 7,
 	ROUGHNESS	= 8,
 	REFLECTION	= 9,

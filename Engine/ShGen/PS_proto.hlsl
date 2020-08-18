@@ -75,15 +75,12 @@ SamplerState Sampler : register(s0);
 // TEXTURES BEGIN
 #if TEX_DIF > 0
 Texture2D diffuseMap : register(t0);
-#line 66
 #endif
 #if TEX_NRM > 0
 Texture2D normalMap : register(t1);
-#line 67
 #endif
 #if TEX_SPC > 0
 Texture2D specularMap : register(t2);
-#line 68
 #endif
 #if TEX_SHN > 0
 Texture2D shininessMap : register(t3);

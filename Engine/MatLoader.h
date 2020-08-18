@@ -1,6 +1,8 @@
 #pragma once
 #include "Material.h"
 #include "AssimpWrapper.h"
+#include "TextureCache.h"
+#include "Fnv1Hash.h"
 #include <memory>
 
 
@@ -8,37 +10,6 @@
 class MatLoader
 {
 private:
-
-	typedef std::pair< aiTextureType, TextureRole> TEX_TYPE_ROLE;
-
-	static inline const std::vector<TEX_TYPE_ROLE> ASSIMP_TEX_TYPES
-	{
-		{ aiTextureType_DIFFUSE,			DIFFUSE },
-		{ aiTextureType_NORMALS,			NORMAL },
-		{ aiTextureType_SPECULAR,			SPECULAR },
-		{ aiTextureType_SHININESS,			SHININESS },
-		{ aiTextureType_OPACITY,			OPACITY },
-		//{ aiTextureType_EMISSIVE,			EMISSIVE },
-		{ aiTextureType_DISPLACEMENT,		DPCM },
-		{ aiTextureType_LIGHTMAP,			AMBIENT },
-		{ aiTextureType_REFLECTION,			REFLECTION },
-		// PBR
-		{ aiTextureType_BASE_COLOR,			REFRACTION },
-		//{ aiTextureType_EMISSION_COLOR,	EMISSIVE },
-		{ aiTextureType_METALNESS,			METALLIC },
-		{ aiTextureType_DIFFUSE_ROUGHNESS,	ROUGHNESS },
-		{ aiTextureType_AMBIENT_OCCLUSION,	AMBIENT },
-		// Mystery meat
-		{ aiTextureType_UNKNOWN,			OTHER }
-	};
-
-	inline static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
-	{
-		{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
-		{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
-		{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
-		{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
-	};
 
 	struct TempTexData
 	{
@@ -48,73 +19,62 @@ private:
 
 public:
 
-
-
-	static std::vector<Material*> LoadAllMaterials(const aiScene* scene, const std::string& modPath)
+	static std::vector<Material> LoadAllMaterials(
+		const aiScene* scene, const std::string& modPath, TextureCache* ptc)
 	{
-		std::vector<Material*> materials;
+		std::vector<Material> materials;
 		materials.reserve(scene->mNumMaterials);
 
-		std::set<std::string> unqTexPaths;
+		std::map<std::string, Texture*> texNamePtrMap;
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], unqTexPaths));
-
-		// Identify unique textures, bit slow but it's import code...
-
-		/*
-		for (const std::string& texPath : unqTexPaths)
-		{
-			Texture* tex = LoadTexture(scene, modPath, texPath.c_str());
-
-			// Apply DXT compression once I learn more about it, but by calling a function
-
-			//std::ofstream ofs("wat");
-			//cereal::BinaryOutputArchive boa(ofs);
-			//tex->serialize(boa);
-		}
-		*/
-		
-		// Great, now what? There's no texture manager yet, we don't know where they will be
-		// Or how to refer to them from the material without a legit system in place
+			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], modPath, texNamePtrMap));
 
 		return materials;
 	}
 
 
 
-	static Material* LoadMaterial(const aiScene* scene, const aiMaterial* aiMat, std::set<std::string> unqTexPaths)
+	static Material LoadMaterial(const aiScene* scene, const aiMaterial* aiMat, 
+		const std::string& modelPath, std::map<std::string, Texture*>& texNamePtrMap)
 	{
-		Material* mat = new Material();
+		Material mat;
 		
 		// Parameters - once I decide what to support, parse and load into a cbuffer
 		//loadParameterBlob(aiMat);
-
+		
 		// Textures
 		std::vector<TempTexData> tempTexData;
-
-		for (UINT i = 0; i < ASSIMP_TEX_TYPES.size(); ++i)
-		{
-			GetTexMetaData(aiMat, ASSIMP_TEX_TYPES[i], tempTexData);
-		}
-
-		mat->_texMetaData.resize(tempTexData.size());
-
+		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
+			GetTexMetaData(aiMat, ttr, tempTexData);
+		
+		mat._texMetaData.resize(tempTexData.size());
+		
+		// Set pointers to textures...
 		for (UINT i = 0; i < tempTexData.size(); ++i)
 		{
-			mat->_texMetaData[i] = tempTexData[i]._tmd;
-			unqTexPaths.insert(tempTexData[i]._path);
+			mat._texMetaData[i] = tempTexData[i]._tmd;
+			auto iter = texNamePtrMap.insert({ tempTexData[i]._path, nullptr });
+			if (iter.second)	// Did not exist, load up
+			{
+				iter.first->second = LoadTexture(scene, modelPath, tempTexData[i]._path);
+			}
+			else				// Did exist, just use the existing pointer
+			{
+				mat._texMetaData[i]._tex = texNamePtrMap[tempTexData[i]._path];
+			}
 		}
-
+		
 		return mat;
 	}
 
 
 
-	static void GetTexMetaData(const aiMaterial *aiMat, TEX_TYPE_ROLE ttr, std::vector<TempTexData>& ttd)
+	static void GetTexMetaData(const aiMaterial *aiMat, AssimpWrapper::TEX_TYPE_ROLE ttr, std::vector<TempTexData>& ttd)
 	{
 		// Iterate all textures related to the material, keep the ones that can load
-		for (UINT i = 0; i < aiMat->GetTextureCount(ttr.first); ++i)
+		UINT texCountByType = aiMat->GetTextureCount(ttr.first);
+		for (UINT i = 0; i < texCountByType; ++i)
 		{
 			aiString aiTexPath;
 			UINT uvIndex = 0u;
@@ -124,7 +84,9 @@ public:
 
 			TextureMapMode mapModes[3];
 			for (UINT j = 0; j < 3; ++j)
-				mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
+				mapModes[j] = AssimpWrapper::TEXMAPMODE_MAP.at(aiMapModes[j]);
+
+			//reinterpret_cast<Texture*>(fnv1hash(aiTexPath.C_Str())
 
 			ttd.push_back(
 			{
@@ -156,17 +118,17 @@ public:
 		{
 			// Assumes relative paths
 			std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
-			std::string texPath = modelFolderPath + "/" + texPath;
+			std::string absTexPath = modelFolderPath + "/" + texPath;
 
 			// Path is faulty, try to find it under model directory
-			if (!std::filesystem::exists(texPath))
+			if (!std::filesystem::exists(absTexPath))
 			{
 				std::filesystem::directory_entry texFile;
 				if (FileUtils::findFile(modelFolderPath, texName, texFile))
-					texPath = texFile.path().string();
+					absTexPath = texFile.path().string();
 			}
 
-			loaded = curTex->loadFromPath(texPath.c_str());
+			loaded = curTex->loadFromPath(absTexPath.c_str());
 		}
 
 		// Load failed, likely the data is corrupted or stb doesn't support it
@@ -176,7 +138,6 @@ public:
 			curTex = nullptr;
 			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
 		}
-
 		return curTex;
 	}
 

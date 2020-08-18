@@ -17,7 +17,7 @@ private:
 public:
 
 	
-	bool addTexture(std::string& name, Texture* tex)
+	bool add(std::string& name, Texture* tex)
 	{
 		std::unique_ptr<Texture> upTexture;
 		upTexture.reset(tex);
@@ -33,6 +33,13 @@ public:
 		if (iter != _textures.end())
 			return iter->second.get();
 		return nullptr;
+	}
+
+
+
+	bool exists(const char* name)
+	{
+		return (_textures.find(name) != _textures.end());
 	}
 
 
