@@ -101,15 +101,12 @@ public:
 	template <typename Archive>
 	void save(Archive& ar, const std::vector<UINT>& texIDs) const
 	{
-		//ar(_vertexShader->_id, _pixelShader->_id, _opaque, _primitiveTopology,
-		//_texMetaData.size(), _texMetaData);
-		ar(_vertexShader->_id, _pixelShader->_id, _opaque);
+		//ar(_vertexShader->_id, _pixelShader->_id, _opaque);
 	}
 
 	template <typename Archive>
 	void load(Archive& ar)
 	{
-
-		ar(_vertexShader->_id, _pixelShader->_id);
+		//ar(_vertexShader->_id, _pixelShader->_id, _opaque);
 	}
 };

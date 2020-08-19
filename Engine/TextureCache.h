@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>	
 
+// Currently not used, consider how to.
 class TextureCache
 {
 private:

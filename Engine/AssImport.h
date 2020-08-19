@@ -22,7 +22,9 @@ private:
 	TextureCache* _pTexCache;
 
 	std::string _path;
+	std::string _sceneName;
 	std::string _importPath = "C:\\Users\\Senpai\\Desktop\\AeonTest\\";
+
 	Assimp::Importer _importer;
 	const aiScene* _aiScene;
 
@@ -64,6 +66,7 @@ public:
 		_importConfigured = false;
 
 		_path = path;
+		_sceneName = std::filesystem::path(path).filename().replace_extension("").string();
 		_device = device;
 
 		_previewScale = 1.f;
@@ -155,6 +158,7 @@ public:
 			AssimpWrapper::loadAnimations(_aiScene, _anims);
 		}
 
+		// Pass these preloaded materials to meshes in either model type below
 		_mats = MatLoader::LoadAllMaterials(_aiScene, _path, _pTexCache);
 
 		if (_impSkModel)
@@ -166,11 +170,11 @@ public:
 
 			_skModel->loadFromAiScene(_device, _aiScene, _path);
 
+			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
-			{
-				_skModel->_anims.push_back(&anim);	// Bad, shouldn't own them in the first place
-			}
+				_skModel->_anims.push_back(&anim);
 
+			// This code is here purely for presenting the loaded model
 			for (SkeletalMesh& skmesh : _skModel->_meshes)
 			{
 				auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
@@ -269,9 +273,13 @@ public:
 
 		if (ImGui::Button("Import as .aeon"))
 		{
-			if (FileUtils::fileExists(_importPath))	// Add extra checks
+			if (std::filesystem::is_directory(_importPath))	// Add extra checks
 			{
 				persistAssets();
+			}
+			else
+			{
+				// Freak out
 			}
 		}
 
@@ -293,25 +301,47 @@ public:
 
 		if (_skeleton.get())
 		{
-			std::string skeletonPath{ _importPath + "//skelly" + ".aeon" };
+			std::string skeletonPath{ _importPath + "skelly" + ".aeon" };
 			std::ofstream ofs(skeletonPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
-			_skeleton.get()->serialize(boa);
+			_skeleton->serialize(boa);
 			skeletonID = _pLedger->add("", skeletonPath, ResType::SKELETON);
 		}
 
 		for (UINT i = 0; i < _anims.size(); ++i)
 		{
-			Animation& anim = _anims[i];
-
-			std::string animName = anim.getName();
+			std::string animName = _anims[i].getName();
 			if (animName.size() == 0)	// Do this during import?
-				animName = "anim" + std::to_string(i);
-			std::string animPath{ _importPath + "//" + animName + ".aeon" };
+				animName = "anim_" + std::to_string(i);
+			std::string animPath{ _importPath + animName + ".aeon" };
 			std::ofstream ofs(animPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
-			anim.serialize(boa);
+			_anims[i].serialize(boa);
 			animIDs.push_back(_pLedger->add("", animPath, ResType::ANIMATION));
+		}
+
+		for (UINT i = 0; i < _mats.size(); ++i)
+		{
+			std::string matPath{ _importPath + "mat_" + std::to_string(i)+ ".aeon" };
+			std::ofstream ofs(matPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			_mats[i].save(boa, {});
+			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
+		}
+
+		std::string modPath{ _importPath + _sceneName };
+		std::string mPath{ _importPath + _sceneName + ".aeon" };
+		std::ofstream ofs(mPath, std::ios::binary);
+		cereal::BinaryOutputArchive boa(ofs);
+
+		if (_skModel.get())
+		{
+			_skModel->serialize(boa, matIDs, animIDs, skeletonID);
+		}
+
+		if (_model.get())
+		{
+			//_model->serialize(ofs, )
 		}
 
 		_pLedger->save();

@@ -27,13 +27,20 @@ public:
 	
 	bool loadFromAiScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path);
 
-	template <typename Archive>
+	//template <typename Archive>
 	void serialize(
-		Archive& ar, 
-		std::vector<UINT> meshIndices, 
-		std::vector<UINT> animIndices, 
-		UINT skelIndex)
+		cereal::BinaryOutputArchive &ar,
+		std::vector<UINT>& matIndices,
+		std::vector<UINT>& animIndices, 
+		UINT& skelIndex)
 	{
-		ar(_meshes.size(), meshIndices, animIndices);	//_meshes
+		UINT numMeshes = _meshes.size();
+		ar(numMeshes);
+		for (UINT i = 0; i < numMeshes; ++i)
+		{
+			// MatIndices[mesh.matIndex] instead when it's fixed to be external
+			ar(_meshes[i], 0);	
+		}
+		ar(animIndices, skelIndex);
 	}
 };

@@ -54,15 +54,13 @@ public:
 		for (UINT i = 0; i < tempTexData.size(); ++i)
 		{
 			mat._texMetaData[i] = tempTexData[i]._tmd;
+
 			auto iter = texNamePtrMap.insert({ tempTexData[i]._path, nullptr });
+
 			if (iter.second)	// Did not exist, load up
-			{
 				iter.first->second = LoadTexture(scene, modelPath, tempTexData[i]._path);
-			}
 			else				// Did exist, just use the existing pointer
-			{
 				mat._texMetaData[i]._tex = texNamePtrMap[tempTexData[i]._path];
-			}
 		}
 		
 		return mat;
