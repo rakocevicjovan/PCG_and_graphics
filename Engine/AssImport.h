@@ -37,7 +37,7 @@ private:
 	std::unique_ptr<Model> _model;
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
-	std::vector<Material> _mats;
+	std::vector<std::shared_ptr<Material>> _mats;
 	std::vector<Texture> _textures;
 
 
@@ -159,7 +159,7 @@ public:
 		}
 
 		// Pass these preloaded materials to meshes in either model type below
-		_mats = MatLoader::LoadAllMaterials(_aiScene, _path, _pTexCache);
+		//_mats = MatLoader::LoadAllMaterials(_aiScene, _path);
 
 		if (_impSkModel)
 		{
@@ -177,9 +177,10 @@ public:
 			// This code is here purely for presenting the loaded model
 			for (SkeletalMesh& skmesh : _skModel->_meshes)
 			{
-				auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, &skmesh._baseMaterial);
-				skmesh._baseMaterial.setVS(shPack->vs);
-				skmesh._baseMaterial.setPS(shPack->ps);
+				Material* skMat = skmesh.getMaterial();
+				auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, skMat);
+				skMat->setVS(shPack->vs);
+				skMat->setPS(shPack->ps);
 			}
 
 			_skModelInst = std::make_unique<SkeletalModelInstance>();
@@ -325,11 +326,10 @@ public:
 			std::string matPath{ _importPath + "mat_" + std::to_string(i)+ ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
-			_mats[i].save(boa, {});
+			_mats[i]->save(boa, {});
 			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
 		}
 
-		std::string modPath{ _importPath + _sceneName };
 		std::string mPath{ _importPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
 		cereal::BinaryOutputArchive boa(ofs);

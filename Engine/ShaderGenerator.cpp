@@ -29,6 +29,9 @@ void ShaderGenerator::EncodeTextureData(const std::vector<TextureMetaData>& texD
 {
 	for (const TextureMetaData& rtp : texData)
 	{
+		if (!rtp._tex)	// Don't build a shader for non-existent textures
+			continue;
+
 		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(rtp._role);
 		if (iter != TEX_ROLE_TO_SHADER_OPTION.end())
 			key |= (1 << iter->second->_offset);

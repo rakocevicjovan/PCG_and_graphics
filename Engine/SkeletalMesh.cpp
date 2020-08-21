@@ -3,32 +3,33 @@
 #include "MeshLoader.h"
 
 
-void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, Skeleton& skeleton, const std::string& path)
+void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
+	std::vector<std::shared_ptr<Material>> materials, Skeleton& skeleton, const std::string& path)
 {
 	_vertSig = MeshLoader::createVertSignature(aiMesh);
 
-	//float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
 	MeshLoader meshLoader;
 	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, &skeleton);
 
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
 	// Use this index to associate the mesh material with the loaded material.
-	UINT matIndex = aiMesh->mMaterialIndex;
+	_material = materials[aiMesh->mMaterialIndex];
 
 	// This doesn't belong here!
-	AssimpWrapper::loadMaterial(scene, matIndex, path, &_baseMaterial, _textures);
+	/*
+	AssimpWrapper::loadMaterial(scene, matIndex, path, _material, _textures);
 
 	for (Texture& t : _textures)
 		t.SetUpAsResource(device);
 
-	_baseMaterial._opaque = true;
+	_material->_opaque = true;
 
-	for (TextureMetaData& rtp : _baseMaterial._texMetaData)
+	for (TextureMetaData& rtp : _material->_texMetaData)
 	{
 		rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
-		rtp._tex->SetUpAsResource(device);
 	}
+	*/
 }
 
 
@@ -84,23 +85,18 @@ bool SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
 
 void SkeletalMesh::draw(ID3D11DeviceContext* dc)
 {
-	//update and set cbuffers
-	_baseMaterial.getVS()->updateBuffersAuto(dc, *this);
-	_baseMaterial.getVS()->setBuffers(dc);
+	//update and set cbuffers, move to a material function
+	_material->getVS()->updateBuffersAuto(dc, *this);
+	_material->getVS()->setBuffers(dc);
 
-	_baseMaterial.getPS()->updateBuffersAuto(dc, *this);
-	_baseMaterial.getPS()->setBuffers(dc);
-
+	_material->getPS()->updateBuffersAuto(dc, *this);
+	_material->getPS()->setBuffers(dc);
 
 	//set shaders and similar geebees
-	dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
-	dc->VSSetShader(_baseMaterial.getVS()->_vsPtr, NULL, 0);
-	dc->PSSetShader(_baseMaterial.getPS()->_psPtr, NULL, 0);
-	_baseMaterial.bindSamplers(dc);
-	_baseMaterial.bindTextures(dc);
+	_material->bind(dc);
 
 	//could sort by this as well... should be fairly uniform though
-	dc->IASetPrimitiveTopology(_baseMaterial._primitiveTopology);
+	dc->IASetPrimitiveTopology(_material->_primitiveTopology);
 
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
 	dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);

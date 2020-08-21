@@ -47,38 +47,16 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 		aiMaterial* aiMat = scene->mMaterials[index];
 
 		// Textures
-		// Diffuse maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DIFFUSE, DIFFUSE);
-
-		//  Normal maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_NORMALS, NORMAL);
-
-		// Specular maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SPECULAR, SPECULAR);
-
-		// Shininess maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_SHININESS, SHININESS);
-
-		// Opacity maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_OPACITY, OPACITY);
-
-		// Displacement maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_DISPLACEMENT, DPCM);
-
-		// Ambient occlusion maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_AMBIENT, AMB_OCCLUSION);
-
-		// Metallic maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_METALNESS, METALLIC);
-
-		// Other maps
-		loadMaterialTextures(path, textures, scene, aiMat, mat, aiTextureType_UNKNOWN, OTHER);
+		for (const auto& att : ASSIMP_TEX_TYPES)
+		{
+			LoadMaterialTextures(path, textures, scene, aiMat, mat, att.first, att.second);
+		}
 	}
 }
 
 
 
-bool AssimpWrapper::loadMaterialTextures(
+bool AssimpWrapper::LoadMaterialTextures(
 	const std::string& modelPath,
 	std::vector<Texture>& textures,
 	const aiScene* scene,
@@ -87,14 +65,6 @@ bool AssimpWrapper::loadMaterialTextures(
 	aiTextureType aiTexType,
 	TextureRole role)
 {
-	static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
-	{
-		{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
-		{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
-		{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
-		{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
-	};
-
 	// Iterate all textures related to the material, keep the ones that can load
 	for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
 	{
@@ -194,6 +164,7 @@ bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, 
 		texSize *= aiTex->mHeight;
 
 	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
+	texture._fileName = str;
 
 	return true;
 }

@@ -98,7 +98,6 @@ Texture::~Texture()
 
 
 
-// Handle DirectX BS where it doesn't allow to pass 3 byte tex and automatically pad...
 int Texture::GetFormatFromFile(const char* filename)
 {
 	int w, h, n;
@@ -121,7 +120,7 @@ void Texture::loadFromFile(const char* filename)
 {
 	int fileFormat;	// For debugging purposes, I'd like to see this as well
 	int desiredFormat = GetFormatFromFile(filename);
-	_mdata = std::shared_ptr<unsigned char>(stbi_load(filename, &_w, &_h, &fileFormat, desiredFormat));
+	_mdata = std::shared_ptr<unsigned char[]>(stbi_load(filename, &_w, &_h, &fileFormat, desiredFormat));
 	_nc = desiredFormat;
 }
 
@@ -194,7 +193,7 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 	{
 		int fileFormat;
 		int desiredFormat = GetFormatFromMemory(data, size);
-		_mdata = std::shared_ptr<unsigned char>(stbi_load_from_memory(data, size, &_w, &_h, &fileFormat, desiredFormat));
+		_mdata = std::shared_ptr<unsigned char[]>(stbi_load_from_memory(data, size, &_w, &_h, &fileFormat, desiredFormat));
 		_nc = desiredFormat;
 
 		return (_mdata.get() != nullptr);
@@ -214,7 +213,7 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 	_h = perlin._h;
 	_nc = 1;
 	
-	_mdata = std::shared_ptr<unsigned char>(perlin.getUCharVector().data());
+	_mdata = std::shared_ptr<unsigned char[]>(perlin.getUCharVector().data());
 
 	return SetUpAsResource(device);
 }
@@ -237,7 +236,7 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 
 
 
-bool Texture::SetUpAsResource(ID3D11Device* device) 
+bool Texture::SetUpAsResource(ID3D11Device* device, bool deleteData)
 {
 	DXGI_FORMAT inferredFormat = N_TO_FORMAT_DX11[_nc - 1];
 
@@ -280,6 +279,9 @@ bool Texture::SetUpAsResource(ID3D11Device* device)
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(43);
 	}
+
+	if (deleteData)
+		freeMemory();
 
 	return true;
 }

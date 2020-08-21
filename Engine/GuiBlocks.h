@@ -72,28 +72,35 @@ namespace GuiBlocks
 
 
 
-	static void displayMaterial(Material& mat)
+	static void displayMaterial(Material* mat)
 	{
 		ImGui::BeginGroup();
 
-		displayShaders(mat.getVS(), mat.getPS());
+		displayShaders(mat->getVS(), mat->getPS());
 
 		ImGui::Unindent();
 
 		ImGui::Text("Textures");
 		ImGui::Indent();
 
-		for (int i = 0; i < mat._texMetaData.size(); i++)
+		for (int i = 0; i < mat->_texMetaData.size(); i++)
 		{
-			ImGui::Text(TEX_ROLE_NAMES.at(mat._texMetaData[i]._role));
+			ImGui::Text(TEX_ROLE_NAMES.at(mat->_texMetaData[i]._role));
 			ImGui::SameLine();
-			ImGui::Text(mat._texMetaData[i]._tex->getName().c_str());
-			ImGui::Image(mat._texMetaData[i]._tex->_srv, ImVec2(300, 300));
+			if (mat->_texMetaData[i]._tex)
+			{
+				ImGui::Text(mat->_texMetaData[i]._tex->getName().c_str());
+				ImGui::Image(mat->_texMetaData[i]._tex->_srv, ImVec2(300, 300));
+			}
+			else
+			{
+				ImGui::NewLine();
+			}
 		}
 
 		ImGui::Unindent();
 
-		ImGui::Checkbox("Opaque: ", &mat._opaque);
+		ImGui::Checkbox("Opaque: ", &mat->_opaque);
 
 		ImGui::EndGroup();
 	}
@@ -110,7 +117,7 @@ namespace GuiBlocks
 		if (dMat)
 		{
 			ImGui::Text("Material: ");
-			displayMaterial(mesh->_baseMaterial);
+			displayMaterial(&mesh->_baseMaterial);
 			ImGui::Separator();
 		}
 	}
@@ -134,7 +141,7 @@ namespace GuiBlocks
 
 		ImGui::Text("Material: ");
 		ImGui::Indent();
-		displayMaterial(mesh->_baseMaterial);
+		displayMaterial(mesh->getMaterial());
 		ImGui::Unindent();
 		ImGui::NewLine();
 	}
@@ -159,7 +166,7 @@ namespace GuiBlocks
 		ImGui::PopID();
 
 		ImGui::Text("Material");
-		displayMaterial(*r.mat);
+		displayMaterial(r.mat);
 
 		ImGui::Separator();
 	}

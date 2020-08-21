@@ -1,5 +1,5 @@
 #include "SkeletalModel.h"
-
+#include "MatLoader.h"
 
 
 bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
@@ -30,6 +30,9 @@ bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
 bool SkeletalModel::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
 {
 	_path = path;
+
+	auto mats = MatLoader::LoadAllMaterials(device, scene, _path);
+
 	_meshes.reserve(scene->mNumMeshes);
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
@@ -38,7 +41,7 @@ bool SkeletalModel::loadFromAiScene(ID3D11Device* device, const aiScene* scene, 
 
 		aiMesh* aiMesh = scene->mMeshes[i];
 		
-		_meshes[i].loadFromAssimp(scene, device, aiMesh, *_skeleton, path);
+		_meshes[i].loadFromAssimp(scene, device, aiMesh, mats, *_skeleton, path);
 		_meshes[i].setupSkeletalMesh(device);
 	}
 

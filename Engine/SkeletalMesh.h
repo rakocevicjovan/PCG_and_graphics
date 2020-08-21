@@ -9,15 +9,13 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 
-/*
-class aiMesh;
-class aiScene;
-*/
+
 class Skeleton;
 
 
@@ -44,12 +42,12 @@ public:
 
 	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
-	std::vector<Texture> _textures;
+	//std::vector<Texture> _textures;
 
 	SMatrix _transform;	// relative to parent model
 	SMatrix _localTransform;
 
-	Material _baseMaterial;
+	std::shared_ptr<Material> _material;
 
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
@@ -57,7 +55,8 @@ public:
 	SkeletalMesh() {}
 
 	
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, Skeleton& skeleton, const std::string& path);
+	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
+		std::vector<std::shared_ptr<Material>> materials, Skeleton& skeleton, const std::string& path);
 
 
 	bool setupSkeletalMesh(ID3D11Device* dvc);
@@ -65,7 +64,9 @@ public:
 
 	void draw(ID3D11DeviceContext* dc);
 
-	
+
+	inline Material* getMaterial() { return _material.get(); }
+
 
 	template <typename Archive>
 	void serialize(Archive& archive, UINT matID)
@@ -73,3 +74,11 @@ public:
 		archive(_indices.size(), _vertices.size(), matID, _transform, _indices, _vertices);
 	}
 };
+
+/*
+// Maybe switching to serializing a separate object would be a lot cleaner
+struct MeshFileFormat
+{
+
+};
+*/

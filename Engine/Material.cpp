@@ -16,7 +16,8 @@ void Material::bindTextures(ID3D11DeviceContext* context) const
 {
 	for (int i = 0; i < _texMetaData.size(); ++i)
 	{
-		context->PSSetShaderResources(_texMetaData[i]._role, 1, &(_texMetaData[i]._tex->_srv));	//texturesAdded + i was used before, deprecated
+		if(_texMetaData[i]._tex)
+			context->PSSetShaderResources(_texMetaData[i]._role, 1, &(_texMetaData[i]._tex->_srv));	//texturesAdded + i was used before, deprecated
 	}
 }
 

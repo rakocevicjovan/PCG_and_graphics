@@ -32,14 +32,15 @@ private:
 	friend class Procedural::TextureGen;
 	
 protected:
-	//width, height, channels
-	int _w, _h, _nc;
 	
-	// Image data, shouldn't be retained on the cpu in general
-	std::shared_ptr<unsigned char> _mdata;
+	int _w, _h, _nc;	//width, height, channels
+	
+	std::shared_ptr<unsigned char[]> _mdata;
 
 	static int GetFormatFromFile(const char* filename);
+
 	static int GetFormatFromMemory(const unsigned char* data, size_t size);
+
 	void loadFromFile(const char* filename);
 
 public:
@@ -70,7 +71,7 @@ public:
 	void LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
 
-	bool SetUpAsResource(ID3D11Device* device);
+	bool SetUpAsResource(ID3D11Device* device, bool deleteData = true);
 
 	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
 	

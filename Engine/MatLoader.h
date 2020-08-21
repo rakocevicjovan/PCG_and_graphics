@@ -19,23 +19,25 @@ private:
 
 public:
 
-	static std::vector<Material> LoadAllMaterials(
-		const aiScene* scene, const std::string& modPath, TextureCache* ptc)
+	static std::vector<std::shared_ptr<Material>> LoadAllMaterials(
+		ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
-		std::vector<Material> materials;
+		std::vector<std::shared_ptr<Material>> materials;
 		materials.reserve(scene->mNumMaterials);
 
 		std::map<std::string, Texture*> texNamePtrMap;
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-			materials.emplace_back(LoadMaterial(scene, scene->mMaterials[i], modPath, texNamePtrMap));
+			materials.emplace_back(
+				std::make_shared<Material>(LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap))
+			);
 
 		return materials;
 	}
 
 
 
-	static Material LoadMaterial(const aiScene* scene, const aiMaterial* aiMat, 
+	static Material LoadMaterial(ID3D11Device* device, const aiScene* scene, const aiMaterial* aiMat,
 		const std::string& modelPath, std::map<std::string, Texture*>& texNamePtrMap)
 	{
 		Material mat;
@@ -57,10 +59,15 @@ public:
 
 			auto iter = texNamePtrMap.insert({ tempTexData[i]._path, nullptr });
 
-			if (iter.second)	// Did not exist, load up
-				iter.first->second = LoadTexture(scene, modelPath, tempTexData[i]._path);
-			else				// Did exist, just use the existing pointer
-				mat._texMetaData[i]._tex = texNamePtrMap[tempTexData[i]._path];
+			if (iter.second)	// Did not exist, load up into map
+			{
+				Texture*& t = iter.first->second;
+				t = LoadTexture(scene, modelPath, tempTexData[i]._path);
+				if(t)
+					(t)->SetUpAsResource(device);
+			}
+			// Assign to the metadata whether it did or didn't exist
+			mat._texMetaData[i]._tex = iter.first->second;
 		}
 		
 		return mat;
@@ -83,8 +90,6 @@ public:
 			TextureMapMode mapModes[3];
 			for (UINT j = 0; j < 3; ++j)
 				mapModes[j] = AssimpWrapper::TEXMAPMODE_MAP.at(aiMapModes[j]);
-
-			//reinterpret_cast<Texture*>(fnv1hash(aiTexPath.C_Str())
 
 			ttd.push_back(
 			{
