@@ -17,6 +17,7 @@ class MeshLoader
 
 public:
 
+	/*
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path, const Skeleton* skeleton = nullptr)
 	{
 		_vertSig = createVertSignature(aiMesh);
@@ -33,10 +34,11 @@ public:
 
 		for (TextureMetaData& rtp : _material->_texMetaData)
 		{
-			rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
+			rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex.get())];
 			rtp._tex->SetUpAsResource(device);
 		}
 	}
+	*/
 
 
 

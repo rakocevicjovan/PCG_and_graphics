@@ -8,7 +8,7 @@
 
 const aiScene* AssimpWrapper::loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags)
 {
-	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
+	assert(FileUtils::fileExists(path) && "File not accessible!");
 
 	const aiScene* scene = importer.ReadFile(path, pFlags);
 
@@ -55,7 +55,7 @@ void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::st
 }
 
 
-
+// DOES NOT WORK CURRENTLY!
 bool AssimpWrapper::LoadMaterialTextures(
 	const std::string& modelPath,
 	std::vector<Texture>& textures,
@@ -116,12 +116,14 @@ bool AssimpWrapper::LoadMaterialTextures(
 		textures.push_back(std::move(curTexture));	// Should try to do std::move when this is done
 		
 		mat->_texMetaData.push_back({ 
-			reinterpret_cast<Texture*>(textures.size() - 1),
+			std::shared_ptr<Texture>(nullptr),	//textures.size() - 1
 			role, 
 			{mapModes[0], mapModes[1], mapModes[2]},
 			static_cast<uint8_t>(uvIndex),
 			0u});	// Textures will relocate
+		//mat->_texMetaData.back()._tex.reset()
 	}
+	
 	return true;
 }
 

@@ -21,7 +21,7 @@ public:
 
 	Renderable() {}
 
-	Renderable(Mesh& mesh) : mesh(&mesh), mat(&mesh._baseMaterial), _transform(mesh._transform)
+	Renderable(Mesh& mesh) : mesh(&mesh), mat(mesh._material.get()), _transform(mesh._transform)
 	{}
 
 

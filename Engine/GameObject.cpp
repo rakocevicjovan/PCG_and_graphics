@@ -13,7 +13,7 @@ Actor::Actor(Model* model, SMatrix& transform)
 		_renderables.emplace_back(mesh);
 		_renderables.back()._localTransform = mesh._transform;
 		_renderables.back()._transform = transform * mesh._transform;
-		_renderables.back().mat = &mesh._baseMaterial;
+		_renderables.back().mat = mesh._material.get();
 
 		_collider.addHull(new SphereHull(_renderables.back()._transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
 	}

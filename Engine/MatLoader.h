@@ -19,17 +19,17 @@ private:
 
 public:
 
-	static std::vector<std::shared_ptr<Material>> LoadAllMaterials(
+	static std::vector<Material*> LoadAllMaterials(
 		ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
-		std::vector<std::shared_ptr<Material>> materials;
+		std::vector<Material*> materials;
 		materials.reserve(scene->mNumMaterials);
 
-		std::map<std::string, Texture*> texNamePtrMap;
+		std::map<std::string, std::shared_ptr<Texture>> texNamePtrMap;
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
 			materials.emplace_back(
-				std::make_shared<Material>(LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap))
+				LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap)
 			);
 
 		return materials;
@@ -37,10 +37,10 @@ public:
 
 
 
-	static Material LoadMaterial(ID3D11Device* device, const aiScene* scene, const aiMaterial* aiMat,
-		const std::string& modelPath, std::map<std::string, Texture*>& texNamePtrMap)
+	static Material* LoadMaterial(ID3D11Device* device, const aiScene* scene, const aiMaterial* aiMat,
+		const std::string& modelPath, std::map<std::string, std::shared_ptr<Texture>>& texNamePtrMap)
 	{
-		Material mat;
+		Material* mat = new Material();
 		
 		// Parameters - once I decide what to support, parse and load into a cbuffer
 		//loadParameterBlob(aiMat);
@@ -50,24 +50,24 @@ public:
 		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
 			GetTexMetaData(aiMat, ttr, tempTexData);
 		
-		mat._texMetaData.resize(tempTexData.size());
+		mat->_texMetaData.resize(tempTexData.size());
 		
 		// Set pointers to textures...
 		for (UINT i = 0; i < tempTexData.size(); ++i)
 		{
-			mat._texMetaData[i] = tempTexData[i]._tmd;
+			mat->_texMetaData[i] = tempTexData[i]._tmd;
 
 			auto iter = texNamePtrMap.insert({ tempTexData[i]._path, nullptr });
 
 			if (iter.second)	// Did not exist, load up into map
 			{
-				Texture*& t = iter.first->second;
-				t = LoadTexture(scene, modelPath, tempTexData[i]._path);
+				std::shared_ptr<Texture>& t = iter.first->second;
+				t.reset(LoadTexture(scene, modelPath, tempTexData[i]._path));
 				if(t)
 					(t)->SetUpAsResource(device);
 			}
 			// Assign to the metadata whether it did or didn't exist
-			mat._texMetaData[i]._tex = iter.first->second;
+			mat->_texMetaData[i]._tex = iter.first->second;
 		}
 		
 		return mat;

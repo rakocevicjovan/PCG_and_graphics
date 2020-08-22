@@ -73,9 +73,9 @@ public:
 		terrain.CalculateNormals();
 
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
-		auto shPack = _shMan.getShaderAuto(_floorMesh->_vertSig, &_floorMesh->_baseMaterial);
-		_floorMesh->_baseMaterial.setVS(shPack->vs);
-		_floorMesh->_baseMaterial.setPS(shPack->ps);
+		auto shPack = _shMan.getShaderAuto(_floorMesh->_vertSig, _floorMesh->_material.get());
+		_floorMesh->_material->setVS(shPack->vs);
+		_floorMesh->_material->setPS(shPack->ps);
 
 		_floorRenderable = Renderable(*_floorMesh);
 		_terrainActor.addRenderable(_floorRenderable, 500);

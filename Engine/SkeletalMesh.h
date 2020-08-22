@@ -42,7 +42,6 @@ public:
 
 	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
-	//std::vector<Texture> _textures;
 
 	SMatrix _transform;	// relative to parent model
 	SMatrix _localTransform;
@@ -56,7 +55,7 @@ public:
 
 	
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
-		std::vector<std::shared_ptr<Material>> materials, Skeleton& skeleton, const std::string& path);
+		std::vector<Material*> materials, Skeleton& skeleton, const std::string& path);
 
 
 	bool setupSkeletalMesh(ID3D11Device* dvc);

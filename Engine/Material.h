@@ -9,13 +9,15 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
+
+#include <memory>
 #include <map>
 
 
 
 struct TextureMetaData
 {
-	Texture* _tex;
+	std::shared_ptr<Texture> _tex;
 	TextureRole _role;
 	std::array<TextureMapMode, 3> _mapMode = { TextureMapMode::WRAP, TextureMapMode::WRAP, TextureMapMode::WRAP };
 	uint8_t _uvIndex = 0u;
@@ -29,12 +31,10 @@ struct TextureMetaData
 	}
 
 	template <typename Archive>
-	void load(Archive& ar, int someKindOfTextureCache)
+	void load(Archive& ar)
 	{
 		std::string texFileName;
 		ar(texFileName, _role, _mapMode, _uvIndex, _regIndex);
-
-		//someKindOfTextureCache.getTexture(texFileName);
 	}
 };
 
@@ -93,7 +93,7 @@ public:
 
 	inline void addMaterialTexture(Texture* t, TextureRole role, std::array<TextureMapMode, 3> tmm, uint8_t uvIndex = 0u)
 	{
-		_texMetaData.push_back({t, role, tmm, uvIndex, 0u});
+		_texMetaData.push_back({std::shared_ptr<Texture>(t), role, tmm, uvIndex, 0u});
 	}
 
 

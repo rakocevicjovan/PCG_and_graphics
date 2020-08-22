@@ -1,8 +1,4 @@
 #pragma once
-
-#include <string>
-#include <vector>
-
 #include "Resource.h"
 #include "VBuffer.h"
 #include "IBuffer.h"
@@ -16,6 +12,10 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
+
+#include <string>
+#include <vector>
+#include <memory>
 
 
 typedef unsigned int UINT;
@@ -48,7 +48,7 @@ public:
 
 	SMatrix _transform;
 
-	Material _baseMaterial;	//should be loaded from assimp or otherwise as default... for fallback at least
+	std::shared_ptr<Material> _material;	//should be loaded from assimp or otherwise as default... for fallback at least
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
@@ -66,7 +66,8 @@ public:
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 	Mesh(const Hull* hull, ID3D11Device* device);
 
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path);
+	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
+		std::vector<Material*> materials, const std::string& path);
 
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
@@ -77,21 +78,16 @@ public:
 	void draw(ID3D11DeviceContext* dc)
 	{
 		//update and set cbuffers
-		_baseMaterial.getVS()->updateBuffersAuto(dc, *this);
-		_baseMaterial.getVS()->setBuffers(dc);
-
-		_baseMaterial.getPS()->updateBuffersAuto(dc, *this);
-		_baseMaterial.getPS()->setBuffers(dc);
+		_material->getVS()->updateBuffersAuto(dc, *this);
+		_material->getVS()->setBuffers(dc);
+		_material->getPS()->updateBuffersAuto(dc, *this);
+		_material->getPS()->setBuffers(dc);
 
 		//set shaders and similar geebees
-		dc->IASetInputLayout(_baseMaterial.getVS()->_layout);
-		dc->VSSetShader(_baseMaterial.getVS()->_vsPtr, NULL, 0);
-		dc->PSSetShader(_baseMaterial.getPS()->_psPtr, NULL, 0);
-		_baseMaterial.bindSamplers(dc);
-		_baseMaterial.bindTextures(dc);
+		_material->bind(dc);
 
 		//could sort by this as well... should be fairly uniform though
-		dc->IASetPrimitiveTopology(_baseMaterial._primitiveTopology);
+		dc->IASetPrimitiveTopology(_material->_primitiveTopology);
 
 		//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
 		dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);

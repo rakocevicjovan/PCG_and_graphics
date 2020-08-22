@@ -2,11 +2,9 @@
 #include "MatLoader.h"
 
 
-bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
+bool SkeletalModel::importFromFileAssimp(ID3D11Device* dvc, const std::string& path)
 {
 	_path = path;
-
-	assert(FileUtils::fileExists(path) && "File not accessible!");
 
 	unsigned int pFlags =
 		aiProcessPreset_TargetRealtime_MaxQuality |
@@ -22,12 +20,12 @@ bool SkeletalModel::loadModel(ID3D11Device* dvc, const std::string& path)
 	if (!scene)
 		return false;
 	else
-		return loadFromAiScene(dvc, scene, path);
+		return importFromAiScene(dvc, scene, path);
 }
 
 
 
-bool SkeletalModel::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
+bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
 {
 	_path = path;
 

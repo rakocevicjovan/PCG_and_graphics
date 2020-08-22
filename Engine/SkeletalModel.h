@@ -23,9 +23,9 @@ public:
 
 	Skeleton* _skeleton;
 
-	bool loadModel(ID3D11Device* dvc, const std::string& path);
+	bool importFromFileAssimp(ID3D11Device* dvc, const std::string& path);
 	
-	bool loadFromAiScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path);
+	bool importFromAiScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path);
 
 	//template <typename Archive>
 	void serialize(

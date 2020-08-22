@@ -61,6 +61,8 @@ public:
 
 	static void loadIndices(aiMesh* aiMesh, std::vector<UINT>& indices)
 	{
+		indices.reserve(aiMesh->mNumFaces * 3);
+
 		aiFace face;
 		for (UINT i = 0; i < aiMesh->mNumFaces; ++i)
 		{

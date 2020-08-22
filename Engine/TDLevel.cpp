@@ -58,9 +58,7 @@ void TDLevel::init(Engine& sys)
 
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.SetUpAsResource(S_DEVICE);
-	floorMesh._textures.push_back(floorTex);
-
-	floorMesh._baseMaterial._texMetaData.push_back({ &floorMesh._textures.back(), TextureRole::DIFFUSE });
+	floorMesh._material->_texMetaData.push_back({ std::make_shared<Texture>(floorTex), TextureRole::DIFFUSE });
 	
 	floorRenderable = Renderable(floorMesh);
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("lightVS"));
@@ -93,8 +91,7 @@ void TDLevel::init(Engine& sys)
 
 	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
 	debugSphereActor._renderables.back()._transform = dbgSphMat;
-
-	debugSphereActor._renderables[0].mat->_texMetaData.push_back({ &floorMesh._textures.back(), TextureRole::DIFFUSE });
+	//debugSphereActor._renderables[0].mat->_texMetaData.push_back({ &floorMesh._textures.back(), TextureRole::DIFFUSE });
 	
 	///
 

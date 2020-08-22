@@ -117,7 +117,7 @@ namespace GuiBlocks
 		if (dMat)
 		{
 			ImGui::Text("Material: ");
-			displayMaterial(&mesh->_baseMaterial);
+			displayMaterial(mesh->_material.get());
 			ImGui::Separator();
 		}
 	}

@@ -4,32 +4,15 @@
 
 
 void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
-	std::vector<std::shared_ptr<Material>> materials, Skeleton& skeleton, const std::string& path)
+	std::vector<Material*> materials, Skeleton& skeleton, const std::string& path)
 {
 	_vertSig = MeshLoader::createVertSignature(aiMesh);
-
 	MeshLoader meshLoader;
 	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, &skeleton);
-
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
 	// Use this index to associate the mesh material with the loaded material.
-	_material = materials[aiMesh->mMaterialIndex];
-
-	// This doesn't belong here!
-	/*
-	AssimpWrapper::loadMaterial(scene, matIndex, path, _material, _textures);
-
-	for (Texture& t : _textures)
-		t.SetUpAsResource(device);
-
-	_material->_opaque = true;
-
-	for (TextureMetaData& rtp : _material->_texMetaData)
-	{
-		rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
-	}
-	*/
+	_material = std::shared_ptr<Material>(materials[aiMesh->mMaterialIndex]);
 }
 
 

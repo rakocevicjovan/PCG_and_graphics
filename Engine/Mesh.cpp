@@ -8,6 +8,7 @@
 
 
 Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
+	: _material(std::make_shared<Material>())
 {
 	_vertSig._attributes = 
 	{
@@ -24,6 +25,7 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 
 
 Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
+	: _material(std::make_shared<Material>())
 {
 	float originX = (pos.x - size.x * 0.5f) * 2.f;	//[0, 1] -> [-1, 1]
 	float originY = (pos.y - size.y * 0.5f) * 2.f;
@@ -69,6 +71,7 @@ Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
 
 
 Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool hasTangents)
+	: _material(std::make_shared<Material>())
 {
 	/**
 	_vertices.reserve(g.positions.size());
@@ -94,6 +97,7 @@ Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool
 
 
 Mesh::Mesh(const Hull* hull, ID3D11Device* device)
+	: _material(std::make_shared<Material>())
 {
 	/*
 	const AABB*  aabb = reinterpret_cast<const AABB*>(hull);
@@ -129,39 +133,24 @@ Mesh::~Mesh()
 
 
 
-void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path)
-{
-
-	std::vector<SVec3> faceTangents;
-	faceTangents.reserve(aiMesh->mNumFaces);
-	
+void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
+	std::vector<Material*> materials, const std::string& path)
+{	
 	_vertSig = MeshLoader::createVertSignature(aiMesh);
 	MeshLoader meshLoader;
 	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, nullptr);
-
-
-	// Load the bulky data
-	//float radius = AssimpWrapper::loadVertices(aiMesh, hasTexCoords, _vertices);
-	_indices.reserve(aiMesh->mNumFaces * 3);
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
-	//AssimpWrapper::loadTangents(aiMesh, _vertices, faceTangents);
+	_material = std::shared_ptr<Material>(materials[aiMesh->mMaterialIndex]);
 
-	AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_baseMaterial, _textures);
+	//AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_material, _textures);
 
-
-	// Not true in the general case... it would require tool support with my own format for this!
-	// there is no robust way to infer whether a texture is transparent or not, as some textures use 
-	// 4 channels but are fully opaque (aka each pixel has alpha=1) therefore its a mess to sort...
-	// brute force checking could solve this but incurs a lot of overhead on load
-	// and randomized sampling is not reliable, so for now... we have this
-	_baseMaterial._opaque = true;
-
+	/*
 	for (TextureMetaData& rtp : _baseMaterial._texMetaData)
 	{
 		rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex)];
 		rtp._tex->SetUpAsResource(device);
-	}
+	}*/
 }
 
 

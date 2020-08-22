@@ -168,7 +168,7 @@ public:
 			_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
 			_skModel->_skeleton = _skeleton.get();
 
-			_skModel->loadFromAiScene(_device, _aiScene, _path);
+			_skModel->importFromAiScene(_device, _aiScene, _path);
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
@@ -195,9 +195,9 @@ public:
 
 			for (Mesh& mesh : _model->_meshes)
 			{
-				auto shPack = _pShMan->getShaderAuto(mesh._vertSig, &mesh._baseMaterial);
-				mesh._baseMaterial.setVS(shPack->vs);
-				mesh._baseMaterial.setPS(shPack->ps);
+				auto shPack = _pShMan->getShaderAuto(mesh._vertSig, mesh._material.get());
+				mesh._material->setVS(shPack->vs);
+				mesh._material->setPS(shPack->ps);
 			}
 		}
 	}
