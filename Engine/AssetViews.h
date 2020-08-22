@@ -80,11 +80,4 @@ public:
 			ImGui::PopID();
 		}
 	}
-
-
-
-	static void editMaterial(Material& mat)
-	{
-
-	}
 };

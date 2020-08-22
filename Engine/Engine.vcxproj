@@ -372,6 +372,7 @@
     <ClInclude Include="AnimationInstance.h" />
     <ClInclude Include="AnimChannel.h" />
     <ClInclude Include="AssetScanner.h" />
+    <ClInclude Include="AssimpGUI.h" />
     <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="AssImport.h" />
     <ClInclude Include="AssimpWrapper.h" />

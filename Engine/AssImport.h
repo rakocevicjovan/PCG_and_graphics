@@ -10,6 +10,7 @@
 #include "SkeletonLoader.h"
 #include "ShaderManager.h"
 #include "MatLoader.h"
+#include "AssimpGUI.h"
 
 
 
@@ -40,17 +41,17 @@ private:
 	std::vector<std::shared_ptr<Material>> _mats;
 	std::vector<Texture> _textures;
 
-
+	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
 	bool _importConfigured;
 
-	// Put this into animEditor
+	// Preview settings
 	int _currentAnim;
 	float _playbackSpeed;
 	float _previewScale;
 
-	std::vector<aiString> _externalTextures;
+	std::vector<aiString> _extTexPaths;
 
 public:
 
@@ -99,7 +100,7 @@ public:
 		_impAnims = _hasAnimations;
 		_impModel = !_hasOnlySkeleton && !_hasSkeletalModel;
 
-		_externalTextures = AssimpWrapper::getExtTextureNames(_aiScene);
+		_extTexPaths = AssimpWrapper::getExtTextureNames(_aiScene);
 
 		return true;
 	}
@@ -227,19 +228,19 @@ public:
 
 	void displayAiScene()
 	{
-		ImGui::Text("Assimp scene");
+		ImGui::Text("Assimp scene inspector");
 
 		if (ImGui::TreeNode("Node tree"))
 		{
-			printaiNode(_aiScene->mRootNode, _aiScene, _aiScene->mRootNode->mTransformation);
+			AssimpGUI::printaiNode(_aiScene->mRootNode, _aiScene, _aiScene->mRootNode->mTransformation);
 			ImGui::TreePop();
 		}
 
-		printSceneAnimations();
+		AssimpGUI::printSceneAnimations(_aiScene);
 
 		if (ImGui::TreeNode("Textures"))
 		{
-			printAiSceneTextures();
+			AssimpGUI::printAiSceneTextures(_aiScene, _extTexPaths);
 			ImGui::TreePop();
 		}
 	}
@@ -248,7 +249,7 @@ public:
 
 	void displayParsedAssets()
 	{
-		ImGui::Text("Parsed assets");
+		ImGui::Text("Parsed asset inspector");
 
 		if (_skeleton.get())
 			AssetViews::printSkeleton(_skeleton.get());
@@ -365,321 +366,6 @@ public:
 				Math::SetScale(r._transform, SVec3(_previewScale));
 				r.draw(context);
 			}
-		}
-	}
-
-
-
-	bool printaiNode(aiNode* node, const aiScene* scene, aiMatrix4x4 parentTransform)
-	{
-		std::string nodeName("Node: ");
-		nodeName += node->mName.C_Str();
-
-		if (ImGui::TreeNode(nodeName.c_str()))
-		{
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.6, 0., 1., 1.));
-
-			aiMatrix4x4 concatenatedTransform = node->mTransformation * parentTransform;
-
-			if (ImGui::IsItemHovered())
-			{
-				ImGui::BeginTooltip();
-
-				ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Local matrix");
-
-				SMatrix concatSMat = AssimpWrapper::aiMatToSMat(concatenatedTransform);
-				GuiBlocks::displayTransform(concatSMat);
-
-				SQuat squat = SQuat::CreateFromRotationMatrix(concatSMat);
-				ImGui::InputFloat4("Quat: ", &squat.x, 3, ImGuiInputTextFlags_ReadOnly);
-
-				ImGui::EndTooltip();
-			}
-
-
-			ImGui::Text("Mesh count: %d", node->mNumMeshes);
-
-			if (node->mNumMeshes > 0)
-			{
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0., 1., 0., 1.));
-				if (ImGui::TreeNode("Meshes"))
-				{
-					for (unsigned int i = 0; i < node->mNumMeshes; i++)
-					{
-						aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-
-						ImGui::PushID(i);
-						if (ImGui::TreeNode("Mesh name and node index: %s (%d)", mesh->mName.data, i))
-						{
-							printAiMesh(mesh, concatenatedTransform);
-							ImGui::TreePop();
-						}
-						ImGui::PopID();
-
-					}
-					ImGui::TreePop();
-				}
-				ImGui::PopStyleColor();
-			}
-
-
-			ImGui::Separator();
-
-			ImGui::Text("Child count: %d", node->mNumChildren);
-
-			if (node->mNumChildren > 0)
-			{
-				if (ImGui::TreeNode("Children"))
-				{
-					for (unsigned int i = 0; i < node->mNumChildren; i++)
-					{
-						ImGui::PushID(i);
-						printaiNode(node->mChildren[i], scene, concatenatedTransform);
-						ImGui::Separator();
-						ImGui::PopID();
-					}
-					ImGui::TreePop();
-				}	
-			}
-
-			ImGui::PopStyleColor();
-			ImGui::TreePop();
-		}
-
-		return true;
-	}
-
-
-
-	void printAiMesh(aiMesh* mesh, aiMatrix4x4 parentGlobal)
-	{
-		// Just because they are there doesn't mean they are useful, sadly... 
-		// It's infuriating how many issues need to be ironed out during import, like removing duplicates
-		UINT numUVChannels = mesh->GetNumUVChannels();
-		UINT* numUVComponents = mesh->mNumUVComponents;
-
-		ImGui::Text("Nr. of UV channels: %d", numUVChannels);
-		ImGui::Text("Nr. of UV components per channel: ");
-
-		ImGui::Indent();
-		for (int i = 0; i < numUVChannels; i++)
-			ImGui::Text("%d: %d ", i, numUVComponents[i]);
-		ImGui::Unindent();
-
-		ImGui::NewLine();
-
-		ImGui::Text("Vertex count: %d", mesh->mNumVertices);
-		ImGui::Text("Index count: %d", mesh->mNumFaces * 3);	// I always use assimp's triangulate flag
-		ImGui::Text("Face count: %d", mesh->mNumFaces);
-		ImGui::Text("Has (bi)tangents: %d", mesh->HasTangentsAndBitangents());
-
-		ImGui::NewLine();
-
-		printAiMaterial(mesh);
-	}
-
-
-
-	void printAiMaterial(aiMesh* mesh)
-	{
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.4, .5, .7, 1.));
-		if (mesh->mMaterialIndex >= 0)
-		{
-			aiMaterial* aiMat = _aiScene->mMaterials[mesh->mMaterialIndex];
-
-			ImGui::Text("Material: %s", aiMat->GetName().C_Str());
-
-			// Diffuse maps
-			printMaterialTextures(aiMat, aiTextureType_DIFFUSE, "texture_diffuse", DIFFUSE);
-
-			// Normal maps
-			printMaterialTextures(aiMat, aiTextureType_NORMALS, "texture_normal", NORMAL);
-
-			// Specular maps
-			printMaterialTextures(aiMat, aiTextureType_SPECULAR, "texture_specular", SPECULAR);
-
-			// Shininess maps
-			printMaterialTextures(aiMat, aiTextureType_SHININESS, "texture_shininess", SHININESS);
-
-			// Opacity maps
-			printMaterialTextures(aiMat, aiTextureType_OPACITY, "texture_opacity", OPACITY);
-
-			// Displacement maps
-			printMaterialTextures(aiMat, aiTextureType_DISPLACEMENT, "texture_disp", DPCM);
-
-			// Ambient occlusion maps
-			printMaterialTextures(aiMat, aiTextureType_AMBIENT, "texture_AO", AMB_OCCLUSION);
-
-			// Other maps
-			printMaterialTextures(aiMat, aiTextureType_UNKNOWN, "texture_other", OTHER);
-
-			// Weird properties... that I never really saw trigger
-			printMaterialTextures(aiMat, aiTextureType_NONE, "texture_property", OTHER);
-
-			ImGui::Unindent();
-		}
-		else
-		{
-			ImGui::Text("Material: none");
-		}
-
-		ImGui::PopStyleColor();
-	}
-
-
-
-	void printMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName, TextureRole role)
-	{
-		UINT numThisType = mat->GetTextureCount(type);
-		typeName += " count: " + std::to_string(numThisType);
-
-		ImGui::Text(typeName.c_str());
-
-		ImGui::Indent();
-
-		//iterate all textures of relevant related to the material
-		for (UINT i = 0; i < numThisType; ++i)
-		{
-			// Try to load this texture from file
-			aiString obtainedTexturePath;
-			mat->GetTexture(type, i, &obtainedTexturePath);
-
-			// This assumes files are exported with relative paths... which seems to be a big if...
-			//std::string modelFolderPath = _path.substr(0, _path.find_last_of("/\\")) + "\\";
-			std::string modelFolderPath = std::filesystem::path(_path).parent_path().string();
-			std::string texPath = modelFolderPath + std::string(obtainedTexturePath.data);
-			std::string texName = std::filesystem::path(std::string(obtainedTexturePath.C_Str())).filename().string();
-
-			bool texFound = FileUtils::fileExists(texPath);
-			
-			if (texFound)
-			{
-				ImGui::Text("Path: %s", texPath.c_str());
-			}
-			else
-			{
-				const aiTexture* aiTex = nullptr;
-
-				if (_aiScene->mTextures)
-					aiTex = _aiScene->GetEmbeddedTexture(obtainedTexturePath.C_Str());
-
-				if (aiTex)
-				{
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0., 1., 1., 1.));
-					ImGui::Text("This texture is embedded!");
-					ImGui::PopStyleColor();
-				}
-				else
-				{
-					ImGui::Text("Path: %s", texPath.c_str());
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1., 0., 0., 1.));
-					ImGui::Text(" ( WARNING: NOT FOUND! )");
-					ImGui::PopStyleColor();
-
-					// Try to apply the fix for absolute paths to textures...
-					std::filesystem::directory_entry artistPls;
-					if (FileUtils::findFile(modelFolderPath, texName, artistPls))
-					{
-						ImGui::Indent();
-						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.93, 0.82, 0.01, 1.));
-						ImGui::Text("Proposed path: %s", artistPls.path().string().c_str());
-						ImGui::PopStyleColor();
-						ImGui::Unindent();
-					}
-				}
-
-			}
-		}
-
-		ImGui::Unindent();
-	}
-
-
-
-	void printSceneAnimations()
-	{
-		if (!_aiScene->HasAnimations())
-			return;
-
-		if(ImGui::TreeNode("Animation list"))
-		{
-			for (int i = 0; i < _aiScene->mNumAnimations; ++i)
-				printAiAnimation(_aiScene->mAnimations[i]);
-
-			ImGui::TreePop();
-		}
-	}
-
-
-
-	void printAiAnimation(aiAnimation* sceneAnimation)
-	{
-		int numChannels = sceneAnimation->mNumChannels;
-
-		if (ImGui::TreeNode(sceneAnimation->mName.C_Str()))
-		{
-			ImGui::Text("Num channels: %d", numChannels);
-
-			for (int j = 0; j < numChannels; ++j)
-			{
-				aiNodeAnim* channel = sceneAnimation->mChannels[j];
-
-				if (ImGui::TreeNode(channel->mNodeName.C_Str()))
-				{
-					printAiAnimationTrack(channel);
-					ImGui::TreePop();
-				}
-			}
-			ImGui::TreePop();
-		}
-	}
-
-
-
-	void printAiAnimationTrack(aiNodeAnim* channel)
-	{
-		ImGui::Text("Num scaling keys: %d", channel->mNumScalingKeys);
-		ImGui::Text("Num rotation keys: %d", channel->mNumRotationKeys);
-		ImGui::Text("Num position keys: %d", channel->mNumPositionKeys);
-	}
-
-
-
-	void printAiSceneTextures()
-	{
-		if (_aiScene->mTextures)
-		{
-			if (ImGui::TreeNode("Embedded"))
-			{
-				for (int i = 0; i < _aiScene->mNumTextures; ++i)
-				{
-					const aiTexture* tex = _aiScene->mTextures[i];	
-					ImGui::Text("Name: %s", tex->mFilename.C_Str());
-					ImGui::Text("Width: %d; Height: %d;", tex->mWidth, tex->mHeight);
-					ImGui::Text("Format hint: %s", tex->achFormatHint);
-				}
-
-				ImGui::TreePop();
-			}
-		}
-		else
-		{
-			ImGui::Text("No embedded textures found");
-		}
-		
-		if (_externalTextures.size() > 0)
-		{
-			if (ImGui::TreeNode("External"))
-			{
-				for (int i = 0; i < _externalTextures.size(); ++i)
-					ImGui::Text(_externalTextures[i].C_Str());
-
-				ImGui::TreePop();
-			}
-		}
-		else
-		{
-			ImGui::Text("No external textures found");
 		}
 	}
 

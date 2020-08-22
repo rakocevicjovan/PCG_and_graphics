@@ -1000,6 +1000,9 @@
     <ClInclude Include="TextureCache.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="AssimpGUI.h">
+      <Filter>Asset importing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
