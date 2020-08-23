@@ -296,40 +296,9 @@ public:
 	// Eeeeehhhh... weird way to do it.
 	void persistAssets()
 	{
-		UINT skeletonID;
-		std::vector<UINT> animIDs;
-		std::vector<UINT> texIDs;
-		std::vector<UINT> matIDs;
-
-		if (_skeleton.get())
-		{
-			std::string skeletonPath{ _importPath + "skelly" + ".aeon" };
-			std::ofstream ofs(skeletonPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
-			_skeleton->serialize(boa);
-			skeletonID = _pLedger->add("", skeletonPath, ResType::SKELETON);
-		}
-
-		for (UINT i = 0; i < _anims.size(); ++i)
-		{
-			std::string animName = _anims[i].getName();
-			if (animName.size() == 0)	// Do this during import?
-				animName = "anim_" + std::to_string(i);
-			std::string animPath{ _importPath + animName + ".aeon" };
-			std::ofstream ofs(animPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
-			_anims[i].serialize(boa);
-			animIDs.push_back(_pLedger->add("", animPath, ResType::ANIMATION));
-		}
-
-		for (UINT i = 0; i < _mats.size(); ++i)
-		{
-			std::string matPath{ _importPath + "mat_" + std::to_string(i)+ ".aeon" };
-			std::ofstream ofs(matPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
-			_mats[i]->save(boa, {});
-			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
-		}
+		UINT skeletonID = persistSkeleton();
+		std::vector<UINT> animIDs = persistAnims();
+		std::vector<UINT> matIDs = persistMats();
 
 		std::string mPath{ _importPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
@@ -342,10 +311,66 @@ public:
 
 		if (_model.get())
 		{
-			//_model->serialize(ofs, )
+			//_model->serialize()
 		}
 
 		_pLedger->save();
+	}
+
+
+
+	uint32_t persistSkeleton()
+	{
+		if (_skeleton.get())
+		{
+			std::string skeletonPath{ _importPath + "skelly" + ".aeon" };
+			std::ofstream ofs(skeletonPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			_skeleton->serialize(boa);
+			return _pLedger->add("", skeletonPath, ResType::SKELETON);
+		}
+	}
+
+
+
+	std::vector<uint32_t> persistAnims()
+	{
+		std::vector<uint32_t> animIDs;
+		for (UINT i = 0; i < _anims.size(); ++i)
+		{
+			std::string animName = _anims[i].getName();
+			if (animName.size() == 0)	// Do this during import?
+				animName = "anim_" + std::to_string(i);
+			std::string animPath{ _importPath + animName + ".aeon" };
+			std::ofstream ofs(animPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			_anims[i].serialize(boa);
+			animIDs.push_back(_pLedger->add("", animPath, ResType::ANIMATION));
+		}
+		return animIDs;
+	}
+
+
+
+	std::vector<uint32_t> persistMats()
+	{
+		std::vector<uint32_t> matIDs;
+		for (UINT i = 0; i < _mats.size(); ++i)
+		{
+			Material* m = _mats[i].get();
+
+			std::vector<uint32_t> textureIDs;
+
+
+
+			std::string matPath{ _importPath + "mat_" + std::to_string(i) + ".aeon" };
+			std::ofstream ofs(matPath, std::ios::binary);
+			cereal::BinaryOutputArchive boa(ofs);
+			MaterialFileFormat mff = MaterialFileFormat(*(_mats[i].get()));
+			//mff.serialize(boa, );
+			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
+		}
+		return matIDs;
 	}
 
 
@@ -358,7 +383,7 @@ public:
 			Math::SetScale(_skModelInst->_transform, SVec3(_previewScale));
 			_skModelInst->draw(context);
 		}
-		
+
 		if (_model)
 		{
 			for (Mesh& r : _model->_meshes)

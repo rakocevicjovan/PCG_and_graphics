@@ -18,6 +18,8 @@ enum class ResType : uint8_t
 	MATERIAL,
 	TEXTURE,
 	SOUND,
+	TEXT,
+	SCRIPT,
 	UNSUPPORTED
 };
 
@@ -36,9 +38,6 @@ struct ResourceDef
 		std::string _path;
 		ResType _resType;
 	} val;
-	
-
-	static ResourceDef Load(rapidjson::Value::ConstValueIterator itr);
 	
 	template <typename Archive>
 	void serialize(Archive& ar)

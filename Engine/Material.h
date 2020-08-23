@@ -95,18 +95,31 @@ public:
 	{
 		_texMetaData.push_back({std::shared_ptr<Texture>(t), role, tmm, uvIndex, 0u});
 	}
+};
 
 
+
+struct MaterialFileFormat
+{
+	uint64_t _shaderKey;
+	std::vector<TextureMetaData> _texMetaData;
+	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology;
+	bool _opaque;
 
 	template <typename Archive>
-	void save(Archive& ar, const std::vector<UINT>& texIDs) const
+	void serialize(Archive& ar, const std::vector<UINT>& texIDs) const
 	{
-		//ar(_vertexShader->_id, _pixelShader->_id, _opaque);
+		ar(_shaderKey, _texMetaData, _primitiveTopology, _opaque);
 	}
 
-	template <typename Archive>
-	void load(Archive& ar)
+	MaterialFileFormat() {};
+
+	MaterialFileFormat(const Material& mat) 
+		: _texMetaData (mat._texMetaData), _primitiveTopology(mat._primitiveTopology), _opaque(mat._opaque)
 	{
-		//ar(_vertexShader->_id, _pixelShader->_id, _opaque);
+		if (mat.getVS())	// Id is currently same for both vs and ps, which isnt optimal but ok
+			mat.getVS()->_id;
+		else
+			_shaderKey = 0u;	// Lowest common denominator, only uses position
 	}
 };

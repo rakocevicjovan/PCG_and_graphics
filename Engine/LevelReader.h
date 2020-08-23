@@ -30,6 +30,8 @@ private:
 
 	bool loadResourceDefs(const rapidjson::Document& sceneDef);
 
+	ResourceDef LoadResourceDef(rapidjson::Value::ConstValueIterator itr);
+
 public:
 
 	void setProjectPath(const std::string& projectPath);

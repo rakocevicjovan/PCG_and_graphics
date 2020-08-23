@@ -4,21 +4,6 @@
 
 
 
-ResourceDef ResourceDef::Load(rapidjson::Value::ConstValueIterator itr)
-{
-	ResourceDef rd;
-
-	rd.key._ID = itr->FindMember("id")->value.GetInt();
-	rd.key._assetName = itr->FindMember("name")->value.GetString();
-
-	rd.val._path = itr->FindMember("path")->value.GetString();
-	rd.val._resType = getResTypeFromString(itr->FindMember("resType")->value.GetString());
-
-	return rd;
-}
-
-
-
 ResType ResourceDef::getResTypeFromString(const std::string& str)
 {
 	auto it = RES_TYPE_MAP.find(str);
