@@ -44,22 +44,26 @@ public:
 		uint32_t nameHash = fnv1hash(path.c_str());
 		ResourceDef rd{ nameHash, assName, path, resType };
 
-		if (!_assDefs.insert(rd).second)
+		auto iter = _assDefs.insert(rd);
+		if (!iter.second)
 		{
-			// Heavy handed, needs a very visible warning though.
+			// Too heavy handed, but needs a visible warning...
 			assert(false && "HASH COLLISION! Asset name: %s", assName);
+			//OutputDebugStringA(std::string("HASH COLLISION!" + assName).c_str());
+			//return iter.first->key._ID;
 		}
-
-		_dirty = true;
-
-		return nameHash;
+		else
+		{
+			_dirty = true;
+			return nameHash;
+		}
 	}
 
 
 
-	inline const ResourceDef* get(const std::string& assName) const
+	inline const ResourceDef* get(const std::string& assPath) const
 	{
-		get(fnv1hash(assName.c_str()));
+		return get(fnv1hash(assPath.c_str()));
 	}
 
 

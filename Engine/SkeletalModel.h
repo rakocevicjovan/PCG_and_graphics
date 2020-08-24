@@ -1,9 +1,11 @@
 #pragma once
-#include <vector>
-#include <d3d11.h>
 #include "SkeletalMesh.h"
 #include "AnimationInstance.h"
 #include "Skeleton.h"
+
+#include <vector>
+#include <d3d11.h>
+#include <memory>
 
 
 
@@ -21,11 +23,12 @@ public:
 	
 	std::vector<Animation*> _anims;
 
-	Skeleton* _skeleton;
+	std::shared_ptr<Skeleton> _skeleton;
 
 	bool importFromFileAssimp(ID3D11Device* dvc, const std::string& path);
 	
-	bool importFromAiScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path);
+	bool importFromAiScene(ID3D11Device* dvc, const aiScene* scene, 
+		const std::string& path, std::vector<Material*> mats, Skeleton* skeleton);
 
 	//template <typename Archive>
 	void serialize(

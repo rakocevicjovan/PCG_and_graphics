@@ -6,7 +6,6 @@
 #include "FileBrowser.h"
 #include "AnimationEditor.h"
 #include "SkeletalModelInstance.h"
-#include "Model.h"
 #include "SkeletonLoader.h"
 #include "ShaderManager.h"
 #include "MatLoader.h"
@@ -38,7 +37,7 @@ private:
 	std::unique_ptr<Model> _model;
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
-	std::vector<std::shared_ptr<Material>> _mats;
+	std::vector<Material*> _mats;
 	std::vector<Texture> _textures;
 
 	// Import settings
@@ -160,16 +159,15 @@ public:
 		}
 
 		// Pass these preloaded materials to meshes in either model type below
-		//_mats = MatLoader::LoadAllMaterials(_aiScene, _path);
+		_mats = MatLoader::LoadAllMaterials(_device, _aiScene, _path);
 
 		if (_impSkModel)
 		{
 			_skModel = std::make_unique<SkeletalModel>();
 
 			_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
-			_skModel->_skeleton = _skeleton.get();
 
-			_skModel->importFromAiScene(_device, _aiScene, _path);
+			_skModel->importFromAiScene(_device, _aiScene, _path, _mats, _skeleton.get());
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
@@ -296,9 +294,10 @@ public:
 	// Eeeeehhhh... weird way to do it.
 	void persistAssets()
 	{
-		UINT skeletonID = persistSkeleton();
-		std::vector<UINT> animIDs = persistAnims();
-		std::vector<UINT> matIDs = persistMats();
+		uint32_t skeletonID = persistSkeleton();
+		std::vector<uint32_t> animIDs = persistAnims();
+		std::vector<uint32_t> texIDs = persistTextures();
+		std::vector<uint32_t> matIDs = persistMats();
 
 		std::string mPath{ _importPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
@@ -323,12 +322,13 @@ public:
 	{
 		if (_skeleton.get())
 		{
-			std::string skeletonPath{ _importPath + "skelly" + ".aeon" };
+			std::string skeletonPath{ _importPath + _sceneName + "_skeleton" + ".aeon" };
 			std::ofstream ofs(skeletonPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
 			return _pLedger->add("", skeletonPath, ResType::SKELETON);
 		}
+		return 0;
 	}
 
 
@@ -352,21 +352,67 @@ public:
 
 
 
+	// What this really does is create copies of the original file, as uncompressed it's huge
+	std::vector<uint32_t> persistTextures()
+	{
+		std::vector<uint32_t> textureIDs;
+		std::set<Texture*> unqTexPtrs;
+
+		for (UINT i = 0; i < _mats.size(); ++i)
+		{
+			Material* m = _mats[i];
+
+			for (UINT j = 0; j < m->_texMetaData.size(); ++j)
+			{
+				uint32_t ID;
+
+				auto iter = unqTexPtrs.insert(m->_texMetaData[j]._tex.get());
+				Texture* t = *(iter.first);
+				bool alreadyPersisted = !iter.second;
+
+				// "tex_" + std::to_string(j)
+				std::string texPath{ _importPath + t->_fileName + ".aeon" };
+
+				if (alreadyPersisted)
+				{
+					ID = _pLedger->get(texPath)->key._ID;
+				}
+				else
+				{
+					std::ofstream ofs(texPath, std::ios::binary | std::ios::out);
+					cereal::BinaryOutputArchive boa(ofs);
+					ID = _pLedger->add("", texPath, ResType::TEXTURE);
+					(*t).serialize(boa);
+				}
+				textureIDs.push_back(ID);
+			}
+		}
+
+		// Clean up cpu side, doesn't really matter as it will clear after import regardless
+		for(auto t : unqTexPtrs)
+			t->freeMemory();
+
+		return textureIDs;
+	}
+
+
+
 	std::vector<uint32_t> persistMats()
 	{
+		std::set<Texture*> unqTextures;
+
+		for (UINT i = 0; i < _mats.size(); ++i)
+		{
+			
+		}
+
 		std::vector<uint32_t> matIDs;
 		for (UINT i = 0; i < _mats.size(); ++i)
 		{
-			Material* m = _mats[i].get();
-
-			std::vector<uint32_t> textureIDs;
-
-
-
 			std::string matPath{ _importPath + "mat_" + std::to_string(i) + ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
-			MaterialFileFormat mff = MaterialFileFormat(*(_mats[i].get()));
+			MaterialFileFormat mff = MaterialFileFormat(*(_mats[i]));
 			//mff.serialize(boa, );
 			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
 		}

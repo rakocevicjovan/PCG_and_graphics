@@ -17,6 +17,7 @@ private:
 		TextureMetaData _tmd;
 	};
 
+
 public:
 
 	static std::vector<Material*> LoadAllMaterials(
@@ -64,7 +65,7 @@ public:
 				std::shared_ptr<Texture>& t = iter.first->second;
 				t.reset(LoadTexture(scene, modelPath, tempTexData[i]._path));
 				if(t)
-					(t)->SetUpAsResource(device);
+					(t)->SetUpAsResource(device, false);
 			}
 			// Assign to the metadata whether it did or didn't exist
 			mat->_texMetaData[i]._tex = iter.first->second;
@@ -111,7 +112,6 @@ public:
 	{
 		Texture* curTex = new Texture();
 		const char* texName = aiScene::GetShortFilename(texPath.c_str());
-		curTex->_fileName = texName;
 
 		// Check if embedded first
 		bool loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, texPath.c_str());
@@ -141,6 +141,9 @@ public:
 			curTex = nullptr;
 			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
 		}
+
+		curTex->_fileName = texName;
+
 		return curTex;
 	}
 

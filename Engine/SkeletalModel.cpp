@@ -1,8 +1,10 @@
 #include "SkeletalModel.h"
+#include "SkeletonLoader.h"
 #include "MatLoader.h"
 
 
-bool SkeletalModel::importFromFileAssimp(ID3D11Device* dvc, const std::string& path)
+// Used for loading on the fly, preferably for very rare cases
+bool SkeletalModel::importFromFileAssimp(ID3D11Device* device, const std::string& path)
 {
 	_path = path;
 
@@ -19,27 +21,31 @@ bool SkeletalModel::importFromFileAssimp(ID3D11Device* dvc, const std::string& p
 
 	if (!scene)
 		return false;
-	else
-		return importFromAiScene(dvc, scene, path);
+
+	auto mats = MatLoader::LoadAllMaterials(device, scene, _path);
+	Skeleton* skeleton = SkeletonLoader::loadSkeleton(scene).release();
+	return importFromAiScene(device, scene, path, mats, skeleton);
 }
 
 
 
-bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
+bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene, 
+	const std::string& path, std::vector<Material*> mats, Skeleton* skeleton)
 {
 	_path = path;
 
-	auto mats = MatLoader::LoadAllMaterials(device, scene, _path);
+	_skeleton = std::shared_ptr<Skeleton>(skeleton);
 
 	_meshes.reserve(scene->mNumMeshes);
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
+		aiMesh* aiMesh = scene->mMeshes[i];
+
 		_meshes.emplace_back();
 
-		aiMesh* aiMesh = scene->mMeshes[i];
-		
 		_meshes[i].loadFromAssimp(scene, device, aiMesh, mats, *_skeleton, path);
+		//_meshes[i]._material = std::shared_ptr<Material>(mats[aiMesh->mMaterialIndex]);
 		_meshes[i].setupSkeletalMesh(device);
 	}
 

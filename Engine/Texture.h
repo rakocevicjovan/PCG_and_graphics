@@ -8,6 +8,10 @@
 #include <d3d11.h>
 #include <dxgiformat.h>
 
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+//#include <cereal/types/memory.hpp>
+//#include <cereal/access.hpp>
 
 
 namespace Procedural
@@ -30,11 +34,11 @@ class Texture : public Resource
 private:
 
 	friend class Procedural::TextureGen;
+	friend class cereal::access;
 	
 protected:
 	
 	int _w, _h, _nc;	//width, height, channels
-	
 	std::shared_ptr<unsigned char[]> _mdata;
 
 	static int GetFormatFromFile(const char* filename);
@@ -44,18 +48,34 @@ protected:
 	void loadFromFile(const char* filename);
 
 public:
+
 	//needs to be retained for GPU use
 	ID3D11Texture2D* _dxID;
 	ID3D11ShaderResourceView* _srv;
 
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
 
+	
 	template <typename Archive> 
-	void serialize(Archive& archive)
+	void serialize(Archive& ar)
 	{
 		// Filename could be serialized for hot reload.
-		archive(_w, _h, _nc, _mdata);
+		ar(_w, _h, _nc);
+		ar(cereal::binary_data(_mdata.get(), _w * _h * _nc));
+		//ar(_mdata);
 	}
+
+	/*
+	void save(cereal::BinaryOutputArchive& boa)
+	{
+		boa(_w, _h, _nc);
+	}
+
+	void load(cereal::BinaryInputArchive& bia)
+	{
+		bia(_w, _h, _nc);
+	}
+	*/
 
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
