@@ -23,15 +23,12 @@ public:
 	static std::vector<Material*> LoadAllMaterials(
 		ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
-		std::vector<Material*> materials;
-		materials.reserve(scene->mNumMaterials);
+		std::vector<Material*> materials(scene->mNumMaterials);
 
 		std::map<std::string, std::shared_ptr<Texture>> texNamePtrMap;
 
-		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-			materials.emplace_back(
-				LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap)
-			);
+		for (UINT i = 0; i < materials.size(); ++i)
+			materials[i] = LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap);
 
 		return materials;
 	}
