@@ -3,13 +3,14 @@
 #include "AssimpWrapper.h"
 #include "TextureCache.h"
 #include "Fnv1Hash.h"
+#include "VitThreadPool.h"
 #include <memory>
 
 
 
 class MatLoader
 {
-private:
+public:
 
 	struct TempTexData
 	{
@@ -17,8 +18,13 @@ private:
 		TextureMetaData _tmd;
 	};
 
+	struct MatMetaData
+	{		
+		// ParameterBundle _paramBundle;	// When decided upon.
+		std::vector<TempTexData> _tempTexData;
+	};
 
-public:
+
 
 	static std::vector<Material*> LoadAllMaterials(
 		ID3D11Device* device, const aiScene* scene, const std::string& modPath)
@@ -211,5 +217,55 @@ public:
 		if (aiMat->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColour) != aiReturn_SUCCESS)
 			reflectiveColour = aiColor4D(0., 0., 0., 1.);
 
+	}
+
+
+
+	// New version, attempting multithreading
+	static std::vector<MatMetaData> LoadMaterialMetaData(const aiScene* scene)
+	{
+		std::vector<MatMetaData> result(scene->mNumMaterials);
+
+		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+		{
+			aiMaterial* aiMat = scene->mMaterials[i];
+
+			for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
+			{
+				GetTexMetaData(aiMat, ttr, result[i]._tempTexData);
+			}
+		}
+
+		return result;
+	}
+
+
+
+	static void LoadAllTextures(std::vector<MatMetaData>& matMetaData)
+	{
+		std::set<std::string> unqTexNames;
+
+		for (const auto& mmd : matMetaData)
+			for (const auto& ttd : mmd._tempTexData)
+				unqTexNames.insert(ttd._path);
+
+		UINT nUnqTex = unqTexNames.size();
+		UINT nThreads = nUnqTex - 1;
+
+		ctpl::thread_pool threadPool(nThreads);	// Might be smarter to adjust the number somehow
+
+		std::vector<std::future<void>> futures(nThreads);
+
+		UINT counter = 0u;
+		for (const auto& path : unqTexNames)
+		{
+			// Load multithreaded
+			/*
+			futures[counter] = threadPool.push
+			(std::bind(
+				LoadTexture()
+			));*/
+			++counter;
+		}
 	}
 };
