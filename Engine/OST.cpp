@@ -170,5 +170,5 @@ void OST::saveToFile(D3D& d3d, const std::string& filepath)
 {
 	std::vector<unsigned char> wat;
 	loadToCpu(d3d.GetDevice(), d3d.GetDeviceContext(), wat);
-	Texture::WriteToFile(filepath, _w, _h, 4, wat.data(), 0);	//4 here also depends on format...
+	Texture::SaveAsPng(filepath, _w, _h, 4, wat.data(), 0);	//4 here also depends on format...
 }

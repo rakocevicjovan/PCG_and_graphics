@@ -39,7 +39,7 @@ namespace GuiBlocks
 	{
 		ImGui::Text(t->getName().c_str());
 
-		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t->getW(), t->getH(), t->getN());
+		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t->w(), t->h(), t->nc());
 
 		if (t->_srv)
 			ImGui::Image(t->_srv, ImVec2(256., 256.));

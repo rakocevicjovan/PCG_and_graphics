@@ -38,7 +38,8 @@ private:
 	
 protected:
 	
-	int _w, _h, _nc;	//width, height, channels
+	uint16_t _w, _h;	// width, height, max 65536 maximum each
+	uint8_t _nc, _snc;	// num channels in loaded data and storage data
 	std::shared_ptr<unsigned char[]> _mdata;
 
 	static int GetFormatFromFile(const char* filename);
@@ -54,28 +55,6 @@ public:
 	ID3D11ShaderResourceView* _srv;
 
 	std::string _fileName;	//helpful to debug loaders with but otherwise meh... 
-
-	
-	template <typename Archive> 
-	void serialize(Archive& ar)
-	{
-		// Filename could be serialized for hot reload.
-		ar(_w, _h, _nc);
-		ar(cereal::binary_data(_mdata.get(), _w * _h * _nc));
-		//ar(_mdata);
-	}
-
-	/*
-	void save(cereal::BinaryOutputArchive& boa)
-	{
-		boa(_w, _h, _nc);
-	}
-
-	void load(cereal::BinaryInputArchive& bia)
-	{
-		bia(_w, _h, _nc);
-	}
-	*/
 
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
@@ -93,13 +72,16 @@ public:
 
 	bool SetUpAsResource(ID3D11Device* device, bool deleteData = true);
 
-	static void WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes);
+	static void SaveAsPng(const std::string& targetFile, int w, int h, int comp, const void* data, int stride_in_bytes = 0u);
 	
+	std::pair<std::unique_ptr<unsigned char[]>, UINT> writeToMem();
+
 	ID3D11ShaderResourceView* getTextureResourceView() { return _srv; }
 
-	inline int getW() const { return _w; } 
-	inline int getH() const { return _h; }
-	inline int getN() const { return _nc; }
+	inline int w() const { return _w; } 
+	inline int h() const { return _h; }
+	inline int nc() const { return _nc; }
+	inline int snc() const { return _snc; }
 	inline const unsigned char* getData() const { return _mdata.get(); }	//data can't be modified, only read
 	inline std::string getName() const { return _fileName; }
 
@@ -139,3 +121,32 @@ protected:	//delegated procedural generation interface to friend class
 	static std::vector<float> generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 	static std::vector<float> generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw = 0, UINT yw = 0, UINT zw = 0);
 };
+
+/* 
+// Unnecessary, png is a great format in it's own right 
+// and anything I might need is possible to infer from it from now,
+// while leaving images accessible without a custom editor
+template <typename Archive>
+void save(Archive& ar)
+{
+	// Tried this way, but raw textures are WAY bigger, png is really doing work
+	//ar(_w, _h, _nc);
+	//ar(cereal::binary_data(_mdata.get(), _w * _h * _nc));
+
+	// Filename could be serialized for hot reload.
+
+	auto compressedData = writeToMem();
+	SaveAsPng()
+		ar(cereal::binary_data(compressedData.first.get(), compressedData.second));
+}
+
+template <typename Archive>
+void load(Archive& ar)
+{
+	// Filename could be serialized for hot reload.
+	ar(_w, _h, _nc);
+	std::unique_ptr<unsigned char[]> compressedData;
+	ar(cereal::binary_data(compressedData.get(), _w * _h * _nc));
+	_mdata = std::shared_ptr<unsigned char[]>(loadFromMemory(ar))
+}
+*/

@@ -195,7 +195,7 @@ namespace Procedural
 
 	void Perlin::writeToFile(const std::string& targetFile)
 	{
-		Texture::WriteToFile(targetFile, _w, _h, 1, texture.data(), 0);	// sizeof(unsigned char) * w
+		Texture::SaveAsPng(targetFile, _w, _h, 1, texture.data(), 0);	// sizeof(unsigned char) * w
 	}
 
 

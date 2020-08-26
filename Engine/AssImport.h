@@ -370,8 +370,9 @@ public:
 				Texture* t = *(iter.first);
 				bool alreadyPersisted = !iter.second;
 
-				// "tex_" + std::to_string(j)
-				std::string texPath{ _importPath + t->_fileName + ".aeon" };
+				std::string& oldTexPath = t->_fileName;
+				std::string texName = std::filesystem::path(oldTexPath).filename().string();
+				std::string texPath{ _importPath + t->_fileName};
 
 				if (alreadyPersisted)
 				{
@@ -379,17 +380,15 @@ public:
 				}
 				else
 				{
-					std::ofstream ofs(texPath, std::ios::binary | std::ios::out);
-					cereal::BinaryOutputArchive boa(ofs);
+					// STB has lousy compression so don't do this...
+					//Texture::SaveAsPng(texPath, t->w(), t->h(), t->snc(), t->getData(), t->w() * t->nc());
 					ID = _pLedger->add("", texPath, ResType::TEXTURE);
-					(*t).serialize(boa);
 				}
 				textureIDs.push_back(ID);
 			}
 		}
 
-		// Clean up cpu side, doesn't really matter as it will clear after import regardless
-		for(auto t : unqTexPtrs)
+		for (auto t : unqTexPtrs)
 			t->freeMemory();
 
 		return textureIDs;
@@ -400,11 +399,6 @@ public:
 	std::vector<uint32_t> persistMats()
 	{
 		std::set<Texture*> unqTextures;
-
-		for (UINT i = 0; i < _mats.size(); ++i)
-		{
-			
-		}
 
 		std::vector<uint32_t> matIDs;
 		for (UINT i = 0; i < _mats.size(); ++i)
@@ -450,3 +444,8 @@ public:
 
 	const aiScene* getScene() { return _aiScene; }
 };
+
+// Currently it's really useless to do this
+//std::ofstream ofs(texPath, std::ios::binary | std::ios::out);
+//cereal::BinaryOutputArchive boa(ofs);
+//(*t).save(boa);

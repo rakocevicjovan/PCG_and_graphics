@@ -115,6 +115,7 @@ public:
 
 		// Check if embedded first
 		bool loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, texPath.c_str());
+		curTex->_fileName = texName;
 
 		// Not embedded, try to load from file
 		if (!loaded)
@@ -132,6 +133,7 @@ public:
 			}
 
 			loaded = curTex->loadFromPath(absTexPath.c_str());
+			curTex->_fileName = absTexPath;
 		}
 
 		// Load failed, likely the data is corrupted or stb doesn't support it
@@ -141,8 +143,6 @@ public:
 			curTex = nullptr;
 			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
 		}
-
-		curTex->_fileName = texName;
 
 		return curTex;
 	}

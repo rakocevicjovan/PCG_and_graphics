@@ -46,8 +46,8 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 
 Texture::Texture(const Texture& other)
-	: _w(other._w), _h(other._h), _nc(other._nc), _mdata(other._mdata), _fileName(other._fileName), 
-	_dxID(other._dxID), _srv(other._srv)
+	: _w(other._w), _h(other._h), _nc(other._nc), _snc(other._snc), _mdata(other._mdata), 
+	_fileName(other._fileName), _dxID(other._dxID), _srv(other._srv)
 {
 	if(_dxID)
 		_dxID->AddRef();
@@ -59,7 +59,7 @@ Texture::Texture(const Texture& other)
 
 
 Texture::Texture(Texture&& other)
-	: _w(other._w), _h(other._h), _nc(other._nc), _mdata(std::move(other._mdata)),
+	: _w(other._w), _h(other._h), _nc(other._nc), _snc(other._snc), _mdata(std::move(other._mdata)),
 	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
 	// do not add refs because it's moved as opposed to copied
@@ -74,6 +74,7 @@ Texture& Texture::operator=(const Texture& other)
 	_w = other._w;
 	_h = other._h;
 	_nc = other._nc;
+	_snc = other._snc;
 
 	_mdata = other._mdata;
 
@@ -118,10 +119,15 @@ int Texture::GetFormatFromMemory(const unsigned char* data, size_t size)
 
 void Texture::loadFromFile(const char* filename)
 {
-	int fileFormat;	// For debugging purposes, I'd like to see this as well
-	int desiredFormat = GetFormatFromFile(filename);
-	_mdata = std::shared_ptr<unsigned char[]>(stbi_load(filename, &_w, &_h, &fileFormat, desiredFormat));
+	int fileFormat, desiredFormat, w, h;
+	fileFormat = GetFormatFromFile(filename);
+	
+	_mdata = std::shared_ptr<unsigned char[]>(stbi_load(filename, &w, &h, &fileFormat, desiredFormat));
+	
+	_w = w;
+	_h = h;
 	_nc = desiredFormat;
+	_snc = fileFormat;
 }
 
 
@@ -191,10 +197,13 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 {
 	try
 	{
-		int fileFormat;
-		int desiredFormat = GetFormatFromMemory(data, size);
-		_mdata = std::shared_ptr<unsigned char[]>(stbi_load_from_memory(data, size, &_w, &_h, &fileFormat, desiredFormat));
+		int fileFormat, desiredFormat, w, h;
+		desiredFormat = GetFormatFromMemory(data, size);
+		_mdata = std::shared_ptr<unsigned char[]>(stbi_load_from_memory(data, size, &w, &h, &fileFormat, desiredFormat));
+		_w = w;
+		_h = h;
 		_nc = desiredFormat;
+		_snc = fileFormat;
 
 		return (_mdata.get() != nullptr);
 	}
@@ -289,7 +298,7 @@ bool Texture::SetUpAsResource(ID3D11Device* device, bool deleteData)
 
 
 //for comp: 1=Y, 2=YA, 3=RGB, 4=RGBA 
-void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp, void* data, int stride_in_bytes)
+void Texture::SaveAsPng(const std::string& targetFile, int w, int h, int comp, const void* data, int stride_in_bytes)
 {
 	try
 	{
@@ -299,6 +308,15 @@ void Texture::WriteToFile(const std::string& targetFile, int w, int h, int comp,
 	{
 		OutputDebugStringA( ("Error writing texture to '" + targetFile + "'; ").c_str() );
 	}
+}
+
+
+
+std::pair<std::unique_ptr<unsigned char[]>, UINT> Texture::writeToMem()
+{
+	int len;
+	unsigned char* compressed = stbi_write_png_to_mem(_mdata.get(), 0, _w, _h, _snc, &len);
+	return { std::unique_ptr<unsigned char[]>(compressed), len };
 }
 
 
