@@ -161,6 +161,7 @@ public:
 		// Pass these preloaded materials to meshes in either model type below
 		_mats = MatLoader::LoadAllMaterials(_device, _aiScene, _path);
 
+
 		if (_impSkModel)
 		{
 			_skModel = std::make_unique<SkeletalModel>();
@@ -382,6 +383,9 @@ public:
 				{
 					// STB has lousy compression so don't do this...
 					//Texture::SaveAsPng(texPath, t->w(), t->h(), t->snc(), t->getData(), t->w() * t->nc());
+					
+					// Rather, copy external textures and persist embedded textures
+					
 					ID = _pLedger->add("", texPath, ResType::TEXTURE);
 				}
 				textureIDs.push_back(ID);

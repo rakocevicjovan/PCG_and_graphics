@@ -3,9 +3,16 @@
 #include <sstream>
 #include <iostream>
 #include <string>
-
 #include <filesystem>
+#include <memory>
+
 #include <dirent.h>	// Using 17 now so not necessary?
+
+struct Blob
+{
+	std::unique_ptr<char[]> _data;
+	uint64_t _size = 0u;
+};
 
 
 namespace FileUtils
@@ -70,19 +77,18 @@ namespace FileUtils
 
 
 
-	static std::vector<char> readAllBytes(char const* filename)
+	static Blob readAllBytes(char const* filename)
 	{
-		static_assert(sizeof(char) == 1);								// Am I paranoid? Yes I aaaam
-
 		std::ifstream ifs(filename, std::ios::binary | std::ios::ate);	// Construct with cursor "At-The-End"
 		std::ifstream::pos_type byteCount = ifs.tellg();				// Save file size
 
-		std::vector<char> result(byteCount);	// Create a vector of matching size
+		//std::vector<char> result(byteCount);	// Create a vector of matching size
+		std::unique_ptr<char[]> ptr = std::make_unique<char[]>(byteCount);
 
 		ifs.seekg(0, std::ios::beg);
-		ifs.read(result.data(), byteCount);		// Read byteCount bytes into the result vector
+		ifs.read(ptr.get(), byteCount);		// Read byteCount bytes into the result vector
 
-		return result;
+		return { std::move(ptr), static_cast<uint64_t>(byteCount) };
 	}
 
 

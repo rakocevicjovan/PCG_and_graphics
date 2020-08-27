@@ -18,12 +18,7 @@ public:
 		TextureMetaData _tmd;
 	};
 
-	struct MatMetaData
-	{		
-		// ParameterBundle _paramBundle;	// When decided upon.
-		std::vector<TempTexData> _tempTexData;
-	};
-
+	struct TexNameBlob { std::string name; Blob blob; };
 
 
 	static std::vector<Material*> LoadAllMaterials(
@@ -31,10 +26,23 @@ public:
 	{
 		std::vector<Material*> materials(scene->mNumMaterials);
 
+		std::vector<TexNameBlob> texNameBlobs;
 		std::map<std::string, std::shared_ptr<Texture>> texNamePtrMap;
 
 		for (UINT i = 0; i < materials.size(); ++i)
 			materials[i] = LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap);
+
+
+		for (auto& tnpm : texNamePtrMap)
+		{
+			TexNameBlob tnb = MatLoader::LoadTextureData(scene, modPath, tnpm.first);
+			tnpm.second = std::make_shared<Texture>();
+			tnpm.second->LoadFromMemory(reinterpret_cast<unsigned char*>(tnb.blob._data.get()), tnb.blob._size);
+			tnpm.second->SetUpAsResource(device, false);
+
+			texNameBlobs.push_back(tnb);	// Save for later, connect mats to textures etc... too tired rn
+		}
+		
 
 		return materials;
 	}
@@ -45,35 +53,37 @@ public:
 		const std::string& modelPath, std::map<std::string, std::shared_ptr<Texture>>& texNamePtrMap)
 	{
 		Material* mat = new Material();
-		
+
 		// Parameters - once I decide what to support, parse and load into a cbuffer
 		//loadParameterBlob(aiMat);
-		
+
 		// Textures
 		std::vector<TempTexData> tempTexData;
 		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
 			GetTexMetaData(aiMat, ttr, tempTexData);
-		
+
 		mat->_texMetaData.resize(tempTexData.size());
-		
+
 		// Set pointers to textures...
 		for (UINT i = 0; i < tempTexData.size(); ++i)
 		{
 			mat->_texMetaData[i] = tempTexData[i]._tmd;
 
 			auto iter = texNamePtrMap.insert({ tempTexData[i]._path, nullptr });
-
+			
+			/*
 			if (iter.second)	// Did not exist, load up into map
 			{
 				std::shared_ptr<Texture>& t = iter.first->second;
 				t.reset(LoadTexture(scene, modelPath, tempTexData[i]._path));
-				if(t)
+				if (t)
 					(t)->SetUpAsResource(device, false);
 			}
 			// Assign to the metadata whether it did or didn't exist
 			mat->_texMetaData[i]._tex = iter.first->second;
+			*/
 		}
-		
+
 		return mat;
 	}
 
@@ -96,17 +106,49 @@ public:
 				mapModes[j] = AssimpWrapper::TEXMAPMODE_MAP.at(aiMapModes[j]);
 
 			ttd.push_back(
-			{
-				aiTexPath.C_Str(),
 				{
-					nullptr,
-					ttr.second,
-					{ mapModes[0], mapModes[1], mapModes[2] },
-					static_cast<uint8_t>(uvIndex),
-					0u
-				}
-			});
+					aiTexPath.C_Str(),
+					{
+						nullptr,
+						ttr.second,
+						{ mapModes[0], mapModes[1], mapModes[2] },
+						static_cast<uint8_t>(uvIndex),
+						0u
+					}
+				});
 		}
+	}
+
+
+	
+	static TexNameBlob LoadTextureData(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
+	{
+		const char* texName = aiScene::GetShortFilename(texPath.c_str());
+
+		const aiTexture* aiTex = scene->GetEmbeddedTexture(texPath.c_str());
+
+		bool embedded = (aiTex != nullptr);
+
+		if (embedded)
+		{
+			UINT len = aiTex->mHeight == 0 ? aiTex->mWidth : aiTex->mHeight * aiTex->mWidth;
+			return { texPath, std::unique_ptr<char[]>(reinterpret_cast<char*>(aiTex->pcData)), len };
+		}
+
+		std::string modelFolderPath = std::filesystem::path(modelPath).parent_path().string();
+		std::string absTexPath = modelFolderPath + "/" + texPath;
+
+		// Path is faulty, try to find it under model directory
+		if (!std::filesystem::exists(absTexPath))
+		{
+			std::filesystem::directory_entry texFile;
+			if (FileUtils::findFile(modelFolderPath, texName, texFile))
+				absTexPath = texFile.path().string();
+			else
+				return { texPath, Blob{} };
+		}
+
+		return { texPath, FileUtils::readAllBytes(absTexPath.c_str()) };
 	}
 
 
@@ -221,53 +263,82 @@ public:
 
 
 
-	// New version with multithreading, do eventually
+	// New version with multithreading, good chance it's slower on HDD reads though
+	// However, even there it could be sped up with a separation between file reads and decompression
 	/*
+
+	struct MatMetaData
+	{
+		// ParameterBundle _paramBundle;	// When decided upon.
+		std::vector<TempTexData> _tempTexData;
+	};
+
+
+
 	static std::vector<MatMetaData> LoadMaterialMetaData(const aiScene* scene)
 	{
 		std::vector<MatMetaData> result(scene->mNumMaterials);
 
 		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-		{
-			aiMaterial* aiMat = scene->mMaterials[i];
-
 			for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
-			{
-				GetTexMetaData(aiMat, ttr, result[i]._tempTexData);
-			}
-		}
+				GetTexMetaData(scene->mMaterials[i], ttr, result[i]._tempTexData);
 
 		return result;
 	}
 
 
-
-	static void LoadAllTextures(std::vector<MatMetaData>& matMetaData)
+	
+	static std::vector<Texture*> LoadTexturesMTT(const aiScene* scene, const std::string& modelPath, 
+		const std::vector<MatMetaData>& matMetaData)
 	{
 		std::set<std::string> unqTexNames;
+		std::vector<Texture*> textures;
 
 		for (const auto& mmd : matMetaData)
 			for (const auto& ttd : mmd._tempTexData)
 				unqTexNames.insert(ttd._path);
 
 		UINT nUnqTex = unqTexNames.size();
-		UINT nThreads = nUnqTex - 1;
 
-		ctpl::thread_pool threadPool(nThreads);	// Might be smarter to adjust the number somehow
+		if (nUnqTex == 0)
+			return textures;
 
-		std::vector<std::future<void>> futures(nThreads);
-
-		UINT counter = 0u;
-		for (const auto& path : unqTexNames)
+		// Otherwise it would be slower... and this only speeds up reads from ssd anyways
+		if (nUnqTex > 1)	
 		{
-			// Load multithreaded
-			
-			futures[counter] = threadPool.push
-			(std::bind(
-				LoadTexture()	// tbd
-			));
-			++counter;
+			UINT nThreads = nUnqTex - 1;
+			ctpl::thread_pool threadPool(nThreads);	// Might be smarter to adjust the number somehow
+			std::vector<std::future<Texture*>> futures(nThreads);
+
+			UINT counter = 0u;
+			for (const auto& curTexPath : unqTexNames)
+			{
+				// Load multithreaded
+				futures[counter] = threadPool.push(std::bind(LoadTexture, scene, modelPath, curTexPath));
+				
+				if (++counter == nThreads)
+					break;
+			}
+
+			Texture* tN = LoadTexture(scene, modelPath, *unqTexNames.rbegin());
+			if(tN)
+				textures.push_back(tN);
+
+			for (int i = 0; i < nThreads; i++)
+				futures[i].wait();
+
+			for (int i = 0; i < nThreads; i++)
+				if (futures[i].get())
+					textures.push_back(futures[i].get());
 		}
+		else
+		{
+			Texture* t0 = LoadTexture(scene, modelPath, *unqTexNames.begin());
+			if (t0)
+				textures.push_back(t0);
+		}
+
+		return textures;
 	}
 	*/
 };

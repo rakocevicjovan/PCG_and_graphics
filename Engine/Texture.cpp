@@ -199,7 +199,8 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 	{
 		int fileFormat, desiredFormat, w, h;
 		desiredFormat = GetFormatFromMemory(data, size);
-		_mdata = std::shared_ptr<unsigned char[]>(stbi_load_from_memory(data, size, &w, &h, &fileFormat, desiredFormat));
+		unsigned char* wat = stbi_load_from_memory(data, size, &w, &h, &fileFormat, desiredFormat);
+		_mdata = std::shared_ptr<unsigned char[]>(wat);
 		_w = w;
 		_h = h;
 		_nc = desiredFormat;
