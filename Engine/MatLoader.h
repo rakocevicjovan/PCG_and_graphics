@@ -221,7 +221,8 @@ public:
 
 
 
-	// New version, attempting multithreading
+	// New version with multithreading, do eventually
+	/*
 	static std::vector<MatMetaData> LoadMaterialMetaData(const aiScene* scene)
 	{
 		std::vector<MatMetaData> result(scene->mNumMaterials);
@@ -260,12 +261,13 @@ public:
 		for (const auto& path : unqTexNames)
 		{
 			// Load multithreaded
-			/*
+			
 			futures[counter] = threadPool.push
 			(std::bind(
-				LoadTexture()
-			));*/
+				LoadTexture()	// tbd
+			));
 			++counter;
 		}
 	}
+	*/
 };

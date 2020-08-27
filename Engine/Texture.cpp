@@ -328,28 +328,28 @@ float Texture::Perlin3D(float x, float  y, float z, UINT xw, UINT yw, UINT zw)
 
 
 
-float Texture::Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
+float Texture::Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves)
 {
-	return stb_perlin_fbm_noise3(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+	return stb_perlin_fbm_noise3(x, y, z, lacunarity, gain, octaves);
 }
 
 
 
-float Texture::Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
+float Texture::Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves)
 {
-	return stb_perlin_turbulence_noise3(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+	return stb_perlin_turbulence_noise3(x, y, z, lacunarity, gain, octaves);
 }
 
 
 
-float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
+float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves)
 {
-	return stb_perlin_ridge_noise3(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
+	return stb_perlin_ridge_noise3(x, y, z, lacunarity, gain, offset, octaves);
 }
 
 
 
-std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves, UINT xw, UINT yw, UINT zw)
+std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves)
 {
 	//std::vector<unsigned char> result;
 	std::vector<float> result;
@@ -366,7 +366,7 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 			float x = (float)i * wInverse;
 			float y = (float)j * hInverse;
 
-			float noiseVal = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves, xw, yw, zw);
+			float noiseVal = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves);
 			result.push_back(noiseVal);
 		}
 	}
@@ -376,7 +376,7 @@ std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacun
 
 
 
-std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves, UINT xw, UINT yw, UINT zw)
+std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves)
 {
 	std::vector<float> result;
 	result.reserve(w * h);
@@ -391,7 +391,7 @@ std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunari
 			float x = (float)i * wInverse;
 			float y = (float)j * hInverse;
 
-			float noiseVal = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves, xw, yw, zw);
+			float noiseVal = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves);
 			result.push_back(noiseVal);
 		}
 	}
