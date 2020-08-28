@@ -33,12 +33,12 @@ private:
 	ID3D11Device* _device;
 
 	// Things that might get loaded
+	MatLoader::MatsAndTextureBlobs _matData;
 	std::unique_ptr<SkeletalModel> _skModel;
 	std::unique_ptr<Model> _model;
 	std::unique_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
-	std::vector<Material*> _mats;
-	std::vector<Texture> _textures;
+	
 
 	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
@@ -159,7 +159,7 @@ public:
 		}
 
 		// Pass these preloaded materials to meshes in either model type below
-		_mats = MatLoader::LoadAllMaterials(_device, _aiScene, _path);
+		_matData = MatLoader::LoadAllMaterials(_device, _aiScene, _path);
 
 
 		if (_impSkModel)
@@ -168,7 +168,7 @@ public:
 
 			_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
 
-			_skModel->importFromAiScene(_device, _aiScene, _path, _mats, _skeleton.get());
+			_skModel->importFromAiScene(_device, _aiScene, _path, _matData._mats, _skeleton.get());
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
@@ -353,47 +353,23 @@ public:
 
 
 
-	// What this really does is create copies of the original file, as uncompressed it's huge
 	std::vector<uint32_t> persistTextures()
 	{
 		std::vector<uint32_t> textureIDs;
-		std::set<Texture*> unqTexPtrs;
 
-		for (UINT i = 0; i < _mats.size(); ++i)
+		for (auto& texNameBlob : _matData._blobs)
 		{
-			Material* m = _mats[i];
+			std::string texName = std::filesystem::path(texNameBlob.name).filename().string();
+			std::string texPath{ _importPath + texName };
 
-			for (UINT j = 0; j < m->_texMetaData.size(); ++j)
-			{
-				uint32_t ID;
+			FileUtils::writeAllBytes(texPath, texNameBlob.blob._data.get(), texNameBlob.blob._size);
+			_pLedger->add("", texPath, ResType::TEXTURE);
 
-				auto iter = unqTexPtrs.insert(m->_texMetaData[j]._tex.get());
-				Texture* t = *(iter.first);
-				bool alreadyPersisted = !iter.second;
-
-				std::string& oldTexPath = t->_fileName;
-				std::string texName = std::filesystem::path(oldTexPath).filename().string();
-				std::string texPath{ _importPath + t->_fileName};
-
-				if (alreadyPersisted)
-				{
-					ID = _pLedger->get(texPath)->key._ID;
-				}
-				else
-				{
-					// STB has lousy compression so don't do this...
-					//Texture::SaveAsPng(texPath, t->w(), t->h(), t->snc(), t->getData(), t->w() * t->nc());
-					
-					// Rather, copy external textures and persist embedded textures
-					
-					ID = _pLedger->add("", texPath, ResType::TEXTURE);
-				}
-				textureIDs.push_back(ID);
-			}
+			//texNameBlob.blob._data.reset();
+			//texNameBlob.blob._size = 0u;
 		}
 
-		for (auto t : unqTexPtrs)
-			t->freeMemory();
+		_matData._blobs.clear();
 
 		return textureIDs;
 	}
@@ -405,12 +381,12 @@ public:
 		std::set<Texture*> unqTextures;
 
 		std::vector<uint32_t> matIDs;
-		for (UINT i = 0; i < _mats.size(); ++i)
+		for (UINT i = 0; i < _matData._mats.size(); ++i)
 		{
 			std::string matPath{ _importPath + "mat_" + std::to_string(i) + ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
-			MaterialFileFormat mff = MaterialFileFormat(*(_mats[i]));
+			MaterialFileFormat mff = MaterialFileFormat(*(_matData._mats[i]));
 			//mff.serialize(boa, );
 			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
 		}

@@ -18,36 +18,93 @@ public:
 		TextureMetaData _tmd;
 	};
 
-	struct TexNameBlob { std::string name; Blob blob; };
+	struct TexNameBlob
+	{ 
+		std::string name; 
+		Blob blob; 
+	};
+
+	struct MatMetaData
+	{
+		// ParameterBundle _paramBundle;	// When decided upon.
+		std::vector<TempTexData> _tempTexData;
+	};
+
+	struct MatsAndTextureBlobs
+	{
+		std::vector<Material*> _mats;
+		std::vector<TexNameBlob> _blobs;
+	};
 
 
-	static std::vector<Material*> LoadAllMaterials(
+	static MatsAndTextureBlobs LoadAllMaterials(
 		ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
 		std::vector<Material*> materials(scene->mNumMaterials);
-
+		std::vector<MatMetaData> matMetaData(scene->mNumMaterials);
 		std::vector<TexNameBlob> texNameBlobs;
-		std::map<std::string, std::shared_ptr<Texture>> texNamePtrMap;
 
-		for (UINT i = 0; i < materials.size(); ++i)
-			materials[i] = LoadMaterial(device, scene, scene->mMaterials[i], modPath, texNamePtrMap);
-
-
-		for (auto& tnpm : texNamePtrMap)
-		{
-			TexNameBlob tnb = MatLoader::LoadTextureData(scene, modPath, tnpm.first);
-			tnpm.second = std::make_shared<Texture>();
-			tnpm.second->LoadFromMemory(reinterpret_cast<unsigned char*>(tnb.blob._data.get()), tnb.blob._size);
-			tnpm.second->SetUpAsResource(device, false);
-
-			texNameBlobs.push_back(tnb);	// Save for later, connect mats to textures etc... too tired rn
-		}
+		std::map<std::string, std::shared_ptr<Texture>> unqTexPaths;
 		
+		// Get material meta data, but defer loading materials, also filter textures
+		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+		{
+			matMetaData[i] = LoadMatMetaData(scene->mMaterials[i]);
+			
+			for (auto& ttd : matMetaData.back()._tempTexData)
+				unqTexPaths.insert({ ttd._path, std::make_shared<Texture>() });
+		}
 
-		return materials;
+		// Load uniquely identified textures as data blobs
+		/*
+		for (auto& pathTex : unqTexPaths)
+		{
+			TexNameBlob tnb = MatLoader::LoadTextureData(scene, modPath, pathTex.first);
+			if (tnb.blob._size == 0)
+				continue;
+
+			pathTex.second.get()->LoadFromMemory(reinterpret_cast<unsigned char*>(tnb.blob._data.get()), tnb.blob._size);
+			pathTex.second.get()->SetUpAsResource(device, false);
+
+			texNameBlobs.push_back(std::move(tnb));
+		}
+		*/
+
+		// Create materials and assign already loaded textures to them
+		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+		{
+			Material* curMat = new Material();
+			MatMetaData& mmd = matMetaData[i];
+			
+			UINT numTexRefs = mmd._tempTexData.size();
+			curMat->_texMetaData.reserve(numTexRefs);
+
+			for (UINT j = 0; j < numTexRefs; ++j)
+			{
+				TempTexData& ttd = mmd._tempTexData[j];
+				curMat->_texMetaData.push_back(ttd._tmd);
+				//curMat->_texMetaData.back()._tex = unqTexPaths[ttd._path];
+			}
+
+			materials[i] = curMat;
+		}
+
+		return { materials, std::move(texNameBlobs) };
 	}
 
 
+
+	static MatMetaData LoadMatMetaData(const aiMaterial* aiMat)
+	{
+		//loadParameterBlob(aiMat);
+
+		// Textures
+		std::vector<TempTexData> tempTexData;
+		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
+			GetTexMetaData(aiMat, ttr, tempTexData);
+
+		return { tempTexData };
+	}
 
 	static Material* LoadMaterial(ID3D11Device* device, const aiScene* scene, const aiMaterial* aiMat,
 		const std::string& modelPath, std::map<std::string, std::shared_ptr<Texture>>& texNamePtrMap)
@@ -266,14 +323,6 @@ public:
 	// New version with multithreading, good chance it's slower on HDD reads though
 	// However, even there it could be sped up with a separation between file reads and decompression
 	/*
-
-	struct MatMetaData
-	{
-		// ParameterBundle _paramBundle;	// When decided upon.
-		std::vector<TempTexData> _tempTexData;
-	};
-
-
 
 	static std::vector<MatMetaData> LoadMaterialMetaData(const aiScene* scene)
 	{
