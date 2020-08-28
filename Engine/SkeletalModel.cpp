@@ -23,25 +23,25 @@ bool SkeletalModel::importFromFileAssimp(ID3D11Device* device, const std::string
 		return false;
 
 	auto mats = MatLoader::LoadAllMaterials(device, scene, _path);
-	Skeleton* skeleton = SkeletonLoader::loadSkeleton(scene).release();
+	std::shared_ptr<Skeleton> skeleton = SkeletonLoader::loadSkeleton(scene);
 	return importFromAiScene(device, scene, path, mats._mats, skeleton);
 }
 
 
 
-bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene, 
-	const std::string& path, std::vector<Material*> mats, Skeleton* skeleton)
+bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path, 
+	std::vector<std::shared_ptr<Material>>& mats, std::shared_ptr<Skeleton>& skeleton)
 {
 	_path = path;
 
-	_skeleton = std::shared_ptr<Skeleton>(skeleton);
+	_skeleton = skeleton;
 
 	_meshes.reserve(scene->mNumMeshes);
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
 		_meshes.emplace_back();
-		_meshes[i].loadFromAssimp(scene, device, scene->mMeshes[i], mats, *_skeleton, path);
+		_meshes[i].loadFromAssimp(scene, device, scene->mMeshes[i], mats, _skeleton.get(), path);
 		_meshes[i].setupSkeletalMesh(device);
 	}
 

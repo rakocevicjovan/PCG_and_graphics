@@ -134,14 +134,14 @@ Mesh::~Mesh()
 
 
 void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
-	std::vector<Material*> materials, const std::string& path)
+	std::vector<std::shared_ptr<Material>>& mats, const std::string& path)
 {	
 	_vertSig = MeshLoader::createVertSignature(aiMesh);
 	MeshLoader meshLoader;
 	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, nullptr);
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
-	_material = std::shared_ptr<Material>(materials[aiMesh->mMaterialIndex]);
+	_material = mats[aiMesh->mMaterialIndex];
 
 	//AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, &_material, _textures);
 

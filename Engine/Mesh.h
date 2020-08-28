@@ -67,7 +67,7 @@ public:
 	Mesh(const Hull* hull, ID3D11Device* device);
 
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
-		std::vector<Material*> materials, const std::string& path);
+		std::vector<std::shared_ptr<Material>>& mats, const std::string& path);
 
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?

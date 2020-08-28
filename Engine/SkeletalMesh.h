@@ -55,7 +55,7 @@ public:
 
 	
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
-		std::vector<Material*> materials, Skeleton& skeleton, const std::string& path);
+		std::vector<std::shared_ptr<Material>>& materials, Skeleton* skeleton, const std::string& path);
 
 
 	bool setupSkeletalMesh(ID3D11Device* dvc);

@@ -36,7 +36,7 @@ private:
 	MatLoader::MatsAndTextureBlobs _matData;
 	std::unique_ptr<SkeletalModel> _skModel;
 	std::unique_ptr<Model> _model;
-	std::unique_ptr<Skeleton> _skeleton;
+	std::shared_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
 	
 
@@ -166,9 +166,9 @@ public:
 		{
 			_skModel = std::make_unique<SkeletalModel>();
 
-			_skeleton = SkeletonLoader::loadSkeleton(_aiScene);
+			_skeleton = std::shared_ptr<Skeleton>(SkeletonLoader::loadSkeleton(_aiScene).release());
 
-			_skModel->importFromAiScene(_device, _aiScene, _path, _matData._mats, _skeleton.get());
+			_skModel->importFromAiScene(_device, _aiScene, _path, _matData._mats, _skeleton);
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
@@ -365,11 +365,12 @@ public:
 			FileUtils::writeAllBytes(texPath, texNameBlob.blob._data.get(), texNameBlob.blob._size);
 			_pLedger->add("", texPath, ResType::TEXTURE);
 
-			//texNameBlob.blob._data.reset();
-			//texNameBlob.blob._size = 0u;
-		}
+			if (texNameBlob.embedded)
+				texNameBlob.blob._data.release();
 
-		_matData._blobs.clear();
+			texNameBlob.blob._data.reset();
+			texNameBlob.blob._size = 0u;
+		}
 
 		return textureIDs;
 	}
@@ -383,7 +384,7 @@ public:
 		std::vector<uint32_t> matIDs;
 		for (UINT i = 0; i < _matData._mats.size(); ++i)
 		{
-			std::string matPath{ _importPath + "mat_" + std::to_string(i) + ".aeon" };
+			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			MaterialFileFormat mff = MaterialFileFormat(*(_matData._mats[i]));
@@ -423,6 +424,15 @@ public:
 	float getPlaybackSpeed() { return _playbackSpeed; }
 
 	const aiScene* getScene() { return _aiScene; }
+
+	~AssImport()
+	{
+		for (auto& texBlob : _matData._blobs)
+		{
+			if (texBlob.embedded)
+				texBlob.blob._data.release();
+		}
+	}
 };
 
 // Currently it's really useless to do this

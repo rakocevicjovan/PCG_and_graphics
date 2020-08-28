@@ -27,8 +27,8 @@ public:
 
 	bool importFromFileAssimp(ID3D11Device* dvc, const std::string& path);
 	
-	bool importFromAiScene(ID3D11Device* dvc, const aiScene* scene, 
-		const std::string& path, std::vector<Material*> mats, Skeleton* skeleton);
+	bool importFromAiScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path, 
+		std::vector<std::shared_ptr<Material>>& mats, std::shared_ptr<Skeleton>& skeleton);
 
 	//template <typename Archive>
 	void serialize(
