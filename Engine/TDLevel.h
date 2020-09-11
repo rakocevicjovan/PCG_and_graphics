@@ -49,8 +49,8 @@ private:
 	NavGrid _navGrid;
 	UINT GOAL_INDEX = 0;
 
-	PointLight pLight;
-	DirectionalLight dirLight;
+	PointLight _pLight;
+	DirectionalLight _dirLight;
 
 	// Things that need changing
 	Mesh floorMesh;

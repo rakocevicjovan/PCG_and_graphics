@@ -1,7 +1,6 @@
 //a bunch of utility function that deal with light calculations
 
 
-
 float4 calcAmbient(in float3 alc, in float ali)
 {
 	return saturate(float4(alc, 1.0f) * ali);
@@ -111,3 +110,34 @@ float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPo
 */
 
 //float3 reflectionVector = 2 * dot(input.normal, inverseLightDir.xyz) * input.normal - inverseLightDir.xyz;
+
+
+#define NUM_CASCADES 3
+
+float shade(float depth, float4 cascades, int NUM_CASCADES, matrix lvpMatrix[NUM_CASCADES],
+	Texture2DArray<float> csms, SamplerState Sampler)
+{
+	// Determine whether the pixel is shadowed or not
+	// Check how far it is from the camera compared to cascade far planes
+	float4 fComparison = float4(depth > cascades[0], depth > cascades[1], depth > cascades[2], depth > cascades[3]);
+
+	// Determine which cascade it is in, up to NUM_CASCADES
+	float fIndex = dot(float4(NUM_CASCADES > 0, NUM_CASCADES > 1, NUM_CASCADES > 2, NUM_CASCADES > 3), fComparison);
+	int index = (int)(min(fIndex, NUM_CASCADES - 1));
+
+	// Using the selected cascade's light view projection matrix, determine the pixel's position in light space
+	float4 shadowCoord = mul(input.worldPos, lvpMatrix[index]);
+	float2 shadowCoord2 = float2(shadowCoord.x / shadowCoord.w / 2.0f + 0.5f, -shadowCoord.y / shadowCoord.w / 2.0f + 0.5f);
+
+	// Using the selected cascade's shadow map, determine the depth of the closest pixel to the light along the light direction ray
+	float closestDepth = csms.Sample(Sampler, float3(shadowCoord2.x, shadowCoord2.y, index)).x;
+
+	// Works too, load is faster but I do need to pass the texture resolution, cba right now and harcoded is error prone)
+	//float closestDepth = csms.Load(float4(shadowCoord2.x * 1024, shadowCoord2.y * 1024, index, 0));
+
+	// Compare the two - only the pixels closest to the light will be directly illuminated
+	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
+	float lit = step(shadowCoord.z, closestDepth + 0.000001);	// can use max(lit, minLight) to avoid overly dark shadows
+	
+	return lit;
+}

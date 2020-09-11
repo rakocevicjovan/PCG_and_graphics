@@ -31,14 +31,14 @@ class CSM
 	std::vector<Frustum> _frusta;
 	ID3D11InputLayout* _inLay;
 
-	ID3D11Buffer* _wmBuffer;
-	ID3D11Buffer* _lvpBuffer;
-	ID3D11Buffer* _shadowBuffer;
+	CBuffer _wmBuffer;
+	CBuffer _lvpBuffer;
+	CBuffer _shadowBuffer;
 
 	ShadowBufferData _shBuffData;
 
 	VertexShader* _vs;
-	// Alternative... I will want to use the pixel shader later to deal with transparency, for now only the depth stencil buffer.
+	// I will use the pixel shader to deal with transparency shadows, currently only depth stencil buffer.
 
 public:
 
@@ -59,31 +59,11 @@ public:
 
 
 		// Initialize buffers used by the csm shader
+		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(SMatrix)), _lvpBuffer._cbPtr);
+		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(SMatrix)), _wmBuffer._cbPtr);
+		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(ShadowBufferData)), _shadowBuffer._cbPtr);
 
-		auto lptBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
-		if (FAILED(device->CreateBuffer(&lptBufferDesc, NULL, &_lvpBuffer)))
-		{
-			OutputDebugStringA("Failed to create CSM light view projection matrix buffer. ");
-			return false;
-		}
-
-		auto wmBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
-		if (FAILED(device->CreateBuffer(&wmBufferDesc, NULL, &_wmBuffer)))
-		{
-			OutputDebugStringA("Failed to create CSM world matrix buffer. ");
-			return false;
-		}
-
-		auto shadowBufferDesc = CBuffer::createDesc(sizeof(ShadowBufferData));
-		if (FAILED(device->CreateBuffer(&shadowBufferDesc, NULL, &_shadowBuffer)))
-		{
-			OutputDebugStringA("Failed to create CSM shadow buffer. ");
-			return false;
-		}
-
-
-		// Initialize GPU resources for shadow mapping... could be depth stencil only for starters, but transparent objects...
-
+		// Initialize GPU resources for shadow mapping... depth stencil only for now, but transparent objects...
 		D3D11_TEXTURE2D_DESC texDesc = Texture::create2DTexDesc(
 			_width, _height, DXGI_FORMAT_R32_TYPELESS, D3D11_USAGE_DEFAULT,
 			D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL,	// | D3D11_BIND_RENDER_TARGET not necessary for ds I think
@@ -252,8 +232,8 @@ public:
 
 		_shBuffData.lvpMatrices[n] = lvpMatTranspose;
 
-		CBuffer::updateWholeBuffer(context, _lvpBuffer, &lvpMatTranspose, sizeof(SMatrix));
-		context->VSSetConstantBuffers(1, 1, &_lvpBuffer);
+		CBuffer::updateWholeBuffer(context, _lvpBuffer._cbPtr, &lvpMatTranspose, sizeof(SMatrix));
+		context->VSSetConstantBuffers(1, 1, &_lvpBuffer._cbPtr);
 	}
 
 
@@ -265,8 +245,8 @@ public:
 
 		//this is not flexible, it must use the above somehow in order to work properly @TODO
 		SMatrix transformTranspose = r._transform.Transpose();
-		CBuffer::updateWholeBuffer(context, _wmBuffer, &transformTranspose, sizeof(SMatrix));
-		context->VSSetConstantBuffers(0, 1, &_wmBuffer);
+		CBuffer::updateWholeBuffer(context, _wmBuffer._cbPtr, &transformTranspose, sizeof(SMatrix));
+		context->VSSetConstantBuffers(0, 1, &_wmBuffer._cbPtr);
 
 		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
 		context->IASetInputLayout(_inLay);
@@ -300,7 +280,7 @@ public:
 		r.mat->bindSamplers(context);
 
 		// Bind shadow map array
-		context->PSSetShaderResources(11, 1, &_shadowResView);
+		context->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, &_shadowResView);
 
 		context->IASetInputLayout(r.mat->getVS()->_layout);
 		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
@@ -313,17 +293,15 @@ public:
 
 		context->DrawIndexed(r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 
-		// Unbind shadow map array
-		ID3D11ShaderResourceView *const pSRV[1] = { NULL };
-		context->PSSetShaderResources(11, 1, pSRV);
+		unbindTextureArray(context);
 	}
 
 
 
 	void uploadCSMBuffer(ID3D11DeviceContext* context, UINT slot)
 	{
-		CBuffer::updateWholeBuffer(context, _shadowBuffer, &_shBuffData, sizeof(_shBuffData));
-		context->PSSetConstantBuffers(slot, 1, &_shadowBuffer);
+		CBuffer::updateWholeBuffer(context, _shadowBuffer._cbPtr, &_shBuffData, sizeof(_shBuffData));
+		context->PSSetConstantBuffers(slot, 1, &_shadowBuffer._cbPtr);
 	}
 
 

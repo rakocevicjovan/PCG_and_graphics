@@ -102,8 +102,6 @@ public:
 		{
 			_csm.beginShadowPassN(_renderer.context(), i);
 
-			// add floor renderable to the actor list instead
-
 			frustumCull(_csm.getNthFrustum(i), _visibleActors, _shadowVisibleActors);
 
 			for (Actor*& actor : _shadowVisibleActors)

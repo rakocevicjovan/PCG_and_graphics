@@ -434,8 +434,3 @@ public:
 		}
 	}
 };
-
-// Currently it's really useless to do this
-//std::ofstream ofs(texPath, std::ios::binary | std::ios::out);
-//cereal::BinaryOutputArchive boa(ofs);
-//(*t).save(boa);

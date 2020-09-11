@@ -44,8 +44,11 @@ void TDLevel::init(Engine& sys)
 
 	// Light setup, to be replaced soon
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
-	pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
-	dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
+	_pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
+	_dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
+
+	_pLight.createCBuffer(S_DEVICE);
+	_pLight.updateCBuffer(S_CONTEXT);
 
 	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
@@ -61,8 +64,8 @@ void TDLevel::init(Engine& sys)
 	floorMesh._material->_texMetaData.push_back({ std::make_shared<Texture>(floorTex), TextureRole::DIFFUSE });
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("lightVS"));
-	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("clusterPS"));	//clusterDebugPS
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
+	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));	//clusterPS clusterDebugPS
 
 	terrainActor.addRenderable(floorRenderable, 500);
 	//terrainActor._collider.dynamic = false;
@@ -120,7 +123,7 @@ void TDLevel::init(Engine& sys)
 		_creeps[i]._steerComp._mspeed = 40.f;
 		
 		for (Renderable& r : _creeps[i]._renderables)
-			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), pLight);
+			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), _pLight);
 
 		for (Hull* h : _creeps[i]._collider.getHulls())
 			_scene._octree.insertObject(static_cast<SphereHull*>(h));
@@ -151,7 +154,7 @@ void TDLevel::init(Engine& sys)
 }
 
 
-
+// Use files for this we aren't savages gdi
 void TDLevel::addBuildables()
 {
 	_buildable.reserve(2);
@@ -165,7 +168,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("guard_tower")->_srv),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), pLight);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), _pLight);
 	fixBuildable(b);
 
 	b = new IndustrialBuilding(
@@ -178,7 +181,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("lumber_yard")->_srv),
 		Income(10.f, "Coin", 10.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), pLight);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), _pLight);
 	fixBuildable(b);
 }
 
@@ -466,6 +469,8 @@ void TDLevel::draw(const RenderContext& rc)
 		for (Renderable& r : building->_renderables)
 			S_RANDY.addToRenderQueue(r);
 	}
+
+	_pLight.bind(S_CONTEXT);
 
 	_scene.draw();
 

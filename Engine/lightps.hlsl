@@ -11,6 +11,14 @@ cbuffer LightBuffer : register(b0)
     float4 lightPosition;
 };
 
+cbuffer PSPerCameraBuffer : register(b9)
+{
+	float scr_w;
+	float scr_h;
+	float zNear;
+	float zFar;
+}
+
 cbuffer PSPerFrameBuffer : register(b10)
 {
 	float4 eyePos;

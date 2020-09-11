@@ -120,10 +120,8 @@ int Texture::GetFormatFromMemory(const unsigned char* data, size_t size)
 void Texture::loadFromFile(const char* filename)
 {
 	int fileFormat, desiredFormat, w, h;
-	fileFormat = GetFormatFromFile(filename);
-	
+	desiredFormat = GetFormatFromFile(filename);
 	_mdata = std::shared_ptr<unsigned char[]>(stbi_load(filename, &w, &h, &fileFormat, desiredFormat));
-	
 	_w = w;
 	_h = h;
 	_nc = desiredFormat;

@@ -41,7 +41,7 @@ cbuffer ShadowBuffer : register(b11)
 Texture2D shaderTexture : register(t0);
 Texture2DArray<float> csms : register(t11);
 
-SamplerState SampleType;
+SamplerState Sampler;
 
 //go 2-4 times higher on this when using blinn phong compared to phong, should be material defined
 static const float SpecularPower = 8.f;
@@ -67,7 +67,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float2 shadowCoord2 = float2(shadowCoord.x / shadowCoord.w / 2.0f + 0.5f, -shadowCoord.y / shadowCoord.w / 2.0f + 0.5f);
 
 	// Using the selected cascade's shadow map, determine the depth of the closest pixel to the light along the light direction ray
-	float closestDepth = csms.Sample(SampleType, float3(shadowCoord2.x, shadowCoord2.y, index)).x;
+	float closestDepth = csms.Sample(Sampler, float3(shadowCoord2.x, shadowCoord2.y, index)).x;
 
 	// Works too, load is faster but I do need to pass the texture resolution, cba right now and harcoded is error prone)
 	//float closestDepth = csms.Load(float4(shadowCoord2.x * 1024, shadowCoord2.y * 1024, index, 0));
@@ -86,7 +86,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	//calculate specular light
 	float4 specular = calcSpecularPhong(invLightDir, input.normal, slc, sli, viewDir, diffIntensity, SpecularPower);
 
-	float4 colour = shaderTexture.Sample(SampleType, input.tex);
+	float4 colour = shaderTexture.Sample(Sampler, input.tex);
 	colour = (ambient + diffuse * lit) * colour + specular * lit;	// Incorporate the "lit-ness" into the final calculation
 
 	//apply gamma correction

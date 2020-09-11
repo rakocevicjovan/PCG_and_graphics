@@ -136,8 +136,8 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	/// PIXEL SHADERS
 
 	// Phong
-	PixelShader* phong = new PixelShader(*_shc, L"lightPS.hlsl", { regularSD }, { lightBufferDesc });
-	phong->describeBuffers({ lightBufferMeta });
+	PixelShader* phong = new PixelShader(*_shc, L"lightPS.hlsl", { regularSD }, {});
+	//phong->describeBuffers({ lightBufferMeta });
 	addPixShader("phongPS", phong);
 
 	// Skybox ps, special sampler, no lights
@@ -152,8 +152,8 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	//PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});	addPixShader("hudPS", hudPS);
 
 	// CSM Scene shader
-	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", { regularSD }, { lightBufferDesc });
-	csmScenePs->describeBuffers({ lightBufferMeta });
+	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", { regularSD }, { });
+	//csmScenePs->describeBuffers({ lightBufferMeta });
 	addPixShader("csmScenePS", csmScenePs);
 
 	PixelShader* clusterDebugPs = new PixelShader(*_shc, L"clusterDebug.hlsl", { regularSD }, {});
