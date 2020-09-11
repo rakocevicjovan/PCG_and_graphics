@@ -497,7 +497,9 @@ void TDLevel::draw(const RenderContext& rc)
 
 	GUI::beginFrame();
 
-	ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));
+
+	//ID3D11ShaderResourceView** wat = const_cast<ID3D11ShaderResourceView**>(_scene._csm.getResView());
+	ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	//
 
 	std::vector<GuiElement> guiElems =
 	{
