@@ -114,7 +114,7 @@ float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPo
 
 #define NUM_CASCADES 3
 
-float shade(float depth, float4 cascades, int NUM_CASCADES, matrix lvpMatrix[NUM_CASCADES],
+float shade(float depth, float4 cascades, float4 worldPos, matrix lvpMatrix[NUM_CASCADES],
 	Texture2DArray<float> csms, SamplerState Sampler)
 {
 	// Determine whether the pixel is shadowed or not
@@ -126,7 +126,7 @@ float shade(float depth, float4 cascades, int NUM_CASCADES, matrix lvpMatrix[NUM
 	int index = (int)(min(fIndex, NUM_CASCADES - 1));
 
 	// Using the selected cascade's light view projection matrix, determine the pixel's position in light space
-	float4 shadowCoord = mul(input.worldPos, lvpMatrix[index]);
+	float4 shadowCoord = mul(worldPos, lvpMatrix[index]);
 	float2 shadowCoord2 = float2(shadowCoord.x / shadowCoord.w / 2.0f + 0.5f, -shadowCoord.y / shadowCoord.w / 2.0f + 0.5f);
 
 	// Using the selected cascade's shadow map, determine the depth of the closest pixel to the light along the light direction ray
@@ -139,5 +139,6 @@ float shade(float depth, float4 cascades, int NUM_CASCADES, matrix lvpMatrix[NUM
 	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
 	float lit = step(shadowCoord.z, closestDepth + 0.000001);	// can use max(lit, minLight) to avoid overly dark shadows
 	
+	// For now this is 0/1 therefore it's not good for soft shadows, todo for another day
 	return lit;
 }

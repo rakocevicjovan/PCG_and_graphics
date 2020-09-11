@@ -118,10 +118,27 @@ struct LightData
 struct DirectionalLight : LightData
 {
 	SVec4 dir;
+
+	ID3D11Buffer* _buffer;
 	
 	DirectionalLight(){}
 	
 	DirectionalLight(LightData ld, SVec4 dir) : LightData(ld), dir(dir) {}
+
+	void createCBuffer(ID3D11Device* device)
+	{
+		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(DirectionalLight) - sizeof(_buffer)), _buffer);
+	}
+
+	void updateCBuffer(ID3D11DeviceContext* context)
+	{
+		CBuffer::updateWholeBuffer(context, _buffer, this, sizeof(DirectionalLight) - sizeof(_buffer));
+	}
+
+	void bind(ID3D11DeviceContext* context, uint8_t slot = 0ul)
+	{
+		context->PSSetConstantBuffers(slot, 1, &_buffer);
+	}
 };
 
 

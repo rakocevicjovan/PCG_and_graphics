@@ -44,11 +44,14 @@ void TDLevel::init(Engine& sys)
 
 	// Light setup, to be replaced soon
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
+	
 	_pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
-	_dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
-
 	_pLight.createCBuffer(S_DEVICE);
 	_pLight.updateCBuffer(S_CONTEXT);
+
+	_dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
+	_dirLight.createCBuffer(S_DEVICE);
+	_dirLight.updateCBuffer(S_CONTEXT);
 
 	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
@@ -64,7 +67,7 @@ void TDLevel::init(Engine& sys)
 	floorMesh._material->_texMetaData.push_back({ std::make_shared<Texture>(floorTex), TextureRole::DIFFUSE });
 	
 	floorRenderable = Renderable(floorMesh);
-	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("basicVS"));
+	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));	//clusterPS clusterDebugPS
 
 	terrainActor.addRenderable(floorRenderable, 500);
@@ -470,48 +473,10 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
+	//_dirLight.bind(S_CONTEXT);
 	_pLight.bind(S_CONTEXT);
 
 	_scene.draw();
-
-
-	/*
-	_scene.frustumCull(S_RANDY._cam);
-
-	S_RANDY.d3d()->ClearColourDepthBuffers();		//_renderer.d3d()->setRSSolidNoCull();
-
-	// CSM code
-	SMatrix dlViewMatrix = DirectX::XMMatrixLookAtLH(SVec3(0, 1000, 0), SVec3(0, 0, 0), SVec3(0, 0, 1));
-	_scene._csm.calcProjMats(S_RANDY._cam, dlViewMatrix);
-
-	_scene._csm.beginShadowPassSequence(S_RANDY.context());
-
-	for (int i = 0; i < _scene._csm.getNMaps(); ++i)
-	{
-		_scene._csm.beginShadowPassN(S_RANDY.context(), i);
-
-		_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), floorRenderable);	//just add it to the actor list instead
-
-		for (Actor*& actor : _scene._actors)
-			_scene._csm.drawToCurrentShadowPass(S_RANDY.context(), actor->_renderables[0]);
-	}
-
-	S_RANDY.setDefaultRenderTarget();
-
-	// After the shadow maps have been rendered to, we bind the global csm buffer and texture array
-	_scene._csm.uploadCSMBuffer(S_CONTEXT, PS_CSM_CBUFFER_REGISTER);
-	S_CONTEXT->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, _scene._csm.getResView());
-
-	//_scene._csm.drawToSceneWithCSM(S_CONTEXT, floorRenderable);
-	S_RANDY.render(floorRenderable);
-
-	S_RANDY.sortRenderQueue();
-	S_RANDY.flushRenderQueue();
-	S_RANDY.clearRenderQueue();
-
-	ID3D11ShaderResourceView *const pSRV[1] = { NULL };
-	S_CONTEXT->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, pSRV);
-	*/
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 
@@ -532,11 +497,13 @@ void TDLevel::draw(const RenderContext& rc)
 
 	GUI::beginFrame();
 
+	ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));
+
 	std::vector<GuiElement> guiElems =
 	{
 		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
 		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-		{"FPS",		std::string("FPS: " + std::to_string(1 / rc.dTime))},
+		{"FPS",		std::string("FPS: "			+ std::to_string(1 / rc.dTime))},
 		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
 	GUI::renderGuiElems(guiElems);
