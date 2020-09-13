@@ -499,14 +499,14 @@ void TDLevel::draw(const RenderContext& rc)
 
 
 	//ID3D11ShaderResourceView** wat = const_cast<ID3D11ShaderResourceView**>(_scene._csm.getResView());
-	ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	//
+	//ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	// pls
 
 	std::vector<GuiElement> guiElems =
 	{
-		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
-		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-		{"FPS",		std::string("FPS: "			+ std::to_string(1 / rc.dTime))},
-		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
+		{"Octree",	std::string("OCT node count "	+ std::to_string(_scene._octree.getNodeCount()))},
+		{"Octree",	std::string("OCT hull count "	+ std::to_string(_scene._octree.getHullCount()))},
+		{"FPS",		std::string("FPS: "				+ std::to_string(1 / rc.dTime))},
+		{"Culling", std::string("Objects culled:"	+ std::to_string(_scene._numCulled))}
 	};
 	GUI::renderGuiElems(guiElems);
 

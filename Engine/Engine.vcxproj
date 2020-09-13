@@ -633,6 +633,7 @@
     <ClInclude Include="VBuffer.h" />
     <ClInclude Include="VertSignature.h" />
     <ClInclude Include="Viewport.h" />
+    <ClInclude Include="VirtualTexture.h" />
     <ClInclude Include="VitThreadPool.h" />
     <ClInclude Include="Volumetric.h" />
     <ClInclude Include="VolumetricScreen.h">

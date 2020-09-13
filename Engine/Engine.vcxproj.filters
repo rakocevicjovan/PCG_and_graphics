@@ -1003,6 +1003,9 @@
     <ClInclude Include="AssimpGUI.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
+    <ClInclude Include="VirtualTexture.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

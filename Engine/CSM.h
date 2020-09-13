@@ -5,22 +5,25 @@
 #include "Renderable.h"
 
 
+
 struct ShadowBufferData
 {
 	SMatrix lvpMatrices[3];
-	SVec4 cascadeLimits;			//rudimentary but ok for now, I will hardly need more than 4 cascades anyways
+	SVec4 cascadeLimits;			// I will hardly use more than 4 cascades anyways
 };
 
 
 
 class CSM
 {
+private:
+
 	uint8_t _nMaps;
 	uint16_t _width, _height;
 	
 	ID3D11Texture2D* _shadowMapArray;
-	std::vector<ID3D11DepthStencilView*> _dsvPtrs;
-	std::vector<D3D11_VIEWPORT> _viewports;
+	std::vector<ID3D11DepthStencilView*> _depthStencilViews;
+	D3D11_VIEWPORT _viewport;
 	ID3D11ShaderResourceView* _shadowResView, *_debugResView;
 
 	// I trust MJP but not myself. Not sure if I even need this but want to know it's purpose.
@@ -38,7 +41,8 @@ class CSM
 	ShadowBufferData _shBuffData;
 
 	VertexShader* _vs;
-	// I will use the pixel shader to deal with transparency shadows, currently only depth stencil buffer.
+	// Use the pixel shader to deal with transparency shadows, currently only depth stencil buffer.
+
 
 public:
 
@@ -49,12 +53,13 @@ public:
 		// Set the required parameters
 		_width = width;
 		_height = height;
+		_viewport = { 0.f, 0.f, (float)_width, (float)_height, 0.f, 1.f };
+
 		_nMaps = nMaps;
 
-		_dsvPtrs.reserve(nMaps);
+		_depthStencilViews.reserve(nMaps);
 
 		_lvpMats.resize(nMaps);
-		_viewports.resize(nMaps);
 		_frusta.resize(nMaps);
 
 
@@ -96,7 +101,7 @@ public:
 				OutputDebugStringA("Failed to create depth stencil view. (CSM) \n");
 				return false;
 			}
-			_dsvPtrs.push_back(dsvPtr);
+			_depthStencilViews.push_back(dsvPtr);
 
 			if (i == 0)
 			{
@@ -181,8 +186,6 @@ public:
 
 		// @TODO If done like this, only objects in the camera frustum will cast shadows, need to account for it
 
-		_viewports[vpIndex] = { (FLOAT)0.f, (FLOAT)0.f, (FLOAT)_width, (FLOAT)_height, 0.f, 1.f };
-
 		return DirectX::XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	}
 
@@ -222,11 +225,11 @@ public:
 
 	void beginShadowPassN(ID3D11DeviceContext* context, uint8_t n)
 	{
-		context->ClearDepthStencilView(_dsvPtrs[n], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->ClearDepthStencilView(_depthStencilViews[n], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-		context->OMSetRenderTargets(0, nullptr, _dsvPtrs[n]);
+		context->OMSetRenderTargets(0, nullptr, _depthStencilViews[n]);
 
-		context->RSSetViewports(1, &(_viewports[n]));
+		context->RSSetViewports(1, &_viewport);
 
 		SMatrix lvpMatTranspose = _lvpMats[n].Transpose();
 
