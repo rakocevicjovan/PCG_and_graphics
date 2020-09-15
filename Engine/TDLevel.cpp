@@ -33,7 +33,7 @@ void TDLevel::init(Engine& sys)
 
 	Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");
 
-	_scene._csm.init(S_DEVICE, 3u, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
+	_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 	S_INMAN.registerController(&_tdController);
 

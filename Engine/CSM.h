@@ -5,15 +5,15 @@
 #include "Renderable.h"
 
 
-
+template <UINT numCascades>
 struct ShadowBufferData
 {
-	SMatrix lvpMatrices[3];
-	SVec4 cascadeLimits;			// I will hardly use more than 4 cascades anyways
+	SMatrix lvpMatrices[numCascades];
+	SVec4 cascadeLimits;
 };
 
 
-
+template <UINT numCascades>
 class CSM
 {
 private:
@@ -38,7 +38,7 @@ private:
 	CBuffer _lvpBuffer;
 	CBuffer _shadowBuffer;
 
-	ShadowBufferData _shBuffData;
+	ShadowBufferData<numCascades> _shBuffData;
 
 	VertexShader* _vs;
 	// Use the pixel shader to deal with transparency shadows, currently only depth stencil buffer.
@@ -46,7 +46,7 @@ private:
 
 public:
 
-	bool init(ID3D11Device* device, uint8_t nMaps, uint16_t width, uint16_t height, VertexShader* vs)
+	bool init(ID3D11Device* device, uint16_t width, uint16_t height, VertexShader* vs)
 	{
 		_vs = vs;
 
@@ -55,24 +55,23 @@ public:
 		_height = height;
 		_viewport = { 0.f, 0.f, (float)_width, (float)_height, 0.f, 1.f };
 
-		_nMaps = nMaps;
+		_nMaps = numCascades;
+		_depthStencilViews.reserve(numCascades);
 
-		_depthStencilViews.reserve(nMaps);
-
-		_lvpMats.resize(nMaps);
-		_frusta.resize(nMaps);
+		_lvpMats.resize(numCascades);
+		_frusta.resize(numCascades);
 
 
 		// Initialize buffers used by the csm shader
 		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(SMatrix)), _lvpBuffer._cbPtr);
 		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(SMatrix)), _wmBuffer._cbPtr);
-		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(ShadowBufferData)), _shadowBuffer._cbPtr);
+		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(ShadowBufferData<numCascades>)), _shadowBuffer._cbPtr);
 
 		// Initialize GPU resources for shadow mapping... depth stencil only for now, but transparent objects...
 		D3D11_TEXTURE2D_DESC texDesc = Texture::create2DTexDesc(
 			_width, _height, DXGI_FORMAT_R32_TYPELESS, D3D11_USAGE_DEFAULT,
 			D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL,	// | D3D11_BIND_RENDER_TARGET not necessary for ds I think
-			0u, 0u, 1u, nMaps);
+			0u, 0u, 1u, numCascades);
 
 		// Create the base texture array object to be used through the subsequently created views, stores depth data per CSM frustum
 		if (FAILED(device->CreateTexture2D(&texDesc, 0, &_shadowMapArray)))
@@ -83,7 +82,7 @@ public:
 
 
 		// Create depth stencil views used for writing during the creation of shadow maps
-		for (uint8_t i = 0; i < nMaps; ++i)
+		for (uint8_t i = 0; i < numCascades; ++i)
 		{
 			ID3D11DepthStencilView* dsvPtr;
 			D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
@@ -126,7 +125,7 @@ public:
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
-		srvDesc.Texture2DArray.ArraySize = nMaps;
+		srvDesc.Texture2DArray.ArraySize = numCascades;
 		srvDesc.Texture2DArray.FirstArraySlice = 0u;
 		srvDesc.Texture2DArray.MipLevels = 1u;
 		srvDesc.Texture2DArray.MostDetailedMip = 0u;
@@ -218,6 +217,7 @@ public:
 	{
 		context->VSSetShader(_vs->_vsPtr, nullptr, 0);
 		context->PSSetShader(NULL, nullptr, 0);
+		context->RSSetViewports(1, &_viewport);
 		_inLay = _vs->_layout;
 	}
 
@@ -228,8 +228,6 @@ public:
 		context->ClearDepthStencilView(_depthStencilViews[n], D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		context->OMSetRenderTargets(0, nullptr, _depthStencilViews[n]);
-
-		context->RSSetViewports(1, &_viewport);
 
 		SMatrix lvpMatTranspose = _lvpMats[n].Transpose();
 

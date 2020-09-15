@@ -112,33 +112,64 @@ float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPo
 //float3 reflectionVector = 2 * dot(input.normal, inverseLightDir.xyz) * input.normal - inverseLightDir.xyz;
 
 
-#define NUM_CASCADES 3
+// Cascaded shadow maps, can be optimized a fair bit though
 
-float shade(float depth, float4 cascades, float4 worldPos, matrix lvpMatrix[NUM_CASCADES],
-	Texture2DArray<float> csms, SamplerState Sampler)
+#define NUM_CASCADES 4
+#define XYDIM 1024.f
+#define NUM_SAMPLES 2.f
+#define SAMPLE_OFFSET NUM_SAMPLES * .5f
+
+float applyPCF(float4 shadowCoord, float smWidth, Texture2DArray<float> csms, SamplerState Sampler, int index)
 {
-	// Determine whether the pixel is shadowed or not
-	// Check how far it is from the camera compared to cascade far planes
-	float4 fComparison = float4(depth > cascades[0], depth > cascades[1], depth > cascades[2], depth > cascades[3]);
+	float4 shadowMapDists = (float4)(0.f);
+	float fIdx = (float)index;
 
-	// Determine which cascade it is in, up to NUM_CASCADES
-	float fIndex = dot(float4(NUM_CASCADES > 0, NUM_CASCADES > 1, NUM_CASCADES > 2, NUM_CASCADES > 3), fComparison);
+	for (float i = 0; i < NUM_SAMPLES; i += 1.)
+	{
+		for (float j = 0; j < NUM_SAMPLES; j += 1.)
+		{
+			float2 smpCrd = (float2)(0.f);
+			smpCrd.x = (shadowCoord.x  + (i - SAMPLE_OFFSET) / smWidth) / shadowCoord.w * .5f + 0.5f;
+			smpCrd.y = (-shadowCoord.y + (j - SAMPLE_OFFSET) / smWidth) / shadowCoord.w * .5f + 0.5f;
+			
+			shadowMapDists[NUM_SAMPLES * i + j] += csms.Sample(Sampler, float3(smpCrd.x, smpCrd.y, fIdx)).x;
+
+			/*
+			shadowMapDists += csms.Load(int4(
+											shadowCoord2.x * XYDIM. - 2 + i * 4,
+											shadowCoord2.y * XYDIM. - 2 + j * 4,
+											index,
+											0)).x;
+			*/
+
+			// Works but a single dot product is faster
+			//percentageLit += step(shadowCoord.z, shadowMapDists[i+j] + 0.0001) * .25f;
+		}
+	}
+
+	float percentageLit = dot((shadowCoord.z < shadowMapDists + 0.00001f), (float4)(.25f));
+	//percentageLit = smoothstep(0., 1., percentageLit);
+	return percentageLit;
+}
+
+
+
+// Determine whether the pixel is shadowed and by how much (PCF)
+float obscur(float depth, float smWidth, matrix lvpMatrix[NUM_CASCADES], float4 cascades, 
+	float4 worldPos, Texture2DArray<float> csms, SamplerState Sampler)
+{
+	// Determine which cascade should be sampled
+	float4 distComp = float4(depth > cascades[0], depth > cascades[1], depth > cascades[2], depth > cascades[3]);
+
+	// Determine which cascade it is in, up to NUM_CASCADES (shadow range can be limited)
+	float fIndex = dot(float4(NUM_CASCADES > 0, NUM_CASCADES > 1, NUM_CASCADES > 2, NUM_CASCADES > 3), distComp);
 	int index = (int)(min(fIndex, NUM_CASCADES - 1));
 
 	// Using the selected cascade's light view projection matrix, determine the pixel's position in light space
 	float4 shadowCoord = mul(worldPos, lvpMatrix[index]);
-	float2 shadowCoord2 = float2(shadowCoord.x / shadowCoord.w / 2.0f + 0.5f, -shadowCoord.y / shadowCoord.w / 2.0f + 0.5f);
-
-	// Using the selected cascade's shadow map, determine the depth of the closest pixel to the light along the light direction ray
-	float closestDepth = csms.Sample(Sampler, float3(shadowCoord2.x, shadowCoord2.y, index)).x;
-
-	// Works too, load is faster but I do need to pass the texture resolution, cba right now and harcoded is error prone)
-	//float closestDepth = csms.Load(float4(shadowCoord2.x * 1024, shadowCoord2.y * 1024, index, 0));
 
 	// Compare the two - only the pixels closest to the light will be directly illuminated
 	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
-	float lit = step(shadowCoord.z, closestDepth + 0.000001);	// can use max(lit, minLight) to avoid overly dark shadows
-	
-	// For now this is 0/1 therefore it's not good for soft shadows, todo for another day
+	float lit = applyPCF(shadowCoord, smWidth, csms, Sampler, index);
 	return lit;
 }

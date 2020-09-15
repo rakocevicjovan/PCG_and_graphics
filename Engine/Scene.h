@@ -36,7 +36,7 @@ public:
 	Octree _octree;
 	UINT _numCulled;
 
-	CSM _csm;
+	CSM<4u> _csm;
 
 	std::vector<Actor*> _actors;
 
