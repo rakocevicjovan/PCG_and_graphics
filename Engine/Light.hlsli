@@ -118,7 +118,8 @@ float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPo
 // Cascaded shadow map settings
 #define NUM_CASCADES		4
 #define XYDIM				1024.f
-#define XYDIM_INV			1.f / XYDIM
+#define XYDIM_INV			(1.f / XYDIM)
+#define BIAS				0.0001f
 
 //PCF settings
 #define NUM_SAMPLES			4
@@ -142,12 +143,13 @@ float applyPCF(float4 shadowCoord, Texture2DArray<float> csms, SamplerState Samp
 			float2 smpCrd = float2(shadowCoord.x, -shadowCoord.y) + (float2(i, j) - SAMPLE_OFFSET) * XYDIM_INV;
 			smpCrd = smpCrd / shadowCoord.w * .5f + 0.5f;
 			
-			shadowMapDists[j] = csms.Sample(Sampler, float3(smpCrd.x, smpCrd.y, fIdx)).x;
+			shadowMapDists[j] = csms.Sample(Sampler, float3(smpCrd.x, smpCrd.y, fIdx));
 
 			// This is the logical math version, but using float4 dot products is faster
 			//percentageLit += step(shadowCoord.z, shadowMapDists[i+j] + 0.0001) * .25f;
 		}
-		percentageLit += dot((shadowCoord.z < shadowMapDists + 0.00001f), (float4)(1. / (NUM_SAMPLES * NUM_SAMPLES)));
+
+		percentageLit += dot((shadowCoord.z < shadowMapDists + BIAS), (float4)(1. / (float)(NUM_SAMPLES * NUM_SAMPLES)));
 	}
 
 	//percentageLit = smoothstep(0., 1., percentageLit);
