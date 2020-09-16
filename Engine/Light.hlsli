@@ -144,7 +144,7 @@ float applyPCF(float4 shadowCoord, Texture2DArray<float> csms, SamplerState Samp
 			
 			shadowMapDists[j] = csms.Sample(Sampler, float3(smpCrd.x, smpCrd.y, fIdx)).x;
 
-			// Works but a single dot product is faster
+			// This is the logical math version, but using float4 dot products is faster
 			//percentageLit += step(shadowCoord.z, shadowMapDists[i+j] + 0.0001) * .25f;
 		}
 		percentageLit += dot((shadowCoord.z < shadowMapDists + 0.00001f), (float4)(1. / (NUM_SAMPLES * NUM_SAMPLES)));
