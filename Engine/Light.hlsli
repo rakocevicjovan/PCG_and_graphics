@@ -112,42 +112,44 @@ float sFactor  = pow( max( dot(input.normal.xyz, halfVector), 0.0f ), SpecularPo
 //float3 reflectionVector = 2 * dot(input.normal, inverseLightDir.xyz) * input.normal - inverseLightDir.xyz;
 
 
+
 // Cascaded shadow maps, can be optimized a fair bit though
 
-#define NUM_CASCADES 4
-#define XYDIM 1024.f
-#define NUM_SAMPLES 2.f
-#define SAMPLE_OFFSET NUM_SAMPLES * .5f
+// Cascaded shadow map settings
+#define NUM_CASCADES		4
+#define XYDIM				1024.f
+#define XYDIM_INV			1.f / XYDIM
 
-float applyPCF(float4 shadowCoord, float smWidth, Texture2DArray<float> csms, SamplerState Sampler, int index)
+//PCF settings
+#define NUM_SAMPLES			4
+#define STEP_SIZE			1.f												// Values for ns = 4 & ss = 1
+#define SAMPLE_SPAN			(NUM_SAMPLES * STEP_SIZE)						// 4   * 1.f  = 4.f
+#define EVEN_SAMPLE_OFFSET	((1 - (NUM_SAMPLES % 2)) * (STEP_SIZE * 0.5f))	// 1.f * 0.5f = 0.5f
+#define SAMPLE_OFFSET		(SAMPLE_SPAN * .5f) - EVEN_SAMPLE_OFFSET		// 2.f - .5f  = 1.5f 
+
+// @TODO use gather rather than sample, should be faster...
+float applyPCF(float4 shadowCoord, Texture2DArray<float> csms, SamplerState Sampler, int index)
 {
 	float4 shadowMapDists = (float4)(0.f);
 	float fIdx = (float)index;
+
+	float percentageLit = 0.f;
 
 	for (float i = 0; i < NUM_SAMPLES; i += 1.)
 	{
 		for (float j = 0; j < NUM_SAMPLES; j += 1.)
 		{
-			float2 smpCrd = (float2)(0.f);
-			smpCrd.x = (shadowCoord.x  + (i - SAMPLE_OFFSET) / smWidth) / shadowCoord.w * .5f + 0.5f;
-			smpCrd.y = (-shadowCoord.y + (j - SAMPLE_OFFSET) / smWidth) / shadowCoord.w * .5f + 0.5f;
+			float2 smpCrd = float2(shadowCoord.x, -shadowCoord.y) + (float2(i, j) - SAMPLE_OFFSET) * XYDIM_INV;
+			smpCrd = smpCrd / shadowCoord.w * .5f + 0.5f;
 			
-			shadowMapDists[NUM_SAMPLES * i + j] += csms.Sample(Sampler, float3(smpCrd.x, smpCrd.y, fIdx)).x;
-
-			/*
-			shadowMapDists += csms.Load(int4(
-											shadowCoord2.x * XYDIM. - 2 + i * 4,
-											shadowCoord2.y * XYDIM. - 2 + j * 4,
-											index,
-											0)).x;
-			*/
+			shadowMapDists[j] = csms.Sample(Sampler, float3(smpCrd.x, smpCrd.y, fIdx)).x;
 
 			// Works but a single dot product is faster
 			//percentageLit += step(shadowCoord.z, shadowMapDists[i+j] + 0.0001) * .25f;
 		}
+		percentageLit += dot((shadowCoord.z < shadowMapDists + 0.00001f), (float4)(1. / (NUM_SAMPLES * NUM_SAMPLES)));
 	}
 
-	float percentageLit = dot((shadowCoord.z < shadowMapDists + 0.00001f), (float4)(.25f));
 	//percentageLit = smoothstep(0., 1., percentageLit);
 	return percentageLit;
 }
@@ -155,7 +157,7 @@ float applyPCF(float4 shadowCoord, float smWidth, Texture2DArray<float> csms, Sa
 
 
 // Determine whether the pixel is shadowed and by how much (PCF)
-float obscur(float depth, float smWidth, matrix lvpMatrix[NUM_CASCADES], float4 cascades, 
+float obscur(float depth, matrix lvpMatrix[NUM_CASCADES], float4 cascades, 
 	float4 worldPos, Texture2DArray<float> csms, SamplerState Sampler)
 {
 	// Determine which cascade should be sampled
@@ -170,6 +172,6 @@ float obscur(float depth, float smWidth, matrix lvpMatrix[NUM_CASCADES], float4 
 
 	// Compare the two - only the pixels closest to the light will be directly illuminated
 	// step: 1 if the x parameter is greater than or equal to the y parameter; otherwise, 0.
-	float lit = applyPCF(shadowCoord, smWidth, csms, Sampler, index);
+	float lit = applyPCF(shadowCoord, csms, Sampler, index);
 	return lit;
 }

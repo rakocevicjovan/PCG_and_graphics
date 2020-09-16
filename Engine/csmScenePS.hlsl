@@ -55,7 +55,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	float3 invLightDir = -lightDir;
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
 
-	float percentageLit = obscur(input.depth, XYDIM, lvpMatrix, cascadeLimits, input.worldPos, csms, Sampler);
+	float percentageLit = obscur(input.depth, lvpMatrix, cascadeLimits, input.worldPos, csms, Sampler);
 
 	//calculate ambient light
 	float4 ambient = calcAmbient(alc, ali);
