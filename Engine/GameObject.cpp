@@ -36,7 +36,7 @@ Actor::Actor(const Actor& other)
 
 
 
-void Actor::patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight)
+void Actor::patchMaterial(VertexShader* vs, PixelShader* ps)
 {
 	for (Renderable& r : _renderables)
 	{

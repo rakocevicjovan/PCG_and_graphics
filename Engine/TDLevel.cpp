@@ -126,7 +126,7 @@ void TDLevel::init(Engine& sys)
 		_creeps[i]._steerComp._mspeed = 40.f;
 		
 		for (Renderable& r : _creeps[i]._renderables)
-			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), _pLight);
+			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"));
 
 		for (Hull* h : _creeps[i]._collider.getHulls())
 			_scene._octree.insertObject(static_cast<SphereHull*>(h));
@@ -171,7 +171,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("guard_tower")->_srv),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), _pLight);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
 	fixBuildable(b);
 
 	b = new IndustrialBuilding(
@@ -184,7 +184,7 @@ void TDLevel::addBuildables()
 			S_RESMAN.getByName<Texture>("lumber_yard")->_srv),
 		Income(10.f, "Coin", 10.f)
 	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"), _pLight);
+	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
 	fixBuildable(b);
 }
 
@@ -473,8 +473,8 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
-	//_dirLight.bind(S_CONTEXT);
-	_pLight.bind(S_CONTEXT);
+	//_pLight.bind(S_CONTEXT);
+	_dirLight.bind(S_CONTEXT);
 
 	_scene.draw();
 

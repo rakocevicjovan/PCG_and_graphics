@@ -39,7 +39,7 @@ public:
 
 	void propagate();
 
-	void patchMaterial(VertexShader* vs, PixelShader* ps, PointLight& pLight);
+	void patchMaterial(VertexShader* vs, PixelShader* ps);
 	void addRenderable(const Renderable& renderable, float r);
 	void addToRenderQueue(Renderer& renderer, const SVec3& camPos, const SVec3& viewForward);
 	void render(const Renderer& r) const;

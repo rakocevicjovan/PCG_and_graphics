@@ -8,8 +8,7 @@ cbuffer LightBuffer : register(b0)
 	float dli;
 	float3 slc;
 	float sli;
-	float4 lightPosition;
-	float4 stupidThingIUsedToDo;
+	float4 lightDir;
 };
 
 cbuffer PSPerFrameBuffer : register(b10)
@@ -51,7 +50,6 @@ float4 main(PixelInputType input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
-	float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float3 invLightDir = -lightDir;
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
 
