@@ -261,6 +261,18 @@ namespace GuiBlocks
 
 
 
+	// Useful for outputting debug textures
+	static void displayImage(ID3D11ShaderResourceView* srv, float pX, float pY, float sX, float sY, const char* title)
+	{
+		ImGui::SetNextWindowPos(ImVec2(pX, pY), ImGuiCond_Once);
+
+		ImGui::Begin(title, false);
+		ImGui::Image(srv, ImVec2(sX, sY));
+		ImGui::End();
+	}
+
+
+
 	// Doesn't do anything, syntax refresher (imagine having documentation)
 	static bool contextMenu()
 	{

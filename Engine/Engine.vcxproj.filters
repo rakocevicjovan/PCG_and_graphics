@@ -1006,6 +1006,9 @@
     <ClInclude Include="VirtualTexture.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="UIGraph.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
