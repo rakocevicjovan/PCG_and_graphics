@@ -440,6 +440,9 @@
     <ClCompile Include="TDLevel.cpp">
       <Filter>TowerDefense</Filter>
     </ClCompile>
+    <ClCompile Include="GeoClipmap.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1009,6 +1012,9 @@
     <ClInclude Include="UIGraph.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="GeoClipmap.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1221,6 +1227,9 @@
     </FxCompile>
     <FxCompile Include="ShGen\PS_proto.hlsl">
       <Filter>Rendering\Shaders\0ShGen</Filter>
+    </FxCompile>
+    <FxCompile Include="GeoClipmapVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
