@@ -62,8 +62,8 @@ public:
 			if (tnb.blob._size == 0)	// Skip textures that were not found, for now.
 				continue;
 
-			pathTex.second.get()->LoadFromMemory(reinterpret_cast<unsigned char*>(tnb.blob._data.get()), tnb.blob._size);
-			pathTex.second.get()->SetUpAsResource(device);
+			pathTex.second.get()->loadFromMemory(reinterpret_cast<unsigned char*>(tnb.blob._data.get()), tnb.blob._size);
+			pathTex.second.get()->setUpAsResource(device);
 
 			texNameBlobs.push_back(std::move(tnb));
 		}

@@ -66,11 +66,12 @@ public:
 
 	bool loadFromStoredPath();
 	bool loadFromPath(const char* path);
-	bool LoadFromMemory(const unsigned char* data, size_t size);
-	void LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
-	bool LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
+	bool loadFromMemory(const unsigned char* data, size_t size);
+	void loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
+	bool loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
 
-	bool SetUpAsResource(ID3D11Device* device, bool deleteData = true);
+	bool setUpAsResource(ID3D11Device* device, bool deleteData = true);
+	bool create(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data);
 
 	static void SaveAsPng(const std::string& targetFile, int w, int h, int comp, const void* data, int stride_in_bytes = 0u);
 	

@@ -63,7 +63,7 @@ void TDLevel::init(Engine& sys)
 	floorMesh = Mesh(terrain, S_DEVICE);
 
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
-	floorTex.SetUpAsResource(S_DEVICE);
+	floorTex.setUpAsResource(S_DEVICE);
 	floorMesh._material->_texMetaData.push_back({ std::make_shared<Texture>(floorTex), TextureRole::DIFFUSE });
 	
 	floorRenderable = Renderable(floorMesh);

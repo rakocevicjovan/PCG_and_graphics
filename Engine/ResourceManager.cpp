@@ -47,7 +47,7 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 		{
 			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(projDir + resDefs[i].val._path);
 			temp->incRef();
-			static_cast<Texture*>(temp)->SetUpAsResource(_device);
+			static_cast<Texture*>(temp)->setUpAsResource(_device);
 			_resourceMap.insert(std::make_pair<>(resDefs[i].key._assetName, temp));
 		}
 	}

@@ -2,9 +2,6 @@
 #include "Logger.h"
 
 
-ShaderCompiler::ShaderCompiler() {}
-
-
 
 void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 {

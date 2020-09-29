@@ -30,7 +30,7 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 		return;
 	}
 
-	SetUpAsResource(device);
+	setUpAsResource(device);
 }
 
 
@@ -191,7 +191,7 @@ std::vector<float> Texture::LoadAsFloatVec(const std::string& path)
 
 
 
-bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
+bool Texture::loadFromMemory(const unsigned char* data, size_t size)
 {
 	try
 	{
@@ -215,7 +215,7 @@ bool Texture::LoadFromMemory(const unsigned char* data, size_t size)
 
 
 
-bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
+bool Texture::loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 {
 	_w = perlin._w;
 	_h = perlin._h;
@@ -223,12 +223,12 @@ bool Texture::LoadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 	
 	_mdata = std::shared_ptr<unsigned char[]>(perlin.getUCharVector().data());
 
-	return SetUpAsResource(device);
+	return setUpAsResource(device);
 }
 
 
 
-void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
+void Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
 {
 	std::wstring temp(path.begin(), path.end());
 	const wchar_t* widecstr = temp.c_str();
@@ -244,7 +244,7 @@ void Texture::LoadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 
 
 
-bool Texture::SetUpAsResource(ID3D11Device* device, bool deleteData)
+bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 {
 	DXGI_FORMAT inferredFormat = N_TO_FORMAT_DX11[_nc - 1];
 
@@ -269,11 +269,7 @@ bool Texture::SetUpAsResource(ID3D11Device* device, bool deleteData)
 	texData.SysMemPitch = desc.Width * pixelWidth;
 	texData.SysMemSlicePitch = 0;
 
-	if (FAILED(device->CreateTexture2D(&desc, &texData, &_dxID)))
-	{
-		OutputDebugStringA("Can't create texture2d. \n");
-		exit(42);
-	}
+	create(device, &desc, &texData);
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -290,6 +286,19 @@ bool Texture::SetUpAsResource(ID3D11Device* device, bool deleteData)
 
 	if (deleteData)
 		freeMemory();
+
+	return true;
+}
+
+
+
+bool Texture::create(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data)
+{
+	if (FAILED(device->CreateTexture2D(desc, data, &_dxID)))
+	{
+		OutputDebugStringA("Can't create texture2d. \n");
+		exit(42);
+	}
 
 	return true;
 }

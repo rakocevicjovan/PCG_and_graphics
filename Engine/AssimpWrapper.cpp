@@ -165,7 +165,7 @@ bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, 
 	if (aiTex->mHeight != 0)	//compressed textures could have height value of 0
 		texSize *= aiTex->mHeight;
 
-	texture.LoadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
+	texture.loadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
 	texture._fileName = str;
 
 	return true;
