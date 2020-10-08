@@ -9,11 +9,15 @@
 class GeoClipmap
 {
 private:
-	UINT _numLayers, _w, _x, _gapSize;
+	UINT _numLayers, _edgeVertCount, _blockEdgeVertCount, _gapSize;
+	float _coreVertSpacing;
+	std::vector<SVec2> _offsets;
 
 	// Texture arrays of _numLayers or separate textures per layer?
 	Texture _heightMap;		// R32
 	Texture _normalMap;		// RGBA 8bit
+	std::pair<UINT, UINT> _texSize;
+
 
 	struct GeoClipmapBuffer
 	{
@@ -26,7 +30,7 @@ private:
 
 public:
 
-	GeoClipmap(UINT numLayers, UINT edgeVertexCount);
+	GeoClipmap(UINT numLayers, UINT edgeVertexCount, float xzScale);
 
 	void init(ID3D11Device* device);
 	void update(ID3D11DeviceContext* context);

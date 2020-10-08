@@ -408,6 +408,7 @@
     <ClInclude Include="MatLoader.h" />
     <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MeshLoader.h" />
+    <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="ResourceDef.h" />

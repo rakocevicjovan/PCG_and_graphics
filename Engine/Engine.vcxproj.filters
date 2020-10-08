@@ -1015,6 +1015,9 @@
     <ClInclude Include="GeoClipmap.h">
       <Filter>Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="NumericVectorType.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
