@@ -216,12 +216,15 @@ void ShaderCompiler::outputError(ID3DBlob* errBlob, WCHAR shaderFilename, const 
 		return;
 	}
 
-	FileUtils::writeAllBytes("shader-error.txt", errBlob->GetBufferPointer(), errBlob->GetBufferSize());
+	std::string outMsg = "Error compiling shader, logged in shader-error.txt.";
+	std::string errMsg((char*)errBlob->GetBufferPointer(), (char*)errBlob->GetBufferPointer() + errBlob->GetBufferSize());
+	FileUtils::writeAllBytes("shader-error.txt", errMsg.data(), errMsg.size());
 
 	errBlob->Release();
 	errBlob = nullptr;
 
-	std::string errMsg = "Error compiling shader.  Check shader-error.txt for message.";
-	__debugbreak();
+	OutputDebugStringA(outMsg.c_str());
 	OutputDebugStringA(errMsg.c_str());
+
+	__debugbreak();
 }

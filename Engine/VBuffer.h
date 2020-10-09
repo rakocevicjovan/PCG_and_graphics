@@ -70,7 +70,7 @@ public:
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.ByteWidth = size;
-		vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;	// Faster than default?
+		vertexBufferDesc.Usage = usage;	// Faster than default?
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;

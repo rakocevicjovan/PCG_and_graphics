@@ -7,6 +7,8 @@
 #include "Shader.h"
 #include "Steering.h"
 
+#include "GeoClipmap.h"
+
 
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
@@ -25,6 +27,9 @@ TDLevel::TDLevel(Engine& sys)
 void TDLevel::init(Engine& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
+
+	GeoClipmap gcm(3, 6, .5);
+	gcm.init(sys._device);
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)

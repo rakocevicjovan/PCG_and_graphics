@@ -9,17 +9,29 @@ GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
 {
 	_blockEdgeVertCount = (_edgeVertCount + 1) / 4;	// Size of the outer layer block in vertices
 	_gapSize = _blockEdgeVertCount * 3;	// Cardinal gaps
-	_offsets.reserve(_numLayers);
+	_layers.resize(_numLayers);
 
 	// Texture size
-	_texSize.first = _edgeVertCount + 2 * _numLayers * _blockEdgeVertCount;
+	_texSize[0] = _texSize[1] = (_edgeVertCount + 1) + 2 * _numLayers * _blockEdgeVertCount;
 }
 
 
 
 void GeoClipmap::init(ID3D11Device* device)
 {
-	// Vertex buffers
+	// Vertex buffers - consider doing this in morton order?
+	// Central patch buffer
+
+	std::vector<SVec2> coreVertices;
+	for (int i = 0; i < _edgeVertCount; ++i)
+	{
+		for (int j = 0; j < _edgeVertCount; ++j)
+			coreVertices.emplace_back(j, i);
+	}
+
+	VBuffer centerBuffer(device, coreVertices.data(), coreVertices.size() * sizeof(SVec2), sizeof(SVec2));
+
+	// 12-block buffer
 	std::vector<SVec2> vertXYs;
 	vertXYs.reserve(_blockEdgeVertCount * _blockEdgeVertCount);
 
@@ -29,8 +41,6 @@ void GeoClipmap::init(ID3D11Device* device)
 		for (int j = 0; j < _blockEdgeVertCount; ++j)
 			vertXYs.emplace_back(j, i);
 	}
-
-	VBuffer centerBuffer(device, nullptr, 0, sizeof(SVec2));
 
 	VBuffer blockBuffer(device, vertXYs.data(), vertXYs.size() * sizeof(SVec2), sizeof(SVec2));
 
@@ -43,34 +53,56 @@ void GeoClipmap::init(ID3D11Device* device)
 
 	VertexShader vs(device, L"GeoClipmapVS.hlsl", inLayDesc, { bufferDesc });
 
-	/// TEXTURE SIZE IS NOT EDGE VERT COUNT IT SHOULD BE WAY BIGGER!
+
 	// Textures - 2 per layer, but instead packed into two arrays of _numLayers for faster binding
-	D3D11_TEXTURE2D_DESC hmDesc = Texture::create2DTexDesc(_edgeVertCount, _edgeVertCount, DXGI_FORMAT_R32_FLOAT,
+	D3D11_TEXTURE2D_DESC hmDesc = Texture::create2DTexDesc(_texSize[0], _texSize[1], DXGI_FORMAT_R32_FLOAT,
 		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
 		_numLayers);
 
 	_heightMap.create(device, &hmDesc, nullptr);
 
-	D3D11_TEXTURE2D_DESC nmDesc = Texture::create2DTexDesc(2.f * _edgeVertCount, 2.f * _edgeVertCount, DXGI_FORMAT_R8G8B8A8_SNORM,
+	D3D11_TEXTURE2D_DESC nmDesc = Texture::create2DTexDesc(2.f * _texSize[0], 2.f * _texSize[1], DXGI_FORMAT_R8G8B8A8_SNORM,
 		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
 		_numLayers);
 
 	_normalMap.create(device, &nmDesc, nullptr);
 
-	// Offsets towards bottom left per layer, starting with central block's offset
-	SVec2 acumulatedOffset(-0.5f * _edgeVertCount * _coreVertSpacing);
-	_offsets.push_back(acumulatedOffset);
+	// Ring layer setup - towards bottom left per layer, starting with central block's offset
+	_coreSize = SVec2(_edgeVertCount * _coreVertSpacing);
+	_coreOffset = SVec2(-0.5 * _coreSize);
 
-	// Vertex spacing doubles every iteration, including the first layer, offsets increase quadratically
+	SVec2 accumulatedSize(_coreSize);
+	
+	// Vertex spacing doubles for every ring layer, including the first
 	float baseBlockSize = _blockEdgeVertCount * _coreVertSpacing;
 
-	for (int i = 1; i < _numLayers; ++i)
+	for (int i = 0; i < _layers.size(); ++i)
 	{
-		int scaleModifier = 1 << i;	// 2, 4, 8...
-		SVec2 nthLayerOffset(scaleModifier * baseBlockSize);
+		int scaleModifier = 2 << i;	// 1, 2, 4, 8...
 
-		acumulatedOffset -= nthLayerOffset;	// Shift by the width of the new layer
-		_offsets.push_back(acumulatedOffset);
+		float blockSize = scaleModifier * baseBlockSize;
+		
+		RingLayer& rl = _layers[i];
+		rl._blockSize = SVec2(blockSize);
+		
+		accumulatedSize += 2.f * rl._blockSize;	// Increase by the width of new blocks, one each side
+
+		rl._size = accumulatedSize;
+		rl._offset = -0.5 * accumulatedSize;
+		
+		// Each corner has 3 blocks, one in the corner, and two bordering it
+		for (int j = 0; j < 4; j++)
+		{
+			// 2 3
+			// 0 1
+			SVec2 cornerOffset = rl._offset + SVec2(j & 1, j > 1) * (accumulatedSize - SVec2(blockSize));
+			
+			float xSign =  1. - 2. * (j % 2);	// 1 - 2 * (0, 1, 0, 1) = 1, -1, 1, -1
+			float zSign = -1. + 2. * (j < 2);	// 1, 1, -1, -1
+			rl._blockOffsets[j * 3 + 0] = cornerOffset;
+			rl._blockOffsets[j * 3 + 1] = cornerOffset + SVec2(blockSize * xSign, 0);
+			rl._blockOffsets[j * 3 + 2] = cornerOffset + SVec2(0, blockSize * zSign);
+		}
 	}
 	
 }
