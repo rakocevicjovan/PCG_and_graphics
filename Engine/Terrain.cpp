@@ -297,7 +297,7 @@ namespace Procedural
 		// Calculate vertex normals from containing faces
 		for (int i = 0; i < _numRows; i++)
 		{
-			std::vector<TangentTriface>* pRow{nullptr};
+			std::vector<TangentTriface>* pRow{ nullptr };
 			std::vector<TangentTriface>* nRow{ nullptr };
 
 			if (i == 0)
