@@ -31,18 +31,7 @@ void GeoClipmap::init(ID3D11Device* device)
 
 	VBuffer centerBuffer(device, coreVertices.data(), coreVertices.size() * sizeof(SVec2), sizeof(SVec2));
 
-	// 12-block buffer
-	std::vector<SVec2> vertXYs;
-	vertXYs.reserve(_blockEdgeVertCount * _blockEdgeVertCount);
 
-	// @TODO replace with bufferless, no need for it on newer GPUs
-	for (int i = 0; i < _blockEdgeVertCount; ++i)
-	{
-		for (int j = 0; j < _blockEdgeVertCount; ++j)
-			vertXYs.emplace_back(j, i);
-	}
-
-	VBuffer blockBuffer(device, vertXYs.data(), vertXYs.size() * sizeof(SVec2), sizeof(SVec2));
 
 	// Vertex shader
 	VertSignature vertSig;
@@ -67,18 +56,19 @@ void GeoClipmap::init(ID3D11Device* device)
 
 	_normalMap.create(device, &nmDesc, nullptr);
 
-	// Ring layer setup - towards bottom left per layer, starting with central block's offset
+
 	_coreSize = SVec2(_edgeVertCount * _coreVertSpacing);
 	_coreOffset = SVec2(-0.5 * _coreSize);
 
+	// Ring layer setup - towards bottom left per layer, starting with central block's offset
 	SVec2 accumulatedSize(_coreSize);
 	
 	// Vertex spacing doubles for every ring layer, including the first
-	float baseBlockSize = _blockEdgeVertCount * _coreVertSpacing;
+	float baseBlockSize = 2. * _blockEdgeVertCount * _coreVertSpacing;
 
 	for (int i = 0; i < _layers.size(); ++i)
 	{
-		int scaleModifier = 2 << i;	// 1, 2, 4, 8...
+		int scaleModifier = 1 << i;	// 1, 2, 4, 8...
 
 		float blockSize = scaleModifier * baseBlockSize;
 		
@@ -104,7 +94,26 @@ void GeoClipmap::init(ID3D11Device* device)
 			rl._blockOffsets[j * 3 + 2] = cornerOffset + SVec2(0, blockSize * zSign);
 		}
 	}
-	
+}
+
+
+
+// @TODO replace with bufferless, no need for it on newer GPUs
+void GeoClipmap::createVertexBuffers(ID3D11Device* device)
+{
+	// 12-block buffer
+	std::vector<SVec2> vertXYs;
+	vertXYs.reserve(_blockEdgeVertCount * _blockEdgeVertCount);
+
+	std::vector<float> indices;
+
+	for (int i = 0; i < _blockEdgeVertCount; ++i)
+	{
+		for (int j = 0; j < _blockEdgeVertCount; ++j)
+			vertXYs.emplace_back(j, i);
+	}
+
+	VBuffer blockBuffer(device, vertXYs.data(), vertXYs.size() * sizeof(SVec2), sizeof(SVec2));
 }
 
 

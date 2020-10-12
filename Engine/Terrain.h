@@ -45,15 +45,14 @@ namespace Procedural
 
 	class Terrain
 	{
-		std::vector<Vert3D> vertices;
+		std::vector<Vert3D> _vertices;
 		std::vector<unsigned int> indices;
 		std::vector<std::vector<TangentTriface>> faces;
 		std::vector<Texture> textures;
 
 		unsigned int _numRows, _numColumns;
-		float xScale = 1.0f, yScale = 1.0f, zScale = 1.0f;
-		float tcxr = 1.f, tczr = 1.f;
-		SVec3 _offset;
+		SVec2 _texCoordScale;
+		SVec3 _offset, _scale;
 		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
@@ -65,14 +64,15 @@ namespace Procedural
 
 	public:
 		
-		Terrain(unsigned int x = 1, unsigned int y = 1, SVec3 scales = SVec3(1, 1, 1));
+		Terrain() {}
+		Terrain(unsigned int x, unsigned int y, SVec3 scale = SVec3(1, 1, 1));
 		~Terrain();
 
-		///generation methods
-		//diamond square
+		/// Generation methods
+		// Diamond square
 		void GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax);
 
-		//load from heightmap
+		// Load from heightmap
 		void GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data);
 
 		///manipulation methods
@@ -85,7 +85,7 @@ namespace Procedural
 		void Mesa(const SVec2& center, float radius, float bandWidth, float height);
 		void Smooth(unsigned int steps);	
 
-		///wrapping up and directX integration
+		/// Wrapping up and directX integration
 		void CalculateNormals();
 		void CalculateTexCoords();
 		SVec3 calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2);
@@ -94,8 +94,8 @@ namespace Procedural
 
 		void populateMesh(std::vector<uint8_t>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
 		{
-			verts.resize(vertices.size() * sizeof(Vert3D));
-			memcpy(verts.data(), vertices.data(), verts.size());
+			verts.resize(_vertices.size() * sizeof(Vert3D));
+			memcpy(verts.data(), _vertices.data(), verts.size());
 			inds = indices;
 			tex = textures;
 		}
@@ -106,12 +106,25 @@ namespace Procedural
 		//getters and setters
 		unsigned int	getNumCols() const { return _numColumns; }
 		unsigned int	getNumRows() const { return _numRows;    }
-		auto&			getVerts()   const { return vertices;    }
+		auto&			getVerts()   const { return _vertices;   }
 		SVec3			getOffset()  const { return _offset;     }
 		std::vector<SVec2> getHorizontalPositions();
 
 		void setOffset(float x, float y, float z) { _offset = SVec3(x, y, z); }
-		void setScales(float x, float y, float z);
+		void setOffset(SVec3& offset) { _offset = offset; }
+		void setScale(float x = 1.f, float y = 1.f, float z = 1.f) { _scale = SVec3(x, y, z); }
+		void setScale(SVec3& scale) { _scale = scale; }
 		void setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames);
+	
+		inline UINT addToFace(UINT index, const TangentTriface& face, SVec3& normal, SVec3& tangent)
+		{
+			if (index == face.x || index == face.y || index == face.z)
+			{
+				normal += face.normal;
+				tangent += face.tangent;
+				return 1;
+			}
+			return 0;
+		}
 	};
 }

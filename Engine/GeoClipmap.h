@@ -49,6 +49,8 @@ public:
 	GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale);
 
 	void init(ID3D11Device* device);
+	void createVertexBuffers(ID3D11Device* device);
+
 	void update(ID3D11DeviceContext* context);
 	void draw(ID3D11DeviceContext* context);
 };

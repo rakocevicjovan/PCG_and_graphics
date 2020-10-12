@@ -7,43 +7,36 @@
 
 namespace Procedural 
 {
-	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scales) 
-		: _numRows(rows), _numColumns(columns), xScale(scales.x), yScale(scales.y), zScale(scales.z)
+	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scale) 
+		: _numRows(rows), _numColumns(columns), _scale(scale), _texCoordScale(1.f, 1.f)
 	{
-		vertices.clear();
-		vertices.reserve(rows * columns);
-		Vert3D v;
+		_vertices.reserve(rows * columns);
+		
 		for (int z = 0; z < rows; ++z) 
 		{
 			for(int x = 0; x < columns; ++x)
 			{
-				v.pos = SVec3(x * xScale, 0, z * zScale);
-				vertices.push_back(v);
+				_vertices.emplace_back(SVec3(x * scale.x, 0, z * scale.y));
 			}
 		}
+
+		CalculateTexCoords();
+
+		CalculateNormals();
 	}
 
 
-
+	// TBD
 	Terrain::~Terrain()
 	{
 	}
-
-
-
-	void Terrain::setScales(float x, float y, float z) 
-	{
-		xScale = x;
-		yScale = y;
-		zScale = z;
-	}
+	
 
 
 
 	void Terrain::setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames)
 	{
-		tcxr = xRepeat;
-		tczr = zRepeat;
+		_texCoordScale = SVec2(xRepeat, zRepeat);
 
 		for (auto tn : textureNames)
 		{
@@ -58,11 +51,11 @@ namespace Procedural
 		Chaos chaos;
 
 		std::vector<float> wat;
-		chaos.fillVector(wat, vertices.size());
+		chaos.fillVector(wat, _vertices.size());
 
-		for (int i = 0; i < vertices.size(); i++)
+		for (int i = 0; i < _vertices.size(); i++)
 			if (wat[i] < chance)
-				vertices[i].pos.y += displacement * yScale;
+				_vertices[i].pos.y += displacement * _scale.y;
 	}
 
 
@@ -84,16 +77,16 @@ namespace Procedural
 		std::vector<float> heights;	
 
 		if (i - reach >= 0)
-			heights.push_back(vertices[(i - reach) * _numColumns + j].pos.y);
+			heights.push_back(_vertices[(i - reach) * _numColumns + j].pos.y);
 
 		if (j - reach >= 0)
-			heights.push_back(vertices[i * _numColumns + j - reach].pos.y);
+			heights.push_back(_vertices[i * _numColumns + j - reach].pos.y);
 
 		if (j + reach < _numColumns)
-			heights.push_back(vertices[i * _numColumns + j + reach].pos.y);
+			heights.push_back(_vertices[i * _numColumns + j + reach].pos.y);
 
 		if (i + reach < _numRows)
-			heights.push_back(vertices[(i + reach) * _numColumns + j].pos.y);
+			heights.push_back(_vertices[(i + reach) * _numColumns + j].pos.y);
 		
 		float result = 0.f;
 		for (float h : heights)
@@ -112,19 +105,19 @@ namespace Procedural
 		_numRows = _numColumns = pow(2, steps) + 1;
 		unsigned int stepSize = _numRows - 1;
 
-		vertices.clear();
-		vertices.resize(_numRows * _numRows);
+		_vertices.clear();
+		_vertices.resize(_numRows * _numRows);
 
 		for (int z = 0; z < _numRows; z++) 
 			for(int x = 0; x < _numRows; x++)
-				vertices[z * _numRows + x].pos = SVec3(x * xScale, 0.f, z * zScale);
+				_vertices[z * _numRows + x].pos = SVec3(x * _scale.x, 0.f, z * _scale.z);
 		
 
 		//assign the corner values
-		vertices.front().pos.y = corners.x;
-		vertices[vertices.size() - _numRows].pos.y = corners.y;
-		vertices.back().pos.y = corners.z;
-		vertices[stepSize].pos.y = corners.w;
+		_vertices.front().pos.y = corners.x;
+		_vertices[_vertices.size() - _numRows].pos.y = corners.y;
+		_vertices.back().pos.y = corners.z;
+		_vertices[stepSize].pos.y = corners.w;
 
 		Chaos c(0, randomMax);
 
@@ -142,15 +135,15 @@ namespace Procedural
 					int midVertIndex = midRow * _numRows + midColumn;
 
 					float finHeight =
-							vertices[z * _numRows + x].pos.y +
-							vertices[z * _numRows + x + stepSize].pos.y +
-							vertices[(z + stepSize) * _numRows + x].pos.y +
-							vertices[(z + stepSize) * _numRows + x + stepSize].pos.y;
+							_vertices[z * _numRows + x].pos.y +
+							_vertices[z * _numRows + x + stepSize].pos.y +
+							_vertices[(z + stepSize) * _numRows + x].pos.y +
+							_vertices[(z + stepSize) * _numRows + x + stepSize].pos.y;
 					
 					finHeight *= 0.25f;
 					finHeight += (c.rollTheDice() * 2.f - randomMax);
 
-					vertices[midVertIndex].pos.y = finHeight * yScale;
+					_vertices[midVertIndex].pos.y = finHeight * _scale.y;
 				}
 			}
 
@@ -161,10 +154,10 @@ namespace Procedural
 				{
 					float ro = c.rollTheDice() * 2.f - randomMax;
 
-					vertices[x * _numRows +	z + halfStep].pos.y = sampleDiamond(x, z + halfStep, halfStep) + ro;
-					vertices[(x + halfStep) *	_numRows + z].pos.y = sampleDiamond(x + halfStep, z, halfStep) + ro;
-					vertices[(x + halfStep) *	_numRows + z + stepSize].pos.y = sampleDiamond(x + halfStep, z + stepSize, halfStep) + ro;
-					vertices[(x + stepSize) *	_numRows + z + halfStep].pos.y = sampleDiamond(x + stepSize, z + halfStep, halfStep) + ro;
+					_vertices[x * _numRows +	z + halfStep].pos.y = sampleDiamond(x, z + halfStep, halfStep) + ro;
+					_vertices[(x + halfStep) *	_numRows + z].pos.y = sampleDiamond(x + halfStep, z, halfStep) + ro;
+					_vertices[(x + halfStep) *	_numRows + z + stepSize].pos.y = sampleDiamond(x + halfStep, z + stepSize, halfStep) + ro;
+					_vertices[(x + stepSize) *	_numRows + z + halfStep].pos.y = sampleDiamond(x + stepSize, z + halfStep, halfStep) + ro;
 				}
 			}
 
@@ -182,9 +175,9 @@ namespace Procedural
 		Chaos chaos(0.f, 1.f);
 
 		std::vector<float> randoms;
-		chaos.fillVector(randoms, vertices.size());
+		chaos.fillVector(randoms, _vertices.size());
 
-		std::vector<bool> cells(vertices.size(), false);
+		std::vector<bool> cells(_vertices.size(), false);
 
 		for (int i = 0; i < randoms.size(); i++)
 		{
@@ -192,7 +185,7 @@ namespace Procedural
 				cells[i] = true;
 		}
 
-		std::vector<bool> cellsNext(vertices.size(), false);
+		std::vector<bool> cellsNext(_vertices.size(), false);
 
 		//do the CA stuff
 		for (unsigned int step = 0; step < steps; ++step)
@@ -234,10 +227,10 @@ namespace Procedural
 		}
 
 		//write to the vertices based on the cells array
-		for(int i = 0; i < vertices.size(); ++i)
+		for(int i = 0; i < _vertices.size(); ++i)
 		{
 			if (cells[i])
-				vertices[i].pos.y = yScale;
+				_vertices[i].pos.y = _scale.y;
 		}
 	}
 
@@ -248,14 +241,14 @@ namespace Procedural
 		_numColumns = width;
 		_numRows = height;
 
-		vertices.clear();
-		vertices.reserve(width * height);
+		_vertices.clear();
+		_vertices.reserve(width * height);
 
 		for (int z = 0; z < _numRows; ++z)
 		{
 			for(int x = 0; x < _numColumns; ++x)
 			{
-				vertices.push_back(Vert3D(SVec3(x * xScale, data[z * _numColumns + x] * yScale, z * zScale)));
+				_vertices.push_back(Vert3D(SVec3(x, data[z * _numColumns + x], z) * _scale));
 			}
 		}
 	}
@@ -279,80 +272,84 @@ namespace Procedural
 				int bli = row * _numColumns + column;
 				int bri = bli + 1;
 
-				Vert3D topLeft = vertices[tli];
-				Vert3D topRight = vertices[tri];
-				Vert3D bottomLeft = vertices[bli];
-				Vert3D bottomRight = vertices[bri];
+				Vert3D& topLeft = _vertices[tli];
+				Vert3D& topRight = _vertices[tri];
+				Vert3D& bottomLeft = _vertices[bli];
+				Vert3D& bottomRight = _vertices[bri];
 
 				//top left face
 				SVec3 ab = topLeft.pos - topRight.pos;
 				SVec3 ac = bottomLeft.pos - topRight.pos;
 				SVec3 normal = ac.Cross(ab);
 
-				faces[row].emplace_back(tli, tri, bli, normal, calculateTangent(vertices, tli, tri, bli));
+				faces[row].emplace_back(tli, tri, bli, normal, calculateTangent(_vertices, tli, tri, bli));
 
 				//bottom right face
 				ab = topRight.pos - bottomRight.pos;
 				ac = bottomLeft.pos - bottomRight.pos;
 				normal = ac.Cross(ab);
 
-				faces[row].emplace_back(bli, tri, bri, normal, calculateTangent(vertices, bli, tri, bri));
+				faces[row].emplace_back(bli, tri, bri, normal, calculateTangent(_vertices, bli, tri, bri));
 			}
 		}
 
 
-		//calculating vertex normals from containing faces
-		for(int i = 0; i < _numRows; i++)
-		{	
-			std::vector<TangentTriface> pRow;
-			std::vector<TangentTriface> nRow;
+		// Calculate vertex normals from containing faces
+		for (int i = 0; i < _numRows; i++)
+		{
+			std::vector<TangentTriface>* pRow{nullptr};
+			std::vector<TangentTriface>* nRow{ nullptr };
 
 			if (i == 0)
 			{
-				nRow = faces[i];
+				nRow = &faces[i];
 			}
 			else if (i == _numRows - 1)
 			{
-				pRow = faces[i - 1];
+				pRow = &faces[i - 1];
 			}
 			else
 			{
-				pRow = faces[i - 1];
-				nRow = faces[i];
+				pRow = &faces[i - 1];
+				nRow = &faces[i];
 			}
-
-			pRow.reserve(pRow.capacity() + nRow.capacity());
-			pRow.insert(pRow.end(), nRow.begin(), nRow.end());
 
 			for (int j = 0; j < _numColumns; ++j) 
 			{
 				int index = i * _numColumns + j;
 				unsigned int facesFound = 0;
 				
-				SVec3 currentNormal;
-				SVec3 currentTangent;
+				SVec3 normal;
+				SVec3 tangent;
 
-				for (const auto& face : pRow)
+				if (pRow)
 				{
-					if (index == face.x || index == face.y || index == face.z)
+					for (const auto& face : *pRow)
 					{
-						currentNormal += face.normal;
-						currentTangent += face.tangent;
-						facesFound++;
+						facesFound += addToFace(index, face, normal, tangent);
+						if (facesFound == 6)
+							break;
 					}
-
-					if (facesFound == 6)
-						break;
 				}
 
-				if (fabs(currentNormal.LengthSquared()) > 0.000001f)
-					currentNormal.Normalize();
+				if (nRow)
+				{
+					for (const auto& face : *nRow)
+					{
+						facesFound += addToFace(index, face, normal, tangent);
+						if (facesFound == 6)
+							break;
+					}
+				}
 
-				if (fabs(currentTangent.LengthSquared()) > 0.000001f)
-					currentTangent.Normalize();
+				if (fabs(normal.LengthSquared()) > 0.000001f)
+					normal.Normalize();
 
-				vertices[index].normal = currentNormal;
-				vertices[index].tangent = currentTangent;
+				if (fabs(tangent.LengthSquared()) > 0.000001f)
+					tangent.Normalize();
+
+				_vertices[index].normal = normal;
+				_vertices[index].tangent = tangent;
 			}
 		}
 
@@ -375,9 +372,10 @@ namespace Procedural
 
 	void Terrain::CalculateTexCoords()
 	{
-		float invXScale = tcxr / (xScale * _numColumns), invZScale = tczr / (zScale * _numRows);
+		float invXScale = _texCoordScale.x / (_scale.x * _numColumns);
+		float invZScale = _texCoordScale.y / (_scale.z * _numRows);
 
-		for (auto& v : vertices)
+		for (auto& v : _vertices)
 			v.texCoords = SVec2(v.pos.x * invXScale, v.pos.z * invZScale);
 	}
 
@@ -385,20 +383,17 @@ namespace Procedural
 
 	bool Terrain::SetUp(ID3D11Device* device) 
 	{
-		CalculateTexCoords();
-		CalculateNormals();
-
 		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 		D3D11_SUBRESOURCE_DATA vertexData, indexData;
 
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * _vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
 		vertexBufferDesc.StructureByteStride = 0;
 
-		vertexData.pSysMem = vertices.data();
+		vertexData.pSysMem = _vertices.data();
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;
 
@@ -486,9 +481,9 @@ namespace Procedural
 		float adjX = line.position.x;
 		float adjZ = line.position.z;
 
-		for (int i = 0; i < vertices.size(); ++i)
-			if (line.direction.z * (vertices[i].pos.x - adjX) - line.direction.x * (vertices[i].pos.z - adjZ) > 0)
-				vertices[i].pos.y += displacement;
+		for (int i = 0; i < _vertices.size(); ++i)
+			if (line.direction.z * (_vertices[i].pos.x - adjX) - line.direction.x * (_vertices[i].pos.z - adjZ) > 0)
+				_vertices[i].pos.y += displacement;
 	}
 
 
@@ -501,19 +496,19 @@ namespace Procedural
 		//SVec3 adjFaultPos = SVec3(Math::smoothstep(0, 1, line.position.x), 0, Math::smoothstep(0, 1, line.position.z));
 
 		//to put the vertices in the 0-1 range
-		float inverseWidth = 1.f / ((float)_numColumns * xScale);
-		float inverseDepth = 1.f / ((float)_numRows    * zScale);
+		float inverseWidth = 1.f / ((float)_numColumns * _scale.x);
+		float inverseDepth = 1.f / ((float)_numRows    * _scale.z);
 		
 		Perlin p;
 
-		for (int i = 0; i < vertices.size(); ++i)
+		for (int i = 0; i < _vertices.size(); ++i)
 		{
-			Vert3D cv = vertices[i];
+			Vert3D cv = _vertices[i];
 			SVec2 input = SVec2(cv.pos.x * inverseWidth, cv.pos.z * inverseDepth);
 			float p2dVal = p.perlin2d(input * perlinZoom) * horiDp;
 			
 			if (line.direction.z * (cv.pos.x - rox) - line.direction.x * (cv.pos.z - roz) > p2dVal)
-				vertices[i].pos.y += vertDp;
+				_vertices[i].pos.y += vertDp;
 		}
 	}
 
@@ -573,10 +568,10 @@ namespace Procedural
 		float inner = radius * radius;
 		float outer = pow((radius + bandWidth), 2);
 
-		for (int i = 0; i < vertices.size(); ++i)
+		for (int i = 0; i < _vertices.size(); ++i)
 		{
-			float sqDistToCenter = SVec2::DistanceSquared(SVec2(vertices[i].pos.x, vertices[i].pos.z), center);
-			vertices[i].pos.y += Math::smoothstep(outer, inner, sqDistToCenter) * height;
+			float sqDistToCenter = SVec2::DistanceSquared(SVec2(_vertices[i].pos.x, _vertices[i].pos.z), center);
+			_vertices[i].pos.y += Math::smoothstep(outer, inner, sqDistToCenter) * height;
 		}
 	}
 
@@ -589,7 +584,7 @@ namespace Procedural
 		for (int i = 0; i < steps; ++i)
 		{
 			std::vector<float> smoothed;
-			smoothed.reserve(vertices.size());
+			smoothed.reserve(_vertices.size());
 
 			for (int z = 0; z < _numRows; ++z)
 			{
@@ -599,9 +594,9 @@ namespace Procedural
 					int nX = x == _numColumns - 1	? x : x + 1;
 
 					smoothed.push_back((
-						vertices[z * _numColumns + pX].pos.y +
-						vertices[z * _numColumns + x].pos.y +
-						vertices[z * _numColumns + nX].pos.y)
+						_vertices[z * _numColumns + pX].pos.y +
+						_vertices[z * _numColumns + x].pos.y +
+						_vertices[z * _numColumns + nX].pos.y)
 						* .33333f);
 				}
 			}
@@ -615,17 +610,17 @@ namespace Procedural
 				{
 					int thisSmoothed = z * _numColumns + x;
 					float newHeight =
-						vertices[pZ * _numColumns + x].pos.y +
-						vertices[thisSmoothed].pos.y +
-						vertices[nZ * _numColumns + x].pos.y;
+						_vertices[pZ * _numColumns + x].pos.y +
+						_vertices[thisSmoothed].pos.y +
+						_vertices[nZ * _numColumns + x].pos.y;
 				
 					smoothed[thisSmoothed] += (newHeight * .333333f);
 					smoothed[thisSmoothed] *= .500000f;
 				}
 			}
 
-			for (int i = 0; i < vertices.size(); ++i)
-				vertices[i].pos.y = smoothed[i];
+			for (int i = 0; i < _vertices.size(); ++i)
+				_vertices[i].pos.y = smoothed[i];
 		}
 	}
 
@@ -634,10 +629,10 @@ namespace Procedural
 	std::vector<SVec2> Terrain::getHorizontalPositions() 
 	{
 		std::vector<SVec2> result;
-		result.reserve(vertices.size());
+		result.reserve(_vertices.size());
 		
-		for (int i = 0; i < vertices.size(); i++)
-			result.emplace_back(vertices[i].pos.x, vertices[i].pos.z);
+		for (int i = 0; i < _vertices.size(); i++)
+			result.emplace_back(_vertices[i].pos.x, _vertices[i].pos.z);
 
 		return result;
 	}
@@ -660,15 +655,15 @@ namespace Procedural
 		float terX = playerPos.x - _offset.x;
 		float terZ = playerPos.z - _offset.z;
 
-		int gridX = (int)floorf(terX / xScale);
-		int gridZ = (int)floorf(terZ / zScale);
+		int gridX = (int)floorf(terX / _scale.x);
+		int gridZ = (int)floorf(terZ / _scale.z);
 
 		if (gridX >= _numColumns - 1 || gridZ >= _numRows - 1 || gridX < 0 || gridZ < 0)
 			return _offset.y;
 
-		//to barycentric
-		float xCoord = fmodf(terX, xScale) / xScale;
-		float zCoord = fmodf(terZ, zScale) / zScale;
+		// To barycentric
+		float xCoord = fmodf(terX, _scale.x) / _scale.x;
+		float zCoord = fmodf(terZ, _scale.z) / _scale.z;
 
 		int tli = (gridZ + 1) * _numColumns + gridX;
 		int tri = tli + 1;
@@ -676,19 +671,19 @@ namespace Procedural
 		int bri = bli + 1;
 
 		float finalHeight = 0.f;
-		float trh = vertices[tri].pos.y;
-		float blh = vertices[bli].pos.y;
+		float trh = _vertices[tri].pos.y;
+		float blh = _vertices[bli].pos.y;
 
 		float x = 0.f, y = 0.f, z = 0.f;
 
 		if (xCoord < zCoord)	//x = 1 - z is the center line for how I subdivide quads into two triangle faces
 		{//top left triangle
-			float tlh = vertices[tli].pos.y;
+			float tlh = _vertices[tli].pos.y;
 			finalHeight = getHeightByBarrycentric(SVec3(0, tlh, 1), SVec3(1, trh, 1), SVec3(0, blh, 0), SVec2(xCoord, zCoord));
 		}
 		else
 		{//bottom right triangle
-			float brh = vertices[bri].pos.y;
+			float brh = _vertices[bri].pos.y;
 			finalHeight = getHeightByBarrycentric(SVec3(0, blh, 0), SVec3(1, trh, 1), SVec3(1, brh, 0), SVec2(xCoord, zCoord));
 		}
 
