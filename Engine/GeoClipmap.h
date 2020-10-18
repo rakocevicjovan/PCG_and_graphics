@@ -44,13 +44,30 @@ private:
 	Texture _normalMap;		// RGBA 8bit
 	std::array<UINT, 2> _texSize;
 
+	VBuffer _coreVB;
+	IBuffer _coreIB;
+
+	VBuffer _blockVB;
+	IBuffer _blockIB;
+
+	VBuffer _crossVB;
+	IBuffer _crossIB;
+
+	VBuffer _rimVB;
+	IBuffer _rimIB;
+
+	VBuffer _degeneratesVB;
+	IBuffer _degeneratesIB;
+
 public:
 
 	GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale);
 
 	void init(ID3D11Device* device);
-	void createVertexBuffers(ID3D11Device* device);
+	void createBuffers(ID3D11Device* device);
 
 	void update(ID3D11DeviceContext* context);
 	void draw(ID3D11DeviceContext* context);
+
+	std::vector<UINT> createGridIndices(UINT numCols, UINT numRows);
 };

@@ -58,8 +58,8 @@ namespace Procedural
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 
 		///helper functions
-		inline unsigned int wr(int row);
-		inline unsigned int wc(int col);
+		inline unsigned int wr(int row) { return row < 0 ? _numRows + row : row % _numRows; }
+		inline unsigned int wc(int col) { return col < 0 ? _numColumns + col : col % _numColumns; }
 		float sampleDiamond(int i, int j, int reach);
 
 	public:

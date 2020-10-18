@@ -60,18 +60,6 @@ namespace Procedural
 
 
 
-	inline unsigned int Terrain::wr(int row)
-	{
-		return row < 0 ? _numRows + row : row % _numRows;
-	}
-
-	inline unsigned int Terrain::wc(int col)
-	{
-		return col < 0 ? _numColumns + col : col % _numColumns;
-	}
-
-
-
 	float Terrain::sampleDiamond(int i, int j, int reach)
 	{
 		std::vector<float> heights;	

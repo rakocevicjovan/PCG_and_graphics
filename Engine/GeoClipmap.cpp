@@ -20,16 +20,7 @@ GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
 void GeoClipmap::init(ID3D11Device* device)
 {
 	// Vertex buffers - consider doing this in morton order?
-	// Central patch buffer
-
-	std::vector<SVec2> coreVertices;
-	for (int i = 0; i < _edgeVertCount; ++i)
-	{
-		for (int j = 0; j < _edgeVertCount; ++j)
-			coreVertices.emplace_back(j, i);
-	}
-
-	VBuffer centerBuffer(device, coreVertices.data(), coreVertices.size() * sizeof(SVec2), sizeof(SVec2));
+	
 
 
 
@@ -98,22 +89,45 @@ void GeoClipmap::init(ID3D11Device* device)
 
 
 
-// @TODO replace with bufferless, no need for it on newer GPUs
-void GeoClipmap::createVertexBuffers(ID3D11Device* device)
+// @TODO replace with bufferless, no need for it on newer GPUs (probably not worth it for the rim though)
+void GeoClipmap::createBuffers(ID3D11Device* device)
 {
-	// 12-block buffer
-	std::vector<SVec2> vertXYs;
-	vertXYs.reserve(_blockEdgeVertCount * _blockEdgeVertCount);
-
-	std::vector<float> indices;
-
-	for (int i = 0; i < _blockEdgeVertCount; ++i)
+	// Central patch buffers
+	std::vector<SVec2> vertexData;	// Reuse everywhere
+	for (UINT i = 0; i < _edgeVertCount; ++i)
 	{
-		for (int j = 0; j < _blockEdgeVertCount; ++j)
-			vertXYs.emplace_back(j, i);
+		for (UINT j = 0; j < _edgeVertCount; ++j)
+			vertexData.emplace_back(j, i);
 	}
 
-	VBuffer blockBuffer(device, vertXYs.data(), vertXYs.size() * sizeof(SVec2), sizeof(SVec2));
+	_coreVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
+	_coreIB = IBuffer(device, createGridIndices(_edgeVertCount, _edgeVertCount));
+
+	vertexData.clear();
+
+	// Block buffer
+	for (UINT i = 0; i < _blockEdgeVertCount; ++i)
+	{
+		for (UINT j = 0; j < _blockEdgeVertCount; ++j)
+			vertexData.emplace_back(j, i);
+	}
+
+	_blockVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
+	_blockIB = IBuffer(device, createGridIndices(_blockEdgeVertCount, _blockEdgeVertCount));
+
+	vertexData.clear();
+	
+	// L rim buffer
+	UINT lineStripSize = (2 * _blockEdgeVertCount + 1) * 2;
+	UINT rimSize = 2 * lineStripSize - 2;
+
+	for (UINT i = 0; i < lineStripSize; ++i)
+	{
+		vertexData.emplace_back(i & 1, i);	// Vertical strip
+	}
+
+
+	// Degenerate triangles surrounding the layer (or inside it, who do I assign this to)
 }
 
 
@@ -127,4 +141,31 @@ void GeoClipmap::update(ID3D11DeviceContext* context)
 
 void GeoClipmap::draw(ID3D11DeviceContext* context)
 {
+}
+
+
+
+std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
+{
+	UINT x = numCols - 1;
+	UINT y = numRows - 1;
+
+	std::vector<UINT> indices;
+	indices.reserve(x * y * 2 * 3);	// Rows and columns of squares, two triangles each, 3 UINTs each
+
+	for (UINT i = 0; i < y; ++i)		// For every row
+	{
+		for (UINT j = 0; j < x; ++j)	// For every column in the row
+		{
+			UINT tli = i * numCols + j;
+			UINT tri = tli + 1;
+			UINT bli = tli + _edgeVertCount;
+			UINT bri = bli + 1;
+
+			indices.insert(indices.end(), { tli, tri, bli });
+			indices.insert(indices.end(), { bli, tri, bri });
+		}
+	}
+	
+	return indices;
 }
