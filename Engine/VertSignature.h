@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <vector>
-#include <d3d11.h>
+#include <d3d11_4.h>
 
 enum class VAttribSemantic : uint8_t
 {

@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "Steering.h"
 
-#include "GeoClipmap.h"
+
 
 
 
@@ -16,7 +16,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
 TDLevel::TDLevel(Engine& sys) 
-	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
+	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _gcm(3, 6, .5)
 {
 	_editor = Editor(S_WW, S_WH, PROJ.getProjDir());
 };
@@ -28,8 +28,8 @@ void TDLevel::init(Engine& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-	GeoClipmap gcm(3, 6, .5);
-	gcm.init(sys._device);
+
+	_gcm.init(sys._device);
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
@@ -477,6 +477,8 @@ void TDLevel::draw(const RenderContext& rc)
 		for (Renderable& r : building->_renderables)
 			S_RANDY.addToRenderQueue(r);
 	}
+
+	_gcm.draw(S_CONTEXT);
 
 	//_pLight.bind(S_CONTEXT);
 	_dirLight.bind(S_CONTEXT);

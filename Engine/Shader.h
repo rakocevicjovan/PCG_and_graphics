@@ -105,6 +105,12 @@ public:
 			CBuffer::unmap(cont, curBuffer);
 		}
 	}
+
+	void bind(ID3D11DeviceContext* context)
+	{
+		context->IASetInputLayout(_layout);
+		context->VSSetShader(_vsPtr, 0, 0);
+	}
 };
 
 

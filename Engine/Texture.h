@@ -5,7 +5,7 @@
 #include "Resource.h"
 #include "TextureRole.h"
 
-#include <d3d11.h>
+#include <d3d11_4.h>
 #include <dxgiformat.h>
 
 #include <cereal/cereal.hpp>

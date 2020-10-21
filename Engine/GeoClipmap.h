@@ -45,7 +45,8 @@ private:
 	Texture _normalMap;		// RGBA 8bit
 
 	VertexShader _gcvs;
-	GeoClipmapBuffer _gccb;
+	GeoClipmapBuffer _gcb;
+	CBuffer _gccb;
 
 	VBuffer _coreVB;
 	IBuffer _coreIB;

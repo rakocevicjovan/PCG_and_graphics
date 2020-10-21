@@ -18,15 +18,19 @@ GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
 
 void GeoClipmap::init(ID3D11Device* device)
 {
-	// Vertex shader
+	// Vertex shader along with constant buffer and input layout description
 	VertSignature vertSig;
-	vertSig.addAttribute(VAttribSemantic::POS, VAttribType::FLOAT2, 1u, 4u);	// Will be backed into float16
+	vertSig.addAttribute(VAttribSemantic::POS, VAttribType::FLOAT2);	// Will be packed into float16
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayDesc = vertSig.createVertInLayElements();
 
+	_gcvs = VertexShader(device, L"GeoClipmapVS.hlsl", inLayDesc, {});
+	//_gcvs = VertexShader(device, L"GeoClipmapVS.hlsl", inLayDesc, {});
+
 	D3D11_BUFFER_DESC bufferDesc = CBuffer::createDesc(sizeof(GeoClipmapBuffer));
+	_gccb.createBuffer(device, bufferDesc, _gccb._cbPtr);
 
-	_gcvs = VertexShader(device, L"GeoClipmapVS.hlsl", inLayDesc, { bufferDesc });
-
+	// Buffers for all the parts
+	createBuffers(device);
 
 	// Textures - 2 per layer, but instead packed into two arrays of _numLayers for faster binding
 	D3D11_TEXTURE2D_DESC hmDesc = Texture::create2DTexDesc(_texSize, _texSize, DXGI_FORMAT_R32_FLOAT,
@@ -149,22 +153,47 @@ void GeoClipmap::update(ID3D11DeviceContext* context)
 
 void GeoClipmap::draw(ID3D11DeviceContext* context)
 {
-	// Bind shader
-	context->VSSetShader(_gcvs._vsPtr, 0, 0);
+	// Bind VB + IB
+	context->IASetVertexBuffers(0, 1, _blockVB.ptr(), &_blockVB._stride, &_blockVB._offset);
+	context->IASetIndexBuffer(_blockIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-	// Update and set cbuffers
-	_gcvs._cbuffers[0].updateWithStruct(context, _gcvs._cbuffers[0]._cbPtr, _gccb);
-	context->VSSetConstantBuffers(0, 1, &_gcvs._cbuffers[0]._cbPtr);
-
-
-	//could sort by this as well... should be fairly uniform though
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
-	context->IASetVertexBuffers(0, 1, _coreVB.ptr(), &_coreVB._stride, &_coreVB._offset);
-	context->IASetIndexBuffer(_coreIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
+	// Bind shader
+	//_gcvs.bind(context);
+	context->IASetInputLayout(_gcvs._layout);
+	context->VSSetShader(_gcvs._vsPtr, 0, 0);
+	context->PSSetShader(nullptr, NULL, 0);
 
-	context->DrawIndexed(_coreIB.getIdxCount(), 0, 0);
+	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
+	//context->IASetVertexBuffers(0, 1, _coreVB.ptr(), &_coreVB._stride, &_coreVB._offset);
+	//context->IASetIndexBuffer(_coreIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+	float scale = 2.f;
+	for (UINT i = 0; i < _numLayers; ++i)
+	{
+		RingLayer& rl = _layers[i];
+		
+		_gcb.scaleTranslation.x = _gcb.scaleTranslation.y = scale;
+		scale *= 2.f;
+
+		for (const SVec2& offset : rl._blockOffsets)
+		{
+			_gcb.scaleTranslation.z = offset.x;
+			_gcb.scaleTranslation.w = offset.y;
+
+			// Update and set cbuffers
+			_gccb.updateWithStruct(context, _gccb._cbPtr, _gccb);
+			context->VSSetConstantBuffers(0, 1, &_gccb._cbPtr);
+
+			context->DrawIndexed(_coreIB.getIdxCount(), 0, 0);
+		}
+		
+	}
+	
+
+	// Use instancing later
+	//context->DrawIndexedInstanced(_coreIB.getIdxCount(), _numLayers * 12, 0, 0, 0);
 }
 
 
@@ -190,7 +219,7 @@ std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
 			indices.insert(indices.end(), { bli, tri, bri });
 		}
 	}
-	
+
 	return indices;
 }
 

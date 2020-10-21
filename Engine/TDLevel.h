@@ -21,7 +21,7 @@
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
 #include "Editor.h"
-
+#include "GeoClipmap.h"
 
 
 class TDLevel : public Level
@@ -101,6 +101,8 @@ private:
 	Economy _eco;
 
 	Editor _editor;
+
+	GeoClipmap _gcm;
 
 #define DEBUG_OCTREE_NOT
 
