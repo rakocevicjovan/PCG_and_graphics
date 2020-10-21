@@ -3,6 +3,7 @@
 #include "VBuffer.h"
 #include "IBuffer.h"
 #include "Texture.h"
+#include "Shader.h"
 #include <array>
 
 
@@ -33,7 +34,7 @@ class GeoClipmap
 
 private:
 
-	UINT _numLayers, _edgeVertCount, _blockEdgeVertCount, _gapSize;
+	UINT _numLayers, _edgeVertCount, _blockEdgeVertCount, _gapSize, _texSize;;
 	float _coreVertSpacing;
 	SVec2 _coreOffset;
 	SVec2 _coreSize;
@@ -42,7 +43,9 @@ private:
 	// Texture arrays of _numLayers or separate textures per layer?
 	Texture _heightMap;		// R32
 	Texture _normalMap;		// RGBA 8bit
-	std::array<UINT, 2> _texSize;
+
+	VertexShader _gcvs;
+	GeoClipmapBuffer _gccb;
 
 	VBuffer _coreVB;
 	IBuffer _coreIB;
@@ -70,4 +73,7 @@ public:
 	void draw(ID3D11DeviceContext* context);
 
 	std::vector<UINT> createGridIndices(UINT numCols, UINT numRows);
+
+	// Clipmap levels move in discrete steps
+	SVec2 GeoClipmap::getLevelOffset(const SVec2& camPos, unsigned int level);
 };

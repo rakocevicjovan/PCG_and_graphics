@@ -53,10 +53,7 @@ struct VAttrib
 	VAttrib(VAttribSemantic s, VAttribType t, uint8_t numElements = 1u, uint8_t elemByteSize = 0u)
 		: _semantic(s), _type(t), _numElements(numElements)
 	{
-		if (elemByteSize == 0u)
-			elemByteSize = VERT_TYPE_SIZE[static_cast<size_t>(t)];
-
-		_size = elemByteSize;
+		_size = elemByteSize == 0u ? VERT_TYPE_SIZE[static_cast<size_t>(t)] : elemByteSize;
 	}
 };
 
