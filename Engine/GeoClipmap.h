@@ -14,11 +14,13 @@ class GeoClipmap
 	struct GeoClipmapBuffer
 	{
 		SVec4 scaleTranslation;
+		/*
 		SVec4 hmapScaleTranslation;	// 1/(w, h) of texture,  xy origin of block in texture
 		float zScale;
 		float zTexScale;
 		float alphaOffset;				// = ((n - 1) / 2 - w - 1); Precalc this
 		float transitionWidth;
+		*/
 	};
 
 	struct RingLayer
@@ -44,9 +46,9 @@ private:
 	Texture _heightMap;		// R32
 	Texture _normalMap;		// RGBA 8bit
 
-	VertexShader _gcvs;
-	GeoClipmapBuffer _gcb;
-	CBuffer _gccb;
+	VertexShader _vertShader;
+	GeoClipmapBuffer _bufferData;
+	CBuffer _cBuffer;
 
 	VBuffer _coreVB;
 	IBuffer _coreIB;

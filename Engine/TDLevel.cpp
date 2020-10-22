@@ -16,7 +16,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
 TDLevel::TDLevel(Engine& sys) 
-	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _gcm(3, 6, .5)
+	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _gcm(9, 6, .5)
 {
 	_editor = Editor(S_WW, S_WH, PROJ.getProjDir());
 };
@@ -29,7 +29,7 @@ void TDLevel::init(Engine& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
 
-	_gcm.init(sys._device);
+	_gcm.init(S_DEVICE);
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
@@ -78,7 +78,7 @@ void TDLevel::init(Engine& sys)
 	terrainActor.addRenderable(floorRenderable, 500);
 	//terrainActor._collider.dynamic = false;
 	terrainActor._collider.collidable = false;
-	_scene._actors.push_back(&terrainActor);
+	//_scene._actors.push_back(&terrainActor);
 
 
 
@@ -478,12 +478,13 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
-	_gcm.draw(S_CONTEXT);
-
 	//_pLight.bind(S_CONTEXT);
 	_dirLight.bind(S_CONTEXT);
 
 	_scene.draw();
+
+	// Ideally this would draw first but scene is still clunky... will see.
+	_gcm.draw(S_CONTEXT);
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 

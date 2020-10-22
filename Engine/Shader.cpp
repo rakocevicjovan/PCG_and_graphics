@@ -36,7 +36,9 @@ VertexShader::VertexShader(
 	: Shader(shc.getDevice(), path, descriptions)
 {
 	_type = SHADER_TYPE::VS;
-	shc.compileVS(path, inputLayoutDesc, _vsPtr, _layout);
+
+	if (!shc.compileVS(path, inputLayoutDesc, _vsPtr, _layout))
+		__debugbreak();
 }
 
 
