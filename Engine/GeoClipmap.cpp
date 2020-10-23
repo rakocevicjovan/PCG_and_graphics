@@ -56,43 +56,85 @@ void GeoClipmap::init(ID3D11Device* device)
 	_normalMap.create(device, &nmDesc, nullptr);
 	*/
 
-	_coreSize = SVec2(_edgeVertCount * _coreVertSpacing);
+	createTransformData();
+}
+
+
+
+void GeoClipmap::createTransformData()
+{
+	// Core size is increased by 2*_coreVertSpacing because of the L-strip (which is wider)
+	_coreSize = SVec2((_edgeVertCount + 1) * _coreVertSpacing);
 	_coreOffset = SVec2(-0.5 * _coreSize);
 
-	// Ring layer setup - towards bottom left per layer, starting with central block's offset
-	SVec2 accumulatedSize(_coreSize);
-	
-	// Vertex spacing doubles for every ring layer, including the first
-	float baseBlockSize = 2. * _blockEdgeVertCount * _coreVertSpacing;
+	float baseVertSpacing = 2.f * _coreVertSpacing;	// Vertex spacing doubles for every ring layer
+	float baseBlockSize = (_blockEdgeVertCount - 1) * baseVertSpacing;
+	float baseCrossWidth = 2.f * baseVertSpacing;	// Three vertices, two gaps of spacing.
 
 	for (int i = 0; i < _layers.size(); ++i)
 	{
 		int scaleModifier = 1 << i;	// 1, 2, 4, 8...
 
-		float blockSize = scaleModifier * baseBlockSize;
-		
-		RingLayer& rl = _layers[i];
-		rl._blockSize = SVec2(blockSize);
-		
-		accumulatedSize += 2.f * rl._blockSize;	// Increase by the width of new blocks, one each side
+		float blockSize = baseBlockSize * scaleModifier;
+		float crossWidth = baseCrossWidth * scaleModifier;
+		float vertSpacing = baseVertSpacing * scaleModifier;
 
-		rl._size = accumulatedSize;
-		rl._offset = -0.5 * accumulatedSize;
-		
+		RingLayer& rl = _layers[i];
+
+		rl._blockSize = SVec2(blockSize);
+		rl._blockScale = SVec2(vertSpacing);
+
+		rl._size = SVec2(4 * blockSize + crossWidth);
+		rl._offset = SVec2(-2 * blockSize);	// Each layer is initally bottom left
+
+		// L trim width, but that belongs to the NEXT layer not this layer
+		//float LTrimWidth = accumulatedSize += 2.f * SVec2(vertSpacing);
+
 		// Each corner has 3 blocks, one in the corner, and two bordering it
 		for (int j = 0; j < 4; j++)
 		{
 			// 2 3
 			// 0 1
-			SVec2 cornerOffset = rl._offset + SVec2(j & 1, j > 1) * (accumulatedSize - SVec2(blockSize));
-			
-			float xSign =  1. - 2. * (j % 2);	// 1 - 2 * (0, 1, 0, 1) = 1, -1, 1, -1
+			SVec2 cornerOffset = rl._offset + SVec2(j & 1, j > 1) * (rl._size - rl._blockSize);
+
+			float xSign = 1. - 2. * (j % 2);	// 1 - 2 * (0, 1, 0, 1) = 1, -1, 1, -1
 			float zSign = -1. + 2. * (j < 2);	// 1, 1, -1, -1
+
+			// Each corner offset by half cross width, but that's already counted into the size!
+			//cornerOffset -= 0.5f * crossWidth * SVec2(xSign, zSign);
+
 			rl._blockOffsets[j * 3 + 0] = cornerOffset;
 			rl._blockOffsets[j * 3 + 1] = cornerOffset + SVec2(blockSize * xSign, 0);
 			rl._blockOffsets[j * 3 + 2] = cornerOffset + SVec2(0, blockSize * zSign);
 		}
 	}
+}
+
+
+
+std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
+{
+	UINT x = numCols - 1;
+	UINT y = numRows - 1;
+
+	std::vector<UINT> indices;
+	indices.reserve(x * y * 2 * 3);	// Rows and columns of squares, two triangles each, 3 UINTs each
+
+	for (UINT i = 0; i < y; ++i)		// For every row
+	{
+		for (UINT j = 0; j < x; ++j)	// For every column in the row
+		{
+			UINT tli = i * numCols + j;
+			UINT tri = tli + 1;
+			UINT bli = tli + numCols;
+			UINT bri = bli + 1;
+
+			indices.insert(indices.end(), { tli, tri, bli });
+			indices.insert(indices.end(), { bli, tri, bri });
+		}
+	}
+
+	return indices;
 }
 
 
@@ -171,14 +213,12 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	context->IASetVertexBuffers(0, 1, _blockVB.ptr(), &_blockVB._stride, &_blockVB._offset);
 	context->IASetIndexBuffer(_blockIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
-	
-	float scale = 2.f;
 	for (UINT i = 0; i < _numLayers; ++i)
 	{
 		RingLayer& rl = _layers[i];
 		
-		_bufferData.scaleTranslation.x = _bufferData.scaleTranslation.y = scale;
-		scale *= 2.f;
+		_bufferData.scaleTranslation.x = rl._blockScale.x;
+		_bufferData.scaleTranslation.y = rl._blockScale.y;
 
 		for (const SVec2& offset : rl._blockOffsets)
 		{
@@ -196,33 +236,6 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 
 	// Use instancing later
 	//context->DrawIndexedInstanced(_coreIB.getIdxCount(), _numLayers * 12, 0, 0, 0);
-}
-
-
-
-std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
-{
-	UINT x = numCols - 1;
-	UINT y = numRows - 1;
-
-	std::vector<UINT> indices;
-	indices.reserve(x * y * 2 * 3);	// Rows and columns of squares, two triangles each, 3 UINTs each
-
-	for (UINT i = 0; i < y; ++i)		// For every row
-	{
-		for (UINT j = 0; j < x; ++j)	// For every column in the row
-		{
-			UINT tli = i * numCols + j;
-			UINT tri = tli + 1;
-			UINT bli = tli + numCols;
-			UINT bri = bli + 1;
-
-			indices.insert(indices.end(), { tli, tri, bli });
-			indices.insert(indices.end(), { bli, tri, bri });
-		}
-	}
-
-	return indices;
 }
 
 

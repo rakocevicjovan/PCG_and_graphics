@@ -9,14 +9,12 @@
 
 
 
-
-
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
 
 TDLevel::TDLevel(Engine& sys) 
-	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _gcm(9, 6, .5)
+	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _gcm(3, 4, 10.)
 {
 	_editor = Editor(S_WW, S_WH, PROJ.getProjDir());
 };
@@ -484,7 +482,9 @@ void TDLevel::draw(const RenderContext& rc)
 	_scene.draw();
 
 	// Ideally this would draw first but scene is still clunky... will see.
+	S_RANDY.d3d()->setRSWireframe();
 	_gcm.draw(S_CONTEXT);
+	S_RANDY.d3d()->setRSSolidCull();
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
 

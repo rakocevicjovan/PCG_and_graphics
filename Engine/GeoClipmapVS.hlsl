@@ -54,7 +54,7 @@ PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
 
-	output.position = float4(input.xzPos.x * scaleTranslation.x, 0., input.xzPos.y * scaleTranslation.x, 1.f);
+	output.position = float4(input.xzPos.x * scaleTranslation.x, 0., input.xzPos.y * scaleTranslation.y, 1.f);
 	output.position += float4(scaleTranslation.z, 0., scaleTranslation.w, 0.);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
