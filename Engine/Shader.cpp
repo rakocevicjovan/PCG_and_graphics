@@ -1,5 +1,5 @@
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dcompiler.lib")
+//#pragma comment(lib, "d3d11.lib")
+//#pragma comment(lib, "d3dcompiler.lib")
 
 #include "Shader.h"
 #include "Sampler.h"
@@ -58,6 +58,57 @@ VertexShader::VertexShader(
 
 	if (FAILED(device->CreateInputLayout(inLay.data(), inLay.size(), ptr, size, &_layout)))
 		__debugbreak();
+}
+
+
+
+VertexShader::~VertexShader()
+{
+	if (_vsPtr)
+		_vsPtr->Release();
+	if (_layout)
+		_layout->Release();
+}
+
+VertexShader::VertexShader(const VertexShader& other)
+	: Shader(other), _vsPtr(other._vsPtr), _layout(other._layout)
+{
+	if (_vsPtr)
+		_vsPtr->AddRef();
+	if (_layout)
+		_layout->AddRef();
+}
+
+VertexShader::VertexShader(const VertexShader&& other)
+	: Shader(other), _vsPtr(other._vsPtr), _layout(other._layout)
+{
+	if (_vsPtr)
+		_vsPtr->AddRef();
+	if (_layout)
+		_layout->AddRef();
+}
+
+
+VertexShader& VertexShader::operator= (VertexShader other)
+{
+	_vsPtr = other._vsPtr;
+	if (_vsPtr)
+		_vsPtr->AddRef();
+
+	_layout = other._layout;
+	if (_layout)
+		_layout->AddRef();
+
+	_id = other._id;
+	_type = other._type;
+	_path = other._path;
+
+	_refShMetaData = other._refShMetaData;
+	_cbuffers = other._cbuffers;
+
+	_textureRegisters = other._textureRegisters;
+
+	return *this;
 }
 
 

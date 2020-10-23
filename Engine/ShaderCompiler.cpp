@@ -13,19 +13,22 @@ void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, 
 	ID3D11VertexShader*& vertexShader, ID3D11InputLayout*& layout) const
 {
-	ID3DBlob* shaderBuffer = compileToBlob(filePath, "vs_5_0");
-	vertexShader = blobToVS(shaderBuffer);
+	ID3DBlob* vsBlob = compileToBlob(filePath, "vs_5_0");
+	vertexShader = blobToVS(vsBlob);
 
 	// Create the layout related to the vertex shader.
-	bool success = !(FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(), shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), &layout)));
-	
-	if (!success)
+	if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(),
+		vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &layout)))
+	{
 		OutputDebugStringA("Failed to create vertex input layout.");
+		vsBlob->Release();
+		return false;
+	}
 
 	// Release the shader buffer since it's no longer needed
-	shaderBuffer->Release();
+	vsBlob->Release();
 
-	return success;
+	return true;
 }
 
 
@@ -40,7 +43,8 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 	//reflect(shaderBuffer, *shMetaData);
 
 	shaderBuffer->Release();
-	return pixelShader;
+	return true;
+	//return pixelShader;
 }
 
 
@@ -103,7 +107,7 @@ ID3DBlob* ShaderCompiler::compileToBlob(const std::wstring& filePath, const char
 	if (FAILED(D3DCompileFromFile(filePath.c_str(), NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", shaderModel, D3D10_SHADER_ENABLE_STRICTNESS, 0, &shaderBlob, &errorMessage)))
 	{
 		outputError(errorMessage, *(filePath.c_str()), filePath);
-		return false;
+		return nullptr;
 	}
 
 	return shaderBlob;

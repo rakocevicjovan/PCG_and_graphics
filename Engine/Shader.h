@@ -3,6 +3,7 @@
 #include "Math.h"
 #include "CBuffer.h"
 #include "TextureRole.h"
+#include <array>
 
 
 enum class SHADER_TYPE : uint8_t { VS, GS, PS, TS, HS };
@@ -34,7 +35,7 @@ public:
 	std::vector<CBuffer> _cbuffers;
 
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
-	TexLayout _textureRegisters[TextureRole::NUM_ROLES];
+	std::array<TexLayout, TextureRole::NUM_ROLES> _textureRegisters;
 
 	// alternative to the automatic system, for custom data
 	bool updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);
@@ -72,13 +73,11 @@ public:
 		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay,
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
-	~VertexShader()
-	{
-		if(_vsPtr)
-			_vsPtr->Release();
-		if(_layout)
-			_layout->Release();
-	}
+	~VertexShader();
+	VertexShader(const VertexShader& other);
+	VertexShader(const VertexShader&& other);
+	VertexShader& operator= (VertexShader other);
+	
 
 	void setBuffers(ID3D11DeviceContext* cont);
 
@@ -138,6 +137,8 @@ public:
 		const std::vector<D3D11_BUFFER_DESC>& descriptions
 	);
 
+
+	// @TODO CONSTRUCTORS (COPY, MOVE) AND ASSOP ARE REQUIRED!
 	~PixelShader()
 	{
 		if (_psPtr)
