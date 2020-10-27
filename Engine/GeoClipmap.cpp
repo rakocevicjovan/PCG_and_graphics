@@ -40,32 +40,94 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 {
 	// Consider morton order? I'm not sure if it matters for vertices...
 
+	// Reuse to save on allocation time, first one is the biggest anyways
+	std::vector<SVec2> vertexData;
+	
 	// Central patch buffers
-	std::vector<SVec2> vertexData;	// Reuse everywhere
-	for (UINT i = 0; i < _edgeVertCount; ++i)
-	{
-		for (UINT j = 0; j < _edgeVertCount; ++j)
-			vertexData.emplace_back(j, _edgeVertCount - i - 1);
-	}
-
+	createGridVertices(_edgeVertCount, _edgeVertCount, vertexData);
 	_coreVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
 	_coreIB = IBuffer(device, createGridIndices(_edgeVertCount, _edgeVertCount));
-
 	vertexData.clear();
 
 	// Block buffer
-	for (UINT i = 0; i < _blockEdgeVertCount; ++i)
-	{
-		for (UINT j = 0; j < _blockEdgeVertCount; ++j)
-			vertexData.emplace_back(j, _blockEdgeVertCount - i - 1);
-	}
-
+	createGridVertices(_blockEdgeVertCount, _blockEdgeVertCount, vertexData);
 	_blockVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
 	_blockIB = IBuffer(device, createGridIndices(_blockEdgeVertCount, _blockEdgeVertCount));
-
 	vertexData.clear();
 
-	// L rim buffer, built in bottom left initially
+	
+	// still puzzled, want to fit them into a single buffer but not make them too small 
+	// or fpp could createa artefacts given the amount of scaling present in geo clipmaps,
+	// but high scaling is always far away so might be invisible anyways...
+
+	// Cross buffers
+	std::vector<UINT> crossIndices;
+	std::vector<UINT> extremityIndices;
+	UINT extIdxCount = (_blockEdgeVertCount - 1) * (3 - 1) * 2 * 3;
+	UINT extVertCount = _blockEdgeVertCount * 3;
+	extremityIndices.reserve(extIdxCount);
+	crossIndices.reserve(extIdxCount * 4);
+
+	vertexData.reserve(extVertCount * 4);
+	
+	float squareWidth = _coreVertSpacing * 2.f;
+	float blockWidth = squareWidth * (_blockEdgeVertCount - 1);
+	float crossOffset = 3 * blockWidth + 2 * squareWidth;
+
+	//float totalSize = 4 * blockWidth + 2 * squareWidth;
+	//blockWidth /= totalSize;
+	//crossOffset /= totalSize;
+
+	// Left...
+	createGridVertices(_blockEdgeVertCount, 3, vertexData);
+	for (UINT i = 0; i < vertexData.size(); ++i)
+	{
+		vertexData[i] *= squareWidth;
+		vertexData[i] -= SVec2(2 * blockWidth + 2 * squareWidth, 2 * squareWidth);
+	}
+
+	extremityIndices = createGridIndices(_blockEdgeVertCount, 3);
+	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
+
+	// ... and right
+	std::copy_n(vertexData.begin(), extVertCount, std::back_inserter(vertexData));
+	for (UINT i = extVertCount; i < vertexData.size(); ++i)
+		vertexData[i].x += crossOffset;
+
+	for (UINT& idx : extremityIndices)
+		idx += extVertCount;
+	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
+
+	// Bottom...
+	createGridVertices(3, _blockEdgeVertCount, vertexData);
+	for (UINT i = extVertCount * 2; i < vertexData.size(); ++i)
+	{
+		vertexData[i] *= squareWidth;
+		vertexData[i] -= SVec2(2 * squareWidth, 2 * blockWidth + 2 * squareWidth);
+	}
+
+	extremityIndices = createGridIndices(3, _blockEdgeVertCount);
+	for (UINT& idx : extremityIndices)
+		idx += 2 * extVertCount;
+	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
+
+	// ... and top!
+	std::copy_n(vertexData.begin() + 2 * extVertCount, extVertCount, std::back_inserter(vertexData));
+	for (UINT i = 3 * extVertCount; i < vertexData.size(); ++i)
+		vertexData[i].y += crossOffset;
+
+	for (UINT& idx : extremityIndices)
+		idx += extVertCount;
+	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
+
+	_crossVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
+	_crossIB = IBuffer(device, crossIndices);
+	vertexData.clear();
+	
+
+	//////////////////
+
+	// L rim buffer, built in bottom left initially, rotate around axis with +-(1, 1) scaling
 	UINT lineStripSize = (2 * _blockEdgeVertCount + 1) * 2;
 	UINT rimSize = 2 * lineStripSize - 4;	// Duplicates, L strip only needs 32 verts if merged together
 
@@ -86,6 +148,12 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	_rimIB = IBuffer(device, lRimIndices);
 
 	// Degenerate triangles surrounding the layer (or inside it, who do I assign this to)
+}
+
+
+
+void GeoClipmap::createCrossBuffers(ID3D11Device * device)
+{
 }
 
 
@@ -132,7 +200,7 @@ void GeoClipmap::createTransformData()
 		rl._blockScale = SVec2(vertSpacing);
 
 		rl._size = SVec2(4 * blockSize + crossWidth);
-		rl._offset = SVec2(-2 * blockSize);	// Each layer is initally bottom left
+		rl._offset = SVec2(-2 * blockSize - crossWidth);	// Each layer is initally bottom left
 
 		// L trim width, but that belongs to the NEXT layer not this layer
 		//float LTrimWidth = accumulatedSize += 2.f * SVec2(vertSpacing);
@@ -151,6 +219,22 @@ void GeoClipmap::createTransformData()
 			rl._blockOffsets[j * 3 + 1] = cornerOffset + SVec2(blockSize * xSign, 0);
 			rl._blockOffsets[j * 3 + 2] = cornerOffset + SVec2(0, blockSize * zSign);
 		}
+	}
+}
+
+
+
+void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec2>& output)
+{
+	UINT requiredSize = numCols * numRows;
+
+	if (output.capacity() < (output.size() + requiredSize))
+		output.reserve(output.size() + requiredSize);
+
+	for (UINT z = numRows; z > 0; --z)
+	{
+		for (UINT x = 0; x < numCols; ++x)
+			output.emplace_back(x, z - 1);
 	}
 }
 
@@ -221,10 +305,29 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 			context->DrawIndexed(_blockIB.getIdxCount(), 0, 0);
 		}
 	}
+	/*
+	D3D11_BUFFER_DESC instanceBufferDesc =
+		shc.createBufferDesc(sizeof(InstanceData) * instanceBufferSizeInElements,
+			D3D11_USAGE_DYNAMIC, D3D11_BIND_VERTEX_BUFFER, D3D11_CPU_ACCESS_WRITE);
 	
-
-	// Use instancing later
+	// Use instancing later, try to pack the above into a single cbuffer for all instances, should fit easily
 	//context->DrawIndexedInstanced(_coreIB.getIdxCount(), _numLayers * 12, 0, 0, 0);
+	*/
+
+	_bufferData.scaleTranslation.x = 1.f;	//_layers[0]._blockScale.x;
+	_bufferData.scaleTranslation.y = 1.f;	//_layers[0]._blockScale.y;
+	_bufferData.scaleTranslation.z = 0.;	//0.5f * _layers[0]._size.x;
+	_bufferData.scaleTranslation.w = 0.;	//0.5f * _layers[0]._size.y;
+
+
+	_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+	context->VSSetConstantBuffers(0, 1, &_cBuffer._cbPtr);
+
+	context->IASetVertexBuffers(0, 1, _crossVB.ptr(), &_crossVB._stride, &_crossVB._offset);
+	context->IASetIndexBuffer(_crossIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+	context->DrawIndexed(_crossIB.getIdxCount(), 0, 0);
+
 }
 
 

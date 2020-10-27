@@ -67,8 +67,10 @@ private:
 	IBuffer _degeneratesIB;
 
 	void createBuffers(ID3D11Device* device);
+	void createCrossBuffers(ID3D11Device* device);
 	void createTextures(ID3D11Device* device);
 	void createTransformData();
+	void createGridVertices(UINT numCols, UINT numRows, std::vector<SVec2>& output);
 	std::vector<UINT> createGridIndices(UINT numCols, UINT numRows);
 
 public:
