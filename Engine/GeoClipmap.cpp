@@ -74,9 +74,10 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	float blockWidth = squareWidth * (_blockEdgeVertCount - 1);
 	float crossOffset = 3 * blockWidth + 2 * squareWidth;
 
-	//float totalSize = 4 * blockWidth + 2 * squareWidth;
-	//blockWidth /= totalSize;
-	//crossOffset /= totalSize;
+	float invTotalSize = 1 / (4 * blockWidth + 2 * squareWidth);
+	squareWidth *= invTotalSize;
+	blockWidth *= invTotalSize;
+	crossOffset *= invTotalSize;
 
 	// Left...
 	createGridVertices(_blockEdgeVertCount, 3, vertexData);
@@ -276,11 +277,11 @@ void GeoClipmap::update(ID3D11DeviceContext* context)
 
 void GeoClipmap::draw(ID3D11DeviceContext* context)
 {
+	// Bind once, no need to repeat as the same state is used everywhere
 	context->VSSetShader(_vertShader._vsPtr, NULL, 0);
 	context->PSSetShader(NULL, NULL, 0);
-
 	context->IASetInputLayout(_vertShader._layout);
-
+	context->VSSetConstantBuffers(0, 1, &_cBuffer._cbPtr);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	context->IASetVertexBuffers(0, 1, _blockVB.ptr(), &_blockVB._stride, &_blockVB._offset);
@@ -300,10 +301,22 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 
 			// Update and set cbuffers
 			_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
-			context->VSSetConstantBuffers(0, 1, &_cBuffer._cbPtr);
+			
 
 			context->DrawIndexed(_blockIB.getIdxCount(), 0, 0);
 		}
+	}
+
+
+	// Cross rendering
+	context->IASetVertexBuffers(0, 1, _crossVB.ptr(), &_crossVB._stride, &_crossVB._offset);
+	context->IASetIndexBuffer(_crossIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+	for (UINT i = 0; i < _numLayers; ++i)
+	{
+		_bufferData.scaleTranslation = SVec4(_layers[i]._size.x, _layers[i]._size.y, 0., 0.);
+		_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+		context->DrawIndexed(_crossIB.getIdxCount(), 0, 0);
 	}
 	/*
 	D3D11_BUFFER_DESC instanceBufferDesc =
@@ -314,19 +327,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	//context->DrawIndexedInstanced(_coreIB.getIdxCount(), _numLayers * 12, 0, 0, 0);
 	*/
 
-	_bufferData.scaleTranslation.x = 1.f;	//_layers[0]._blockScale.x;
-	_bufferData.scaleTranslation.y = 1.f;	//_layers[0]._blockScale.y;
-	_bufferData.scaleTranslation.z = 0.;	//0.5f * _layers[0]._size.x;
-	_bufferData.scaleTranslation.w = 0.;	//0.5f * _layers[0]._size.y;
 
-
-	_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
-	context->VSSetConstantBuffers(0, 1, &_cBuffer._cbPtr);
-
-	context->IASetVertexBuffers(0, 1, _crossVB.ptr(), &_crossVB._stride, &_crossVB._offset);
-	context->IASetIndexBuffer(_crossIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
-
-	context->DrawIndexed(_crossIB.getIdxCount(), 0, 0);
 
 }
 
