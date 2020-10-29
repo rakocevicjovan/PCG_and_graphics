@@ -74,6 +74,7 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	float blockWidth = squareWidth * (_blockEdgeVertCount - 1);
 	float crossOffset = 3 * blockWidth + 2 * squareWidth;
 
+	// Scale the entire structure to [0, 1] range but keep ratios
 	float invTotalSize = 1 / (4 * blockWidth + 2 * squareWidth);
 	squareWidth *= invTotalSize;
 	blockWidth *= invTotalSize;
@@ -125,28 +126,31 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	_crossIB = IBuffer(device, crossIndices);
 	vertexData.clear();
 	
-
-	//////////////////
-
 	// L rim buffer, built in bottom left initially, rotate around axis with +-(1, 1) scaling
-	UINT lineStripSize = (2 * _blockEdgeVertCount + 1) * 2;
-	UINT rimSize = 2 * lineStripSize - 4;	// Duplicates, L strip only needs 32 verts if merged together
+	UINT rimVertLength = 2 * _blockEdgeVertCount + 1;
 
-	for (UINT i = 0; i < 18; ++i)
-		vertexData.emplace_back(i & 1, i / 2);			// Vertical strip, left-right-up...
+	// Vertical strip, erase last square
+	createGridVertices(2, rimVertLength, vertexData);
+	auto vStripIndices = createGridIndices(2, rimVertLength);
+	// Erase last square from both, 4 vertices and 6 indices worth
+	vertexData.resize(vertexData.size() - 4);
+	vStripIndices.resize(vStripIndices.size() - 6);
 
-	for (UINT i = 18; i < rimSize; ++i)
-		vertexData.emplace_back(2 + (i / 2), i & 1);	// Horizontal strip, bottom-up-right...
+	// Horizontal strip, offset indices as the vertices are all merged to a single array
+	auto hStripIndices = createGridIndices(rimVertLength, 2);
+	for (auto& idx : hStripIndices)
+		idx += vertexData.size();
+	createGridVertices(rimVertLength, 2, vertexData);
 
+	// Merge and create
 	std::vector<UINT> lRimIndices;
-	UINT numRimIndices = (8 + 7) * 2 * 3;	// 15 squares, 2 triangle faces each, 3 indices each
-	lRimIndices.reserve(numRimIndices);
-
-	for (UINT i = 0; i < 15 * 4; i += 4)	// 4 vertices per square to cover
-		lRimIndices.insert(lRimIndices.end(), { i + 2, i + 3, i, i, i + 3, i + 1 });
+	lRimIndices.reserve((8 + 7) * 2 * 3);	// 15 squares, 2 triangle faces each, 3 indices each
+	std::copy(vStripIndices.begin(), vStripIndices.end(), std::back_inserter(lRimIndices));
+	std::copy(hStripIndices.begin(), hStripIndices.end(), std::back_inserter(lRimIndices));
 
 	_rimVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
 	_rimIB = IBuffer(device, lRimIndices);
+	vertexData.clear();
 
 	// Degenerate triangles surrounding the layer (or inside it, who do I assign this to)
 }
@@ -191,20 +195,20 @@ void GeoClipmap::createTransformData()
 	{
 		int scaleModifier = 1 << i;	// 1, 2, 4, 8...
 
+		float vertSpacing = baseVertSpacing * scaleModifier;
 		float blockSize = baseBlockSize * scaleModifier;
 		float crossWidth = baseCrossWidth * scaleModifier;
-		float vertSpacing = baseVertSpacing * scaleModifier;
 
 		RingLayer& rl = _layers[i];
 
 		rl._blockSize = SVec2(blockSize);
-		rl._blockScale = SVec2(vertSpacing);
+		rl._vertexScale = SVec2(vertSpacing);
 
 		rl._size = SVec2(4 * blockSize + crossWidth);
-		rl._offset = SVec2(-2 * blockSize - crossWidth);	// Each layer is initally bottom left
 
-		// L trim width, but that belongs to the NEXT layer not this layer
-		//float LTrimWidth = accumulatedSize += 2.f * SVec2(vertSpacing);
+		// Each layer is initially shifted bottom left, to leave space for the L-strip
+		// Meaning each layer is in the top right corner of the bigger layer
+		rl._offset = SVec2(-2 * blockSize - 2 * vertSpacing);
 
 		// Each corner has 3 blocks, one in the corner, and two bordering it
 		for (int j = 0; j < 4; j++)
@@ -284,6 +288,18 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	context->VSSetConstantBuffers(0, 1, &_cBuffer._cbPtr);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+	// Core rendering
+	context->IASetVertexBuffers(0, 1, _coreVB.ptr(), &_coreVB._stride, &_coreVB._offset);
+	context->IASetIndexBuffer(_coreIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+	_bufferData.scaleTranslation.x = _coreVertSpacing;
+	_bufferData.scaleTranslation.y = _coreVertSpacing;
+	_bufferData.scaleTranslation.z = _coreOffset.x;
+	_bufferData.scaleTranslation.w = _coreOffset.y;
+	_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+	context->DrawIndexed(_coreIB.getIdxCount(), 0, 0);
+
+	// Block rendering
 	context->IASetVertexBuffers(0, 1, _blockVB.ptr(), &_blockVB._stride, &_blockVB._offset);
 	context->IASetIndexBuffer(_blockIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
 
@@ -291,18 +307,14 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	{
 		RingLayer& rl = _layers[i];
 		
-		_bufferData.scaleTranslation.x = rl._blockScale.x;
-		_bufferData.scaleTranslation.y = rl._blockScale.y;
+		_bufferData.scaleTranslation.x = rl._vertexScale.x;
+		_bufferData.scaleTranslation.y = rl._vertexScale.y;
 
 		for (const SVec2& offset : rl._blockOffsets)
 		{
 			_bufferData.scaleTranslation.z = offset.x;
 			_bufferData.scaleTranslation.w = offset.y;
-
-			// Update and set cbuffers
 			_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
-			
-
 			context->DrawIndexed(_blockIB.getIdxCount(), 0, 0);
 		}
 	}
@@ -318,6 +330,24 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 		_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
 		context->DrawIndexed(_crossIB.getIdxCount(), 0, 0);
 	}
+
+
+	// L-trim rendering
+	context->IASetVertexBuffers(0, 1, _rimVB.ptr(), &_rimVB._stride, &_rimVB._offset);
+	context->IASetIndexBuffer(_rimIB.ptr(), DXGI_FORMAT_R32_UINT, 0);
+
+	for (UINT i = 0; i < _numLayers; ++i)
+	{
+		_bufferData.scaleTranslation.x = _layers[i]._vertexScale.x;
+		_bufferData.scaleTranslation.y = _layers[i]._vertexScale.x;
+		
+		_bufferData.scaleTranslation.z = _layers[i]._offset.x + _layers[i]._blockSize.x;
+		_bufferData.scaleTranslation.w = _layers[i]._offset.y + _layers[i]._blockSize.y;
+
+		_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+		context->DrawIndexed(_rimIB.getIdxCount(), 0, 0);
+	}
+
 	/*
 	D3D11_BUFFER_DESC instanceBufferDesc =
 		shc.createBufferDesc(sizeof(InstanceData) * instanceBufferSizeInElements,

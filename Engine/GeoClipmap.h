@@ -29,7 +29,7 @@ class GeoClipmap
 		SVec2 _offset;				// From (0, 0) to bottom left
 		SVec2 _size;				// From a unit square to the size of the hollow square
 		SVec2 _blockSize;			// Size of each block - this is unifrom
-		SVec2 _blockScale;			// Size scale for block vertex spacing
+		SVec2 _vertexScale;			// Size scale for block vertex spacing
 		SVec2 _blockOffsets[12];	// Offsets for each block's bottom left vertex 
 	};
 
