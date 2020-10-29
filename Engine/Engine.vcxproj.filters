@@ -443,6 +443,9 @@
     <ClCompile Include="GeoClipmap.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="TextureGen.cpp">
+      <Filter>Procedural</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

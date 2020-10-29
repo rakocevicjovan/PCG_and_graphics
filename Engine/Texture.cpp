@@ -2,17 +2,14 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_PERLIN_IMPLEMENTATION
-#define STBI_MSC_SECURE_CRT
+#include "stb_image_write.h"
 
+#define STBI_MSC_SECURE_CRT
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "stb_image_write.h"
-#include "stb_perlin.h"
 #include "WICTextureLoader.h"
 #include "Texture.h"
 #include "Perlin.h"
@@ -228,7 +225,7 @@ bool Texture::loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 
 
 
-void Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
+bool Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
 {
 	std::wstring temp(path.begin(), path.end());
 	const wchar_t* widecstr = temp.c_str();
@@ -239,7 +236,9 @@ void Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 	{
 		OutputDebugStringA("Can't create texture2d with mip levels (WIC). \n");
 		exit(4201);
+		return false;
 	}
+	return true;
 }
 
 
@@ -316,93 +315,4 @@ void Texture::SaveAsPng(const std::string& targetFile, int w, int h, int comp, c
 	{
 		OutputDebugStringA( ("Error writing texture to '" + targetFile + "'; ").c_str() );
 	}
-}
-
-
-
-std::pair<std::unique_ptr<unsigned char[]>, UINT> Texture::writeToMem()
-{
-	int len;
-	unsigned char* compressed = stbi_write_png_to_mem(_mdata.get(), 0, _w, _h, _snc, &len);
-	return { std::unique_ptr<unsigned char[]>(compressed), len };
-}
-
-
-
-float Texture::Perlin3D(float x, float  y, float z, UINT xw, UINT yw, UINT zw)
-{
-	return stb_perlin_noise3(x, y, z, xw, yw, zw);
-}
-
-
-
-float Texture::Perlin3DFBM(float x, float  y, float z, float lacunarity, float gain, UINT octaves)
-{
-	return stb_perlin_fbm_noise3(x, y, z, lacunarity, gain, octaves);
-}
-
-
-
-float Texture::Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves)
-{
-	return stb_perlin_turbulence_noise3(x, y, z, lacunarity, gain, octaves);
-}
-
-
-
-float Texture::Ridge3D(float x, float  y, float z, float lacunarity, float gain, float offset, UINT octaves)
-{
-	return stb_perlin_ridge_noise3(x, y, z, lacunarity, gain, offset, octaves);
-}
-
-
-
-std::vector<float> Texture::generateTurbulent(int w, int h, float z, float lacunarity, float gain, UINT octaves)
-{
-	//std::vector<unsigned char> result;
-	std::vector<float> result;
-	
-	result.reserve(w * h);
-
-	float wInverse = 1.f / (float)w;
-	float hInverse = 1.f / (float)h;
-
-	for (int i = 0; i < w; ++i)
-	{
-		for (int j = 0; j < h; ++j)
-		{
-			float x = (float)i * wInverse;
-			float y = (float)j * hInverse;
-
-			float noiseVal = Texture::Turbulence3D(x, y, z, lacunarity, gain, octaves);
-			result.push_back(noiseVal);
-		}
-	}
-
-	return result;
-}
-
-
-
-std::vector<float> Texture::generateRidgey(int w, int h, float z, float lacunarity, float gain, float offset, UINT octaves)
-{
-	std::vector<float> result;
-	result.reserve(w * h);
-
-	float wInverse = 1.f / (float)w;
-	float hInverse = 1.f / (float)h;
-
-	for (int i = 0; i < w; ++i)
-	{
-		for (int j = 0; j < h; ++j)
-		{
-			float x = (float)i * wInverse;
-			float y = (float)j * hInverse;
-
-			float noiseVal = Texture::Ridge3D(x, y, z, lacunarity, gain, offset, octaves);
-			result.push_back(noiseVal);
-		}
-	}
-
-	return result;
 }
