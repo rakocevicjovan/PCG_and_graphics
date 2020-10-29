@@ -225,6 +225,14 @@ bool Texture::loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 
 
 
+bool Texture::loadRegion()
+{
+	
+	return false;
+}
+
+
+
 bool Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)
 {
 	std::wstring temp(path.begin(), path.end());

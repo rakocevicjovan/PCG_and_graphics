@@ -66,6 +66,7 @@ public:
 	bool loadFromMemory(const unsigned char* data, size_t size);
 	bool loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 	bool loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
+	bool loadRegion();
 
 	bool setUpAsResource(ID3D11Device* device, bool deleteData = true);
 	bool create(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data);
