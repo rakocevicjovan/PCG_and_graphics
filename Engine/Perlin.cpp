@@ -10,16 +10,14 @@ namespace Procedural
 
 	Perlin::Perlin()
 	{
+		// Populating with random permutation
+		hashTable.resize(512);
+		std::iota(hashTable.begin(), hashTable.begin() + 256, 0);
+
 		Chaos c;
 		float seed = c.rollTheDice();
-		//populating with random permutation
-		hashTable.resize(256);
-		std::iota(hashTable.begin(), hashTable.end(), 0);
-
-		//std::random_device randomDevice;
 		std::default_random_engine engine(seed);
-		std::shuffle(hashTable.begin(), hashTable.end(), engine);
-		hashTable.resize(512);
+		std::shuffle(hashTable.begin(), hashTable.begin() + 256, engine);
 		std::copy_n(hashTable.begin(), 256, hashTable.begin() + 256);
 	}
 

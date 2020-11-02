@@ -274,7 +274,13 @@ std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
 
 void GeoClipmap::update(ID3D11DeviceContext* context)
 {
+	// Update the texture
 
+	// To determine if 1 is required or not, snap camera
+
+	// 1. Load (and decompress?) the new texture region, if required
+	// 2. Run a pixel shader to update the the gpu texture
+	// 3. Update the sampling offsets for toroidal access
 }
 
 
@@ -364,13 +370,13 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 
 
 // @TODO
-SVec2 GeoClipmap::getLevelOffset(const SVec2& camera_pos, unsigned int level)
+SVec2 GeoClipmap::getLevelOffset(const SVec2& camPos, UINT level)
 {
-	int scale = 1 << level;
-	//SVec2 scaled_pos = camera_pos / SVec2(clipmap_scale); // Snap to grid in the appropriate space.
+	//int scale = 1 << level;
+	//SVec2 scaledPos = camPos / SVec2(scale); // Snap to grid in the appropriate space.
 
 	// Snap to grid of next level. I.e. we move the clipmap level in steps of two.
-	//SVec2 snapped_pos = SVec2(scaled_pos / vec2(1 << (level + 1))) * vec2(1 << (level + 1));
+	//SVec2 snapped_pos = SVec2(scaledPos / SVec2(1 << (level + 1))) * SVec2(1 << (level + 1));
 	
 	// Apply offset so all levels align up neatly.
 	// If snapped_pos is equal for all levels,
