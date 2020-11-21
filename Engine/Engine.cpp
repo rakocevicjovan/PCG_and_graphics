@@ -60,13 +60,13 @@ bool Engine::Initialize()
 	GUI::initDxWin32(_hwnd, _device, _deviceContext);
 
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
-	_project.loadFromConfig("C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Tower defense.json");
+	_project.loadFromConfig("../Tower Defense/Tower defense.json");
 	
 	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
 		assert(false && "Failed to load level list.");
 
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
-	_project._ledgerPath = "C:/Users/Senpai/source/repos/PCG_and_graphics_stale_memes/Tower Defense/Ledger.json";
+	_project._ledgerPath = "../Tower Defense/Ledger.json";
 	_resMan._assetLedger._ledgerFilePath = _project._ledgerPath;
 
 	_resMan._assetLedger.load();
