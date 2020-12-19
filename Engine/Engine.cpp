@@ -13,7 +13,10 @@ Engine::Engine() :
 {}
 
 
-Engine::~Engine() {}
+Engine::~Engine()
+{
+	Shutdown();
+}
 
 
 bool Engine::Initialize()
@@ -82,7 +85,6 @@ bool Engine::Initialize()
 void Engine::InitializeWindows(int& screenWidth, int& screenHeight)
 {
 	WNDCLASSEX wc;
-	DEVMODE dmScreenSettings;
 	int _posX, _posY;
 
 	ApplicationHandle = this;	// Get an external pointer to this object.	
@@ -113,6 +115,7 @@ void Engine::InitializeWindows(int& screenWidth, int& screenHeight)
 	screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
+	DEVMODE dmScreenSettings;
 	if (FULL_SCREEN)
 	{
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
@@ -150,8 +153,6 @@ void Engine::InitializeWindows(int& screenWidth, int& screenHeight)
 
 	// Show or hide the mouse cursor.
 	ShowCursor(false);
-
-	return;
 }
 
 

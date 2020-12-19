@@ -1,27 +1,25 @@
 #include "Engine.h"
+#include <memory>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
-	Engine* Sys;
+	std::unique_ptr<Engine> engine;
 	
-	Sys = new Engine;
-	if(!Sys)
+	engine = std::make_unique<Engine>();
+
+	if(!engine)
 	{
-		std::cout << "SystemClass constructor failed." << std::endl;
+		std::cout << "Engine constructor failed." << std::endl;
 		return 1;
 	}
 
-	if(!Sys->Initialize())
+	if(!engine->Initialize())
 	{
-		std::cout << "System could not be initialized." << std::endl;
+		std::cout << "Engine could not be initialized." << std::endl;
 		return 2;
 	}
 
-	Sys->Run();
-
-	Sys->Shutdown();
-	delete Sys;
-	Sys = nullptr;
+	engine->Run();
 
 	return 0;
 }

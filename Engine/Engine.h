@@ -76,7 +76,6 @@ public:
 	Controller _defController;	
 
 
-
 	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 
 	inline UINT getScrW() const { return _scrWidth;  }

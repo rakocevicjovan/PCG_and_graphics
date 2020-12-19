@@ -446,6 +446,9 @@
     <ClCompile Include="TextureGen.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1020,6 +1023,9 @@
     </ClInclude>
     <ClInclude Include="NumericVectorType.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
