@@ -1,6 +1,8 @@
 #include "Window.h"
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
+#include <cassert>
 
 // Trick to let enums be used as their underlying type (for bitflags and such)
 // can be used internally but clunky to expose to users
@@ -14,34 +16,40 @@ namespace
 }
 
 
+
+void Window::RegisterWindowClass(HINSTANCE hinstance, WNDPROC wndProc, uint32_t flags)
+{
+	// Setup the windows class with default settings and register it
+	WNDCLASSEX wc{};
+	wc.style = flags;	//  CS_HREDRAW | CS_VREDRAW | CS_OWNDC
+	wc.lpfnWndProc = wndProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = hinstance;
+	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+	wc.hIconSm = wc.hIcon;
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszMenuName = NULL;
+	wc.lpszClassName = CLASS_NAME;
+	wc.cbSize = sizeof(WNDCLASSEX);
+
+	RegisterClassEx(&wc);
+}
+
+
 void Window::create(const char* windowName, int w, int h, uint32_t flags)
 {
 	_hinstance = GetModuleHandle(NULL);	// Get the instance of this application.
 
-	{
-		size_t windowNameLength = std::strlen(windowName);
-		_windowName = std::make_unique<wchar_t[]>(windowNameLength);
-		std::mbstowcs(_windowName.get(), windowName, windowNameLength);
-	}
+	// This is windows specific and shouldn't be exposed in the header. Not sure how other OS do it.
+	static std::once_flag window_created{};
+	std::call_once(window_created, RegisterWindowClass, _hinstance, WndProc, flags);
 
-	// Setup the windows class with default settings and register it
-	{
-		WNDCLASSEX wc;
-		wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-		wc.lpfnWndProc = WndProc;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = 0;
-		wc.hInstance = _hinstance;
-		wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-		wc.hIconSm = wc.hIcon;
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-		wc.lpszMenuName = NULL;
-		wc.lpszClassName = _windowName.get();
-		wc.cbSize = sizeof(WNDCLASSEX);
-
-		RegisterClassEx(&wc);
-	}
+	// Creating the actual window. As opposed to class.
+	size_t windowNameLength = std::strlen(windowName);
+	_windowName = std::make_unique<wchar_t[]>(windowNameLength);
+	std::mbstowcs(_windowName.get(), windowName, windowNameLength);
 
 	// Determine the resolution of the clients desktop screen.
 	int scrW = GetSystemMetrics(SM_CXSCREEN);
@@ -49,20 +57,10 @@ void Window::create(const char* windowName, int w, int h, uint32_t flags)
 	
 	bool fullScreen = (!w || !h);
 
-	if (fullScreen)
-	{
-		_x = 0;
-		_y = 0;
-		_w = scrW;
-		_h = scrH;
-	}
-	else
-	{
-		_x = (scrW - w) / 2;
-		_y = (scrH - h) / 2;
-		_w = w;
-		_h = h;
-	}
+	_w = (w) ? scrW : w;
+	_h = (h) ? scrH : h;
+	_x = (scrW - w) / 2;
+	_y = (scrH - h) / 2;
 
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
 	DEVMODE dmScreenSettings;
@@ -78,9 +76,18 @@ void Window::create(const char* windowName, int w, int h, uint32_t flags)
 	}
 
 	// Create the window with the screen settings and get the handle to it.
-	_hwnd = CreateWindowEx(WS_EX_APPWINDOW, _windowName.get(), _windowName.get(),
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-		_x, _y, _w, _h, NULL, NULL, _hinstance, NULL);
+	_hwnd = CreateWindowEx(
+		WS_EX_APPWINDOW,								// Special property flags (example, taskbar behaviour)
+		CLASS_NAME,										// Window class name
+		_windowName.get(),								// Name of the window (thanks Cpt. Obvious)
+		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,	// Style
+		_x, _y, _w, _h,									// Can use CW_USEDEFAULT macro as well, but we have our own way
+		NULL,											// Parent Window
+		NULL,											// Menu
+		_hinstance,										// Instance handle. Still not sure what this actually is
+		NULL);											// Additional application data. No need for any.
+
+	assert(_hwnd && "Failed to create window.");
 
 	// Bring the window up on the screen and set it as main focus.
 	// std::underlying_type<CreationFlags>
@@ -103,10 +110,9 @@ void Window::create(const char* windowName, int w, int h, uint32_t flags)
 }
 
 
-// More Windows crap...
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-template <LRESULT(*HandleMessage)(HWND, UINT, WPARAM, LPARAM)>
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
@@ -128,8 +134,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 
 		default:
 		{
-			//return Window::MessageHandler(hwnd, umessage, wparam, lparam);
-			return HandleMessage(hwnd, umessage, wparam, lparam);
+			return Window::MessageHandler(hwnd, umessage, wparam, lparam);
+			//return HandleMessage(hwnd, umessage, wparam, lparam);
 		}
 	}
 }

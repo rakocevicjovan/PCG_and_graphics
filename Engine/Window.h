@@ -17,6 +17,9 @@ private:
 	HINSTANCE _hinstance;
 	std::unique_ptr<wchar_t[]> _windowName;
 
+	static void RegisterWindowClass(HINSTANCE hinstance, WNDPROC wndProc, uint32_t flags);
+	static inline const wchar_t* CLASS_NAME = L"AeolianWindowClass";
+
 public:
 
 	// Pass 0 for width and/or height for full screen mode.
@@ -33,5 +36,4 @@ public:
 	static LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
 };
 
-template <LRESULT(HWND, UINT, WPARAM, LPARAM)>
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
