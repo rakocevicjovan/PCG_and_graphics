@@ -35,7 +35,7 @@ public:
 
 
 	//return ((this->getPosition() - other.getPosition()).LengthSquared() < 0.1f); - felt like a bad idea, although it does work
-	const bool operator==(const Building& other)
+	virtual bool operator==(const Building& other) const
 	{
 		return std::addressof(*this) == std::addressof(other);
 	}
