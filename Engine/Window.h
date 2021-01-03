@@ -2,8 +2,13 @@
 #include <windows.h>
 #include <cstdint>
 #include <memory>
+#include <cstdlib>
+#include <cstring>
+#include <mutex>
+#include <cassert>
+#include <map>
 
-
+template <typename WindowInputHandlerType>
 class Window
 {
 private:
@@ -13,17 +18,117 @@ private:
 	uint16_t _w;
 	uint16_t _h;
 
-	HWND _hwnd;
 	HINSTANCE _hinstance;
 	std::unique_ptr<wchar_t[]> _windowName;
 
-	static void RegisterWindowClass(HINSTANCE hinstance, WNDPROC wndProc, uint32_t flags);
+	//@TODO add mapping between my flags and windows flags, for now it's hardcoded
+	static void RegisterWindowClass(HINSTANCE hinstance, WNDPROC wndProc, uint32_t flags)
+	{
+		// Setup the windows class with default settings and register it
+		WNDCLASSEX wc{};
+		wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+		wc.lpfnWndProc = wndProc;
+		wc.cbClsExtra = 0;
+		wc.cbWndExtra = 0;
+		wc.hInstance = hinstance;
+		wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+		wc.hIconSm = wc.hIcon;
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+		wc.lpszMenuName = NULL;
+		wc.lpszClassName = CLASS_NAME;
+		wc.cbSize = sizeof(WNDCLASSEX);
+
+		if (!RegisterClassEx(&wc))
+		{
+			auto errorCode = GetLastError();
+			__debugbreak();
+		}
+	}
+	// I fully expect this to fail on multiple windows being opened. Curently not a concern, fix is easy.
 	static inline const wchar_t* CLASS_NAME = L"AeolianWindowClass";
 
 public:
 
-	// Pass 0 for width and/or height for full screen mode.
-	void create(const char* windowName, int w, int h, uint32_t flags);
+	HWND _hwnd;
+
+	inline static std::map<HWND, WindowInputHandlerType*> WindowInputHandlers;
+
+	// Passing 0 for either width or height results in the window fully covering the given dimension of the screen.
+	void create(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
+	{
+		_hinstance = GetModuleHandle(NULL);	// Get the instance of this application.
+
+		// This is windows specific and shouldn't be exposed by the header. Not sure how other OS do it.
+		static std::once_flag windowClassCreated{};
+		std::call_once(windowClassCreated, RegisterWindowClass, _hinstance, WndProc<WindowInputHandlerType>, flags);
+
+		// Creating the actual window. As opposed to window class.
+		size_t windowNameLength = std::strlen(windowName) + 1;
+		_windowName = std::make_unique<wchar_t[]>(windowNameLength);
+		std::mbstowcs(_windowName.get(), windowName, windowNameLength);
+
+		// Determine the resolution of the clients desktop screen.
+		int scrW = GetSystemMetrics(SM_CXSCREEN);
+		int scrH = GetSystemMetrics(SM_CYSCREEN);
+
+		bool fullScreen = (!w || !h);
+
+		_w = (w) ? scrW : w;
+		_h = (h) ? scrH : h;
+		_x = (scrW - w) / 2;
+		_y = (scrH - h) / 2;
+
+		// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
+		DEVMODE dmScreenSettings;
+		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
+		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
+		dmScreenSettings.dmBitsPerPel = 32;
+		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+		dmScreenSettings.dmPelsWidth = (DWORD)scrW;
+		dmScreenSettings.dmPelsHeight = (DWORD)scrH;
+		if (fullScreen)
+		{
+			ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
+		}
+
+		// Create the window with the screen settings and get the handle to it.
+		_hwnd = CreateWindowEx(
+			WS_EX_APPWINDOW,								// Special property flags (example, taskbar behaviour)
+			CLASS_NAME,										// Window class name
+			_windowName.get(),								// Name of the window (thanks Cpt. Obvious)
+			WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,	// Style
+			_x, _y, _w, _h,									// Can use CW_USEDEFAULT macro as well, but we have our own way
+			NULL,											// Parent Window
+			NULL,											// Menu
+			_hinstance,										// Instance handle. Still not sure what this actually is
+			NULL);											// Additional application data. No need for any.
+
+		if (!_hwnd)
+		{
+			auto errCode = GetLastError();
+			__debugbreak();
+		}
+
+		WindowInputHandlers[_hwnd] = handler;
+
+		if (flags & CreationFlags::SHOW_WINDOW)
+		{
+			ShowWindow(_hwnd, SW_SHOW);
+		}
+
+		if (flags & CreationFlags::START_FOREGROUND)
+		{
+			SetForegroundWindow(_hwnd);
+		}
+
+		if (flags & CreationFlags::START_FOCUSED)
+		{
+			SetFocus(_hwnd);
+		}
+
+		ShowCursor(flags & CreationFlags::SHOW_CURSOR);
+	}
 
 	struct CreationFlags
 	{
@@ -33,7 +138,51 @@ public:
 		static constexpr uint32_t SHOW_CURSOR = 1 << 3;
 	} static constexpr WINDOW_CREATION_FLAGS{};
 
-	static LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
+	// These two probably shouldn't be here!
+
+	inline UINT width() const { return _w; }
+	inline UINT height() const { return _h; }
 };
 
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+template <typename WindowInputHandlerType>
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
+{
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+		return true;
+
+	switch (umessage)
+	{
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
+
+		case WM_CLOSE:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
+
+		default:
+		{
+			return Window<WindowInputHandlerType>::WindowInputHandlers[hwnd]->HandleWindowInput(hwnd, umessage, wparam, lparam);
+		}
+	}
+}
+
+
+// This is just some misc shit
+namespace
+{
+	// Trick to let enums be used as their underlying type (for bitflags)
+	// Can be used internally but clunky to expose to users
+	template <typename MyEnumType>
+	inline constexpr std::underlying_type_t<MyEnumType> asUnderlying(MyEnumType flag)
+	{
+		return static_cast<std::underlying_type_t<MyEnumType>>(flag);
+	}
+}

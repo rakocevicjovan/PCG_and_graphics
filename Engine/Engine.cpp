@@ -7,8 +7,8 @@
 
 
 Engine::Engine() :
-	_scrWidth(0), 
-	_scrHeight(0),
+	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
+	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
 {}
 
@@ -28,26 +28,29 @@ bool Engine::Initialize()
 	//loader.parse("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\ArmyPilot\\ArmyPilot.fbx");
 
 	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
+	
+	_engineWindow.create("Aeolian engine", this, _windowWidth, _windowHeight,
+		Window<Engine>::CreationFlags::SHOW_WINDOW |
+		Window<Engine>::CreationFlags::START_FOCUSED |
+		Window<Engine>::CreationFlags::START_FOREGROUND);
 
-	InitializeWindows(_scrWidth, _scrHeight);
-
-	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _hwnd, FULL_SCREEN))
+	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow._hwnd, FULL_SCREEN))
 	{
-		MessageBox(_hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+		MessageBox(_engineWindow._hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
 	}
 
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-	_inputManager.initialize(_hwnd);
+	_inputManager.initialize(_engineWindow._hwnd);
 	_defController = Controller(&_inputManager);
 	_inputManager.registerController(&_defController);
 
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
 		_renderer._cam._controller = &_defController;
-		MessageBox(_hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
+		MessageBox(_engineWindow._hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -60,7 +63,7 @@ bool Engine::Initialize()
 	//_colEngine.init();		//_colEngine.registerController(_defController);
 	_renderer._cam._controller = &_defController;
 
-	GUI::initDxWin32(_hwnd, _device, _deviceContext);
+	GUI::initDxWin32(_engineWindow._hwnd, _device, _deviceContext);
 
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_project.loadFromConfig("../Tower Defense/Tower defense.json");
@@ -78,81 +81,6 @@ bool Engine::Initialize()
 	_levelMan = new LevelManager(*this);
 
 	return true;
-}
-
-
-
-void Engine::InitializeWindows(int& screenWidth, int& screenHeight)
-{
-	WNDCLASSEX wc;
-	int _posX, _posY;
-
-	ApplicationHandle = this;	// Get an external pointer to this object.	
-
-	_hinstance = GetModuleHandle(NULL);	// Get the instance of this application.
-
-	_applicationName = L"Aeolian";	// Give the application a name.
-
-	// Setup the windows class with default settings.
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = _hinstance;
-	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-	wc.hIconSm = wc.hIcon;
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = _applicationName;
-	wc.cbSize = sizeof(WNDCLASSEX);
-
-	// Register the window class.
-	RegisterClassEx(&wc);
-
-	// Determine the resolution of the clients desktop screen.
-	screenWidth = GetSystemMetrics(SM_CXSCREEN);
-	screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
-	DEVMODE dmScreenSettings;
-	if (FULL_SCREEN)
-	{
-		// If full screen set the screen to maximum size of the users desktop and 32bit.
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth = (unsigned long)screenWidth;
-		dmScreenSettings.dmPelsHeight = (unsigned long)screenHeight;
-		dmScreenSettings.dmBitsPerPel = 32;
-		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-		// Change the display settings to full screen.
-		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
-
-		_windowWidth = screenWidth;
-		_windowHeight = screenHeight;
-
-		// Set the position of the window to the top left corner.
-		_posX = _posY = 0;
-	}
-	else
-	{
-		_posX = (GetSystemMetrics(SM_CXSCREEN) - _windowWidth) / 2;
-		_posY = (GetSystemMetrics(SM_CYSCREEN) - _windowHeight) / 2;
-	}
-
-	// Create the window with the screen settings and get the handle to it.
-	_hwnd = CreateWindowEx(WS_EX_APPWINDOW, _applicationName, _applicationName,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-		_posX, _posY, _windowWidth, _windowHeight, NULL, NULL, _hinstance, NULL);
-
-	// Bring the window up on the screen and set it as main focus.
-	ShowWindow(_hwnd, SW_SHOW);
-	SetForegroundWindow(_hwnd);
-	SetFocus(_hwnd);
-
-	// Show or hide the mouse cursor.
-	ShowCursor(false);
 }
 
 
@@ -225,48 +153,18 @@ void Engine::Shutdown()
 	if (FULL_SCREEN)
 		ChangeDisplaySettings(NULL, 0);
 
-	DestroyWindow(_hwnd);
-	_hwnd = NULL;
+	DestroyWindow(_engineWindow._hwnd);
+	_engineWindow._hwnd = NULL;
 
 	UnregisterClass(_applicationName, _hinstance);
 	_hinstance = NULL;
-
-	ApplicationHandle = NULL;
 }
 
 
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
-{
-	if(ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
-		return true;
-
-	switch(umessage)
-	{
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
-
-		case WM_CLOSE:
-		{
-			PostQuitMessage(0);		
-			return 0;
-		}
-
-		default:
-		{
-			return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
-		}
-	}
-}
-
-
-
-LRESULT CALLBACK Engine::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
+LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	switch (message)
 	{

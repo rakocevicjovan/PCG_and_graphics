@@ -3,11 +3,14 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {
-	std::unique_ptr<Engine> engine;
-	
-	engine = std::make_unique<Engine>();
+	if (!SetProcessDPIAware())
+	{
+		assert(false && "Couldn't make application dpi aware!");
+	}
 
-	if(!engine)
+	auto engine = std::make_unique<Engine>();
+
+	if(!engine.get())
 	{
 		std::cout << "Engine constructor failed." << std::endl;
 		return 1;

@@ -446,9 +446,6 @@
     <ClCompile Include="TextureGen.cpp">
       <Filter>Procedural</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

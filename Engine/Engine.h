@@ -21,6 +21,7 @@
 #include "MaterialCache.h"
 #include "Project.h"
 #include "VitThreadPool.h"
+#include "Window.h"
 
 
 //centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
@@ -28,16 +29,15 @@ class Engine
 {
 private:
 	bool Frame(float dTime);
-	void InitializeWindows(int& w, int& h);
 	void OutputFPS(float dTime);
 
 	LPCWSTR _applicationName;
 	HINSTANCE _hinstance;
-	HWND _hwnd;
-	POINT _midWindow;
 
-	int _scrWidth, _scrHeight;
-	int _windowWidth = 1920, _windowHeight = 1080;
+	UINT _scrWidth;
+	UINT _scrHeight;
+	UINT _windowWidth = 1920;
+	UINT _windowHeight = 1080;
 
 	// Contains metadata of the project and lists of assets the project needs
 	Project _project;
@@ -49,6 +49,9 @@ public:
 	bool Initialize();
 	void Run();
 	void Shutdown();
+
+	// My very own engine window
+	Window<Engine> _engineWindow;
 	
 	// Engine subsystems
 	InputManager _inputManager;
@@ -75,18 +78,12 @@ public:
 	// Here so we have something for camera controls in every level, move out eventually
 	Controller _defController;	
 
-
-	LRESULT CALLBACK MessageHandler(HWND, UINT, WPARAM, LPARAM);
-
 	inline UINT getScrW() const { return _scrWidth;  }
 	inline UINT getScrH() const { return _scrHeight; }
-	inline UINT getWinW() const { return _windowWidth;  }
-	inline UINT getWinH() const { return _windowHeight; }
+	inline UINT getWinW() const { return _engineWindow.width();  }
+	inline UINT getWinH() const { return _engineWindow.height(); }
+	inline const HWND* getHWND() const { return &_engineWindow._hwnd; }
+	inline Project& getProject() { return _project; }
 
-	Project& getProject() { return _project; }
-
-	inline const HWND* getHWND() const { return &_hwnd; }
+	LRESULT HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 };
-
-static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-static Engine* ApplicationHandle = 0;
