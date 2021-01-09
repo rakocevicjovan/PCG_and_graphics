@@ -2,17 +2,17 @@
 
 
 
-D3D::D3D()
-{
-	_swapChain = 0;
-	_device = 0;
-	_deviceContext = 0;
-	_renderTargetView = 0;
-	_depthStencilBuffer = 0;
-	_depthStencilLess = 0;
-	_depthStencilLessEquals = 0;
-	_depthStencilView = 0;
-	_r_s_solid_cull = 0;
+D3D::D3D() : 
+_swapChain(0), 
+_device(0), 
+_deviceContext(0),
+_renderTargetView(0),
+_depthStencilBuffer(0),
+_depthStencilLess(0),
+_depthStencilLessEquals(0),
+_depthStencilView(0),
+_r_s_solid_cull(0)
+{	
 }
 
 
@@ -24,7 +24,6 @@ D3D::~D3D(){ /* For now, it's ok because it only triggers on app exit */ }
 bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	HRESULT result;
-	unsigned int numModes, numerator, denominator;
 
 	// Store the vsync setting.
 	_vsync_enabled = vsync;
@@ -47,6 +46,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if(FAILED(result))
 		return false;
 
+	UINT numModes;
+
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	if(FAILED(result))
@@ -65,6 +66,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
+	UINT numerator;
+	UINT denominator;
 	for(int i = 0; i < numModes; i++){
 		if(displayModeList[i].Width == (unsigned int)windowWidth)
 		{

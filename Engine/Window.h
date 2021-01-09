@@ -8,6 +8,10 @@
 #include <cassert>
 #include <map>
 
+// Necessary for friend declaration
+template <typename WindowInputHandlerType>
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
+
 template <typename WindowInputHandlerType>
 class Window
 {
@@ -48,11 +52,16 @@ private:
 	// I fully expect this to fail on multiple windows being opened. Curently not a concern, fix is easy.
 	static inline const wchar_t* CLASS_NAME = L"AeolianWindowClass";
 
-public:
-
 	HWND _hwnd;
 
+	// Allow access to _hwnd without making it public since we want to conceal Windows specific data types externally 
+	friend LRESULT CALLBACK WndProc<WindowInputHandlerType>(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
+
 	inline static std::map<HWND, WindowInputHandlerType*> WindowInputHandlers;
+
+public:
+
+	
 
 	// Passing 0 for either width or height results in the window fully covering the given dimension of the screen.
 	void create(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
@@ -130,6 +139,21 @@ public:
 		ShowCursor(flags & CreationFlags::SHOW_CURSOR);
 	}
 
+
+
+	~Window()
+	{
+		destroy();
+	}
+
+
+
+	void destroy()
+	{
+		DestroyWindow(_hwnd);
+		_hwnd = NULL;
+	}
+
 	struct CreationFlags
 	{
 		static constexpr uint32_t SHOW_WINDOW = 1 << 0;
@@ -142,6 +166,10 @@ public:
 
 	inline UINT width() const { return _w; }
 	inline UINT height() const { return _h; }
+
+	// Different type per OS. Think of that when it becomes an issue.
+	inline HWND handle() { return _hwnd; }
+	inline const HWND* handle() const { return &_hwnd; }
 };
 
 
@@ -175,11 +203,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 }
 
 
-// This is just some misc shit
+// Useful misc
 namespace
 {
 	// Trick to let enums be used as their underlying type (for bitflags)
-	// Can be used internally but clunky to expose to users
+	// Can be used internally but clunky to expose to usersd
 	template <typename MyEnumType>
 	inline constexpr std::underlying_type_t<MyEnumType> asUnderlying(MyEnumType flag)
 	{

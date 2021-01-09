@@ -82,7 +82,7 @@ public:
 	inline UINT getScrH() const { return _scrHeight; }
 	inline UINT getWinW() const { return _engineWindow.width();  }
 	inline UINT getWinH() const { return _engineWindow.height(); }
-	inline const HWND* getHWND() const { return &_engineWindow._hwnd; }
+	inline const HWND* getHWND() const { return _engineWindow.handle(); }
 	inline Project& getProject() { return _project; }
 
 	LRESULT HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);

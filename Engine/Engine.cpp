@@ -34,23 +34,23 @@ bool Engine::Initialize()
 		Window<Engine>::CreationFlags::START_FOCUSED |
 		Window<Engine>::CreationFlags::START_FOREGROUND);
 
-	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow._hwnd, FULL_SCREEN))
+	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), FULL_SCREEN))
 	{
-		MessageBox(_engineWindow._hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+		//MessageBox(_engineWindow._hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
 		return false;
 	}
 
 	_device = _D3D.GetDevice();
 	_deviceContext = _D3D.GetDeviceContext();
 
-	_inputManager.initialize(_engineWindow._hwnd);
+	_inputManager.initialize(_engineWindow.handle());
 	_defController = Controller(&_inputManager);
 	_inputManager.registerController(&_defController);
 
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
 		_renderer._cam._controller = &_defController;
-		MessageBox(_engineWindow._hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
+		//MessageBox(_engineWindow._hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -63,7 +63,7 @@ bool Engine::Initialize()
 	//_colEngine.init();		//_colEngine.registerController(_defController);
 	_renderer._cam._controller = &_defController;
 
-	GUI::initDxWin32(_engineWindow._hwnd, _device, _deviceContext);
+	GUI::initDxWin32(_engineWindow.handle(), _device, _deviceContext);
 
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_project.loadFromConfig("../Tower Defense/Tower defense.json");
@@ -153,8 +153,7 @@ void Engine::Shutdown()
 	if (FULL_SCREEN)
 		ChangeDisplaySettings(NULL, 0);
 
-	DestroyWindow(_engineWindow._hwnd);
-	_engineWindow._hwnd = NULL;
+	_engineWindow.destroy();
 
 	UnregisterClass(_applicationName, _hinstance);
 	_hinstance = NULL;
