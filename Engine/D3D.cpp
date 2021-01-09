@@ -2,9 +2,9 @@
 
 
 
-D3D::D3D() : 
-_swapChain(0), 
-_device(0), 
+D3D::D3D() :
+_swapChain(0),
+_device(0),
 _deviceContext(0),
 _renderTargetView(0),
 _depthStencilBuffer(0),
@@ -12,12 +12,15 @@ _depthStencilLess(0),
 _depthStencilLessEquals(0),
 _depthStencilView(0),
 _r_s_solid_cull(0)
-{	
+{
 }
 
 
 
-D3D::~D3D(){ /* For now, it's ok because it only triggers on app exit */ }
+D3D::~D3D()
+{ 
+	Shutdown();
+}
 
 
 
@@ -26,7 +29,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	HRESULT result;
 
 	// Store the vsync setting.
-	_vsync_enabled = vsync;
+	_VSyncEnabled = vsync;
 
 	// Create a DirectX graphics interface factory.
 	IDXGIFactory* factory;
@@ -46,9 +49,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if(FAILED(result))
 		return false;
 
-	UINT numModes;
-
-	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
+	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor)
+	UINT numModes{};
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	if(FAILED(result))
 		return false;
@@ -66,9 +68,10 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	UINT numerator;
-	UINT denominator;
-	for(int i = 0; i < numModes; i++){
+	UINT numerator{};
+	UINT denominator{};
+	for(int i = 0; i < numModes; i++)
+	{
 		if(displayModeList[i].Width == (unsigned int)windowWidth)
 		{
 			if(displayModeList[i].Height == (unsigned int)windowHeight)
@@ -100,29 +103,29 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Release the display mode list.
 	delete [] displayModeList;
-	displayModeList = 0;
+	displayModeList = nullptr;
 
 	// Release the adapter output.
 	adapterOutput->Release();
-	adapterOutput = 0;
+	adapterOutput = nullptr;
 
 	// Release the adapter.
 	adapter->Release();
-	adapter = 0;
+	adapter = nullptr;
 
 	// Release the factory.
 	factory->Release();
-	factory = 0;
+	factory = nullptr;
 
 	// Initialize the swap chain description.
-	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
     swapChainDesc.BufferCount = 1;	// Double buffered
     swapChainDesc.BufferDesc.Width = windowWidth;
     swapChainDesc.BufferDesc.Height = windowHeight;
     swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// Set regular 32-bit surface for the back buffer.
 
 	// Set the refresh rate of the back buffer.
-	if(_vsync_enabled)
+	if(_VSyncEnabled)
 	{
 		swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
 		swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
@@ -354,7 +357,7 @@ void D3D::ClearColourDepthBuffers()
 void D3D::EndScene()
 {
 	// Present the back buffer to the screen since rendering is complete.
-	if(_vsync_enabled)
+	if(_VSyncEnabled)
 		_swapChain->Present(1, 0);	// Lock to screen refresh rate.
 	else
 		_swapChain->Present(0, 0);	// Present as fast as possible.

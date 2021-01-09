@@ -44,7 +44,7 @@ public:
 	float _clearColour[4] = { 0.2f, 0.1f, 0.3f, 1.0f };
 
 private:
-	bool _vsync_enabled;
+	bool _VSyncEnabled;
 	int _videoCardMemory;
 	char _videoCardDescription[128];
 	IDXGISwapChain* _swapChain;
