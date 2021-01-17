@@ -8,7 +8,7 @@ void ShaderGenerator::AddToKey(const VertSignature& vertSig, uint64_t& key,
 {
 	UINT elemCount = vertSig.countAttribute(semantic);
 	elemCount = min(elemCount, shOpt._maxVal);
-	key |= (elemCount << shOpt._offset);
+	key |= (static_cast<uint64_t>(elemCount) << shOpt._offset);
 }
 
 

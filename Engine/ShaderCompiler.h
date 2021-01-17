@@ -55,7 +55,7 @@ private:
 
 public:
 
-	ShaderCompiler() {};
+	ShaderCompiler() : _device(nullptr) {};
 	ShaderCompiler(ID3D11Device* device) : _device(device) {}
 
 	void init(ID3D11Device* device);

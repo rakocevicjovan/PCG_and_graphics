@@ -126,10 +126,7 @@ void Renderer::setDefaultRenderTarget()
 
 void Renderer::flushRenderQueue()
 {	
-	for (const auto& r : _rQue.opaques)
-		render(r);
-
-	for (const auto& r : _rQue.transparents)
+	for (const auto& r : _rQue._renderables)
 		render(r);
 }
 
