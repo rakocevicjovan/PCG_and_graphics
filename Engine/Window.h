@@ -64,7 +64,7 @@ public:
 	
 
 	// Passing 0 for either width or height results in the window fully covering the given dimension of the screen.
-	void create(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
+	void createGPUResource(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
 	{
 		_hinstance = GetModuleHandle(NULL);	// Get the instance of this application.
 

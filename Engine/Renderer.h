@@ -118,7 +118,7 @@ public:
 	void setOSTRenderTarget(OST& ost);
 	void setDefaultRenderTarget();
 
-	inline void addToRenderQueue(Renderable& renderable) { _rQue.add(renderable); }
+	inline void addToRenderQueue(Renderable& renderable) { _rQue.insert(renderable); }
 	inline void sortRenderQueue() { _rQue.sort(); }
 	void flushRenderQueue();
 	inline void clearRenderQueue() { _rQue.clear(); };

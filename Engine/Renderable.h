@@ -13,13 +13,12 @@ public:
 	Mesh* mesh;
 
 	Material* mat;
-	int64_t sortKey;
 	float zDepth;
 
 	//uint8_t* _cbufferData;
 
 
-	Renderable() {}
+	Renderable() : mat(nullptr), mesh(nullptr), zDepth(0) {}
 
 	Renderable(Mesh& mesh) : mesh(&mesh), mat(mesh._material.get()), _transform(mesh._transform)
 	{}
@@ -39,9 +38,4 @@ public:
 		mat->getVS()->setBuffers(dc);
 		mat->getPS()->setBuffers(dc);
 	}
-
-
-
-	//overload after deciding how to sort them
-	bool Renderable::operator < (const Renderable& b) const { return sortKey < b.sortKey; }
 };

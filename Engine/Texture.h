@@ -69,7 +69,7 @@ public:
 	bool loadRegion();
 
 	bool setUpAsResource(ID3D11Device* device, bool deleteData = true);
-	bool create(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data);
+	bool createGPUResource(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data);
 
 	inline int w() const							{ return _w; } 
 	inline int h() const							{ return _h; }

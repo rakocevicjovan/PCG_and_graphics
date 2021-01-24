@@ -170,13 +170,13 @@ void GeoClipmap::createTextures(ID3D11Device* device)
 		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
 		_numLayers);
 
-	_heightMap.create(device, &hmDesc, nullptr);
+	_heightMap.createGPUResource(device, &hmDesc, nullptr);
 
 	D3D11_TEXTURE2D_DESC nmDesc = Texture::create2DTexDesc(2.f * _texSize, 2.f * _texSize, DXGI_FORMAT_R8G8B8A8_SNORM,
 		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
 		_numLayers);
 
-	_normalMap.create(device, &nmDesc, nullptr);
+	_normalMap.createGPUResource(device, &nmDesc, nullptr);
 }
 
 

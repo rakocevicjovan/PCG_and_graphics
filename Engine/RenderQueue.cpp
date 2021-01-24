@@ -2,15 +2,21 @@
 
 
 
-RenderQueue::RenderQueue(size_t maxElements) 
-	: _maxElements(maxElements)
-{}
+RenderQueue::RenderQueue(size_t expectedMaximumSize)
+{
+	_renderables.reserve(expectedMaximumSize);
+	_keys.reserve(expectedMaximumSize);
+}
 
 
 
-void RenderQueue::add(Renderable& renderable)
+void RenderQueue::insert(const Renderable& renderable)
 {
 	_renderables.push_back(renderable);
+
+	RenderQueueKey rqk;	// RenderQueueKey::createKey(0, renderable.mat);
+
+	_keys.emplace_back(RenderQueueKey::createKey());
 }
 
 
@@ -18,6 +24,7 @@ void RenderQueue::add(Renderable& renderable)
 void RenderQueue::clear()
 {
 	_renderables.clear();
+	_keys.clear();
 }
 
 
@@ -25,5 +32,7 @@ void RenderQueue::clear()
 void RenderQueue::sort()
 {
 	//determine how to sort by overloading < for renderable, but change this to work on keys instead
-	std::sort(_renderables.begin(), _renderables.end());
+	//std::sort(_renderables.begin(), _renderables.end());
+
+	std::sort(_keys.begin(), _keys.end());
 }

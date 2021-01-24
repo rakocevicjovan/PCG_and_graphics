@@ -389,6 +389,7 @@
     <ClInclude Include="CSM.h" />
     <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Curves.h" />
+    <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
@@ -412,6 +413,8 @@
     <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
+    <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ResourceDef.h" />
     <ClInclude Include="AssetLedger.h" />
     <ClInclude Include="ResourceHandle.h" />

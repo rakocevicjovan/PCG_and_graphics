@@ -29,7 +29,7 @@ bool Engine::Initialize()
 
 	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
 	
-	_engineWindow.create("Aeolian engine", this, _windowWidth, _windowHeight,
+	_engineWindow.createGPUResource("Aeolian engine", this, _windowWidth, _windowHeight,
 		Window<Engine>::CreationFlags::SHOW_WINDOW |
 		Window<Engine>::CreationFlags::START_FOCUSED |
 		Window<Engine>::CreationFlags::START_FOREGROUND);

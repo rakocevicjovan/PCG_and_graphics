@@ -2,75 +2,53 @@
 #include <vector>
 #include "Renderable.h"
 
-template <uint32_t RQKeyComponentSize>
-inline constexpr uint32_t shiftOffset()
-{
-	static_assert(RQKeyComponentSize <= 64);
-	return 63 - RQKeyComponentSize;
-}
-
-//can be a bunch of packed bits but do I really need it to be? this class can produce an int64_t eventually
-class RenderableQueueKey
-{
-	static constexpr uint32_t renderTargetWidth = 8;
-
-public:
-	unsigned char renderTarget;		//max 256 render targets...
-	uint16_t shaderSetId;			//max 65536 shader combinations
-	uint16_t textureId;				//max 65536 texture combinations
-	uint16_t depth;					//see how to shrink float into uint16_t easily...
-	unsigned char vertexFormat;		//max 256 vertex formats
-
-
-	typedef uint64_t KeyType;
-
-	template <typename KeyFragment>
-	inline void addKeyFragment(KeyType& key, uint16_t& bitOffset, KeyFragment keyFragment)
-	{
-		key |= static_cast<KeyType>(keyFragment) << bitOffset;
-		bitOffset -= sizeof(keyFragment);
-		assert((bitOffset > 0) && "Render queue key borked, it's too long.");
-	}
-
-	template <typename... KeyFragments>
-	inline KeyType createKey(KeyFragments... keyFragments)
-	{
-		KeyType result{ 0 };
-		uint16_t offset{ sizeof(KeyType) * 8 - 1 };
-
-		((addKeyFragment(result, offset, keyFragments)), ...);
-		return result;
-	}
-
-	inline uint64_t create64bitKey()
-	{
-		/* 
-		This is possiblt a more flexible option, or introduce bit sizes in the fold expression method
-
-			int64_t result =
-				renderTarget << (63 - 8)	|
-				shaderSetId << (63 - 24)	|
-				textureId << (63 - 40)		|
-				depth << (63 - 56)			|
-				vertexFormat << (63 - 56);
-		*/
-		return createKey(renderTarget, shaderSetId, textureId, depth, vertexFormat);
-	}
-};
-
-
-
 class RenderQueue
 {
-	size_t _maxElements;
+private:
+
+	// Use key fragment offsets/sizes as opposed to sizeof when it's clearer what to do.
+	class RenderQueueKey
+	{
+	public:
+
+		using KeyType = uint64_t;
+
+	private:
+
+		template <typename KeyFragment>
+		inline static void addKeyFragment(KeyType& key, uint16_t& bitOffset, KeyFragment keyFragment)
+		{
+			key |= static_cast<KeyType>(keyFragment) << bitOffset;
+			bitOffset -= sizeof(keyFragment);
+			assert((bitOffset > 0) && "Render queue key borked, it's too long.");
+		}
+
+		template <typename... KeyFragments>
+		inline static KeyType createKey_(KeyFragments... keyFragments)
+		{
+			KeyType result{ 0 };
+			uint16_t offset{ sizeof(KeyType) * 8 - 1 };
+
+			((addKeyFragment(result, offset, keyFragments)), ...);
+			return result;
+		}
 
 public:
+
+	inline static uint64_t createKey(UCHAR renderTarget, uint16_t shaderSetId, uint16_t textureId, uint16_t depth, UCHAR vertFormat)
+	{
+		return createKey_(renderTarget, shaderSetId, textureId, depth, vertFormat);
+	}
+	};
+
 	std::vector<Renderable> _renderables;
+	std::vector<RenderQueueKey::KeyType> _keys;
 
-	RenderQueue() = default;
-	RenderQueue(size_t maxElements);
+public:
 
-	void add(Renderable& renderable);
+	RenderQueue(size_t expectedMaximumSize = 512u);
+
+	void insert(const Renderable& renderable);
 	void sort();
 	void clear();
 };

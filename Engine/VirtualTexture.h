@@ -27,7 +27,7 @@ class VirtualTexture
 
 
 
-	void create(ID3D11Device* device)
+	void createGPUResource(ID3D11Device* device)
 	{
 		D3D11_TEXTURE2D_DESC desc;
 		desc.ArraySize = 0u;

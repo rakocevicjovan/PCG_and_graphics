@@ -327,7 +327,7 @@ public:
 			std::ofstream ofs(skeletonPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
-			return _pLedger->add("", skeletonPath, ResType::SKELETON);
+			return _pLedger->insert("", skeletonPath, ResType::SKELETON);
 		}
 		return 0;
 	}
@@ -346,7 +346,7 @@ public:
 			std::ofstream ofs(animPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			_anims[i].serialize(boa);
-			animIDs.push_back(_pLedger->add("", animPath, ResType::ANIMATION));
+			animIDs.push_back(_pLedger->insert("", animPath, ResType::ANIMATION));
 		}
 		return animIDs;
 	}
@@ -363,7 +363,7 @@ public:
 			std::string texPath{ _importPath + texName };
 
 			FileUtils::writeAllBytes(texPath, texNameBlob.blob._data.get(), texNameBlob.blob._size);
-			_pLedger->add("", texPath, ResType::TEXTURE);
+			_pLedger->insert("", texPath, ResType::TEXTURE);
 
 			if (texNameBlob.embedded)
 				texNameBlob.blob._data.release();
@@ -389,7 +389,7 @@ public:
 			cereal::BinaryOutputArchive boa(ofs);
 			MaterialFileFormat mff = MaterialFileFormat(*(_matData._mats[i]));
 			//mff.serialize(boa, );
-			matIDs.push_back(_pLedger->add("", matPath, ResType::MATERIAL));
+			matIDs.push_back(_pLedger->insert("", matPath, ResType::MATERIAL));
 		}
 		return matIDs;
 	}

@@ -276,7 +276,7 @@ bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 	texData.SysMemPitch = desc.Width * pixelWidth;
 	texData.SysMemSlicePitch = 0;
 
-	create(device, &desc, &texData);
+	createGPUResource(device, &desc, &texData);
 
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -299,7 +299,7 @@ bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 
 
 
-bool Texture::create(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data)
+bool Texture::createGPUResource(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data)
 {
 	if (FAILED(device->CreateTexture2D(desc, data, &_dxID)))
 	{

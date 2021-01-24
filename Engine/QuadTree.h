@@ -55,7 +55,7 @@ protected:
 
 public:
 
-	bool create(float size);
+	bool createGPUResource(float size);
 	void reset();
 	bool insert(QTObject* pObject);
 

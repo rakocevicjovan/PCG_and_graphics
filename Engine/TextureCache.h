@@ -18,7 +18,7 @@ private:
 public:
 
 	
-	bool add(std::string& name, Texture* tex)
+	bool insert(std::string& name, Texture* tex)
 	{
 		std::unique_ptr<Texture> upTexture;
 		upTexture.reset(tex);

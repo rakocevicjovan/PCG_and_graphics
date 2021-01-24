@@ -20,19 +20,19 @@ struct MemChunk
 	
 
 	template <typename Datum> 
-	inline void add(const Datum* datum, UINT& offset)
+	inline void insert(const Datum* datum, UINT& offset)
 	{
 		write(datum, sizeof(Datum), offset);
 	}
 
 	template <typename VecData>
-	inline void add(const std::vector<VecData>& data, UINT& offset)
+	inline void insert(const std::vector<VecData>& data, UINT& offset)
 	{
 		write(data.data(), sizeof(VecData) * data.size(), offset);
 	}
 
 	template <typename CArrData>
-	inline void add(const CArrData* data, UINT size, UINT& offset)
+	inline void insert(const CArrData* data, UINT size, UINT& offset)
 	{
 		write(data, size, offset);
 	}

@@ -1024,6 +1024,15 @@
     <ClInclude Include="Window.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="RenderPass.h">
+      <Filter>Rendering\High level</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencil.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
