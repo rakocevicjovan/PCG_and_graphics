@@ -7,6 +7,8 @@ class RenderTarget
 	typedef std::underlying_type_t<D3D11_BIND_FLAG> FlagDataType;
 public:
 
+	RenderTarget() {}
+
 	// Use shader resource view as an additional flag if required, not included by default.
 	RenderTarget(ID3D11Device* device, UINT w, UINT h, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, FlagDataType additionalFlags = 0)
 	{
@@ -33,7 +35,7 @@ public:
 
 	void clear(ID3D11DeviceContext* context)
 	{
-		context->ClearRenderTargetView(_rtv, _clearColour);
+		context->ClearRenderTargetView(_rtv.Get(), _clearColour);
 		_depthStencil.clear(context);
 	}
 
@@ -44,8 +46,9 @@ public:
 
 private:
 	Texture _tex;
-	ID3D11RenderTargetView* _rtv{nullptr};
 	DepthStencil _depthStencil;
 
-	float _clearColour[4] = {0., 0., 0., 0.};	// Could be a static, however it might be useful and it's a small price to pay
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _rtv{nullptr};
+
+	float _clearColour[4] = {0., 0., 0., 1.};	// Could be a static, however it might be useful and it's a small price to pay
 };

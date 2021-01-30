@@ -3,6 +3,7 @@
 #include "ToolGUI.h"
 #include "Terrain.h"
 #include "Texture.h"
+#include "RenderTarget.h"
 #include "CloudscapeDefinition.h"
 
 #include <sstream>
@@ -19,7 +20,7 @@ namespace Strife
 		~StrifeLevel() {};
 
 		Model skybox, floor;
-		OST sceneTex;
+		RenderTarget sceneTex;
 		ScreenspaceDrawer postProcessor;
 		ScreenspaceDrawer::UINODE* screenRectangleNode;
 

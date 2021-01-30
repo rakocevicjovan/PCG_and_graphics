@@ -350,9 +350,6 @@
     <ClCompile Include="RenderQueue.cpp">
       <Filter>Rendering\High level</Filter>
     </ClCompile>
-    <ClCompile Include="OST.cpp">
-      <Filter>Rendering\High level</Filter>
-    </ClCompile>
     <ClCompile Include="CubeMapper.cpp">
       <Filter>Rendering\High level</Filter>
     </ClCompile>
@@ -771,9 +768,6 @@
     </ClInclude>
     <ClInclude Include="VBuffer.h">
       <Filter>Rendering\Low level\Buffers</Filter>
-    </ClInclude>
-    <ClInclude Include="OST.h">
-      <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="CubeMapper.h">
       <Filter>Rendering\High level</Filter>

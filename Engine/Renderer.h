@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "RenderQueue.h"
 #include "RenderStateManager.h"
-#include "OST.h"
 #include "ScreenSpaceDrawer.h"
 #include "StackAllocator.h"
 #include "ClusterManager.h"
@@ -115,7 +114,6 @@ public:
 	bool frame(float dTime);
 	bool updatePerFrameBuffers(float dTime);
 	
-	void setOSTRenderTarget(OST& ost);
 	void setDefaultRenderTarget();
 
 	inline void addToRenderQueue(Renderable& renderable) { _rQue.insert(renderable); }

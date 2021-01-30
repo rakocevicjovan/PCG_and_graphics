@@ -8,7 +8,7 @@ namespace Strife
 	void StrifeLevel::init(Engine& sys)
 	{
 
-		sceneTex.init(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);
+		sceneTex = RenderTarget(S_DEVICE, _sys.getWinW() / 2, _sys.getWinH() / 2);
 		screenRectangleNode = postProcessor.AddUINODE(S_DEVICE, postProcessor.getRoot(), SVec2(0, 0), SVec2(1, 1), .999999f);
 
 		Mesh scrQuadMesh = Mesh(SVec2(0., 0.), SVec2(1.f, 1.f), S_DEVICE, .999999f);	//1.777777f

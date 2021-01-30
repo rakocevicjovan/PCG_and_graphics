@@ -31,7 +31,7 @@ namespace Procedural
 		void generate2DTexturePerlin(int w, int h, float zoomX, float zoomY);
 		float FBM(float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, SVec2 initialValue);
 		void generate2DTextureFBM(int w, int h, float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, bool warp = false);
-		void writeToFile(const std::string& targetFile);
+		void writeToFile(const char* targetFile);
 
 		void fillFloatVector();
 		std::vector<float>& getFloatVector();

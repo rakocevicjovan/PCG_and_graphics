@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3d11_4.h>
+#include <wrl/client.h>
 #include "Math.h"
 #include <vector>
 #include <string>
@@ -11,9 +12,9 @@ class Camera;
 class OST
 {
 private:
-	ID3D11Texture2D* _ostId;
-	ID3D11ShaderResourceView* _srv;
-	ID3D11RenderTargetView* _rtv;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> _ostId;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _srv;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _rtv;
 	
 	ID3D11Texture2D* _ostDepthId;
 	ID3D11DepthStencilView* _ostDepthStencilView;
@@ -26,8 +27,6 @@ private:
 	float* getClearColourPointer() { return _clearColour; }
 
 public:
-	OST();
-	~OST();
 
 	void init(ID3D11Device* dev, unsigned int w, unsigned int h, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT);
 	void setAsRenderTarget(ID3D11DeviceContext*);

@@ -60,8 +60,6 @@ Texture::Texture(Texture&& other)
 	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _srv(std::move(other._srv))
 {
 	// do not add refs because it's moved as opposed to copied
-	// Damage control :\ I'm not sure if this is well implemented so I need to know when I start using it
-	//assert(false);	
 }
 
 
@@ -313,14 +311,16 @@ bool Texture::createGPUResource(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc
 
 
 //for comp: 1=Y, 2=YA, 3=RGB, 4=RGBA 
-void Texture::SaveAsPng(const std::string& targetFile, int w, int h, int comp, const void* data, int stride_in_bytes)
+void Texture::SaveAsPng(const char* targetFile, int w, int h, int comp, const void* data, int stride_in_bytes)
 {
 	try
 	{
-		int result = stbi_write_png(targetFile.c_str(), w, h, comp, data, stride_in_bytes);
+		int result = stbi_write_png(targetFile, w, h, comp, data, stride_in_bytes);
 	}
 	catch (...)
 	{
-		OutputDebugStringA( ("Error writing texture to '" + targetFile + "'; ").c_str() );
+		std::string errorMessage = "Error writing texture to file: ";
+		errorMessage += targetFile;
+		OutputDebugStringA(errorMessage.c_str());
 	}
 }

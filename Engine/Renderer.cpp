@@ -110,13 +110,6 @@ void Renderer::updateRenderContext(float dTime)
 
 
 
-void Renderer::setOSTRenderTarget(OST& ost)
-{
-	ost.setAsRenderTarget(_deviceContext);
-}
-
-
-
 void Renderer::setDefaultRenderTarget()
 {
 	_d3d->SetBackBufferRenderTarget();

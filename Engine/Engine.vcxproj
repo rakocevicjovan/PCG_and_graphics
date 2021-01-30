@@ -275,7 +275,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="MeshDataStructs.h" />
-    <ClCompile Include="OST.cpp" />
     <ClCompile Include="ScreenSpaceDrawer.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -547,7 +546,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="OST.h" />
     <ClInclude Include="ScreenSpaceDrawer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="InputManager.h" />

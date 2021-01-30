@@ -1,6 +1,6 @@
 #pragma once
 #include <d3d11.h>
-#include <wrl.h>
+#include <wrl/client.h>
 
 
 
@@ -77,7 +77,7 @@ public:
 		}
 	}
 
-	void clear(ID3D11DeviceContext* context, float depthVal = 0.f, uint8_t stencilVal = 0u)
+	void clear(ID3D11DeviceContext* context, float depthVal = 1.f, uint8_t stencilVal = 0u)
 	{
 		context->ClearDepthStencilView(_dsv.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH | D3D11_CLEAR_FLAG::D3D11_CLEAR_STENCIL, 
 			depthVal, stencilVal);
