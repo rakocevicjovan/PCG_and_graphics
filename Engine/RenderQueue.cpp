@@ -16,7 +16,7 @@ void RenderQueue::insert(const Renderable& renderable)
 
 	RenderQueueKey rqk;	// RenderQueueKey::createKey(0, renderable.mat);
 
-	_keys.emplace_back(RenderQueueKey::createKey());
+	_keys.emplace_back(RenderQueueKey::createKey(1, 2, 3, 4, 5));	// Placeholder values, has no relation to anything
 }
 
 

@@ -41,10 +41,11 @@ public:
 	}
 	};
 
-	std::vector<Renderable> _renderables;
 	std::vector<RenderQueueKey::KeyType> _keys;
 
 public:
+	
+	std::vector<Renderable> _renderables; // Should not even exist. Only keys should be here.
 
 	RenderQueue(size_t expectedMaximumSize = 512u);
 

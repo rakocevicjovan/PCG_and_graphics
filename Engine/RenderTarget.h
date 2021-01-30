@@ -26,13 +26,26 @@ public:
 		_depthStencil.createDepthStencil(device, w, h);
 	}
 
+	void bind(ID3D11DeviceContext* context)
+	{
+		context->OMSetRenderTargets(1, &_rtv, _depthStencil.dsvPtr());
+	}
+
+	void clear(ID3D11DeviceContext* context)
+	{
+		context->ClearRenderTargetView(_rtv, _clearColour);
+		_depthStencil.clear(context);
+	}
+
+	static void unbind(ID3D11DeviceContext* context, UINT count = 0)
+	{
+		context->OMSetRenderTargets(count, nullptr, nullptr);
+	}
+
 private:
 	Texture _tex;
 	ID3D11RenderTargetView* _rtv{nullptr};
 	DepthStencil _depthStencil;
 
-	void bind(ID3D11DeviceContext* context)
-	{
-		context->OMSetRenderTargets(1, &_rtv, _depthStencil.dsvPtr());
-	}
+	float _clearColour[4] = {0., 0., 0., 0.};	// Could be a static, however it might be useful and it's a small price to pay
 };

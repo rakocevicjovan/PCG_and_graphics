@@ -1,13 +1,12 @@
 #pragma once
 #include <d3d11.h>
+#include <wrl.h>
 
 
 
 class DepthStencil
 {
 public:
-
-	
 
 	DepthStencil() {}
 
@@ -72,20 +71,25 @@ public:
 		depthStencilViewDesc.Flags = 0;
 
 		// Create a depth stencil view
-		if (FAILED(device->CreateDepthStencilView(_dsb, &depthStencilViewDesc, &_dsv)))
+		if (FAILED(device->CreateDepthStencilView(_dsb.Get(), &depthStencilViewDesc, &_dsv)))
 		{
 			DebugBreak();
 		}
 	}
 
+	void clear(ID3D11DeviceContext* context, float depthVal = 0.f, uint8_t stencilVal = 0u)
+	{
+		context->ClearDepthStencilView(_dsv.Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH | D3D11_CLEAR_FLAG::D3D11_CLEAR_STENCIL, 
+			depthVal, stencilVal);
+	}
+
 	ID3D11DepthStencilView* dsvPtr()
 	{
-		return _dsv;
+		return _dsv.Get();
 	}
 private:
 
-	ID3D11Texture2D* _dsb{ nullptr };
-	ID3D11DepthStencilState* _dss{ nullptr };
-	ID3D11DepthStencilView* _dsv{ nullptr };
-
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> _dsb{nullptr};
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> _dss{ nullptr };
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> _dsv{ nullptr };
 };
