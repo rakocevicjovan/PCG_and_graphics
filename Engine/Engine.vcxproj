@@ -412,7 +412,7 @@
     <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
-    <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="RenderStage.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ResourceDef.h" />
     <ClInclude Include="AssetLedger.h" />
