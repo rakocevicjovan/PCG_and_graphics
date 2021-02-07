@@ -39,7 +39,7 @@ public:
 		//allocate enough memory for n objects of provided type
 		UINT poolSize = objCapacity * sizeof(Object);
 
-		_pool = new BYTE[poolSize];
+		_pool = new BYTE[poolSize];	// @TODO. This might be unaligned. Check at some point.
 		
 		reset();
 	}
