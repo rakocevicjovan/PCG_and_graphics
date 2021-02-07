@@ -115,7 +115,7 @@ public:
 
 		// After the shadow maps have been rendered to, we bind the global csm buffer and texture array
 		_csm.uploadCSMBuffer(_renderer.context(), PS_CSM_CBUFFER_REGISTER);
-		_renderer.context()->PSSetShaderResources(PS_CSM_TEXTURE_REGISTER, 1, _csm.getResView());
+		_csm.bindShadowMapAsSrv(_renderer.context(), PS_CSM_TEXTURE_REGISTER);
 
 		_renderer.sortRenderQueue();
 		_renderer.flushRenderQueue();

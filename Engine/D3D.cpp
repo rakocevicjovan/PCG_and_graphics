@@ -290,7 +290,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(result))
 		return false;
 	
-	_viewport = Viewport::createViewport((float)windowWidth, (float)windowHeight);
+	_viewport = Viewport::CreateViewport((float)windowWidth, (float)windowHeight);
 
 	_deviceContext->RSSetViewports(1, &_viewport);
 

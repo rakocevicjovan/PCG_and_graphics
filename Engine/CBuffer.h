@@ -22,9 +22,9 @@ struct CBufferFieldDesc
 
 struct CBufferMeta
 {
-	uint8_t _slot;
-	size_t _size;
-	std::vector<CBufferFieldDesc> _fields;
+	uint8_t _slot{ 0 };
+	size_t _size{ 0 };
+	std::vector<CBufferFieldDesc> _fields{};
 	
 	CBufferMeta() {}
 
@@ -166,5 +166,15 @@ public:
 		unmap(cont, cbuffer);
 
 		return true;
+	}
+
+	void bindToVS(ID3D11DeviceContext* context, uint8_t slot)
+	{
+		context->VSSetConstantBuffers(slot, 1, &_cbPtr);
+	}
+
+	void bindToPS(ID3D11DeviceContext* context, uint8_t slot)
+	{
+		context->PSSetConstantBuffers(slot, 1, &_cbPtr);
 	}
 };

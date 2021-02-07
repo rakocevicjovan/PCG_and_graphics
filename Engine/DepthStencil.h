@@ -20,21 +20,35 @@ public:
 	{
 		createDepthStencilBuffer(device, w, h, arrSize, format, extraFlags);
 
-		createDepthStencilStateDesc(device);
+		createDepthStencilState(device);
 
 		createDepthStencilViews(device, arrSize, format, extraFlags);
 	}
 
-	void clearView(ID3D11DeviceContext* context, uint16_t index = 0u, float depthVal = 1.f, uint8_t stencilVal = 0u)
+	void clearView(ID3D11DeviceContext* context, uint8_t index = 0u, float depthVal = 1.f, uint8_t stencilVal = 0u)
 	{
 		context->ClearDepthStencilView(_dsvs[index].Get(), D3D11_CLEAR_FLAG::D3D11_CLEAR_DEPTH | D3D11_CLEAR_FLAG::D3D11_CLEAR_STENCIL, 
 			depthVal, stencilVal);
 	}
 
+	void bindAsRenderTarget(ID3D11DeviceContext* context, uint8_t index)
+	{
+		context->OMSetRenderTargets(0, nullptr, _dsvs[index].Get());
+	}
+
+	void bindAsShaderResource(ID3D11DeviceContext* context, uint8_t index, uint8_t count = 1u)
+	{
+		context->PSSetShaderResources(index, count, _arraySrv.GetAddressOf());
+	}
 
 	ID3D11DepthStencilView* dsvPtr(uint16_t index = 0u)
 	{
 		return _dsvs[index].Get();
+	}
+
+	ID3D11ShaderResourceView* const * srv()
+	{
+		return _arraySrv.GetAddressOf();
 	}
 
 private:
@@ -49,7 +63,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> _readOnlyDsv{ nullptr };
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _debugSrv{ nullptr };
-
 
 
 	void createDepthStencilBuffer(ID3D11Device* device, UINT w, UINT h, UINT arrSize, DXGI_FORMAT format, UINT extraFlags)
@@ -74,7 +87,7 @@ private:
 	}
 
 
-	void createDepthStencilStateDesc(ID3D11Device* device)
+	void createDepthStencilState(ID3D11Device* device)
 	{
 		// Depth stencil state description and creation
 		D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
@@ -155,7 +168,7 @@ private:
 
 
 		// Create shader resource view if required
-		if (extraFlags & D3D11_BIND_SHADER_RESOURCE == D3D11_BIND_SHADER_RESOURCE)
+		if ((extraFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
 		{
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 			srvDesc.Format = format;

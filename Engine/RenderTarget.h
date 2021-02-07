@@ -36,7 +36,7 @@ public:
 	void clear(ID3D11DeviceContext* context)
 	{
 		context->ClearRenderTargetView(_rtv.Get(), _clearColour);
-		_depthStencil.clear(context);
+		_depthStencil.clearView(context);
 	}
 
 	static void unbind(ID3D11DeviceContext* context, UINT count = 0)
