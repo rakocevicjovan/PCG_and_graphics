@@ -49,7 +49,7 @@ protected:
 public:
 
 	ID3D11Texture2D* _dxID;
-	ID3D11ShaderResourceView* _srv;
+	ID3D11ShaderResourceView* _arraySrv;
 
 	std::string _fileName;	// Helpful to debug, likely to be removed in release...
 
@@ -77,7 +77,7 @@ public:
 	inline int snc() const							{ return _snc; }
 	inline const unsigned char* getData() const		{ return _mdata.get(); }	//data can't be modified, only read
 	inline const std::string& getName() const		{ return _fileName; }
-	inline ID3D11ShaderResourceView* getSRV()		{ return _srv; }
+	inline ID3D11ShaderResourceView* getSRV()		{ return _arraySrv; }
 
 	inline void freeMemory() { if (_mdata.get()) _mdata.reset(); }
 

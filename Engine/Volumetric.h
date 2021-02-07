@@ -23,7 +23,7 @@ namespace Procedural
 		UINT _w, _h, _d;
 
 		ID3D11Texture3D* _tex3d;
-		ID3D11ShaderResourceView* _srv;
+		ID3D11ShaderResourceView* _arraySrv;
 
 	public:
 		

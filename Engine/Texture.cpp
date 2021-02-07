@@ -15,11 +15,11 @@
 #include "Perlin.h"
 
 
-Texture::Texture() : _dxID(nullptr), _srv(nullptr) {}
+Texture::Texture() : _dxID(nullptr), _arraySrv(nullptr) {}
 
 
 
-Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _srv(nullptr)
+Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _arraySrv(nullptr)
 {
 	if (!loadFromStoredPath())
 	{
@@ -32,7 +32,7 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 
 
 
-Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _srv(nullptr)
+Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _arraySrv(nullptr)
 {
 	if (!loadFromStoredPath())
 	{
@@ -44,20 +44,20 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 Texture::Texture(const Texture& other)
 	: _w(other._w), _h(other._h), _nc(other._nc), _snc(other._snc), _mdata(other._mdata), 
-	_fileName(other._fileName), _dxID(other._dxID), _srv(other._srv)
+	_fileName(other._fileName), _dxID(other._dxID), _arraySrv(other._arraySrv)
 {
 	if(_dxID)
 		_dxID->AddRef();
 
-	if(_srv)
-		_srv->AddRef();
+	if(_arraySrv)
+		_arraySrv->AddRef();
 }
 
 
 
 Texture::Texture(Texture&& other)
 	: _w(other._w), _h(other._h), _nc(other._nc), _snc(other._snc), _mdata(std::move(other._mdata)),
-	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _srv(std::move(other._srv))
+	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _arraySrv(std::move(other._arraySrv))
 {
 	// do not add refs because it's moved as opposed to copied
 }
@@ -76,7 +76,7 @@ Texture& Texture::operator=(const Texture& other)
 	_fileName = other._fileName;
 
 	_dxID->AddRef();
-	_srv->AddRef();
+	_arraySrv->AddRef();
 
 	return *this;
 }
@@ -88,8 +88,8 @@ Texture::~Texture()
 	if (_dxID)
 		_dxID->Release();
 
-	if(_srv)
-		_srv->Release();
+	if(_arraySrv)
+		_arraySrv->Release();
 }
 
 
@@ -236,7 +236,7 @@ bool Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 	std::wstring temp(path.begin(), path.end());
 	const wchar_t* widecstr = temp.c_str();
 
-	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &_srv, 0);
+	HRESULT result = DirectX::CreateWICTextureFromFile(device, context, widecstr, nullptr, &_arraySrv, 0);
 
 	if (FAILED(result))
 	{
@@ -283,7 +283,7 @@ bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-	if (FAILED(device->CreateShaderResourceView(_dxID, &shaderResourceViewDesc, &_srv)))
+	if (FAILED(device->CreateShaderResourceView(_dxID, &shaderResourceViewDesc, &_arraySrv)))
 	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(43);

@@ -88,7 +88,7 @@ namespace Procedural
 		srv3Desc.Texture3D.MostDetailedMip = 0;
 		srv3Desc.Texture3D.MipLevels = 1;
 
-		if (FAILED(device->CreateShaderResourceView(_tex3d, &srv3Desc, &_srv)))
+		if (FAILED(device->CreateShaderResourceView(_tex3d, &srv3Desc, &_arraySrv)))
 		{
 			OutputDebugStringA("Can't create shader resource view. \n");
 			exit(43);

@@ -24,7 +24,7 @@ private:
 	ID3D11Texture2D* _shadowMapArray;
 	std::vector<ID3D11DepthStencilView*> _depthStencilViews;
 	D3D11_VIEWPORT _viewport;
-	ID3D11ShaderResourceView* _shadowResView, *_debugResView;
+	ID3D11ShaderResourceView* _shadowResView, *_debugSrv;
 
 	// I trust MJP but not myself. Not sure if I even need this but want to know it's purpose.
 	ID3D11DepthStencilView* _readOnlyDSV;
@@ -144,7 +144,7 @@ public:
 		srvDesc2.Texture2D.MipLevels = 1u;
 		srvDesc2.Texture2D.MostDetailedMip = 0u;
 
-		if (FAILED(device->CreateShaderResourceView(_shadowMapArray, &srvDesc2, &_debugResView)))
+		if (FAILED(device->CreateShaderResourceView(_shadowMapArray, &srvDesc2, &_debugSrv)))
 		{
 			OutputDebugStringA("Can't create debug shader resource view. (CSM) \n");
 			return false;
@@ -317,7 +317,7 @@ public:
 
 	inline uint8_t getNMaps() { return _nMaps; }
 	inline ID3D11ShaderResourceView* const* getResView() { return &_shadowResView;}
-	inline ID3D11ShaderResourceView* getDebugView() { return _debugResView; }
+	inline ID3D11ShaderResourceView* getDebugView() { return _debugSrv; }
 	inline Frustum& getNthFrustum(uint8_t n) { return _frusta[n]; };
 };
 

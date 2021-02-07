@@ -171,7 +171,7 @@ void TDLevel::addBuildables()
 		BuildingGuiDef(
 			"Guard tower is a common, yet powerful defensive building.",
 			"Guard tower",
-			S_RESMAN.getByName<Texture>("guard_tower")->_srv),
+			S_RESMAN.getByName<Texture>("guard_tower")->_arraySrv),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
@@ -184,7 +184,7 @@ void TDLevel::addBuildables()
 		BuildingGuiDef(
 			"Produces 10 wood per minute. Time to get lumber-jacked.",
 			"Lumberyard",
-			S_RESMAN.getByName<Texture>("lumber_yard")->_srv),
+			S_RESMAN.getByName<Texture>("lumber_yard")->_arraySrv),
 		Income(10.f, "Coin", 10.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
