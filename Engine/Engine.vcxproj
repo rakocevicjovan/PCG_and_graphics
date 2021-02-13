@@ -449,7 +449,7 @@
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="SkeletonLoader.h" />
     <ClInclude Include="Skybox.h" />
-    <ClInclude Include="SlotVector.h" />
+    <ClInclude Include="SparseSet.h" />
     <ClInclude Include="SphereHull.h" />
     <ClInclude Include="SBuffer.h" />
     <ClInclude Include="TDController.h" />

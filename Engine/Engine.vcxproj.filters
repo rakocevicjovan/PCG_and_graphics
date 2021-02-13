@@ -796,9 +796,6 @@
     <ClInclude Include="LightManager.h">
       <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="SlotVector.h">
-      <Filter>Memory Allocators</Filter>
-    </ClInclude>
     <ClInclude Include="Cone.h">
       <Filter>Collision\Hulls</Filter>
     </ClInclude>
@@ -1026,6 +1023,9 @@
     </ClInclude>
     <ClInclude Include="RenderStage.h">
       <Filter>Rendering\High level</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseSet.h">
+      <Filter>Memory Allocators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
