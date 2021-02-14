@@ -79,26 +79,37 @@ public:
 		return handle;
 	}
 
-	// This has no way of assuring that the object is in a valid state...
-	inline Object& get(Handle h)
-	{
-		return _objects[_indices[h]]._obj;
-	}
-
 
 	void erase(Handle h)
 	{
 		{
 			uint16_t denseArrayIndex = _indices[h];
+
 			auto& lastElement = _objects.back();
+			auto& targetElement = _objects[denseArrayIndex];
+#if _DEBUG
+			assert((targetElement._index == h) && "Sparse set - erase called with invalid handle.");
+#endif
+
 			_indices[lastElement._index] = denseArrayIndex;
-			_objects[denseArrayIndex] = std::move(lastElement);
+			targetElement = std::move(lastElement);
 		}
 		_objects.pop_back();
 
 		// Prepend the newly erased index to the freelist. 
 		_indices[h] = _freeList;
 		_freeList = h;
+	}
+
+
+	// In release builds, passing an invalid handle is monkey business. Resolve in debug.
+	inline Object& get(Handle h)
+	{
+		IndexedObject& idxObject = _objects[_indices[h]];
+#if _DEBUG
+		assert((idxObject._index == h) && "Sparse set - get called with invalid handle.");
+#endif
+		return idxObject._obj;
 	}
 
 
