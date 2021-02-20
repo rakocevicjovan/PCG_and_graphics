@@ -4,21 +4,40 @@
 #include <assert.h>
 
 typedef unsigned int UINT;
-typedef uint16_t Handle;
+
+namespace
+{
+	template <typename HandleType>
+	struct TypedHandleTemplate
+	{
+		uint16_t handle;
+	};
+}
 
 // THIS IS NOT FINISHED AND _firstFree is absolutely not working right now.
 
 // Preallocated vector that keeps contiguous elements using "swapping" (not really but close) and an index lookup vector
 // Allows contiguous memory allocation with stable references to vector elements
 // Using the handle after erase() is undefined.
-template <typename Object> class SparseSet
+template <typename Object>
+class SparseSet
 {
+public:
+
+	// Typed and untyped handle. Will try typed for now, might be annoying but safer.
+	//typedef uint16_t Handle;
+	typedef TypedHandleTemplate<Object> Handle;
+
+	typedef uint16_t Index;
+
+	
+
 private:
 
 	struct IndexedObject
 	{
 		Object _obj;
-		uint16_t _index;	// Might be a nice way to guarantee best possible alignment?
+		uint16_t _index;	// Might be a nice way to guarantee best possible alignment? Can use SOA as well, but this seems better.
 	};
 
 	std::vector<uint16_t> _indices;
@@ -80,15 +99,15 @@ public:
 	}
 
 
-	void erase(Handle h)
+	void erase(Handle handle)
 	{
 		{
-			uint16_t denseArrayIndex = _indices[h];
+			uint16_t denseArrayIndex = _indices[handle];
 
 			auto& lastElement = _objects.back();
 			auto& targetElement = _objects[denseArrayIndex];
 #if _DEBUG
-			assert((targetElement._index == h) && "Sparse set - erase called with invalid handle.");
+			assert((targetElement._index == handle) && "Sparse set - erase called with invalid handle.");
 #endif
 
 			_indices[lastElement._index] = denseArrayIndex;
@@ -97,17 +116,17 @@ public:
 		_objects.pop_back();
 
 		// Prepend the newly erased index to the freelist. 
-		_indices[h] = _freeList;
-		_freeList = h;
+		_indices[handle] = _freeList;
+		_freeList = handle;
 	}
 
 
 	// In release builds, passing an invalid handle is monkey business. Resolve in debug.
-	inline Object& get(Handle h)
+	inline Object& get(Handle handle)
 	{
-		IndexedObject& idxObject = _objects[_indices[h]];
+		IndexedObject& idxObject = _objects[_indices[handle]];
 #if _DEBUG
-		assert((idxObject._index == h) && "Sparse set - get called with invalid handle.");
+		assert((idxObject._index == handle) && "Sparse set - get called with invalid handle.");
 #endif
 		return idxObject._obj;
 	}

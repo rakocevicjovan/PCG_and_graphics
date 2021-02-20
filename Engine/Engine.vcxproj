@@ -402,6 +402,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="imnodes.h" />
     <ClInclude Include="InputLayout.h" />
+    <ClInclude Include="Layer.h" />
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="AssetViews.h" />
@@ -412,6 +413,7 @@
     <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
+    <ClInclude Include="RenderCache.h" />
     <ClInclude Include="RenderStage.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ResourceDef.h" />
@@ -608,6 +610,7 @@
     <ClInclude Include="TDLevel.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Technique.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TerrainShader.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -1015,17 +1015,26 @@
     <ClInclude Include="Window.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTarget.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthStencil.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="RenderStage.h">
       <Filter>Rendering\High level</Filter>
     </ClInclude>
     <ClInclude Include="SparseSet.h">
       <Filter>Memory Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="Layer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Technique.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthStencil.h">
+      <Filter>Rendering\Low level</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget.h">
+      <Filter>Rendering\Low level</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderCache.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

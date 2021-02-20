@@ -13,6 +13,7 @@ public:
 	Mesh* mesh;
 
 	Material* mat;
+
 	float zDepth;
 
 	//uint8_t* _cbufferData;
@@ -24,7 +25,7 @@ public:
 	{}
 
 
-
+	// Wrong, make material do this. It needs to encapsulate everything. This will become more complex over time.
 	void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
 	{
 		mat->getVS()->updateBuffersAuto(cont, *this);
@@ -32,7 +33,7 @@ public:
 	}
 
 
-
+	// Same as above. Can't allow this to become a god class.
 	inline void setBuffers(ID3D11DeviceContext* dc) const
 	{
 		mat->getVS()->setBuffers(dc);
