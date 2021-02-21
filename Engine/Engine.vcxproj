@@ -203,7 +203,9 @@
     <ClCompile Include="BitMapper.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chaos.cpp" />
-    <ClCompile Include="CloudVolumeGenerator.cpp" />
+    <ClCompile Include="CloudVolumeGenerator.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Controller.cpp" />
@@ -214,7 +216,9 @@
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="Hull.cpp" />
-    <ClCompile Include="Illumination.cpp" />
+    <ClCompile Include="Illumination.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="IMGUI\imgui.cpp" />
     <ClCompile Include="IMGUI\imgui_demo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -326,7 +330,9 @@
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="SphereHull.cpp" />
-    <ClCompile Include="StrifeLevel.cpp" />
+    <ClCompile Include="StrifeLevel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="TDLevel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
@@ -352,7 +358,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="TextureGen.cpp" />
-    <ClCompile Include="ToolGUI.cpp" />
+    <ClCompile Include="ToolGUI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="VertSignature.cpp" />
     <ClCompile Include="Volumetric.cpp" />
     <ClCompile Include="VolumetricScreen.cpp">
@@ -414,6 +422,7 @@
     <ClInclude Include="ParallelPrefixSum.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="RenderCache.h" />
+    <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderStage.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ResourceDef.h" />
@@ -461,8 +470,12 @@
     <ClInclude Include="BitMapper.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Chaos.h" />
-    <ClInclude Include="CloudscapeDefinition.h" />
-    <ClInclude Include="CloudVolumeGenerator.h" />
+    <ClInclude Include="CloudscapeDefinition.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="CloudVolumeGenerator.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="Controller.h" />
@@ -504,7 +517,9 @@
     <ClInclude Include="ParticleBase.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Perlin.h" />
-    <ClInclude Include="Illumination.h" />
+    <ClInclude Include="Illumination.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Picker.h" />
     <ClInclude Include="ProjectPicker.h" />
     <ClInclude Include="ProjectPickerLevel.h" />
@@ -573,7 +588,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="ShaderUtils.h" />
+    <ClInclude Include="ShaderUtils.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="ShaderVolumetric.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -604,7 +621,9 @@
     <ClInclude Include="StackAllocator.h" />
     <ClInclude Include="Steering.h" />
     <ClInclude Include="SteeringComponent.h" />
-    <ClInclude Include="StrifeLevel.h" />
+    <ClInclude Include="StrifeLevel.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="TDGUI.h" />
     <ClInclude Include="TDLevel.h">
@@ -636,7 +655,9 @@
     <ClInclude Include="TextureRole.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="ThreadPoolTest.h" />
-    <ClInclude Include="ToolGUI.h" />
+    <ClInclude Include="ToolGUI.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Tower.h" />
     <ClInclude Include="UIGraph.h" />
     <ClInclude Include="VBuffer.h" />

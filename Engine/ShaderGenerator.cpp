@@ -27,14 +27,14 @@ void ShaderGenerator::EncodeVertexData(const VertSignature& vertSig, uint64_t& k
 
 void ShaderGenerator::EncodeTextureData(const std::vector<TextureMetaData>& texData, uint64_t& key)
 {
-	for (const TextureMetaData& rtp : texData)
+	for (const TextureMetaData& texMetaData : texData)
 	{
-		if (!rtp._tex)	// Don't build a shader for non-existent textures
+		if (!texMetaData._tex)	// Don't build a shader for non-existent textures
 			continue;
 
-		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(rtp._role);
+		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(texMetaData._role);
 		if (iter != TEX_ROLE_TO_SHADER_OPTION.end())
-			key |= (1 << iter->second->_offset);
+			key |= (1Ui64 << iter->second->_offset);
 		else
 			OutputDebugStringA("Matching shader option for texture type not found.");
 	}
@@ -46,7 +46,7 @@ ShaderKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, const M
 {
 	ShaderKey shaderKey{0ul};
 
-	shaderKey |= (lmIndex << SHG_OPT_LMOD._offset);
+	shaderKey |= (static_cast<uint64_t>(lmIndex) << SHG_OPT_LMOD._offset);
 	EncodeVertexData(vertSig, shaderKey);
 	EncodeTextureData(mat->_texMetaData, shaderKey);
 
@@ -175,7 +175,7 @@ bool ShaderGenerator::preprocessAllPermutations(const std::wstring& ogFilePathW,
 	for (UINT i = 0; i < options.size(); ++i)
 		bitCount += options[i]._numBits;
 
-	for (uint64_t i = 0; i < (1 << bitCount); ++i)
+	for (uint64_t i = 0; i < (1Ui64 << bitCount); ++i)
 	{
 		CreatePermFromKey(outDirPath, textBuffer, options, i, existingKeys);
 	}

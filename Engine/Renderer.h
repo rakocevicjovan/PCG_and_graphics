@@ -35,6 +35,7 @@ static std::array<UINT, 3> CLUSTER_GRID_DIMS = { 30, 17, 16 };
 class Renderable;
 
 
+// Delete, should exist in some sense but not like this.
 struct RenderContext
 {
 	D3D* d3d;
@@ -101,7 +102,6 @@ private:
 	bool createGlobalBuffers();
 
 public:
-	RenderContext rc;
 	Camera _cam;
 	RenderQueue _rQue;
 

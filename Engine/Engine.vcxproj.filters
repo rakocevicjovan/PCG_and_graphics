@@ -153,7 +153,7 @@
     <Filter Include="Rendering\Shaders">
       <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Shaders\0ShGen">
+    <Filter Include="Rendering\Shaders\Generation">
       <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -423,7 +423,7 @@
       <Filter>Asset importing</Filter>
     </ClCompile>
     <ClCompile Include="ShaderGenerator.cpp">
-      <Filter>Rendering\Shaders\0ShGen</Filter>
+      <Filter>Rendering\Shaders\Generation</Filter>
     </ClCompile>
     <ClCompile Include="ShaderCache.cpp">
       <Filter>Rendering\Shaders</Filter>
@@ -971,7 +971,7 @@
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
-      <Filter>Rendering\Shaders\0ShGen</Filter>
+      <Filter>Rendering\Shaders\Generation</Filter>
     </ClInclude>
     <ClInclude Include="AssetViews.h">
       <Filter>Asset importing</Filter>
@@ -1034,6 +1034,9 @@
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
     <ClInclude Include="RenderCache.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderConfig.h">
       <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1244,10 +1247,10 @@
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="ShGen\VS_proto.hlsl">
-      <Filter>Rendering\Shaders\0ShGen</Filter>
+      <Filter>Rendering\Shaders\Generation</Filter>
     </FxCompile>
     <FxCompile Include="ShGen\PS_proto.hlsl">
-      <Filter>Rendering\Shaders\0ShGen</Filter>
+      <Filter>Rendering\Shaders\Generation</Filter>
     </FxCompile>
     <FxCompile Include="GeoClipmapVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
