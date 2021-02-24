@@ -116,17 +116,21 @@ void TDLevel::init(Engine& sys)
 
 	// Initialize all enemies
 	_creeps.reserve(NUM_ENEMIES);
+
+	auto modelPtr = S_RESMAN.getByName<Model>("FlyingMage");
+
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
 		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
 		_creeps.emplace_back(
-			S_RESMAN.getByName<Model>("FlyingMage"), 
+			modelPtr,
 			SMatrix::CreateScale(2.f) * SMatrix::CreateTranslation(pos),
 			100.f, 50.f, 1.1f, 0.9f
 		);
 
 		_creeps[i]._steerComp._mspeed = 40.f;
+		//_creeps[i].renderableHandle = _scene.addRenderable() @TODO MAKE IT WORK LIKE THIS!
 		
 		for (Renderable& r : _creeps[i]._renderables)
 			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"));

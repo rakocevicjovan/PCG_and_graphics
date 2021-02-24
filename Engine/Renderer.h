@@ -107,6 +107,8 @@ public:
 
 	std::unique_ptr<ClusterManager> _clusterManager;
 
+	RenderContext rc;
+
 	Renderer();
 	~Renderer();
 

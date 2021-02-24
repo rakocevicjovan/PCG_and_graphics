@@ -4,6 +4,8 @@
 #include "Octree.h"
 #include "Renderer.h"
 #include "CSM.h"
+#include "SparseSet.h"
+
 #include <memory>
 
 #define DEFAULT_SUBDIV_LEVELS 4u
@@ -15,6 +17,8 @@ private:
 	ShaderCache& _shCache;
 	MaterialCache& _matCache;
 	Engine& _sys;
+
+	SparseSet<Renderable> _renderCache;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -50,14 +54,18 @@ public:
 		_matCache(sys._matCache),
 		_sys(sys),
 		_octree(scope, subdivLevels),
-		_numCulled(0u)
+		_numCulled(0u),
+		_renderCache(1024)
 	{
-		
 		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
-
 		_octree.preallocateRootOnly();
 	}
 
+
+	auto addRenderable(Renderable&& renderable)
+	{
+		return _renderCache.insert(std::move(renderable));
+	}
 
 
 	void update()

@@ -27,10 +27,10 @@ public:
 	// Typed and untyped handle. Will try typed for now, might be annoying but safer.
 	//typedef uint16_t Handle;
 	typedef TypedHandleTemplate<Object> Handle;
-
 	typedef uint16_t Index;
 
-	
+	SparseSet(const SparseSet&) = delete;
+	SparseSet& operator=(const SparseSet&) = delete;
 
 private:
 
@@ -43,59 +43,59 @@ private:
 	std::vector<uint16_t> _indices;
 	std::vector<IndexedObject> _objects;
 
-	Handle _freeList;	// Allows O(1) insertion
+	uint16_t _freeList;	// Allows O(1) insertion
 	uint16_t _capacity;
 
 public:
 
-	SparseSet(uint16_t numObjects) : _capacity(numObjects), _freeList(0u)
+	SparseSet(uint16_t numObjects = 100u) : _capacity(numObjects), _freeList(0u)
 	{
 		_objects.reserve(numObjects);
 		_indices.resize(numObjects);
 
 		// Store the free list in the indices
-		for (int i = 0; i < indices.size();)
+		for (int i = 0; i < _indices.size(); ++i)
 		{
-			index[i] = ++i;
+			_indices[i] = i + 1;
 		}
 	}
 
 
-	Handle insert(const Object& object)
+	Handle insert(Object&& object)
 	{
 #if _DEBUG
 		assert(_freeList >= _capacity && "Sparse set - attempted insert over capacity.");
 #endif
 
 		// Index of the first free element in the sparse array, which is where the index to the dense array will be stored.
-		Handle handle = _freeList;
+		uint16_t handle = _freeList;
 
 		// Keep the freelist updated by making the next available free index as free index.
-		_freeList = indices[handle];
+		_freeList = _indices[handle];
 
 		// Store the index to the dense vector in the sparse vector. This allows lookup through the handle.
 		// The index into the dense array is it's current size, since it's kept packed.
 		_indices[handle] = _objects.size();
 
 		// Insert the object into the vector, it will now be at the correct index.
-		_objects.emplace_back(handle, std::move(object));
+		_objects.push_back({ std::move(object), handle });
 
-		return handle;
+		return { handle };
 	}
 
 
 	template <typename... Args>
-	Handle insert(Args... ObjectConstructorArgs)
+	Handle insert(Args&&... objectConstructorArgs)
 	{
 #if _DEBUG
 		assert(_freeList >= _capacity && "Sparse set - attempted insert over capacity.");
 #endif
 		
-		Handle handle = _freeList;
-		_freeList = indices[handle];
+		auto handle = _freeList;
+		_freeList = _indices[handle];
 		_indices[handle] = _objects.size();
-		_objects.emplace_back(handle, std::forward(ObjectConstructorArgs));
-		return handle;
+		_objects.push_back({ Object(std::forward<Args>(objectConstructorArgs)...), handle });
+		return { handle };
 	}
 
 
@@ -107,7 +107,7 @@ public:
 			auto& lastElement = _objects.back();
 			auto& targetElement = _objects[denseArrayIndex];
 #if _DEBUG
-			assert((targetElement._index == handle) && "Sparse set - erase called with invalid handle.");
+			assert((targetElement._index == handle.handle) && "Sparse set - erase called with invalid handle.");
 #endif
 
 			_indices[lastElement._index] = denseArrayIndex;
@@ -126,7 +126,7 @@ public:
 	{
 		IndexedObject& idxObject = _objects[_indices[handle]];
 #if _DEBUG
-		assert((idxObject._index == handle) && "Sparse set - get called with invalid handle.");
+		assert((idxObject._index == handle.handle) && "Sparse set - get called with invalid handle.");
 #endif
 		return idxObject._obj;
 	}
@@ -144,7 +144,7 @@ public:
 	}
 
 
-	inline capacity() const
+	inline size_t capacity() const
 	{
 		return _capacity;
 	}
