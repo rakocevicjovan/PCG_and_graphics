@@ -24,21 +24,21 @@ class SparseSet
 {
 public:
 
-	// Typed and untyped handle. Will try typed for now, might be annoying but safer.
+	// Typed and untyped handle
 	//typedef uint16_t Handle;
 	typedef TypedHandleTemplate<Object> Handle;
 	typedef uint16_t Index;
-
-	SparseSet(const SparseSet&) = delete;
-	SparseSet& operator=(const SparseSet&) = delete;
-
-private:
 
 	struct IndexedObject
 	{
 		Object _obj;
 		uint16_t _index;	// Might be a nice way to guarantee best possible alignment? Can use SOA as well, but this seems better.
 	};
+
+	SparseSet(const SparseSet&) = delete;
+	SparseSet& operator=(const SparseSet&) = delete;
+
+private:
 
 	std::vector<uint16_t> _indices;
 	std::vector<IndexedObject> _objects;
@@ -64,7 +64,7 @@ public:
 	Handle insert(Object&& object)
 	{
 #if _DEBUG
-		assert(_freeList >= _capacity && "Sparse set - attempted insert over capacity.");
+		assert(_freeList < _capacity && "Sparse set - attempted insert over capacity.");
 #endif
 
 		// Index of the first free element in the sparse array, which is where the index to the dense array will be stored.
@@ -88,7 +88,7 @@ public:
 	Handle insert(Args&&... objectConstructorArgs)
 	{
 #if _DEBUG
-		assert(_freeList >= _capacity && "Sparse set - attempted insert over capacity.");
+		assert(_freeList < _capacity && "Sparse set - attempted insert over capacity.");
 #endif
 		
 		auto handle = _freeList;

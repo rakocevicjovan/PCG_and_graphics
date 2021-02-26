@@ -141,6 +141,12 @@ void TDLevel::init(Engine& sys)
 		_scene._actors.push_back(&(_creeps[i]));
 	}
 
+	_testActors.resize(10);
+	for (auto& ta : _testActors)
+	{
+		ta.handle = _scene.addRenderable(Renderable(modelPtr->_meshes[0]));
+	}
+
 	//Add building types, @TODO make data driven
 	addBuildables();
 
@@ -227,7 +233,7 @@ void TDLevel::update(const RenderContext& rc)
 	}
 
 	handleInput(rc.cam);
-	
+
 	// Could use octree if that will help it go faster...
 	for (Tower& tower : _towers)
 	{

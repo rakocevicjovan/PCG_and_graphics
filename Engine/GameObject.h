@@ -5,6 +5,7 @@
 #include "SteeringComponent.h"
 #include "Renderable.h"
 #include "Collider.h"
+#include "SparseSet.h"	// Reconsider this...
 #include <memory>
 
 class Renderer;
@@ -51,10 +52,16 @@ public:
 	{
 		return _collider.getHull(index);
 	}
-
-	
 };
 
+
+class SimpleActor
+{
+public:
+
+	SparseSet<Renderable>::Handle handle;
+	SMatrix _transform;
+};
 
 
 class Player

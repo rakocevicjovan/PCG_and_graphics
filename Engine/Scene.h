@@ -94,6 +94,13 @@ public:
 
 	void draw()
 	{
+		/* This works. Now to add culling and connect it to transforms in a good way. */
+		_renderCache.forEach([& renderer = _renderer, frustum = _renderer._cam._frustum](auto& indexedObject)
+			{
+				renderer.addToRenderQueue(indexedObject._obj);
+			});
+		/**/
+
 		frustumCullScene(_renderer._cam);
 
 		illuminate(_renderer._cam);
