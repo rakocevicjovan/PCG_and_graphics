@@ -5,8 +5,8 @@
 class NodeBase
 {
 public:
-	NodeBase* parent;
-	std::vector<NodeBase*> children;
+	NodeBase* _parent;
+	std::vector<NodeBase*> _children;
 };
 
 
@@ -15,12 +15,9 @@ template<class Content>
 class Node : public NodeBase
 {
 public:
-	Content content;
+	Content _content;
 
-	Node(Content c)//: content (c)
-	{
-		content = c;
-	}
+	Node(Content c): _content(c) {}
 };
 
 
@@ -56,9 +53,10 @@ public:
 
 	void erase(NodeBase* pNodeBase)
 	{
-		pNodeBase->parent->children.erase(remove(pNodeBase->parent->children.begin(), pNodeBase->parent->children.end(), pNodeBase), pNodeBase->parent->children.end());
+		auto& siblings = pNodeBase->_parent->_children;
+		siblings.erase(remove(siblings.begin(), siblings.end(), pNodeBase), siblings.end());
 		
-		for (auto c : pNodeBase->children)
+		for (auto c : pNodeBase->_children)
 			erase(c);
 
 		delete pNodeBase;
@@ -66,5 +64,8 @@ public:
 
 
 
-	void clear();
+	void clear()
+	{
+		// tbd
+	}
 };

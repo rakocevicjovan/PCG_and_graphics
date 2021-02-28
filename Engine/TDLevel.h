@@ -104,7 +104,7 @@ private:
 
 	Editor _editor;
 
-	GeoClipmap _gcm;
+	GeoClipmap _geoClipMap;
 
 #define DEBUG_OCTREE_NOT
 

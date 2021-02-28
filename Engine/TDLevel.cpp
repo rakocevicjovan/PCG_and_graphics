@@ -14,7 +14,7 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
 TDLevel::TDLevel(Engine& sys) 
-	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _gcm(3, 4, 10.)
+	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _geoClipMap(3, 4, 10.)
 {
 	_editor = Editor(S_WW, S_WH, PROJ.getProjDir());
 };
@@ -26,8 +26,7 @@ void TDLevel::init(Engine& sys)
 {
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
-
-	_gcm.init(S_DEVICE);
+	_geoClipMap.init(S_DEVICE);
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
@@ -493,7 +492,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	// Ideally this would draw first but scene is still clunky... will see.
 	S_RANDY.d3d()->setRSWireframe();
-	_gcm.draw(S_CONTEXT);
+	_geoClipMap.draw(S_CONTEXT);
 	S_RANDY.d3d()->setRSSolidCull();
 
 	_skybox.renderSkybox(*rc.cam, S_RANDY);
@@ -519,14 +518,30 @@ void TDLevel::draw(const RenderContext& rc)
 	//ID3D11ShaderResourceView** wat = const_cast<ID3D11ShaderResourceView**>(_scene._csm.getResView());
 	//ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	// pls
 
-	std::vector<GuiElement> guiElems =
-	{
-		{"Octree",	std::string("OCT node count "	+ std::to_string(_scene._octree.getNodeCount()))},
-		{"Octree",	std::string("OCT hull count "	+ std::to_string(_scene._octree.getHullCount()))},
-		{"FPS",		std::string("FPS: "				+ std::to_string(1 / rc.dTime))},
-		{"Culling", std::string("Objects culled:"	+ std::to_string(_scene._numCulled))}
-	};
-	GUI::renderGuiElems(guiElems);
+	{ // Move the framerate averaging and in general all this elsewhere.
+		static constexpr uint8_t TRACK_FRAMES = 32u;
+		static uint64_t FRAME_COUNT{ 0 };
+		FRAME_COUNT++;
+		static std::array<float, TRACK_FRAMES> frameTimes;
+
+		frameTimes[FRAME_COUNT % TRACK_FRAMES] = 1 / rc.dTime;
+
+		float framerate{ 0.f };
+
+		for (int i = 0; i < frameTimes.size(); ++i)
+		{
+			framerate += frameTimes[i] / static_cast<float>(TRACK_FRAMES);
+		}
+
+		std::vector<GuiElement> guiElems =
+		{
+			{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+			{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
+			{"FPS",		std::string("FPS: " + std::to_string(framerate))},
+			{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
+		};
+		GUI::renderGuiElems(guiElems);
+	}
 
 
 	UINT structureIndex;

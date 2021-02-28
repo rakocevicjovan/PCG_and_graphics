@@ -263,9 +263,6 @@
     <ClCompile Include="LevelManager.cpp">
       <Filter>Scene management</Filter>
     </ClCompile>
-    <ClCompile Include="SceneGraph.cpp">
-      <Filter>Scene management</Filter>
-    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>Rendering\Shaders</Filter>
     </ClCompile>
@@ -1038,6 +1035,9 @@
     </ClInclude>
     <ClInclude Include="RenderConfig.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="LinearSceneGraph.h">
+      <Filter>Scene management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

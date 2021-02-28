@@ -30,7 +30,7 @@ public:
 	std::vector<Renderable> _renderables;
 	SteeringComponent<Actor> _steerComp;
 
-	Actor* parent;
+	Actor* parent{};
 
 	Actor() : _steerComp(this), _collider(this) {};
 
