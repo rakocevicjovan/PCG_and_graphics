@@ -14,7 +14,7 @@ using SVec4		= DirectX::SimpleMath::Vector4;
 using SRay		= DirectX::SimpleMath::Ray;
 using SPlane	= DirectX::SimpleMath::Plane;
 
-static const float PI = 3.1415926f;
+static constexpr float PI = 3.1415926f;
 
 
 class Math

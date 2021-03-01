@@ -1036,7 +1036,7 @@
     <ClInclude Include="RenderConfig.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="LinearSceneGraph.h">
+    <ClInclude Include="PooledSceneGraph.h">
       <Filter>Scene management</Filter>
     </ClInclude>
   </ItemGroup>

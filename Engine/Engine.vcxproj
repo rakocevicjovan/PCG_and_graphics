@@ -413,7 +413,7 @@
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="AssetViews.h" />
-    <ClInclude Include="LinearSceneGraph.h" />
+    <ClInclude Include="PooledSceneGraph.h" />
     <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="MatLoader.h" />
     <ClInclude Include="Mesh2.h" />
