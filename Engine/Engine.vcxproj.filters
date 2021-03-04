@@ -156,6 +156,9 @@
     <Filter Include="Rendering\Shaders\Generation">
       <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="entt attempt">
+      <UniqueIdentifier>{169bc40a-83bb-4602-a984-f7137fb1a598}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -1038,6 +1041,9 @@
     </ClInclude>
     <ClInclude Include="PooledSceneGraph.h">
       <Filter>Scene management</Filter>
+    </ClInclude>
+    <ClInclude Include="EnttWrapper.h">
+      <Filter>entt attempt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
