@@ -159,6 +159,12 @@
     <Filter Include="entt attempt">
       <UniqueIdentifier>{169bc40a-83bb-4602-a984-f7137fb1a598}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Metrics">
+      <UniqueIdentifier>{e0955606-d5b4-4ddb-946a-63ef18496a45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{4a2c5e4a-bae5-42d3-9d0b-a437ec9fb2f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -1044,6 +1050,9 @@
     </ClInclude>
     <ClInclude Include="EnttWrapper.h">
       <Filter>entt attempt</Filter>
+    </ClInclude>
+    <ClInclude Include="Metrics.h">
+      <Filter>Metrics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

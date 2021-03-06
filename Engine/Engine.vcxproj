@@ -35,7 +35,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -49,7 +49,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -75,8 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
-    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x64;$(SolutionDir)Deps\Ozz\lib;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x64\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x64;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,8 +88,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
-    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x86;C:\Program Files\Autodesk\FBX\FBX SDK\2019.2\lib\vs2017\x64\release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,7 +98,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src;$(SolutionDir)Deps\googletest\googletest\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -119,7 +119,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;$(SolutionDir)Deps\Ozz\include;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -129,7 +129,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(WindowsSDK_LibraryPath_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc141-mtd.lib;d3dcompiler.lib;libfbxsdk-md.lib;zlib-md.lib;libxml2-md.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc141-mtd.lib;d3dcompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -141,7 +141,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src;$(SolutionDir)Deps\googletest\googletest\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -169,7 +169,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>assimp-vc141-mt.lib;d3dcompiler.lib;libfbxsdk-md.lib;zlib-md.lib;libxml2-md.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc141-mt.lib;d3dcompiler.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -385,7 +385,9 @@
     <ClInclude Include="AssImport.h" />
     <ClInclude Include="AssimpWrapper.h" />
     <ClInclude Include="Bone.h" />
-    <ClInclude Include="Callable.h" />
+    <ClInclude Include="Callable.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="ClusteringMath.h" />
     <ClInclude Include="ClusteringUnusedCode.h" />
     <ClInclude Include="ClusterManager.h" />
@@ -414,13 +416,16 @@
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="AssetViews.h" />
+    <ClInclude Include="Metrics.h" />
     <ClInclude Include="PooledSceneGraph.h" />
     <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="MatLoader.h" />
     <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="NumericVectorType.h" />
-    <ClInclude Include="ParallelPrefixSum.h" />
+    <ClInclude Include="ParallelPrefixSum.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Project.h" />
     <ClInclude Include="RenderCache.h" />
     <ClInclude Include="RenderConfig.h" />
@@ -654,8 +659,12 @@
     <ClInclude Include="TextureGen.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TextureRole.h" />
-    <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="ThreadPoolTest.h" />
+    <ClInclude Include="ThreadPool.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="ThreadPoolTest.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="ToolGUI.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
@@ -681,6 +690,7 @@
     <None Include="Clustering.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="Constants.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -776,6 +786,8 @@
     </None>
     <None Include="ToneMapping.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="wireframeGS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -856,6 +868,8 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Light.hlsli">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
@@ -874,11 +888,14 @@
     <FxCompile Include="ShGen\PS_proto.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="ShGen\VS_proto.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Simplex_derivative.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

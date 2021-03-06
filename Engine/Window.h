@@ -22,6 +22,7 @@ private:
 	uint16_t _w;
 	uint16_t _h;
 
+	HWND _hwnd;
 	HINSTANCE _hinstance;
 	std::unique_ptr<wchar_t[]> _windowName;
 
@@ -52,8 +53,6 @@ private:
 	// I fully expect this to fail on multiple windows being opened. Curently not a concern, fix is easy.
 	static inline const wchar_t* CLASS_NAME = L"AeolianWindowClass";
 
-	HWND _hwnd;
-
 	// Allow access to _hwnd without making it public since we want to conceal Windows specific data types externally 
 	friend LRESULT CALLBACK WndProc<WindowInputHandlerType>(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 
@@ -61,7 +60,6 @@ private:
 
 public:
 
-	
 
 	// Passing 0 for either width or height results in the window fully covering the given dimension of the screen.
 	void createGPUResource(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
@@ -151,7 +149,9 @@ public:
 	void destroy()
 	{
 		DestroyWindow(_hwnd);
+		UnregisterClass(CLASS_NAME, _hinstance);	// @TODO this won't work with multiple wndclass either
 		_hwnd = NULL;
+		_hinstance = NULL;
 	}
 
 	struct CreationFlags

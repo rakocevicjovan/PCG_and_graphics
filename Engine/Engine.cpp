@@ -21,12 +21,7 @@ Engine::~Engine()
 
 bool Engine::Initialize()
 {
-	// Testing grounds...
-
-	//FBXLoader loader;
-	//loader.init();
-	//loader.parse("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated\\ArmyPilot\\ArmyPilot.fbx");
-
+	// Testing grounds... move to tests project eventually
 	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
 	
 	_engineWindow.createGPUResource("Aeolian engine", this, _windowWidth, _windowHeight,
@@ -154,9 +149,6 @@ void Engine::Shutdown()
 		ChangeDisplaySettings(NULL, 0);
 
 	_engineWindow.destroy();
-
-	UnregisterClass(_applicationName, _hinstance);
-	_hinstance = NULL;
 }
 
 

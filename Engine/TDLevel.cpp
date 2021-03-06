@@ -8,7 +8,7 @@
 #include "Steering.h"
 
 #include "PooledSceneGraph.h"
-
+#include "entt/entt.hpp"
 
 
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
@@ -29,21 +29,6 @@ void TDLevel::init(Engine& sys)
 	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
 
 	_geoClipMap.init(S_DEVICE);
-
-	
-	PooledSceneGraph<4> lsg(16);
-	auto n1 = lsg.createNode(SMatrix{}, nullptr);
-	auto n2 = lsg.createNode(SMatrix::CreateRotationX(PI), nullptr);
-	auto n3 = lsg.createNode(SMatrix::CreateRotationY(PI), n1);
-	auto n4 = lsg.createNode(SMatrix{}, n3);
-	auto n5 = lsg.createNode(SMatrix{}, n4);
-	auto n6 = lsg.createNode(SMatrix{}, n5);
-	auto n7 = lsg.createNode(SMatrix{}, n6);
-
-	lsg.update(n6);
-	//lsg.update(n7); Should fail, does fail. Great.
-	lsg.update(n2);
-	
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)

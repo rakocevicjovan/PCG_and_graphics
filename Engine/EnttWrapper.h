@@ -5,12 +5,14 @@ class EnttWrapper
 {
 private:
 
-	entt::registry _registry;
+	//entt::registry _registry;
 
 public:
 
+	/*
 	void wat()
 	{
-		//_registry.
+		_registry.group<SMatrix>();
 	}
+	*/
 };

@@ -32,7 +32,6 @@ private:
 	void OutputFPS(float dTime);
 
 	LPCWSTR _applicationName;
-	HINSTANCE _hinstance;
 
 	UINT _scrWidth;
 	UINT _scrHeight;
