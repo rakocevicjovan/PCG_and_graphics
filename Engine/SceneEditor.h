@@ -15,14 +15,20 @@ namespace ComponentWidgets
 	template<typename Component>
 	static void Display(Component& component)
 	{
-		// Won't make this assert, if you can't draw, everything'sfinae :)
-		//static_assert(false && "Missing Display() implementation for component");
+		// Could we do it the everything'sfinae way instead?
+		static_assert(false && "Missing Display() implementation for component");
 	};
 
 	template<>
 	static void Display(TestComponent& component)
 	{
 		ImGui::Text("TestStruct print: x: %.3f ; y: %.3f", component.x, component.y);
+	}
+
+	template<>
+	static void Display(Mesh& component)
+	{
+		ImGui::Text("Reeee");
 	}
 }
 
@@ -41,6 +47,10 @@ public:
 	{
 		_scene = scene;
 		_registry = &_scene->_registry;
+
+		auto e1 = _registry->create();
+		_registry->emplace<TestComponent>(e1);
+		_registry->emplace<Mesh>(e1);
 	}
 
 	void update()
@@ -53,7 +63,9 @@ private:
 
 	void drawHierarchy()
 	{
-		if (ImGui::Begin("Scene hierarchy"))
+		ImGui::DockSpace(ImGui::GetID("Editor docker"));
+
+		if (ImGui::Begin("Scene hierarchy", nullptr))
 		{
 			ImGui::BeginListBox("Entities");
 			_registry->each([&](auto entity)
@@ -70,7 +82,12 @@ private:
 
 		if (_selected != entt::null)
 		{
-			displayNodeProperties<TestComponent>(_registry, _selected);
+			displayNodeProperties<TestComponent, Mesh>(_registry, _selected);
+		}
+
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
+		{
+			_selected = entt::null;
 		}
 		
 

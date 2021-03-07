@@ -452,9 +452,6 @@
     <ClCompile Include="..\..\imgui - docking branch\imgui_tables.cpp">
       <Filter>GUI\ImGui files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\imgui - docking branch\imgui_widgets.cpp">
-      <Filter>GUI\ImGui files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

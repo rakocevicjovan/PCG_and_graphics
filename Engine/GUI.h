@@ -28,6 +28,8 @@ public:
 		ImGuiIO& io = ImGui::GetIO();
 		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+		io.ConfigFlags  |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigDockingWithShift = true;
 
 		ImGui::StyleColorsDark();
 
