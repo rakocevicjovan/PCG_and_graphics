@@ -22,6 +22,7 @@
 //#include "PoolAllocator.h"
 #include "Editor.h"
 #include "GeoClipmap.h"
+#include "SceneEditor.h"
 
 
 class TDLevel : public Level
@@ -40,6 +41,8 @@ private:
 	Scene _scene;
 	Procedural::Terrain terrain;
 	Skybox _skybox;
+
+	SceneEditor _sceneEditor;
 
 	// Enemy data
 	UINT NUM_ENEMIES = 100u;

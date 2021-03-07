@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "CSM.h"
 #include "SparseSet.h"
+#include "entt/entt.hpp"
 
 #include <memory>
 
@@ -36,6 +37,8 @@ private:
 public:
 
 	std::unique_ptr<LightManager> _lightManager;
+
+	entt::registry _registry;
 
 	Octree _octree;
 	UINT _numCulled;

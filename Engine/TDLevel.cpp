@@ -14,7 +14,6 @@
 inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 
 
-
 TDLevel::TDLevel(Engine& sys) 
 	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _geoClipMap(3, 4, 10.)
 {
@@ -30,26 +29,7 @@ void TDLevel::init(Engine& sys)
 
 	_geoClipMap.init(S_DEVICE);
 
-	entt::registry registry;
-	auto entity1 = registry.create();
-	auto entity2 = registry.create();
-	registry.emplace<SMatrix>(entity1);
-	registry.emplace<SVec4>(entity2);
-	registry.emplace<SVec4>(entity1);
-
-	auto group1 = registry.group<SMatrix, SVec4>();
-
-	for (auto& wtf : group1)
-	{
-		std::cout << entt::to_integral(wtf);
-	}
-
-	registry.emplace<SMatrix>(entity2);
-
-	for (auto& wtf : group1)
-	{
-		std::cout << entt::to_integral(wtf);
-	}
+	_sceneEditor.init(&_scene);
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
@@ -297,7 +277,7 @@ void TDLevel::update(const RenderContext& rc)
 
 
 
-//really simple for now, don't need more
+//really simple for now, don't need more - also this should go to game logic not here...
 float TDLevel::resolveAttack(const Attack& att, const Armour& arm)
 {
 	float result = att._damage;
@@ -309,7 +289,7 @@ float TDLevel::resolveAttack(const Attack& att, const Armour& arm)
 }
 
 
-
+// Again, not for here...
 void TDLevel::rayPickTerrain(const Camera* cam)
 {
 	MCoords mc = _sys._inputManager.getAbsXY();
@@ -537,7 +517,8 @@ void TDLevel::draw(const RenderContext& rc)
 
 	GUI::beginFrame();
 
-
+	_sceneEditor.update();
+		
 	//ID3D11ShaderResourceView** wat = const_cast<ID3D11ShaderResourceView**>(_scene._csm.getResView());
 	//ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	// pls
 

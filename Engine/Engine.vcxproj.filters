@@ -1060,6 +1060,9 @@
     <ClInclude Include="Metrics.h">
       <Filter>Metrics</Filter>
     </ClInclude>
+    <ClInclude Include="SceneEditor.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -33,7 +33,6 @@ public:
 
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(device, context);
-		
 
 		imnodes::Initialize();
 	}
@@ -42,6 +41,8 @@ public:
 	static void shutDown()
 	{
 		imnodes::Shutdown();
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
 		ImGui::DestroyContext();
 	}
 

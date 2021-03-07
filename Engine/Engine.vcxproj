@@ -440,6 +440,7 @@
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="MemChunk.h" />
+    <ClInclude Include="SceneEditor.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkelAnimShader.h">
