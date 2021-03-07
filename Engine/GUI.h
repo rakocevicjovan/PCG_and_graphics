@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <d3d11_4.h>
+#include "Window.h"
 #include "IMGUI/imgui.h"
 #include "IMGUI/imgui_impl_win32.h"
 #include "IMGUI/imgui_impl_dx11.h"
@@ -24,10 +24,16 @@ public:
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+
 		ImGuiIO& io = ImGui::GetIO();
+		io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
+		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+
+		ImGui::StyleColorsDark();
+
 		ImGui_ImplWin32_Init(hwnd);
 		ImGui_ImplDX11_Init(device, context);
-		ImGui::StyleColorsDark();
+		
 
 		imnodes::Initialize();
 	}

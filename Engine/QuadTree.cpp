@@ -3,7 +3,7 @@
 
 
 
-bool QuadTree::createGPUResource(float fSize)
+bool QuadTree::init(float fSize)
 {
 	_invRadius = static_cast<float>(255.f) / fSize;
 

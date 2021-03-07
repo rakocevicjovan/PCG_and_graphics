@@ -1,5 +1,5 @@
-// [DEAR IMGUI] 
-// This is actor slightly modified version of stb_truetype.h 1.20.
+// [DEAR IMGUI]
+// This is a slightly modified version of stb_truetype.h 1.20.
 // Mostly fixing for compiler and static analyzer warnings.
 // Grep for [DEAR IMGUI] to find the changes.
 
@@ -91,8 +91,8 @@
 //      #define STBTT_STATIC
 //
 //   Simple 3D API (don't ship this, but it's fine for tools and quick start)
-//           stbtt_BakeFontBitmap()               -- bake actor font to actor bitmap for use as texture
-//           stbtt_GetBakedQuad()                 -- compute quad to draw for actor given char
+//           stbtt_BakeFontBitmap()               -- bake a font to a bitmap for use as texture
+//           stbtt_GetBakedQuad()                 -- compute quad to draw for a given char
 //
 //   Improved 3D API (more shippable):
 //           #include "stb_rect_pack.h"           -- optional, but you really want it
@@ -102,13 +102,13 @@
 //           stbtt_PackEnd()
 //           stbtt_GetPackedQuad()
 //
-//   "Load" actor font file from actor memory buffer (you have to keep the buffer loaded)
+//   "Load" a font file from a memory buffer (you have to keep the buffer loaded)
 //           stbtt_InitFont()
 //           stbtt_GetFontOffsetForIndex()        -- indexing for TTC font collections
 //           stbtt_GetNumberOfFonts()             -- number of fonts for TTC font collections
 //
-//   Render actor unicode codepoint to actor bitmap
-//           stbtt_GetCodepointBitmap()           -- allocates and returns actor bitmap
+//   Render a unicode codepoint to a bitmap
+//           stbtt_GetCodepointBitmap()           -- allocates and returns a bitmap
 //           stbtt_MakeCodepointBitmap()          -- renders into bitmap you provide
 //           stbtt_GetCodepointBitmapBox()        -- how big the bitmap must be
 //
@@ -118,18 +118,18 @@
 //           stbtt_GetFontVMetricsOS2()
 //           stbtt_GetCodepointKernAdvance()
 //
-//   Starting with version 1.06, the rasterizer was replaced with actor new,
+//   Starting with version 1.06, the rasterizer was replaced with a new,
 //   faster and generally-more-precise rasterizer. The new rasterizer more
 //   accurately measures pixel coverage for anti-aliasing, except in the case
 //   where multiple shapes overlap, in which case it overestimates the AA pixel
 //   coverage. Thus, anti-aliasing of intersecting shapes may look wrong. If
-//   this turns out to be actor problem, you can re-enable the old rasterizer with
+//   this turns out to be a problem, you can re-enable the old rasterizer with
 //        #define STBTT_RASTERIZER_VERSION 1
-//   which will incur about actor 15% speed hit.
+//   which will incur about a 15% speed hit.
 //
 // ADDITIONAL DOCUMENTATION
 //
-//   Immediately after this block comment are actor series of sample programs.
+//   Immediately after this block comment are a series of sample programs.
 //
 //   After the sample programs is the "header file" section. This section
 //   includes documentation for each API function.
@@ -138,7 +138,7 @@
 //
 //      Codepoint
 //         Characters are defined by unicode codepoints, e.g. 65 is
-//         uppercase A, 231 is lowercase c with actor cedilla, 0x7e30 is
+//         uppercase A, 231 is lowercase c with a cedilla, 0x7e30 is
 //         the hiragana for "ma".
 //
 //      Glyph
@@ -146,15 +146,15 @@
 //         some glyph)
 //
 //      Glyph index
-//         A font-specific integer ID representing actor glyph
+//         A font-specific integer ID representing a glyph
 //
 //      Baseline
-//         Glyph shapes are defined relative to actor baseline, which is the
+//         Glyph shapes are defined relative to a baseline, which is the
 //         bottom of uppercase characters. Characters extend both above
 //         and below the baseline.
 //
 //      Current Point
-//         As you draw text to the screen, you keep track of actor "current point"
+//         As you draw text to the screen, you keep track of a "current point"
 //         which is the origin of each character. The current point's vertical
 //         position is the baseline. Even "baked fonts" use this model.
 //
@@ -167,16 +167,16 @@
 //         is to specify how tall the font's vertical extent should be in pixels.
 //         If that sounds good enough, skip the next paragraph.
 //
-//         Most font APIs instead use "points", which are actor common typographic
+//         Most font APIs instead use "points", which are a common typographic
 //         measurement for describing font size, defined as 72 points per inch.
-//         stb_truetype provides actor point API for compatibility. However, true
+//         stb_truetype provides a point API for compatibility. However, true
 //         "per inch" conventions don't make much sense on computer displays
 //         since different monitors have different number of pixels per
-//         inch. For example, Windows traditionally uses actor convention that
+//         inch. For example, Windows traditionally uses a convention that
 //         there are 96 pixels per inch, thus making 'inch' measurements have
-//         nothing to do with inches, and thus effectively defining actor point to
+//         nothing to do with inches, and thus effectively defining a point to
 //         be 1.333 pixels. Additionally, the TrueType font data provides
-//         an explicit scale factor to scale actor given font's glyphs to points,
+//         an explicit scale factor to scale a given font's glyphs to points,
 //         but the author has observed that this scale factor is often wrong
 //         for non-commercial fonts, thus making fonts scaled in points
 //         according to the TrueType spec incoherently sized in practice.
@@ -186,10 +186,10 @@
 //  Scale:
 //    Select how high you want the font to be, in points or pixels.
 //    Call ScaleForPixelHeight or ScaleForMappingEmToPixels to compute
-//    actor scale factor SF that will be used by all other functions.
+//    a scale factor SF that will be used by all other functions.
 //
 //  Baseline:
-//    You need to select actor y-coordinate that is the baseline of where
+//    You need to select a y-coordinate that is the baseline of where
 //    your text will appear. Call GetFontBoundingBox to get the baseline-relative
 //    bounding box for all characters. SF*-y0 will be the distance in pixels
 //    that the worst-case character could extend above the baseline, so if
@@ -199,12 +199,12 @@
 //  Current point:
 //    Set the current point where the first character will appear. The
 //    first character could extend left of the current point; this is font
-//    dependent. You can either choose actor current point that is the leftmost
+//    dependent. You can either choose a current point that is the leftmost
 //    point and hope, or add some padding, or check the bounding box or
 //    left-side-bearing of the first character to be displayed and set
 //    the current point based on that.
 //
-//  Displaying actor character:
+//  Displaying a character:
 //    Compute the bounding box of the character. It will contain signed values
 //    relative to <current_point, baseline>. I.e. if it returns x0,y0,x1,y1,
 //    then the character should be displayed in the rectangle from
@@ -224,7 +224,7 @@
 //      baked fonts.)
 //
 //    - Kerning is now supported, and if you're supporting subpixel rendering
-//      then kerning is worth using to give your text actor polished look.
+//      then kerning is worth using to give your text a polished look.
 //
 //   Performance:
 //
@@ -232,19 +232,19 @@
 //      if you don't do this, stb_truetype is forced to do the conversion on
 //      every call.
 //
-//    - There are actor lot of memory allocations. We should modify it to take
-//      actor temp buffer and allocate from the temp buffer (without freeing),
-//      should help performance actor lot.
+//    - There are a lot of memory allocations. We should modify it to take
+//      a temp buffer and allocate from the temp buffer (without freeing),
+//      should help performance a lot.
 //
 // NOTES
 //
 //   The system uses the raw data found in the .ttf file without changing it
-//   and without building auxiliary data structures. This is actor bit inefficient
+//   and without building auxiliary data structures. This is a bit inefficient
 //   on little-endian systems (the data is big-endian), but assuming you're
-//   caching the bitmaps or glyph shapes this shouldn't be actor big deal.
+//   caching the bitmaps or glyph shapes this shouldn't be a big deal.
 //
-//   It appears to be very hard to programmatically determine what font actor
-//   given file is in actor general way. I provide an API for this, but I don't
+//   It appears to be very hard to programmatically determine what font a
+//   given file is in a general way. I provide an API for this, but I don't
 //   recommend it.
 //
 //
@@ -323,7 +323,7 @@ void my_stbtt_print(float x, float y, char *text)
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-// Complete program (this compiles): get actor single bitmap, print as ASCII art
+// Complete program (this compiles): get a single bitmap, print as ASCII art
 //
 #if 0
 #include <stdio.h>
@@ -377,7 +377,7 @@ int main(int arg, char **argv)
 {
    stbtt_fontinfo font;
    int i,j,ascent,baseline,ch=0;
-   float scale, xpos=2; // leave actor little padding in case the character extends left
+   float scale, xpos=2; // leave a little padding in case the character extends left
    char *text = "Heljo World!"; // intentionally misspelled to show 'lj' brokenness
 
    fread(buffer, 1, 1000000, fopen("c:/windows/fonts/arialbd.ttf", "rb"));
@@ -395,7 +395,7 @@ int main(int arg, char **argv)
       stbtt_MakeCodepointBitmapSubpixel(&font, &screen[baseline + y0][(int) xpos + x0], x1-x0,y1-y0, 79, scale,scale,x_shift,0, text[ch]);
       // note that this stomps the old data, so where character boxes overlap (e.g. 'lj') it's wrong
       // because this API is really for baking character bitmaps into textures. if you want to render
-      // actor sequence of characters, you really need to render each bitmap to actor temp buffer, then
+      // a sequence of characters, you really need to render each bitmap to a temp buffer, then
       // "alpha blend" that into the working buffer
       xpos += (advance * scale);
       if (text[ch+1])
@@ -539,7 +539,7 @@ STBTT_DEF int stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // fo
 // if return is positive, the first unused row of the bitmap
 // if return is negative, returns the negative of the number of characters that fit
 // if return is 0, no characters fit and no rows were used
-// This uses actor very crappy packing.
+// This uses a very crappy packing.
 
 typedef struct
 {
@@ -563,7 +563,7 @@ STBTT_DEF void stbtt_GetBakedQuad(const stbtt_bakedchar *chardata, int pw, int p
 // It's inefficient; you might want to c&p it and optimize it.
 
 STBTT_DEF void stbtt_GetScaledFontVMetrics(const unsigned char *fontdata, int index, float size, float *ascent, float *descent, float *lineGap);
-// Query the font vertical metrics without having to create actor font first.
+// Query the font vertical metrics without having to create a font first.
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -587,9 +587,9 @@ typedef struct stbrp_rect stbrp_rect;
 #endif
 
 STBTT_DEF int  stbtt_PackBegin(stbtt_pack_context *spc, unsigned char *pixels, int width, int height, int stride_in_bytes, int padding, void *alloc_context);
-// Initializes actor packing context stored in the passed-in stbtt_pack_context.
+// Initializes a packing context stored in the passed-in stbtt_pack_context.
 // Future calls using this context will pack characters into the bitmap passed
-// in here: actor 1-channel bitmap that is width * height. stride_in_bytes is
+// in here: a 1-channel bitmap that is width * height. stride_in_bytes is
 // the distance from one row to the next (or 0 to mean they are packed tightly
 // together). "padding" is the amount of padding to leave between each
 // character (normally you want '1' for bitmaps you'll use as textures with
@@ -611,7 +611,7 @@ STBTT_DEF int  stbtt_PackFontRange(stbtt_pack_context *spc, const unsigned char 
 // pass these to stbtt_GetPackedQuad to get back renderable quads.
 //
 // font_size is the full height of the character from ascender to descender,
-// as computed by stbtt_ScaleForPixelHeight. To use actor point size as computed
+// as computed by stbtt_ScaleForPixelHeight. To use a point size as computed
 // by stbtt_ScaleForMappingEmToPixels, wrap the point size in STBTT_POINT_SIZE()
 // and pass that result as 'font_size':
 //       ...,                  20 , ... // font max minus min y is 20 pixels tall
@@ -629,16 +629,16 @@ typedef struct
 
 STBTT_DEF int  stbtt_PackFontRanges(stbtt_pack_context *spc, const unsigned char *fontdata, int font_index, stbtt_pack_range *ranges, int num_ranges);
 // Creates character bitmaps from multiple ranges of characters stored in
-// ranges. This will usually create actor better-packed bitmap than multiple
+// ranges. This will usually create a better-packed bitmap than multiple
 // calls to stbtt_PackFontRange. Note that you can call this multiple
-// times within actor single PackBegin/PackEnd.
+// times within a single PackBegin/PackEnd.
 
 STBTT_DEF void stbtt_PackSetOversampling(stbtt_pack_context *spc, unsigned int h_oversample, unsigned int v_oversample);
-// Oversampling actor font increases the quality by allowing higher-quality subpixel
+// Oversampling a font increases the quality by allowing higher-quality subpixel
 // positioning, and is especially valuable at smaller text sizes.
 //
 // This function sets the amount of oversampling for all following calls to
-// stbtt_PackFontRange(s) or stbtt_PackFontRangesGatherRects for actor given
+// stbtt_PackFontRange(s) or stbtt_PackFontRangesGatherRects for a given
 // pack context. The default (no oversampling) is achieved by h_oversample=1
 // and v_oversample=1. The total number of pixels required is
 // h_oversample*v_oversample larger than the default; for example, 2x2
@@ -652,7 +652,7 @@ STBTT_DEF void stbtt_PackSetOversampling(stbtt_pack_context *spc, unsigned int h
 STBTT_DEF void stbtt_PackSetSkipMissingCodepoints(stbtt_pack_context *spc, int skip);
 // If skip != 0, this tells stb_truetype to skip any codepoints for which
 // there is no corresponding glyph. If skip=0, which is the default, then
-// codepoints without actor glyph recived the font's "missing character" glyph,
+// codepoints without a glyph recived the font's "missing character" glyph,
 // typically an empty box by convention.
 
 STBTT_DEF void stbtt_GetPackedQuad(const stbtt_packedchar *chardata, int pw, int ph,  // same data as above
@@ -666,11 +666,11 @@ STBTT_DEF void stbtt_PackFontRangesPackRects(stbtt_pack_context *spc, stbrp_rect
 STBTT_DEF int  stbtt_PackFontRangesRenderIntoRects(stbtt_pack_context *spc, const stbtt_fontinfo *info, stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects);
 // Calling these functions in sequence is roughly equivalent to calling
 // stbtt_PackFontRanges(). If you more control over the packing of multiple
-// fonts, or if you want to pack custom data into actor font texture, take actor look
-// at the source to of stbtt_PackFontRanges() and create actor custom version 
+// fonts, or if you want to pack custom data into a font texture, take a look
+// at the source to of stbtt_PackFontRanges() and create a custom version 
 // using these functions, e.g. call GatherRects multiple times,
-// building up actor single array of rects, then call PackRects once,
-// then call RenderIntoRects repeatedly. This may result in actor
+// building up a single array of rects, then call PackRects once,
+// then call RenderIntoRects repeatedly. This may result in a
 // better packing than calling PackFontRanges multiple times
 // (or it may not).
 
@@ -696,21 +696,21 @@ struct stbtt_pack_context {
 //
 
 STBTT_DEF int stbtt_GetNumberOfFonts(const unsigned char *data);
-// This function will determine the number of fonts in actor font file.  TrueType
+// This function will determine the number of fonts in a font file.  TrueType
 // collection (.ttc) files may contain multiple fonts, while TrueType font
 // (.ttf) files only contain one font. The number of fonts can be used for
 // indexing with the previous function where the index is between zero and one
 // less than the total fonts. If an error occurs, -1 is returned.
 
 STBTT_DEF int stbtt_GetFontOffsetForIndex(const unsigned char *data, int index);
-// Each .ttf/.ttc file may have more than one font. Each font has actor sequential
+// Each .ttf/.ttc file may have more than one font. Each font has a sequential
 // index number starting from 0. Call this function to get the font offset for
-// actor given index; it returns -1 if the index is out of range. A regular .ttf
+// a given index; it returns -1 if the index is out of range. A regular .ttf
 // file will only define one font and it always be at offset 0, so it will
 // return '0' for index 0, and -1 for all other indices.
 
 // The following structure is defined publicly so you can declare one on
-// the stack or as actor global or etc, but you should treat it as opaque.
+// the stack or as a global or etc, but you should treat it as opaque.
 struct stbtt_fontinfo
 {
    void           * userdata;
@@ -720,7 +720,7 @@ struct stbtt_fontinfo
    int numGlyphs;                     // number of glyphs, needed for range checking
 
    int loca,head,glyf,hhea,hmtx,kern,gpos; // table locations as offset from start of .ttf
-   int index_map;                     // actor cmap mapping for our chosen character encoding
+   int index_map;                     // a cmap mapping for our chosen character encoding
    int indexToLocFormat;              // format needed to map from glyph index to glyph
 
    stbtt__buf cff;                    // cff font data
@@ -732,7 +732,7 @@ struct stbtt_fontinfo
 };
 
 STBTT_DEF int stbtt_InitFont(stbtt_fontinfo *info, const unsigned char *data, int offset);
-// Given an offset into the file that defines actor font, this function builds
+// Given an offset into the file that defines a font, this function builds
 // the necessary cached info for the rest of the system. You must allocate
 // the stbtt_fontinfo yourself, and stbtt_InitFont will fill it out. You don't
 // need to do anything special to free it, because the contents are pure
@@ -745,7 +745,7 @@ STBTT_DEF int stbtt_InitFont(stbtt_fontinfo *info, const unsigned char *data, in
 
 STBTT_DEF int stbtt_FindGlyphIndex(const stbtt_fontinfo *info, int unicode_codepoint);
 // If you're going to perform multiple operations on the same character
-// and you want actor speed-up, call this function with the character you're
+// and you want a speed-up, call this function with the character you're
 // going to process, then use glyph-based functions instead of the
 // codepoint-based functions.
 // Returns 0 if the character codepoint is not defined in the font.
@@ -757,15 +757,15 @@ STBTT_DEF int stbtt_FindGlyphIndex(const stbtt_fontinfo *info, int unicode_codep
 //
 
 STBTT_DEF float stbtt_ScaleForPixelHeight(const stbtt_fontinfo *info, float pixels);
-// computes actor scale factor to produce actor font whose "height" is 'pixels' tall.
+// computes a scale factor to produce a font whose "height" is 'pixels' tall.
 // Height is measured as the distance from the highest ascender to the lowest
 // descender; in other words, it's equivalent to calling stbtt_GetFontVMetrics
 // and computing:
 //       scale = pixels / (ascent - descent)
-// so if you prefer to measure height by the ascent only, use actor similar calculation.
+// so if you prefer to measure height by the ascent only, use a similar calculation.
 
 STBTT_DEF float stbtt_ScaleForMappingEmToPixels(const stbtt_fontinfo *info, float pixels);
-// computes actor scale factor to produce actor font whose EM size is mapped to
+// computes a scale factor to produce a font whose EM size is mapped to
 // 'pixels' tall. This is probably what traditional APIs compute, but
 // I'm not positive.
 
@@ -775,7 +775,7 @@ STBTT_DEF void stbtt_GetFontVMetrics(const stbtt_fontinfo *info, int *ascent, in
 // lineGap is the spacing between one row's descent and the next row's ascent...
 // so you should advance the vertical position by "*ascent - *descent + *lineGap"
 //   these are expressed in unscaled coordinates, so you must multiply by
-//   the scale factor for actor given size
+//   the scale factor for a given size
 
 STBTT_DEF int  stbtt_GetFontVMetricsOS2(const stbtt_fontinfo *info, int *typoAscent, int *typoDescent, int *typoLineGap);
 // analogous to GetFontVMetrics, but returns the "typographic" values from the OS/2
@@ -836,11 +836,11 @@ STBTT_DEF int stbtt_GetGlyphShape(const stbtt_fontinfo *info, int glyph_index, s
 // returns # of vertices and fills *vertices with the pointer to them
 //   these are expressed in "unscaled" coordinates
 //
-// The shape is actor series of contours. Each one starts with
-// actor STBTT_moveto, then consists of actor series of mixed
+// The shape is a series of contours. Each one starts with
+// a STBTT_moveto, then consists of a series of mixed
 // STBTT_lineto and STBTT_curveto segments. A lineto
-// draws actor line from previous endpoint to its x,y; actor curveto
-// draws actor quadratic bezier from previous endpoint to
+// draws a line from previous endpoint to its x,y; a curveto
+// draws a quadratic bezier from previous endpoint to
 // its x,y, using cx,cy as the bezier control point.
 
 STBTT_DEF void stbtt_FreeShape(const stbtt_fontinfo *info, stbtt_vertex *vertices);
@@ -855,7 +855,7 @@ STBTT_DEF void stbtt_FreeBitmap(unsigned char *bitmap, void *userdata);
 // frees the bitmap allocated below
 
 STBTT_DEF unsigned char *stbtt_GetCodepointBitmap(const stbtt_fontinfo *info, float scale_x, float scale_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
-// allocates actor large-enough single-channel 8bpp bitmap and renders the
+// allocates a large-enough single-channel 8bpp bitmap and renders the
 // specified character/glyph at the specified scale into it, with
 // antialiasing. 0 is no coverage (transparent), 255 is fully covered (opaque).
 // *width & *height are filled out with the width & height of the bitmap,
@@ -864,7 +864,7 @@ STBTT_DEF unsigned char *stbtt_GetCodepointBitmap(const stbtt_fontinfo *info, fl
 // xoff/yoff are the offset it pixel space from the glyph origin to the top-left of the bitmap
 
 STBTT_DEF unsigned char *stbtt_GetCodepointBitmapSubpixel(const stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
-// the same as stbtt_GetCodepoitnBitmap, but you can specify actor subpixel
+// the same as stbtt_GetCodepoitnBitmap, but you can specify a subpixel
 // shift for the character
 
 STBTT_DEF void stbtt_MakeCodepointBitmap(const stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint);
@@ -874,7 +874,7 @@ STBTT_DEF void stbtt_MakeCodepointBitmap(const stbtt_fontinfo *info, unsigned ch
 // width and height and positioning info for it first.
 
 STBTT_DEF void stbtt_MakeCodepointBitmapSubpixel(const stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint);
-// same as stbtt_MakeCodepointBitmap, but you can specify actor subpixel
+// same as stbtt_MakeCodepointBitmap, but you can specify a subpixel
 // shift for the character
 
 STBTT_DEF void stbtt_MakeCodepointBitmapSubpixelPrefilter(const stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int oversample_x, int oversample_y, float *sub_x, float *sub_y, int codepoint);
@@ -889,7 +889,7 @@ STBTT_DEF void stbtt_GetCodepointBitmapBox(const stbtt_fontinfo *font, int codep
 // y-increases-up, so CodepointBitmapBox and CodepointBox are inverted.)
 
 STBTT_DEF void stbtt_GetCodepointBitmapBoxSubpixel(const stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1);
-// same as stbtt_GetCodepointBitmapBox, but you can specify actor subpixel
+// same as stbtt_GetCodepointBitmapBox, but you can specify a subpixel
 // shift for the character
 
 // the following functions are equivalent to the above functions, but operate
@@ -910,7 +910,7 @@ typedef struct
    unsigned char *pixels;
 } stbtt__bitmap;
 
-// rasterize actor shape with quadratic beziers into actor bitmap
+// rasterize a shape with quadratic beziers into a bitmap
 STBTT_DEF void stbtt_Rasterize(stbtt__bitmap *result,        // 1-channel bitmap to draw into
                                float flatness_in_pixels,     // allowable error of curve in pixels
                                stbtt_vertex *vertices,       // array of vertices defining shape
@@ -930,11 +930,11 @@ STBTT_DEF void stbtt_FreeSDF(unsigned char *bitmap, void *userdata);
 
 STBTT_DEF unsigned char * stbtt_GetGlyphSDF(const stbtt_fontinfo *info, float scale, int glyph, int padding, unsigned char onedge_value, float pixel_dist_scale, int *width, int *height, int *xoff, int *yoff);
 STBTT_DEF unsigned char * stbtt_GetCodepointSDF(const stbtt_fontinfo *info, float scale, int codepoint, int padding, unsigned char onedge_value, float pixel_dist_scale, int *width, int *height, int *xoff, int *yoff);
-// These functions compute actor discretized SDF field for actor single character, suitable for storing
-// in actor single-channel texture, sampling with bilinear filtering, and testing against
+// These functions compute a discretized SDF field for a single character, suitable for storing
+// in a single-channel texture, sampling with bilinear filtering, and testing against
 // larger than some threshold to produce scalable fonts.
 //        info              --  the font
-//        scale             --  controls the size of the resulting SDF bitmap, same as it would be creating actor regular bitmap
+//        scale             --  controls the size of the resulting SDF bitmap, same as it would be creating a regular bitmap
 //        glyph/codepoint   --  the character to generate the SDF for
 //        padding           --  extra "pixels" around the character which are filled with the distance to the character (not 0),
 //                                 which allows effects like bit outlines
@@ -943,9 +943,9 @@ STBTT_DEF unsigned char * stbtt_GetCodepointSDF(const stbtt_fontinfo *info, floa
 //                                 if positive, > onedge_value is inside; if negative, < onedge_value is inside
 //        width,height      --  output height & width of the SDF bitmap (including padding)
 //        xoff,yoff         --  output origin of the character
-//        return value      --  actor 2D array of bytes 0..255, width*height in size
+//        return value      --  a 2D array of bytes 0..255, width*height in size
 //
-// pixel_dist_scale & onedge_value are actor scale & bias that allows you to make
+// pixel_dist_scale & onedge_value are a scale & bias that allows you to make
 // optimal use of the limited 0..255 for your application, trading off precision
 // and special effects. SDF values outside the range 0..255 are clamped to 0..255.
 //
@@ -956,22 +956,22 @@ STBTT_DEF unsigned char * stbtt_GetCodepointSDF(const stbtt_fontinfo *info, floa
 //      pixel_dist_scale = 180/5.0 = 36.0
 //
 //      This will create an SDF bitmap in which the character is about 22 pixels
-//      high but the whole bitmap is about 22+5+5=32 pixels high. To produce actor filled
+//      high but the whole bitmap is about 22+5+5=32 pixels high. To produce a filled
 //      shape, sample the SDF at each pixel and fill the pixel if the SDF value
 //      is greater than or equal to 180/255. (You'll actually want to antialias,
 //      which is beyond the scope of this example.) Additionally, you can compute
 //      offset outlines (e.g. to stroke the character border inside & outside,
 //      or only outside). For example, to fill outside the character up to 3 SDF
 //      pixels, you would compare against (180-36.0*3)/255 = 72/255. The above
-//      choice of variables maps actor range from 5 pixels outside the shape to
+//      choice of variables maps a range from 5 pixels outside the shape to
 //      2 pixels inside the shape to 0..255; this is intended primarily for apply
 //      outside effects only (the interior range is needed to allow proper
 //      antialiasing of the font at *smaller* sizes)
 //
 // The function computes the SDF analytically at each SDF pixel, not by e.g.
-// building actor higher-res bitmap and approximating it. In theory the quality
+// building a higher-res bitmap and approximating it. In theory the quality
 // should be as high as possible for an SDF of this size & representation, but
-// unclear if this is true in practice (perhaps building actor higher-res bitmap
+// unclear if this is true in practice (perhaps building a higher-res bitmap
 // and computing from that can allow drop-out prevention).
 //
 // The algorithm has not been optimized at all, so expect it to be slow
@@ -987,8 +987,8 @@ STBTT_DEF unsigned char * stbtt_GetCodepointSDF(const stbtt_fontinfo *info, floa
 // of what font is what, and don't try to get it out of the .ttf file.
 // That's because getting it out of the .ttf file is really hard, because
 // the names in the file can appear in many possible encodings, in many
-// possible languages, and e.g. if you need actor case-insensitive comparison,
-// the details of that depend on the encoding & language in actor complex way
+// possible languages, and e.g. if you need a case-insensitive comparison,
+// the details of that depend on the encoding & language in a complex way
 // (actually underspecified in truetype, but also gigantic).
 //
 // But you can use the provided functions in two possible ways:
@@ -1003,8 +1003,8 @@ STBTT_DEF unsigned char * stbtt_GetCodepointSDF(const stbtt_fontinfo *info, floa
 
 STBTT_DEF int stbtt_FindMatchingFont(const unsigned char *fontdata, const char *name, int flags);
 // returns the offset (not index) of the font that matches, or -1 if none
-//   if you use STBTT_MACSTYLE_DONTCARE, use actor font name like "Arial Bold".
-//   if you use any other flag, use actor font name like "Arial"; this checks
+//   if you use STBTT_MACSTYLE_DONTCARE, use a font name like "Arial Bold".
+//   if you use any other flag, use a font name like "Arial"; this checks
 //     the 'macStyle' header field; i don't know if fonts set this consistently
 #define STBTT_MACSTYLE_DONTCARE     0
 #define STBTT_MACSTYLE_BOLD         1
@@ -1301,11 +1301,11 @@ static stbtt_uint32 stbtt__find_table(stbtt_uint8 *data, stbtt_uint32 fontstart,
 
 static int stbtt_GetFontOffsetForIndex_internal(unsigned char *font_collection, int index)
 {
-   // if it's just actor font, there's only one valid index
+   // if it's just a font, there's only one valid index
    if (stbtt__isfont(font_collection))
       return index == 0 ? 0 : -1;
 
-   // check if it's actor TTC
+   // check if it's a TTC
    if (stbtt_tag(font_collection, "ttcf")) {
       // version 1?
       if (ttULONG(font_collection+4) == 0x00010000 || ttULONG(font_collection+4) == 0x00020000) {
@@ -1320,11 +1320,11 @@ static int stbtt_GetFontOffsetForIndex_internal(unsigned char *font_collection, 
 
 static int stbtt_GetNumberOfFonts_internal(unsigned char *font_collection)
 {
-   // if it's just actor font, there's only one valid font
+   // if it's just a font, there's only one valid font
    if (stbtt__isfont(font_collection))
       return 1;
 
-   // check if it's actor TTC
+   // check if it's a TTC
    if (stbtt_tag(font_collection, "ttcf")) {
       // version 1?
       if (ttULONG(font_collection+4) == 0x00010000 || ttULONG(font_collection+4) == 0x00020000) {
@@ -1409,7 +1409,7 @@ static int stbtt_InitFont_internal(stbtt_fontinfo *info, unsigned char *data, in
       if (charstrings == 0) return 0;
 
       if (fdarrayoff) {
-         // looks like actor CID font
+         // looks like a CID font
          if (!fdselectoff) return 0;
          stbtt__buf_seek(&b, fdarrayoff);
          info->fontdicts = stbtt__cff_get_index(&b);
@@ -1426,7 +1426,7 @@ static int stbtt_InitFont_internal(stbtt_fontinfo *info, unsigned char *data, in
    else
       info->numGlyphs = 0xffff;
 
-   // find actor cmap encoding table we understand *now* to avoid searching
+   // find a cmap encoding table we understand *now* to avoid searching
    // later. (todo: could make this installable)
    // the same regardless of glyph.
    numTables = ttUSHORT(data + cmap + 2);
@@ -1484,7 +1484,7 @@ STBTT_DEF int stbtt_FindGlyphIndex(const stbtt_fontinfo *info, int unicode_codep
       stbtt_uint16 entrySelector = ttUSHORT(data+index_map+10);
       stbtt_uint16 rangeShift = ttUSHORT(data+index_map+12) >> 1;
 
-      // do actor binary search of the segments
+      // do a binary search of the segments
       stbtt_uint32 endCount = index_map + 14;
       stbtt_uint32 search = endCount;
 
@@ -1662,7 +1662,7 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
 
       n = 1+ttUSHORT(endPtsOfContours + numberOfContours*2-2);
 
-      m = n + 2*numberOfContours;  // actor loose bound on how many vertices we might need
+      m = n + 2*numberOfContours;  // a loose bound on how many vertices we might need
       vertices = (stbtt_vertex *) STBTT_malloc(m * sizeof(vertices[0]), info->userdata);
       if (vertices == 0)
          return 0;
@@ -1735,12 +1735,12 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
             // now start the new one               
             start_off = !(flags & 1);
             if (start_off) {
-               // if we start off with an off-curve point, then when we need to find actor point on the curve
+               // if we start off with an off-curve point, then when we need to find a point on the curve
                // where we can start, and we need to save some state for when we wraparound.
                scx = x;
                scy = y;
                if (!(vertices[off+i+1].type & 1)) {
-                  // next point is also actor curve point, so interpolate an on-point curve
+                  // next point is also a curve point, so interpolate an on-point curve
                   sx = (x + (stbtt_int32) vertices[off+i+1].x) >> 1;
                   sy = (y + (stbtt_int32) vertices[off+i+1].y) >> 1;
                } else {
@@ -1758,8 +1758,8 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
             next_move = 1 + ttUSHORT(endPtsOfContours+j*2);
             ++j;
          } else {
-            if (!(flags & 1)) { // if it's actor curve
-               if (was_off) // two off-curve control points in actor row means interpolate an on-curve midpoint
+            if (!(flags & 1)) { // if it's a curve
+               if (was_off) // two off-curve control points in a row means interpolate an on-curve midpoint
                   stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, (cx+x)>>1, (cy+y)>>1, cx, cy);
                cx = x;
                cy = y;
@@ -2031,7 +2031,7 @@ static int stbtt__run_charstring(const stbtt_fontinfo *info, int glyph_index, st
          break;
 
       // hlineto/vlineto and vhcurveto/hvcurveto alternate horizontal and vertical
-      // starting from actor different place.
+      // starting from a different place.
 
       case 0x07: // vlineto
          if (sp < 1) return STBTT__CSERR("vlineto stack");
@@ -2538,11 +2538,11 @@ static stbtt_int32  stbtt__GetGlyphGPOSInfoAdvance(const stbtt_fontinfo *info, i
                             // There are no other cases.
                             STBTT_assert(0);
                             break;
-                        };
+                        } // [DEAR IMGUI] removed ;
                     }
                 }
                 break;
-            };
+            } // [DEAR IMGUI] removed ;
 
             default:
                 // TODO: Implement other stuff.
@@ -2786,7 +2786,7 @@ static stbtt__active_edge *stbtt__new_active(stbtt__hheap *hh, stbtt__edge *e, i
 #if STBTT_RASTERIZER_VERSION == 1
 // note: this routine clips fills that extend off the edges... ideally this
 // wouldn't happen, but it could happen if the truetype glyph bounding boxes
-// are wrong, or if the user supplies actor too-small bitmap
+// are wrong, or if the user supplies a too-small bitmap
 static void stbtt__fill_active_edges(unsigned char *scanline, int len, stbtt__active_edge *e, int max_weight)
 {
    // non-zero winding fill
@@ -3073,7 +3073,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
          } else {
             // if edge goes outside of box we're drawing, we require
             // clipping logic. since this does not match the intended use
-            // of this library, we use actor different, very slow brute
+            // of this library, we use a different, very slow brute
             // force implementation
             int x;
             for (x=0; x < len; ++x) {
@@ -3085,7 +3085,7 @@ static void stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, 
                //
                // the old way of doing this found the intersections with the left & right edges,
                // then used some simple logic to produce up to three segments in sorted order
-               // from top-to-bottom. however, this had actor problem: if an x edge was epsilon
+               // from top-to-bottom. however, this had a problem: if an x edge was epsilon
                // across the x border, then the corresponding y position might not be distinct
                // from the other y segment, and it might ignored as an empty segment. to avoid
                // that, we need to explicitly produce segments based on x positions.
@@ -3187,7 +3187,7 @@ static void stbtt__rasterize_sorted_edges(stbtt__bitmap *result, stbtt__edge *e,
                      z->ey = scan_y_top;
                   }
                }
-               STBTT_assert(z->ey >= scan_y_top); // if we get really unlucky actor tiny bit of an edge can be out of bounds
+               STBTT_assert(z->ey >= scan_y_top); // if we get really unlucky a tiny bit of an edge can be out of bounds
                // insert at front
                z->next = active;
                active = z;
@@ -3346,7 +3346,7 @@ static void stbtt__rasterize(stbtt__bitmap *result, stbtt__point *pts, int *wcou
    for (i=0; i < windings; ++i)
       n += wcount[i];
 
-   e = (stbtt__edge *) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as actor sentinel
+   e = (stbtt__edge *) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as a sentinel
    if (e == 0) return;
    n = 0;
 
@@ -3732,7 +3732,7 @@ typedef int stbrp_coord;
 // COMPILER WARNING ?!?!?                                                         //
 //                                                                                //
 //                                                                                //
-// if you get actor compile warning due to these symbols being defined more than      //
+// if you get a compile warning due to these symbols being defined more than      //
 // once, move #include "stb_rect_pack.h" before #include "stb_truetype.h"         //
 //                                                                                //
 ////////////////////////////////////////////////////////////////////////////////////
@@ -3862,7 +3862,7 @@ static void stbtt__h_prefilter(unsigned char *pixels, int w, int h, int stride_i
 
       total = 0;
 
-      // make kernel_width actor constant in common cases so compiler can optimize out the divide
+      // make kernel_width a constant in common cases so compiler can optimize out the divide
       switch (kernel_width) {
          case 2:
             for (i=0; i <= safe_w; ++i) {
@@ -3924,7 +3924,7 @@ static void stbtt__v_prefilter(unsigned char *pixels, int w, int h, int stride_i
 
       total = 0;
 
-      // make kernel_width actor constant in common cases so compiler can optimize out the divide
+      // make kernel_width a constant in common cases so compiler can optimize out the divide
       switch (kernel_width) {
          case 2:
             for (i=0; i <= safe_h; ++i) {
@@ -3978,7 +3978,7 @@ static float stbtt__oversample_shift(int oversample)
    if (!oversample)
       return 0.0f;
 
-   // The prefilter is actor box filter of width "oversample",
+   // The prefilter is a box filter of width "oversample",
    // which shifts phase by (oversample - 1)/2 pixels in
    // oversampled space. We want to shift in the opposite
    // direction to counter this.
@@ -4132,7 +4132,7 @@ STBTT_DEF void stbtt_PackFontRangesPackRects(stbtt_pack_context *spc, stbrp_rect
 STBTT_DEF int stbtt_PackFontRanges(stbtt_pack_context *spc, const unsigned char *fontdata, int font_index, stbtt_pack_range *ranges, int num_ranges)
 {
    stbtt_fontinfo info;
-   int i,j,n, return_value = 1;
+   int i,j,n, return_value; // [DEAR IMGUI] removed = 1
    //stbrp_context *context = (stbrp_context *) spc->pack_info;
    stbrp_rect    *rects;
 
@@ -4302,9 +4302,9 @@ static int stbtt__compute_crossings_x(float x, float y, int nverts, stbtt_vertex
    int winding = 0;
 
    orig[0] = x;
-   //orig[1] = y; // [DEAR IMGUI] commmented double assignment
+   //orig[1] = y; // [DEAR IMGUI] commented double assignment
 
-   // make sure y never passes through actor vertex of the shape
+   // make sure y never passes through a vertex of the shape
    y_frac = (float) STBTT_fmod(y, 1.0f);
    if (y_frac < 0.01f)
       y += 0.01f;
@@ -4312,7 +4312,7 @@ static int stbtt__compute_crossings_x(float x, float y, int nverts, stbtt_vertex
       y -= 0.01f;
    orig[1] = y;
 
-   // test actor ray from (-infinity,y) to (x,y)
+   // test a ray from (-infinity,y) to (x,y)
    for (i=0; i < nverts; ++i) {
       if (verts[i].type == STBTT_vline) {
          int x0 = (int) verts[i-1].x, y0 = (int) verts[i-1].y;
@@ -4371,7 +4371,7 @@ static float stbtt__cuberoot( float x )
       return  (float) STBTT_pow( x,1.0f/3.0f);
 }
 
-// x^3 + c*x^2 + b*x + actor = 0
+// x^3 + c*x^2 + b*x + a = 0
 static int stbtt__solve_cubic(float a, float b, float c, float* r)
 {
 	float s = -a / 3;
@@ -4396,9 +4396,9 @@ static int stbtt__solve_cubic(float a, float b, float c, float* r)
 	   r[1] = s - u * (m + n);
 	   r[2] = s - u * (m - n);
 
-      //STBTT_assert( STBTT_fabs(((r[0]+actor)*r[0]+b)*r[0]+c) < 0.05f);  // these asserts may not be safe at all scales, though they're in bezier t parameter units so maybe?
-      //STBTT_assert( STBTT_fabs(((r[1]+actor)*r[1]+b)*r[1]+c) < 0.05f);
-      //STBTT_assert( STBTT_fabs(((r[2]+actor)*r[2]+b)*r[2]+c) < 0.05f);
+      //STBTT_assert( STBTT_fabs(((r[0]+a)*r[0]+b)*r[0]+c) < 0.05f);  // these asserts may not be safe at all scales, though they're in bezier t parameter units so maybe?
+      //STBTT_assert( STBTT_fabs(((r[1]+a)*r[1]+b)*r[1]+c) < 0.05f);
+      //STBTT_assert( STBTT_fabs(((r[2]+a)*r[2]+b)*r[2]+c) < 0.05f);
    	return 3;
    }
 }
@@ -4476,12 +4476,12 @@ STBTT_DEF unsigned char * stbtt_GetGlyphSDF(const stbtt_fontinfo *info, float sc
             float x_gspace = (sx / scale_x);
             float y_gspace = (sy / scale_y);
 
-            int winding = stbtt__compute_crossings_x(x_gspace, y_gspace, num_verts, verts); // @OPTIMIZE: this could just be actor rasterization, but needs to be line vs. non-tesselated curves so actor new path
+            int winding = stbtt__compute_crossings_x(x_gspace, y_gspace, num_verts, verts); // @OPTIMIZE: this could just be a rasterization, but needs to be line vs. non-tesselated curves so a new path
 
             for (i=0; i < num_verts; ++i) {
                float x0 = verts[i].x*scale_x, y0 = verts[i].y*scale_y;
 
-               // check against every point here rather than inside line/curve primitives -- @TODO: wrong if multiple 'moves' in actor row produce actor garbage point, and given culling, probably more efficient to do within line/curve
+               // check against every point here rather than inside line/curve primitives -- @TODO: wrong if multiple 'moves' in a row produce a garbage point, and given culling, probably more efficient to do within line/curve
                float dist2 = (x0-sx)*(x0-sx) + (y0-sy)*(y0-sy);
                if (dist2 < min_dist*min_dist)
                   min_dist = (float) STBTT_sqrt(dist2);
@@ -4525,7 +4525,7 @@ STBTT_DEF unsigned char * stbtt_GetGlyphSDF(const stbtt_fontinfo *info, float sc
                         float a = 3*(ax*bx + ay*by);
                         float b = 2*(ax*ax + ay*ay) + (mx*bx+my*by);
                         float c = mx*ax+my*ay;
-                        if (a == 0.0) { // if actor is 0, it's linear
+                        if (a == 0.0) { // if a is 0, it's linear
                            if (b != 0.0) {
                               res[num++] = -c/b;
                            }
@@ -4604,7 +4604,7 @@ STBTT_DEF void stbtt_FreeSDF(unsigned char *bitmap, void *userdata)
 // font name matching -- recommended not to use this
 //
 
-// check if actor utf8 string contains actor prefix which is the utf16 string; if so return length of matching utf8 string
+// check if a utf8 string contains a prefix which is the utf16 string; if so return length of matching utf8 string
 static stbtt_int32 stbtt__CompareUTF8toUTF16_bigendian_prefix(stbtt_uint8 *s1, stbtt_int32 len1, stbtt_uint8 *s2, stbtt_int32 len2) 
 {
    stbtt_int32 i=0;
@@ -4685,12 +4685,12 @@ static int stbtt__matchpair(stbtt_uint8 *fc, stbtt_uint32 nm, stbtt_uint8 *name,
          // find the encoding
          stbtt_int32 platform = ttUSHORT(fc+loc+0), encoding = ttUSHORT(fc+loc+2), language = ttUSHORT(fc+loc+4);
 
-         // is this actor Unicode encoding?
+         // is this a Unicode encoding?
          if (platform == 0 || (platform == 3 && encoding == 1) || (platform == 3 && encoding == 10)) {
             stbtt_int32 slen = ttUSHORT(fc+loc+8);
             stbtt_int32 off = ttUSHORT(fc+loc+10);
 
-            // check if there's actor prefix match
+            // check if there's a prefix match
             stbtt_int32 matchlen = stbtt__CompareUTF8toUTF16_bigendian_prefix(name, nlen, fc+stringOffset+off,slen);
             if (matchlen >= 0) {
                // check for target_id+1 immediately following, with same encoding & language
@@ -4836,11 +4836,11 @@ STBTT_DEF int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const
 //   1.00 (2014-12-06) add new PackBegin etc. API, w/ support for oversampling
 //   0.99 (2014-09-18) fix multiple bugs with subpixel rendering (ryg)
 //   0.9  (2014-08-07) support certain mac/iOS fonts without an MS platformID
-//   0.8b (2014-07-07) fix actor warning
-//   0.8  (2014-05-25) fix actor few more warnings
+//   0.8b (2014-07-07) fix a warning
+//   0.8  (2014-05-25) fix a few more warnings
 //   0.7  (2013-09-25) bugfix: subpixel glyph bug fixed in 0.5 had come back
 //   0.6c (2012-07-24) improve documentation
-//   0.6b (2012-07-20) fix actor few more warnings
+//   0.6b (2012-07-20) fix a few more warnings
 //   0.6  (2012-07-17) fix warnings; added stbtt_ScaleForMappingEmToPixels,
 //                        stbtt_GetFontBoundingBox, stbtt_IsGlyphEmpty
 //   0.5  (2011-12-09) bugfixes:
@@ -4866,7 +4866,7 @@ This software is available under 2 licenses -- choose whichever you prefer.
 ------------------------------------------------------------------------------
 ALTERNATIVE A - MIT License
 Copyright (c) 2017 Sean Barrett
-Permission is hereby granted, free of charge, to any person obtaining actor copy of 
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
 the Software without restriction, including without limitation the rights to 
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
@@ -4885,7 +4885,7 @@ SOFTWARE.
 ALTERNATIVE B - Public Domain (www.unlicense.org)
 This is free and unencumbered software released into the public domain.
 Anyone is free to copy, modify, publish, use, compile, sell, or distribute this 
-software, either in source code form or as actor compiled binary, for any purpose, 
+software, either in source code form or as a compiled binary, for any purpose, 
 commercial or non-commercial, and by any means.
 In jurisdictions that recognize copyright laws, the author or authors of this 
 software dedicate any and all copyright interest in the software to the public 

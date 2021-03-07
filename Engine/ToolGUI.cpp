@@ -29,14 +29,14 @@ namespace Strife
 		ImGui::Text("Modelling parameters");
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
-		ImGui::InputFloat("Planet's radius",		&csDef.planetRadius, 1000, 2000, 3);
+		ImGui::InputFloat("Planet's radius",		&csDef.planetRadius, 1000, 2000);
 		ImGui::SliderFloat("Layer_bot",				&csDef.heightMask.x, 100, 9000);
-		ImGui::InputFloat("Layer_top",				&csDef.heightMask.y, 10, 50, 3);
+		ImGui::InputFloat("Layer_top",				&csDef.heightMask.y, 10, 50);
 
 		ImGui::SliderFloat("Base repeat",			&csDef.repeat.x, 1024.f, 1024.f * 16.f);
 		ImGui::SliderFloat("Fine repeat",			&csDef.repeat.y, 16.f, 256.f);
 		ImGui::SliderFloat("Texture span",			&csDef.textureSpan, 0.f, 1.f);
-		ImGui::InputFloat("Density multiplier",		&csDef.repeat.w, 1., 5., 3);
+		ImGui::InputFloat("Density multiplier",		&csDef.repeat.w, 1., 5.);
 		ImGui::SliderFloat("Carving threshold",		&csDef.carvingThreshold, -.01f, 1.01f);
 
 		ImGui::SliderFloat("Global coverage",		&csDef.globalCoverage, 0.01f, .99f);
@@ -53,13 +53,13 @@ namespace Strife
 		ImGui::Text("Illumination parameters");
 		ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
-		ImGui::InputFloat("Light intensity",	&csDef.celestial.ali, 1, 10, 3);
+		ImGui::InputFloat("Light intensity",	&csDef.celestial.ali, 1, 10);
 		ImGui::SliderFloat3("Light position",	&csDef.celestial.pos.x, -1000, 1000);
-		ImGui::InputFloat3("Extinction",		&csDef.rgb_sig_absorption.x, 3);
+		ImGui::InputFloat3("Extinction",		&csDef.rgb_sig_absorption.x);
 		ImGui::SliderFloat("Eccentricity",		&csDef.eccentricity, -1, 1);
-		ImGui::InputFloat3("Sky colour",		&csDef.skyRGB.x, 4);
-		ImGui::InputFloat3("Ambient top",		&csDef.ALTop.x, 4);
-		ImGui::InputFloat3("Ambient bot",		&csDef.ALBot.x, 4);
+		ImGui::InputFloat3("Sky colour",		&csDef.skyRGB.x, "%.4f");
+		ImGui::InputFloat3("Ambient top",		&csDef.ALTop.x, "%.4f");
+		ImGui::InputFloat3("Ambient bot",		&csDef.ALBot.x, "%.4f");
 
 		ImGui::EndGroup();
 		/* illumination */

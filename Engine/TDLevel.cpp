@@ -30,6 +30,27 @@ void TDLevel::init(Engine& sys)
 
 	_geoClipMap.init(S_DEVICE);
 
+	entt::registry registry;
+	auto entity1 = registry.create();
+	auto entity2 = registry.create();
+	registry.emplace<SMatrix>(entity1);
+	registry.emplace<SVec4>(entity2);
+	registry.emplace<SVec4>(entity1);
+
+	auto group1 = registry.group<SMatrix, SVec4>();
+
+	for (auto& wtf : group1)
+	{
+		std::cout << entt::to_integral(wtf);
+	}
+
+	registry.emplace<SMatrix>(entity2);
+
+	for (auto& wtf : group1)
+	{
+		std::cout << entt::to_integral(wtf);
+	}
+
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();

@@ -26,10 +26,10 @@ namespace GuiBlocks
 
 	static void displayTransform(SMatrix& m)
 	{
-		ImGui::InputFloat4("X##", &m.m[0][0], 2);
-		ImGui::InputFloat4("Y##", &m.m[1][0], 2);
-		ImGui::InputFloat4("Z##", &m.m[2][0], 2);
-		ImGui::InputFloat4("T##", &m.m[3][0], 2);
+		ImGui::InputFloat4("X##", &m.m[0][0]);
+		ImGui::InputFloat4("Y##", &m.m[1][0]);
+		ImGui::InputFloat4("Z##", &m.m[2][0]);
+		ImGui::InputFloat4("T##", &m.m[3][0]);
 		ImGui::Separator();
 	}
 

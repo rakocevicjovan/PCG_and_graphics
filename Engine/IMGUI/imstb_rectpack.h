@@ -1,10 +1,10 @@
-// [DEAR IMGUI] 
-// This is actor slightly modified version of stb_rect_pack.h 0.99. 
+// [DEAR IMGUI]
+// This is a slightly modified version of stb_rect_pack.h 1.00.
 // Those changes would need to be pushed into nothings/stb:
 // - Added STBRP__CDECL
 // Grep for [DEAR IMGUI] to find the changes.
 
-// stb_rect_pack.h - v0.99 - public domain - rectangle packing
+// stb_rect_pack.h - v1.00 - public domain - rectangle packing
 // Sean Barrett 2014
 //
 // Useful for e.g. packing rectangular textures into an atlas.
@@ -14,7 +14,7 @@
 // the totally naive one in stb_truetype (which is primarily what
 // this is meant to replace).
 //
-// Has only had actor few tests run, may have issues.
+// Has only had a few tests run, may have issues.
 //
 // More docs to come.
 //
@@ -24,7 +24,7 @@
 // This library currently uses the Skyline Bottom-Left algorithm.
 //
 // Please note: better rectangle packers are welcome! Please
-// implement them to the same API, but with actor different init
+// implement them to the same API, but with a different init
 // function.
 //
 // Credits
@@ -37,9 +37,11 @@
 //    
 //  Bugfixes / warning fixes
 //    Jeremy Jaussaud
+//    Fabian Giesen
 //
 // Version history:
 //
+//     1.00  (2019-02-25)  avoid small space waste; gracefully fail too-wide rectangles
 //     0.99  (2019-02-07)  warning fixes
 //     0.11  (2017-03-03)  return packing success/fail result
 //     0.10  (2016-10-25)  remove cast-away-const to avoid warnings
@@ -91,7 +93,7 @@ STBRP_DEF int stbrp_pack_rects (stbrp_context *context, stbrp_rect *rects, int n
 // are 'num_rects' many of them.
 //
 // Rectangles which are successfully packed have the 'was_packed' flag
-// set to actor non-zero value and 'x' and 'y' store the minimum location
+// set to a non-zero value and 'x' and 'y' store the minimum location
 // on each axis (i.e. bottom-left in cartesian coordinates, top-left
 // if you imagine y increasing downwards). Rectangles which do not fit
 // have the 'was_packed' flag set to 0.
@@ -104,7 +106,7 @@ STBRP_DEF int stbrp_pack_rects (stbrp_context *context, stbrp_rect *rects, int n
 // again. To continue packing into the same rectangle, you can call
 // this function again. Calling this multiple times with multiple rect
 // arrays will probably produce worse packing results than calling it
-// actor single time with the full rectangle array, but the option is
+// a single time with the full rectangle array, but the option is
 // available.
 //
 // The function returns 1 if all of the rectangles were successfully
@@ -126,11 +128,11 @@ struct stbrp_rect
 
 
 STBRP_DEF void stbrp_init_target (stbrp_context *context, int width, int height, stbrp_node *nodes, int num_nodes);
-// Initialize actor rectangle packer to:
-//    pack actor rectangle that is 'width' by 'height' in dimensions
+// Initialize a rectangle packer to:
+//    pack a rectangle that is 'width' by 'height' in dimensions
 //    using temporary storage provided by the array 'nodes', which is 'num_nodes' long
 //
-// You must call this function every time you start packing into actor new target.
+// You must call this function every time you start packing into a new target.
 //
 // There is no "shutdown" function. The 'nodes' memory must stay valid for
 // the following stbrp_pack_rects() call (or calls), but can be freed after
@@ -242,7 +244,7 @@ STBRP_DEF void stbrp_setup_allow_out_of_mem(stbrp_context *context, int allow_ou
    if (allow_out_of_mem)
       // if it's ok to run out of memory, then don't bother aligning them;
       // this gives better packing, but may fail due to OOM (even though
-      // the rectangles easily fit). @TODO actor smarter approach would be to only
+      // the rectangles easily fit). @TODO a smarter approach would be to only
       // quantize once we've hit OOM, then we could get rid of this parameter.
       context->align = 1;
    else {
@@ -357,6 +359,13 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
    width -= width % c->align;
    STBRP_ASSERT(width % c->align == 0);
 
+   // if it can't possibly fit, bail immediately
+   if (width > c->width || height > c->height) {
+      fr.prev_link = NULL;
+      fr.x = fr.y = 0;
+      return fr;
+   }
+
    node = c->active_head;
    prev = &c->active_head;
    while (node->x + width <= c->width) {
@@ -420,7 +429,7 @@ static stbrp__findresult stbrp__skyline_find_best_pos(stbrp_context *c, int widt
          }
          STBRP_ASSERT(node->next->x > xpos && node->x <= xpos);
          y = stbrp__skyline_find_min_y(c, node, xpos, width, &waste);
-         if (y + height < c->height) {
+         if (y + height <= c->height) {
             if (y <= best_y) {
                if (y < best_y || waste < best_waste || (waste==best_waste && xpos < best_x)) {
                   best_x = xpos;
@@ -593,7 +602,7 @@ This software is available under 2 licenses -- choose whichever you prefer.
 ------------------------------------------------------------------------------
 ALTERNATIVE A - MIT License
 Copyright (c) 2017 Sean Barrett
-Permission is hereby granted, free of charge, to any person obtaining actor copy of 
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
 the Software without restriction, including without limitation the rights to 
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
@@ -612,7 +621,7 @@ SOFTWARE.
 ALTERNATIVE B - Public Domain (www.unlicense.org)
 This is free and unencumbered software released into the public domain.
 Anyone is free to copy, modify, publish, use, compile, sell, or distribute this 
-software, either in source code form or as actor compiled binary, for any purpose, 
+software, either in source code form or as a compiled binary, for any purpose, 
 commercial or non-commercial, and by any means.
 In jurisdictions that recognize copyright laws, the author or authors of this 
 software dedicate any and all copyright interest in the software to the public 

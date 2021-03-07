@@ -60,7 +60,7 @@ public:
 	static void displayPositionKeyframe(PosFrame pf, UINT i)
 	{
 		ImGui::PushID(i);
-		ImGui::InputFloat3("##", &pf.pos.x, 3, ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("##", &pf.pos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopID();
 	}
 };

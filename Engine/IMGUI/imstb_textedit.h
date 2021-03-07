@@ -1,5 +1,5 @@
-// [DEAR IMGUI] 
-// This is actor slightly modified version of stb_textedit.h 1.13. 
+// [DEAR IMGUI]
+// This is a slightly modified version of stb_textedit.h 1.13. 
 // Those changes would need to be pushed into nothings/stb:
 // - Fix in stb_textedit_discard_redo (see https://github.com/nothings/stb/issues/321)
 // Grep for [DEAR IMGUI] to find the changes.
@@ -7,7 +7,7 @@
 // stb_textedit.h - v1.13  - public domain - Sean Barrett
 // Development of this library was sponsored by RAD Game Tools
 //
-// This C header file implements the guts of actor multi-line text-editing
+// This C header file implements the guts of a multi-line text-editing
 // widget; you implement display, word-wrapping, and low-level string
 // insertion/deletion, and stb_textedit will map user inputs into
 // insertions & deletions, plus updates to the cursor position,
@@ -74,18 +74,18 @@
 // Header-file mode:
 //
 //   If you do not define STB_TEXTEDIT_IMPLEMENTATION before including this,
-//   it will operate in "header file" mode. In this mode, it declares actor
+//   it will operate in "header file" mode. In this mode, it declares a
 //   single public symbol, STB_TexteditState, which encapsulates the current
-//   state of actor text widget (except for the string, which you will store
+//   state of a text widget (except for the string, which you will store
 //   separately).
 //
-//   To compile in this mode, you must define STB_TEXTEDIT_CHARTYPE to actor
-//   primitive type that defines actor single character (e.g. char, wchar_t, etc).
+//   To compile in this mode, you must define STB_TEXTEDIT_CHARTYPE to a
+//   primitive type that defines a single character (e.g. char, wchar_t, etc).
 //
 //   To save space or increase undo-ability, you can optionally define the
 //   following things that are used by the undo system:
 //
-//      STB_TEXTEDIT_POSITIONTYPE         small int type encoding actor valid cursor position
+//      STB_TEXTEDIT_POSITIONTYPE         small int type encoding a valid cursor position
 //      STB_TEXTEDIT_UNDOSTATECOUNT       the number of undo states to allow
 //      STB_TEXTEDIT_UNDOCHARCOUNT        the number of characters to store in the undo buffer
 //
@@ -101,13 +101,13 @@
 //
 //   If you define STB_TEXTEDIT_IMPLEMENTATION before including this, it
 //   will compile the implementation of the text edit widget, depending
-//   on actor large number of symbols which must be defined before the include.
+//   on a large number of symbols which must be defined before the include.
 //
 //   The implementation is defined only as static functions. You will then
 //   need to provide your own APIs in the same file which will access the
 //   static functions.
 //
-//   The basic concept is that you provide actor "string" object which
+//   The basic concept is that you provide a "string" object which
 //   behaves like an array of characters. stb_textedit uses indices to
 //   refer to positions in the string, implicitly representing positions
 //   in the displayed textedit. This is true for both plain text and
@@ -117,23 +117,23 @@
 // Symbols that must be the same in header-file and implementation mode:
 //
 //     STB_TEXTEDIT_CHARTYPE             the character type
-//     STB_TEXTEDIT_POSITIONTYPE         small type that is actor valid cursor position
+//     STB_TEXTEDIT_POSITIONTYPE         small type that is a valid cursor position
 //     STB_TEXTEDIT_UNDOSTATECOUNT       the number of undo states to allow
 //     STB_TEXTEDIT_UNDOCHARCOUNT        the number of characters to store in the undo buffer
 //
 // Symbols you must define for implementation mode:
 //
-//    STB_TEXTEDIT_STRING               the type of object representing actor string being edited,
-//                                      typically this is actor wrapper object with other data you need
+//    STB_TEXTEDIT_STRING               the type of object representing a string being edited,
+//                                      typically this is a wrapper object with other data you need
 //
 //    STB_TEXTEDIT_STRINGLEN(obj)       the length of the string (ideally O(1))
-//    STB_TEXTEDIT_LAYOUTROW(&r,obj,n)  returns the results of laying out actor line of characters
+//    STB_TEXTEDIT_LAYOUTROW(&r,obj,n)  returns the results of laying out a line of characters
 //                                        starting from character #n (see discussion below)
 //    STB_TEXTEDIT_GETWIDTH(obj,n,i)    returns the pixel delta from the xpos of the i'th character
-//                                        to the xpos of the i+1'th char for actor line of characters
+//                                        to the xpos of the i+1'th char for a line of characters
 //                                        starting at character #n (i.e. accounts for kerning
 //                                        with previous char)
-//    STB_TEXTEDIT_KEYTOTEXT(k)         maps actor keyboard input to an insertable character
+//    STB_TEXTEDIT_KEYTOTEXT(k)         maps a keyboard input to an insertable character
 //                                        (return type is int, -1 means not valid to insert)
 //    STB_TEXTEDIT_GETCHAR(obj,i)       returns the i'th character of obj, 0-based
 //    STB_TEXTEDIT_NEWLINE              the character returned by _GETCHAR() we recognize
@@ -142,12 +142,14 @@
 //    STB_TEXTEDIT_DELETECHARS(obj,i,n)      delete n characters starting at i
 //    STB_TEXTEDIT_INSERTCHARS(obj,i,c*,n)   insert n characters at i (pointed to by STB_TEXTEDIT_CHARTYPE*)
 //
-//    STB_TEXTEDIT_K_SHIFT       actor power of two that is or'd in to actor keyboard input to represent the shift key
+//    STB_TEXTEDIT_K_SHIFT       a power of two that is or'd in to a keyboard input to represent the shift key
 //
 //    STB_TEXTEDIT_K_LEFT        keyboard input to move cursor left
 //    STB_TEXTEDIT_K_RIGHT       keyboard input to move cursor right
 //    STB_TEXTEDIT_K_UP          keyboard input to move cursor up
 //    STB_TEXTEDIT_K_DOWN        keyboard input to move cursor down
+//    STB_TEXTEDIT_K_PGUP        keyboard input to move cursor up a page
+//    STB_TEXTEDIT_K_PGDOWN      keyboard input to move cursor down a page
 //    STB_TEXTEDIT_K_LINESTART   keyboard input to move cursor to start of line  // e.g. HOME
 //    STB_TEXTEDIT_K_LINEEND     keyboard input to move cursor to end of line    // e.g. END
 //    STB_TEXTEDIT_K_TEXTSTART   keyboard input to move cursor to start of text  // e.g. ctrl-HOME
@@ -170,14 +172,10 @@
 //    STB_TEXTEDIT_K_TEXTSTART2          secondary keyboard input to move cursor to start of text
 //    STB_TEXTEDIT_K_TEXTEND2            secondary keyboard input to move cursor to end of text
 //
-// Todo:
-//    STB_TEXTEDIT_K_PGUP        keyboard input to move cursor up actor page
-//    STB_TEXTEDIT_K_PGDOWN      keyboard input to move cursor down actor page
-//
-// Keyboard input must be encoded as actor single integer value; e.g. actor character code
+// Keyboard input must be encoded as a single integer value; e.g. a character code
 // and some bitflags that represent shift states. to simplify the interface, SHIFT must
-// be actor bitflag, so we can test the shifted state of cursor movements to allow selection,
-// i.e. (STB_TEXTED_K_RIGHT|STB_TEXTEDIT_K_SHIFT) should be shifted right-arrow.
+// be a bitflag, so we can test the shifted state of cursor movements to allow selection,
+// i.e. (STB_TEXTEDIT_K_RIGHT|STB_TEXTEDIT_K_SHIFT) should be shifted right-arrow.
 //
 // You can encode other things, such as CONTROL or ALT, in additional bits, and
 // then test for their presence in e.g. STB_TEXTEDIT_K_WORDLEFT. For example,
@@ -212,16 +210,16 @@
 //    state.
 //
 //      initialize_state:
-//          set the textedit state to actor known good default state when initially
+//          set the textedit state to a known good default state when initially
 //          constructing the textedit.
 //
 //      click:
-//          call this with the mouse x,y on actor mouse down; it will update the cursor
+//          call this with the mouse x,y on a mouse down; it will update the cursor
 //          and reset the selection start/end to the cursor point. the x,y must
 //          be relative to the text widget, with (0,0) being the top left.
 //     
 //      drag:
-//          call this with the mouse x,y on actor mouse drag/up; it will update the
+//          call this with the mouse x,y on a mouse drag/up; it will update the
 //          cursor and the selection end point
 //     
 //      cut:
@@ -237,7 +235,7 @@
 //          call this for keyboard inputs sent to the textfield. you can use it
 //          for "key down" events or for "translated" key events. if you need to
 //          do both (as in Win32), or distinguish Unicode characters from control
-//          inputs, set actor high bit to distinguish the two; then you can define the
+//          inputs, set a high bit to distinguish the two; then you can define the
 //          various definitions like STB_TEXTEDIT_K_LEFT have the is-key-event bit
 //          set, and make STB_TEXTEDIT_KEYTOCHAR check that the is-key-event bit is
 //          clear. STB_TEXTEDIT_KEYTYPE defaults to int, but you can #define it to
@@ -261,7 +259,7 @@
 // forward in one pass. Similar logic applies to e.g. up-arrow and
 // down-arrow movement.)
 //
-// If it's run in actor widget that *has* cached the layout, then this is less
+// If it's run in a widget that *has* cached the layout, then this is less
 // efficient, but it's not horrible on modern computers. But you wouldn't
 // want to edit million-line files with it.
 
@@ -337,6 +335,10 @@ typedef struct
    // each textfield keeps its own insert mode state. to keep an app-wide
    // insert mode, copy this value in/out of the app state
 
+   int row_count_per_page;
+   // page size in number of row.
+   // this value MUST be set to >0 for pageup or pagedown in multilines documents.
+
    /////////////////////
    //
    // private data
@@ -392,7 +394,7 @@ typedef struct
 //      Mouse input handling
 //
 
-// traverse the layout to locate the nearest character to actor display position
+// traverse the layout to locate the nearest character to a display position
 static int stb_text_locate_coord(STB_TEXTEDIT_STRING *str, float x, float y)
 {
    StbTexteditRow r;
@@ -445,7 +447,7 @@ static int stb_text_locate_coord(STB_TEXTEDIT_STRING *str, float x, float y)
       // shouldn't happen, but if it does, fall through to end-of-line case
    }
 
-   // if the last character is actor newline, return that. otherwise return 'after' the last character
+   // if the last character is a newline, return that. otherwise return 'after' the last character
    if (STB_TEXTEDIT_GETCHAR(str, i+r.num_chars-1) == STB_TEXTEDIT_NEWLINE)
       return i+r.num_chars-1;
    else
@@ -511,8 +513,8 @@ typedef struct
    int prev_first;  // first char of previous row
 } StbFindState;
 
-// find the x/y location of actor character, and remember info about the previous row in
-// case we get actor move-up event (for page up, we'll have to rescan)
+// find the x/y location of a character, and remember info about the previous row in
+// case we get a move-up event (for page up, we'll have to rescan)
 static void stb_textedit_find_charpos(StbFindState *find, STB_TEXTEDIT_STRING *str, int n, int single_line)
 {
    StbTexteditRow r;
@@ -704,7 +706,7 @@ static int stb_textedit_cut(STB_TEXTEDIT_STRING *str, STB_TexteditState *state)
 // API paste: replace existing selection with passed-in text
 static int stb_textedit_paste_internal(STB_TEXTEDIT_STRING *str, STB_TexteditState *state, STB_TEXTEDIT_CHARTYPE *text, int len)
 {
-   // if there's actor selection, the paste should delete it
+   // if there's a selection, the paste should delete it
    stb_textedit_clamp(str, state);
    stb_textedit_delete_selection(str,state);
    // try to insert the characters
@@ -724,7 +726,7 @@ static int stb_textedit_paste_internal(STB_TEXTEDIT_STRING *str, STB_TexteditSta
 #define STB_TEXTEDIT_KEYTYPE int
 #endif
 
-// API key: process actor keyboard input
+// API key: process a keyboard input
 static void stb_textedit_key(STB_TEXTEDIT_STRING *str, STB_TexteditState *state, STB_TEXTEDIT_KEYTYPE key)
 {
 retry:
@@ -774,7 +776,7 @@ retry:
          break;
 
       case STB_TEXTEDIT_K_LEFT:
-         // if currently there's actor selection, move cursor to start of selection
+         // if currently there's a selection, move cursor to start of selection
          if (STB_TEXT_HAS_SELECTION(state))
             stb_textedit_move_to_first(state);
          else 
@@ -784,7 +786,7 @@ retry:
          break;
 
       case STB_TEXTEDIT_K_RIGHT:
-         // if currently there's actor selection, move cursor to end of selection
+         // if currently there's a selection, move cursor to end of selection
          if (STB_TEXT_HAS_SELECTION(state))
             stb_textedit_move_to_last(str, state);
          else
@@ -855,12 +857,16 @@ retry:
          break;
 
       case STB_TEXTEDIT_K_DOWN:
-      case STB_TEXTEDIT_K_DOWN | STB_TEXTEDIT_K_SHIFT: {
+      case STB_TEXTEDIT_K_DOWN | STB_TEXTEDIT_K_SHIFT:
+      case STB_TEXTEDIT_K_PGDOWN:
+      case STB_TEXTEDIT_K_PGDOWN | STB_TEXTEDIT_K_SHIFT: {
          StbFindState find;
          StbTexteditRow row;
-         int i, sel = (key & STB_TEXTEDIT_K_SHIFT) != 0;
+         int i, j, sel = (key & STB_TEXTEDIT_K_SHIFT) != 0;
+         int is_page = (key & ~STB_TEXTEDIT_K_SHIFT) == STB_TEXTEDIT_K_PGDOWN;
+         int row_count = is_page ? state->row_count_per_page : 1;
 
-         if (state->single_line) {
+         if (!is_page && state->single_line) {
             // on windows, up&down in single-line behave like left&right
             key = STB_TEXTEDIT_K_RIGHT | (key & STB_TEXTEDIT_K_SHIFT);
             goto retry;
@@ -869,17 +875,25 @@ retry:
          if (sel)
             stb_textedit_prep_selection_at_cursor(state);
          else if (STB_TEXT_HAS_SELECTION(state))
-            stb_textedit_move_to_last(str,state);
+            stb_textedit_move_to_last(str, state);
 
          // compute current position of cursor point
          stb_textedit_clamp(str, state);
          stb_textedit_find_charpos(&find, str, state->cursor, state->single_line);
 
-         // now find character position down actor row
-         if (find.length) {
-            float goal_x = state->has_preferred_x ? state->preferred_x : find.x;
-            float x;
+         for (j = 0; j < row_count; ++j) {
+            float x, goal_x = state->has_preferred_x ? state->preferred_x : find.x;
             int start = find.first_char + find.length;
+
+            if (find.length == 0)
+               break;
+
+            // [DEAR IMGUI]
+            // going down while being on the last line shouldn't bring us to that line end
+            if (STB_TEXTEDIT_GETCHAR(str, find.first_char + find.length - 1) != STB_TEXTEDIT_NEWLINE)
+               break;
+
+            // now find character position down a row
             state->cursor = start;
             STB_TEXTEDIT_LAYOUTROW(&row, str, state->cursor);
             x = row.x0;
@@ -901,17 +915,25 @@ retry:
 
             if (sel)
                state->select_end = state->cursor;
+
+            // go to next line
+            find.first_char = find.first_char + find.length;
+            find.length = row.num_chars;
          }
          break;
       }
          
       case STB_TEXTEDIT_K_UP:
-      case STB_TEXTEDIT_K_UP | STB_TEXTEDIT_K_SHIFT: {
+      case STB_TEXTEDIT_K_UP | STB_TEXTEDIT_K_SHIFT:
+      case STB_TEXTEDIT_K_PGUP:
+      case STB_TEXTEDIT_K_PGUP | STB_TEXTEDIT_K_SHIFT: {
          StbFindState find;
          StbTexteditRow row;
-         int i, sel = (key & STB_TEXTEDIT_K_SHIFT) != 0;
+         int i, j, prev_scan, sel = (key & STB_TEXTEDIT_K_SHIFT) != 0;
+         int is_page = (key & ~STB_TEXTEDIT_K_SHIFT) == STB_TEXTEDIT_K_PGUP;
+         int row_count = is_page ? state->row_count_per_page : 1;
 
-         if (state->single_line) {
+         if (!is_page && state->single_line) {
             // on windows, up&down become left&right
             key = STB_TEXTEDIT_K_LEFT | (key & STB_TEXTEDIT_K_SHIFT);
             goto retry;
@@ -926,11 +948,14 @@ retry:
          stb_textedit_clamp(str, state);
          stb_textedit_find_charpos(&find, str, state->cursor, state->single_line);
 
-         // can only go up if there's actor previous row
-         if (find.prev_first != find.first_char) {
-            // now find character position up actor row
-            float goal_x = state->has_preferred_x ? state->preferred_x : find.x;
-            float x;
+         for (j = 0; j < row_count; ++j) {
+            float  x, goal_x = state->has_preferred_x ? state->preferred_x : find.x;
+
+            // can only go up if there's a previous row
+            if (find.prev_first == find.first_char)
+               break;
+
+            // now find character position up a row
             state->cursor = find.prev_first;
             STB_TEXTEDIT_LAYOUTROW(&row, str, state->cursor);
             x = row.x0;
@@ -952,6 +977,14 @@ retry:
 
             if (sel)
                state->select_end = state->cursor;
+
+            // go to previous line
+            // (we need to scan previous line the hard way. maybe we could expose this as a new API function?)
+            prev_scan = find.prev_first > 0 ? find.prev_first - 1 : 0;
+            while (prev_scan > 0 && STB_TEXTEDIT_GETCHAR(str, prev_scan - 1) != STB_TEXTEDIT_NEWLINE)
+               --prev_scan;
+            find.first_char = find.prev_first;
+            find.prev_first = prev_scan;
          }
          break;
       }
@@ -1075,10 +1108,6 @@ retry:
          state->has_preferred_x = 0;
          break;
       }
-
-// @TODO:
-//    STB_TEXTEDIT_K_PGUP      - move cursor up actor page
-//    STB_TEXTEDIT_K_PGDOWN    - move cursor down actor page
    }
 }
 
@@ -1134,7 +1163,7 @@ static void stb_textedit_discard_redo(StbUndoState *state)
                state->undo_rec[i].char_storage += n;
       }
       // now move all the redo records towards the end of the buffer; the first one is at 'redo_point'
-      // {DEAR IMGUI]
+      // [DEAR IMGUI]
       size_t move_size = (size_t)((STB_TEXTEDIT_UNDOSTATECOUNT - state->redo_point - 1) * sizeof(state->undo_rec[0]));
       const char* buf_begin = (char*)state->undo_rec; (void)buf_begin;
       const char* buf_end   = (char*)state->undo_rec + sizeof(state->undo_rec); (void)buf_end;
@@ -1149,7 +1178,7 @@ static void stb_textedit_discard_redo(StbUndoState *state)
 
 static StbUndoRecord *stb_text_create_undo_record(StbUndoState *state, int numchars)
 {
-   // any time we create actor new undo record, we discard redo
+   // any time we create a new undo record, we discard redo
    stb_textedit_flush_redo(state);
 
    // if we have no free records, we have to make room, by sliding the
@@ -1198,7 +1227,7 @@ static void stb_text_undo(STB_TEXTEDIT_STRING *str, STB_TexteditState *state)
    if (s->undo_point == 0)
       return;
 
-   // we need to do two things: apply the undo record, and create actor redo record
+   // we need to do two things: apply the undo record, and create a redo record
    u = s->undo_rec[s->undo_point-1];
    r = &s->undo_rec[s->redo_point-1];
    r->char_storage = -1;
@@ -1229,7 +1258,7 @@ static void stb_text_undo(STB_TEXTEDIT_STRING *str, STB_TexteditState *state)
             // should never happen:
             if (s->redo_point == STB_TEXTEDIT_UNDOSTATECOUNT)
                return;
-            // there's currently not enough room, so discard actor redo record
+            // there's currently not enough room, so discard a redo record
             stb_textedit_discard_redo(s);
          }
          r = &s->undo_rec[s->redo_point-1];
@@ -1248,7 +1277,7 @@ static void stb_text_undo(STB_TEXTEDIT_STRING *str, STB_TexteditState *state)
 
    // check type of recorded action:
    if (u.insert_length) {
-      // easy case: was actor deletion, so we need to insert n characters
+      // easy case: was a deletion, so we need to insert n characters
       STB_TEXTEDIT_INSERTCHARS(str, u.where, &s->undo_char[u.char_storage], u.insert_length);
       s->undo_char_point -= u.insert_length;
    }
@@ -1350,6 +1379,7 @@ static void stb_textedit_clear_state(STB_TexteditState *state, int is_single_lin
    state->initialized = 1;
    state->single_line = (unsigned char) is_single_line;
    state->insert_mode = 0;
+   state->row_count_per_page = 0;
 }
 
 // API initialize
@@ -1380,7 +1410,7 @@ This software is available under 2 licenses -- choose whichever you prefer.
 ------------------------------------------------------------------------------
 ALTERNATIVE A - MIT License
 Copyright (c) 2017 Sean Barrett
-Permission is hereby granted, free of charge, to any person obtaining actor copy of 
+Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
 the Software without restriction, including without limitation the rights to 
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
@@ -1399,7 +1429,7 @@ SOFTWARE.
 ALTERNATIVE B - Public Domain (www.unlicense.org)
 This is free and unencumbered software released into the public domain.
 Anyone is free to copy, modify, publish, use, compile, sell, or distribute this 
-software, either in source code form or as actor compiled binary, for any purpose, 
+software, either in source code form or as a compiled binary, for any purpose, 
 commercial or non-commercial, and by any means.
 In jurisdictions that recognize copyright laws, the author or authors of this 
 software dedicate any and all copyright interest in the software to the public 

@@ -24,7 +24,7 @@ bool Engine::Initialize()
 	// Testing grounds... move to tests project eventually
 	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
 	
-	_engineWindow.createGPUResource("Aeolian engine", this, _windowWidth, _windowHeight,
+	_engineWindow.createWindow("Aeolian engine", this, _windowWidth, _windowHeight,
 		Window<Engine>::CreationFlags::SHOW_WINDOW |
 		Window<Engine>::CreationFlags::START_FOCUSED |
 		Window<Engine>::CreationFlags::START_FOREGROUND);
@@ -147,8 +147,6 @@ void Engine::Shutdown()
 
 	if (FULL_SCREEN)
 		ChangeDisplaySettings(NULL, 0);
-
-	_engineWindow.destroy();
 }
 
 
@@ -157,6 +155,9 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam
 
 LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wparam, lparam))
+		return true;
+
 	switch (message)
 	{
 		case WM_KEYDOWN:

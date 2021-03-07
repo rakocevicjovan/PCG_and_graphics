@@ -26,7 +26,7 @@ public:
 				GuiBlocks::displayTransform(concatSMat);
 
 				SQuat squat = SQuat::CreateFromRotationMatrix(concatSMat);
-				ImGui::InputFloat4("Quat: ", &squat.x, 3, ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputFloat4("Quat: ", &squat.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
 				ImGui::EndTooltip();
 			}

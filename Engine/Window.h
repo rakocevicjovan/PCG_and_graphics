@@ -4,13 +4,12 @@
 #include <memory>
 #include <cstdlib>
 #include <cstring>
-#include <mutex>
 #include <cassert>
 #include <map>
 
 // Necessary for friend declaration
 template <typename WindowInputHandlerType>
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 
 template <typename WindowInputHandlerType>
 class Window
@@ -26,7 +25,8 @@ private:
 	HINSTANCE _hinstance;
 	std::unique_ptr<wchar_t[]> _windowName;
 
-	//@TODO add mapping between my flags and windows flags, for now it's hardcoded
+	// This is windows specific and shouldn't be exposed by the header. Not sure how other OS do it.
+	// @TODO add mapping between my flags and windows flags, for now it's hardcoded
 	static void RegisterWindowClass(HINSTANCE hinstance, WNDPROC wndProc, uint32_t flags)
 	{
 		// Setup the windows class with default settings and register it
@@ -62,15 +62,15 @@ public:
 
 
 	// Passing 0 for either width or height results in the window fully covering the given dimension of the screen.
-	void createGPUResource(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
+	void createWindow(const char* windowName, WindowInputHandlerType* handler, int w, int h, uint32_t flags)
 	{
 		_hinstance = GetModuleHandle(NULL);	// Get the instance of this application.
 
-		// This is windows specific and shouldn't be exposed by the header. Not sure how other OS do it.
+		// Create window class.
 		static std::once_flag windowClassCreated{};
 		std::call_once(windowClassCreated, RegisterWindowClass, _hinstance, WndProc<WindowInputHandlerType>, flags);
 
-		// Creating the actual window. As opposed to window class.
+		// Creating the window belonging to the above class.
 		size_t windowNameLength = std::strlen(windowName) + 1;
 		_windowName = std::make_unique<wchar_t[]>(windowNameLength);
 		std::mbstowcs(_windowName.get(), windowName, windowNameLength);
@@ -79,12 +79,13 @@ public:
 		int scrW = GetSystemMetrics(SM_CXSCREEN);
 		int scrH = GetSystemMetrics(SM_CYSCREEN);
 
-		bool fullScreen = (!w || !h);
-
-		_w = (w) ? scrW : w;
-		_h = (h) ? scrH : h;
+		_w = (w) ? w : scrW;
+		_h = (h) ? h : scrH;
 		_x = (scrW - w) / 2;
 		_y = (scrH - h) / 2;
+
+		// This should be changed later with a proper flag to support borderless windowed instead of inferring it
+		bool fullScreen{ _w == scrW && _h == scrH };
 
 		// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
 		DEVMODE dmScreenSettings;
@@ -138,12 +139,13 @@ public:
 	}
 
 
-
 	~Window()
 	{
-		destroy();
+		if (_hwnd && _hinstance)
+		{
+			destroy();
+		}
 	}
-
 
 
 	void destroy()
@@ -173,15 +175,10 @@ public:
 };
 
 
-extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 template <typename WindowInputHandlerType>
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-	if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
-		return true;
-
-	switch (umessage)
+	switch (message)
 	{
 		case WM_DESTROY:
 		{
@@ -197,7 +194,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 
 		default:
 		{
-			return Window<WindowInputHandlerType>::WindowInputHandlers[hwnd]->HandleWindowInput(hwnd, umessage, wparam, lparam);
+			return Window<WindowInputHandlerType>::WindowInputHandlers[hwnd]->HandleWindowInput(hwnd, message, wparam, lparam);
 		}
 	}
 }
