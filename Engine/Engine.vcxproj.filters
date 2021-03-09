@@ -165,6 +165,9 @@
     <Filter Include="Tests">
       <UniqueIdentifier>{4a2c5e4a-bae5-42d3-9d0b-a437ec9fb2f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene management\Components">
+      <UniqueIdentifier>{4622895f-caa0-49cb-9a6d-fa4899fb5eb9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -1059,6 +1062,9 @@
     </ClInclude>
     <ClInclude Include="SceneEditor.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="CTransform.h">
+      <Filter>Scene management\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,16 +2,11 @@
 #include "Scene.h"
 #include "GuiBlocks.h"
 #include "GUI.h"
+#include "CTransform.h"
 
-struct TestComponent
+namespace ComponentEditor
 {
-	float x;
-	float y;
-};
-
-namespace ComponentWidgets
-{
-	// This is a temporary fix, shouldn't be static I believe!
+	// This CAN stay here but normalize the namespace.
 	template<typename Component>
 	static void Display(Component& component)
 	{
@@ -19,16 +14,19 @@ namespace ComponentWidgets
 		static_assert(false && "Missing Display() implementation for component");
 	};
 
+
+	// Individual template specs CAN NOT STAY HERE! Way too dense, even if they are mere wrappers.
 	template<>
-	static void Display(TestComponent& component)
+	static void Display(CTransform& transform)
 	{
-		ImGui::Text("TestStruct print: x: %.3f ; y: %.3f", component.x, component.y);
+		GuiBlocks::displayTransform(transform);
 	}
 
+
 	template<>
-	static void Display(Mesh& component)
+	static void Display(CParentLink& parentLink)
 	{
-		ImGui::Text("Reeee");
+		ImGui::Text("Parent: %d", parentLink.parent);
 	}
 }
 
@@ -41,16 +39,23 @@ private:
 
 	entt::entity _selected = entt::null;
 
+	template <typename... DisplayableComponents>
+	struct DisplayComponents {};
+
+	// Keep the declaration up here and expand on it.
+	static constexpr DisplayComponents<
+		CTransform,
+		CParentLink
+	> _displayComponents{};
+
+
+
 public:
 
 	void init(Scene* scene)
 	{
 		_scene = scene;
 		_registry = &_scene->_registry;
-
-		auto e1 = _registry->create();
-		_registry->emplace<TestComponent>(e1);
-		_registry->emplace<Mesh>(e1);
 	}
 
 	void update()
@@ -77,19 +82,19 @@ private:
 
 		if (ImGui::Button("Add entity"))
 		{
-			_registry->create();
+			auto entity = _registry->create();
+			_registry->emplace<CParentLink>(entity, entt::to_integral(entity) - 1);
 		}
 
 		if (_selected != entt::null)
 		{
-			displayNodeProperties<TestComponent, Mesh>(_registry, _selected);
+			displayNodeProperties(_registry, _selected, std::move(_displayComponents));
 		}
 
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
 		{
 			_selected = entt::null;
 		}
-		
 
 		ImGui::End();
 	}
@@ -98,8 +103,18 @@ private:
 	void drawSceneNode(entt::registry* registry, entt::entity entity)
 	{
 		ImGuiTreeNodeFlags flags =  ImGuiTreeNodeFlags_OpenOnArrow;
+
+		/*if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
+				memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 3);
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
+				memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 4);
+			ImGui::EndDragDropTarget();
+		}*/
+
 		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(entity), flags, "Entity %d", entity);
-		
+
 		if (ImGui::IsItemClicked())
 		{
 			_selected = entity;
@@ -109,6 +124,17 @@ private:
 		{
 			ImGui::TreePop();
 		}
+		
+		if (ImGui::BeginDragDropTarget()) {
+			// Some processing...
+			ImGui::EndDragDropTarget();
+		}
+
+		if (ImGui::BeginDragDropSource()) {
+			// Some processing...
+			ImGui::EndDragDropSource();
+		}
+	
 	}
 
 	
@@ -118,13 +144,13 @@ private:
 		if (registry->has<EditorType>(entity))
 		{
 			auto& component = registry->get<EditorType>(entity);
-			ComponentWidgets::Display(component);
+			ComponentEditor::Display(component);
 		}
 	}
 	
 
 	template <typename... Editables>
-	void displayNodeProperties(entt::registry* registry, entt::entity entity)
+	void displayNodeProperties(entt::registry* registry, entt::entity entity, DisplayComponents<Editables...> a)
 	{
 		if (ImGui::BeginChild("Selected entity"))
 		{

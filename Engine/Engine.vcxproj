@@ -397,6 +397,7 @@
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CSM.h" />
+    <ClInclude Include="CTransform.h" />
     <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Curves.h" />
     <ClInclude Include="DepthStencil.h" />
