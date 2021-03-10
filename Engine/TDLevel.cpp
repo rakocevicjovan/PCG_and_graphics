@@ -517,7 +517,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	GUI::beginFrame();
 
-	_sceneEditor.update();
+	_sceneEditor.display();
 		
 	//ID3D11ShaderResourceView** wat = const_cast<ID3D11ShaderResourceView**>(_scene._csm.getResView());
 	//ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	// pls

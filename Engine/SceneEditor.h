@@ -4,9 +4,14 @@
 #include "GUI.h"
 #include "CTransform.h"
 
+struct CStaticMesh
+{
+	Mesh* mesh;
+};
+
 namespace ComponentEditor
 {
-	// This CAN stay here but normalize the namespace.
+	// This could stay here but normalize the namespace.
 	template<typename Component>
 	static void Display(Component& component)
 	{
@@ -28,6 +33,12 @@ namespace ComponentEditor
 	{
 		ImGui::Text("Parent: %d", parentLink.parent);
 	}
+
+	template<>
+	static void Display(CStaticMesh& staticMesh)
+	{
+		GuiBlocks::displayMesh(staticMesh.mesh);
+	}
 }
 
 class SceneEditor
@@ -45,7 +56,8 @@ private:
 	// Keep the declaration up here and expand on it.
 	static constexpr DisplayComponents<
 		CTransform,
-		CParentLink
+		CParentLink,
+		CStaticMesh
 	> _displayComponents{};
 
 
@@ -58,19 +70,29 @@ public:
 		_registry = &_scene->_registry;
 	}
 
-	void update()
+	void display()
 	{
-		drawHierarchy();
+		if(ImGui::Begin("Editor"))
+		{
+			ImGui::DockSpace(ImGui::GetID("Editor docker"));
+
+			drawEntities();
+
+			if (_selected != entt::null)
+			{
+				displayNodeProperties(_registry, _selected, std::move(_displayComponents));
+			}
+		}
+
+		ImGui::End();
 	}
 
 
 private:
 
-	void drawHierarchy()
+	void drawEntities()
 	{
-		ImGui::DockSpace(ImGui::GetID("Editor docker"));
-
-		if (ImGui::Begin("Scene hierarchy", nullptr))
+		if (ImGui::Begin("Entity list", nullptr))
 		{
 			ImGui::BeginListBox("Entities");
 			_registry->each([&](auto entity)
@@ -84,11 +106,6 @@ private:
 		{
 			auto entity = _registry->create();
 			_registry->emplace<CParentLink>(entity, entt::to_integral(entity) - 1);
-		}
-
-		if (_selected != entt::null)
-		{
-			displayNodeProperties(_registry, _selected, std::move(_displayComponents));
 		}
 
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -152,11 +169,31 @@ private:
 	template <typename... Editables>
 	void displayNodeProperties(entt::registry* registry, entt::entity entity, DisplayComponents<Editables...> a)
 	{
-		if (ImGui::BeginChild("Selected entity"))
+		if (ImGui::Begin("Selected entity") && _selected != entt::null)
 		{
 			((displayExistingComponent<Editables>(registry, entity)), ...);
+
+			ImGui::NewLine();
+
+			showAddComponentPopup();
 		}
-		ImGui::EndChild();
+		ImGui::End();
+	}
+
+	void showAddComponentPopup()
+	{
+		if (ImGui::BeginPopup("Component type"))
+		{
+			ImGui::Text("Type 1");
+			ImGui::Text("Type 2");
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::Button("Add component"))
+		{
+			ImGui::OpenPopup("Component type");
+		}
+		
 	}
 	
 };
