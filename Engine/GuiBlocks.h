@@ -109,6 +109,12 @@ namespace GuiBlocks
 
 	static void displayMesh(Mesh* mesh, bool dMat = true)
 	{
+		if (!mesh)
+		{
+			ImGui::Text("Mesh not set.");
+			return;
+		}
+
 		ImGui::Text("Offset matrix: ");
 		displayTransform(mesh->_transform);
 
@@ -116,9 +122,16 @@ namespace GuiBlocks
 
 		if (dMat)
 		{
-			ImGui::Text("Material: ");
-			displayMaterial(mesh->_material.get());
-			ImGui::Separator();
+			if (mesh->_material)
+			{
+				ImGui::Text("Material: ");
+				displayMaterial(mesh->_material.get());
+				ImGui::Separator();
+			}
+			else
+			{
+				ImGui::Text("Material not set.");
+			}
 		}
 	}
 

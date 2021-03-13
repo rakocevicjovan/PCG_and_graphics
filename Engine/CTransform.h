@@ -8,10 +8,3 @@ struct CTransform
 
 	operator SMatrix&() { return transform; }
 };
-
-// Separate out later
-
-struct CParentLink
-{
-	uint32_t parent;
-};

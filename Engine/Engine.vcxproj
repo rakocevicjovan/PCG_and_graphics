@@ -394,9 +394,12 @@
     <ClInclude Include="ClusteringUnusedCode.h" />
     <ClInclude Include="ClusterManager.h" />
     <ClInclude Include="ClusterManagerGPU.h" />
+    <ClInclude Include="ComponentEditors.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
+    <ClInclude Include="CParentLink.h" />
     <ClInclude Include="CSM.h" />
+    <ClInclude Include="CStaticMesh.h" />
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Curves.h" />

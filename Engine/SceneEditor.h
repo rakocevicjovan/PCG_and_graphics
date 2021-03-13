@@ -3,43 +3,10 @@
 #include "GuiBlocks.h"
 #include "GUI.h"
 #include "CTransform.h"
+#include "ComponentEditors.h"
+#include "CStaticMesh.h"
+#include "ComponentEditors.h"
 
-struct CStaticMesh
-{
-	Mesh* mesh;
-};
-
-namespace ComponentEditor
-{
-	// This could stay here but normalize the namespace.
-	template<typename Component>
-	static void Display(Component& component)
-	{
-		// Could we do it the everything'sfinae way instead?
-		static_assert(false && "Missing Display() implementation for component");
-	};
-
-
-	// Individual template specs CAN NOT STAY HERE! Way too dense, even if they are mere wrappers.
-	template<>
-	static void Display(CTransform& transform)
-	{
-		GuiBlocks::displayTransform(transform);
-	}
-
-
-	template<>
-	static void Display(CParentLink& parentLink)
-	{
-		ImGui::Text("Parent: %d", parentLink.parent);
-	}
-
-	template<>
-	static void Display(CStaticMesh& staticMesh)
-	{
-		GuiBlocks::displayMesh(staticMesh.mesh);
-	}
-}
 
 class SceneEditor
 {
@@ -94,12 +61,14 @@ private:
 	{
 		if (ImGui::Begin("Entity list", nullptr))
 		{
-			ImGui::BeginListBox("Entities");
-			_registry->each([&](auto entity)
-				{
-					drawSceneNode(_registry, entity);
-				});
-			ImGui::EndListBox();
+			if (ImGui::BeginListBox("Entities"))
+			{
+				_registry->each([&](auto entity)
+					{
+						drawSceneNode(_registry, entity);
+					});
+				ImGui::EndListBox();
+			}
 		}
 
 		if (ImGui::Button("Add entity"))
@@ -155,12 +124,12 @@ private:
 	}
 
 	
-	template <typename EditorType>
+	template <typename Editable>
 	void displayExistingComponent(entt::registry* registry, entt::entity entity)
 	{
-		if (registry->has<EditorType>(entity))
+		if (registry->has<Editable>(entity))
 		{
-			auto& component = registry->get<EditorType>(entity);
+			auto& component = registry->get<Editable>(entity);
 			ComponentEditor::Display(component);
 		}
 	}
@@ -175,23 +144,48 @@ private:
 
 			ImGui::NewLine();
 
-			showAddComponentPopup();
+			showAddComponentPopup<Editables...>(registry, entity);
 		}
 		ImGui::End();
 	}
 
-	void showAddComponentPopup()
+	template<typename Editable>
+	void showAddComponent(entt::registry* registry, entt::entity entity)
 	{
-		if (ImGui::BeginPopup("Component type"))
+		if (!registry->has<Editable>(entity))
 		{
-			ImGui::Text("Type 1");
-			ImGui::Text("Type 2");
-			ImGui::EndPopup();
+			char buf[128];
+			sprintf(buf, "Add %s", ComponentEditor::GetComponentTypeName<Editable>());
+			if (ImGui::Button(buf))
+			{
+				registry->emplace<Editable>(entity);
+				ImGui::CloseCurrentPopup();
+			}
 		}
+	}
+
+	template <typename... Editables>
+	void showAddComponentPopup(entt::registry* registry, entt::entity entity)
+	{
+		/* This doesn't seem to work, probably because idk how to write a lambda template
+		auto lamebda = [](entt::registry* registry, entt::entity entity)
+		{
+			if (!registry.has<Editable>(entity))
+			{
+				ImGui::Text("Elligible type found");
+			}
+		};
+		*/
 
 		if (ImGui::Button("Add component"))
 		{
-			ImGui::OpenPopup("Component type");
+			ImGui::OpenPopup("Select type to add");
+		}
+
+		if (ImGui::BeginPopup("Select type to add"))
+		{
+			((showAddComponent<Editables>(registry, entity)), ...);
+			ImGui::EndPopup();
 		}
 		
 	}

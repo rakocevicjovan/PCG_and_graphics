@@ -1066,6 +1066,15 @@
     <ClInclude Include="CTransform.h">
       <Filter>Scene management\Components</Filter>
     </ClInclude>
+    <ClInclude Include="ComponentEditors.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="CParentLink.h">
+      <Filter>Scene management\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CStaticMesh.h">
+      <Filter>Scene management\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
