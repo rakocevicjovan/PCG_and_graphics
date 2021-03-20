@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "RenderTarget.h"
 #include "CloudscapeDefinition.h"
+#include "ScreenSpaceDrawer.h"
 
 #include <sstream>
 #include <iomanip>

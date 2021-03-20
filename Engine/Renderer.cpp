@@ -50,7 +50,7 @@ bool Renderer::createGlobalBuffers()
 	_VSperFrameBuffer.bindToVS(_deviceContext, VS_PER_FRAME_CBUFFER_REGISTER);
 
 	_PSperCamBuffer.init(_device, CBuffer::createDesc(sizeof(PSPerCameraBuffer)));
-	_PSperCamBuffer.updateWithStruct(_deviceContext, PSPerCameraBuffer{ _windowWidth, _windowHeight, _cam._frustum._zn, _cam._frustum._zf });
+	_PSperCamBuffer.updateWithStruct(_deviceContext, PSPerCameraBuffer{ _cam.GetProjectionMatrix(), _windowWidth, _windowHeight, _cam._frustum._zn, _cam._frustum._zf });
 	_PSperCamBuffer.bindToPS(_deviceContext, PS_PER_CAMERA_CBUFFER_REGISTER);
 
 	_PSperFrameBuffer.init(_device, CBuffer::createDesc(sizeof(PSPerFrameBuffer)));

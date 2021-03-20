@@ -1,9 +1,11 @@
-struct GeomInputType{
+struct GeomInputType
+{
     float4 position : SV_POSITION;
 	float4 worldPos : WPOS;
 };
 
-struct Pyxis{
+struct Pyxis
+{
     float4 position : SV_POSITION;
 	noperspective float3 distance : DIST;
 };

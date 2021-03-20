@@ -162,9 +162,6 @@
     <Filter Include="Metrics">
       <UniqueIdentifier>{e0955606-d5b4-4ddb-946a-63ef18496a45}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tests">
-      <UniqueIdentifier>{4a2c5e4a-bae5-42d3-9d0b-a437ec9fb2f5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene management\Components">
       <UniqueIdentifier>{4622895f-caa0-49cb-9a6d-fa4899fb5eb9}</UniqueIdentifier>
     </Filter>
@@ -1140,6 +1137,12 @@
     </None>
     <None Include="ClassDiagram.cd" />
     <None Include="ToneMapping.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="Reserved_CB_VS.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
+    <None Include="Reserved_CB_PS.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </None>
   </ItemGroup>

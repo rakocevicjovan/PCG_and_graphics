@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "RenderQueue.h"
 #include "RenderStateManager.h"
-#include "ScreenSpaceDrawer.h"
 #include "StackAllocator.h"
 #include "ClusterManager.h"
 #include <memory>
@@ -62,6 +61,7 @@ struct VSPerFrameBuffer
 
 struct PSPerCameraBuffer
 {
+	SMatrix _projection;
 	float w;
 	float h;
 	float n;

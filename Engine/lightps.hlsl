@@ -1,4 +1,5 @@
 #include "Light.hlsli"
+#include "Reserved_CB_PS.hlsli"
 
 cbuffer LightBuffer : register(b0)
 {
@@ -10,23 +11,6 @@ cbuffer LightBuffer : register(b0)
 	float sli;
     float4 lightPosition;
 };
-
-cbuffer PSPerCameraBuffer : register(b9)
-{
-	float scr_w;
-	float scr_h;
-	float zNear;
-	float zFar;
-}
-
-cbuffer PSPerFrameBuffer : register(b10)
-{
-	float4 eyePos;
-	float elapsed;
-	float delta;
-	float2 padding;
-}
-
 
 struct PixelInputType
 {

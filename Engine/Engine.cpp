@@ -31,7 +31,7 @@ bool Engine::Initialize()
 
 	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), FULL_SCREEN))
 	{
-		//MessageBox(_engineWindow._hwnd, L"Could not initialize Direct3D.", L"Error", MB_OK);
+		OutputDebugStringA("Can't initialize D3D!");
 		return false;
 	}
 
@@ -45,7 +45,7 @@ bool Engine::Initialize()
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
 		_renderer._cam._controller = &_defController;
-		//MessageBox(_engineWindow._hwnd, L"Could not initialize Renderer.", L"Error", MB_OK);
+		OutputDebugStringA("Could not initialize the renderer!");
 		return false;
 	}
 
@@ -54,8 +54,7 @@ bool Engine::Initialize()
 	_shaderCompiler.init(_device);
 	_shaderCache.init(&_shaderCompiler);
 	_matCache.init(&_shaderCache, &_resMan);
-	
-	//_colEngine.init();		//_colEngine.registerController(_defController);
+
 	_renderer._cam._controller = &_defController;
 
 	GUI::initDxWin32(_engineWindow.handle(), _device, _deviceContext);
@@ -69,7 +68,6 @@ bool Engine::Initialize()
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "../Tower Defense/Ledger.json";
 	_resMan._assetLedger._ledgerFilePath = _project._ledgerPath;
-
 	_resMan._assetLedger.load();
 	_resMan._assetLedger.purge();
 
