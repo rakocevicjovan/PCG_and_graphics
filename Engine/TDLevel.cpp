@@ -63,7 +63,7 @@ void TDLevel::init(Engine& sys)
 	terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 	terrain.SetUp(S_DEVICE);
 
-
+	
 	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 
@@ -80,33 +80,6 @@ void TDLevel::init(Engine& sys)
 	terrainActor._collider.collidable = false;
 	//_scene._actors.push_back(&terrainActor);
 
-
-
-	/// DEBUG
-
-	std::vector<PLight> lightList(16);
-
-	for (int i = 0; i < lightList.size(); ++i)
-	{
-		SVec3 pos = SVec3(i % 4, .0f, i / 4) * 50.f + SVec3(0, 10., 0.f);
-		lightList[i] = PLight(Math::getNormalizedVec3(SVec3(i % 2, (i / 2) % 2, ((16 - i) / 4))), 100., SVec3(&pos.x));
-		_scene._lightManager.get()->addPointLight(lightList[i]);
-	}
-
-	// Dissect this and similar init-s for assets, it's not tolerable, all needs to go data driven!
-	SMatrix dbgSphMat = SMatrix::CreateScale(lightList[0]._posRange.w);
-	Math::SetTranslation(dbgSphMat, SVec3(&lightList[0]._posRange.x));
-
-	Renderable dbgRenderable(S_RESMAN.getByName<Model>("Skysphere")->_meshes[0]);	//, _lightList[0]._posRange.w
-	dbgRenderable.mat = new Material(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), true);
-
-	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
-	debugSphereActor._renderables.back()._transform = dbgSphMat;
-	//debugSphereActor._renderables[0].mat->_texMetaData.push_back({ &floorMesh._textures.back(), TextureRole::DIFFUSE });
-	
-	///
-
-
 	// Initialize navigation grid
 	_navGrid = NavGrid(10, 10, SVec2(50.f), terrain.getOffset());
 	_navGrid.forbidCell(99);
@@ -114,7 +87,6 @@ void TDLevel::init(Engine& sys)
 	AStar<pureDijkstra>::fillGraph(_navGrid._cells, _navGrid._edges, GOAL_INDEX);
 	_navGrid.setGoalIndex(GOAL_INDEX);
 	_navGrid.fillFlowField();
-
 
 	// Initialize all enemies
 	_creeps.reserve(NUM_ENEMIES);
@@ -143,20 +115,37 @@ void TDLevel::init(Engine& sys)
 		_scene._actors.push_back(&(_creeps[i]));
 	}
 
-	/*
-	_testActors.resize(10);
-	for (auto& ta : _testActors)
-	{
-		ta.handle = _scene.addRenderable(Renderable(modelPtr->_meshes[0]));
-	}
-	*/
-
 	//Add building types, @TODO make data driven
 	addBuildables();
 
 	//Add resource types, @TODO make data driven
 	_eco.createResource("Coin", 1000);
 	_eco.createResource("Wood", 1000);
+
+	/// DEBUG
+
+	/*
+	std::vector<PLight> lightList(16);
+
+	for (int i = 0; i < lightList.size(); ++i)
+	{
+		SVec3 pos = SVec3(i % 4, .0f, i / 4) * 50.f + SVec3(0, 10., 0.f);
+		lightList[i] = PLight(Math::getNormalizedVec3(SVec3(i % 2, (i / 2) % 2, ((16 - i) / 4))), 100., SVec3(&pos.x));
+		_scene._lightManager.get()->addPointLight(lightList[i]);
+	}
+
+	// Dissect this and similar init-s for assets, it's not tolerable, all needs to go data driven!
+	SMatrix dbgSphMat = SMatrix::CreateScale(lightList[0]._posRange.w);
+	Math::SetTranslation(dbgSphMat, SVec3(&lightList[0]._posRange.x));
+
+	Renderable dbgRenderable(S_RESMAN.getByName<Model>("Skysphere")->_meshes[0]);	//, _lightList[0]._posRange.w
+	dbgRenderable.mat = new Material(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"), true);
+
+	debugSphereActor.addRenderable(dbgRenderable, lightList[0]._posRange.w);
+	debugSphereActor._renderables.back()._transform = dbgSphMat;
+	//debugSphereActor._renderables[0].mat->_texMetaData.push_back({ &floorMesh._textures.back(), TextureRole::DIFFUSE });
+	*/
+
 
 #ifdef DEBUG_OCTREE
 	Procedural::Geometry g1;
@@ -567,11 +556,6 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	_eco.renderEconomyWidget();
-
-	// AAAAAA
-	//_editor.display(_scene._actors);
-	//_loaderGui.displayModel(S_DEVICE);
-
 	
 	GUI::endFrame();
 
@@ -605,31 +589,6 @@ for (int i = 0; i < 125; ++i)
 	box.renderables[0].mat = &creepMat;
 	box.renderables[0].pLight = &pLight;
 */
-
-
-/* for debugging pbr, its done now
-	// in init()
-	globe.LoadModel(S_DEVICE, "../Models/PBR/Globe/Globe.obj");
-	globe.meshes[0]._baseMaterial.setVS(S_SHCACHE.getVertShader("basicVS"));
-	globe.meshes[0]._baseMaterial.setPS(S_SHCACHE.getPixShader("CookTorrancePS"));
-	globe.meshes[0]._baseMaterial._texDescription;
-
-	globeRenderable = Renderable(globe.meshes[0]);
-	globeRenderable.mat->pLight = &pLight;
-
-	// in draw()
-	S_RANDY.render(globeRenderable);
-	Math::SetTranslation(_creeps[0].renderables[0]._transform, SVec3(&pLight.pos.x));
-	S_RANDY.render(_creeps[0].renderables[0]);
-*/
-
-
-//_csm.createShadowPassFrusta(*rc.cam, dlViewMatrix, dlCamMatrix);
-/*for (int i = 0; i < projMats.size(); ++i)
-{
-	frustumRenderable._transform = projMats[i].Invert() * dlCamMatrix;
-	S_RANDY.render(frustumRenderable);
-}*/
 
 /*
 // Create a box mesh for frustum debugging

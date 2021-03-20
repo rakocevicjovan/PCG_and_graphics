@@ -33,6 +33,7 @@ public:
 
 	//set manually, similar to reflected data minus the texture bind slots
 	std::vector<CBuffer> _cbuffers;
+	std::vector<CBufferMeta> _cbufferMetaData;
 
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
 	std::array<TexLayout, TextureRole::NUM_ROLES> _textureRegisters;
@@ -42,10 +43,7 @@ public:
 
 	inline void describeBuffers(const std::vector<CBufferMeta>& meta)
 	{
-		for (int i = 0; i < _cbuffers.size(); i++)
-		{
-			_cbuffers[i]._metaData = meta[i];
-		}
+		_cbufferMetaData = meta;
 	}
 };
 
@@ -92,7 +90,7 @@ public:
 		{
 			_cbuffers[i].map(cont, mr);
 
-			for (const CBufferFieldDesc& cbfd : _cbuffers[i]._metaData._fields)
+			for (const CBufferFieldDesc& cbfd : _cbufferMetaData[i]._fields)
 			{
 				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
 				{

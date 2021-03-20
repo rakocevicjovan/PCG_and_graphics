@@ -44,7 +44,6 @@ bool Engine::Initialize()
 
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
-		_renderer._cam._controller = &_defController;
 		OutputDebugStringA("Could not initialize the renderer!");
 		return false;
 	}
@@ -218,57 +217,3 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 	return 0;
 }
-
-
-/* manual mouse querying code... using directxtk now
-
-case WM_ACTIVATEAPP:
-		{
-			break;
-		}
-		case WM_MOUSEMOVE:
-		{
-			break;
-		}
-		case WM_LBUTTONDOWN:
-		{
-			_inputManager.mouseLPressed();
-			break;
-		}
-		case WM_LBUTTONUP:
-		{
-			_inputManager.mouseLReleased();
-			break;
-		}
-		case WM_RBUTTONDOWN:
-		{
-			_inputManager.mouseRPressed();
-			break;
-		}
-		case WM_RBUTTONUP:
-		{
-			_inputManager.mouseRReleased();
-			break;
-		}
-		case WM_MBUTTONDOWN:
-		{
-			break;
-		}
-		case WM_MBUTTONUP:
-		{
-			break;
-		}
-		case WM_MOUSEWHEEL:
-		{
-			break;
-		}
-		case WM_XBUTTONDOWN:
-		{
-			break;
-		}
-		case WM_XBUTTONUP:
-		{
-			break;
-		}
-
-*/

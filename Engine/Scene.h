@@ -76,9 +76,9 @@ public:
 		//_octree.updateAll();	
 
 		// Don't do it from within the tree, clear and reinsert... profile if this is better
-
+		
+		// This blows too! Easy fix just need to get around to it.
 		_octree.clear();
-
 		for (Actor*& a : _actors)
 		{
 			for(Hull* h : a->_collider.getHulls())
@@ -182,7 +182,7 @@ public:
 
 
 
-	void illuminate(Camera& c)
+	void illuminate(const Camera& c)
 	{
 		// Obtain a list of visible lights, which will remain stored in the light manager
 		_lightManager->cullLights(c._frustum);

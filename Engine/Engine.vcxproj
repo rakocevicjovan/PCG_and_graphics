@@ -435,8 +435,10 @@
     <ClInclude Include="Project.h" />
     <ClInclude Include="RenderCache.h" />
     <ClInclude Include="RenderConfig.h" />
+    <ClInclude Include="RenderingTestLevel.h" />
     <ClInclude Include="RenderStage.h" />
     <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="ReservedBuffers.h" />
     <ClInclude Include="ResourceDef.h" />
     <ClInclude Include="AssetLedger.h" />
     <ClInclude Include="ResourceHandle.h" />

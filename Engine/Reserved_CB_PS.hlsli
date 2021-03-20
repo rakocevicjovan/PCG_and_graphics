@@ -1,17 +1,16 @@
-cbuffer PSPerCameraBuffer : register(b9)
+cbuffer PerCameraBuffer : register(b10)
 {
-	matrix _projection;
+	matrix projectionMatrix;
 	float scr_w;
 	float scr_h;
 	float zNear;
 	float zFar;
 };
 
-
-cbuffer PSPerFrameBuffer : register(b10)
+cbuffer PSPerFrameBuffer : register(b11)
 {
 	float4 eyePos;
-	float elapsed;
 	float delta;
+	float elapsed;
 	float2 padding;
 }

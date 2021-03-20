@@ -150,12 +150,6 @@
     <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\Shaders">
-      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shaders\Generation">
-      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="entt attempt">
       <UniqueIdentifier>{169bc40a-83bb-4602-a984-f7137fb1a598}</UniqueIdentifier>
     </Filter>
@@ -164,6 +158,12 @@
     </Filter>
     <Filter Include="Scene management\Components">
       <UniqueIdentifier>{4622895f-caa0-49cb-9a6d-fa4899fb5eb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shaders">
+      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shaders\Generation">
+      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -1071,6 +1071,12 @@
     </ClInclude>
     <ClInclude Include="CStaticMesh.h">
       <Filter>Scene management\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ReservedBuffers.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderingTestLevel.h">
+      <Filter>TowerDefense</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

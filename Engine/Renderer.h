@@ -5,6 +5,8 @@
 #include "RenderStateManager.h"
 #include "StackAllocator.h"
 #include "ClusterManager.h"
+#include "RenderStage.h"
+#include "ReservedBuffers.h"
 #include <memory>
 
 
@@ -17,20 +19,6 @@ static float NEAR_PLANE = 1.0f;
 // This can be smarter, vary based on needs, but that's a story for another day
 static std::array<UINT, 3> CLUSTER_GRID_DIMS = { 30, 17, 16 };
 
-
-// System-reserved registers.
-
-// For vertex shaders
-#define VS_PER_CAMERA_CBUFFER_REGISTER 10u
-#define VS_PER_FRAME_CBUFFER_REGISTER 11u
-
-// For pixel shaders
-#define PS_PER_CAMERA_CBUFFER_REGISTER 9u
-#define PS_PER_FRAME_CBUFFER_REGISTER 10u
-
-#define PS_CSM_CBUFFER_REGISTER 11u
-#define PS_CSM_TEXTURE_REGISTER 11u
-
 class Renderable;
 
 
@@ -41,40 +29,6 @@ struct RenderContext
 	float dTime;
 	float elapsed;
 	Camera* cam;
-};
-
-
-struct VSPerCameraBuffer
-{
-	SMatrix proj;
-};
-
-
-struct VSPerFrameBuffer
-{
-	SMatrix viewMat;
-	float delta;
-	float elapsed;
-	SVec2 padding;
-};
-
-
-struct PSPerCameraBuffer
-{
-	SMatrix _projection;
-	float w;
-	float h;
-	float n;
-	float f;
-};
-
-
-struct PSPerFrameBuffer
-{
-	SVec4 eyePos;
-	float elapsed;
-	float delta;
-	SVec2 padding;
 };
 
 
@@ -93,9 +47,8 @@ private:
 	ID3D11DeviceContext* _deviceContext;
 	D3D* _d3d;
 
-	CBuffer _VSperCamBuffer;
+	CBuffer _perCamBuffer;
 	CBuffer _VSperFrameBuffer;
-	CBuffer _PSperCamBuffer;
 	CBuffer _PSperFrameBuffer;
 
 	void updateRenderContext(float dTime);
@@ -108,6 +61,8 @@ public:
 	std::unique_ptr<ClusterManager> _clusterManager;
 
 	RenderContext rc;
+
+	std::vector<RenderStage> _stages;
 
 	Renderer();
 	~Renderer();

@@ -23,7 +23,7 @@ Shader::Shader(ID3D11Device* device, const std::wstring& path, const std::vector
 
 void Shader::updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index)
 {
-	_cbuffers[index].update(cont, data, _cbuffers[index]._metaData._size);
+	_cbuffers[index].update(cont, data, _cbufferMetaData[index]._size);
 }
 
 
@@ -117,7 +117,7 @@ void VertexShader::setBuffers(ID3D11DeviceContext* cont)
 {
 	for (int i = 0; i < _cbuffers.size(); ++i)
 	{
-		_cbuffers[i].bindToVS(cont, (_cbuffers[i]._metaData._slot));
+		_cbuffers[i].bindToVS(cont, (_cbufferMetaData[i]._slot));
 	}
 
 	// THIS CAN'T WORK UNLESS THEY ARE CONTIGUOUS IN MEMORY BUT IT'S FASTER! @TODO REORGANIZE THAT PART
@@ -171,7 +171,7 @@ void PixelShader::setBuffers(ID3D11DeviceContext* cont)
 {
 	for (int i = 0; i < _cbuffers.size(); ++i)
 	{
-		_cbuffers[i].bindToPS(cont, _cbuffers[i]._metaData._slot);
+		_cbuffers[i].bindToPS(cont, _cbufferMetaData[i]._slot);
 	}
 
 	// THIS CAN'T WORK UNLESS THEY ARE CONTIGUOUS IN MEMORY BUT IT'S FASTER! @TODO REORGANIZE THAT PART

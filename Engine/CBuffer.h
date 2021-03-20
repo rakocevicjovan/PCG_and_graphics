@@ -47,13 +47,18 @@ private:
 
 public:
 
-	CBufferMeta _metaData;	// Remove, this is often unnecessary! Split into a separate class
-
 	CBuffer() {}
 
 	CBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)
 	{
 		init(device, desc);
+	}
+
+	// Very nice utility for less typing
+	template <typename PODStruct>
+	void createFromStruct(ID3D11Device* device)
+	{
+		init(device, CBuffer::createDesc(sizeof(PODStruct)));
 	}
 
 	void init(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)

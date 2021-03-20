@@ -5,16 +5,19 @@
 #include "TDLevel.h"
 #include "ProjectPickerLevel.h"
 #include "AssimpLoader.h"
+#include "RenderingTestLevel.h"
 
 
 
 LevelManager::LevelManager(Engine& systems)
 {	
 	//_current = new ProjectPickerLevel(systems);	//boring to click through...
-	
-	_current = new TDLevel(systems);
 
 	//_current = new AssimpLoader(systems);
+
+	//_current = new TDLevel(systems);
+
+	_current = new RenderingTestLevel(systems);
 
 	_current->init(systems);
 	_levels.push_back(_current);

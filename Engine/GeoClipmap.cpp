@@ -157,12 +157,6 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 
 
 
-void GeoClipmap::createCrossBuffers(ID3D11Device * device)
-{
-}
-
-
-
 void GeoClipmap::createTextures(ID3D11Device* device)
 {
 	// Textures - 2 per layer, but instead packed into two arrays of _numLayers for faster binding

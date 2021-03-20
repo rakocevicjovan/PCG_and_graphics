@@ -50,7 +50,12 @@ void Octree::deleteNode(OctNode*& pNode)
 // Once per frame deallocate what's not required... fairly fast with a pool allocator
 void Octree::lazyTrim()
 {
-	trimNode(_rootNode);
+	// Avoids deleting root which is just nicer overall, less checks after
+	for (int i = 0; i < 8; ++i)
+	{
+		if (_rootNode->_children[i])
+			trimNode(_rootNode->_children[i]);
+	}
 }
 
 
