@@ -119,25 +119,25 @@ struct DirectionalLight : LightData
 {
 	SVec4 dir;
 
-	ID3D11Buffer* _buffer;
-	
+	CBuffer _buffer;
+
 	DirectionalLight(){}
 	
 	DirectionalLight(LightData ld, SVec4 dir) : LightData(ld), dir(dir) {}
 
 	void createCBuffer(ID3D11Device* device)
 	{
-		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(DirectionalLight) - sizeof(_buffer)), _buffer);
+		_buffer.init(device, CBuffer::createDesc(sizeof(DirectionalLight) - sizeof(_buffer)));
 	}
 
 	void updateCBuffer(ID3D11DeviceContext* context)
 	{
-		CBuffer::updateWholeBuffer(context, _buffer, this, sizeof(DirectionalLight) - sizeof(_buffer));
+		_buffer.update(context, this, sizeof(DirectionalLight) - sizeof(_buffer));
 	}
 
 	void bind(ID3D11DeviceContext* context, uint8_t slot = 0ul)
 	{
-		context->PSSetConstantBuffers(slot, 1, &_buffer);
+		_buffer.bindToPS(context, slot);
 	}
 };
 
@@ -147,7 +147,7 @@ struct PointLight : LightData
 {
 	SVec4 pos;
 
-	ID3D11Buffer* _buffer;
+	CBuffer _buffer;
 
 	PointLight(){}
 
@@ -156,17 +156,17 @@ struct PointLight : LightData
 	// See how this feels to use then apply it to other lights if it's all right
 	void createCBuffer(ID3D11Device* device)
 	{
-		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(PointLight) - sizeof(_buffer)), _buffer);
+		_buffer.init(device, CBuffer::createDesc(sizeof(PointLight) - sizeof(_buffer)));
 	}
 
 	void updateCBuffer(ID3D11DeviceContext* context)
 	{
-		CBuffer::updateWholeBuffer(context, _buffer, this, sizeof(PointLight) - sizeof(_buffer));
+		_buffer.update(context, this, sizeof(PointLight) - sizeof(_buffer));
 	}
 
 	void bind(ID3D11DeviceContext* context, uint8_t slot = 0ul)
 	{
-		context->PSSetConstantBuffers(slot, 1, &_buffer);
+		_buffer.bindToPS(context, slot);
 	}
 };
 

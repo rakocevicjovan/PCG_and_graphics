@@ -17,7 +17,7 @@ public:
 
 	SkeletalModelInstance() : _skm(nullptr) {}
 
-	bool init(ID3D11Device* dvc, SkeletalModel* skm)
+	bool init(ID3D11Device* device, SkeletalModel* skm)
 	{
 		_skm = skm;
 
@@ -26,10 +26,7 @@ public:
 
 		UINT numBones = 144;
 
-		D3D11_BUFFER_DESC desc = CBuffer::createDesc(sizeof(SMatrix) * numBones);
-
-		if (FAILED(dvc->CreateBuffer(&desc, NULL, &_skMatsBuffer._cbPtr)))
-			return false;
+		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * numBones));
 
 		// Jingle bells, code smells... Law of Demeter RIP
 		//_skeletonMatrices.resize(_skm->_skeleton->_boneMap.size());
@@ -67,10 +64,8 @@ public:
 
 	void draw(ID3D11DeviceContext* context)
 	{
-		_skMatsBuffer.updateWholeBuffer(
-			context, _skMatsBuffer._cbPtr, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_bones.size());
-
-		context->VSSetConstantBuffers(1, 1, &_skMatsBuffer._cbPtr);
+		_skMatsBuffer.update(context, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_bones.size());
+		_skMatsBuffer.bindToVS(context, 1);
 
 		for (SkeletalMesh& m : _skm->_meshes)
 		{

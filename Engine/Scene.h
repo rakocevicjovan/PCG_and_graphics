@@ -19,7 +19,7 @@ private:
 	MaterialCache& _matCache;
 	Engine& _sys;
 
-	SparseSet<Renderable> _renderCache;
+	//SparseSet<Renderable> _renderCache;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;
@@ -57,8 +57,7 @@ public:
 		_matCache(sys._matCache),
 		_sys(sys),
 		_octree(scope, subdivLevels),
-		_numCulled(0u),
-		_renderCache(1024)
+		_numCulled(0u)
 	{
 		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
 		_octree.preallocateRootOnly();
@@ -67,7 +66,7 @@ public:
 
 	auto addRenderable(Renderable&& renderable)
 	{
-		return _renderCache.insert(std::move(renderable));
+		//return _renderCache.insert(std::move(renderable));
 	}
 
 
@@ -97,14 +96,14 @@ public:
 
 	void draw()
 	{
-		/* This works. Now to add culling and connect it to transforms in a good way. */
+		/* This works. Now to add culling and connect it to transforms in a good way.
 		_renderCache.forEach(
 			[&renderer = _renderer, frustum = _renderer._cam._frustum](auto& indexedObject)
 		{
 			indexedObject._obj._transform = SMatrix::CreateScale(4);
 			renderer.addToRenderQueue(indexedObject._obj);
 		});
-		/**/
+		*/
 
 		frustumCullScene(_renderer._cam);
 

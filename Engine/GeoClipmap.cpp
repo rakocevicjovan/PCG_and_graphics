@@ -26,7 +26,7 @@ void GeoClipmap::init(ID3D11Device* device)
 	_vertShader = VertexShader(device, L"GeoClipmapVS.hlsl", inLayDesc, {});
 
 	D3D11_BUFFER_DESC bufferDesc = CBuffer::createDesc(sizeof(GeoClipmapBuffer));
-	_cBuffer.createBuffer(device, bufferDesc, _cBuffer._cbPtr);
+	_cBuffer.init(device, bufferDesc);
 
 	createBuffers(device);
 	createTextures(device);
@@ -291,7 +291,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	context->VSSetShader(_vertShader._vsPtr, NULL, 0);
 	context->PSSetShader(NULL, NULL, 0);
 	context->IASetInputLayout(_vertShader._layout);
-	context->VSSetConstantBuffers(0, 1, &_cBuffer._cbPtr);
+	_cBuffer.bindToVS(context, 0);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Core rendering
@@ -302,7 +302,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	_bufferData.scaleTranslation.y = _coreVertSpacing;
 	_bufferData.scaleTranslation.z = _coreOffset.x;
 	_bufferData.scaleTranslation.w = _coreOffset.y;
-	_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+	_cBuffer.updateWithStruct(context, _bufferData);
 	context->DrawIndexed(_coreIB.getIdxCount(), 0, 0);
 
 	// Block rendering
@@ -320,7 +320,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 		{
 			_bufferData.scaleTranslation.z = offset.x;
 			_bufferData.scaleTranslation.w = offset.y;
-			_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+			_cBuffer.updateWithStruct(context, _bufferData);
 			context->DrawIndexed(_blockIB.getIdxCount(), 0, 0);
 		}
 	}
@@ -333,7 +333,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	for (UINT i = 0; i < _numLayers; ++i)
 	{
 		_bufferData.scaleTranslation = SVec4(_layers[i]._size.x, _layers[i]._size.y, 0., 0.);
-		_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+		_cBuffer.updateWithStruct(context, _bufferData);
 		context->DrawIndexed(_crossIB.getIdxCount(), 0, 0);
 	}
 
@@ -350,7 +350,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 		_bufferData.scaleTranslation.z = _layers[i]._offset.x + _layers[i]._blockSize.x;
 		_bufferData.scaleTranslation.w = _layers[i]._offset.y + _layers[i]._blockSize.y;
 
-		_cBuffer.updateWithStruct(context, _cBuffer._cbPtr, _bufferData);
+		_cBuffer.updateWithStruct(context, _bufferData);
 		context->DrawIndexed(_rimIB.getIdxCount(), 0, 0);
 	}
 

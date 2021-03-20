@@ -90,15 +90,6 @@ private:
 	{
 		ImGuiTreeNodeFlags flags =  ImGuiTreeNodeFlags_OpenOnArrow;
 
-		/*if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
-				memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 3);
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
-				memcpy((float*)&saved_palette[n], payload->Data, sizeof(float) * 4);
-			ImGui::EndDragDropTarget();
-		}*/
-
 		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(entity), flags, "Entity %d", entity);
 
 		if (ImGui::IsItemClicked())
@@ -120,10 +111,10 @@ private:
 			// Some processing...
 			ImGui::EndDragDropSource();
 		}
-	
 	}
 
 	
+
 	template <typename Editable>
 	void displayExistingComponent(entt::registry* registry, entt::entity entity)
 	{

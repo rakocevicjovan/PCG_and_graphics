@@ -62,9 +62,9 @@ public:
 
 
 		// Initialize buffers used by the csm shader
-		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(SMatrix)), _lvpBuffer._cbPtr);
-		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(SMatrix)), _wmBuffer._cbPtr);
-		CBuffer::createBuffer(device, CBuffer::createDesc(sizeof(ShadowBufferData<numCascades>)), _shadowBuffer._cbPtr);
+		_lvpBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix)));
+		_wmBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix)));
+		_shadowBuffer.init(device, CBuffer::createDesc(sizeof(ShadowBufferData<numCascades>)));
 
 		_depthStencil.createDepthStencil(device, _width, _height, DXGI_FORMAT_D32_FLOAT, 0u, numCascades);
 
@@ -150,7 +150,7 @@ public:
 
 		_shBuffData.lvpMatrices[n] = lvpMatTranspose;
 
-		CBuffer::updateWholeBuffer(context, _lvpBuffer._cbPtr, &lvpMatTranspose, sizeof(SMatrix));
+		_lvpBuffer.updateWithStruct(context, lvpMatTranspose);
 		_lvpBuffer.bindToVS(context, 1);
 	}
 
@@ -163,8 +163,8 @@ public:
 
 		//this is not flexible, it must use the above somehow in order to work properly @TODO
 		SMatrix transformTranspose = r._transform.Transpose();
-		CBuffer::updateWholeBuffer(context, _wmBuffer._cbPtr, &transformTranspose, sizeof(SMatrix));
-		context->VSSetConstantBuffers(0, 1, &_wmBuffer._cbPtr);
+		_wmBuffer.updateWithStruct(context, transformTranspose);
+		_wmBuffer.bindToVS(context, 1);
 
 		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
 		context->IASetInputLayout(_inLay);
@@ -218,8 +218,8 @@ public:
 
 	void uploadCSMBuffer(ID3D11DeviceContext* context, UINT slot)
 	{
-		CBuffer::updateWholeBuffer(context, _shadowBuffer._cbPtr, &_shBuffData, sizeof(_shBuffData));
-		context->PSSetConstantBuffers(slot, 1, &_shadowBuffer._cbPtr);
+		_shadowBuffer.updateWithStruct(context, _shBuffData);
+		_shadowBuffer.bindToPS(context, slot);
 	}
 
 

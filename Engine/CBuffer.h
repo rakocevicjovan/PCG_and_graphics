@@ -1,5 +1,6 @@
 #pragma once
 #include <d3d11_4.h>
+#include <wrl/client.h>
 #include <vector>
 
 // Basically halves the class size with the option to use 8 bit enums...
@@ -8,10 +9,10 @@ enum class CBUFFER_FIELD_CONTENT : uint8_t { TRANSFORM, CSM };
 
 struct CBufferFieldDesc
 {
-	CBUFFER_FIELD_TYPE _type;
+	CBUFFER_FIELD_TYPE _type{ CBUFFER_FIELD_TYPE::FLOAT4 };
 	CBUFFER_FIELD_CONTENT _content;
-	uint16_t _offset;
-	uint16_t _size;
+	uint16_t _offset{0};
+	uint16_t _size{16};
 
 	CBufferFieldDesc(CBUFFER_FIELD_CONTENT content, uint16_t offset, uint16_t size)
 		: _content(content), _offset(offset), _size(size)
@@ -40,57 +41,29 @@ struct CBufferMeta
 
 class CBuffer
 {
+private:
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> _cbPtr{ nullptr };
+
 public:
 
-	ID3D11Buffer* _cbPtr;
-	CBufferMeta _metaData;
+	CBufferMeta _metaData;	// Remove, this is often unnecessary! Split into a separate class
 
-
-	CBuffer() : _cbPtr(nullptr) {}
-
-	CBuffer(const CBuffer& other) : _cbPtr(other._cbPtr)
-	{
-		if (_cbPtr)
-			_cbPtr->AddRef();
-
-		_metaData = other._metaData;
-	}
-
-	CBuffer& operator=(const CBuffer& other)
-	{
-		_cbPtr = other._cbPtr;
-		_cbPtr->AddRef();
-		_metaData = other._metaData;
-		return *this;
-	}
-
-	~CBuffer()
-	{
-		if (_cbPtr)
-			_cbPtr->Release();
-	}
-
-
+	CBuffer() {}
 
 	CBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)
 	{
-		if (!createBuffer(device, desc, _cbPtr))
+		init(device, desc);
+	}
+
+	void init(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)
+	{
+		if (FAILED(device->CreateBuffer(&desc, NULL, _cbPtr.GetAddressOf())))
 		{
 			OutputDebugStringA("Failed to create vertex buffer.");
 			exit(1001);
 		}
 	}
-
-
-
-	static inline bool createBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc, ID3D11Buffer*& buffer)
-	{
-		if (FAILED(device->CreateBuffer(&desc, NULL, &buffer)))
-			return false;
-
-		return true;
-	}
-
 
 
 	inline static D3D11_BUFFER_DESC createDesc(
@@ -113,68 +86,61 @@ public:
 
 
 
-	inline static bool map(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, D3D11_MAPPED_SUBRESOURCE& mappedResource)
+	inline void map(ID3D11DeviceContext* cont, D3D11_MAPPED_SUBRESOURCE& mappedResource) const
 	{
-		if (FAILED(cont->Map(cbuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
-			return false;
-
-		return true;
+		if (FAILED(cont->Map(_cbPtr.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
+		{
+			__debugbreak();
+		}
 	}
 
 
-
-	inline static void updateField(ID3D11Buffer*& cbuffer, void* data, size_t size, size_t offset, D3D11_MAPPED_SUBRESOURCE mappedResource)
+	inline void updateField(void* data, size_t size, size_t offset, D3D11_MAPPED_SUBRESOURCE& mappedResource) const
 	{
 		memcpy(static_cast<UCHAR*>(mappedResource.pData) + offset, data, size);
 	}
 
 
-
-	inline static void unmap(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer)
+	inline void unmap(ID3D11DeviceContext* cont) const
 	{
-		cont->Unmap(cbuffer, 0);
+		cont->Unmap(_cbPtr.Get(), 0);
 	}
 
 
-
-	// utility function for updating all fields at once (if the whole cbuffer CAN be set at once)
-	static bool updateWholeBuffer(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, void* data, size_t size)
+	// Utility function for updating all fields at once, which is the preferred option
+	void update(ID3D11DeviceContext* cont, void* data, size_t size) const
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		
-		if (!map(cont, cbuffer, mappedResource))
-			return false;
+		map(cont, mappedResource);
 
 		memcpy(mappedResource.pData, data, size);
 		
-		unmap(cont, cbuffer);
-
-		return true;
+		unmap(cont);
 	}
 
 
 	template <typename PODStruct>
-	static bool updateWithStruct(ID3D11DeviceContext* cont, ID3D11Buffer*& cbuffer, const PODStruct& s)
+	bool updateWithStruct(ID3D11DeviceContext* cont, const PODStruct& s)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 
-		if (!map(cont, cbuffer, mappedResource))
-			return false;
+		map(cont, mappedResource);
 
 		memcpy(mappedResource.pData, &s, sizeof(PODStruct));
 
-		unmap(cont, cbuffer);
+		unmap(cont);
 
 		return true;
 	}
 
-	void bindToVS(ID3D11DeviceContext* context, uint8_t slot)
+	inline void bindToVS(ID3D11DeviceContext* context, uint8_t slot)
 	{
-		context->VSSetConstantBuffers(slot, 1, &_cbPtr);
+		context->VSSetConstantBuffers(slot, 1, _cbPtr.GetAddressOf());
 	}
 
-	void bindToPS(ID3D11DeviceContext* context, uint8_t slot)
+	inline void bindToPS(ID3D11DeviceContext* context, uint8_t slot)
 	{
-		context->PSSetConstantBuffers(slot, 1, &_cbPtr);
+		context->PSSetConstantBuffers(slot, 1, _cbPtr.GetAddressOf());
 	}
 };

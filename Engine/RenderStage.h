@@ -10,7 +10,6 @@ public:
 
 	RenderStage(ID3D11Device* device)
 	{
-		
 	}
 
 	void bind(ID3D11DeviceContext* context)

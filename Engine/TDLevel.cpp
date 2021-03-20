@@ -143,11 +143,13 @@ void TDLevel::init(Engine& sys)
 		_scene._actors.push_back(&(_creeps[i]));
 	}
 
+	/*
 	_testActors.resize(10);
 	for (auto& ta : _testActors)
 	{
 		ta.handle = _scene.addRenderable(Renderable(modelPtr->_meshes[0]));
 	}
+	*/
 
 	//Add building types, @TODO make data driven
 	addBuildables();

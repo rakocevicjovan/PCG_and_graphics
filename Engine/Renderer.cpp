@@ -12,11 +12,6 @@ Renderer::~Renderer()
 {
 	_deviceContext->Release();
 	_device->Release();
-
-	_VSperCamBuffer->Release();
-	_VSperFrameBuffer->Release();
-	_PSperCamBuffer->Release();
-	_PSperFrameBuffer->Release();
 }
 
 
@@ -46,21 +41,20 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 
 bool Renderer::createGlobalBuffers()
 {
-	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(VSPerCameraBuffer)), _VSperCamBuffer);
-	SMatrix pT = _cam.GetProjectionMatrix().Transpose();
-	CBuffer::updateWholeBuffer(_deviceContext, _VSperCamBuffer, &pT, sizeof(VSPerCameraBuffer));
-	_deviceContext->VSSetConstantBuffers(VS_PER_CAMERA_CBUFFER_REGISTER, 1, &_VSperCamBuffer);
+	_VSperCamBuffer.init(_device, CBuffer::createDesc(sizeof(VSPerCameraBuffer)));
+	SMatrix pT{ _cam.GetProjectionMatrix().Transpose() };
+	_VSperCamBuffer.update(_deviceContext, &pT, sizeof(VSPerCameraBuffer));
+	_VSperCamBuffer.bindToVS(_deviceContext, VS_PER_CAMERA_CBUFFER_REGISTER);
 
-	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(VSPerFrameBuffer)), _VSperFrameBuffer);
-	_deviceContext->VSSetConstantBuffers(VS_PER_FRAME_CBUFFER_REGISTER, 1, &_VSperFrameBuffer);
+	_VSperFrameBuffer.init(_device, CBuffer::createDesc(sizeof(VSPerFrameBuffer)));
+	_VSperFrameBuffer.bindToVS(_deviceContext, VS_PER_FRAME_CBUFFER_REGISTER);
 
-	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(PSPerCameraBuffer)), _PSperCamBuffer);
-	PSPerCameraBuffer pspcb{ _windowWidth, _windowHeight, _cam._frustum._zn, _cam._frustum._zf};
-	CBuffer::updateWholeBuffer(_deviceContext, _PSperCamBuffer, &pspcb, sizeof(PSPerCameraBuffer));
-	_deviceContext->PSSetConstantBuffers(PS_PER_CAMERA_CBUFFER_REGISTER, 1, &_PSperCamBuffer);
+	_PSperCamBuffer.init(_device, CBuffer::createDesc(sizeof(PSPerCameraBuffer)));
+	_PSperCamBuffer.updateWithStruct(_deviceContext, PSPerCameraBuffer{ _windowWidth, _windowHeight, _cam._frustum._zn, _cam._frustum._zf });
+	_PSperCamBuffer.bindToPS(_deviceContext, PS_PER_CAMERA_CBUFFER_REGISTER);
 
-	CBuffer::createBuffer(_device, CBuffer::createDesc(sizeof(PSPerFrameBuffer)), _PSperFrameBuffer);
-	_deviceContext->PSSetConstantBuffers(PS_PER_FRAME_CBUFFER_REGISTER, 1, &_PSperFrameBuffer);
+	_PSperFrameBuffer.init(_device, CBuffer::createDesc(sizeof(PSPerFrameBuffer)));
+	_PSperFrameBuffer.bindToPS(_deviceContext, PS_PER_FRAME_CBUFFER_REGISTER);
 
 	return true;
 }
@@ -82,12 +76,8 @@ bool Renderer::frame(float dTime)
 
 bool Renderer::updatePerFrameBuffers(float dTime)
 {	
-	CBuffer::updateWithStruct(_deviceContext, _VSperFrameBuffer, 
-		VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed});
-
-	CBuffer::updateWithStruct(_deviceContext, _PSperFrameBuffer, 
-		PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), _elapsed, dTime });
-
+	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed });
+	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), _elapsed, dTime });
 	return true;
 }
 

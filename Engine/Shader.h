@@ -1,8 +1,8 @@
 #pragma once
 #include "ShaderCompiler.h"
 #include "Math.h"
-#include "CBuffer.h"
 #include "TextureRole.h"
+#include "CBuffer.h"
 #include <array>
 
 
@@ -38,7 +38,7 @@ public:
 	std::array<TexLayout, TextureRole::NUM_ROLES> _textureRegisters;
 
 	// alternative to the automatic system, for custom data
-	bool updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);
+	void updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);
 
 	inline void describeBuffers(const std::vector<CBufferMeta>& meta)
 	{
@@ -90,18 +90,17 @@ public:
 
 		for (int i = 0; i < _cbuffers.size(); i++)
 		{
-			ID3D11Buffer* curBuffer = _cbuffers[i]._cbPtr;
-			CBuffer::map(cont, curBuffer, mr);
+			_cbuffers[i].map(cont, mr);
 
 			for (const CBufferFieldDesc& cbfd : _cbuffers[i]._metaData._fields)
 			{
 				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
 				{
-					CBuffer::updateField(curBuffer, &(ri._transform.Transpose()), cbfd._size, cbfd._offset, mr);
+					_cbuffers[i].updateField(&(ri._transform.Transpose()), cbfd._size, cbfd._offset, mr);
 				}
 			}
 
-			CBuffer::unmap(cont, curBuffer);
+			_cbuffers[i].unmap(cont);
 		}
 	}
 
@@ -156,19 +155,5 @@ public:
 	template <typename RenderItem>
 	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
 	{
-		// None defined so far
-		/*
-		D3D11_MAPPED_SUBRESOURCE mr;
-
-		for (int i = 0; i <_cbuffers.size(); i++)
-		{
-			ID3D11Buffer* curBuffer = _cbuffers[i]._cbPtr;
-			CBuffer::map(cont, curBuffer, mr);
-
-			for (const CBufferFieldDesc& cbfd : _cbuffers[i]._metaData._fields) {}
-
-			CBuffer::unmap(cont, curBuffer);
-		}
-		*/
 	}
 };
