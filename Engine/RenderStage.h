@@ -14,10 +14,10 @@ public:
 		_renderTarget(renderTarget), 
 		_viewport(viewport)
 	{
-		_perCamBuffer.createFromStruct<PerCameraBuffer>(device);
+		_perCamBuffer.initFromStruct<PerCameraBuffer>(device);
 
-		_VSperFrameBuffer.createFromStruct<VSPerFrameBuffer>(device);
-		_PSperFrameBuffer.createFromStruct<PSPerFrameBuffer>(device);
+		_VSperFrameBuffer.initFromStruct<VSPerFrameBuffer>(device);
+		_PSperFrameBuffer.initFromStruct<PSPerFrameBuffer>(device);
 	}
 
 	

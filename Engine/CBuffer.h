@@ -56,7 +56,7 @@ public:
 
 	// Very nice utility for less typing
 	template <typename PODStruct>
-	void createFromStruct(ID3D11Device* device)
+	void initFromStruct(ID3D11Device* device)
 	{
 		init(device, CBuffer::createDesc(sizeof(PODStruct)));
 	}

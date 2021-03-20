@@ -150,9 +150,6 @@
     <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="entt attempt">
-      <UniqueIdentifier>{169bc40a-83bb-4602-a984-f7137fb1a598}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Metrics">
       <UniqueIdentifier>{e0955606-d5b4-4ddb-946a-63ef18496a45}</UniqueIdentifier>
     </Filter>
@@ -1051,9 +1048,6 @@
     <ClInclude Include="PooledSceneGraph.h">
       <Filter>Scene management</Filter>
     </ClInclude>
-    <ClInclude Include="EnttWrapper.h">
-      <Filter>entt attempt</Filter>
-    </ClInclude>
     <ClInclude Include="Metrics.h">
       <Filter>Metrics</Filter>
     </ClInclude>
@@ -1077,6 +1071,9 @@
     </ClInclude>
     <ClInclude Include="RenderingTestLevel.h">
       <Filter>TowerDefense</Filter>
+    </ClInclude>
+    <ClInclude Include="FPSCounter.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

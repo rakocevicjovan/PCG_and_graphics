@@ -10,6 +10,7 @@
 #include "GUI.h"
 #include "SceneEditor.h"
 #include "TDController.h"
+#include "FPSCounter.h"
 
 // Clean version of TDLevel without all the accumulated cruft.
 class RenderingTestLevel : public Level
@@ -19,6 +20,7 @@ private:
 	GeoClipmap _geoClipmap;
 	Scene _scene;
 	SceneEditor _sceneEditor;
+	FPSCounter _fpsCounter;
 
 	TDController _tdController;
 
@@ -69,6 +71,7 @@ public:
 	void update(const RenderContext& rc) override final
 	{
 		_scene.update();
+		_fpsCounter.tickFast(rc.dTime);
 	}
 
 	void draw(const RenderContext& rc) override final
@@ -88,30 +91,14 @@ public:
 
 		_sceneEditor.display();
 
-		{ // Move the framerate averaging and in general all this elsewhere.
-			static constexpr uint8_t TRACK_FRAMES = 32u;
-			static uint64_t FRAME_COUNT{ 0 };
-			FRAME_COUNT++;
-			static std::array<float, TRACK_FRAMES> frameTimes;
-
-			frameTimes[FRAME_COUNT % TRACK_FRAMES] = 1 / rc.dTime;
-
-			float framerate{ 0.f };
-
-			for (int i = 0; i < frameTimes.size(); ++i)
-			{
-				framerate += frameTimes[i] / static_cast<float>(TRACK_FRAMES);
-			}
-
-			std::vector<GuiElement> guiElems =
-			{
-				{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
-				{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-				{"FPS",		std::string("FPS: " + std::to_string(framerate))},
-				{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
-			};
-			GUI::renderGuiElems(guiElems);
-		}
+		std::vector<GuiElement> guiElems =
+		{
+			{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+			{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
+			{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
+			{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
+		};
+		GUI::renderGuiElems(guiElems);
 
 		GUI::endFrame();
 

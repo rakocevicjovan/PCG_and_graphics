@@ -407,11 +407,11 @@
     <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
-    <ClInclude Include="EnttWrapper.h" />
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="FlexVert.h" />
     <ClInclude Include="Fnv1Hash.h" />
+    <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="GeoClipmap.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />

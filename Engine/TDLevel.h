@@ -8,6 +8,7 @@
 #include "AStar.h"
 #include "Skybox.h"
 #include "GUI.h"
+#include "FPSCounter.h"
 
 //game specific
 #include "TDController.h"
@@ -41,6 +42,8 @@ private:
 	Scene _scene;
 	Procedural::Terrain terrain;
 	Skybox _skybox;
+
+	FPSCounter _fpsCounter;
 
 	SceneEditor _sceneEditor;
 

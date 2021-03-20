@@ -513,30 +513,15 @@ void TDLevel::draw(const RenderContext& rc)
 	//ID3D11ShaderResourceView** wat = const_cast<ID3D11ShaderResourceView**>(_scene._csm.getResView());
 	//ImGui::Image(_scene._csm.getDebugView(), ImVec2(500, 500));	// pls
 
-	{ // Move the framerate averaging and in general all this elsewhere.
-		static constexpr uint8_t TRACK_FRAMES = 32u;
-		static uint64_t FRAME_COUNT{ 0 };
-		FRAME_COUNT++;
-		static std::array<float, TRACK_FRAMES> frameTimes;
-
-		frameTimes[FRAME_COUNT % TRACK_FRAMES] = 1 / rc.dTime;
-
-		float framerate{ 0.f };
-
-		for (int i = 0; i < frameTimes.size(); ++i)
-		{
-			framerate += frameTimes[i] / static_cast<float>(TRACK_FRAMES);
-		}
-
-		std::vector<GuiElement> guiElems =
-		{
-			{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
-			{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-			{"FPS",		std::string("FPS: " + std::to_string(framerate))},
-			{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
-		};
-		GUI::renderGuiElems(guiElems);
-	}
+	_fpsCounter.tickFast(rc.dTime);
+	std::vector<GuiElement> guiElems =
+	{
+		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
+		{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
+		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
+	};
+	GUI::renderGuiElems(guiElems);
 
 
 	UINT structureIndex;
