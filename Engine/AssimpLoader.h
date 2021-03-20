@@ -30,6 +30,7 @@ private:
 	// For previewing models in 3d
 	Material _skelAnimMat;
 	PointLight _pointLight;
+	CBuffer _pointLightCB;
 
 	// Floor 
 	std::unique_ptr<Mesh> _floorMesh;
@@ -57,11 +58,11 @@ public:
 
 		_pointLight = PointLight(ld, SVec4(0., 300., 0., 1.));
 
-		_pointLight.createCBuffer(S_DEVICE);
+		_pointLight.createCBuffer(S_DEVICE, _pointLightCB);
 		ID3D11DeviceContext* context;
 		S_DEVICE->GetImmediateContext(&context);
-		_pointLight.updateCBuffer(context);
-		_pointLight.bind(context);
+		_pointLight.updateCBuffer(context, _pointLightCB);
+		_pointLight.bind(context, _pointLightCB);
 	
 
 		// Generate the floor, assign a material and render

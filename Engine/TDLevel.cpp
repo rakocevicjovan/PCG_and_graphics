@@ -51,12 +51,12 @@ void TDLevel::init(Engine& sys)
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 	
 	_pLight = PointLight(lightData, SVec4(0, 300, 300, 1));
-	_pLight.createCBuffer(S_DEVICE);
-	_pLight.updateCBuffer(S_CONTEXT);
+	_pLight.createCBuffer(S_DEVICE, _pLightCB);
+	_pLight.updateCBuffer(S_CONTEXT, _pLightCB);
 
 	_dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
-	_dirLight.createCBuffer(S_DEVICE);
-	_dirLight.updateCBuffer(S_CONTEXT);
+	_dirLight.createCBuffer(S_DEVICE, _dirLightCB);
+	_dirLight.updateCBuffer(S_CONTEXT, _dirLightCB);
 
 	float _tSize = 500.f;
 	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
@@ -480,7 +480,7 @@ void TDLevel::draw(const RenderContext& rc)
 	}
 
 	//_pLight.bind(S_CONTEXT);
-	_dirLight.bind(S_CONTEXT);
+	_dirLight.bind(S_CONTEXT, _dirLightCB);
 
 	_scene.draw();
 

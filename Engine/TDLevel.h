@@ -57,6 +57,7 @@ private:
 
 	PointLight _pLight;
 	DirectionalLight _dirLight;
+	CBuffer _dirLightCB, _pLightCB;
 
 	// Things that need changing
 	Mesh floorMesh;

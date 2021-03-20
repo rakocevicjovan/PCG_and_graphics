@@ -69,7 +69,7 @@ class SLight : public SceneLight
 public:
 	SVec4 _posRange;
 	SVec4 _dirCosTheta;
-	float _radius;
+	float _radius{0.f};
 
 	SLight() { sizeof(SLight); }
 
@@ -119,25 +119,23 @@ struct DirectionalLight : LightData
 {
 	SVec4 dir;
 
-	CBuffer _buffer;
-
 	DirectionalLight(){}
 	
 	DirectionalLight(LightData ld, SVec4 dir) : LightData(ld), dir(dir) {}
 
-	void createCBuffer(ID3D11Device* device)
+	void createCBuffer(ID3D11Device* device, CBuffer& cbuffer)
 	{
-		_buffer.init(device, CBuffer::createDesc(sizeof(DirectionalLight) - sizeof(_buffer)));
+		cbuffer.init(device, CBuffer::createDesc(sizeof(DirectionalLight)));
 	}
 
-	void updateCBuffer(ID3D11DeviceContext* context)
+	void updateCBuffer(ID3D11DeviceContext* context, CBuffer& cbuffer)
 	{
-		_buffer.update(context, this, sizeof(DirectionalLight) - sizeof(_buffer));
+		cbuffer.update(context, this, sizeof(DirectionalLight));
 	}
 
-	void bind(ID3D11DeviceContext* context, uint8_t slot = 0ul)
+	void bind(ID3D11DeviceContext* context, CBuffer& buffer, uint8_t slot = 0ul)
 	{
-		_buffer.bindToPS(context, slot);
+		buffer.bindToPS(context, slot);
 	}
 };
 
@@ -147,26 +145,24 @@ struct PointLight : LightData
 {
 	SVec4 pos;
 
-	CBuffer _buffer;
-
 	PointLight(){}
 
 	PointLight(LightData ld, SVec4 pos) : LightData(ld), pos(pos) {}
 
 	// See how this feels to use then apply it to other lights if it's all right
-	void createCBuffer(ID3D11Device* device)
+	void createCBuffer(ID3D11Device* device, CBuffer& buffer)
 	{
-		_buffer.init(device, CBuffer::createDesc(sizeof(PointLight) - sizeof(_buffer)));
+		buffer.init(device, CBuffer::createDesc(sizeof(PointLight)));
 	}
 
-	void updateCBuffer(ID3D11DeviceContext* context)
+	void updateCBuffer(ID3D11DeviceContext* context, CBuffer& buffer)
 	{
-		_buffer.update(context, this, sizeof(PointLight) - sizeof(_buffer));
+		buffer.update(context, this, sizeof(PointLight));
 	}
 
-	void bind(ID3D11DeviceContext* context, uint8_t slot = 0ul)
+	void bind(ID3D11DeviceContext* context, CBuffer& buffer, uint8_t slot = 0ul)
 	{
-		_buffer.bindToPS(context, slot);
+		buffer.bindToPS(context, slot);
 	}
 };
 
