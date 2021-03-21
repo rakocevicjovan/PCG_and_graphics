@@ -176,12 +176,13 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	depthStencilDesc.depthFunc = DepthStencilDesc::COMP::ALWAYS;
 	_depthStencilNoDepthTest.createDepthStencilState(_device, depthStencilDesc);
 
-	// Set the depth stencil state.
-	//_depthStencilLess.bind(_deviceContext);
+	// Set the depth stencil state. Either of these works well enough as the default one.
+	_depthStencilLess.bind(_deviceContext);
+	//_depthStencilLessEquals.bind(_deviceContext);
 
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	_renderTarget.bind(_deviceContext);
-	_depthStencilLessEquals.bind(_deviceContext);
+	
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	D3D11_RASTERIZER_DESC rasterDesc{};

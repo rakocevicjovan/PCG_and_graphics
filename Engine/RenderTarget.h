@@ -8,7 +8,9 @@ public:
 
 	typedef std::underlying_type_t<D3D11_BIND_FLAG> FlagDataType;
 
+
 	RenderTarget() {}
+
 
 	// Use shader resource view as an additional flag if required, not included by default.
 	RenderTarget(ID3D11Device* device, UINT w, UINT h, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, FlagDataType additionalFlags = 0)
@@ -29,6 +31,7 @@ public:
 		_depthStencil.createDepthStencil(device, w, h);
 	}
 
+
 	void fromExistingTexture(ID3D11Device* device, ID3D11Texture2D* texture, UINT w, UINT h, FlagDataType additionalFlags = 0)
 	{
 		_tex._dxID = texture;
@@ -46,15 +49,18 @@ public:
 		_depthStencil.createDepthStencil(device, w, h);
 	}
 
+
 	DepthStencil& getDepthStencil()
 	{
 		return _depthStencil;
 	}
 
+
 	void bind(ID3D11DeviceContext* context)
 	{
 		context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _depthStencil._dsvs[0].Get());
 	}
+
 
 	void clear(ID3D11DeviceContext* context)
 	{
@@ -62,12 +68,14 @@ public:
 		_depthStencil.clearView(context);
 	}
 
+
 	static void unbind(ID3D11DeviceContext* context, UINT count = 0)
 	{
 		context->OMSetRenderTargets(count, nullptr, nullptr);
 	}
 
 private:
+
 	Texture _tex;
 	DepthStencil _depthStencil;
 

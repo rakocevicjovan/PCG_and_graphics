@@ -8,17 +8,16 @@
 
 
 template <UINT numCascades>
-struct ShadowBufferData
-{
-	SMatrix lvpMatrices[numCascades];
-	SVec4 cascadeLimits;
-};
-
-
-template <UINT numCascades>
 class CSM
 {
 private:
+
+	struct ShadowBufferData
+	{
+		SMatrix lvpMatrices[numCascades];
+		SVec4 cascadeLimits;
+	};
+
 
 	uint8_t _nMaps;
 	uint16_t _width, _height;
@@ -38,7 +37,7 @@ private:
 	CBuffer _lvpBuffer;
 	CBuffer _shadowBuffer;
 
-	ShadowBufferData<numCascades> _shBuffData;
+	ShadowBufferData _shBuffData;
 
 	VertexShader* _vs;
 	// Use the pixel shader to deal with transparency shadows, currently only depth stencil buffer.
@@ -64,7 +63,7 @@ public:
 		// Initialize buffers used by the csm shader
 		_lvpBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix)));
 		_wmBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix)));
-		_shadowBuffer.init(device, CBuffer::createDesc(sizeof(ShadowBufferData<numCascades>)));
+		_shadowBuffer.init(device, CBuffer::createDesc(sizeof(ShadowBufferData)));
 
 		_depthStencil.createDepthStencil(device, _width, _height, DXGI_FORMAT_D32_FLOAT, 0u, numCascades);
 
