@@ -42,7 +42,7 @@ namespace GuiBlocks
 		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t->w(), t->h(), t->nc());
 
 		if (t->_arraySrv)
-			ImGui::Image(t->_arraySrv, ImVec2(256., 256.));
+			ImGui::Image(t->_arraySrv.Get(), ImVec2(256., 256.));
 	}
 
 
@@ -90,7 +90,7 @@ namespace GuiBlocks
 			if (mat->_texMetaData[i]._tex)
 			{
 				ImGui::Text(mat->_texMetaData[i]._tex->getName().c_str());
-				ImGui::Image(mat->_texMetaData[i]._tex->_arraySrv, ImVec2(300, 300));
+				ImGui::Image(mat->_texMetaData[i]._tex->_arraySrv.Get(), ImVec2(300, 300));
 			}
 			else
 			{

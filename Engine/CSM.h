@@ -233,7 +233,7 @@ public:
 
 	void bindShadowMapAsSrv(ID3D11DeviceContext* context, uint8_t index)
 	{
-		context->PSSetShaderResources(index, 1, _depthStencil.srv());
+		_depthStencil.bindAsShaderResource(context, index, 1);
 	}
 
 

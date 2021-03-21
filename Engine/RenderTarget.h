@@ -4,8 +4,9 @@
 
 class RenderTarget
 {
-	typedef std::underlying_type_t<D3D11_BIND_FLAG> FlagDataType;
 public:
+
+	typedef std::underlying_type_t<D3D11_BIND_FLAG> FlagDataType;
 
 	RenderTarget() {}
 
@@ -20,7 +21,7 @@ public:
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
 
-		if (FAILED(device->CreateRenderTargetView(_tex._dxID, &renderTargetViewDesc, &_rtv)))
+		if (FAILED(device->CreateRenderTargetView(_tex._dxID.Get(), &renderTargetViewDesc, &_rtv)))
 		{
 			DebugBreak();
 		}
@@ -28,9 +29,31 @@ public:
 		_depthStencil.createDepthStencil(device, w, h);
 	}
 
+	void fromExistingTexture(ID3D11Device* device, ID3D11Texture2D* texture, UINT w, UINT h, FlagDataType additionalFlags = 0)
+	{
+		_tex._dxID = texture;
+
+		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+		renderTargetViewDesc.Format = DXGI_FORMAT_UNKNOWN;	// We can't guarantee knowing parent's format so there it is.
+		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+		if (FAILED(device->CreateRenderTargetView(texture, &renderTargetViewDesc, _rtv.GetAddressOf())))
+		{
+			__debugbreak();
+		}
+
+		_depthStencil.createDepthStencil(device, w, h);
+	}
+
+	DepthStencil& getDepthStencil()
+	{
+		return _depthStencil;
+	}
+
 	void bind(ID3D11DeviceContext* context)
 	{
-		context->OMSetRenderTargets(1, &_rtv, _depthStencil.dsvPtr());
+		context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _depthStencil._dsvs[0].Get());
 	}
 
 	void clear(ID3D11DeviceContext* context)

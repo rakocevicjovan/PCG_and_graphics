@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <d3d11_4.h>
+#include <wrl/client.h>
 #include <dxgiformat.h>
 
 #include <cereal/cereal.hpp>
@@ -48,18 +49,14 @@ protected:
 
 public:
 
-	ID3D11Texture2D* _dxID;
-	ID3D11ShaderResourceView* _arraySrv;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> _dxID;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _arraySrv;
 
 	std::string _fileName;	// Helpful to debug, likely to be removed in release...
 
 	Texture();
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
-	Texture(const Texture& other);
-	Texture(Texture&& other);
-	Texture& Texture::operator=(const Texture& rhs);
-	~Texture();
 
 	bool loadFromStoredPath();
 	bool loadFromPath(const char* path);
@@ -77,7 +74,7 @@ public:
 	inline int snc() const							{ return _snc; }
 	inline const unsigned char* getData() const		{ return _mdata.get(); }	//data can't be modified, only read
 	inline const std::string& getName() const		{ return _fileName; }
-	inline ID3D11ShaderResourceView* getSRV()		{ return _arraySrv; }
+	inline ID3D11ShaderResourceView* getSRV()		{ return _arraySrv.Get(); }
 
 	inline void freeMemory() { if (_mdata.get()) _mdata.reset(); }
 
@@ -126,7 +123,7 @@ public:
 		}
 
 		// Copy data from the GPU texture to the staging texture
-		dc->CopyResource(stagingId, tex._dxID);
+		dc->CopyResource(stagingId, tex._dxID.Get());
 
 		D3D11_MAPPED_SUBRESOURCE msr;
 		dc->Map(stagingId, 0, D3D11_MAP_READ, 0, &msr);

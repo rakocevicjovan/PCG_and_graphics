@@ -1,12 +1,15 @@
 #pragma once
 #include <d3d11.h>
 #include <wrl/client.h>
+#include "DepthStencilState.h"
 
 
 
 class DepthStencil
 {
 public:
+
+	friend class RenderTarget;
 
 	DepthStencil() {}
 
@@ -19,8 +22,6 @@ public:
 	void createDepthStencil(ID3D11Device* device, UINT w, UINT h, DXGI_FORMAT format = DXGI_FORMAT_D24_UNORM_S8_UINT, UINT extraFlags = 0u, UINT arrSize = 1u)
 	{
 		createDepthStencilBuffer(device, w, h, arrSize, format, extraFlags);
-
-		createDepthStencilState(device);
 
 		createDepthStencilViews(device, arrSize, format, extraFlags);
 	}
@@ -41,24 +42,21 @@ public:
 		context->PSSetShaderResources(index, count, _arraySrv.GetAddressOf());
 	}
 
-	ID3D11DepthStencilView* dsvPtr(uint16_t index = 0u)
+	static void bindDSS(ID3D11DeviceContext* context, ID3D11DepthStencilState* state)
 	{
-		return _dsvs[index].Get();
-	}
-
-	ID3D11ShaderResourceView* const * srv()
-	{
-		return _arraySrv.GetAddressOf();
+		context->OMSetDepthStencilState(state, 0);
 	}
 
 private:
 
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> _dsb{nullptr};
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> _dss{ nullptr };
-	// One dsv for every item in the array
+
+	// One dsv for every depth stencil in the array
 	std::vector<Microsoft::WRL::ComPtr<ID3D11DepthStencilView>> _dsvs;
 
-	// If the stencil is an array of stencils on the gpu, this is an view over the whole array
+	std::vector<DepthStencilState> _depthStencilStates;
+
+	// If the stencil is an array of stencils on the gpu, this is a view over the whole array
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _arraySrv;
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> _readOnlyDsv{ nullptr };
@@ -67,7 +65,7 @@ private:
 
 	void createDepthStencilBuffer(ID3D11Device* device, UINT w, UINT h, UINT arrSize, DXGI_FORMAT format, UINT extraFlags)
 	{
-		// Depth stencil buffer - basically just a texture all in all
+		// Depth stencil buffer - basically just a 2D texture
 		D3D11_TEXTURE2D_DESC depthBufferDesc{};
 		depthBufferDesc.Width = w;
 		depthBufferDesc.Height = h;
@@ -80,34 +78,8 @@ private:
 		depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | extraFlags;
 		depthBufferDesc.CPUAccessFlags = 0;
 		depthBufferDesc.MiscFlags = 0;
+
 		if (FAILED(device->CreateTexture2D(&depthBufferDesc, nullptr, &_dsb)))
-		{
-			DebugBreak();
-		}
-	}
-
-
-	void createDepthStencilState(ID3D11Device* device)
-	{
-		// Depth stencil state description and creation
-		D3D11_DEPTH_STENCIL_DESC depthStencilDesc{};
-		depthStencilDesc.DepthEnable = true;
-		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-		depthStencilDesc.StencilEnable = true;
-		depthStencilDesc.StencilReadMask = 0xFF;
-		depthStencilDesc.StencilWriteMask = 0xFF;
-		// Stencil operations if pixel is front-facing.
-		depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-		depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-		// Stencil operations if pixel is back-facing.
-		depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-		depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-		depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-		if (FAILED(device->CreateDepthStencilState(&depthStencilDesc, &_dss)))
 		{
 			DebugBreak();
 		}
@@ -153,19 +125,17 @@ private:
 			depthStencilViewDesc.Texture2DArray.FirstArraySlice = 0; // Reset for read_only view
 		}
 
-
 		// Create a read-only view for debugging purposes. It will either use the single buffer version or first buffer in the array
 		depthStencilViewDesc.Flags |= D3D11_DSV_READ_ONLY_DEPTH;
 
+		// If the format includes the stencil, add the flag for that too.
 		if (format == DXGI_FORMAT_D24_UNORM_S8_UINT || format == DXGI_FORMAT_D32_FLOAT_S8X24_UINT)
 			depthStencilViewDesc.Flags |= D3D11_DSV_READ_ONLY_STENCIL;
 
 		if (FAILED(device->CreateDepthStencilView(_dsb.Get(), &depthStencilViewDesc, &_readOnlyDsv)))
 		{
-			OutputDebugStringA("Failed to create read only depth stencil view (CSM). \n");
 			DebugBreak();
 		}
-
 
 		// Create shader resource view if required
 		if ((extraFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)

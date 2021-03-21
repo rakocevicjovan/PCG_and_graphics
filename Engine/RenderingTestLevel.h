@@ -10,6 +10,7 @@
 #include "GUI.h"
 #include "SceneEditor.h"
 #include "TDController.h"
+#include "RenderStage.h"
 #include "FPSCounter.h"
 
 // Clean version of TDLevel without all the accumulated cruft.
@@ -29,6 +30,8 @@ private:
 	CBuffer _dirLightCB;
 	Skybox _skybox;
 
+	std::vector<RenderStage> _stages;
+
 public:
 
 	RenderingTestLevel(Engine& sys)
@@ -36,6 +39,7 @@ public:
 	{
 
 	}
+
 
 	void init(Engine& sys) override final
 	{
@@ -61,13 +65,23 @@ public:
 
 		S_INMAN.registerController(&_tdController);
 		S_RANDY._cam._controller->setFlying(true);
+
+		_stages.push_back(
+			RenderStage(
+				S_RANDY.device(), 
+				&(S_RANDY._cam), 
+				&(S_RANDY.d3d()->_renderTarget),
+				&(S_RANDY.d3d()->_viewport))
+		);
 	}
+
 
 	void update(const RenderContext& rc) override final
 	{
 		_scene.update();
 		_fpsCounter.tickFast(rc.dTime);
 	}
+
 
 	void draw(const RenderContext& rc) override final
 	{

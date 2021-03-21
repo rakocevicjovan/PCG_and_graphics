@@ -23,4 +23,9 @@ public:
 	{
 		return D3D11_VIEWPORT{ tlX, tlY, w, h, minD, maxD };
 	}
+
+	operator const D3D11_VIEWPORT*()
+	{
+		return &_viewport;
+	}
 };

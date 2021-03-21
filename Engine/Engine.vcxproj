@@ -404,6 +404,7 @@
     <ClInclude Include="CubeMap.h" />
     <ClInclude Include="Curves.h" />
     <ClInclude Include="DepthStencil.h" />
+    <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />

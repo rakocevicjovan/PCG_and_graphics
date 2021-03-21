@@ -1075,6 +1075,9 @@
     <ClInclude Include="FPSCounter.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="DepthStencilState.h">
+      <Filter>Rendering\Low level</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

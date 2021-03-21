@@ -94,8 +94,8 @@ namespace Strife
 		rc.d3d->TurnOffAlphaBlending();
 		
 
-		S_CONTEXT->RSSetViewports(1, &_sys._D3D._viewport);
-		S_CONTEXT->OMSetRenderTargets(1, &_sys._D3D._renderTargetView, _sys._D3D.GetDepthStencilView());
+		S_CONTEXT->RSSetViewports(1, &_sys._D3D._viewport._viewport);
+		_sys._D3D._renderTarget.bind(S_RANDY.context());
 
 		//postProcessor.draw(S_CONTEXT, S_SHADY.HUD, sceneTex.srv);
 		

@@ -42,58 +42,6 @@ Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullp
 
 
 
-Texture::Texture(const Texture& other)
-	: _w(other._w), _h(other._h), _nc(other._nc), _snc(other._snc), _mdata(other._mdata), 
-	_fileName(other._fileName), _dxID(other._dxID), _arraySrv(other._arraySrv)
-{
-	if(_dxID)
-		_dxID->AddRef();
-
-	if(_arraySrv)
-		_arraySrv->AddRef();
-}
-
-
-
-Texture::Texture(Texture&& other)
-	: _w(other._w), _h(other._h), _nc(other._nc), _snc(other._snc), _mdata(std::move(other._mdata)),
-	_fileName(std::move(other._fileName)), _dxID(std::move(other._dxID)), _arraySrv(std::move(other._arraySrv))
-{
-	// do not add refs because it's moved as opposed to copied
-}
-
-
-
-Texture& Texture::operator=(const Texture& other)
-{
-	_w = other._w;
-	_h = other._h;
-	_nc = other._nc;
-	_snc = other._snc;
-
-	_mdata = other._mdata;
-
-	_fileName = other._fileName;
-
-	_dxID->AddRef();
-	_arraySrv->AddRef();
-
-	return *this;
-}
-
-
-
-Texture::~Texture()
-{
-	if (_dxID)
-		_dxID->Release();
-
-	if(_arraySrv)
-		_arraySrv->Release();
-}
-
-
-
 int Texture::GetFormatFromFile(const char* filename)
 {
 	int w, h, n;
@@ -283,7 +231,7 @@ bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
-	if (FAILED(device->CreateShaderResourceView(_dxID, &shaderResourceViewDesc, &_arraySrv)))
+	if (FAILED(device->CreateShaderResourceView(_dxID.Get(), &shaderResourceViewDesc, &_arraySrv)))
 	{
 		OutputDebugStringA("Can't create shader resource view. \n");
 		exit(43);
