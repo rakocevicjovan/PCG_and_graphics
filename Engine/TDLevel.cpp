@@ -479,8 +479,9 @@ void TDLevel::draw(const RenderContext& rc)
 			S_RANDY.addToRenderQueue(r);
 	}
 
-	//_pLight.bind(S_CONTEXT);
-	_dirLight.bind(S_CONTEXT, _dirLightCB);
+	_pLight.updateCBuffer(S_CONTEXT, _pLightCB);
+	_pLight.bind(S_CONTEXT, _pLightCB);
+	//_dirLight.bind(S_CONTEXT, _dirLightCB);
 
 	_scene.draw();
 

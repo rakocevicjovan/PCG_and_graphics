@@ -27,20 +27,20 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	_VSyncEnabled = vsync;
 
 	// Create a DirectX graphics interface factory.
-	IDXGIFactory* factory;
-	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
+	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)(factory.GetAddressOf()));
 	if(FAILED(result))
 		return false;
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
-	IDXGIAdapter* adapter;
-	result = factory->EnumAdapters(0, &adapter);
+	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
+	result = factory->EnumAdapters(0, adapter.GetAddressOf());
 	if(FAILED(result))
 		return false;
 
 	// Enumerate the primary adapter output (monitor).
-	IDXGIOutput* adapterOutput;
-	result = adapter->EnumOutputs(0, &adapterOutput);
+	Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
+	result = adapter->EnumOutputs(0, adapterOutput.GetAddressOf());
 	if(FAILED(result))
 		return false;
 
@@ -51,13 +51,10 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		return false;
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
-	DXGI_MODE_DESC* displayModeList;
-	displayModeList = new DXGI_MODE_DESC[numModes];
-	if(!displayModeList)
-		return false;
+	std::vector<DXGI_MODE_DESC> displayModeList(numModes);
 
 	// Now fill the display mode list structures.
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
+	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList.data());
 	if(FAILED(result))
 		return false;
 
@@ -94,23 +91,6 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 		OutputDebugStringA("Video card description failed.");
 		return false;
 	}
-		
-
-	// Release the display mode list.
-	delete [] displayModeList;
-	displayModeList = nullptr;
-
-	// Release the adapter output.
-	adapterOutput->Release();
-	adapterOutput = nullptr;
-
-	// Release the adapter.
-	adapter->Release();
-	adapter = nullptr;
-
-	// Release the factory.
-	factory->Release();
-	factory = nullptr;
 
 	// Initialize the swap chain description.
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
@@ -186,16 +166,21 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	D3D11_RASTERIZER_DESC rasterDesc{};
-	rasterDesc.AntialiasedLineEnable = false;
+
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.AntialiasedLineEnable = false;	// Special case for drawing lines if multisampling is disabled already.
+
 	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.FrontCounterClockwise = false;
+
+	rasterDesc.DepthClipEnable = true;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
+	
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+
+	rasterDesc.ScissorEnable = false;		// Enabling this can be useful but requires a scissor rect to draw.
 
 	// Create the rasterizer state from the description we just filled out.
 	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_solid_cull)))
@@ -205,12 +190,12 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_solid_no_cull)))
 		return false;
 
-	rasterDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
+	rasterDesc.FillMode = D3D11_FILL_WIREFRAME;
 	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_wireframe)))
 		return false;
 
 	// Now set the rasterizer state.
-	_deviceContext->RSSetState(_r_s_solid_cull);
+	_deviceContext->RSSetState(_r_s_solid_cull.Get());
 
 	//blending code @TODO see why it messes with texture.... turn off until then
 	D3D11_BLEND_DESC blendDesc = {};
@@ -326,19 +311,19 @@ void D3D::D3D::TurnOffAlphaBlending()
 
 void D3D::setRSSolidCull()
 {
-	_deviceContext->RSSetState(_r_s_solid_cull);
+	_deviceContext->RSSetState(_r_s_solid_cull.Get());
 }
 
 
 void D3D::setRSSolidNoCull()
 {
-	_deviceContext->RSSetState(_r_s_solid_no_cull);
+	_deviceContext->RSSetState(_r_s_solid_no_cull.Get());
 }
 
 
 void D3D::setRSWireframe()
 {
-	_deviceContext->RSSetState(_r_s_wireframe);
+	_deviceContext->RSSetState(_r_s_wireframe.Get());
 }
 
 void D3D::setDSSNoTest()

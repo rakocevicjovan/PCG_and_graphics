@@ -72,8 +72,8 @@ bool Renderer::frame(float dTime)
 
 bool Renderer::updatePerFrameBuffers(float dTime)
 {	
-	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed });
-	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), dTime, _elapsed });
+	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed, SVec2() });
+	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), dTime, _elapsed, SVec2() });
 	return true;
 }
 

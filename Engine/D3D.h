@@ -51,7 +51,14 @@ private:
 	IDXGISwapChain* _swapChain;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
-	DepthStencilState _depthStencilLess, _depthStencilLessEquals, _depthStencilNoDepthTest;
-	ID3D11RasterizerState* _r_s_solid_cull, *_r_s_solid_no_cull, *_r_s_wireframe;
+
+	DepthStencilState _depthStencilLess;
+	DepthStencilState _depthStencilLessEquals;
+	DepthStencilState _depthStencilNoDepthTest;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> _r_s_solid_cull;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState>_r_s_solid_no_cull;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> _r_s_wireframe;
+
 	ID3D11BlendState* _blendState, *_noBlendState;
 };

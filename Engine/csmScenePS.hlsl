@@ -1,4 +1,5 @@
 #include "Light.hlsli"
+#include "Reserved_CB_PS.hlsli"
 
 cbuffer LightBuffer : register(b0)
 {
@@ -11,15 +12,6 @@ cbuffer LightBuffer : register(b0)
 	float4 lightDir;
 };
 
-cbuffer PSPerFrameBuffer : register(b10)
-{
-	float4 eyePos;
-	float elapsed;
-	float delta;
-	float2 padding;
-}
-
-
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
@@ -30,7 +22,7 @@ struct PixelInputType
 };
 
 
-cbuffer ShadowBuffer : register(b11)
+cbuffer ShadowBuffer : register(b12)
 {
 	matrix lvpMatrix[NUM_CASCADES];
 	float4 cascadeLimits;			//rudimentary but ok for now, I will hardly need more than 4 cascades anyways
