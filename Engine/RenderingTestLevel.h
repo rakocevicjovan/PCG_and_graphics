@@ -44,8 +44,6 @@ private:
 	CBuffer _positionBuffer;
 	Skybox _skybox;
 
-	entt::registry _registry;
-
 	std::vector<RenderStage> _stages;
 
 public:
@@ -91,13 +89,13 @@ public:
 			mesh._material->setPS(psPtr);
 		}
 
-		auto _renderGroup = _registry.group<SMatrix, RenderComponent>(entt::exclude<Deleted>);
+		auto _renderGroup = _scene._registry.group<CTransform, CStaticMesh>();
 
 		for (UINT i = 0; i < 100; ++i)
 		{
-			auto entity = _registry.create();
-			_registry.emplace<RenderComponent>(entity, modelPtr);
-			_registry.emplace<SMatrix>(entity, SMatrix::CreateTranslation(SVec3(i / 10, (i % 10), 10) * 10.f));
+			auto entity = _scene._registry.create();
+			_scene._registry.emplace<CStaticMesh>(entity, modelPtr);
+			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, (i % 10), 10) * 10.f));
 		}
 
 		RenderStage shadowStage(
@@ -122,28 +120,34 @@ public:
 
 	void fakeRenderSystem(ID3D11DeviceContext* context, entt::registry& registry)
 	{
-		auto group = _registry.group<SMatrix, RenderComponent>(entt::exclude<Deleted>);
+		auto group = _scene._registry.group<CTransform, CStaticMesh>();
 
 		// Can try a single buffer for position
 
 		//_positionBuffer.bindToVS(context, 0);
 
-		group.each([&context, &posBuffer = _positionBuffer](SMatrix& transform, RenderComponent& renderComp)
+		group.each([&context, &posBuffer = _positionBuffer](CTransform& transform, CStaticMesh& renderComp)
 			{
+				Model* model = renderComp.model;
+
+				if (!model)
+					return;
+
 				posBuffer.bindToVS(context, 0);
 
-				for (auto& mesh : renderComp.model->_meshes)
+				for (auto& mesh : model->_meshes)
 				{
-					posBuffer.updateWithStruct(context, transform.Transpose());
+					mesh.bind(context);
+					posBuffer.updateWithStruct(context, transform.transform.Transpose());
 
 					Material* mat = mesh._material.get();
 					mat->bind(context);
 
 					// This is bad and needs to be rewritten...
-					mat->getVS()->updateBuffersAuto(context, mesh);
+					//mat->getVS()->updateBuffersAuto(context, mesh);
 					//mat->getVS()->setBuffers(context);
-					mat->getPS()->updateBuffersAuto(context, mesh);
-					mat->getPS()->setBuffers(context);
+					//mat->getPS()->updateBuffersAuto(context, mesh);
+					//mat->getPS()->setBuffers(context);
 
 					// Set shaders and textures.
 					mat->bind(context);
@@ -167,7 +171,7 @@ public:
 
 		_scene.draw();
 
-		fakeRenderSystem(rc.d3d->GetDeviceContext(), _registry);
+		fakeRenderSystem(rc.d3d->GetDeviceContext(), _scene._registry);
 
 		S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(S_CONTEXT);

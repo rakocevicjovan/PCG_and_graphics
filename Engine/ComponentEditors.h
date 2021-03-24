@@ -18,7 +18,9 @@ namespace ComponentEditor
 	template<>
 	static void Display(CTransform& transform)
 	{
+		ImGui::PushID(&transform);
 		GuiBlocks::displayTransform(transform);
+		ImGui::PopID();
 	}
 
 	template<>
@@ -30,7 +32,20 @@ namespace ComponentEditor
 	template<>
 	static void Display(CStaticMesh& staticMesh)
 	{
-		GuiBlocks::displayMesh(staticMesh.mesh);
+		if (!staticMesh.model)
+		{
+			ImGui::Text("No model assigned.");
+			return;
+		}
+
+		ImGui::Indent();
+
+		for (auto& mesh : staticMesh.model->_meshes)
+		{
+			GuiBlocks::displayMesh(&mesh);
+		}
+
+		ImGui::Unindent();
 	}
 
 
