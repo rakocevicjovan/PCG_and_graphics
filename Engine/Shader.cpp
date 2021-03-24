@@ -1,10 +1,7 @@
-//#pragma comment(lib, "d3d11.lib")
-//#pragma comment(lib, "d3dcompiler.lib")
-
+#include "pch.h"
 #include "Shader.h"
 #include "Sampler.h"
 #include "CBuffer.h"
-#include <d3d11_4.h>
 
 
 

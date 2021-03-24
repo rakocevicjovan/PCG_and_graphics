@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Project.h"
 #include "FileUtilities.h"
 

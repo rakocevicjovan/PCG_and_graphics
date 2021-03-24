@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "LSystem.h" 
 #include "Geometry.h"
 #include "Material.h"

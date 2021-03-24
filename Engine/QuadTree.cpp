@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "QuadTree.h"
 #include "Bits.h"
 

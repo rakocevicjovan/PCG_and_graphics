@@ -1,9 +1,8 @@
+#include "pch.h"
 #include "Perlin.h"
 #include "Chaos.h"
 #include "Texture.h"
-#include <numeric>
-#include <random>
-#include <assert.h>
+
 
 namespace Procedural
 {

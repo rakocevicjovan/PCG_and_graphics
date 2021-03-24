@@ -1,4 +1,4 @@
-#pragma once
+#include "pch.h"
 #include "ResourceDef.h"
 #include <unordered_set>
 

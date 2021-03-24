@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "dxt.h"
-
-#include <algorithm> // std::min / std::max
 
 // The precision to do color-line calculation:
 // Note: final evaluation is always treated as float.
@@ -20,10 +19,21 @@ typedef float real;
 // It's suggested you use #define DXT_HIGHP if you want to increase this.
 static constexpr size_t kRefineIterations = 3;
 
+// Thank Bill Gates for this...
+#pragma push_macro("min")
+#pragma push_macro("max")
+
+#undef min
+#undef max
+
 template <typename T>
-static inline T clamp(T current, T min, T max) {
+static inline T clamp(T current, T min, T max)
+{
 	return std::max(min, std::min(current, max));
 }
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")
 
 enum dxtColor {
 	kDXTColor33,

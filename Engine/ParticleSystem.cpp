@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ParticleSystem.h"
 #include "Model.h"
 

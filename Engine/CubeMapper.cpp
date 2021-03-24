@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "CubeMapper.h"
 #include "Camera.h"
 #include "CubeMap.h"

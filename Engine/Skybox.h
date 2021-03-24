@@ -43,10 +43,8 @@ public:
 		_r.setBuffers(context);
 
 		//set shaders and similar geebees
-		context->VSSetShader(_r.mat->getVS()->_vsPtr, NULL, 0);
-		context->PSSetShader(_r.mat->getPS()->_psPtr, NULL, 0);
-		context->IASetInputLayout(_r.mat->getVS()->_layout);
-		_r.mat->bindSamplers(context);
+		_r.mat->getVS()->bind(context);
+		_r.mat->getPS()->bind(context);
 
 		context->PSSetShaderResources(0, 1, &_shResView);
 

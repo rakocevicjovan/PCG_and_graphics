@@ -1,7 +1,8 @@
+#include "pch.h"
 #include "Geometry.h"
 #include "GeometricPrimitive.h"
 #include "Chaos.h"
-#include <map>
+
 
 namespace Procedural
 {

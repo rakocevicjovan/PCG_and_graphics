@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "GeoClipmap.h"
 #include "VertSignature.h"
 

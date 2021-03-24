@@ -66,11 +66,10 @@ public:
 
 	void bind(ID3D11DeviceContext* context)
 	{
-		context->VSSetShader(getVS()->_vsPtr, NULL, 0);
-		context->PSSetShader(getPS()->_psPtr, NULL, 0);
-		context->IASetInputLayout(getVS()->_layout);
-		bindSamplers(context);
+		_vertexShader->bind(context);
+		_pixelShader->bind(context);
 		bindTextures(context);
+		context->IASetPrimitiveTopology(_primitiveTopology);
 	}
 
 	void bindTextures(ID3D11DeviceContext* context) const;
@@ -84,12 +83,6 @@ public:
 	inline void setVS(VertexShader* vs) { _vertexShader = vs; }
 
 	inline void setPS(PixelShader* ps) { _pixelShader = ps; }
-
-	inline void bindSamplers(ID3D11DeviceContext* context)
-	{
-		for (UINT i = 0; i < _pixelShader->_samplers.size(); ++i)
-			context->PSSetSamplers(i, 1, &_pixelShader->_samplers[i]);
-	}
 
 	inline void addMaterialTexture(Texture* t, TextureRole role, std::array<TextureMapMode, 3> tmm, uint8_t uvIndex = 0u)
 	{

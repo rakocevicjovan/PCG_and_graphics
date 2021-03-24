@@ -9,15 +9,6 @@
 #include "AssimpWrapper.h"
 #include "VertSignature.h"
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-
-#include <string>
-#include <vector>
-#include <memory>
-
-
 typedef unsigned int UINT;
 class Hull;
 namespace Procedural { class Geometry; class Terrain; }
@@ -97,10 +88,13 @@ public:
 	}
 
 
+	void bind(ID3D11DeviceContext* context)
+	{
+		_vertexBuffer.bind(context);
+		_indexBuffer.bind(context);
+	}
 
 	inline UINT getStride() const { return _vertexBuffer._stride; }
-
-
 
 	inline UINT getOffset() const { return _vertexBuffer._offset; }
 

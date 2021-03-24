@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "Engine.h"
-#include <memory>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
 {

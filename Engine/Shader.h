@@ -75,10 +75,8 @@ public:
 	VertexShader(const VertexShader& other);
 	VertexShader(const VertexShader&& other);
 	VertexShader& operator= (VertexShader other);
-	
 
 	void setBuffers(ID3D11DeviceContext* cont);
-
 
 	// Separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
 	template <typename RenderItem>
@@ -102,10 +100,10 @@ public:
 		}
 	}
 
-	void bind(ID3D11DeviceContext* context)
+	inline void bind(ID3D11DeviceContext* context)
 	{
+		context->VSSetShader(_vsPtr, nullptr, 0);
 		context->IASetInputLayout(_layout);
-		context->VSSetShader(_vsPtr, 0, 0);
 	}
 };
 
@@ -148,7 +146,13 @@ public:
 
 	void setBuffers(ID3D11DeviceContext* cont);
 
+	inline void bind(ID3D11DeviceContext* context)
+	{
+		context->PSSetShader(_psPtr, nullptr, 0);
 
+		for (UINT i = 0; i < _samplers.size(); ++i)
+			context->PSSetSamplers(i, 1, &_samplers[i]);
+	}
 
 	template <typename RenderItem>
 	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const

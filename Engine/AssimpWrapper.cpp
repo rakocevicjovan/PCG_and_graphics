@@ -1,8 +1,8 @@
+#include "pch.h"
 #include "AssimpWrapper.h"
 #include "Mesh.h"
 #include "VertSignature.h"
 #include "SkeletalModel.h"
-#include <array>
 
 
 

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "SkeletalMesh.h"
 #include "AssimpWrapper.h"
 #include "MeshLoader.h"

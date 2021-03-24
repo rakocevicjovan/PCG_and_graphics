@@ -65,6 +65,13 @@ public:
 	}
 
 
+	// This will have to change when multiple buffers are at play
+	inline void bind(ID3D11DeviceContext* context)
+	{
+		context->IASetVertexBuffers(0, 1, &_vbPtr, &_stride, &_offset);
+	}
+
+
 
 	inline D3D11_BUFFER_DESC createDesc(UINT size, D3D11_USAGE usage = D3D11_USAGE_IMMUTABLE)
 	{

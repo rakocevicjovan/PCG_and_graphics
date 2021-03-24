@@ -12,8 +12,6 @@ protected:
 
 public:
 
-
-
 	IBuffer() : _ibPtr(nullptr), _count(0u) {}
 
 	IBuffer(const IBuffer& other) : _ibPtr(other._ibPtr)
@@ -62,6 +60,11 @@ public:
 			OutputDebugStringA("Failed to create index buffer.");
 			exit(1001);
 		}
+	}
+
+	inline void bind(ID3D11DeviceContext* context)
+	{
+		context->IASetIndexBuffer(_ibPtr, DXGI_FORMAT_R32_UINT, 0);
 	}
 
 	inline ID3D11Buffer* ptr() const { return _ibPtr; }

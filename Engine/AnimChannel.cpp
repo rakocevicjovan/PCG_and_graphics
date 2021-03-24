@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "AnimChannel.h"
-#include <algorithm> 
 
 
 AnimChannel::AnimChannel(int p, int r, int s)

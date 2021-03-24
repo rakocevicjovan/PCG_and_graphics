@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Hull.h"
 #include "ColFuncs.h"
 

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Chaos.h"
 
 std::random_device Chaos::randomDevice;

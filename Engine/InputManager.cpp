@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "InputManager.h"
-#include <assert.h>
-#include <algorithm>
 
 
 

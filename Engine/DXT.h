@@ -1,7 +1,5 @@
 #pragma once
 // By graphitemaster, license at https://github.com/graphitemaster/gmrtdxt/blob/master/LICENSE
-#include <vector> // std::vector
-#include <cstddef> // size_t
 
 enum dxtType {
 	kDXT1,

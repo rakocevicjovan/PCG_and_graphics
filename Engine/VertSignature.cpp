@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "VertSignature.h"
-#include <cassert>
-
 
 void VertSignature::addAttribute(VAttrib attrib)
 {

@@ -9,9 +9,24 @@
 #include "Skybox.h"
 #include "GUI.h"
 #include "SceneEditor.h"
-#include "TDController.h"
+#include "CSM.h"
 #include "RenderStage.h"
 #include "FPSCounter.h"
+#include "entt/entt.hpp"
+
+
+
+struct RenderComponent
+{
+	Model* model;
+};
+
+struct Deleted
+{
+	bool whatever{false};
+};
+
+
 
 // Clean version of TDLevel without all the accumulated cruft.
 class RenderingTestLevel : public Level
@@ -23,12 +38,13 @@ private:
 	SceneEditor _sceneEditor;
 	FPSCounter _fpsCounter;
 
-	TDController _tdController;
-
 	// Make it cozy in here for now, but move these to scene ultimately!
 	DirectionalLight _dirLight;
 	CBuffer _dirLightCB;
+	CBuffer _positionBuffer;
 	Skybox _skybox;
+
+	entt::registry _registry;
 
 	std::vector<RenderStage> _stages;
 
@@ -63,16 +79,78 @@ public:
 
 		_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
-		S_INMAN.registerController(&_tdController);
-		S_RANDY._cam._controller->setFlying(true);
+		//S_RANDY._cam._controller->setFlying(true);
 
-		_stages.push_back(
-			RenderStage(
-				S_RANDY.device(), 
-				&(S_RANDY._cam), 
-				&(S_RANDY.d3d()->_renderTarget),
-				&(S_RANDY.d3d()->_viewport))
-		);
+		Model* modelPtr = S_RESMAN.getByName<Model>("FlyingMage");
+		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
+		auto psPtr = sys._shaderCache.getPixShader("phongPS");
+		
+		for (auto& mesh : modelPtr->_meshes)
+		{
+			mesh._material->setVS(vsPtr);
+			mesh._material->setPS(psPtr);
+		}
+
+		auto _renderGroup = _registry.group<SMatrix, RenderComponent>(entt::exclude<Deleted>);
+
+		for (UINT i = 0; i < 100; ++i)
+		{
+			auto entity = _registry.create();
+			_registry.emplace<RenderComponent>(entity, modelPtr);
+			_registry.emplace<SMatrix>(entity, SMatrix::CreateTranslation(SVec3(i / 10, (i % 10), 10) * 10.f));
+		}
+
+		RenderStage shadowStage(
+			S_RANDY.device(),
+			&(S_RANDY._cam),
+			&(S_RANDY.d3d()->_renderTarget),
+			&(S_RANDY.d3d()->_viewport));
+
+		RenderStage mainStage(
+			S_RANDY.device(),
+			&(S_RANDY._cam),
+			&(S_RANDY.d3d()->_renderTarget),
+			&(S_RANDY.d3d()->_viewport));
+
+		_stages.push_back(std::move(shadowStage));
+		_stages.push_back(std::move(mainStage));
+
+		_positionBuffer.init(S_RANDY.device(), CBuffer::createDesc(sizeof(SMatrix)));
+		_positionBuffer.bindToVS(S_RANDY.context(), 0);
+	}
+
+
+	void fakeRenderSystem(ID3D11DeviceContext* context, entt::registry& registry)
+	{
+		auto group = _registry.group<SMatrix, RenderComponent>(entt::exclude<Deleted>);
+
+		// Can try a single buffer for position
+
+		//_positionBuffer.bindToVS(context, 0);
+
+		group.each([&context, &posBuffer = _positionBuffer](SMatrix& transform, RenderComponent& renderComp)
+			{
+				posBuffer.bindToVS(context, 0);
+
+				for (auto& mesh : renderComp.model->_meshes)
+				{
+					posBuffer.updateWithStruct(context, transform.Transpose());
+
+					Material* mat = mesh._material.get();
+					mat->bind(context);
+
+					// This is bad and needs to be rewritten...
+					mat->getVS()->updateBuffersAuto(context, mesh);
+					//mat->getVS()->setBuffers(context);
+					mat->getPS()->updateBuffersAuto(context, mesh);
+					mat->getPS()->setBuffers(context);
+
+					// Set shaders and textures.
+					mat->bind(context);
+
+					context->DrawIndexed(mesh._indexBuffer.getIdxCount(), 0, 0);
+				}
+			});
 	}
 
 
@@ -88,6 +166,8 @@ public:
 		_dirLight.bind(S_CONTEXT, _dirLightCB);
 
 		_scene.draw();
+
+		fakeRenderSystem(rc.d3d->GetDeviceContext(), _registry);
 
 		S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(S_CONTEXT);

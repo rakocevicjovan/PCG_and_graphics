@@ -191,9 +191,6 @@
     <ClCompile Include="CloudVolumeGenerator.cpp">
       <Filter>Old levels\Strife</Filter>
     </ClCompile>
-    <ClCompile Include="Illumination.cpp">
-      <Filter>Old levels\Strife</Filter>
-    </ClCompile>
     <ClCompile Include="StrifeLevel.cpp">
       <Filter>Old levels\Strife</Filter>
     </ClCompile>
@@ -248,13 +245,7 @@
     <ClCompile Include="Octree.cpp">
       <Filter>Collision\Spatial partitioning</Filter>
     </ClCompile>
-    <ClCompile Include="ColFuncs.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
-      <Filter>Rendering\High level</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderable.cpp">
       <Filter>Rendering\High level</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
@@ -368,12 +359,6 @@
     <ClCompile Include="Hull.cpp">
       <Filter>Collision\Hulls</Filter>
     </ClCompile>
-    <ClCompile Include="SphereHull.cpp">
-      <Filter>Collision\Hulls</Filter>
-    </ClCompile>
-    <ClCompile Include="AABB.cpp">
-      <Filter>Collision\Hulls</Filter>
-    </ClCompile>
     <ClCompile Include="ClusterManager.cpp">
       <Filter>Rendering\High level\Lights</Filter>
     </ClCompile>
@@ -449,6 +434,7 @@
     <ClCompile Include="..\..\imgui - docking branch\imgui_tables.cpp">
       <Filter>GUI\ImGui files</Filter>
     </ClCompile>
+    <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1078,6 +1064,7 @@
     <ClInclude Include="DepthStencilState.h">
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

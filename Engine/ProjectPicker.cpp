@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ProjectPicker.h"
 #include "GuiBlocks.h"
 #include "GUI.h"

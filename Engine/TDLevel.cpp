@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "TDLevel.h"
 #include "Terrain.h"
 #include "Geometry.h"
@@ -92,6 +93,8 @@ void TDLevel::init(Engine& sys)
 	_creeps.reserve(NUM_ENEMIES);
 
 	auto modelPtr = S_RESMAN.getByName<Model>("FlyingMage");
+	auto vsPtr = sys._shaderCache.getVertShader("basicVS");
+	auto psPtr = sys._shaderCache.getPixShader("phongPS");
 
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
@@ -106,8 +109,7 @@ void TDLevel::init(Engine& sys)
 		_creeps[i]._steerComp._mspeed = 40.f;
 		//_creeps[i].renderableHandle = _scene.addRenderable() @TODO MAKE IT WORK LIKE THIS!
 		
-		for (Renderable& r : _creeps[i]._renderables)
-			_creeps[i].patchMaterial(sys._shaderCache.getVertShader("basicVS"), sys._shaderCache.getPixShader("phongPS"));
+		_creeps[i].patchMaterial(vsPtr, psPtr);
 
 		for (Hull* h : _creeps[i]._collider.getHulls())
 			_scene._octree.insertObject(static_cast<SphereHull*>(h));

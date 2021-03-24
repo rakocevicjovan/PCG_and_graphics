@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "BitMapper.h"
 #include <numeric>
 #include <iostream>

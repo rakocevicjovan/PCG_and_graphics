@@ -1,10 +1,10 @@
+#include "pch.h"
 #include "ShaderCache.h"
 #include "ShaderDataStructs.h"
 #include "Math.h"
 #include "Sampler.h"
 #include "CBuffer.h"
 #include "FileUtilities.h"
-#include <assert.h>
 
 
 

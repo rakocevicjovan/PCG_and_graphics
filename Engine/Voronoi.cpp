@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Voronoi.h"
 #include "Chaos.h"
 
