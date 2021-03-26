@@ -185,6 +185,7 @@
       </FloatingPointExceptions>
     </ClCompile>
     <ClCompile Include="DXT.cpp" />
+    <ClCompile Include="Editor.cpp" />
     <ClCompile Include="GeoClipmap.cpp" />
     <ClCompile Include="imnodes.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -394,6 +395,7 @@
     <ClInclude Include="AnimationEditor.h" />
     <ClInclude Include="AnimationInstance.h" />
     <ClInclude Include="AnimChannel.h" />
+    <ClInclude Include="AssetExplorer.h" />
     <ClInclude Include="AssetScanner.h" />
     <ClInclude Include="AssimpGUI.h" />
     <ClInclude Include="AssimpLoader.h" />

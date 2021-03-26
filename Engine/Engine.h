@@ -1,37 +1,34 @@
 #pragma once
 #define WIN32_LEAN_AND_MEAN
 
-#include "IMGUI/imgui.h"
-#include "IMGUI/imgui_impl_win32.h"
-#include "IMGUI/imgui_impl_dx11.h"
-
 #include <windows.h>
 #include <iostream>
 #include <sstream>
 
+#include "Window.h"
+#include "Editor.h"
+#include "Project.h"
+
+
 #include "InputManager.h"
 #include "Renderer.h"
 #include "GameClock.h"
-#include "CollisionEngine.h"
 #include "Audio.h"
 #include "LevelManager.h"
 #include "ResourceManager.h"
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 #include "MaterialCache.h"
-#include "Project.h"
 #include "VitThreadPool.h"
-#include "Window.h"
 
 
-//centralized, high level "glue" class that contains engine subsystems and exposes them to the game, outlives levels
+
+// Centralized, high level "glue" class that manages engine subsystems and exposes them to the game. Highest scope object
 class Engine
 {
 private:
-	bool Frame(float dTime);
-	void OutputFPS(float dTime);
 
-	LPCWSTR _applicationName;
+	bool tick(float dTime);
 
 	UINT _scrWidth;
 	UINT _scrHeight;
@@ -42,12 +39,16 @@ private:
 	Project _project;
 
 public:
+
 	Engine();
 	~Engine();
 
-	bool Initialize();
-	void Run();
-	void Shutdown();
+	bool initialize();
+	void start();
+	void shutDown();
+
+	// The big boye, main editor
+	Editor _editor;
 
 	// My very own engine window
 	Window<Engine> _engineWindow;
@@ -55,7 +56,6 @@ public:
 	// Engine subsystems
 	InputManager _inputManager;
 	ResourceManager _resMan;
-	CollisionEngine _colEngine;
 	Audio _audio;
 	GameClock _clock;
 	ctpl::thread_pool _threadPool;

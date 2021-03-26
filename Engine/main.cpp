@@ -16,13 +16,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		return 1;
 	}
 
-	if(!engine->Initialize())
+	if(!engine->initialize())
 	{
 		std::cout << "Engine could not be initialized." << std::endl;
 		return 2;
 	}
 
-	engine->Run();
+	engine->start();
 
 	return 0;
 }

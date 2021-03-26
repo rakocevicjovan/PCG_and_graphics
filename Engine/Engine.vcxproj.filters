@@ -218,9 +218,6 @@
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
@@ -435,6 +432,10 @@
       <Filter>GUI\ImGui files</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Editor.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1065,6 +1066,9 @@
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="AssetExplorer.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

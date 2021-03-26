@@ -35,8 +35,8 @@ private:
 		}
 	}
 
-public:
 
+public:
 
 	static void printSkeleton(Skeleton* skeleton)
 	{
@@ -46,7 +46,6 @@ public:
 			ImGui::TreePop();
 		}
 	}
-
 
 
 	static void printSkModel(SkeletalModel* skModel)
@@ -63,7 +62,6 @@ public:
 			ImGui::PopID();
 		}
 	}
-
 
 
 	static void printModel(Model* model)

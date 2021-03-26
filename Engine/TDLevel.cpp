@@ -18,7 +18,6 @@ inline float pureDijkstra(const NavNode& n1, const NavNode& n2) { return 0.f; }
 TDLevel::TDLevel(Engine& sys) 
 	: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _geoClipMap(3, 4, 10.)
 {
-	_editor = Editor(S_WW, S_WH, PROJ.getProjDir());
 };
 
 

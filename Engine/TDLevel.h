@@ -21,7 +21,6 @@
 //tests
 //#include "QuadTree.h"
 //#include "PoolAllocator.h"
-#include "Editor.h"
 #include "GeoClipmap.h"
 #include "SceneEditor.h"
 
@@ -108,8 +107,6 @@ private:
 	
 	// Simple economy class
 	Economy _eco;
-
-	Editor _editor;
 
 	GeoClipmap _geoClipMap;
 

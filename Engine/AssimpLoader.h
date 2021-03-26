@@ -15,14 +15,11 @@
 class AssimpLoader : public Level
 {
 private:
-	// Temporarily here
-	ShaderManager _shMan;	
-	//TextureCache _texCache;
-	// move to engine, behind asset manager facade or renderer... still not sure
+	// Temporarily here, pass them as ptr/ref from the editor to feed into that one
+	ShaderManager _shMan;
+	FileBrowser _browser;
 
 	Scene _scene;
-
-	FileBrowser _browser;
 
 	std::vector<std::unique_ptr<AssImport>> _previews;
 	AssImport* _curPreview;

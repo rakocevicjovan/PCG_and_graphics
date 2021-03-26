@@ -15,11 +15,11 @@ Engine::Engine() :
 
 Engine::~Engine()
 {
-	Shutdown();
+	shutDown();
 }
 
 
-bool Engine::Initialize()
+bool Engine::initialize()
 {
 	// Testing grounds... move to tests project eventually
 	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
@@ -77,7 +77,7 @@ bool Engine::Initialize()
 
 
 
-void Engine::Run()
+void Engine::start()
 {
 	_clock.Reset();
 
@@ -100,14 +100,14 @@ void Engine::Run()
 		else
 		{
 			_clock.Tick();
-			done = !Frame(_clock.DeltaTime());	// Otherwise do the frame processing.
+			done = !tick(_clock.DeltaTime());	// Otherwise do the frame processing.
 		}
 	}
 }
 
 
 
-bool Engine::Frame(float dTime)
+bool Engine::tick(float dTime)
 {
 	if (_inputManager.isKeyDown(VK_ESCAPE))
 		return false;
@@ -128,17 +128,7 @@ bool Engine::Frame(float dTime)
 
 
 
-void Engine::OutputFPS(float dTime)
-{
-	std::ostringstream ss;
-	ss << "Frame time: " << 1.0f / dTime << "\n";
-	std::string s(ss.str());
-	OutputDebugStringA(ss.str().c_str());
-}
-
-
-
-void Engine::Shutdown()
+void Engine::shutDown()
 {
 	ShowCursor(true);
 

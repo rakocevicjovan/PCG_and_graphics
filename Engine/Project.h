@@ -22,16 +22,14 @@ struct ProjectDefinition
 
 class Project
 {
-	std::string _configPath;
-	ProjectDefinition _projDef;
+	std::string _configPath{};
+	ProjectDefinition _projDef{};
 
-	LevelReader _levelReader;
+	LevelReader _levelReader{};
 
 public:
 
 	std::string _ledgerPath;
-
-	Project() : _projDef({}) {}
 
 	bool loadFromConfig(const std::string& projConfPath);
 	bool loadProjectConfiguration(const rapidjson::Document& projConfDoc);

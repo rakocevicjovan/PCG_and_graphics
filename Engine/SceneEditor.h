@@ -28,7 +28,6 @@ private:
 	> _displayComponents{};
 
 
-
 public:
 
 	void init(Scene* scene)
@@ -47,7 +46,7 @@ public:
 
 			if (_selected != entt::null)
 			{
-				displayNodeProperties(_registry, _selected, std::move(_displayComponents));
+				displayNodeProperties(_registry, _selected, _displayComponents);
 			}
 		}
 
@@ -74,7 +73,6 @@ private:
 		if (ImGui::Button("Add entity"))
 		{
 			auto entity = _registry->create();
-			_registry->emplace<CParentLink>(entity, entt::to_integral(entity) - 1);
 		}
 
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
@@ -120,8 +118,12 @@ private:
 	{
 		if (registry->has<Editable>(entity))
 		{
-			auto& component = registry->get<Editable>(entity);
-			ComponentEditor::Display(component);
+			if (ImGui::TreeNode(ComponentEditor::GetComponentTypeName<Editable>()))
+			{
+				auto& component = registry->get<Editable>(entity);
+				ComponentEditor::Display(component);
+				ImGui::TreePop();
+			}
 		}
 	}
 	
