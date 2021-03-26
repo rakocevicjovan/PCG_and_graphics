@@ -6,7 +6,7 @@
 #include <sstream>
 
 #include "Window.h"
-#include "Editor.h"
+//#include "Editor.h"
 #include "Project.h"
 
 
@@ -48,7 +48,7 @@ public:
 	void shutDown();
 
 	// The big boye, main editor
-	Editor _editor;
+	//Editor _editor;
 
 	// My very own engine window
 	Window<Engine> _engineWindow;
