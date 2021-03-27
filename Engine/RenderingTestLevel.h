@@ -49,9 +49,8 @@ private:
 public:
 
 	RenderingTestLevel(Engine& sys)
-		: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _geoClipmap(3, 4, 10.)
+		: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _geoClipmap(3, 4, 10.), _fpsCounter(64)
 	{
-
 	}
 
 

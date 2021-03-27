@@ -97,7 +97,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	// Create the swap chain, Direct3D device, and Direct3D device context. D3D11_CREATE_DEVICE_DEBUG useful for now, not in release
 	
 	auto swapChainDesc = SwapChain::CreateDescription(windowWidth, windowHeight, numerator, denominator, hwnd, fullscreen, vsync, DXGI_FORMAT_R8G8B8A8_UNORM);
-	_swapChain.init(&_device, swapChainDesc, featureLevel, &_deviceContext);
+	_swapChain.init(swapChainDesc, featureLevel, vsync , &_device, &_deviceContext);
 
 	// Get the pointer to the back buffer.
 	auto backBufferPtr = _swapChain.getBackBufferPointer();
