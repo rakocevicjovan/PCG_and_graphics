@@ -6,6 +6,7 @@
 #include <d3dcommon.h>
 #include <d3d11_4.h>
 #include "RenderTarget.h"
+#include "SwapChain.h"
 #include "Viewport.h"
 #include "Math.h"
 
@@ -48,7 +49,7 @@ private:
 	bool _VSyncEnabled;
 	int _videoCardMemory;
 	char _videoCardDescription[128];
-	IDXGISwapChain* _swapChain;
+	SwapChain _swapChain;
 	ID3D11Device* _device;
 	ID3D11DeviceContext* _deviceContext;
 
