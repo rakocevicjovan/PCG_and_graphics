@@ -82,8 +82,8 @@ private:
 	static constexpr SHG_LIGHT_MODEL DEFAULT_LM = SHG_LM_LAMBERT;
 
 
-	ID3D11Device* _pDevice;
-	ShaderCache* _pShCache;
+	ID3D11Device* _pDevice{};
+	ShaderCache* _pShCache{};
 
 	std::map<uint64_t, ShaderPack> _existingShaders;
 

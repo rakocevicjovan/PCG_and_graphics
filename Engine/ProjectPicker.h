@@ -1,17 +1,14 @@
 #pragma once
 #include "Project.h"
+#include <memory>
 
 class ProjectPicker
 {
-	std::string _currentItemName = "None picked";
-	
 	std::string _projPath;
 
-	Project* _project;
+	std::unique_ptr<Project> _project;
 	
 public:
-
-	ProjectPicker() {}
 
 	bool ProjectPicker::Render();
 };

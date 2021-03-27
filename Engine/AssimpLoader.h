@@ -25,7 +25,6 @@ private:
 	AssImport* _curPreview;
 
 	// For previewing models in 3d
-	Material _skelAnimMat;
 	PointLight _pointLight;
 	CBuffer _pointLightCB;
 
@@ -60,9 +59,8 @@ public:
 		S_DEVICE->GetImmediateContext(&context);
 		_pointLight.updateCBuffer(context, _pointLightCB);
 		_pointLight.bind(context, _pointLightCB);
-	
 
-		// Generate the floor, assign a material and render
+		// Generate the floor, assign a material
 		Procedural::Terrain terrain;
 		float _tSize = 500.f;
 		terrain = Procedural::Terrain(2, 2, SVec3(_tSize));

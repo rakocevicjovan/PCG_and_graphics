@@ -160,16 +160,6 @@ private:
 	template <typename... Editables>
 	void showAddComponentPopup(entt::registry* registry, entt::entity entity)
 	{
-		/* This doesn't seem to work, probably because idk how to write a lambda template
-		auto lamebda = [](entt::registry* registry, entt::entity entity)
-		{
-			if (!registry.has<Editable>(entity))
-			{
-				ImGui::Text("Elligible type found");
-			}
-		};
-		*/
-
 		if (ImGui::Button("Add component"))
 		{
 			ImGui::OpenPopup("Select type to add");
@@ -180,7 +170,6 @@ private:
 			((showAddComponent<Editables>(registry, entity)), ...);
 			ImGui::EndPopup();
 		}
-		
 	}
 	
 };

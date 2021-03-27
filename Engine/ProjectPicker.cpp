@@ -20,17 +20,15 @@ bool ProjectPicker::Render()
 		if (ImGui::Button("Load project"))
 		{ 
 			// Check if file exists yada yada
-			_project = new Project();
+			_project = std::make_unique<Project>();
 			if (!_project->loadFromConfig(_projPath))
 			{
-				delete _project;
-				_project = nullptr;
+				_project.reset();
 			}
 		}
 
+		ImGui::End();
 	}
-
-	ImGui::End();
 
 	return done;
 }

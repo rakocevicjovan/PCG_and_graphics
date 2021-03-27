@@ -43,7 +43,6 @@ public:
 
 	RenderTarget _renderTarget;
 	Viewport _viewport;
-	float _clearColour[4] = { 0.2f, 0.1f, 0.3f, 1.0f };
 
 private:
 	bool _VSyncEnabled;
