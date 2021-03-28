@@ -170,7 +170,7 @@ public:
 
 		_scene.draw();
 
-		fakeRenderSystem(rc.d3d->GetDeviceContext(), _scene._registry);
+		fakeRenderSystem(rc.d3d->getContext(), _scene._registry);
 
 		S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(S_CONTEXT);

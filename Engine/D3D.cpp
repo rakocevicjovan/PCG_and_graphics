@@ -223,12 +223,6 @@ void D3D::EndScene()
 }
 
 
-ID3D11Device* D3D::GetDevice(){ return _device; }
-
-
-ID3D11DeviceContext* D3D::GetDeviceContext(){ return _deviceContext; }
-
-
 void D3D::GetVideoCardInfo(char* cardName, int& memory)
 {
 	strcpy_s(cardName, 128, _videoCardDescription);

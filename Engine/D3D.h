@@ -38,8 +38,8 @@ public:
 	void setDSSLessEquals();
 	void setDSSLess();
 
-	ID3D11Device* GetDevice();
-	ID3D11DeviceContext* GetDeviceContext();
+	inline ID3D11Device* getDevice() { return _device; }
+	inline ID3D11DeviceContext* getContext() { return _deviceContext; }
 
 	RenderTarget _renderTarget;
 	Viewport _viewport;

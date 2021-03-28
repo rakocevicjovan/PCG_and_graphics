@@ -21,11 +21,11 @@ struct PosFrame
 
 struct RotFrame
 {
-	SQuat rot;
-	float tick;
+	SQuat rot{};
+	float tick{};
 
-	RotFrame() {}
-	RotFrame(float tick, SQuat rot) : rot(rot), tick(tick) {}
+	RotFrame() noexcept {}
+	RotFrame(float tick, SQuat rot) noexcept : rot(rot), tick(tick) {}
 
 	template<class Archive> void serialize(Archive& ar) { ar(rot, tick); }
 };
@@ -33,11 +33,11 @@ struct RotFrame
 
 struct SclFrame
 {
-	SVec3 scale;
-	float tick;
+	SVec3 scale{};
+	float tick{};
 
-	SclFrame() {}
-	SclFrame(float tick, SVec3 scale) : scale(scale), tick(tick) {}
+	SclFrame() noexcept {}
+	SclFrame(float tick, SVec3 scale) noexcept : scale(scale), tick(tick) {}
 
 	template<class Archive> void serialize(Archive& ar) { ar(scale, tick); }
 };
@@ -51,9 +51,9 @@ struct AnimChannel
 	std::vector<RotFrame> _rKeys;
 	std::vector<PosFrame> _pKeys;
 
-	AnimChannel() {}
+	AnimChannel() noexcept {}
 
-	AnimChannel(int p, int r, int s);
+	AnimChannel(int p, int r, int s) noexcept;
 
 	SMatrix getInterpolatedTransform(float currentTick, float t) const;
 

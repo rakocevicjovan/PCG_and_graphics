@@ -6,9 +6,8 @@
 #include <sstream>
 
 #include "Window.h"
-//#include "Editor.h"
 #include "Project.h"
-
+#include "FileBrowser.h"
 
 #include "InputManager.h"
 #include "Renderer.h"
@@ -18,6 +17,7 @@
 #include "ResourceManager.h"
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
+#include "ShaderManager.h"
 #include "MaterialCache.h"
 #include "VitThreadPool.h"
 
@@ -50,6 +50,10 @@ public:
 	// The big boye, main editor
 	//Editor _editor;
 
+	// Instead of making the editor right now, I'll just chuck things here and extract them when it makes sense
+	FileBrowser _fileBrowser;
+	ShaderManager _shaderManager;
+
 	// My very own engine window
 	Window<Engine> _engineWindow;
 	
@@ -67,8 +71,6 @@ public:
 	MaterialCache _matCache;
 
 	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
 	D3D _D3D;
 
 	// This should be in game code really, it's up to it to define different states etc.

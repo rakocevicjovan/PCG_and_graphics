@@ -46,7 +46,7 @@ public:
 	void init(Engine& sys) override
 	{
 		// Move later
-		_shMan.init(sys._device, &sys._shaderCache);
+		_shMan.init(S_DEVICE, &sys._shaderCache);
 		_shMan.loadExistingKeys(NATURAL_COMPS);
 
 		// Create point light for scene preview
@@ -86,7 +86,7 @@ public:
 
 	void draw(const RenderContext& rc) override
 	{
-		rc.d3d->ClearColourDepthBuffers();
+		_sys._renderer.setDefaultRenderTarget();
 
 		S_RANDY.render(_floorRenderable);
 
@@ -103,7 +103,7 @@ public:
 			{
 				_previews.push_back(std::make_unique<AssImport>());
 
-				if (!_previews.back()->loadAiScene(rc.d3d->GetDevice(), selected.value().path().string(), 0u, &S_RESMAN, &_shMan))
+				if (!_previews.back()->loadAiScene(rc.d3d->getDevice(), selected.value().path().string(), 0u, &S_RESMAN, &_shMan))
 				{
 					_previews.pop_back();
 				}

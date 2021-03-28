@@ -20,14 +20,14 @@ typedef std::array<uint8_t, 6> LightBounds;
 
 struct OffsetListItem
 {
-	OffsetListItem() : _index(0u), _count(0u) {}
+	OffsetListItem() noexcept : _index(0u), _count(0u) {}
 	OffsetListItem(const OffsetListItem&) = delete;
-	OffsetListItem(const OffsetListItem&& other) : _index(std::move(other._index)), _count(other._count.load()) {}
+	OffsetListItem(const OffsetListItem&& other) noexcept : _index(std::move(other._index)), _count(other._count.load()) {}
 
 	OffsetListItem& operator=(const OffsetListItem&) = delete;
 
-	uint32_t _index;	//uint16_t _index;
-	std::atomic<uint32_t> _count;		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
+	uint32_t _index{ 0u };	//uint16_t _index;
+	std::atomic<uint32_t> _count{0u};		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
 };
 
 

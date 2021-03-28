@@ -2,7 +2,7 @@
 #include "AnimChannel.h"
 
 
-AnimChannel::AnimChannel(int p, int r, int s)
+AnimChannel::AnimChannel(int p, int r, int s) noexcept
 {
 	_pKeys.reserve(p);
 	_rKeys.reserve(r);

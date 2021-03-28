@@ -1,15 +1,27 @@
 #pragma once
-#include "FileBrowser.h"
-#include "EditorLayout.h"
-#include "Project.h"
-#include "Math.h"
-#include "SceneEditor.h"
-#include "Engine.h"
 
 
+// @TODO think about how this relates to the engine before writing it.
 class Editor
 {
 private:
+
+	
+
+
+public:
+
+	
+};
+
+
+
+/*
+	#include "FileBrowser.h"
+	#include "EditorLayout.h"
+	#include "Project.h"
+	#include "Math.h"
+	#include "SceneEditor.h"
 
 	std::unique_ptr<Project> _project;
 
@@ -17,15 +29,8 @@ private:
 
 	SceneEditor _sceneEditor;
 
-	Engine& _engine;
 
-public:
-
-	Editor(Engine& engine) : _engine(engine)
-	{
-
-	}
-
+	// include imgui for this obv
 
 	void display()
 	{
@@ -40,4 +45,4 @@ public:
 
 		ImGui::End();
 	}
-};
+*/

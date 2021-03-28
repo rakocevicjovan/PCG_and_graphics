@@ -21,8 +21,8 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 {
 	_d3d = &d3d;
 	
-	_device = d3d.GetDevice();
-	_deviceContext = d3d.GetDeviceContext();
+	_device = d3d.getDevice();
+	_deviceContext = d3d.getContext();
 
 	// Setup the projection matrix.
 	_windowWidth = windowWidth;

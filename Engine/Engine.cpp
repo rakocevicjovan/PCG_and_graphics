@@ -20,10 +20,7 @@ Engine::~Engine()
 
 
 bool Engine::initialize()
-{
-	// Testing grounds... move to tests project eventually
-	//ShaderGenerator::preprocessAllPermutations(L"ShGen\\VS_proto.hlsl", "ShGen\\GeneratedVS\\vs_");
-	
+{	
 	_engineWindow.createWindow("Aeolian engine", this, _windowWidth, _windowHeight,
 		Window<Engine>::CreationFlags::SHOW_WINDOW |
 		Window<Engine>::CreationFlags::START_FOCUSED |
@@ -35,9 +32,6 @@ bool Engine::initialize()
 		return false;
 	}
 
-	_device = _D3D.GetDevice();
-	_deviceContext = _D3D.GetDeviceContext();
-
 	_inputManager.initialize(_engineWindow.handle());
 	_defController = Controller(&_inputManager);
 	_inputManager.registerController(&_defController);
@@ -48,15 +42,15 @@ bool Engine::initialize()
 		return false;
 	}
 
-	_resMan.init(_device);
+	_resMan.init(_D3D.getDevice());
 
-	_shaderCompiler.init(_device);
+	_shaderCompiler.init(_D3D.getDevice());
 	_shaderCache.init(&_shaderCompiler);
 	_matCache.init(&_shaderCache, &_resMan);
 
 	_renderer._cam._controller = &_defController;
 
-	GUI::initDxWin32(_engineWindow.handle(), _device, _deviceContext);
+	GUI::initDxWin32(_engineWindow.handle(), _D3D.getDevice(), _D3D.getContext());
 
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_project.loadFromConfig("../Tower Defense/Tower defense.json");

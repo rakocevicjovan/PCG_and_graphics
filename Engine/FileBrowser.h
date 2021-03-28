@@ -9,7 +9,7 @@ class FileBrowser
 {
 private:
 
-	uint8_t MAX_UNDOS = 8u;
+	uint8_t _historySize = 8u;
 
 	std::string _searchedString;
 
@@ -127,7 +127,7 @@ private:
 
 	void openDir(const std::filesystem::path& newPath)
 	{
-		if (_pathHistory.size() >= MAX_UNDOS)
+		if (_pathHistory.size() >= _historySize)
 			_pathHistory.pop_front();
 
 		if (std::filesystem::is_directory(newPath))

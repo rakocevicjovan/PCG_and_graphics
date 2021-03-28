@@ -130,7 +130,6 @@ public:
 		}
 
 		_renderer.setDefaultRenderTarget();
-		_renderer.context()->RSSetViewports(1, _renderer.d3d()->_viewport);
 
 		// After the shadow maps have been rendered to, we bind the global csm buffer and texture array
 		_csm.uploadCSMBuffer(_renderer.context(), PS_CSM_CBUFFER_REGISTER);
