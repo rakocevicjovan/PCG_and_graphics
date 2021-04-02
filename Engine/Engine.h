@@ -77,7 +77,7 @@ public:
 	LevelManager* _levelMan;
 
 	// Here so we have something for camera controls in every level, move out eventually
-	Controller _defController;	
+	Controller _defController;
 
 	inline UINT getScrW() const { return _scrWidth;  }
 	inline UINT getScrH() const { return _scrHeight; }

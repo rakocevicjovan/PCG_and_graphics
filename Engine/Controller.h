@@ -27,18 +27,16 @@ private:
 	SVec3 processTranslationTP(float dTime, const SMatrix& transformation, SMatrix& camTransformation) const;
 	void processRotationTP(float dTime, SMatrix& transformation, SMatrix& camTransformation) const;
 
-	void applyGravity(const float dTime, SMatrix& transformation) const;
-	void resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity);
+	float rotCf{ 15.f };
+	float movCf{ 50.f };
+	float camDist{ 66.f };
+	short dx{ 0 };
+	short dy{ 0 };
 
-	float rotCf = 15.f;
-	float movCf = 50.f;
-	float camDist = 66.f;
-	short dx = 0, dy = 0;
-
-	bool _isFlying = true;
-	bool _collided = false;
-	bool _grounded = false;
-	bool _showCursor = false;
+	bool _isFlying{ true };
+	bool _collided{ false };
+	bool _grounded{ false };
+	bool _showCursor{ false };
 	
 public:
 	Controller();
@@ -51,9 +49,9 @@ public:
 	void processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform);
 
 	void Observe(const KeyPressMessage& msg);
-	void toggleFlying();
-	void setFlying(bool b);
-	bool isFlying() { return _isFlying; }
+	void toggleFlying() { _isFlying = !_isFlying; };
+	void setFlying(bool isFlying) { _isFlying = isFlying; };
+	inline bool isFlying() { return _isFlying; }
 
 	void mouseLPressed(const MCoords& absmc);
 	void mouseLReleased(const MCoords& absmc);

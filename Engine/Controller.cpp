@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Controller.h"
 #include "InputManager.h"
-#include "CollisionEngine.h"
 #include "Picker.h"
 
 
@@ -28,13 +27,6 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 	}
 	
 	SVec3 velocityVector = processTranslationFPS(dTime, transform) * movCf * dTime;
-	
-	//flying mode is used for testing and shouldn't collide or fall for convenience
-	if (!_isFlying)
-	{
-		resolveCollision(transform, dTime, velocityVector);
-		applyGravity(dTime, transform);
-	}
 
 	Math::Translate(transform, velocityVector);
 }
@@ -175,43 +167,6 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 	Math::SetTranslation(camTransform, transform.Translation() + playerToCam * camDist);
 
 	camTransform = SMatrix::CreateWorld(camTransform.Translation(), playerToCam, SVec3(0, 1, 0));
-}
-
-
-
-void Controller::applyGravity(const float dTime, SMatrix& transformation) const	//get this thing out of here ffs
-{
-	if(!_grounded)
-		Math::Translate(transformation, SVec3(0.f, -9.81f, 0.f) * dTime);
-}
-
-
-
-void Controller::toggleFlying()
-{
-	_isFlying = _isFlying ? false : true;
-}
-
-
-
-void Controller::setFlying(bool b)
-{
-	_isFlying = b;
-}
-
-
-//this shouldn't be here...
-void Controller::resolveCollision(SMatrix& transformation, float dTime, SVec3& velocity)
-{
-	if (!_colEng)
-		return;
-
-	HitResult hr = _colEng->resolvePlayerCollision(transformation, velocity);
-
-	if (hr.resolutionVector.LengthSquared() > .1f)
-		_grounded = true;
-	else
-		_grounded = false;
 }
 
 
