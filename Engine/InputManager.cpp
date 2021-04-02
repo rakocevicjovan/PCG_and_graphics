@@ -3,13 +3,7 @@
 
 
 
-InputManager::InputManager()
-{
-	_mouse = std::make_unique<DirectX::Mouse>();
-}
-
-
-InputManager::~InputManager()
+InputManager::InputManager() : _mouse(std::make_unique<DirectX::Mouse>())
 {}
 
 
@@ -17,12 +11,13 @@ void InputManager::initialize(HWND hwnd)
 {
 	_mouse->SetWindow(hwnd);
 
+	// See https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawinputdevice
 	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
 
-	RIDs[0].usUsagePage = 0x01;		//keyboard and mouse
-	RIDs[0].usUsage = 0x02;			//code of our device, 0x06 is keyboard, 0x02 is mouse... could use 2 and 6 too but this makes me look smarter
-	RIDs[0].dwFlags = 0;			//default way to interpret the device
-	RIDs[0].hwndTarget = NULL;		//follows the keyboard focus
+	RIDs[0].usUsagePage = 0x01;		// Top level collection - keyboard and mouse. There can be multiple of these.
+	RIDs[0].usUsage = 0x02;			// Code of our device, 0x02 is mouse, 0x06 is keyboard, others are possible too
+	RIDs[0].dwFlags = 0;			// default way to interpret the device
+	RIDs[0].hwndTarget = NULL;		// follows the keyboard focus
 
 	RIDs[1].usUsagePage = 0x01;
 	RIDs[1].usUsage = 0x06;
@@ -30,7 +25,10 @@ void InputManager::initialize(HWND hwnd)
 	RIDs[1].hwndTarget = NULL;
 
 	if (RegisterRawInputDevices(RIDs, 2, sizeof(RIDs[0])) == false)
-		MessageBoxW(NULL, L"Could not register the raw input devices", L"Raw input fail", 0);
+	{
+		OutputDebugStringA("Could not register the raw input devices.");
+		__debugbreak();
+	}
 
 	for(int i=0; i<256; i++)
 		_keys[i] = false;
@@ -97,23 +95,23 @@ bool InputManager::isKeyDown(unsigned int key)
 void InputManager::queryMouse()
 {
 	DirectX::Mouse::State state = _mouse->GetState();
-	tracker.Update(state);
+	_tracker.Update(state);
 	_abs.x = state.x;
 	_abs.y = state.y;
 
-	if (tracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
+	if (_tracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
 	{
 		mouseLPressed();
 	}
-	if (tracker.leftButton == DirectX::Mouse::ButtonStateTracker::RELEASED)
+	if (_tracker.leftButton == DirectX::Mouse::ButtonStateTracker::RELEASED)
 	{
 		mouseLReleased();
 	}
-	if (tracker.rightButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
+	if (_tracker.rightButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
 	{
 		mouseRPressed();
 	}
-	if (tracker.rightButton == DirectX::Mouse::ButtonStateTracker::RELEASED)
+	if (_tracker.rightButton == DirectX::Mouse::ButtonStateTracker::RELEASED)
 	{
 		mouseRReleased();
 	}
@@ -148,14 +146,13 @@ void InputManager::mouseRReleased()
 }
 
 
-void InputManager::toggleMouseMode()
+void InputManager::toggleMouseVisibility()
 {
-	_cursorVisible = !_cursorVisible;
-	_mouse->SetVisible(_cursorVisible);
+	_mouse->SetVisible(!_mouse->IsVisible());
 }
 
 
-bool InputManager::getMouseMode()
+bool InputManager::getMouseVisibility()
 {
-	return _cursorVisible;
+	return _mouse->IsVisible();
 }

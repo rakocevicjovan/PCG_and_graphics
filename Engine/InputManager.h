@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <Windows.h>
 #include <vector>
 #include "Mouse.h"
 #include "Controller.h"
@@ -20,13 +19,12 @@ class InputManager
 {
 private:
 	std::vector<Observer*> _observers;
-	std::unique_ptr<DirectX::Mouse> _mouse;
-	DirectX::Mouse::ButtonStateTracker tracker;
+	std::unique_ptr<DirectX::Mouse> _mouse{};
+	DirectX::Mouse::ButtonStateTracker _tracker;
 
-	bool _keys[256];
-	bool _cursorVisible = false;
-	MCoords _rel;
-	MCoords _abs;
+	bool _keys[256]{false};
+	MCoords _rel{ 0, 0 };
+	MCoords _abs{ 0, 0 };
 
 	void queryMouse();
 	void mouseLPressed();
@@ -37,7 +35,6 @@ private:
 public:
 
 	InputManager();
-	~InputManager();
 
 	void initialize(HWND hwnd);
 	void update();
@@ -56,6 +53,6 @@ public:
 
 	bool isKeyDown(unsigned int);
 
-	void toggleMouseMode();
-	bool getMouseMode();
+	void toggleMouseVisibility();
+	bool getMouseVisibility();
 };

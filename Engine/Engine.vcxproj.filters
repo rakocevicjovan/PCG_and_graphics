@@ -1135,7 +1135,6 @@
     <None Include="Clustering.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </None>
-    <None Include="ClassDiagram.cd" />
     <None Include="ToneMapping.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </None>
@@ -1145,6 +1144,7 @@
     <None Include="Reserved_CB_PS.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </None>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">

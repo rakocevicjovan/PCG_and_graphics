@@ -65,7 +65,7 @@ namespace Strife
 	{
 		if (_sys._inputManager.isKeyDown((short)'M'))
 		{
-			S_INMAN.toggleMouseMode();
+			S_INMAN.toggleMouseVisibility();
 		}
 
 		// This changed
@@ -102,7 +102,7 @@ namespace Strife
 		
 
 		//GUI
-		if(S_INMAN.getMouseMode())
+		if(S_INMAN.getMouseVisibility())
 			ToolGUI::Render(csDef);
 
 		rc.d3d->EndScene();

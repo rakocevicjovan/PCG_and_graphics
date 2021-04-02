@@ -9,7 +9,7 @@ class ProjectPickerLevel : public Level
 public:
 	ProjectPickerLevel(Engine& sys) : Level(sys) {}
 	
-	void init(Engine& sys) override { _sys._inputManager.toggleMouseMode(); }
+	void init(Engine& sys) override { _sys._inputManager.toggleMouseVisibility(); }
 
 	void update(const RenderContext& rc) override {}
 
