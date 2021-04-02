@@ -37,8 +37,14 @@ private:
 	
 protected:
 	
-	uint16_t _w, _h;	// width, height, max 65536 maximum each
-	uint8_t _nc, _snc;	// num channels in loaded data and storage data
+	// width, height, max 65536 maximum each
+	uint16_t _w{ 0u };
+	uint16_t _h{ 0u };
+
+	// num channels in loaded data and storage data
+	uint8_t _nc{ 0u };
+	uint8_t _snc{ 0u };
+
 	std::shared_ptr<unsigned char[]> _mdata;
 
 	static int GetFormatFromFile(const char* filename);
@@ -49,8 +55,8 @@ protected:
 
 public:
 
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> _dxID;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _arraySrv;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> _dxID{};
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _arraySrv{};
 
 	std::string _fileName;	// Helpful to debug, likely to be removed in release...
 

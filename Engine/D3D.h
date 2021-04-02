@@ -13,13 +13,10 @@
 
 class D3D
 {
-
 public:
 	D3D();
-	~D3D();
 
 	bool Initialize(int, int, bool, HWND, bool);
-	void Shutdown();
 	
 	void ClearColourDepthBuffers();
 	void EndScene();
@@ -38,8 +35,8 @@ public:
 	void setDSSLessEquals();
 	void setDSSLess();
 
-	inline ID3D11Device* getDevice() { return _device; }
-	inline ID3D11DeviceContext* getContext() { return _deviceContext; }
+	inline ID3D11Device* getDevice() { return _device.Get(); }
+	inline ID3D11DeviceContext* getContext() { return _deviceContext.Get(); }
 
 	RenderTarget _renderTarget;
 	Viewport _viewport;
@@ -49,8 +46,8 @@ private:
 	int _videoCardMemory;
 	char _videoCardDescription[128];
 	SwapChain _swapChain;
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
+	Microsoft::WRL::ComPtr<ID3D11Device> _device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> _deviceContext;
 
 	DepthStencilState _depthStencilLess;
 	DepthStencilState _depthStencilLessEquals;

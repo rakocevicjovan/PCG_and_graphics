@@ -47,9 +47,6 @@ public:
 	void start();
 	void shutDown();
 
-	// The big boye, main editor
-	//Editor _editor;
-
 	// Instead of making the editor right now, I'll just chuck things here and extract them when it makes sense
 	FileBrowser _fileBrowser;
 	ShaderManager _shaderManager;

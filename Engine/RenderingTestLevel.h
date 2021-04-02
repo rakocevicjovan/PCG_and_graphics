@@ -15,17 +15,10 @@
 #include "entt/entt.hpp"
 
 
-
-struct RenderComponent
-{
-	Model* model;
-};
-
 struct Deleted
 {
 	bool whatever{false};
 };
-
 
 
 // Clean version of TDLevel without all the accumulated cruft.

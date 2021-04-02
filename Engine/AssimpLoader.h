@@ -22,7 +22,7 @@ private:
 	Scene _scene;
 
 	std::vector<std::unique_ptr<AssImport>> _previews;
-	AssImport* _curPreview;
+	AssImport* _curPreview{ nullptr };
 
 	// For previewing models in 3d
 	PointLight _pointLight;
@@ -38,7 +38,6 @@ public:
 	AssimpLoader(Engine& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
-		_curPreview = nullptr;
 	}
 
 

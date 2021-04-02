@@ -12,13 +12,6 @@ _r_s_solid_cull(0)
 
 
 
-D3D::~D3D()
-{ 
-	Shutdown();
-}
-
-
-
 bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	HRESULT result;
@@ -97,33 +90,33 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	// Create the swap chain, Direct3D device, and Direct3D device context. D3D11_CREATE_DEVICE_DEBUG useful for now, not in release
 	
 	auto swapChainDesc = SwapChain::CreateDescription(windowWidth, windowHeight, numerator, denominator, hwnd, fullscreen, vsync, DXGI_FORMAT_R8G8B8A8_UNORM);
-	_swapChain.init(swapChainDesc, featureLevel, vsync , &_device, &_deviceContext);
+	_swapChain.init(swapChainDesc, featureLevel, vsync, &_device, &_deviceContext);
 
 	// Get the pointer to the back buffer.
 	auto backBufferPtr = _swapChain.getBackBufferPointer();
 	
 	// Create the render target view with the back buffer pointer. Uknown format means adjust to parent.
-	_renderTarget.fromExistingTexture(_device, backBufferPtr.Get(), windowWidth, windowHeight);
+	_renderTarget.fromExistingTexture(_device.Get(), backBufferPtr.Get(), windowWidth, windowHeight);
 
 	// Depth stencil states - these are just hardcoded right now as I don't need anything special.
 	DepthStencilDesc depthStencilDesc{};
 	depthStencilDesc.depthFunc = DepthStencilDesc::COMP::LESS_EQUAL;
-	_depthStencilLessEquals.createDepthStencilState(_device, depthStencilDesc);
+	_depthStencilLessEquals.createDepthStencilState(_device.Get(), depthStencilDesc);
 
 	depthStencilDesc.depthFunc = DepthStencilDesc::COMP::LESS;
-	_depthStencilLess.createDepthStencilState(_device, depthStencilDesc);
+	_depthStencilLess.createDepthStencilState(_device.Get(), depthStencilDesc);
 
 	depthStencilDesc.depthTest = false;
 	depthStencilDesc.stencilTest = false;
 	depthStencilDesc.depthFunc = DepthStencilDesc::COMP::ALWAYS;
-	_depthStencilNoDepthTest.createDepthStencilState(_device, depthStencilDesc);
+	_depthStencilNoDepthTest.createDepthStencilState(_device.Get(), depthStencilDesc);
 
 	// Set the depth stencil state. Either of these works well enough as the default one.
-	_depthStencilLess.bind(_deviceContext);
-	//_depthStencilLessEquals.bind(_deviceContext);
+	//_depthStencilLess.bind(_deviceContext.Get());
+	_depthStencilLessEquals.bind(_deviceContext.Get());
 
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	_renderTarget.bind(_deviceContext);
+	_renderTarget.bind(_deviceContext.Get());
 	
 
 	// Setup the raster description which will determine how and what polygons will be drawn.
@@ -168,7 +161,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL; //D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 	result = _device->CreateBlendState(&blendDesc, &_blendState);
 	if (FAILED(result))
@@ -180,7 +173,9 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	result = _device->CreateBlendState(&blendDesc, &_noBlendState);
 	if (FAILED(result))
 		return false;
-	
+
+	TurnOffAlphaBlending();
+
 	_viewport._viewport = Viewport::CreateViewport((float)windowWidth, (float)windowHeight);
 
 	_deviceContext->RSSetViewports(1, &_viewport._viewport);
@@ -189,31 +184,9 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 }
 
 
-void D3D::Shutdown()
-{
-	if(_r_s_solid_cull)
-	{
-		_r_s_solid_cull->Release();
-		_r_s_solid_cull = nullptr;
-	}
-
-	if(_deviceContext)
-	{
-		_deviceContext->Release();
-		_deviceContext = nullptr;
-	}
-
-	if(_device)
-	{
-		_device->Release();
-		_device = nullptr;
-	}
-}
-
-
 void D3D::ClearColourDepthBuffers()
 {
-	_renderTarget.clear(_deviceContext);
+	_renderTarget.clear(_deviceContext.Get());
 }
 
 
@@ -233,7 +206,7 @@ void D3D::GetVideoCardInfo(char* cardName, int& memory)
 void D3D::SetBackBufferRenderTarget()
 {
 	_deviceContext->RSSetViewports(1, &_viewport._viewport);
-	_renderTarget.bind(_deviceContext);
+	_renderTarget.bind(_deviceContext.Get());
 	ClearColourDepthBuffers();
 }
 
@@ -273,17 +246,17 @@ void D3D::setRSWireframe()
 
 void D3D::setDSSNoTest()
 {
-	_depthStencilNoDepthTest.bind(_deviceContext);
+	_depthStencilNoDepthTest.bind(_deviceContext.Get());
 }
 
 
 void D3D::setDSSLessEquals()
 {
-	_depthStencilLessEquals.bind(_deviceContext);
+	_depthStencilLessEquals.bind(_deviceContext.Get());
 }
 
 
 void D3D::setDSSLess()
 {
-	_depthStencilLess.bind(_deviceContext);
+	_depthStencilLess.bind(_deviceContext.Get());
 }
