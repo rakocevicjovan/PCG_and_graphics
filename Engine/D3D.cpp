@@ -14,41 +14,34 @@ _r_s_solid_cull(0)
 
 bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
-	HRESULT result;
-
 	// Store the vsync setting.
 	_VSyncEnabled = vsync;
 
 	// Create a DirectX graphics interface factory.
 	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)(factory.GetAddressOf()));
-	if(FAILED(result))
+	if(FAILED(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)(factory.GetAddressOf()))))
 		return false;
 
 	// Use the factory to create an adapter for the primary graphics interface (video card).
 	Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
-	result = factory->EnumAdapters(0, adapter.GetAddressOf());
-	if(FAILED(result))
+	if(FAILED(factory->EnumAdapters(0, adapter.GetAddressOf())))
 		return false;
 
 	// Enumerate the primary adapter output (monitor).
 	Microsoft::WRL::ComPtr<IDXGIOutput> adapterOutput;
-	result = adapter->EnumOutputs(0, adapterOutput.GetAddressOf());
-	if(FAILED(result))
+	if(FAILED(adapter->EnumOutputs(0, adapterOutput.GetAddressOf())))
 		return false;
 
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor)
 	UINT numModes{};
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
-	if(FAILED(result))
+	if(FAILED(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL)))
 		return false;
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
 	std::vector<DXGI_MODE_DESC> displayModeList(numModes);
 
 	// Now fill the display mode list structures.
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList.data());
-	if(FAILED(result))
+	if(FAILED(adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList.data())))
 		return false;
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
@@ -69,8 +62,7 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Get the adapter (video card) description.
 	DXGI_ADAPTER_DESC adapterDesc;
-	result = adapter->GetDesc(&adapterDesc);
-	if(FAILED(result))
+	if(FAILED(adapter->GetDesc(&adapterDesc)))
 		return false;
 
 	// Store the dedicated video card memory in megabytes.
@@ -111,14 +103,6 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	depthStencilDesc.depthFunc = DepthStencilDesc::COMP::ALWAYS;
 	_depthStencilNoDepthTest.createDepthStencilState(_device.Get(), depthStencilDesc);
 
-	// Set the depth stencil state. Either of these works well enough as the default one.
-	//_depthStencilLess.bind(_deviceContext.Get());
-	_depthStencilLessEquals.bind(_deviceContext.Get());
-
-	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	_renderTarget.bind(_deviceContext.Get());
-	
-
 	// Setup the raster description which will determine how and what polygons will be drawn.
 	D3D11_RASTERIZER_DESC rasterDesc{};
 
@@ -149,11 +133,8 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(_device->CreateRasterizerState(&rasterDesc, &_r_s_wireframe)))
 		return false;
 
-	// Now set the rasterizer state.
-	_deviceContext->RSSetState(_r_s_solid_cull.Get());
-
-	//blending code @TODO see why it messes with texture.... turn off until then
-	D3D11_BLEND_DESC blendDesc = {};
+	// Blending code @TODO see why it messes with texture.... turn off until then
+	D3D11_BLEND_DESC blendDesc{};
 	blendDesc.RenderTarget[0].BlendEnable = TRUE;
 	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
@@ -163,20 +144,33 @@ bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-	result = _device->CreateBlendState(&blendDesc, &_blendState);
-	if (FAILED(result))
+	if (FAILED(_device->CreateBlendState(&blendDesc, &_blendState)))
 		return false;
 
 	// Modify the description to create an alpha disabled blend state description.
-	blendDesc.RenderTarget[0].BlendEnable = FALSE;
+	D3D11_BLEND_DESC noBlendDesc{};
+	noBlendDesc.RenderTarget[0].BlendEnable = FALSE;
+	noBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	// Create the blend state using the description.
-	result = _device->CreateBlendState(&blendDesc, &_noBlendState);
-	if (FAILED(result))
+	if (FAILED(_device->CreateBlendState(&noBlendDesc, &_noBlendState)))
 		return false;
 
-	TurnOffAlphaBlending();
-
+	
 	_viewport._viewport = Viewport::CreateViewport((float)windowWidth, (float)windowHeight);
+
+	
+	// Set the defaults
+	// 
+	// Set the depth stencil state. Either of these works well enough as the default one.
+	//_depthStencilLess.bind(_deviceContext.Get());
+	_depthStencilLessEquals.bind(_deviceContext.Get());
+
+	// Bind the render target view and depth stencil buffer to the output render pipeline.
+	_renderTarget.bind(_deviceContext.Get());
+
+	_deviceContext->RSSetState(_r_s_solid_cull.Get());
+
+	TurnOffAlphaBlending();
 
 	_deviceContext->RSSetViewports(1, &_viewport._viewport);
 

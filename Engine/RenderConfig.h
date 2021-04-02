@@ -16,5 +16,5 @@ enum PassType
 
 struct RenderConfig
 {
-	z
+	
 };

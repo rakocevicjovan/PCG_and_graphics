@@ -450,7 +450,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Project.h" />
-    <ClInclude Include="RenderCache.h" />
     <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderingTestLevel.h" />
     <ClInclude Include="RenderStage.h" />

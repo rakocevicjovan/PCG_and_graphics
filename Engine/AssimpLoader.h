@@ -89,6 +89,7 @@ public:
 
 		S_RANDY.render(_floorRenderable);
 
+		S_RANDY.d3d()->TurnOffAlphaBlending();
 		if(_curPreview)
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 

@@ -1026,9 +1026,6 @@
     <ClInclude Include="RenderTarget.h">
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
-    <ClInclude Include="RenderCache.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="RenderConfig.h">
       <Filter>Rendering</Filter>
     </ClInclude>
