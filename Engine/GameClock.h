@@ -4,13 +4,13 @@ class GameClock
 public:
 	GameClock();
 
-	float TotalTime() const; // in seconds
-	float DeltaTime() const; // in seconds
+	float totalTime() const; // in seconds
+	float deltaTime() const; // in seconds
 
-	void Reset(); // Call before message loop.
-	void Start(); // Call when unpaused.
-	void Stop();  // Call when paused.
-	void Tick();  // Call every frame.
+	void reset(); // Call before message loop.
+	void start(); // Call when unpaused.
+	void stop();  // Call when paused.
+	void tick();  // Call every frame.
 
 private:
 	double _secondsPerCount;

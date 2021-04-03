@@ -12,6 +12,7 @@
 #include "InputManager.h"
 #include "Renderer.h"
 #include "GameClock.h"
+#include "FPSCounter.h"
 #include "Audio.h"
 #include "LevelManager.h"
 #include "ResourceManager.h"
@@ -59,6 +60,7 @@ public:
 	ResourceManager _resMan;
 	Audio _audio;
 	GameClock _clock;
+	FPSCounter _fpsCounter;
 	ctpl::thread_pool _threadPool;
 
 	// Rendering

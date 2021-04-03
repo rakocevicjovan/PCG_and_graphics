@@ -3,15 +3,6 @@
 
 
 
-D3D::D3D() :
-_device(0),
-_deviceContext(0),
-_r_s_solid_cull(0)
-{
-}
-
-
-
 bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	// Store the vsync setting.

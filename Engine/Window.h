@@ -198,16 +198,3 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		}
 	}
 }
-
-
-// Useful misc
-namespace
-{
-	// Trick to let enums be used as their underlying type (for bitflags)
-	// Can be used internally but clunky to expose to usersd
-	template <typename MyEnumType>
-	inline constexpr std::underlying_type_t<MyEnumType> asUnderlying(MyEnumType flag)
-	{
-		return static_cast<std::underlying_type_t<MyEnumType>>(flag);
-	}
-}

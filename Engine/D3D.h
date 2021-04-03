@@ -14,7 +14,6 @@
 class D3D
 {
 public:
-	D3D();
 
 	bool Initialize(int, int, bool, HWND, bool);
 	

@@ -8,7 +8,6 @@
 #include "AStar.h"
 #include "Skybox.h"
 #include "GUI.h"
-#include "SceneEditor.h"
 #include "CSM.h"
 #include "RenderStage.h"
 #include "FPSCounter.h"
@@ -28,7 +27,7 @@ private:
 
 	GeoClipmap _geoClipmap;
 	Scene _scene;
-	SceneEditor _sceneEditor;
+	//SceneEditor _sceneEditor;
 	FPSCounter _fpsCounter;
 
 	// Make it cozy in here for now, but move these to scene ultimately!
@@ -65,7 +64,7 @@ public:
 
 		_geoClipmap.init(S_DEVICE);
 
-		_sceneEditor.init(&_scene);
+		//_sceneEditor.init(&_scene);
 
 		_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
@@ -173,7 +172,7 @@ public:
 
 		GUI::beginFrame();
 
-		_sceneEditor.display();
+		//_sceneEditor.display();
 
 		std::vector<GuiElement> guiElems =
 		{

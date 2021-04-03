@@ -190,8 +190,7 @@ public:
 		auto culledPLs = _lightManager->getCulledPointLights();
 
 		_renderer._clusterManager->assignLights(culledPLs, c, _sys._threadPool);
-		_renderer._clusterManager->upload(S_CONTEXT, culledPLs);
-
+		_renderer._clusterManager->upload(_renderer.context(), culledPLs);
 
 		// For every spot light
 		// Well, implement spot light culling eventually...

@@ -455,7 +455,7 @@ void TDLevel::steerEnemies(float dTime)
 
 		//height
 		float h = terrain.getHeightAtPosition(_creeps[i].getPosition());
-		float intervalPassed = fmod(_sys._clock.TotalTime() * 5.f + i * 2.f, 10.f);
+		float intervalPassed = fmod(_sys._clock.totalTime() * 5.f + i * 2.f, 10.f);
 		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
 		Math::setHeight(_creeps[i]._transform, h + 2 * sway + FLYING_HEIGHT);
 

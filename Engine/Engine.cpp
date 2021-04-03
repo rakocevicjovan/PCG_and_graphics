@@ -73,7 +73,7 @@ bool Engine::initialize()
 
 void Engine::start()
 {
-	_clock.Reset();
+	_clock.reset();
 
 	MSG msg = {};
 	bool done = false;
@@ -93,8 +93,9 @@ void Engine::start()
 		}
 		else
 		{
-			_clock.Tick();
-			done = !tick(_clock.DeltaTime());	// Otherwise do the frame processing.
+			_clock.tick();
+			_fpsCounter.tickAccurate(_clock.deltaTime());
+			done = !tick(_clock.deltaTime());	// Otherwise do the frame processing.
 		}
 	}
 }
@@ -153,7 +154,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		}
 		case WM_INPUT:
 		{
-			UINT dwSize;
+			UINT dwSize{};
 
 			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
 			

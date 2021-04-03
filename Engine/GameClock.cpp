@@ -17,7 +17,7 @@ GameClock::GameClock()
 
 // Returns the total time elapsed since Reset() was called, NOT counting any
 // time when the clock is stopped.
-float GameClock::TotalTime()const
+float GameClock::totalTime()const
 {
 	// If we are stopped, do not count the time that has passed since we stopped.
 	// Moreover, if we previously already had a pause, the distance 
@@ -51,14 +51,14 @@ float GameClock::TotalTime()const
 
 
 
-float GameClock::DeltaTime()const
+float GameClock::deltaTime()const
 {
 	return (float)_deltaTime;
 }
 
 
 
-void GameClock::Reset()
+void GameClock::reset()
 {
 	__int64 currTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
@@ -71,7 +71,7 @@ void GameClock::Reset()
 
 
 
-void GameClock::Start()
+void GameClock::start()
 {
 	__int64 startTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
@@ -95,7 +95,7 @@ void GameClock::Start()
 
 
 
-void GameClock::Stop()
+void GameClock::stop()
 {
 	if (!_isStopped)
 	{
@@ -109,7 +109,7 @@ void GameClock::Stop()
 
 
 
-void GameClock::Tick()
+void GameClock::tick()
 {
 	if (_isStopped)
 	{
