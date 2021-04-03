@@ -5,6 +5,7 @@
 #include "IMGUI/imgui_impl_win32.h"
 #include "IMGUI/imgui_impl_dx11.h"
 #include "imnodes.h"
+#include "FontHeaders/IconsFontAwesome4.h"
 
 
 
@@ -30,6 +31,14 @@ public:
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 		io.ConfigFlags  |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigDockingWithShift = true;
+
+		io.Fonts->AddFontDefault();
+		
+		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+		ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+		io.Fonts->AddFontFromFileTTF("../Fonts/" FONT_ICON_FILE_NAME_FA, 16.0f, &icons_config, icons_ranges);
+		// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
+
 
 		ImGui::StyleColorsDark();
 

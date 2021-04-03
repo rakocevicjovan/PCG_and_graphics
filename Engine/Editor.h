@@ -1,4 +1,9 @@
 #pragma once
+
+/*
+	// This code is valid at the time of commenting. Should be kept until a decision is made.
+	// The editor can live on top of the engine or inside the engine - this is a choice.
+
 #include "Engine.h"
 #include "FileBrowser.h"
 #include "SceneEditor.h"
@@ -69,5 +74,6 @@ public:
 		}
 		ImGui::End();
 	}
-	
 };
+
+*/
