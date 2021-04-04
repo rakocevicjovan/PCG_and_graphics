@@ -68,6 +68,7 @@ public:
 	~Renderer();
 
 	bool initialize(int wWidth, int wHeight, D3D& d3d);
+	void resize(uint16_t width, uint16_t height);
 	bool frame(float dTime);
 	bool updatePerFrameBuffers(float dTime);
 	
@@ -79,8 +80,6 @@ public:
 	inline void clearRenderQueue() { _rQue.clear(); };
 
 	void render(const Renderable& renderable) const;
-	
-	void setCameraMatrix(const SMatrix& camMatrix);
 
 	inline float getAspectRatio() { return _aspectRatio; }
 

@@ -28,7 +28,7 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 	_windowWidth = windowWidth;
 	_windowHeight = windowHeight;
 
-	_aspectRatio = _windowWidth / _windowHeight;
+	_aspectRatio = windowWidth / windowHeight;
 	_fieldOfView = PI / 3.0f;
 	
 	_cam = Camera(SMatrix::Identity, _fieldOfView, _aspectRatio, NEAR_PLANE, FAR_PLANE);
@@ -36,6 +36,19 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 	_clusterManager = std::make_unique<ClusterManager>(CLUSTER_GRID_DIMS, (1 << 16), _device);	//30 * 17 * 16 = 8160 nodes
 
 	return createGlobalBuffers();
+}
+
+
+
+void Renderer::resize(uint16_t width, uint16_t height)
+{
+	_windowWidth = width;
+	_windowHeight = height;
+
+	_aspectRatio = width / height;
+	//_fieldOfView = PI / 3.0f; This really just stays the same
+
+	// Set render target size, viewport etc... see what needs to happen
 }
 
 
@@ -76,13 +89,6 @@ bool Renderer::updatePerFrameBuffers(float dTime)
 	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed, SVec2() });
 	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), dTime, _elapsed, SVec2() });
 	return true;
-}
-
-
-
-void Renderer::setCameraMatrix(const SMatrix& camMatrix)
-{
-	_cam.SetCameraMatrix(camMatrix);
 }
 
 

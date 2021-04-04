@@ -140,6 +140,8 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wparam, lparam))
 		return true;
 
+	static uint16_t newSize[2]{0, 0};
+
 	switch (message)
 	{
 		case WM_KEYDOWN:
@@ -174,6 +176,20 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 				delete[] lpb;
 			}		
+			break;
+		}
+
+		case WM_SIZE:
+		{
+			auto flag = wparam;
+			newSize[0] = LOWORD(lparam);	// width of client area
+			newSize[1] = HIWORD(lparam);	// height of client area
+			break;
+		}
+
+		case WM_EXITSIZEMOVE:
+		{
+			_renderer.resize(newSize[0], newSize[1]);
 			break;
 		}
 		
