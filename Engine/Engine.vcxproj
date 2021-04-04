@@ -186,6 +186,7 @@
     </ClCompile>
     <ClCompile Include="DXT.cpp" />
     <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="FuzzySearch.cpp" />
     <ClCompile Include="GeoClipmap.cpp" />
     <ClCompile Include="imnodes.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -428,6 +429,7 @@
     <ClInclude Include="FlexVert.h" />
     <ClInclude Include="Fnv1Hash.h" />
     <ClInclude Include="FPSCounter.h" />
+    <ClInclude Include="fts_fuzzy_match.h" />
     <ClInclude Include="GeoClipmap.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />

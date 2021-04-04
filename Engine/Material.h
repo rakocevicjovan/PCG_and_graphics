@@ -1,7 +1,6 @@
 #pragma once
 #include "Texture.h"
 #include "Shader.h"
-#include "Light.h"
 #include "Sampler.h"
 #include "MeshDataStructs.h"
 
@@ -11,7 +10,6 @@
 #include <cereal/types/string.hpp>
 
 #include <memory>
-#include <map>
 
 
 
@@ -45,8 +43,8 @@ class Material
 protected:
 
 	// Most important sorting criteria
-	VertexShader* _vertexShader;
-	PixelShader* _pixelShader;
+	VertexShader* _vertexShader{};
+	PixelShader* _pixelShader{};
 
 public:
 
@@ -54,7 +52,7 @@ public:
 	std::vector<TextureMetaData> _texMetaData;
 	
 	// Determines whether it goes to the transparent or opaque queue
-	bool _opaque;
+	bool _opaque{false};
 
 	// This could also belong in the vertex buffer... like stride and offset do
 	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -88,24 +86,34 @@ public:
 	{
 		_texMetaData.push_back({std::shared_ptr<Texture>(t), role, tmm, uvIndex, 0u});
 	}
+
+	template <typename Archive>
+	void save(Archive& ar, const std::vector<UINT>& texIDs) const
+	{
+		ar(getVS()->_id, get_PS()->_id, _texMetaData, _primitiveTopology, _opaque);
+	}
+
+	template <typename Archive>
+	void load(Archive& ar, const std::vector<UINT>& texIDs) const
+	{
+		ar(getVS()->_id, get_PS()->_id, _texMetaData, _primitiveTopology, _opaque);
+	}
 };
 
 
 
 struct MaterialFileFormat
 {
-	uint64_t _shaderKey;
+	uint64_t _shaderKey{};
 	std::vector<TextureMetaData> _texMetaData;
-	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology;
-	bool _opaque;
+	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
+	bool _opaque{true};
 
 	template <typename Archive>
 	void serialize(Archive& ar, const std::vector<UINT>& texIDs) const
 	{
 		ar(_shaderKey, _texMetaData, _primitiveTopology, _opaque);
 	}
-
-	MaterialFileFormat() {};
 
 	MaterialFileFormat(const Material& mat) 
 		: _texMetaData (mat._texMetaData), _primitiveTopology(mat._primitiveTopology), _opaque(mat._opaque)

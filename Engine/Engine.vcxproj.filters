@@ -436,6 +436,9 @@
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="FuzzySearch.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1068,6 +1071,9 @@
     </ClInclude>
     <ClInclude Include="SwapChain.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="fts_fuzzy_match.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

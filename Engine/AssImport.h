@@ -266,11 +266,18 @@ public:
 	{
 		ImGui::Text("Preview settings");
 
-		ImGui::SliderFloat("Model scale: (tbd)", &_previewScale, .1f, 100.f);
+		ImGui::SliderFloat("Model scale: ", &_previewScale, .1f, 100.f);
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, 0.f, 1.f);
 
 		ImGui::Text("Commands");
+
+
+		if (ImGui::BeginPopup("Import target directory not found"))
+		{
+			ImGui::Text("Create the target import directory first.");
+			ImGui::EndPopup();
+		}
 
 		if (ImGui::Button("Import as .aeon"))
 		{
@@ -280,8 +287,14 @@ public:
 			}
 			else
 			{
+				ImGui::OpenPopup("Import target directory not found");
 				// Freak out
 			}
+		}
+
+		if (ImGui::Button("Check .aeon"))
+		{
+
 		}
 
 		if (ImGui::Button("Close"))
@@ -379,8 +392,6 @@ public:
 
 	std::vector<uint32_t> persistMats()
 	{
-		std::set<Texture*> unqTextures;
-
 		std::vector<uint32_t> matIDs;
 		for (UINT i = 0; i < _matData._mats.size(); ++i)
 		{
@@ -388,7 +399,7 @@ public:
 			std::ofstream ofs(matPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			MaterialFileFormat mff = MaterialFileFormat(*(_matData._mats[i]));
-			//mff.serialize(boa, );
+			//mff.serialize(boa);
 			matIDs.push_back(_pLedger->insert("", matPath, ResType::MATERIAL));
 		}
 		return matIDs;
