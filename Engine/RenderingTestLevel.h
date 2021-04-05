@@ -27,7 +27,7 @@ private:
 
 	GeoClipmap _geoClipmap;
 	Scene _scene;
-	//SceneEditor _sceneEditor;
+	SceneEditor _sceneEditor;
 	FPSCounter _fpsCounter;
 
 	// Make it cozy in here for now, but move these to scene ultimately!
@@ -64,7 +64,7 @@ public:
 
 		_geoClipmap.init(S_DEVICE);
 
-		//_sceneEditor.init(&_scene);
+		_sceneEditor.init(&_scene);
 
 		_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
@@ -89,6 +89,12 @@ public:
 			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, (i % 10), 10) * 10.f));
 		}
 
+		_sys._renderer._mainStage = RenderStage(
+			S_RANDY.device(),
+			&(S_RANDY._cam),
+			&(S_RANDY.d3d()->_renderTarget),
+			&(S_RANDY.d3d()->_viewport));
+		/*
 		RenderStage shadowStage(
 			S_RANDY.device(),
 			&(S_RANDY._cam),
@@ -103,6 +109,7 @@ public:
 
 		_stages.push_back(std::move(shadowStage));
 		_stages.push_back(std::move(mainStage));
+		*/
 
 		_positionBuffer.init(S_RANDY.device(), CBuffer::createDesc(sizeof(SMatrix)));
 		_positionBuffer.bindToVS(S_RANDY.context(), 0);
@@ -116,6 +123,9 @@ public:
 		// Can try a single buffer for position
 
 		//_positionBuffer.bindToVS(context, 0);
+
+		//auto& mainPass = _sys._renderer._mainStage;
+		//mainPass.bind(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
 
 		group.each([&context, &posBuffer = _positionBuffer](CTransform& transform, CStaticMesh& renderComp)
 			{
@@ -172,7 +182,7 @@ public:
 
 		GUI::beginFrame();
 
-		//_sceneEditor.display();
+		_sceneEditor.display();
 
 		std::vector<GuiElement> guiElems =
 		{

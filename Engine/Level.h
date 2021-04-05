@@ -29,7 +29,7 @@ class Level : public Observer
 protected:
 	Engine& _sys;
 
-	Camera _camera;
+	Camera _camera;	// @TODO Remove, add in-game cameras for games and editor camera for editor.
 
 public:
 	Level(Engine& sys);

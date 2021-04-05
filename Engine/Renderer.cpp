@@ -46,9 +46,9 @@ void Renderer::resize(uint16_t width, uint16_t height)
 	_windowHeight = height;
 
 	_aspectRatio = width / height;
-	//_fieldOfView = PI / 3.0f; This really just stays the same
 
 	// Set render target size, viewport etc... see what needs to happen
+	// Keep in mind that rendering resolution might not change! Not sure how this should be handled.
 }
 
 

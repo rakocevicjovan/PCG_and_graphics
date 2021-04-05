@@ -50,15 +50,15 @@ public:
 	}
 
 
-	DepthStencil& getDepthStencil()
-	{
-		return _depthStencil;
-	}
-
-
 	void bind(ID3D11DeviceContext* context)
 	{
 		context->OMSetRenderTargets(1, _rtv.GetAddressOf(), _depthStencil._dsvs[0].Get());
+	}
+
+
+	static void unbind(ID3D11DeviceContext* context, UINT count = 1)
+	{
+		context->OMSetRenderTargets(count, nullptr, nullptr);
 	}
 
 
@@ -69,9 +69,21 @@ public:
 	}
 
 
-	static void unbind(ID3D11DeviceContext* context, UINT count = 0)
+	void setClearColour(float* clearCol)
 	{
-		context->OMSetRenderTargets(count, nullptr, nullptr);
+		memcpy(_clearColour, clearCol, sizeof(float) * 4);
+	}
+
+
+	DepthStencil& getDepthStencil()
+	{
+		return _depthStencil;
+	}
+
+
+	auto size() const
+	{
+		return std::pair<float, float>{ _tex.w(), _tex.h() };
 	}
 
 private:
@@ -81,5 +93,5 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> _rtv{nullptr};
 
-	float _clearColour[4] = {0., 0., 0., 1.};	// Could be a static, however it might be useful and it's a small price to pay
+	float _clearColour[4]{0., 0., 0., 1.};	// Could be a static, however it might be useful and it's a small price to pay
 };
