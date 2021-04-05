@@ -39,7 +39,7 @@ private:
 		wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 		wc.hIconSm = wc.hIcon;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+		//wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH); This clears the window but we do it ourselves.
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = CLASS_NAME;
 		wc.cbSize = sizeof(WNDCLASSEX);
@@ -107,10 +107,10 @@ public:
 			_windowName.get(),								// Name of the window (thanks Cpt. Obvious)
 			WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,	// Style
 			_x, _y, _w, _h,									// Can use CW_USEDEFAULT macro as well, but we have our own way
-			NULL,											// Parent Window
-			NULL,											// Menu
+			0,												// Parent Window
+			0,												// Menu
 			_hinstance,										// Instance handle. Still not sure what this actually is
-			NULL);											// Additional application data. No need for any.
+			0);												// Additional application data. No need for any.
 
 		if (!_hwnd)
 		{
