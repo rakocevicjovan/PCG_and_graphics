@@ -74,6 +74,9 @@ public:
 	bool setUpAsResource(ID3D11Device* device, bool deleteData = true);
 	bool createGPUResource(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data);
 
+	inline void setWidth(UINT width)  { _w = width; }
+	inline void setHeight(UINT height) { _h = height; }
+
 	inline int w() const							{ return _w; } 
 	inline int h() const							{ return _h; }
 	inline int nc() const							{ return _nc; }

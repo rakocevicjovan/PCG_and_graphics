@@ -28,7 +28,7 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 	_windowWidth = windowWidth;
 	_windowHeight = windowHeight;
 
-	_aspectRatio = windowWidth / windowHeight;
+	_aspectRatio = static_cast<float>(windowWidth) / windowHeight;
 	_fieldOfView = PI / 3.0f;
 	
 	_cam = Camera(SMatrix::Identity, _fieldOfView, _aspectRatio, NEAR_PLANE, FAR_PLANE);

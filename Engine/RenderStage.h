@@ -29,7 +29,7 @@ public:
 	}
 
 
-	void bind(ID3D11DeviceContext* context, float dTime, float elapsed)
+	void prepare(ID3D11DeviceContext* context, float dTime, float elapsed)
 	{
 		// These have to be bound because its a different buffer for now... Not sure if that's needed, could reuse the same ones.
 		_VSperFrameBuffer.updateWithStruct(context, VSPerFrameBuffer{ _cam->GetViewMatrix().Transpose(), dTime, elapsed });

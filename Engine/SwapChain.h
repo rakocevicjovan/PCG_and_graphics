@@ -51,6 +51,9 @@ public:
 		swapChainDesc.Windowed = !fullScreen;							// Set to full screen or windowed mode.
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;		// Discard the back buffer contents after presenting.
 		swapChainDesc.Flags = 0;										// Don't set the advanced flags.
+		
+		//SPECIAL CONSIDERATION - THIS IS WEIRD! It reacts weird to minimizing as well.
+		swapChainDesc.Windowed = true;
 
 		return swapChainDesc;
 	}
@@ -78,6 +81,8 @@ public:
 			device, 
 			NULL, 
 			context);
+
+
 
 		if (FAILED(hr))
 		{

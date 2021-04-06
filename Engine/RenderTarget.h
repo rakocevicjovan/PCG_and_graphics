@@ -34,9 +34,11 @@ public:
 
 	void fromExistingTexture(ID3D11Device* device, ID3D11Texture2D* texture, UINT w, UINT h, FlagDataType additionalFlags = 0)
 	{
+		_tex.setWidth(w);
+		_tex.setHeight(h);
 		_tex._dxID = texture;
 
-		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
 		renderTargetViewDesc.Format = DXGI_FORMAT_UNKNOWN;	// We can't guarantee knowing parent's format so there it is.
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;

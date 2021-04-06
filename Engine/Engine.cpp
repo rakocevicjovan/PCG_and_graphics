@@ -26,7 +26,7 @@ bool Engine::initialize()
 		Window<Engine>::CreationFlags::START_FOCUSED |
 		Window<Engine>::CreationFlags::START_FOREGROUND);
 
-	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), FULL_SCREEN))
+	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), _engineWindow.fullscreen()))
 	{
 		OutputDebugStringA("Can't initialize D3D!");
 		return false;
@@ -181,15 +181,15 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 		case WM_SIZE:
 		{
-			auto flag = wparam;
-			newSize[0] = LOWORD(lparam);	// width of client area
-			newSize[1] = HIWORD(lparam);	// height of client area
+			//auto flag = wparam;
+			//newSize[0] = LOWORD(lparam);	// width of client area
+			//newSize[1] = HIWORD(lparam);	// height of client area
 			break;
 		}
 
 		case WM_EXITSIZEMOVE:
 		{
-			_renderer.resize(newSize[0], newSize[1]);
+			//_renderer.resize(newSize[0], newSize[1]);
 			break;
 		}
 		

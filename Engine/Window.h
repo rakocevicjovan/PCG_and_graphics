@@ -21,6 +21,8 @@ private:
 	uint16_t _w;
 	uint16_t _h;
 
+	bool _fullScreen;
+
 	HWND _hwnd;
 	HINSTANCE _hinstance;
 	std::unique_ptr<wchar_t[]> _windowName;
@@ -39,7 +41,7 @@ private:
 		wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 		wc.hIconSm = wc.hIcon;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		//wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH); This clears the window but we do it ourselves.
+		//wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);		//This clears the window but we do it ourselves.
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = CLASS_NAME;
 		wc.cbSize = sizeof(WNDCLASSEX);
@@ -85,7 +87,7 @@ public:
 		_y = (scrH - h) / 2;
 
 		// This should be changed later with a proper flag to support borderless windowed instead of inferring it
-		bool fullScreen{ _w == scrW && _h == scrH };
+		_fullScreen = _w == scrW && _h == scrH;
 
 		// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
 		DEVMODE dmScreenSettings;
@@ -95,7 +97,7 @@ public:
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		dmScreenSettings.dmPelsWidth = (DWORD)scrW;
 		dmScreenSettings.dmPelsHeight = (DWORD)scrH;
-		if (fullScreen)
+		if (_fullScreen)
 		{
 			ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 		}
@@ -166,12 +168,14 @@ public:
 
 	// These two probably shouldn't be here!
 
+	inline bool fullscreen() { return _fullScreen; }
 	inline UINT width() const { return _w; }
 	inline UINT height() const { return _h; }
 
 	// Different type per OS. Think of that when it becomes an issue.
 	inline HWND handle() { return _hwnd; }
 	inline const HWND* handle() const { return &_hwnd; }
+
 };
 
 
