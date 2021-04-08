@@ -20,47 +20,9 @@ void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, ai
 
 bool SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
 {
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-	D3D11_SUBRESOURCE_DATA vertexData, indexData;
-	HRESULT res;
+	_vertexBuffer = VBuffer(dvc, _vertices.data(), _vertices.size(), _vertSig.getVertByteWidth(), 0u);
 
-	UINT vertByteWidth = _vertSig.getVertByteWidth();	//vertByteWidth * 
-
-	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = _vertices.size();	// It's already a pool
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-
-	vertexData.pSysMem = _vertices.data();
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-
-	_vertexBuffer._stride = vertByteWidth;
-	_vertexBuffer._offset = 0u;
-
-	res = dvc->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer.ptrVar());
-	if (FAILED(res))
-		return false;
-
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(UINT) * _indices.size();
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
-
-	// Give the subresource structure a pointer to the index data.
-	indexData.pSysMem = _indices.data();
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-
-	_indexBuffer.setIdxCount(_indices.size());
-
-	// Create the index buffer.
-	if (FAILED(dvc->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer.ptrVar())))
-		return false;
+	_indexBuffer = IBuffer(dvc, _indices);
 
 	return true;
 }

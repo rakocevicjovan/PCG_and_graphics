@@ -30,14 +30,27 @@ private:
 
 	// Floor 
 	std::unique_ptr<Mesh> _floorMesh;
-	Renderable _floorRenderable;
-	Actor _terrainActor;
 
 public:
 
 	AssimpLoader(Engine& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
 	{
 		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
+	}
+
+	
+
+	void desiredApi()
+	{
+		Scene scene(_sys, AABB(SVec3(), SVec3(300)));
+
+		// init floor
+		// scene.insert(floor)
+
+		//init light
+		//scene.insert(light)
+
+		// Show scene UI to allow adding stuff at will - althought not that useful
 	}
 
 
@@ -54,10 +67,8 @@ public:
 		_pointLight = PointLight(ld, SVec4(0., 300., 0., 1.));
 
 		_pointLight.createCBuffer(S_DEVICE, _pointLightCB);
-		ID3D11DeviceContext* context;
-		S_DEVICE->GetImmediateContext(&context);
-		_pointLight.updateCBuffer(context, _pointLightCB);
-		_pointLight.bind(context, _pointLightCB);
+		_pointLight.updateCBuffer(S_CONTEXT, _pointLightCB);
+		_pointLight.bind(S_CONTEXT, _pointLightCB);
 
 		// Generate the floor, assign a material
 		Procedural::Terrain terrain;
@@ -71,10 +82,6 @@ public:
 		auto shPack = _shMan.getShaderAuto(_floorMesh->_vertSig, _floorMesh->_material.get());
 		_floorMesh->_material->setVS(shPack->vs);
 		_floorMesh->_material->setPS(shPack->ps);
-
-		_floorRenderable = Renderable(*_floorMesh);
-		_terrainActor.addRenderable(_floorRenderable, 500);
-		_terrainActor._collider.collidable = false;
 	}
 
 
@@ -87,7 +94,7 @@ public:
 	{
 		_sys._renderer.setDefaultRenderTarget();
 
-		S_RANDY.render(_floorRenderable);
+		_floorMesh->draw(rc.d3d->getContext());
 
 		S_RANDY.d3d()->TurnOffAlphaBlending();
 		if(_curPreview)
@@ -146,9 +153,12 @@ public:
 	bool alreadyLoaded(const std::filesystem::directory_entry& selected)
 	{
 		for (auto& p : _previews)
+		{
 			if (p->getPath() == selected.path())
+			{
 				return true;
-
+			}
+		}
 		return false;
 	}
 };

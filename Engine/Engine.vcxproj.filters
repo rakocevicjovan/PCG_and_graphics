@@ -1075,6 +1075,9 @@
     <ClInclude Include="fts_fuzzy_match.h">
       <Filter>Editor</Filter>
     </ClInclude>
+    <ClInclude Include="ImportTool.h">
+      <Filter>Asset importing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

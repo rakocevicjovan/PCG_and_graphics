@@ -435,6 +435,7 @@
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="imnodes.h" />
+    <ClInclude Include="ImportTool.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LightManager.h" />

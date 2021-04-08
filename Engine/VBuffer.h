@@ -2,45 +2,22 @@
 #include "MeshDataStructs.h"
 #include "VertSignature.h"
 #include <d3d11_4.h>
+#include <wrl\client.h>
 
 
 
 class VBuffer
 {
 protected:
-	ID3D11Buffer* _vbPtr;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> _vbPtr{nullptr};
 
 public:
 
-	UINT _stride;
-	UINT _offset;
+	UINT _stride{0u};
+	UINT _offset{0u};
 
 
 	VBuffer() : _vbPtr(nullptr), _stride(0u), _offset(0u) {}
-
-	VBuffer(const VBuffer& other) : _vbPtr(other._vbPtr), _stride(other._stride), _offset(other._offset)
-	{
-		if (_vbPtr)
-			_vbPtr->AddRef();
-	}
-
-	VBuffer& operator=(const VBuffer& other)
-	{
-		_vbPtr = other._vbPtr;
-
-		if(_vbPtr)
-			_vbPtr->AddRef();
-
-		_stride = other._stride;
-		_offset = other._offset;
-		return *this;
-	}
-
-	~VBuffer()
-	{
-		if (_vbPtr)
-			_vbPtr->Release();
-	}
 
 
 	VBuffer(ID3D11Device* device, std::vector<uint8_t>& vertices, VertSignature vs, UINT offset = 0u)
@@ -50,7 +27,7 @@ public:
 
 		D3D11_BUFFER_DESC vertexBufferDesc = createDesc(vertices.size());
 		D3D11_SUBRESOURCE_DATA vertexData = createSubresourceData(vertices.data());
-		createVertexBuffer(device, vertexBufferDesc, vertexData, _vbPtr);
+		createVertexBuffer(device, vertexBufferDesc, vertexData);
 	}
 
 
@@ -61,7 +38,7 @@ public:
 		
 		D3D11_BUFFER_DESC vertexBufferDesc = createDesc(byteWidth);
 		D3D11_SUBRESOURCE_DATA vertexData = createSubresourceData(dataPtr);
-		createVertexBuffer(device, vertexBufferDesc, vertexData, _vbPtr);
+		createVertexBuffer(device, vertexBufferDesc, vertexData);
 	}
 
 
@@ -77,7 +54,7 @@ public:
 	{
 		D3D11_BUFFER_DESC vertexBufferDesc;
 		vertexBufferDesc.ByteWidth = size;
-		vertexBufferDesc.Usage = usage;	// Faster than default?
+		vertexBufferDesc.Usage = usage;
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
@@ -86,6 +63,10 @@ public:
 		return vertexBufferDesc;
 	}
 
+	inline ID3D11Buffer* const* ptr() const { return _vbPtr.GetAddressOf(); }
+	inline ID3D11Buffer* ptrVar() { return _vbPtr.Get(); }
+
+private:
 
 	inline D3D11_SUBRESOURCE_DATA createSubresourceData(void* dataPtr)
 	{
@@ -98,15 +79,12 @@ public:
 	}
 
 
-	inline void createVertexBuffer(ID3D11Device* device, D3D11_BUFFER_DESC& vbDesc, D3D11_SUBRESOURCE_DATA& srData, ID3D11Buffer*& vbPtr)
+	inline void createVertexBuffer(ID3D11Device* device, D3D11_BUFFER_DESC& vbDesc, D3D11_SUBRESOURCE_DATA& srData)
 	{
-		if (FAILED(device->CreateBuffer(&vbDesc, &srData, &vbPtr)))
+		if (FAILED(device->CreateBuffer(&vbDesc, &srData, _vbPtr.GetAddressOf())))
 		{
 			OutputDebugStringA("Failed to create vertex buffer.");
 			exit(1001);
 		}
 	}
-
-	inline ID3D11Buffer* const * ptr() const { return &_vbPtr; }
-	inline ID3D11Buffer*& ptrVar() { return _vbPtr; }
 };

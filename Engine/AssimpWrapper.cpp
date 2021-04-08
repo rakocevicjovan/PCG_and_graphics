@@ -244,9 +244,9 @@ std::vector<aiString> AssimpWrapper::getExtTextureNames(const aiScene* scene)
 		for (int j = aiTextureType::aiTextureType_NONE; j <= aiTextureType_UNKNOWN; ++j)
 		{
 			aiTextureType curType = static_cast<aiTextureType>(j);
-			UINT curCount = mat->GetTextureCount(curType);
+			UINT numTexturesOfType = mat->GetTextureCount(curType);
 
-			for (UINT k = 0; k < curCount; ++k)
+			for (UINT k = 0; k < numTexturesOfType; ++k)
 			{
 				aiString texPath;
 				mat->GetTexture(curType, k, &texPath);

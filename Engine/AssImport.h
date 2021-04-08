@@ -11,6 +11,7 @@
 #include "MatLoader.h"
 #include "AssimpGUI.h"
 
+#include <entt/entt.hpp>
 
 
 class AssImport
@@ -38,7 +39,8 @@ private:
 	std::unique_ptr<Model> _model;
 	std::shared_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
-	
+
+	entt::registry _registry;
 
 	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
