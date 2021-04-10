@@ -40,15 +40,22 @@ public:
 
 	static MatsAndTextureBlobs LoadAllMaterials(ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
+		uint32_t materialCount = scene->mNumMaterials;
+
 		// Get material meta data, but defer loading materials, filter texture paths into a unique set
-		std::vector<MatMetaData> matMetaData(scene->mNumMaterials);
+		std::vector<MatMetaData> matMetaData(materialCount);
 		std::map<std::string, std::shared_ptr<Texture>> unqTexPaths;
 
-		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+		// Get material metadata, including textures that need to be loaded by path
+		for (UINT i = 0; i < materialCount; ++i)
 		{
 			matMetaData[i] = LoadMatMetaData(scene->mMaterials[i]);
-			
-			for (auto& ttd : matMetaData[i]._tempTexData)
+		}
+
+		// Keep only unique texture names
+		for (const auto& mmd : matMetaData)
+		{
+			for (auto& ttd : mmd._tempTexData)
 				unqTexPaths.insert({ ttd._path, std::make_shared<Texture>() });
 		}
 
@@ -70,21 +77,19 @@ public:
 		
 		// Create materials from provided metadata and assign already loaded textures to them
 		std::vector<std::shared_ptr<Material>> materials;
-		materials.reserve(scene->mNumMaterials);
+		materials.reserve(materialCount);
 
-		for (UINT i = 0; i < scene->mNumMaterials; ++i)
+		for (const MatMetaData& mmd : matMetaData)
 		{
 			std::shared_ptr<Material> curMat = std::make_shared<Material>();
-			MatMetaData& mmd = matMetaData[i];
 			
 			UINT numTexRefs = mmd._tempTexData.size();
 			curMat->_texMetaData.reserve(numTexRefs);
 
-			for (UINT j = 0; j < numTexRefs; ++j)
+			for (const TempTexData& tempTexData : mmd._tempTexData)
 			{
-				TempTexData& ttd = mmd._tempTexData[j];
-				curMat->_texMetaData.push_back(ttd._tmd);
-				curMat->_texMetaData.back()._tex = unqTexPaths[ttd._path];
+				curMat->_texMetaData.push_back(tempTexData._tmd);
+				curMat->_texMetaData.back()._tex = unqTexPaths[tempTexData._path];
 			}
 
 			materials.push_back(std::move(curMat));
@@ -154,10 +159,10 @@ private:
 			return { texPath, std::unique_ptr<char[]> (reinterpret_cast<char*>(aiTex->pcData)), len, true };
 		}
 
+		// Path is faulty, try to find it under model directory
 		std::string modelFolderPath = std::filesystem::path(modelPath).parent_path().string();
 		std::string absTexPath = modelFolderPath + "/" + texPath;
 
-		// Path is faulty, try to find it under model directory
 		if (!std::filesystem::exists(absTexPath))
 		{
 			std::filesystem::directory_entry texFile;
@@ -237,158 +242,4 @@ private:
 			reflectiveColour = aiColor4D(0., 0., 0., 1.);
 
 	}
-
-
-
-	// Old way, worked but persisting was problematic because stbi has slow and bad compression
-	/*
-	static Material* LoadMaterial(ID3D11Device* device, const aiScene* scene, const aiMaterial* aiMat,
-		const std::string& modelPath, std::map<std::string, std::shared_ptr<Texture>>& texNamePtrMap)
-	{
-		Material* mat = new Material();
-
-		// Parameters - once I decide what to support, parse and load into a cbuffer
-		//loadParameterBlob(aiMat);
-
-		// Textures
-		std::vector<TempTexData> tempTexData;
-		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
-			GetTexMetaData(aiMat, ttr, tempTexData);
-
-		mat->_texMetaData.resize(tempTexData.size());
-
-		// Set pointers to textures...
-		for (UINT i = 0; i < tempTexData.size(); ++i)
-		{
-			mat->_texMetaData[i] = tempTexData[i]._tmd;
-
-			auto iter = texNamePtrMap.insert({ tempTexData[i]._path, nullptr });
-
-			if (iter.second)	// Did not exist, load up into map
-			{
-				std::shared_ptr<Texture>& t = iter.first->second;
-				t.reset(LoadTexture(scene, modelPath, tempTexData[i]._path));
-				if (t)
-					(t)->SetUpAsResource(device, false);
-			}
-			// Assign to the metadata whether it did or didn't exist
-			mat->_texMetaData[i]._tex = iter.first->second;
-
-		}
-
-		return mat;
-	}
-
-	static Texture* LoadTexture(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
-	{
-		Texture* curTex = new Texture();
-		const char* texName = aiScene::GetShortFilename(texPath.c_str());
-
-		// Check if embedded first
-		bool loaded = AssimpWrapper::loadEmbeddedTexture(*curTex, scene, texPath.c_str());
-		curTex->_fileName = texName;
-
-		// Not embedded, try to load from file
-		if (!loaded)
-		{
-			// Assumes relative paths
-			std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
-			std::string absTexPath = modelFolderPath + "/" + texPath;
-
-			// Path is faulty, try to find it under model directory
-			if (!std::filesystem::exists(absTexPath))
-			{
-				std::filesystem::directory_entry texFile;
-				if (FileUtils::findFile(modelFolderPath, texName, texFile))
-					absTexPath = texFile.path().string();
-			}
-
-			loaded = curTex->loadFromPath(absTexPath.c_str());
-			curTex->_fileName = absTexPath;
-		}
-
-		// Load failed, likely the data is corrupted or stb doesn't support it
-		if (!loaded)
-		{
-			delete curTex;
-			curTex = nullptr;
-			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-		}
-
-		return curTex;
-	}
-	*/
-
-	// @TODO Eventually apply multithreading as seen below to the above 
-
-	// New version with multithreading, good chance it's slower on HDD reads though
-	// However, even there it could be sped up with a separation between file reads and decompression
-	/*
-
-	static std::vector<MatMetaData> LoadMaterialMetaData(const aiScene* scene)
-	{
-		std::vector<MatMetaData> result(scene->mNumMaterials);
-
-		for (UINT i = 0; i < scene->mNumMaterials; ++i)
-			for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
-				GetTexMetaData(scene->mMaterials[i], ttr, result[i]._tempTexData);
-
-		return result;
-	}
-
-
-	
-	static std::vector<Texture*> LoadTexturesMTT(const aiScene* scene, const std::string& modelPath, 
-		const std::vector<MatMetaData>& matMetaData)
-	{
-		std::set<std::string> unqTexNames;
-		std::vector<Texture*> textures;
-
-		for (const auto& mmd : matMetaData)
-			for (const auto& ttd : mmd._tempTexData)
-				unqTexNames.insert(ttd._path);
-
-		UINT nUnqTex = unqTexNames.size();
-
-		if (nUnqTex == 0)
-			return textures;
-
-		// Otherwise it would be slower... and this only speeds up reads from ssd anyways
-		if (nUnqTex > 1)	
-		{
-			UINT nThreads = nUnqTex - 1;
-			ctpl::thread_pool threadPool(nThreads);	// Might be smarter to adjust the number somehow
-			std::vector<std::future<Texture*>> futures(nThreads);
-
-			UINT counter = 0u;
-			for (const auto& curTexPath : unqTexNames)
-			{
-				// Load multithreaded
-				futures[counter] = threadPool.push(std::bind(LoadTexture, scene, modelPath, curTexPath));
-				
-				if (++counter == nThreads)
-					break;
-			}
-
-			Texture* tN = LoadTexture(scene, modelPath, *unqTexNames.rbegin());
-			if(tN)
-				textures.push_back(tN);
-
-			for (int i = 0; i < nThreads; i++)
-				futures[i].wait();
-
-			for (int i = 0; i < nThreads; i++)
-				if (futures[i].get())
-					textures.push_back(futures[i].get());
-		}
-		else
-		{
-			Texture* t0 = LoadTexture(scene, modelPath, *unqTexNames.begin());
-			if (t0)
-				textures.push_back(t0);
-		}
-
-		return textures;
-	}
-	*/
 };

@@ -201,7 +201,7 @@ bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 {
 	DXGI_FORMAT inferredFormat = N_TO_FORMAT_DX11[_nc - 1];
 
-	D3D11_TEXTURE2D_DESC desc;
+	D3D11_TEXTURE2D_DESC desc{};
 	desc.Width = _w;
 	desc.Height = _h;
 	desc.MipLevels = 1;
@@ -223,19 +223,7 @@ bool Texture::setUpAsResource(ID3D11Device* device, bool deleteData)
 	texData.SysMemSlicePitch = 0;
 
 	createGPUResource(device, &desc, &texData);
-
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	shaderResourceViewDesc.Format = desc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
-	if (FAILED(device->CreateShaderResourceView(_dxID.Get(), &shaderResourceViewDesc, &_arraySrv)))
-	{
-		OutputDebugStringA("Can't create shader resource view. \n");
-		exit(43);
-	}
+	createSRV(device, desc);
 
 	if (deleteData)
 		freeMemory();
@@ -254,6 +242,22 @@ bool Texture::createGPUResource(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc
 	}
 
 	return true;
+}
+
+
+bool Texture::createSRV(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& desc)
+{
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc{};
+	shaderResourceViewDesc.Format = desc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	if (FAILED(device->CreateShaderResourceView(_dxID.Get(), &shaderResourceViewDesc, &_arraySrv)))
+	{
+		OutputDebugStringA("Can't create shader resource view. \n");
+		exit(43);
+	}
 }
 
 

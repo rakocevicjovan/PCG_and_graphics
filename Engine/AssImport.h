@@ -40,7 +40,7 @@ private:
 	std::shared_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
 
-	entt::registry _registry;
+	//entt::registry _registry;
 
 	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
@@ -388,6 +388,12 @@ public:
 		}
 
 		return textureIDs;
+	}
+
+
+	uint32_t persistTex(const Texture& tex)
+	{
+
 	}
 
 

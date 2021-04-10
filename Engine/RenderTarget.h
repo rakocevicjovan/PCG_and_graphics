@@ -16,7 +16,13 @@ public:
 	RenderTarget(ID3D11Device* device, UINT w, UINT h, DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT, FlagDataType additionalFlags = 0)
 	{
 		D3D11_TEXTURE2D_DESC desc = Texture::create2DTexDesc(w, h, format, D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | additionalFlags);
+		
 		_tex.createGPUResource(device, &desc, nullptr);
+		
+		if(additionalFlags && D3D11_BIND_SHADER_RESOURCE)
+		{
+			_tex.createSRV(device, desc);
+		}
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = format;
@@ -86,6 +92,11 @@ public:
 	auto size() const
 	{
 		return std::pair<float, float>{ _tex.w(), _tex.h() };
+	}
+
+	ID3D11ShaderResourceView* asSrv()
+	{
+		return _tex.getSRV();
 	}
 
 private:

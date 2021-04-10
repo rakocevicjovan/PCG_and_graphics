@@ -17,7 +17,7 @@ class AssimpLoader : public Level
 private:
 	// Temporarily here, pass them as ptr/ref from the editor to feed into that one
 	ShaderManager _shMan;
-	FileBrowser _browser;
+	FileBrowser _fileBrowser;
 
 	Scene _scene;
 
@@ -33,10 +33,11 @@ private:
 
 public:
 
-	AssimpLoader(Engine& sys) : Level(sys), _scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5)
-	{
-		_browser = FileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated");
-	}
+	AssimpLoader(Engine& sys) : 
+		Level(sys), 
+		_scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5),
+		_fileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated")
+	{}
 
 	
 
@@ -101,8 +102,16 @@ public:
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 
 		GUI::beginFrame();
+		drawUI();
+		GUI::endFrame();
 
-		auto selected = _browser.display();
+		rc.d3d->EndScene();
+	}
+
+
+	void drawUI()
+	{
+		auto selected = _fileBrowser.display();
 
 		if (selected.has_value())
 		{
@@ -110,42 +119,38 @@ public:
 			{
 				_previews.push_back(std::make_unique<AssImport>());
 
-				if (!_previews.back()->loadAiScene(rc.d3d->getDevice(), selected.value().path().string(), 0u, &S_RESMAN, &_shMan))
+				if (!_previews.back()->loadAiScene(S_DEVICE, selected.value().path().string(), 0u, &S_RESMAN, &_shMan))
 				{
 					_previews.pop_back();
 				}
 			}
 		}
 
-
-		ImGui::Begin("Content");
-		ImGui::BeginTabBar("Loaded scenes", ImGuiTabBarFlags_AutoSelectNewTabs);
-		ImGui::NewLine();
-
-		for (UINT i = 0; i < _previews.size(); i++)
+		if (ImGui::Begin("Content"))
 		{
-			std::string sceneName = _previews[i]->getPath().filename().string();
-			if (ImGui::BeginTabItem(sceneName.c_str()))
+			ImGui::BeginTabBar("Loaded scenes", ImGuiTabBarFlags_AutoSelectNewTabs);
+			ImGui::NewLine();
+
+			for (UINT i = 0; i < _previews.size(); i++)
 			{
-				_curPreview = _previews[i].get();
-
-				if(!_previews[i]->displayPreview(sceneName))
+				std::string sceneName = _previews[i]->getPath().filename().string();
+				if (ImGui::BeginTabItem(sceneName.c_str()))
 				{
-					_previews.erase(_previews.begin() + i);
-					_curPreview = nullptr;
+					_curPreview = _previews[i].get();
+
+					if (!_previews[i]->displayPreview(sceneName))
+					{
+						_previews.erase(_previews.begin() + i);
+						_curPreview = nullptr;
+					}
+
+					ImGui::EndTabItem();
 				}
-
-				ImGui::EndTabItem();
 			}
+
+			ImGui::EndTabBar();
 		}
-
-		ImGui::EndTabBar();
-
 		ImGui::End();
-
-		GUI::endFrame();
-
-		rc.d3d->EndScene();
 	}
 
 

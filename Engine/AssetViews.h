@@ -1,6 +1,7 @@
 #include "GuiBlocks.h"
+#include "SceneEditor.h"
 
-
+// Contains helper functions to display skeleton hierarchy, model and mesh
 class AssetViews
 {
 private:

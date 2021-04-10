@@ -26,6 +26,8 @@ private:
 
 public:
 
+	using AssetID = uint32_t;
+
 	std::string _ledgerFilePath;
 
 	AssetLedger() : _dirty(false) {}
@@ -39,9 +41,9 @@ public:
 
 
 
-	uint32_t insert(const std::string& assName, const std::string& path, ResType resType)
+	AssetID insert(const std::string& assName, const std::string& path, ResType resType)
 	{
-		uint32_t nameHash = fnv1hash(path.c_str());
+		AssetID nameHash = fnv1hash(path.c_str());
 		ResourceDef rd{ nameHash, assName, path, resType };
 
 		auto iter = _assDefs.insert(rd);
@@ -68,7 +70,7 @@ public:
 
 
 
-	inline const ResourceDef* get(uint32_t ID) const
+	inline const ResourceDef* get(AssetID ID) const
 	{
 		auto iter = _assDefs.find(ResourceDef{ ID });
 		
@@ -87,7 +89,7 @@ public:
 
 
 
-	inline void remove(uint32_t ID)
+	inline void remove(AssetID ID)
 	{
 		if(_assDefs.erase(ResourceDef{ID, 0}))
 			_dirty = true;
