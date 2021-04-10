@@ -8,7 +8,7 @@
 
 namespace Procedural 
 {
-	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scale) 
+	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scale, SVec3 offset) 
 		: _numRows(rows), _numColumns(columns), _scale(scale), _texCoordScale(1.f, 1.f)
 	{
 		_vertices.reserve(rows * columns);
@@ -24,6 +24,8 @@ namespace Procedural
 		CalculateTexCoords();
 
 		CalculateNormals();
+
+		_offset = offset;
 	}
 
 

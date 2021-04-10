@@ -71,13 +71,10 @@ public:
 		_pointLight.updateCBuffer(S_CONTEXT, _pointLightCB);
 		_pointLight.bind(S_CONTEXT, _pointLightCB);
 
-		// Generate the floor, assign a material
-		Procedural::Terrain terrain;
 		float _tSize = 500.f;
-		terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
-		terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
-		terrain.CalculateTexCoords();
-		terrain.CalculateNormals();
+		Procedural::Terrain terrain(2, 2, SVec3(_tSize), SVec3(-_tSize * .5f, -0.f, -_tSize * .5f));
+
+		//entt::entity entity = _scene._registry.create();
 
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
 		auto shPack = _shMan.getShaderAuto(_floorMesh->_vertSig, _floorMesh->_material.get());

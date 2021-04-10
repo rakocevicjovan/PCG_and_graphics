@@ -274,10 +274,10 @@ namespace Procedural
 			pos = nextPos;
 		}
 
-		//@TODO this probably shouldn't bere here...
+		//@TODO this probably shouldn't bere here... also textures are now in material, not mesh, fix it.
 		Mesh finalMesh;
-		finalMesh._textures.emplace_back(device, "../Textures/Bark/diffuse.jpg");
-		finalMesh._textures.emplace_back(device, "../Textures/Bark/normal.jpg");
+		//finalMesh._textures.emplace_back(device, "../Textures/Bark/diffuse.jpg");
+		//finalMesh._textures.emplace_back(device, "../Textures/Bark/normal.jpg");
 		int totalVerts = 0, totalInds = 0;
 
 		/* // Change to fit the new vertex type type

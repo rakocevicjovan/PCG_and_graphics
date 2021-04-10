@@ -32,24 +32,19 @@ public:
 	VertSignature _vertSig;
 
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
-	//std::vector<Vert3D>	_vertices;
 	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
-	std::vector<Texture> _textures;	//@TODO not sure what to do with this... who should own them?
 
 	SMatrix _transform;
 
-	std::shared_ptr<Material> _material;	//should be loaded from assimp or otherwise as default... for fallback at least
+	std::shared_ptr<Material> _material;
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
 
-
-
-	// Useful constructors... but @TODO make a material instead of textures!
 	Mesh() {};
-	~Mesh();
+	~Mesh() = default;
 
 	// Not so sure, seems like heavy coupling for no reason really!
 	Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z = 0);	//this is used for the screen quads...
@@ -62,7 +57,7 @@ public:
 
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
-	bool setupMesh(ID3D11Device* device); //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc);
+	bool setupMesh(ID3D11Device* device);
 
 
 

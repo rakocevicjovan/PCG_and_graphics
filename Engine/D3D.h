@@ -3,8 +3,8 @@
 #pragma comment(lib, "d3d11.lib")
 
 #include <dxgi.h>
-#include <d3dcommon.h>
 #include <d3d11_4.h>
+#include <d3dcommon.h>
 #include "RenderTarget.h"
 #include "SwapChain.h"
 #include "Viewport.h"
@@ -15,7 +15,7 @@ class D3D
 {
 public:
 
-	bool Initialize(int, int, bool, HWND, bool);
+	bool initialize(int, int, bool, HWND, bool);
 	
 	void ClearColourDepthBuffers();
 	void EndScene();

@@ -65,7 +65,7 @@ namespace Procedural
 	public:
 		
 		Terrain() {}
-		Terrain(unsigned int x, unsigned int y, SVec3 scale = SVec3(1, 1, 1));
+		Terrain(unsigned int x, unsigned int y, SVec3 scale = SVec3(1, 1, 1), SVec3 offset = SVec3(0, 0, 0));
 		~Terrain();
 
 		/// Generation methods
@@ -92,12 +92,11 @@ namespace Procedural
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, Phong& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
 
-		void populateMesh(std::vector<uint8_t>& verts, std::vector<unsigned int>& inds, std::vector<Texture>& tex) const
+		void populateMesh(std::vector<uint8_t>& verts, std::vector<unsigned int>& inds) const
 		{
 			verts.resize(_vertices.size() * sizeof(Vert3D));
 			memcpy(verts.data(), _vertices.data(), verts.size());
 			inds = indices;
-			tex = textures;
 		}
 
 		//utility for movement
@@ -111,9 +110,9 @@ namespace Procedural
 		std::vector<SVec2> getHorizontalPositions();
 
 		void setOffset(float x, float y, float z) { _offset = SVec3(x, y, z); }
-		void setOffset(SVec3& offset) { _offset = offset; }
+		void setOffset(const SVec3& offset) { _offset = offset; }
 		void setScale(float x = 1.f, float y = 1.f, float z = 1.f) { _scale = SVec3(x, y, z); }
-		void setScale(SVec3& scale) { _scale = scale; }
+		void setScale(const SVec3& scale) { _scale = scale; }
 		void setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames);
 	
 		inline UINT addToFace(UINT index, const TangentTriface& face, SVec3& normal, SVec3& tangent)

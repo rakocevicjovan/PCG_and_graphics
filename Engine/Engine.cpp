@@ -26,7 +26,7 @@ bool Engine::initialize()
 		Window<Engine>::CreationFlags::START_FOCUSED |
 		Window<Engine>::CreationFlags::START_FOREGROUND);
 
-	if (!_D3D.Initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), _engineWindow.fullscreen()))
+	if (!_D3D.initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), _engineWindow.fullscreen()))
 	{
 		OutputDebugStringA("Can't initialize D3D!");
 		return false;

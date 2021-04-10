@@ -3,7 +3,7 @@
 
 
 
-bool D3D::Initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
+bool D3D::initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	// Store the vsync setting.
 	_VSyncEnabled = vsync;

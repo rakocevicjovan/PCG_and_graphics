@@ -17,7 +17,7 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 		{VAttribSemantic::NORMAL, VAttribType::FLOAT3, 1u, 0u },
 		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}	// Not sure if true
 	};
-	terrain.populateMesh(_vertices, _indices, _textures);
+	terrain.populateMesh(_vertices, _indices);
 	_transform = SMatrix::CreateTranslation(terrain.getOffset());
 	setupMesh(device);
 }
@@ -123,14 +123,6 @@ Mesh::Mesh(const Hull* hull, ID3D11Device* device)
 	setupMesh(device);
 	*/
 }
-
-
-
-Mesh::~Mesh()
-{
-	OutputDebugStringA("MESH DESTRUCT CALLED");
-}
-
 
 
 void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
