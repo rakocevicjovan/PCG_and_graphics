@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Controller.h"
 #include "InputManager.h"
-#include "Picker.h"
 
 
 Controller::Controller() : _inMan(nullptr), dx(0), dy(0) {}
@@ -16,7 +15,7 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 {
 	_inMan->getRelativeXY(dx, dy);	//bit lame that I solved it like this, coupled unnecessarily...
 	
-	if (!(dx == 0 && dy == 0))	//check if rotation happened, can skip a lot of work
+	if (!(dx == 0 && dy == 0))	// Check if rotation happened, can skip a lot of work
 	{
 		SVec3 translation = transform.Translation();
 		Math::SetTranslation(transform, SVec3());
@@ -58,19 +57,19 @@ SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transf
 
 	SVec3 deltaTranslation(0, 0, 0);
 
-	if (_inMan->isKeyDown((short)'W')) {
+	if (_inMan->isKeyDown((uint16_t)'W')) {
 		deltaTranslation = deltaTranslation + dir;
 	}
 
-	if (_inMan->isKeyDown((short)'S')) {
+	if (_inMan->isKeyDown((uint16_t)'S')) {
 		deltaTranslation = deltaTranslation - dir;
 	}
 
-	if (_inMan->isKeyDown((short)'A')) {
+	if (_inMan->isKeyDown((uint16_t)'A')) {
 		deltaTranslation = deltaTranslation - right;
 	}
 
-	if (_inMan->isKeyDown((short)'D')) {
+	if (_inMan->isKeyDown((uint16_t)'D')) {
 		deltaTranslation = deltaTranslation + right;
 	}
 
@@ -200,8 +199,7 @@ void Controller::mouseLPressed(const MCoords& absmc)
 
 void Controller::mouseLReleased(const MCoords& absmc)
 {
-	//pick from map
-
+	return;
 }
 
 

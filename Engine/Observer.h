@@ -12,11 +12,11 @@ enum class MBT { LEFT, MIDDLE, RIGHT};
 
 struct MouseClickMessage
 {
-	short x, y;
+	int16_t x, y;
 	bool pressed;
 	MBT mButtonType;
 
-	MouseClickMessage(short x, short y, MBT btn, bool pressed) : x(x), y(y), mButtonType(btn), pressed(pressed) {}
+	MouseClickMessage(int16_t x, int16_t y, MBT btn, bool pressed) : x(x), y(y), mButtonType(btn), pressed(pressed) {}
 };
 
 

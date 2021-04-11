@@ -18,7 +18,9 @@ public:
 		D3D11_TEXTURE2D_DESC desc = Texture::create2DTexDesc(w, h, format, D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | additionalFlags);
 		
 		_tex.createGPUResource(device, &desc, nullptr);
-		
+		_tex.setWidth(w);
+		_tex.setHeight(h);
+
 		if(additionalFlags && D3D11_BIND_SHADER_RESOURCE)
 		{
 			_tex.createSRV(device, desc);
@@ -64,7 +66,7 @@ public:
 	}
 
 
-	static void unbind(ID3D11DeviceContext* context, UINT count = 1)
+	static void unbind(ID3D11DeviceContext* context, UINT count = 0)
 	{
 		context->OMSetRenderTargets(count, nullptr, nullptr);
 	}

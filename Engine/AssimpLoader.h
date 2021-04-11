@@ -31,13 +31,18 @@ private:
 	// Floor 
 	std::unique_ptr<Mesh> _floorMesh;
 
+	// Render target
+	RenderTarget _renderTarget;
+
 public:
 
 	AssimpLoader(Engine& sys) : 
 		Level(sys), 
 		_scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5),
 		_fileBrowser("C:\\Users\\Senpai\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated")
-	{}
+	{
+		_renderTarget = RenderTarget(S_DEVICE, 1024, 1024, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE);
+	}
 
 	
 
@@ -90,13 +95,19 @@ public:
 
 	void draw(const RenderContext& rc) override
 	{
-		_sys._renderer.setDefaultRenderTarget();
+		_renderTarget.bind(rc.d3d->getContext());
+		_renderTarget.clear(rc.d3d->getContext());
 
 		_floorMesh->draw(rc.d3d->getContext());
 
 		S_RANDY.d3d()->TurnOffAlphaBlending();
-		if(_curPreview)
+		
+		if (_curPreview)
+		{
 			_curPreview->draw(S_CONTEXT, rc.dTime);
+		}
+
+		_sys._renderer.setDefaultRenderTarget();
 
 		GUI::beginFrame();
 		drawUI();
@@ -146,6 +157,12 @@ public:
 			}
 
 			ImGui::EndTabBar();
+		}
+		ImGui::End();
+
+		if (ImGui::Begin("Wattt"))
+		{
+			ImGui::Image(_renderTarget.asSrv(), ImVec2(1024, 1024));	//_arraySrv.Get()
 		}
 		ImGui::End();
 	}

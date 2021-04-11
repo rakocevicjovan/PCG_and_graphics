@@ -7,11 +7,8 @@
 
 struct MCoords
 {
-	short x;
-	short y;
-
-	MCoords(short x, short y) : x(x), y(y) {}
-	MCoords() : x(0), y(0) {}
+	int16_t x{0u};
+	int16_t y{0u};
 };
 
 
@@ -42,16 +39,16 @@ public:
 	void registerController(Observer* controller);
 	void unregisterController(Observer* controller);
 
-	void setKeyPressed(unsigned int);
-	void setKeyReleased(unsigned int);
+	void setKeyPressed(uint32_t);
+	void setKeyReleased(uint32_t);
 	
-	void getRelativeXY(short& x, short&y);
-	void setRelativeXY(short, short);
+	void getRelativeXY(int16_t& x, int16_t&y);
+	void setRelativeXY(int16_t, int16_t);
 	
 	MCoords getAbsXY() { return _abs; }
 	void setAbsXY(const MCoords& abs) { _abs = abs; }
 
-	bool isKeyDown(unsigned int);
+	bool isKeyDown(uint32_t);
 
 	void toggleMouseVisibility();
 	bool getMouseVisibility();

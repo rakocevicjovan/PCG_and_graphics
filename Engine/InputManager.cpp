@@ -11,6 +11,7 @@ void InputManager::initialize(HWND hwnd)
 {
 	_mouse->SetWindow(hwnd);
 
+	
 	// See https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawinputdevice
 	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
 
@@ -29,9 +30,9 @@ void InputManager::initialize(HWND hwnd)
 		OutputDebugStringA("Could not register the raw input devices.");
 		__debugbreak();
 	}
+	
 
-	for(int i=0; i<256; i++)
-		_keys[i] = false;
+	memset(&_keys[0], 0, sizeof(_keys));
 }
 
 
@@ -54,7 +55,7 @@ void InputManager::unregisterController(Observer* controller)
 }
 
 
-void InputManager::setKeyPressed(unsigned int input)
+void InputManager::setKeyPressed(uint32_t input)
 {
 	_keys[input] = true;
 
@@ -63,7 +64,7 @@ void InputManager::setKeyPressed(unsigned int input)
 }
 
 
-void InputManager::setKeyReleased(unsigned int input)
+void InputManager::setKeyReleased(uint32_t input)
 {
 	_keys[input] = false;
 
@@ -72,21 +73,21 @@ void InputManager::setKeyReleased(unsigned int input)
 }
 
 
-void InputManager::setRelativeXY(short x, short y)
+void InputManager::setRelativeXY(int16_t x, int16_t y)
 {
 	_rel.x = x;
 	_rel.y = y;
 }
 
 
-void InputManager::getRelativeXY(short& x, short& y) 
+void InputManager::getRelativeXY(int16_t& x, int16_t& y)
 {
 	x = _rel.x;
 	y = _rel.y;
 }
 
 
-bool InputManager::isKeyDown(unsigned int key)
+bool InputManager::isKeyDown(uint32_t key)
 {
 	return _keys[key];
 }

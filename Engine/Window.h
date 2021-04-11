@@ -16,15 +16,15 @@ class Window
 {
 private:
 	// Position, width, height
-	uint16_t _x;
-	uint16_t _y;
-	uint16_t _w;
-	uint16_t _h;
+	uint16_t _x{ 0u };
+	uint16_t _y{ 0u };
+	uint16_t _w{ 0u };
+	uint16_t _h{ 0u };
 
-	bool _fullScreen;
+	bool _fullScreen{ true };
 
-	HWND _hwnd;
-	HINSTANCE _hinstance;
+	HWND _hwnd{ 0u };
+	HINSTANCE _hinstance{ 0u };
 	std::unique_ptr<wchar_t[]> _windowName;
 
 	// This is windows specific and shouldn't be exposed by the header. Not sure how other OS do it.

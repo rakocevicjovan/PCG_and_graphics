@@ -192,7 +192,7 @@ void D3D::SetBackBufferRenderTarget()
 {
 	_deviceContext->RSSetViewports(1, &_viewport._viewport);
 	_renderTarget.bind(_deviceContext.Get());
-	ClearColourDepthBuffers();
+	_renderTarget.clear(_deviceContext.Get());
 }
 
 

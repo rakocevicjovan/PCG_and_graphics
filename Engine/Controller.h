@@ -3,7 +3,6 @@
 #include "Observer.h"
 
 class InputManager;
-class CollisionEngine;
 class MCoords;
 
 
@@ -30,8 +29,8 @@ private:
 	float rotCf{ 15.f };
 	float movCf{ 50.f };
 	float camDist{ 66.f };
-	short dx{ 0 };
-	short dy{ 0 };
+	int16_t dx{ 0 };
+	int16_t dy{ 0 };
 
 	bool _isFlying{ true };
 	bool _collided{ false };
@@ -42,8 +41,6 @@ public:
 	Controller();
 	Controller(InputManager* inputManager);
 	~Controller();
-
-	CollisionEngine* _colEng;	//this should not be here by any means!!!
 	
 	void processTransformationFPS(float dTime, SMatrix& transformation);
 	void processTransformationTP(float dTime, SMatrix& transform, SMatrix& camTransform);
