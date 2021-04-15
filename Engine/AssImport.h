@@ -24,7 +24,7 @@ private:
 
 	std::string _path;
 	std::string _sceneName;
-	std::string _importPath = "C:\\Users\\Senpai\\Desktop\\AeonTest\\";
+	std::string _importPath = "C:\\Users\\metal\\Desktop\\AeonTest\\";
 
 	Assimp::Importer _importer;
 	const aiScene* _aiScene;

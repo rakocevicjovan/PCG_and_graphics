@@ -39,8 +39,8 @@ private:
 
 	UINT _scrWidth;
 	UINT _scrHeight;
-	UINT _windowWidth = 1920;
-	UINT _windowHeight = 1080;
+	UINT _windowWidth = 2560;
+	UINT _windowHeight = 1440;
 
 	// Contains metadata of the project and lists of assets the project needs
 	Project _project;

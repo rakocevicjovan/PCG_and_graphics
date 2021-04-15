@@ -105,7 +105,6 @@ void CollisionEngine::update()
 void CollisionEngine::registerController(Controller& controller)
 {
 	_controller = &controller;
-	controller._colEng = this;
 }
 
 
