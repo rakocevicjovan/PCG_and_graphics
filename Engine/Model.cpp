@@ -14,14 +14,6 @@ Model::Model(const std::string& path) : collider(nullptr)
 
 
 
-Model::Model(const Collider & collider, ID3D11Device* device) : collider(nullptr)
-{
-	for each(auto hull in collider.getHulls())
-		_meshes.push_back(Mesh(hull, device));
-}
-
-
-
 Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device) : collider(nullptr)
 {
 	_meshes.emplace_back(terrain, device);

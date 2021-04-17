@@ -879,9 +879,6 @@
     <ClInclude Include="CubeMap.h">
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
-    <ClInclude Include="FlexVert.h">
-      <Filter>Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="VertSignature.h">
       <Filter>Rendering</Filter>
     </ClInclude>
@@ -1077,6 +1074,9 @@
     </ClInclude>
     <ClInclude Include="ImportTool.h">
       <Filter>Asset importing</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceType.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

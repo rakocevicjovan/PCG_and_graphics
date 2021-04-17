@@ -18,13 +18,14 @@ private:
 	// @TODO not really runtime friendly, this...
 	std::map<std::string, AnimChannel> _channels;
 
-	double _ticks, _ticksPerSecond, _duration, _tickDuration;
-	
+	double _ticks			{ 0. };
+	double _ticksPerSecond	{ 0. };
+	double _duration		{ 0. };
+	double _tickDuration	{ 0. };
 
 public:
 
-	Animation() 
-		: _ticks(0.f), _ticksPerSecond(0.f), _duration(0.f), _tickDuration(0.f) {};
+	Animation() {};
 
 
 	Animation(std::string& name, double ticks, double ticksPerSecond, int nc) : _name(name), _ticks(ticks), _ticksPerSecond(ticksPerSecond)
@@ -33,38 +34,16 @@ public:
 		_tickDuration = _duration / _ticks;
 	}
 
-
-
-	void getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed) const;
-
-
+	void getTransformAtTime(const Bone& bone, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed, std::vector<SMatrix>& vec) const;
 
 	inline void addChannel(const AnimChannel& ac) { _channels.insert({ ac._boneName, ac }); }
 
-
-
 	inline float getNumTicks()		const { return _ticks; };
-
-
-
 	inline float getTicksPerSec()	const { return _ticksPerSecond; }
-
-
-
 	inline float getTickDuration()	const { return _tickDuration; }
-
-
-
 	inline float getDuration()		const { return _duration; }
-
-
-
+	inline uint32_t getNumChannels()	const { return _channels.size(); }
 	inline std::string getName()	const { return _name; }
-
-
-
-	inline UINT getNumChannels()	const { return _channels.size(); }
-
 
 
 	const AnimChannel* getAnimChannel(const std::string& name) const

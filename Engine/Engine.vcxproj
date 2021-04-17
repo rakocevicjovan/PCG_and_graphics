@@ -426,7 +426,6 @@
     <ClInclude Include="EditorLayout.h" />
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="FileBrowser.h" />
-    <ClInclude Include="FlexVert.h" />
     <ClInclude Include="Fnv1Hash.h" />
     <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="fts_fuzzy_match.h" />
@@ -461,6 +460,7 @@
     <ClInclude Include="ResourceDef.h" />
     <ClInclude Include="AssetLedger.h" />
     <ClInclude Include="ResourceHandle.h" />
+    <ClInclude Include="ResourceType.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="MemChunk.h" />

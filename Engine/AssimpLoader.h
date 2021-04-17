@@ -31,7 +31,6 @@ private:
 	// Floor 
 	std::unique_ptr<Mesh> _floorMesh;
 
-	// Render target
 	RenderTarget _renderTarget;
 
 public:
@@ -98,6 +97,12 @@ public:
 		_renderTarget.bind(rc.d3d->getContext());
 		_renderTarget.clear(rc.d3d->getContext());
 
+		// Nicer but requires camera to be bound as shown, which requires being able to bind it...
+		//Viewport viewport(1024, 1024);
+		//viewport.bind(rc.d3d->getContext());
+		//SMatrix oldMatrix = rc.cam->GetProjectionMatrix();
+		//rc.cam->SetProjectionMatrix(SMatrix::CreatePerspective(1024, 1024, 1., 1000.));
+
 		_floorMesh->draw(rc.d3d->getContext());
 
 		S_RANDY.d3d()->TurnOffAlphaBlending();
@@ -107,6 +112,7 @@ public:
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 		}
 
+		//rc.cam->SetProjectionMatrix(oldMatrix);
 		_sys._renderer.setDefaultRenderTarget();
 
 		GUI::beginFrame();
@@ -160,9 +166,15 @@ public:
 		}
 		ImGui::End();
 
-		if (ImGui::Begin("Wattt"))
+		if (ImGui::Begin("Preview window"))
 		{
-			ImGui::Image(_renderTarget.asSrv(), ImVec2(1024, 1024));	//_arraySrv.Get()
+			// Make it scale with aspect ratio of render target
+			SVec2 rtSize{ _renderTarget.size().first, _renderTarget.size().second };
+			SVec2 windowSize{ *reinterpret_cast<SVec2*>(&ImGui::GetWindowSize()) };
+			SVec2 newSize = Math::resizeRetainAspectRatio(rtSize, windowSize);
+			ImVec2 aspectRatioCorrectImageSize = ImVec2(newSize.x, newSize.y);
+			ImGui::SetCursorPos((ImGui::GetWindowSize() - aspectRatioCorrectImageSize) * 0.5f);
+			ImGui::Image(_renderTarget.asSrv(), aspectRatioCorrectImageSize);
 		}
 		ImGui::End();
 	}

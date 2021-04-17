@@ -34,7 +34,6 @@ public:
 
 	Model() : collider(nullptr) {}
 	Model(const std::string& path);
-	Model(const Collider& collider, ID3D11Device* device);
 	~Model();
 
 	// Separate model and terrain completely, terrain needs a different way to render

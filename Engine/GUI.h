@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
 #include "Window.h"
+
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "IMGUI/imgui.h"
+#include "IMGUI/imgui_internal.h"
 #include "IMGUI/imgui_impl_win32.h"
 #include "IMGUI/imgui_impl_dx11.h"
 #include "imnodes.h"
@@ -31,6 +34,7 @@ public:
 		io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 		io.ConfigFlags  |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigDockingWithShift = true;
+		io.WantCaptureMouse = true;
 
 		io.Fonts->AddFontDefault();
 		

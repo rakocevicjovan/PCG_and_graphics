@@ -1,4 +1,12 @@
 #pragma once
+
+#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+	#ifndef NOMINMAX
+	#define NOMINMAX
+	#endif
+#endif
+
 #include <windows.h>
 #include <cstdint>
 #include <memory>

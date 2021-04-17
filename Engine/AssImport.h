@@ -191,7 +191,7 @@ public:
 
 		if (_impModel)
 		{
-			_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
+			//_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
 			_model = std::make_unique<Model>();
 			_model->loadFromAiScene(_device, _aiScene, _path);
 

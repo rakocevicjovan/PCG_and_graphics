@@ -33,24 +33,23 @@ public:
 
 	//vertices and indices should be cleared after pushing to the gpu, leaving only the vector memory cost
 	std::vector<uint8_t> _vertices;
-	std::vector<UINT> _indices;
-
-	SMatrix _transform;
-
-	std::shared_ptr<Material> _material;
+	std::vector<uint32_t> _indices;
 
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
 
+	std::shared_ptr<Material> _material;
+
+	SMatrix _transform;
+
 	Mesh() {};
 	~Mesh() = default;
 
 	// Not so sure, seems like heavy coupling for no reason really!
-	Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z = 0);	//this is used for the screen quads...
+	Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z = 0.f);	//this is used for the screen quads...
 	Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true, bool hasTangents = true);
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
-	Mesh(const Hull* hull, ID3D11Device* device);
 
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
 		std::vector<std::shared_ptr<Material>>& mats, const std::string& path);

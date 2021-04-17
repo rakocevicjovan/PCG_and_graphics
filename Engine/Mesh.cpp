@@ -25,7 +25,6 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 
 
 Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
-	: _material(std::make_shared<Material>())
 {
 	float originX = (pos.x - size.x * 0.5f) * 2.f;	//[0, 1] -> [-1, 1]
 	float originY = (pos.y - size.y * 0.5f) * 2.f;
@@ -58,10 +57,10 @@ Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
 	};
 
 	_vertices.resize(4 * sizeof(Vert3D));
-	memcpy(_vertices.data(), &topLeft, sizeof(Vert3D));
-	memcpy(_vertices.data(), &topRight, sizeof(Vert3D));
-	memcpy(_vertices.data(), &bottomLeft, sizeof(Vert3D));
-	memcpy(_vertices.data(), &bottomRight, sizeof(Vert3D));
+	memcpy(_vertices.data() + 0 * sizeof(Vert3D), &topLeft, sizeof(Vert3D));
+	memcpy(_vertices.data() + 1 * sizeof(Vert3D), &topRight, sizeof(Vert3D));
+	memcpy(_vertices.data() + 2 * sizeof(Vert3D), &bottomLeft, sizeof(Vert3D));
+	memcpy(_vertices.data() + 3 * sizeof(Vert3D), &bottomRight, sizeof(Vert3D));
 	
 	_indices = std::vector<unsigned int>{ 0u, 1u, 2u, 2u, 1u, 3u };
 
@@ -69,59 +68,41 @@ Mesh::Mesh(const SVec2& pos, const SVec2& size, ID3D11Device* device, float z)
 }
 
 
-
+// This is bootleg but left for legacy code, can be much better. 
+// Actually useful but doesn't belong in mesh class.
 Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool hasTangents)
-	: _material(std::make_shared<Material>())
 {
-	/**
-	_vertices.reserve(g.positions.size());
+	_vertSig._attributes =
+	{
+		{VAttribSemantic::POS, VAttribType::FLOAT3, 1u, 0u },
+		{VAttribSemantic::TEX_COORD, VAttribType::FLOAT2, 1u, 0u },
+		{VAttribSemantic::NORMAL, VAttribType::FLOAT3, 1u, 0u },
+	};
+	if (hasTangents)
+	{
+		_vertSig.addAttribute({ VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u });
+	}
+
+	uint32_t vertexSize = _vertSig.getVertByteWidth();
+
+	_vertices.resize(g.positions.size() * sizeof(Vert3D));
 	Vert3D v;
 
-	for (int i = 0; i < g.positions.size(); ++i)
+	for (uint32_t i = 0; i < g.positions.size(); ++i)
 	{
 		v.pos = g.positions[i];
 		v.texCoords = g.texCoords[i];
 		v.normal = g.normals[i];
 		if(hasTangents)
 			v.tangent = g.tangents[i];
-		_vertices.push_back(v);
+
+		memcpy(_vertices.data() + i * vertexSize, &v, vertexSize);
 	}
 
 	_indices = g.indices;
 
 	if(setUp)
 		setupMesh(device);
-	*/
-}
-
-
-
-Mesh::Mesh(const Hull* hull, ID3D11Device* device)
-	: _material(std::make_shared<Material>())
-{
-	/*
-	const AABB*  aabb = reinterpret_cast<const AABB*>(hull);
-
-	SVec3 sizes = (aabb->maxPoint - aabb->minPoint);
-	SVec3 offset = aabb->minPoint + sizes * 0.5f;
-
-	Procedural::Geometry g;
-	g.GenBox(sizes);
-
-	_vertices.reserve(g.positions.size());
-	Vert3D v;
-
-	for (int i = 0; i < g.positions.size(); ++i)
-	{
-		v.pos = g.positions[i] + offset;
-		v.normal = g.normals[i];
-		_vertices.push_back(v);
-	}
-
-	_indices = g.indices;
-
-	setupMesh(device);
-	*/
 }
 
 

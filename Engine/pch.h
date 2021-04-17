@@ -28,6 +28,7 @@
 #include <cereal/archives/xml.hpp>
 
 #include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
 
 // Windows includes
 #include <wrl/client.h>

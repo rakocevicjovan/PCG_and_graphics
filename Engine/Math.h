@@ -93,6 +93,16 @@ public:
 		SVec4 viewSpace = clipSpaceToViewSpace(clipSpace, invProj);
 		return (viewSpace / viewSpace.w);
 	}
+
+	static SVec2 resizeRetainAspectRatio(SVec2 itemDims, SVec2 containerDims)
+	{
+		float ratioW = containerDims.x / itemDims.x;
+		float ratioH = containerDims.y / itemDims.y;
+		float ratio = ratioW <= ratioH ? ratioW : ratioH;
+
+		return ratio * itemDims;
+	}
+
 	// @WARNING just use taylor not sure if I got this right...
 	inline static float sinBhaskara(float x)
 	{
@@ -104,8 +114,6 @@ public:
 	{
 		return (1 - t) * a + t * b;
 	}
-
-
 };
 
 

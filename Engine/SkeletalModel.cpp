@@ -46,10 +46,6 @@ bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene
 		_meshes[i].setupSkeletalMesh(device);
 	}
 
-	// Not sure why is it inverted in tutorials I've seen
-	//SMatrix rootTransform = AssimpWrapper::aiMatToSMat(scene->mRootNode->mTransformation);
-	//rootTransform = rootTransform.Invert();
-
 	processNode(scene->mRootNode, SMatrix::Identity);
 
 	return true;
@@ -65,7 +61,6 @@ bool SkeletalModel::processNode(aiNode* node, SMatrix globNodeTransform)
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
 		_meshes[node->mMeshes[i]]._localTransform = globNodeTransform;
-		//_meshes[node->mMeshes[i]]._transform = globNodeTransform;
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)

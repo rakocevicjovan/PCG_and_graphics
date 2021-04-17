@@ -4,11 +4,11 @@
 
 
 
-void Animation::getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed) const
+void Animation::getTransformAtTime(const Bone& bone, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed, std::vector<SMatrix>& vec) const
 {
 	float currentTick = elapsed / _tickDuration;
-	float t = currentTick - (long)currentTick;
-	
+	float t = currentTick - static_cast<uint32_t>(currentTick);
+
 	const AnimChannel* channel = getAnimChannel(bone._name);
 
 	SMatrix animTransform;
@@ -26,5 +26,5 @@ void Animation::getTransformAtTime(Bone& bone, std::vector<SMatrix>& vec, const 
 	vec[bone._index] = finalMatrix;
 
 	for (Bone* child : bone._children)
-		getTransformAtTime(*child, vec, nodeTransform, glInvT, elapsed);
+		getTransformAtTime(*child, nodeTransform, glInvT, elapsed, vec);
 }
