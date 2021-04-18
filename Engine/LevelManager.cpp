@@ -16,7 +16,7 @@ LevelManager::LevelManager(Engine& systems)
 
 	_current = new AssimpLoader(systems);
 
-	//ig_current = new TDLevel(systems);
+	//_current = new TDLevel(systems);
 
 	//_current = new RenderingTestLevel(systems);
 

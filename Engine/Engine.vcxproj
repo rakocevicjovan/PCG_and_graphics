@@ -195,7 +195,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Project.cpp" />
-    <ClCompile Include="ResourceDef.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="ShaderGenerator.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
@@ -457,9 +456,8 @@
     <ClInclude Include="RenderStage.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ReservedBuffers.h" />
-    <ClInclude Include="ResourceDef.h" />
+    <ClInclude Include="AssetID.h" />
     <ClInclude Include="AssetLedger.h" />
-    <ClInclude Include="ResourceHandle.h" />
     <ClInclude Include="ResourceType.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
@@ -687,6 +685,7 @@
     </ClInclude>
     <ClInclude Include="TextureGen.h" />
     <ClInclude Include="TextureCache.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureRole.h" />
     <ClInclude Include="ThreadPool.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

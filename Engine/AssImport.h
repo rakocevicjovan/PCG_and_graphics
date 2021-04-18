@@ -313,7 +313,7 @@ public:
 		uint32_t skeletonID = persistSkeleton();
 		std::vector<uint32_t> animIDs = persistAnims();
 		std::vector<uint32_t> texIDs = persistTextures();
-		std::vector<uint32_t> matIDs = persistMats();
+		std::vector<uint32_t> matIDs = persistMats(texIDs);
 
 		std::string mPath{ _importPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
@@ -326,7 +326,7 @@ public:
 
 		if (_model.get())
 		{
-			//_model->serialize()
+			//_model->serialize();
 		}
 
 		_pLedger->save();
@@ -342,7 +342,7 @@ public:
 			std::ofstream ofs(skeletonPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
-			return _pLedger->insert("", skeletonPath, ResType::SKELETON);
+			return _pLedger->insert(skeletonPath, ResType::SKELETON);
 		}
 		return 0;
 	}
@@ -361,7 +361,7 @@ public:
 			std::ofstream ofs(animPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			_anims[i].serialize(boa);
-			animIDs.push_back(_pLedger->insert("", animPath, ResType::ANIMATION));
+			animIDs.push_back(_pLedger->insert(animPath, ResType::ANIMATION));
 		}
 		return animIDs;
 	}
@@ -378,7 +378,7 @@ public:
 			std::string texPath{ _importPath + texName };
 
 			FileUtils::writeAllBytes(texPath, texNameBlob.blob._data.get(), texNameBlob.blob._size);
-			_pLedger->insert("", texPath, ResType::TEXTURE);
+			_pLedger->insert(texPath, ResType::TEXTURE);
 
 			if (texNameBlob.embedded)
 				texNameBlob.blob._data.release();
@@ -391,14 +391,8 @@ public:
 	}
 
 
-	uint32_t persistTex(const Texture& tex)
-	{
 
-	}
-
-
-
-	std::vector<uint32_t> persistMats()
+	std::vector<uint32_t> persistMats(const std::vector<uint32_t>& texIDs)
 	{
 		std::vector<uint32_t> matIDs;
 		for (UINT i = 0; i < _matData._mats.size(); ++i)
@@ -406,9 +400,11 @@ public:
 			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
-			MaterialFileFormat mff = MaterialFileFormat(*(_matData._mats[i]));
+
+			_matData._mats[i]->save(boa, texIDs);
+			//MaterialFileFormat mff = MaterialFileFormat(*(_matData._mats[i]));
 			//mff.serialize(boa);
-			matIDs.push_back(_pLedger->insert("", matPath, ResType::MATERIAL));
+			matIDs.push_back(_pLedger->insert(matPath, ResType::MATERIAL));
 		}
 		return matIDs;
 	}

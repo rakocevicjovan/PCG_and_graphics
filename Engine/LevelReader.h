@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
 #include <map>
-#include "ResourceDef.h"
+#include "AssetID.h"
+#include <rapidjson/fwd.h>
 
 
 
@@ -27,10 +28,6 @@ private:
 	std::vector<ResourceDef> _resourceDefs;
 
 	bool loadLevelDef(const rapidjson::Document& sceneDef);
-
-	bool loadResourceDefs(const rapidjson::Document& sceneDef);
-
-	ResourceDef LoadResourceDef(rapidjson::Value::ConstValueIterator itr);
 
 public:
 

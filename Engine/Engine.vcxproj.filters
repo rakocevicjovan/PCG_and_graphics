@@ -392,9 +392,6 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceDef.cpp">
-      <Filter>Resources\Resource classes</Filter>
-    </ClCompile>
     <ClCompile Include="AnimChannel.cpp">
       <Filter>Resources\SkelAnim</Filter>
     </ClCompile>
@@ -924,10 +921,7 @@
     <ClInclude Include="Engine.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceHandle.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceDef.h">
+    <ClInclude Include="AssetID.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
     <ClInclude Include="AssetLedger.h">
@@ -1077,6 +1071,9 @@
     </ClInclude>
     <ClInclude Include="ResourceType.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Asset importing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

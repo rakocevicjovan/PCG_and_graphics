@@ -1,21 +1,22 @@
 #pragma once
-#include "ResourceHandle.h"	// TBD, should act as a proxy as well?
-#include "ResourceDef.h"
+#include "AssetID.h"
+#include "Fnv1Hash.h"
 #include <cereal/cereal.hpp>
 #include <cereal/archives/json.hpp>
-#include <cereal/types/unordered_set.hpp>
-#include <unordered_set>
+#include <cereal/types/unordered_map.hpp>
+#include <unordered_map>
 #include <string>
 #include <fstream>
+#include <cassert>
 
 
 class AssetLedger
 {
 private:
-	bool _dirty;
+	
+	bool _dirty{false};
 
-	// Gigabrain implementation with 0 effort, 0 cache locality and maximum fragmentation
-	std::unordered_set<ResourceDef> _assDefs;
+	std::unordered_map<AssetID, std::string> _assDefs;
 
 	// This will write it all out at once, something I don't like one bit (might use sqlite)
 	template <typename Archive>
@@ -25,8 +26,6 @@ private:
 	}
 
 public:
-
-	using AssetID = uint32_t;
 
 	std::string _ledgerFilePath;
 
@@ -40,17 +39,15 @@ public:
 	}
 
 
-
-	AssetID insert(const std::string& assName, const std::string& path, ResType resType)
+	AssetID insert(const std::string& path, ResType /*resType*/)
 	{
 		AssetID nameHash = fnv1hash(path.c_str());
-		ResourceDef rd{ nameHash, assName, path, resType };
 
-		auto iter = _assDefs.insert(rd);
+		auto iter = _assDefs.insert({nameHash, path});
 		if (!iter.second)
 		{
 			// Too heavy handed, but needs a visible warning...
-			assert(false && "HASH COLLISION! Asset name: %s", assName);
+			assert(false && "HASH COLLISION! Asset path: %s", path);
 			//OutputDebugStringA(std::string("HASH COLLISION!" + assName).c_str());
 			//return iter.first->key._ID;
 		}
@@ -62,24 +59,15 @@ public:
 	}
 
 
-
-	inline const ResourceDef* get(const std::string& assPath) const
+	inline const std::string* get(AssetID ID) const
 	{
-		return get(fnv1hash(assPath.c_str()));
-	}
-
-
-
-	inline const ResourceDef* get(AssetID ID) const
-	{
-		auto iter = _assDefs.find(ResourceDef{ ID });
+		auto iter = _assDefs.find(ID);
 		
 		if (iter != _assDefs.end())
-			return &(*iter);
+			return &(iter->second);
 		else
 			return nullptr;
 	}
-
 
 
 	inline void remove(const std::string& assName)
@@ -88,13 +76,13 @@ public:
 	}
 
 
-
 	inline void remove(AssetID ID)
 	{
-		if(_assDefs.erase(ResourceDef{ID, 0}))
+		if (_assDefs.erase(ID))
+		{
 			_dirty = true;
+		}
 	}
-
 
 
 	void save()
@@ -105,14 +93,12 @@ public:
 	}
 
 
-
 	void load()
 	{
 		std::ifstream ifs(_ledgerFilePath);
 		cereal::JSONInputArchive jiArch(ifs);
 		serialize(jiArch);
 	}
-
 
 
 	void purge()

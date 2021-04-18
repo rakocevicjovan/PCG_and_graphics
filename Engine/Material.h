@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Sampler.h"
 #include "MeshDataStructs.h"
+#include "TextureManager.h"
 
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
@@ -90,13 +91,13 @@ public:
 	template <typename Archive>
 	void save(Archive& ar, const std::vector<UINT>& texIDs) const
 	{
-		ar(getVS()->_id, get_PS()->_id, _texMetaData, _primitiveTopology, _opaque);
+		//ar(getVS()->_id, getPS()->_id, _texMetaData, _primitiveTopology, _opaque);
 	}
 
 	template <typename Archive>
-	void load(Archive& ar, const std::vector<UINT>& texIDs) const
+	void load(Archive& ar, TextureManager& texMan) const
 	{
-		ar(getVS()->_id, get_PS()->_id, _texMetaData, _primitiveTopology, _opaque);
+		//ar(getVS()->_id, get_PS()->_id, _texMetaData, _primitiveTopology, _opaque);
 	}
 };
 

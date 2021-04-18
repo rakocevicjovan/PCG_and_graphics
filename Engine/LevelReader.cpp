@@ -1,11 +1,41 @@
 #include "pch.h"
 #include "LevelReader.h"
 #include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 #include "FileUtilities.h"
 #include "Mesh.h"
 #include "Model.h"
 
 
+
+namespace
+{
+	ResourceDef LoadResourceDef(rapidjson::Value::ConstValueIterator itr)
+	{
+		ResourceDef rd;
+
+		rd._id = itr->FindMember("id")->value.GetInt();
+		//rd.key._assetName = itr->FindMember("name")->value.GetString();
+
+		rd._path = itr->FindMember("path")->value.GetString();
+		rd._type = ResTypeFromString(itr->FindMember("resType")->value.GetString());
+
+		return rd;
+	}
+
+	bool loadResourceDefs(const rapidjson::Document& levelDef, std::vector<ResourceDef>& resourceDefs)
+	{
+		if (!levelDef.FindMember("assets")->value.IsArray())
+			return false;
+
+		auto assDefArr = levelDef.FindMember("assets")->value.GetArray();
+
+		for (rapidjson::Value::ConstValueIterator itr = assDefArr.Begin(); itr != assDefArr.End(); ++itr)
+			resourceDefs.push_back(LoadResourceDef(itr));
+
+		return true;
+	}
+}
 
 bool LevelReader::loadLevel(const std::string& levelPath)
 {
@@ -18,7 +48,7 @@ bool LevelReader::loadLevel(const std::string& levelPath)
 	if(!loadLevelDef(levelDef))
 		return false;
 	
-	if (!loadResourceDefs(levelDef))
+	if (!loadResourceDefs(levelDef, _resourceDefs))
 		return false;
 
 	return true;
@@ -46,33 +76,8 @@ bool LevelReader::loadLevelDef(const rapidjson::Document& levelDef)
 
 
 
-bool LevelReader::loadResourceDefs(const rapidjson::Document& levelDef)
-{
-	if (!levelDef.FindMember("assets")->value.IsArray())
-		return false;
-
-	auto assDefArr = levelDef.FindMember("assets")->value.GetArray();
-
-	for (rapidjson::Value::ConstValueIterator itr = assDefArr.Begin(); itr != assDefArr.End(); ++itr)
-		_resourceDefs.push_back(LoadResourceDef(itr));
-
-	return true;
-}
 
 
-
-ResourceDef LevelReader::LoadResourceDef(rapidjson::Value::ConstValueIterator itr)
-{
-	ResourceDef rd;
-
-	rd.key._ID = itr->FindMember("id")->value.GetInt();
-	rd.key._assetName = itr->FindMember("name")->value.GetString();
-
-	rd.val._path = itr->FindMember("path")->value.GetString();
-	rd.val._resType = ResourceDef::getResTypeFromString(itr->FindMember("resType")->value.GetString());
-
-	return rd;
-}
 
 
 
