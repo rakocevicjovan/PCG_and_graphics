@@ -41,21 +41,17 @@ public:
 
 	AssetID insert(const std::string& path, ResType /*resType*/)
 	{
-		AssetID nameHash = fnv1hash(path.c_str());
+		AssetID pathHash = fnv1hash(path.c_str());
 
-		auto iter = _assDefs.insert({nameHash, path});
+		auto iter = _assDefs.insert({ pathHash, path});
 		if (!iter.second)
 		{
-			// Too heavy handed, but needs a visible warning...
-			assert(false && "HASH COLLISION! Asset path: %s", path);
-			//OutputDebugStringA(std::string("HASH COLLISION!" + assName).c_str());
-			//return iter.first->key._ID;
+			OutputDebugStringA(std::string("HASH COLLISION!" + path).c_str());
+			return ~0;
 		}
-		else
-		{
-			_dirty = true;
-			return nameHash;
-		}
+
+		_dirty = true;
+		return pathHash;
 	}
 
 

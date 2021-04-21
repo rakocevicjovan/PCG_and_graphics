@@ -436,6 +436,9 @@
     <ClCompile Include="FuzzySearch.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialAsset.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1074,6 +1077,12 @@
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>Asset importing</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialAsset.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureMetaData.h">
+      <Filter>Resources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

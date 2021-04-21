@@ -191,6 +191,7 @@
     <ClCompile Include="imnodes.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="MaterialAsset.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -463,6 +464,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="MemChunk.h" />
     <ClInclude Include="SceneEditor.h" />
+    <ClInclude Include="MaterialAsset.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkelAnimShader.h">
@@ -686,6 +688,7 @@
     <ClInclude Include="TextureGen.h" />
     <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="TextureMetaData.h" />
     <ClInclude Include="TextureRole.h" />
     <ClInclude Include="ThreadPool.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

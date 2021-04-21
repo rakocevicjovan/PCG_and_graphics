@@ -69,7 +69,7 @@ void TDLevel::init(Engine& sys)
 
 	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
 	floorTex.setUpAsResource(S_DEVICE);
-	floorMesh._material->_texMetaData.push_back({ std::make_shared<Texture>(floorTex), TextureRole::DIFFUSE });
+	floorMesh._material->_materialTextures.push_back({ {TextureRole::DIFFUSE}, std::make_shared<Texture>(floorTex) });
 	
 	floorRenderable = Renderable(floorMesh);
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));

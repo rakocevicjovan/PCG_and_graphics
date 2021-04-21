@@ -20,19 +20,20 @@ public:
 
 	struct MatMetaData
 	{
-		// ParameterBundle _paramBundle;	// When decided upon.
 		std::vector<TempTexData> _tempTexData;
+		// ParameterBundle _paramBundle;	// When decided upon.
 	};
 
 	struct TexNameBlob
-	{ 
-		std::string name; 
+	{
+		std::string name;
 		Blob blob;
-		bool embedded = false;	// Release instead of deleting, or double delete wrecks everything
+		bool embedded = false;	// Assimp will release embedded textures
 	};
 
 	struct MatsAndTextureBlobs
 	{
+		std::vector<MatMetaData> _matMetaData;
 		std::vector<std::shared_ptr<Material>> _mats;
 		std::vector<TexNameBlob> _blobs;
 	};
@@ -40,62 +41,65 @@ public:
 
 	static MatsAndTextureBlobs LoadAllMaterials(ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
-		uint32_t materialCount = scene->mNumMaterials;
+		const uint32_t materialCount{ scene->mNumMaterials };
 
-		// Get material meta data, but defer loading materials, filter texture paths into a unique set
 		std::vector<MatMetaData> matMetaData(materialCount);
-		std::map<std::string, std::shared_ptr<Texture>> unqTexPaths;
 
-		// Get material metadata, including textures that need to be loaded by path
+		// Get material metadata, including textures paths
 		for (UINT i = 0; i < materialCount; ++i)
 		{
 			matMetaData[i] = LoadMatMetaData(scene->mMaterials[i]);
 		}
 
-		// Keep only unique texture names
+		// Keep only unique textures, filtered by paths
+		std::map<std::string, std::shared_ptr<Texture>> uniqueTextures;
 		for (const auto& mmd : matMetaData)
 		{
 			for (auto& ttd : mmd._tempTexData)
-				unqTexPaths.insert({ ttd._path, std::make_shared<Texture>() });
+			{
+				uniqueTextures.insert({ ttd._path, std::make_shared<Texture>() });
+			}
 		}
 
 		// Load uniquely identified textures as data blobs (in order to persist them later)
 		std::vector<TexNameBlob> texNameBlobs;
 
-		for (auto& pathTex : unqTexPaths)
+		for (auto& [path, tex] : uniqueTextures)
 		{
-			TexNameBlob tnb = MatLoader::GetTextureBlob(scene, modPath, pathTex.first);
-			
-			if (tnb.blob._size == 0)	// Skip textures that were not found, for now.
+			TexNameBlob texBlob = MatLoader::GetTextureBlob(scene, modPath, path);
+
+			if (texBlob.blob._size == 0)	// Skip textures that were not found, for now.
 				continue;
 
-			pathTex.second.get()->loadFromMemory(reinterpret_cast<unsigned char*>(tnb.blob._data.get()), tnb.blob._size);
-			pathTex.second.get()->setUpAsResource(device);
+			//tex->_fileName = path;	// We care about the final post-import path, not this
+			tex->loadFromMemory(reinterpret_cast<unsigned char*>(texBlob.blob._data.get()), texBlob.blob._size);
+			tex->setUpAsResource(device);
 
-			texNameBlobs.push_back(std::move(tnb));
+			texNameBlobs.push_back(std::move(texBlob));
 		}
-		
+
 		// Create materials from provided metadata and assign already loaded textures to them
 		std::vector<std::shared_ptr<Material>> materials;
 		materials.reserve(materialCount);
 
+		
 		for (const MatMetaData& mmd : matMetaData)
 		{
 			std::shared_ptr<Material> curMat = std::make_shared<Material>();
-			
+
 			UINT numTexRefs = mmd._tempTexData.size();
-			curMat->_texMetaData.reserve(numTexRefs);
+			curMat->_materialTextures.reserve(numTexRefs);
 
 			for (const TempTexData& tempTexData : mmd._tempTexData)
 			{
-				curMat->_texMetaData.push_back(tempTexData._tmd);
-				curMat->_texMetaData.back()._tex = unqTexPaths[tempTexData._path];
+				curMat->_materialTextures.push_back({tempTexData._tmd, uniqueTextures[tempTexData._path]});
 			}
 
 			materials.push_back(std::move(curMat));
 		}
+		
 
-		return { materials, std::move(texNameBlobs) };
+		return { matMetaData, materials, std::move(texNameBlobs) };
 	}
 
 
@@ -103,18 +107,22 @@ private:
 
 	static MatMetaData LoadMatMetaData(const aiMaterial* aiMat)
 	{
-		//loadParameterBlob(aiMat);	// @TODO eventually
+		// @TODO eventually
+		//loadParameterBlob(aiMat);
 
 		// Textures
 		std::vector<TempTexData> tempTexData;
+
 		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
+		{
 			GetTexMetaData(aiMat, ttr, tempTexData);
+		}
 
 		return { tempTexData };
 	}
 
 
-	static void GetTexMetaData(const aiMaterial *aiMat, AssimpWrapper::TEX_TYPE_ROLE ttr, std::vector<TempTexData>& ttd)
+	static void GetTexMetaData(const aiMaterial* aiMat, AssimpWrapper::TEX_TYPE_ROLE ttr, std::vector<TempTexData>& ttd)
 	{
 		// Iterate all textures related to the material, keep the ones that can load
 		UINT texCountByType = aiMat->GetTextureCount(ttr.first);
@@ -134,7 +142,6 @@ private:
 				{
 					aiTexPath.C_Str(),
 					{
-						nullptr,
 						ttr.second,
 						{ mapModes[0], mapModes[1], mapModes[2] },
 						static_cast<uint8_t>(uvIndex),
@@ -156,10 +163,10 @@ private:
 		if (embedded)
 		{
 			UINT len = aiTex->mHeight == 0 ? aiTex->mWidth : aiTex->mHeight * aiTex->mWidth;
-			return { texPath, std::unique_ptr<char[]> (reinterpret_cast<char*>(aiTex->pcData)), len, true };
+			return { texPath, std::unique_ptr<char[]>(reinterpret_cast<char*>(aiTex->pcData)), len, true };
 		}
 
-		// Path is faulty, try to find it under model directory
+		// Texture is not embedded, search for external file
 		std::string modelFolderPath = std::filesystem::path(modelPath).parent_path().string();
 		std::string absTexPath = modelFolderPath + "/" + texPath;
 
@@ -167,12 +174,16 @@ private:
 		{
 			std::filesystem::directory_entry texFile;
 			if (FileUtils::findFile(modelFolderPath, texName, texFile))
+			{
 				absTexPath = texFile.path().string();
-			else
-				return { texPath, Blob{} };
+			}
+			else // Path is faulty, try to find it under model directory
+			{
+				return { texPath, Blob{}, false };
+			}
 		}
 
-		return { texPath, FileUtils::readAllBytes(absTexPath.c_str()) };
+		return { texPath, FileUtils::readAllBytes(absTexPath.c_str()), false };
 	}
 
 

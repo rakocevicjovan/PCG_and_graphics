@@ -8,7 +8,6 @@
 #include "Sampler.h"
 #include "ShaderManager.h"
 //#include "TextureCache.h"	@TODO merge this with manager!
-#include "TextureManager.h"
 #include <memory>
 
 
@@ -19,7 +18,6 @@ private:
 	// Temporarily here, pass them as ptr/ref from the editor to feed into that one
 	ShaderManager _shMan;
 	FileBrowser _fileBrowser;
-	TextureManager _textureManager;
 
 	Scene _scene;
 
@@ -43,7 +41,6 @@ public:
 		_fileBrowser("C:\\Users\\metal\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated")
 	{
 		_renderTarget = RenderTarget(S_DEVICE, 1024, 1024, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE);
-		_textureManager = TextureManager(&sys._resMan._assetLedger, sys._D3D.getDevice());
 	}
 
 	

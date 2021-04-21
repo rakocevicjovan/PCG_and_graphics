@@ -3,41 +3,19 @@
 #include "Shader.h"
 #include "Sampler.h"
 #include "MeshDataStructs.h"
-#include "TextureManager.h"
+#include "TextureMetaData.h"
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
+#include "TextureManager.h"
+#include "ShaderManager.h"
 
 #include <memory>
 
 
-
-struct TextureMetaData
+struct MaterialTexture
 {
+	TextureMetaData _metaData;
 	std::shared_ptr<Texture> _tex;
-	TextureRole _role;
-	std::array<TextureMapMode, 3> _mapMode = { TextureMapMode::WRAP, TextureMapMode::WRAP, TextureMapMode::WRAP };
-	uint8_t _uvIndex = 0u;
-	uint8_t _regIndex = 0u;	// Decouple from role later
-
-
-	template <typename Archive>
-	void save(Archive& ar)
-	{
-		ar(_tex->_fileName(), _role, _mapMode, _uvIndex, _regIndex);
-	}
-
-	template <typename Archive>
-	void load(Archive& ar)
-	{
-		std::string texFileName;
-		ar(texFileName, _role, _mapMode, _uvIndex, _regIndex);
-	}
 };
-
-
 
 class Material
 {
@@ -50,13 +28,13 @@ protected:
 public:
 
 	// Second most important sorting criteria
-	std::vector<TextureMetaData> _texMetaData;
+	std::vector<MaterialTexture> _materialTextures;
 	
 	// Determines whether it goes to the transparent or opaque queue
 	bool _opaque{false};
 
 	// This could also belong in the vertex buffer... like stride and offset do
-	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
 
 	Material();
@@ -83,45 +61,38 @@ public:
 
 	inline void setPS(PixelShader* ps) { _pixelShader = ps; }
 
-	inline void addMaterialTexture(Texture* t, TextureRole role, std::array<TextureMapMode, 3> tmm, uint8_t uvIndex = 0u)
+	inline void addMaterialTexture(Texture* t, const TextureMetaData& tmd)
 	{
-		_texMetaData.push_back({std::shared_ptr<Texture>(t), role, tmm, uvIndex, 0u});
+		_materialTextures.push_back({ tmd, std::shared_ptr<Texture>(t) });
 	}
 
 	template <typename Archive>
-	void save(Archive& ar, const std::vector<UINT>& texIDs) const
+	void save(Archive& ar, const std::vector<AssetID>& texIDs) const
 	{
-		//ar(getVS()->_id, getPS()->_id, _texMetaData, _primitiveTopology, _opaque);
+		ShaderKey vsID = _vertexShader ? _vertexShader->_id : 0u;
+		ShaderKey psID = _pixelShader ? _pixelShader->_id : 0u;
+		
+		ar(vsID, psID, _primitiveTopology, _opaque, _materialTextures, texIDs);
 	}
 
 	template <typename Archive>
-	void load(Archive& ar, TextureManager& texMan) const
+	void load(Archive& ar, TextureManager& texMan, ShaderManager& shMan) const
 	{
-		//ar(getVS()->_id, get_PS()->_id, _texMetaData, _primitiveTopology, _opaque);
-	}
-};
+		ShaderKey vsID;
+		ShaderKey psID;
 
+		std::vector<AssetID> texIDs;
 
+		ar(vsID, psID, _primitiveTopology, _opaque, _texMetaData, texIDs);
+		
+		for (auto i = 0; i < _texMetaData.size(); ++i)
+		{
+			_texMetaData[i]._tex = texMan.get(texIDs[i]);
+		}
 
-struct MaterialFileFormat
-{
-	uint64_t _shaderKey{};
-	std::vector<TextureMetaData> _texMetaData;
-	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-	bool _opaque{true};
+		auto shaderPack = shMan.getShaderByKey(vsID);
 
-	template <typename Archive>
-	void serialize(Archive& ar, const std::vector<UINT>& texIDs) const
-	{
-		ar(_shaderKey, _texMetaData, _primitiveTopology, _opaque);
-	}
-
-	MaterialFileFormat(const Material& mat) 
-		: _texMetaData (mat._texMetaData), _primitiveTopology(mat._primitiveTopology), _opaque(mat._opaque)
-	{
-		if (mat.getVS())	// Id is currently same for both vs and ps, which isnt optimal but ok
-			mat.getVS()->_id;
-		else
-			_shaderKey = 0u;	// Lowest common denominator, only uses position
+		_vertexShader = shaderPack->vs;
+		_pixelShader = shaderPack->ps;
 	}
 };

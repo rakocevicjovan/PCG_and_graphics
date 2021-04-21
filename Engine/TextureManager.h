@@ -10,6 +10,7 @@ public:
 
 	TextureManager() {}
 
+
 	TextureManager(AssetLedger* assetLedger, ID3D11Device* device)
 		: _assetLedger(assetLedger), _device(device)
 	{}
@@ -40,10 +41,16 @@ public:
 	}
 
 
+	Texture* get(const char* path)
+	{
+		return get(fnv1hash(path));
+	}
+
+
 	bool create(const std::string& path, const Texture& texture)
 	{
 		AssetID nameHash = _assetLedger->insert(path, ResType::TEXTURE);
-		_texMap.insert({ nameHash, texture });
+		return _texMap.insert({ nameHash, texture }).second;
 	}
 
 private:

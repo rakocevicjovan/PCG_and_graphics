@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ShaderGenerator.h"
+#include "Material.h"
 
 
 
@@ -25,14 +26,14 @@ void ShaderGenerator::EncodeVertexData(const VertSignature& vertSig, uint64_t& k
 
 
 
-void ShaderGenerator::EncodeTextureData(const std::vector<TextureMetaData>& texData, uint64_t& key)
+void ShaderGenerator::EncodeTextureData(const std::vector<MaterialTexture>& texData, uint64_t& key)
 {
-	for (const TextureMetaData& texMetaData : texData)
+	for (const auto& [metaData, tex] : texData)
 	{
-		if (!texMetaData._tex)	// Don't build a shader for non-existent textures
+		if (!tex)	// Don't build a shader for non-existent textures
 			continue;
 
-		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(texMetaData._role);
+		auto iter = TEX_ROLE_TO_SHADER_OPTION.find(metaData._role);
 		if (iter != TEX_ROLE_TO_SHADER_OPTION.end())
 			key |= (1Ui64 << iter->second->_offset);
 		else
@@ -48,7 +49,7 @@ ShaderKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, const M
 
 	shaderKey |= (static_cast<uint64_t>(lmIndex) << SHG_OPT_LMOD._offset);
 	EncodeVertexData(vertSig, shaderKey);
-	EncodeTextureData(mat->_texMetaData, shaderKey);
+	EncodeTextureData(mat->_materialTextures, shaderKey);
 
 	return shaderKey;
 }

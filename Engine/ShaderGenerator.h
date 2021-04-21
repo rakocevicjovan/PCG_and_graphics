@@ -1,14 +1,16 @@
 #pragma once
 #include "ShaderCompiler.h"
 #include "FileUtilities.h"
-#include "Material.h"
 #include "VertSignature.h"
+#include "TextureMetaData.h"
 #include <map>
 #include <set>
 #include <string>
 
-
-typedef uint64_t ShaderKey;
+class Material;
+class Texture;
+class MaterialTexture;	// This was not on purpose I promise...
+using ShaderKey = uint64_t;
 
 // Constants for external code to have some default paths
 inline const wchar_t* VS_PROTOSHADER = L"ShGen\\VS_proto.hlsl";
@@ -89,7 +91,7 @@ private:
 
 	static void EncodeVertexData(const VertSignature& vertSig, uint64_t& key);
 
-	static void EncodeTextureData(const std::vector<TextureMetaData>& texData, uint64_t& key);
+	static void EncodeTextureData(const std::vector<MaterialTexture>& texData, uint64_t& key);
 
 public:
 

@@ -83,14 +83,14 @@ namespace GuiBlocks
 		ImGui::Text("Textures");
 		ImGui::Indent();
 
-		for (int i = 0; i < mat->_texMetaData.size(); i++)
+		for (auto& [metaData, tex] : mat->_materialTextures)
 		{
-			ImGui::Text(TEX_ROLE_NAMES.at(mat->_texMetaData[i]._role));
+			ImGui::Text(TEX_ROLE_NAMES.at(metaData._role));
 			ImGui::SameLine();
-			if (mat->_texMetaData[i]._tex)
+			if (tex)
 			{
-				ImGui::Text(mat->_texMetaData[i]._tex->getName().c_str());
-				ImGui::Image(mat->_texMetaData[i]._tex->_arraySrv.Get(), ImVec2(300, 300));
+				ImGui::Text(tex->getName().c_str());
+				ImGui::Image(tex->_arraySrv.Get(), ImVec2(300, 300));
 			}
 			else
 			{
