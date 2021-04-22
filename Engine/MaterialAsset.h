@@ -1,4 +1,5 @@
 #pragma once
+/*
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "Texture.h"
@@ -28,16 +29,17 @@ struct MaterialAsset
 		ar(_texMetaData, _textureIDs);
 	}
 
-	/* Work this out, maybe shouldn't even exist
-	MaterialAsset(const Material& mat)
-		: _texMetaData(mat._materialTextures), _primitiveTopology(mat._primitiveTopology), _opaque(mat._opaque)
-	{
-		if (mat.getVS())	// Id is currently same for both vs and ps, which isnt optimal but ok
-			mat.getVS()->_id;
-		else
-			_shaderKey = 0u;	// Lowest common denominator, only uses position
-	}
-	*/
+	// Work this out, maybe shouldn't even exist
+	//MaterialAsset(const Material& mat)
+	//	: _texMetaData(mat._materialTextures), _primitiveTopology(mat._primitiveTopology), _opaque(mat._opaque)
+	//{
+	//	if (mat.getVS())	// Id is currently same for both vs and ps, which isnt optimal but ok
+	//		mat.getVS()->_id;
+	//	else
+	//		_shaderKey = 0u;	// Lowest common denominator, only uses position
+	//}
+	
 
 	Material createRuntimeMaterial(ShaderManager* shMan, TextureManager* texMan);
 };
+*/

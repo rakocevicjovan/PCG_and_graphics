@@ -15,6 +15,25 @@
 
 #include "TextureManager.h"
 
+#include <cereal/cereal.hpp>
+//#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/array.hpp>
+#include <cereal/types/string.hpp>
+
+
+
+/* Just adds complexity really...
+namespace
+{
+	template<typename Archive, typename Asset, typename... Args>
+	void serializeAsset(Archive& ar, const Asset& asset, Args...)
+	{
+		asset->save(ar);
+	}
+}*/
+
 
 class AssImport
 {
@@ -319,8 +338,8 @@ public:
 	{
 		uint32_t skeletonID = persistSkeleton();
 		std::vector<uint32_t> animIDs = persistAnims();
-		std::vector<uint32_t> texIDs = persistTextures();
-		std::vector<uint32_t> matIDs = persistMats(texIDs);
+		/*std::vector<uint32_t> texIDs = */persistTextures();
+		std::vector<uint32_t> matIDs = persistMats();
 
 		std::string mPath{ _importPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
@@ -375,17 +394,16 @@ public:
 
 
 
-	std::vector<AssetID> persistTextures()
+	void persistTextures()
 	{
-		std::vector<AssetID> textureIDs;
-
 		for (auto& [name, blob, embedded] : _matData._blobs)
 		{
 			std::string texName = std::filesystem::path(name).filename().string();
 			std::string texPath{ _importPath + texName };
 
 			FileUtils::writeAllBytes(texPath, blob._data.get(), blob._size);
-			textureIDs.push_back(_pLedger->insert(texPath, ResType::TEXTURE));
+			//_textureManager.create(texPath.c_str(), )
+			_pLedger->insert(texPath, ResType::TEXTURE);
 
 			if (embedded)
 				blob._data.release();
@@ -393,50 +411,38 @@ public:
 			blob._data.reset();
 			blob._size = 0u;
 		}
-
-		return textureIDs;
 	}
 
 
-	// Trying out a different approach
-	/*
-	std::vector<AssetID> importMaterials()
-	{
-		std::vector<uint32_t> matIDs;
-
-		for (auto i = 0; i < _matData._matMetaData.size(); ++i)
-		{
-			const auto& cmd = _matData._matMetaData[i];
-			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
-			std::ofstream ofs(matPath, std::ios::binary);
-			cereal::JSONOutputArchive output(ofs);
-
-			output(cmd._tempTexData);
-
-			matIDs.push_back(_pLedger->insert(matPath, ResType::MATERIAL));
-		}
-		return matIDs;
-	}*/
-
-
-
-	std::vector<AssetID> persistMats(const std::vector<uint32_t>& texIDs)
+	std::vector<AssetID> persistMats()
 	{
 		std::vector<uint32_t> matIDs;
 		for (UINT i = 0; i < _matData._mats.size(); ++i)
 		{
-			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
-			std::ofstream ofs(matPath, std::ios::binary);
+			// Get texture IDs
+			auto& matMetaData = _matData._matMetaData[i];
 
+			std::vector<AssetID> textureIDs;
+			textureIDs.reserve(matMetaData._tempTexData.size());
+
+			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(textureIDs),
+				[&texMan = _textureManager](MatLoader::TempTexData& ttd)
+				{
+					return texMan.getID(ttd._path.c_str());
+				});
+
+			// Serialize
+			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
+			std::ofstream ofs(matPath, std::ios::binary);	
 			//cereal::BinaryOutputArchive boa(ofs);
 			cereal::JSONOutputArchive output(ofs);
-			//_matData._mats[i]->save(output, texIDs);
+
+			_matData._mats[i]->save(output, textureIDs);
 
 			matIDs.push_back(_pLedger->insert(matPath, ResType::MATERIAL));
 		}
 		return matIDs;
 	}
-
 
 
 	void draw(ID3D11DeviceContext* context, float dTime)

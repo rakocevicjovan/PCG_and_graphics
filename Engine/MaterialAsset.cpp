@@ -3,6 +3,7 @@
 //#include "ShaderManager.h"
 //#include "TextureManager.h"
 
+/*
 Material MaterialAsset::createRuntimeMaterial(ShaderManager* shMan, TextureManager* texMan)
 {
 	auto* shPack = shMan->getShaderByKey(_shaderKey);
@@ -17,3 +18,4 @@ Material MaterialAsset::createRuntimeMaterial(ShaderManager* shMan, TextureManag
 
 	return result;
 }
+*/

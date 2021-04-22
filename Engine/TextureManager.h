@@ -41,9 +41,15 @@ public:
 	}
 
 
-	Texture* get(const char* path)
+	inline Texture* get(const char* path)
 	{
-		return get(fnv1hash(path));
+		return get(getID(path));
+	}
+
+
+	inline AssetID getID(const char* path)
+	{
+		return fnv1hash(path);
 	}
 
 

@@ -5,8 +5,8 @@
 #include "MeshDataStructs.h"
 #include "TextureMetaData.h"
 
-#include "TextureManager.h"
-#include "ShaderManager.h"
+//#include "TextureManager.h"
+//#include "ShaderManager.h"
 
 #include <memory>
 
@@ -15,6 +15,12 @@ struct MaterialTexture
 {
 	TextureMetaData _metaData;
 	std::shared_ptr<Texture> _tex;
+
+	template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(_metaData);
+	}
 };
 
 class Material
@@ -67,7 +73,7 @@ public:
 	}
 
 	template <typename Archive>
-	void save(Archive& ar, const std::vector<AssetID>& texIDs) const
+	void save(Archive& ar, const std::vector<uint32_t>& texIDs) const
 	{
 		ShaderKey vsID = _vertexShader ? _vertexShader->_id : 0u;
 		ShaderKey psID = _pixelShader ? _pixelShader->_id : 0u;
@@ -75,6 +81,12 @@ public:
 		ar(vsID, psID, _primitiveTopology, _opaque, _materialTextures, texIDs);
 	}
 
+	template <typename Archive>
+	void load(Archive& ar)
+	{
+
+	}
+	/*
 	template <typename Archive>
 	void load(Archive& ar, TextureManager& texMan, ShaderManager& shMan) const
 	{
@@ -95,4 +107,5 @@ public:
 		_vertexShader = shaderPack->vs;
 		_pixelShader = shaderPack->ps;
 	}
+	*/
 };

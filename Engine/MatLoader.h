@@ -63,6 +63,7 @@ public:
 
 		// Load uniquely identified textures as data blobs (in order to persist them later)
 		std::vector<TexNameBlob> texNameBlobs;
+		texNameBlobs.reserve(uniqueTextures.size());
 
 		for (auto& [path, tex] : uniqueTextures)
 		{
