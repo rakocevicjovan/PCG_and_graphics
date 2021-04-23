@@ -1,12 +1,8 @@
 #pragma once
-#include "Texture.h"
-#include "Shader.h"
-#include "Sampler.h"
 #include "MeshDataStructs.h"
 #include "TextureMetaData.h"
-
-//#include "TextureManager.h"
-//#include "ShaderManager.h"
+#include "TextureManager.h"
+#include "ShaderManager.h"
 
 #include <memory>
 
@@ -16,6 +12,7 @@ struct MaterialTexture
 	TextureMetaData _metaData;
 	std::shared_ptr<Texture> _tex;
 
+	// Do not serialize textures. They will be obtained otherwise through the managers to prevent double loading.
 	template<typename Archive>
 	void serialize(Archive& ar)
 	{
@@ -82,13 +79,7 @@ public:
 	}
 
 	template <typename Archive>
-	void load(Archive& ar)
-	{
-
-	}
-	/*
-	template <typename Archive>
-	void load(Archive& ar, TextureManager& texMan, ShaderManager& shMan) const
+	void load(Archive& ar, ShaderManager& shMan, TextureManager& texMan) const
 	{
 		ShaderKey vsID;
 		ShaderKey psID;
@@ -102,10 +93,10 @@ public:
 			_texMetaData[i]._tex = texMan.get(texIDs[i]);
 		}
 
-		auto shaderPack = shMan.getShaderByKey(vsID);
-
-		_vertexShader = shaderPack->vs;
-		_pixelShader = shaderPack->ps;
+		if (auto shaderPack = shMan.getShaderByKey(vsID))
+		{
+			_vertexShader = shaderPack->vs;
+			_pixelShader = shaderPack->ps;
+		}
 	}
-	*/
 };

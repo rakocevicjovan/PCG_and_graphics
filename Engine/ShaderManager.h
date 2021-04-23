@@ -2,9 +2,8 @@
 #include "Shader.h"
 #include "ShaderCache.h"
 #include "ShaderGenerator.h"
-#include "GuiBlocks.h"
 #include "VertSignature.h"
-#include "Material.h"
+#include "IMGUI/imgui.h"
 #include <memory>
 
 #include <cereal/cereal.hpp>
@@ -12,16 +11,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 
-
-/*
-struct ShaderDescription
-{
-	uint16_t vsKey;
-	uint8_t texRegisters[16];
-	uint64_t texUVIndex : 48;
-};*/
-
-
+class Material;
 
 struct VS_FileFormat
 {
@@ -39,20 +29,23 @@ struct PS_FileFormat
 };
 
 
-template<typename Archive> void serialize(Archive& ar, VAttrib& va)
+template<typename Archive>
+void serialize(Archive& ar, VAttrib& va)
 {
 	ar(va._semantic, va._type, va._size, va._numElements);
 }
 
 
-template<typename Archive> void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
+template<typename Archive>
+void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
 {
 	ar(bd.ByteWidth, bd.Usage,
 		bd.BindFlags, bd.CPUAccessFlags, bd.MiscFlags, bd.StructureByteStride);
 }
 
 
-template<typename Archive> void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
+template<typename Archive>
+void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
 {
 	ar(sd.AddressU, sd.AddressV, sd.AddressW, sd.BorderColor, sd.ComparisonFunc, 
 		sd.Filter, sd.MaxAnisotropy, sd.MaxLOD, sd.MinLOD, sd.MipLODBias);
@@ -200,51 +193,5 @@ public:
 
 
 
-
-
-
-	static void displayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device)
-	{
-		// For UI
-		struct LightModelIndex
-		{
-			std::string name;
-			SHG_LIGHT_MODEL index;
-		};
-		uint64_t shaderKey{ 0 };
-
-		static const std::vector<LightModelIndex> lmiOptions
-		{
-			{ "NONE",		SHG_LM_NONE},
-			{ "LAMBERT",	SHG_LM_LAMBERT},
-			{ "PHONG",		SHG_LM_PHONG}
-		};
-
-		// Default lambert
-		static const LightModelIndex* selected = &lmiOptions[1];
-
-		if (ImGui::Begin("Shader picker"))
-		{
-			if (ImGui::BeginCombo("Light model", selected->name.data()))
-			{
-				for (UINT i = 0; i < lmiOptions.size(); ++i)
-				{
-					if (ImGui::Selectable(lmiOptions[i].name.c_str()))
-						selected = &lmiOptions[i];
-				}
-				ImGui::EndCombo();
-			}
-		}
-
-		shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, selected->index);
-
-		ImGui::Text("Key: %lu", shaderKey);
-
-		if (ImGui::Button("Create shader"))
-		{
-			CreateShader(device, shaderKey, vertSig, mat);
-		}
-
-		ImGui::End();
-	}
+	static void DisplayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device);
 };

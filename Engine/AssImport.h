@@ -338,7 +338,7 @@ public:
 	{
 		uint32_t skeletonID = persistSkeleton();
 		std::vector<uint32_t> animIDs = persistAnims();
-		/*std::vector<uint32_t> texIDs = */persistTextures();
+		persistTextures();
 		std::vector<uint32_t> matIDs = persistMats();
 
 		std::string mPath{ _importPath + _sceneName + ".aeon" };
