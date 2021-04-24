@@ -362,7 +362,8 @@ public:
 		{
 			std::string skeletonPath{ _importPath + _sceneName + "_skeleton" + ".aeon" };
 			std::ofstream ofs(skeletonPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
+			//cereal::BinaryOutputArchive boa(ofs);
+			cereal::JSONOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
 			return _pLedger->insert(skeletonPath, ResType::SKELETON);
 		}

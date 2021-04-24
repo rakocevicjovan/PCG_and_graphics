@@ -4,7 +4,8 @@
 #include "TextureCache.h"
 #include "VitThreadPool.h"
 #include <memory>
-
+#include <execution>
+#include <mutex>
 
 
 class MatImporter
@@ -64,18 +65,27 @@ public:
 		std::vector<TexNameBlob> texNameBlobs;
 		texNameBlobs.reserve(uniqueTextures.size());
 
-		for (auto& [path, tex] : uniqueTextures)
 		{
-			TexNameBlob texBlob = MatImporter::GetTextureBlob(scene, modPath, path);
+			std::mutex texNameBlobMutex;
 
-			if (texBlob.blob._size == 0)	// Skip textures that were not found, for now.
-				continue;
+			std::for_each(std::execution::par, uniqueTextures.begin(), uniqueTextures.end(),
+				[&scene, &modPath, &device, &texNameBlobs, &texNameBlobMutex](std::pair<const std::string, std::shared_ptr<Texture>>& pair)
+				{
+					auto& [path, tex] = pair;
 
-			//tex->_fileName = path;	// We care about the final post-import path, not this
-			tex->loadFromMemory(reinterpret_cast<unsigned char*>(texBlob.blob._data.get()), texBlob.blob._size);
-			tex->setUpAsResource(device);
+					TexNameBlob texBlob = MatImporter::GetTextureBlob(scene, modPath, path);
 
-			texNameBlobs.push_back(std::move(texBlob));
+					if (texBlob.blob._size == 0)	// Skip textures that were not found, for now.
+						return;
+
+					//tex->_fileName = path;	// We care about the final post-import path, not this
+					tex->loadFromMemory(reinterpret_cast<unsigned char*>(texBlob.blob._data.get()), texBlob.blob._size);
+					tex->setUpAsResource(device);
+
+					texNameBlobMutex.lock();
+					texNameBlobs.push_back(std::move(texBlob));
+					texNameBlobMutex.unlock();
+				});
 		}
 
 		// Create materials from provided metadata and assign already loaded textures to them

@@ -90,10 +90,7 @@ private:
 
 		auto boneIndex = boneVec.size();
 
-		Bone bone;
-		bone._index = boneIndex;
-		bone._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
-		bone._name = node->mName.C_Str();
+		Bone bone(boneIndex, node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation));
 		bone._parent = parentIndex;
 
 		// A bit slow but this is offline and the sets are usually fairly small

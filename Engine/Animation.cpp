@@ -11,14 +11,12 @@ void Animation::getTransformAtTime(const std::vector<Bone>& bones, BoneIndex bon
 
 	const Bone& bone = bones[boneIndex];
 
+	// Optimize this out! It's a temporary fix and awful. 
+	// It should be used as a preparation step where each bone is matched to an animation channel once and then has a direct lookup
 	const AnimChannel* channel = getAnimChannel(bone._name);
 
-	SMatrix animTransform;
-
-	if (channel)	// Animation found, replace local mattrix
-		animTransform = channel->getInterpolatedTransform(currentTick, t);	
-	else			// No animation channels found, use local matrix
-		animTransform = bone._localMatrix;
+	// If the bone has an animation channel, replace local matrix of the bone with the animated one.
+	SMatrix animTransform = channel ? channel->getInterpolatedTransform(currentTick, t) : bone._localMatrix;
 
 	SMatrix nodeTransform = animTransform * parentMatrix;
 
