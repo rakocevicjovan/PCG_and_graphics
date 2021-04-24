@@ -6,31 +6,36 @@ class AssetViews
 {
 private:
 
-	static void printBoneHierarchy(Bone* bone)
+	static void printBoneHierarchy(std::vector<Bone>& bones, uint16_t boneIndex)
 	{
-		if (!bone)
+		if (boneIndex == (~0))
 		{
-			ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Bone is nullptr");
+			ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Bone missing.");
 			return;
 		}
 
-		if (ImGui::TreeNode(bone->_name.c_str()))
+		Bone& currentBone = bones[boneIndex];
+
+		if (ImGui::TreeNode(currentBone._name.c_str()))
 		{
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
 
 				ImGui::Text("Local matrix");
-				GuiBlocks::displayTransform(bone->_localMatrix);
+				GuiBlocks::displayTransform(currentBone._localMatrix);
 
 				ImGui::Text("Inverse offset matrix");
-				GuiBlocks::displayTransform(bone->_offsetMatrix);
+				GuiBlocks::displayTransform(currentBone._offsetMatrix);
 
 				ImGui::EndTooltip();
 			}
 
-			for (Bone* cBone : bone->_children)
-				printBoneHierarchy(cBone);
+			for (uint16_t boneIndex : currentBone._children)
+			{
+				printBoneHierarchy(bones, currentBone._index);
+			}
+				
 
 			ImGui::TreePop();
 		}
@@ -43,7 +48,7 @@ public:
 	{
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			printBoneHierarchy(&skeleton->_bones[0]);	//_root
+			printBoneHierarchy(skeleton->_bones, 0u);	//_root
 			ImGui::TreePop();
 		}
 	}

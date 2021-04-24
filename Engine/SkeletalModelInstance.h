@@ -48,7 +48,7 @@ public:
 
 		if (_animInstances.size() > animIndex)	// Avoid crashing when no anim is loaded
 		{
-			_animInstances[animIndex].getTransformAtTime(_skm->_skeleton->_bones[0], _skeletonMatrices, SMatrix::Identity, _skm->_skeleton->_globalInverseTransform);
+			_animInstances[animIndex].getTransformAtTime(_skm->_skeleton->_bones, 0u, _skeletonMatrices, SMatrix::Identity, _skm->_skeleton->_globalInverseTransform);
 		}
 		else
 		{

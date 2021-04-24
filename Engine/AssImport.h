@@ -137,27 +137,23 @@ public:
 		{
 			if (_hasOnlySkeleton)
 			{
-				ImGui::Text("Scene contains a standalone skeleton.");
-				ImGui::Checkbox("Load skeleton", &_impSkeleton);
+				ImGui::Checkbox("Standalone skeleton", &_impSkeleton);
 			}
 			else
 			{
 				if (_hasSkeletalModel)
 				{
-					ImGui::Text("Scene contains a rigged model.");
-					ImGui::Checkbox("Load rigged model", &_impSkModel);
+					ImGui::Checkbox("Rigged model", &_impSkModel);
 				}
 				else
 				{
-					ImGui::Text("Scene contains a static model.");
-					ImGui::Checkbox("Load static model", &_impModel);
+					ImGui::Checkbox("Static model", &_impModel);
 				}
 			}
 
 			if (_hasAnimations)
 			{
-				ImGui::Text("Scene contains animations");
-				ImGui::Checkbox("Load animations", &_impAnims);
+				ImGui::Checkbox("Animations", &_impAnims);
 			}
 
 			if (ImGui::Button("Import selected"))

@@ -24,8 +24,8 @@ public:
 
 
 
-	inline void getTransformAtTime(Bone& joint, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
+	inline void getTransformAtTime(const std::vector<Bone>& bones, uint16_t boneIndex, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
 	{
-		_anim->getTransformAtTime(joint, parentMatrix, glInvT, _elapsed, vec);
+		_anim->getTransformAtTime(bones, boneIndex, parentMatrix, glInvT, _elapsed, vec);
 	}
 };

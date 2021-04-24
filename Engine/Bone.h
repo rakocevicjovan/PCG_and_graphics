@@ -5,30 +5,34 @@
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/map.hpp>
+#include <cereal/types/vector.hpp>
+
+using BoneIndex = uint16_t;
 
 class Bone
 {
 public:
+
+	static constexpr BoneIndex INVALID_INDEX{ static_cast<BoneIndex>(~0) };
 
 	int _index{~0};
 	std::string _name;
 
 	SMatrix _offsetMatrix;
 	SMatrix _localMatrix;
-	//SMatrix _globalMatrix; was useful for debugging, not any more really
 
-	Bone* _parent = nullptr;
-	std::vector<Bone*> _children;
+	BoneIndex _parent{0u};
+	std::vector<BoneIndex> _children;
 
 	Bone() = default;
 
-	Bone(int index, std::string name, SMatrix offset)
-		: _index(index), _name(name), _offsetMatrix(offset), _parent(nullptr) {}
+	Bone(int index, const char* name, SMatrix offset)
+		: _index(index), _name(name), _offsetMatrix(offset) {}
 
-	// Again, can't serialize the tree because of pointers...
+
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_index, _name, _offsetMatrix, _localMatrix);
+		ar(_index, _name, _offsetMatrix, _localMatrix, _parent, _children);
 	}
 };

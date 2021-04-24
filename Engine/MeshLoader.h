@@ -193,7 +193,7 @@ public:
 			for (UINT i = 0; i < aiMesh->mNumBones; ++i)
 			{
 				aiBone* aiBone = aiMesh->mBones[i];
-				UINT boneIndex = skeleton->getBoneIndex(std::string(aiBone->mName.C_Str()));
+				UINT boneIndex = skeleton->getBoneIndex(aiBone->mName.C_Str());
 
 				for (UINT j = 0; j < aiBone->mNumWeights; ++j)
 				{

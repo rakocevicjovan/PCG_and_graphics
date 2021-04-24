@@ -1,5 +1,4 @@
 #pragma once
-#include <string>
 #include "Bone.h"
 #include "Math.h"
 
@@ -15,8 +14,8 @@ public:
 	SMatrix _globalInverseTransform;
 	std::vector<Bone> _bones;
 
-	// Slow, but not used at runtime and really convenient
-	int getBoneIndex(const std::string& name) const;
+	// Slow, but not used at game runtime and really convenient
+	int getBoneIndex(const char * name) const;
 
 	inline UINT getBoneCount() { return _bones.size(); }
 

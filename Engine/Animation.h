@@ -34,7 +34,7 @@ public:
 		_tickDuration = _duration / _ticks;
 	}
 
-	void getTransformAtTime(const Bone& bone, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed, std::vector<SMatrix>& vec) const;
+	void getTransformAtTime(const std::vector<Bone>& bones, uint16_t boneIndex, const SMatrix& parentMatrix, const SMatrix& glInvT, float elapsed, std::vector<SMatrix>& vec) const;
 
 	inline void addChannel(const AnimChannel& ac) { _channels.insert({ ac._boneName, ac }); }
 

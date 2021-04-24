@@ -78,7 +78,7 @@ private:
 	}
 
 
-	static void MakeLikeATree(aiNode* node, std::vector<Bone>& boneVec, Bone* parent,
+	static void MakeLikeATree(aiNode* node, std::vector<Bone>& boneVec, uint16_t parentIndex,
 		const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
 	{
 		// All bones are expected to form a fully reachable tree at this point so we can make this optimization.
@@ -88,10 +88,13 @@ private:
 			return;
 		}
 
+		auto boneIndex = boneVec.size();
+
 		Bone bone;
-		bone._index = boneVec.size();
+		bone._index = boneIndex;
 		bone._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
 		bone._name = node->mName.C_Str();
+		bone._parent = parentIndex;
 
 		// A bit slow but this is offline and the sets are usually fairly small
 		for (aiBone* aiBone : bones)
@@ -102,42 +105,38 @@ private:
 			}
 		}
 
-		bone._parent = parent;
-
 		boneVec.push_back(bone);
 
-		if (bone._parent)
+		if (bone._parent != Bone::INVALID_INDEX)
 		{
-			bone._parent->_children.push_back(&boneVec.back());
+			boneVec[bone._parent]._children.push_back(boneIndex);
 		}
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
 		{
-			MakeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index], boneNodes, bones);
+			MakeLikeATree(node->mChildren[i], boneVec, boneIndex, boneNodes, bones);
 		}
 	}
 
 
-	static void LoadNodesAsBones(aiNode* node, std::vector<Bone>& bones, Bone* parent)
+	static void LoadNodesAsBones(aiNode* node, std::vector<Bone>& bones, uint16_t parentIndex)
 	{
 		Bone b;
 		b._name = node->mName.C_Str();
 		b._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
 		b._index = bones.size();
-		b._parent = parent;
-		// Offset matrices are not present, they depend on the model we attach this to
+		b._parent = parentIndex;
+		// Offset matrices are not present, they depend on the model we attach this to and can not be calculated...
 		bones.push_back(b);
-
-		Bone* thisBone = &bones.back();
 		
-		if (parent)
-			parent->_children.push_back(thisBone);
-
-		parent = thisBone;
+		if (parentIndex != Bone::INVALID_INDEX)
+		{
+			bones[parentIndex]._children.push_back(b._index);
+		}
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
 		{
-			LoadNodesAsBones(node->mChildren[i], bones, parent);
+			LoadNodesAsBones(node->mChildren[i], bones, b._index);
 		}
 	}
 
@@ -164,9 +163,9 @@ public:
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
 		skeleton->_bones.reserve(boneNodes.size());
 
-		MakeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
+		MakeLikeATree(skelRoot, skeleton->_bones, Bone::INVALID_INDEX, boneNodes, bones);
 
-		// This might need to be done theoretically, fixes bee, breaks bobbert... idk what to do
+		// This might need to be done theoretically, fixes bee, breaks bobbert... idk what to do, think formats/assimp are inconsistent.
 		/*
 		aiNode* temp = skelRoot;
 		SMatrix rootMatrix = SMatrix::Identity;
@@ -191,7 +190,7 @@ public:
 		
 		skelly->_bones.reserve(boneCount);
 
-		LoadNodesAsBones(scene->mRootNode, skelly->_bones, nullptr);
+		LoadNodesAsBones(scene->mRootNode, skelly->_bones, Bone::INVALID_INDEX);
 
 		return skelly;
 	}
