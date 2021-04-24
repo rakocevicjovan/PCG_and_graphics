@@ -24,20 +24,14 @@ SMatrix AnimChannel::getInterpolatedTransform(float currentTick, float t) const
 	}
 	else
 	{
-		for (UINT i = 0; i < numPCh; ++i)
-		{
-			int nextTick = i + 1 == numPCh ? 0 : i + 1;
-
-			if (currentTick < _pKeys[nextTick].tick)
+		auto it = std::upper_bound(_pKeys.begin(), _pKeys.end(), currentTick,
+			[](float currentTick, PosFrame frame) -> bool
 			{
-				SVec3 posPre = _pKeys[i].pos;
-				SVec3 posPost = _pKeys[nextTick].pos;
-				pos = Math::lerp(posPre, posPost, t);
-				break;
-			}
-		}
-	}
+				return currentTick < frame.tick;
+			});
 
+		pos = Math::lerp((it - 1)->pos, it->pos, t);
+	}
 
 	UINT numSCh = _sKeys.size();
 	if (numSCh == 1u)
@@ -46,19 +40,13 @@ SMatrix AnimChannel::getInterpolatedTransform(float currentTick, float t) const
 	}
 	else
 	{
-		for (UINT i = 0; i < numSCh; ++i)
-		{
-			int nextTick = i + 1 == numSCh ? 0 : i + 1;
-
-			if (currentTick < (float)_sKeys[nextTick].tick)
+		auto it = std::upper_bound(_sKeys.begin(), _sKeys.end(), currentTick,
+			[](float currentTick, SclFrame frame) -> bool
 			{
-				SVec3 scalePre = _sKeys[i].scale;
-				SVec3 scalePost = _sKeys[nextTick].scale;
-				scale = Math::lerp(scalePre, scalePost, t);
-				break;
-			}
-		}
+				return currentTick < frame.tick;
+			});
 
+		scale = Math::lerp((it - 1)->scale, it->scale, t);
 	}
 
 
@@ -73,45 +61,55 @@ SMatrix AnimChannel::getInterpolatedTransform(float currentTick, float t) const
 			[](float rhs, RotFrame lhs) -> bool {return rhs < lhs.tick; });
 
 		SQuat rotPost = it->rot;
-		--it;	// Should be safe as upper_bound will never select the first element, tested it as well
+		--it;
 		SQuat rotPre = it->rot;
 		quat = SQuat::Slerp(rotPre, rotPost, t);
-
-		/*
-		for (UINT i = 0; i < numRCh; ++i)
-		{
-			int nextTick = i + 1 == numRCh ? 0 : i + 1;
-
-			if (currentTick < (float)_rKeys[nextTick].tick)
-			{
-				SQuat rotPre = _rKeys[i].rot;
-				SQuat rotPost = _rKeys[nextTick].rot;
-				quat = Math::lerp(rotPre, rotPost, t);
-				break;
-			}
-		}*/
 	}
 
 	return DirectX::XMMatrixAffineTransformation(scale, SVec3(0.f), quat, pos);
 }
 
 
-/* Alternative method, not sure if it's faster but I suspect it is
-auto it = std::lower_bound(_rKeys.begin(), _rKeys.end(), currentTick,
-	[](RotFrame lhs, float rhs) -> bool {return lhs.tick < rhs; });
 
-SQuat rotPre = it++->rot;
+/* Old way to look for the frame, might be good to keep around... New doesn't justWorkTM on reversed animations 
+ * but it could be made to, which I'd prefer to this naive linear search
 
-if (it == _rKeys.end()) it = _rKeys.begin();	// homebrew ring buffer :V
+	for (UINT i = 0; i < numPCh; ++i)
+	{
+		int nextTick = i + 1 == numPCh ? 0 : i + 1;
 
-SQuat rotPost = it->rot;
-quat = Math::lerp(rotPre, rotPost, t);
-*/
+		if (currentTick < _pKeys[nextTick].tick)
+		{
+			SVec3 posPre = _pKeys[i].pos;
+			SVec3 posPost = _pKeys[nextTick].pos;
+			pos = Math::lerp(posPre, posPost, t);
+			break;
+		}
+	}
 
-/* Old way to compose matrices, I'd say a lot slower
-SMatrix sMat = SMatrix::CreateScale(scale);
-SMatrix rMat = SMatrix::CreateFromQuaternion(quat);
-SMatrix tMat = SMatrix::CreateTranslation(pos);
+	for (UINT i = 0; i < numRCh; ++i)
+	{
+		int nextTick = i + 1 == numRCh ? 0 : i + 1;
 
-return (sMat * rMat * tMat);	// V * S * R * T
+		if (currentTick < (float)_rKeys[nextTick].tick)
+		{
+			SQuat rotPre = _rKeys[i].rot;
+			SQuat rotPost = _rKeys[nextTick].rot;
+			quat = Math::lerp(rotPre, rotPost, t);
+			break;
+		}
+	}
+		
+	for (UINT i = 0; i < numSCh; ++i)
+	{
+		int nextTick = ((i + 1) == numSCh) ? 0 : i + 1;
+
+		if (currentTick < (float)_sKeys[nextTick].tick)
+		{
+			SVec3 scalePre = _sKeys[i].scale;
+			SVec3 scalePost = _sKeys[nextTick].scale;
+			scale = Math::lerp(scalePre, scalePost, t);
+			break;
+		}
+	}
 */

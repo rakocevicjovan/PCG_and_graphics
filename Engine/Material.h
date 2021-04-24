@@ -3,7 +3,6 @@
 #include "TextureMetaData.h"
 #include "TextureManager.h"
 #include "ShaderManager.h"
-
 #include <memory>
 
 
@@ -24,7 +23,7 @@ class Material
 {
 protected:
 
-	// Most important sorting criteria
+	// Most important sorting criteria - @TODO convert to shared ptr or some other ref count method when it makes sense
 	VertexShader* _vertexShader{};
 	PixelShader* _pixelShader{};
 
@@ -40,7 +39,7 @@ public:
 	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
 
-	Material();
+	Material() = default;
 
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
 

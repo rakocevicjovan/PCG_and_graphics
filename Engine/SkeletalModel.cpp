@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "SkeletalModel.h"
-#include "SkeletonLoader.h"
-#include "MatLoader.h"
+#include "SkeletonImporter.h"
+#include "MatImporter.h"
 
 
 // Used for loading on the fly, preferably for very rare cases
@@ -23,8 +23,8 @@ bool SkeletalModel::importFromFileAssimp(ID3D11Device* device, const std::string
 	if (!scene)
 		return false;
 
-	auto mats = MatLoader::LoadAllMaterials(device, scene, _path);
-	std::shared_ptr<Skeleton> skeleton = SkeletonLoader::loadSkeleton(scene);
+	auto mats = MatImporter::ImportSceneMaterials(device, scene, _path);
+	std::shared_ptr<Skeleton> skeleton = SkeletonImporter::ImportSkeleton(scene);
 	return importFromAiScene(device, scene, path, mats._mats, skeleton);
 }
 

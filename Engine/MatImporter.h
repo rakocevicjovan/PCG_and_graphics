@@ -2,13 +2,12 @@
 #include "Material.h"
 #include "AssimpWrapper.h"
 #include "TextureCache.h"
-#include "Fnv1Hash.h"
 #include "VitThreadPool.h"
 #include <memory>
 
 
 
-class MatLoader
+class MatImporter
 {
 public:
 
@@ -39,7 +38,7 @@ public:
 	};
 
 
-	static MatsAndTextureBlobs LoadAllMaterials(ID3D11Device* device, const aiScene* scene, const std::string& modPath)
+	static MatsAndTextureBlobs ImportSceneMaterials(ID3D11Device* device, const aiScene* scene, const std::string& modPath)
 	{
 		const uint32_t materialCount{ scene->mNumMaterials };
 
@@ -67,7 +66,7 @@ public:
 
 		for (auto& [path, tex] : uniqueTextures)
 		{
-			TexNameBlob texBlob = MatLoader::GetTextureBlob(scene, modPath, path);
+			TexNameBlob texBlob = MatImporter::GetTextureBlob(scene, modPath, path);
 
 			if (texBlob.blob._size == 0)	// Skip textures that were not found, for now.
 				continue;

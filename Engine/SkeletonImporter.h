@@ -1,39 +1,43 @@
 #pragma once
 #include "AssimpWrapper.h"
+#include "Skeleton.h"
 #include <stack>
 #include <memory>
 
 
-class SkeletonLoader
+class SkeletonImporter
 {
 private:
 
-	static void findInfluenceBones(const aiScene* scene, std::set<aiBone*>& boneSet)
+	// Gather all bones directly influencing the vertices on each and every mesh in the scene.
+	static void FindInfluenceBones(const aiScene* scene, std::set<aiBone*>& boneSet)
 	{
 		for (UINT i = 0; i < scene->mNumMeshes; ++i)
 		{
 			aiMesh* mesh = scene->mMeshes[i];
 
-			for (UINT j = 0; j < mesh->mNumBones; ++j)	// For each bone referenced by the mesh
+			for (UINT j = 0; j < mesh->mNumBones; ++j)
+			{
 				if (mesh->mBones[j])
+				{
 					boneSet.insert(mesh->mBones[j]);
+				}
+			}
 		}
 	}
 
-
-
-	static void findAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& nodes)
+	// Find all aiNodes that are actually bones, by tracking upwards towards the scene root from every influencing bone.
+	static void FindAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& boneNodes)
 	{
-		std::set<aiNode*> temp;
-		//temp.reserve(aiBones.size()); if vector but keep it as set
+		std::set<aiNode*> influencingNodes;
 
 		for (aiBone* aiBone : aiBones)
 		{
-			temp.insert(aiBone->mNode);
-			nodes.insert(aiBone->mNode);
+			influencingNodes.insert(aiBone->mNode);
+			boneNodes.insert(aiBone->mNode);
 		}
 
-		for (aiNode* node : temp)
+		for (aiNode* node : influencingNodes)
 		{
 			aiNode* parent = node->mParent;
 
@@ -41,7 +45,7 @@ private:
 			{
 				if (parent->mParent != nullptr)
 				{
-					if (!nodes.insert(parent).second)	// Exit if already added
+					if (!boneNodes.insert(parent).second)	// Exit if parent is already added to the set as an optimization
 						break;
 				}
 				parent = parent->mParent;
@@ -50,8 +54,7 @@ private:
 	}
 
 
-
-	static aiNode* findSkeletonRoot(aiNode* node, const std::set<aiNode*>& boneNodes)
+	static aiNode* FindSkeletonRootNode(aiNode* node, const std::set<aiNode*>& boneNodes)
 	{
 		aiNode* result = nullptr;
 
@@ -65,7 +68,7 @@ private:
 		{
 			for (UINT i = 0; i < node->mNumChildren; ++i)
 			{
-				result = findSkeletonRoot(node->mChildren[i], boneNodes);
+				result = FindSkeletonRootNode(node->mChildren[i], boneNodes);
 				if (result)
 					break;
 			}
@@ -75,19 +78,22 @@ private:
 	}
 
 
-
-	static void makeLikeATree(aiNode* node, std::vector<Bone>& boneVec, Bone* parent,
+	static void MakeLikeATree(aiNode* node, std::vector<Bone>& boneVec, Bone* parent,
 		const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
 	{
+		// All bones are expected to form a fully reachable tree at this point so we can make this optimization.
+		// Nodes that do not belong to the boneNodes set are not bones, and their children will not be either - therefore stop traversing the tree. 
 		if (boneNodes.count(node) == 0)
+		{
 			return;
+		}
 
 		Bone bone;
 		bone._index = boneVec.size();
 		bone._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
 		bone._name = node->mName.C_Str();
 
-		// A bit slow but it's not too important given the usual data size and this being offline
+		// A bit slow but this is offline and the sets are usually fairly small
 		for (aiBone* aiBone : bones)
 		{
 			if (aiBone->mNode == node)
@@ -101,15 +107,18 @@ private:
 		boneVec.push_back(bone);
 
 		if (bone._parent)
+		{
 			bone._parent->_children.push_back(&boneVec.back());
+		}
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
-			makeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index], boneNodes, bones);
+		{
+			MakeLikeATree(node->mChildren[i], boneVec, &boneVec[bone._index], boneNodes, bones);
+		}
 	}
 
 
-
-	static void loadNodesAsBones(aiNode* node, std::vector<Bone>& bones, Bone* parent)
+	static void LoadNodesAsBones(aiNode* node, std::vector<Bone>& bones, Bone* parent)
 	{
 		Bone b;
 		b._name = node->mName.C_Str();
@@ -128,26 +137,26 @@ private:
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
 		{
-			loadNodesAsBones(node->mChildren[i], bones, parent);
+			LoadNodesAsBones(node->mChildren[i], bones, parent);
 		}
 	}
 
 
 public:
 
-	static std::unique_ptr<Skeleton> loadSkeleton(const aiScene* scene)
+	static std::unique_ptr<Skeleton> ImportSkeleton(const aiScene* scene)
 	{
 		std::set<aiNode*> boneNodes;
 		std::set<aiBone*> bones;
 
 		aiNode* sceneRoot = scene->mRootNode;
 
-		findInfluenceBones(scene, bones);
+		FindInfluenceBones(scene, bones);
 
-		findAllBoneNodes(bones, boneNodes);
+		FindAllBoneNodes(bones, boneNodes);
 
 		// Find the closest aiNode to the root
-		aiNode* skelRoot = findSkeletonRoot(sceneRoot, boneNodes);
+		aiNode* skelRoot = FindSkeletonRootNode(sceneRoot, boneNodes);
 
 		if (!skelRoot)
 			return nullptr;
@@ -155,7 +164,7 @@ public:
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
 		skeleton->_bones.reserve(boneNodes.size());
 
-		makeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
+		MakeLikeATree(skelRoot, skeleton->_bones, nullptr, boneNodes, bones);
 
 		// This might need to be done theoretically, fixes bee, breaks bobbert... idk what to do
 		/*
@@ -174,7 +183,6 @@ public:
 	}
 
 
-
 	static std::unique_ptr<Skeleton> loadStandalone(const aiScene* scene)
 	{
 		std::unique_ptr<Skeleton> skelly = std::make_unique<Skeleton>();
@@ -183,31 +191,8 @@ public:
 		
 		skelly->_bones.reserve(boneCount);
 
-		loadNodesAsBones(scene->mRootNode, skelly->_bones, nullptr);
+		LoadNodesAsBones(scene->mRootNode, skelly->_bones, nullptr);
 
 		return skelly;
 	}
 };
-
-
-/*
-// Is this smart or dirty? We will never know... Got another solution though
-	void traverseUp(std::set<aiNode*>& prev)
-	{
-		if (prev.size() == 0)	// 1. At some point, this returns
-			return;
-
-		std::set<aiNode*> current;
-
-		for (aiNode* node : prev)
-		{
-			aiNode* parent = node->mParent;
-			if(parent != nullptr)
-				if(parent->mParent != nullptr)
-					current.insert(node->mParent);
-		}
-
-		traverseUp(current);	// 2. Then we exit out of here
-		prev.insert(current.begin(), current.end()); // 3. And merge into initial set
-	}
-*/

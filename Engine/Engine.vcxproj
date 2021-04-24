@@ -444,7 +444,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PooledSceneGraph.h" />
     <ClInclude Include="MaterialEditor.h" />
-    <ClInclude Include="MatLoader.h" />
+    <ClInclude Include="MatImporter.h" />
     <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="NumericVectorType.h" />
@@ -464,7 +464,6 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="MemChunk.h" />
     <ClInclude Include="SceneEditor.h" />
-    <ClInclude Include="MaterialAsset.h" />
     <ClInclude Include="ShaderGenerator.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkelAnimShader.h">
@@ -492,7 +491,7 @@
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="SkeletalModelInstance.h" />
     <ClInclude Include="Skeleton.h" />
-    <ClInclude Include="SkeletonLoader.h" />
+    <ClInclude Include="SkeletonImporter.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="SparseSet.h" />
     <ClInclude Include="SphereHull.h" />

@@ -6,9 +6,9 @@
 #include "FileBrowser.h"
 #include "AnimationEditor.h"
 #include "SkeletalModelInstance.h"
-#include "SkeletonLoader.h"
+#include "SkeletonImporter.h"
 #include "ShaderManager.h"
-#include "MatLoader.h"
+#include "MatImporter.h"
 #include "AssimpGUI.h"
 
 #include <entt/entt.hpp>
@@ -56,7 +56,7 @@ private:
 	ID3D11Device* _device;
 
 	// Things that might get loaded
-	MatLoader::MatsAndTextureBlobs _matData;
+	MatImporter::MatsAndTextureBlobs _matData;
 	std::unique_ptr<SkeletalModel> _skModel;
 	std::unique_ptr<Model> _model;
 	std::shared_ptr<Skeleton> _skeleton;
@@ -175,7 +175,7 @@ public:
 	{
 		if (_impSkeleton)
 		{
-			_skeleton = SkeletonLoader::loadStandalone(_aiScene);
+			_skeleton = SkeletonImporter::loadStandalone(_aiScene);
 		}
 
 		if (_impAnims)
@@ -184,13 +184,13 @@ public:
 		}
 
 		// Pass these preloaded materials to meshes in either model type below
-		_matData = MatLoader::LoadAllMaterials(_device, _aiScene, _path);
+		_matData = MatImporter::ImportSceneMaterials(_device, _aiScene, _path);
 
 		if (_impSkModel)
 		{
 			_skModel = std::make_unique<SkeletalModel>();
 
-			_skeleton = std::shared_ptr<Skeleton>(SkeletonLoader::loadSkeleton(_aiScene).release());
+			_skeleton = std::shared_ptr<Skeleton>(SkeletonImporter::ImportSkeleton(_aiScene).release());
 
 			_skModel->importFromAiScene(_device, _aiScene, _path, _matData._mats, _skeleton);
 
@@ -426,7 +426,7 @@ public:
 			textureIDs.reserve(matMetaData._tempTexData.size());
 
 			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(textureIDs),
-				[&texMan = _textureManager](MatLoader::TempTexData& ttd)
+				[&texMan = _textureManager](MatImporter::TempTexData& ttd)
 				{
 					return texMan.getID(ttd._path.c_str());
 				});

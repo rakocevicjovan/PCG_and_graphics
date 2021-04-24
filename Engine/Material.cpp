@@ -4,11 +4,6 @@
 
 
 
-Material::Material() 
-	: _vertexShader(nullptr), _pixelShader(nullptr) {}
-
-
-
 Material::Material(VertexShader* vs, PixelShader* ps, bool opaque) 
 	: _vertexShader(vs), _pixelShader(ps), _opaque(opaque) {}
 

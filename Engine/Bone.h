@@ -10,7 +10,7 @@ class Bone
 {
 public:
 
-	int _index;
+	int _index{~0};
 	std::string _name;
 
 	SMatrix _offsetMatrix;
@@ -20,7 +20,7 @@ public:
 	Bone* _parent = nullptr;
 	std::vector<Bone*> _children;
 
-	Bone() : _parent(nullptr) {}
+	Bone() = default;
 
 	Bone(int index, std::string name, SMatrix offset)
 		: _index(index), _name(name), _offsetMatrix(offset), _parent(nullptr) {}

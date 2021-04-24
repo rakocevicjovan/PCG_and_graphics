@@ -4,7 +4,7 @@
 #include "Terrain.h"
 #include "FileUtilities.h"
 #include "Collider.h"
-#include "MatLoader.h"
+#include "MatImporter.h"
 
 
 Model::Model(const std::string& path) : collider(nullptr)
@@ -61,7 +61,7 @@ bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const st
 
 	_meshes.reserve(scene->mNumMeshes);
 
-	auto mats = MatLoader::LoadAllMaterials(device, scene, _path);
+	auto mats = MatImporter::ImportSceneMaterials(device, scene, _path);
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{

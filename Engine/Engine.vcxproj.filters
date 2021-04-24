@@ -957,7 +957,7 @@
     <ClInclude Include="MeshLoader.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="SkeletonLoader.h">
+    <ClInclude Include="SkeletonImporter.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="ShaderGenerator.h">
@@ -969,7 +969,7 @@
     <ClInclude Include="ShaderManager.h">
       <Filter>Rendering\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="MatLoader.h">
+    <ClInclude Include="MatImporter.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="ShaderCache.h">
@@ -1077,9 +1077,6 @@
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>Asset importing</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialAsset.h">
-      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="TextureMetaData.h">
       <Filter>Resources</Filter>
