@@ -156,21 +156,11 @@ public:
 
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
 		skeleton->_bones.reserve(boneNodes.size());
+		
 
 		MakeLikeATree(skelRoot, skeleton->_bones, Bone::INVALID_INDEX, boneNodes, bones);
 
-		// This might need to be done theoretically, fixes bee, breaks bobbert... idk what to do, think formats/assimp are inconsistent.
-		/*
-		aiNode* temp = skelRoot;
-		SMatrix rootMatrix = SMatrix::Identity;
-		while (temp)
-		{
-			rootMatrix *= AssimpWrapper::aiMatToSMat(temp->mTransformation);
-			temp = temp->mParent;
-		}
-
-		skeleton->_bones[0]._localMatrix = rootMatrix;
-		*/
+		// I NEVER SET THE SKELETON INVERSE GLOBAL TRANSFORM! INVESTIGATE WHY!
 
 		return skeleton;
 	}
