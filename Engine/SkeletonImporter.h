@@ -98,7 +98,7 @@ private:
 		{
 			if (aiBone->mNode == node)
 			{
-				bone._offsetMatrix = AssimpWrapper::aiMatToSMat(aiBone->mOffsetMatrix);
+				bone._invBindPose = AssimpWrapper::aiMatToSMat(aiBone->mOffsetMatrix);
 			}
 		}
 

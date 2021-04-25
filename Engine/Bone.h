@@ -18,7 +18,7 @@ public:
 	int _index{~0};
 	std::string _name;
 
-	SMatrix _offsetMatrix;
+	SMatrix _invBindPose;
 	SMatrix _localMatrix;
 
 	BoneIndex _parent{0u};
@@ -27,12 +27,12 @@ public:
 	Bone() = default;
 
 	Bone(int index, const char* name, SMatrix offset)
-		: _index(index), _name(name), _offsetMatrix(offset) {}
+		: _index(index), _name(name), _invBindPose(offset) {}
 
 
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_index, _name, _offsetMatrix, _localMatrix, _parent, _children);
+		ar(_index, _name, _invBindPose, _localMatrix, _parent, _children);
 	}
 };

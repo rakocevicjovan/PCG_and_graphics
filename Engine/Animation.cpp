@@ -21,7 +21,7 @@ void Animation::getTransformAtTime(const std::vector<Bone>& bones, BoneIndex bon
 	SMatrix nodeTransform = animTransform * parentMatrix;
 
 	// Bind space to bone space, animate, apply global inverse
-	SMatrix finalMatrix = bone._offsetMatrix * nodeTransform * glInvT;
+	SMatrix finalMatrix = bone._invBindPose * nodeTransform * glInvT;
 
 	vec[bone._index] = finalMatrix;
 

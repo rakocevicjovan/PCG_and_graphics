@@ -26,7 +26,7 @@ private:
 				GuiBlocks::displayTransform(currentBone._localMatrix);
 
 				ImGui::Text("Inverse offset matrix");
-				GuiBlocks::displayTransform(currentBone._offsetMatrix);
+				GuiBlocks::displayTransform(currentBone._invBindPose);
 
 				ImGui::EndTooltip();
 			}
