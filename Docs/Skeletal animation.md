@@ -19,7 +19,8 @@ Each node of this skeleton tree is called a bone (or a joint) and has the follow
 
 - A local transformation - this informations pertains to translation, scale and rotation of a node in its parent node's space
 
-- An offset transformation - from bone space to mesh space in bind pose. 
+- An inverse bind pose transformation - from mesh space in bind pose to bone space. Assimp docs state the other way around but it doesn't make sense to me, basically think of it as - after this transform is applied, the vertices the bone affects now treat the bone as the origin instead of the mesh.
+
 IMPORTANT: Note how it says "to mesh space"! That means this transform can't be calculated without actually knowing which mesh this bone is bound to. Assimp precalculates this though.
 
 
