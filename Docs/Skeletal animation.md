@@ -39,7 +39,7 @@ A system must be put in place to allow matching channels and skeleton nodes. Som
 However, forcing unnecessary rules for matching skeletons and animations can be bad for productivity and limit asset reuse. 
 
 
-# Calculating the pose of an animated skeleton
+## Calculating the pose of an animated skeleton
 
 Once we have some animation matched to the skeleton and need to play it, how is this done? A short rundown of the algorithm will be presented.
 
