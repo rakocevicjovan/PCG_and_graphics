@@ -11,17 +11,16 @@ public:
 	float _elapsed;
 
 
-
 	AnimationInstance(const Animation* anim) : _anim(anim), _elapsed(0.f) {}
-
 
 
 	inline void update(float dTime)
 	{
-		_elapsed += dTime;
-		_elapsed = fmod(_elapsed, _anim->getDuration());
-	}
+		auto animDuration = _anim->getDuration();
 
+		_elapsed += dTime;
+		_elapsed = fmod(animDuration + _elapsed,  animDuration);	// Allow reversed animations
+	}
 
 
 	inline void getTransformAtTime(const std::vector<Bone>& bones, uint16_t boneIndex, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)

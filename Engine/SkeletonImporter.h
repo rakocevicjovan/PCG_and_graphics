@@ -118,10 +118,7 @@ private:
 
 	static void LoadNodesAsBones(aiNode* node, std::vector<Bone>& bones, uint16_t parentIndex)
 	{
-		Bone b;
-		b._name = node->mName.C_Str();
-		b._localMatrix = AssimpWrapper::aiMatToSMat(node->mTransformation);
-		b._index = bones.size();
+		Bone b(bones.size(), node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation));
 		b._parent = parentIndex;
 		// Offset matrices are not present, they depend on the model we attach this to and can not be calculated...
 		bones.push_back(b);
