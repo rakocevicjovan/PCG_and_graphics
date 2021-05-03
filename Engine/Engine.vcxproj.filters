@@ -162,6 +162,9 @@
     <Filter Include="Rendering\Shaders\Generation">
       <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Vulkan">
+      <UniqueIdentifier>{5f892ecd-eb9c-4b03-b4d5-05cb20fcc4e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -1080,6 +1083,9 @@
     </ClInclude>
     <ClInclude Include="TextureMetaData.h">
       <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeHelper.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

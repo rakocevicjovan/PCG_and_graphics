@@ -1,8 +1,6 @@
 #pragma once
 #include "NavMesh.h"
 
-//#undef max	//fuck you minwindef.h seriously...
-//this is possibly dangerous if used elsewhere and  the push macro thing looks horrible so I'm using parentheses instead...
 
 template <float (*calcHeuristic)(const NavNode& a, const NavNode& b)>
 class AStar
@@ -99,8 +97,8 @@ public:
 			float minPathWeight = (std::numeric_limits<float>::max)();
 			curNodeIndex = -1;
 
-			//alternative is using std::make_heap for unvisited nodes, and popping all the time
-			//I suspect it might faster this way as iteration is fast and cache friendly especially with modern optimized loops
+			// Alternative is using std::make_heap for unvisited nodes, and popping all the time
+			// I suspect it might faster this way as iteration is fast and cache friendly
 			for (int i = 0; i < nodes.size(); ++i)
 			{
 				if (nodes[i].visited)
