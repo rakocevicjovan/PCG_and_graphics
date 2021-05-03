@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "VertSignature.h"
 #include "SkeletalModel.h"
+#include "AnimChannel.h"
 
 
 
@@ -197,13 +198,13 @@ void AssimpWrapper::loadAnimations(const aiScene* scene, std::vector<Animation>&
 			ac._boneName = std::string(channel->mNodeName.C_Str());
 
 			for (int c = 0; c < channel->mNumScalingKeys; c++)
-				ac._sKeys.emplace_back(channel->mScalingKeys[c].mTime, SVec3(&channel->mScalingKeys[c].mValue.x));
+				ac._sKeys.emplace_back(SVec3(&channel->mScalingKeys[c].mValue.x), channel->mScalingKeys[c].mTime);
 
 			for (int b = 0; b < channel->mNumRotationKeys; b++)
-				ac._rKeys.emplace_back(channel->mRotationKeys[b].mTime, aiQuatToSQuat(channel->mRotationKeys[b].mValue));
+				ac._rKeys.emplace_back(aiQuatToSQuat(channel->mRotationKeys[b].mValue), channel->mRotationKeys[b].mTime);
 
 			for (int a = 0; a < channel->mNumPositionKeys; a++)
-				ac._pKeys.emplace_back(channel->mPositionKeys[a].mTime, SVec3(&channel->mPositionKeys[a].mValue.x));
+				ac._pKeys.emplace_back(SVec3(&channel->mPositionKeys[a].mValue.x), channel->mPositionKeys[a].mTime);
 
 			anim.addChannel(ac);
 		}

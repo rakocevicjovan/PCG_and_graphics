@@ -38,15 +38,9 @@ public:
 				for (UINT i = 0; i < pkfc; ++i)
 				{
 					ImGui::Text("%d", i);
-					/*
-					ImGui::BeginTooltip();
-					ImGui::Text("Tooltip!");
-					ImGui::EndTooltip();
-					*/
 
 					// Absolutely not a way to do this, really lame... Need a sequencer...
 					displayPositionKeyframe(ch._pKeys[i], i);
-
 				}
 
 				ImGui::TreePop();
@@ -57,10 +51,10 @@ public:
 
 
 
-	static void displayPositionKeyframe(PosFrame pf, UINT i)
+	static void displayPositionKeyframe(KeyFrame<SVec3> pf, UINT i)
 	{
 		ImGui::PushID(i);
-		ImGui::InputFloat3("##", &pf.pos.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("##", &pf.frameData.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		ImGui::PopID();
 	}
 };

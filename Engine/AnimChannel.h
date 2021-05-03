@@ -7,39 +7,23 @@
 #include <cereal/types/vector.hpp>
 
 
-struct PosFrame
+template <typename FrameData>
+struct KeyFrame
 {
-	SVec3 pos;
-	float tick;
+	FrameData frameData{};
+	float tick{ 0.f };
 
-	PosFrame() {}
-	PosFrame(float tick, SVec3 pos) : pos(pos), tick(tick) {}
+	KeyFrame() = default;
 
-	template<class Archive> void serialize(Archive& ar) { ar(pos, tick); }
-};
+	KeyFrame(FrameData frameData, float tick)
+		: frameData(frameData), tick(tick)
+	{}
 
-
-struct RotFrame
-{
-	SQuat rot{};
-	float tick{};
-
-	RotFrame() noexcept {}
-	RotFrame(float tick, SQuat rot) noexcept : rot(rot), tick(tick) {}
-
-	template<class Archive> void serialize(Archive& ar) { ar(rot, tick); }
-};
-
-
-struct SclFrame
-{
-	SVec3 scale{};
-	float tick{};
-
-	SclFrame() noexcept {}
-	SclFrame(float tick, SVec3 scale) noexcept : scale(scale), tick(tick) {}
-
-	template<class Archive> void serialize(Archive& ar) { ar(scale, tick); }
+	template<class Archive>
+	void serialize(Archive& ar)
+	{ 
+		ar(frameData, tick);
+	}
 };
 
 
@@ -47,9 +31,9 @@ struct AnimChannel
 {
 	std::string _boneName;
 
-	std::vector<SclFrame> _sKeys;
-	std::vector<RotFrame> _rKeys;
-	std::vector<PosFrame> _pKeys;
+	std::vector<KeyFrame<SVec3>> _sKeys;
+	std::vector<KeyFrame<SQuat>> _rKeys;
+	std::vector<KeyFrame<SVec3>> _pKeys;
 
 	AnimChannel() noexcept {}
 

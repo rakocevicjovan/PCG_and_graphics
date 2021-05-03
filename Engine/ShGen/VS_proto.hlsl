@@ -3,7 +3,7 @@
 #ifdef SIW
 cbuffer TransformsBuffer : register(b1)
 {
-	float4x4 boneTransforms[144];
+	float4x4 boneTransforms[200];
 };
 #endif
 

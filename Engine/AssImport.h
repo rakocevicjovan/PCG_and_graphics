@@ -371,12 +371,12 @@ public:
 		std::vector<uint32_t> animIDs;
 		for (UINT i = 0; i < _anims.size(); ++i)
 		{
-			std::string animName = _anims[i].getName();
-			if (animName.size() == 0)	// Do this during import?
-				animName = "anim_" + std::to_string(i);
+			std::string animName = (_anims[i].getName().size() == 0 ? std::to_string(i) : _anims[i].getName()) + "_anim";
 			std::string animPath{ _importPath + animName + ".aeon" };
+
 			std::ofstream ofs(animPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
+
 			_anims[i].serialize(boa);
 			animIDs.push_back(_pLedger->insert(animPath, ResType::ANIMATION));
 		}
@@ -439,9 +439,10 @@ public:
 	void draw(ID3D11DeviceContext* context, float dTime)
 	{
 		auto [columns, rows, spacing] = _numToDraw;
+		float numDrawn = columns * rows;
+		float fakeDTime = dTime / numDrawn;
 
-		float fakeDTime = dTime / 64.f;
-		for (int i = 0; i < rows * columns; ++i)
+		for (int i = 0; i < numDrawn; ++i)
 		{
 			SVec3 offset = SVec3(i % columns, 0, i / columns) * spacing;
 
