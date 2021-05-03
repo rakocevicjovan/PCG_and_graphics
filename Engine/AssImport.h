@@ -16,8 +16,10 @@
 #include "TextureManager.h"
 
 #include <cereal/cereal.hpp>
-//#include <cereal/archives/binary.hpp>
+
+#include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
+
 #include <cereal/types/vector.hpp>
 #include <cereal/types/array.hpp>
 #include <cereal/types/string.hpp>
@@ -67,17 +69,18 @@ private:
 	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
-	bool _importConfigured;
+	bool _importConfigured{ false };
 
 	// Preview settings
-	int _currentAnim;
-	float _playbackSpeed;
-	float _previewScale;
+	int _currentAnim{ 0u };
+	int _numToDraw[3]{ 1, 1, 50 };
+
+	float _playbackSpeed{ 1.f };
+	float _previewScale{ 1.f };
 
 	std::vector<aiString> _extTexPaths;
 
 public:
-
 
 
 	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, 
@@ -91,12 +94,6 @@ public:
 		_pLedger = &resMan->_assetLedger;
 		_pShMan = shMan;
 		_textureManager = TextureManager(&resMan->_assetLedger, device);
-
-		_importConfigured = false;
-
-		_previewScale = 1.f;
-		_currentAnim = 0;
-		_playbackSpeed = 1.f;
 
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
@@ -289,6 +286,7 @@ public:
 		ImGui::SliderFloat("Model scale: ", &_previewScale, .1f, 100.f);
 		ImGui::InputInt("Animation to play: ", &_currentAnim);
 		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, 0.f, 1.f);
+		ImGui::InputInt3("Draw [#cols, #rows, spacing]", &_numToDraw[0]);
 
 		ImGui::Text("Commands");
 
@@ -312,13 +310,9 @@ public:
 			}
 		}
 
-		if (ImGui::Button("Persist mat0 // Check .aeon"))
+		if (ImGui::Button("Check .aeon"))
 		{
-			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(0) + ".aeon" };
-			std::ofstream ofs(matPath, std::ios::binary);
-			//cereal::BinaryOutputArchive boa(ofs);
-			cereal::JSONOutputArchive output(ofs);
-			//_matData._mats[0]->save(output, { 42, 69, 360, 420 });
+
 		}
 
 		if (ImGui::Button("Close"))
@@ -362,8 +356,8 @@ public:
 		{
 			std::string skeletonPath{ _importPath + _sceneName + "_skeleton" + ".aeon" };
 			std::ofstream ofs(skeletonPath, std::ios::binary);
-			//cereal::BinaryOutputArchive boa(ofs);
-			cereal::JSONOutputArchive boa(ofs);
+			cereal::BinaryOutputArchive boa(ofs);
+			//cereal::JSONOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
 			return _pLedger->insert(skeletonPath, ResType::SKELETON);
 		}
@@ -444,10 +438,13 @@ public:
 
 	void draw(ID3D11DeviceContext* context, float dTime)
 	{
+		auto [columns, rows, spacing] = _numToDraw;
+
 		float fakeDTime = dTime / 64.f;
-		for (int i = 0; i < 64; ++i)
+		for (int i = 0; i < rows * columns; ++i)
 		{
-			SVec3 offset = SVec3(i >> 3, 0, i % 8) * 40;
+			SVec3 offset = SVec3(i % columns, 0, i / columns) * spacing;
+
 			if (_skModel)
 			{
 				_skModelInst->update(fakeDTime * _playbackSpeed, _currentAnim);

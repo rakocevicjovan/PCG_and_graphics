@@ -2,11 +2,6 @@
 #include "Bone.h"
 #include "Math.h"
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-
-
 
 class Skeleton
 {
