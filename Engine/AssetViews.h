@@ -1,43 +1,69 @@
 #include "GuiBlocks.h"
 #include "SceneEditor.h"
+#include <span>
 
 // Contains helper functions to display skeleton hierarchy, model and mesh
 class AssetViews
 {
 private:
-
-	static void printBoneHierarchy(std::vector<Bone>& bones, uint16_t boneIndex)
+	
+	static void PrintBoneHierarchy(std::vector<Bone>& bones, Bone& bone)
 	{
-		if (boneIndex == (~0))
-		{
-			ImGui::TextColored(ImVec4(1., 0., 0., 1.), "Bone missing.");
-			return;
-		}
+		auto [offset, size] = bone._children;
 
-		Bone& currentBone = bones[boneIndex];
-
-		if (ImGui::TreeNode(currentBone._name.c_str()))
+		if (ImGui::TreeNode(bone._name.c_str()))
 		{
 			if (ImGui::IsItemHovered())
 			{
 				ImGui::BeginTooltip();
 
 				ImGui::Text("Local matrix");
-				GuiBlocks::displayTransform(currentBone._localMatrix);
+				GuiBlocks::displayTransform(bone._localMatrix);
 
 				ImGui::Text("Inverse offset matrix");
-				GuiBlocks::displayTransform(currentBone._invBindPose);
+				GuiBlocks::displayTransform(bone._invBindPose);
 
 				ImGui::EndTooltip();
 			}
 
-			for (uint16_t boneIndex : currentBone._children)
+			for (auto j = offset; j < offset + size; ++j)
 			{
-				printBoneHierarchy(bones, currentBone._index);
+				PrintBoneHierarchy(bones, bones[j]);
 			}
-				
 
 			ImGui::TreePop();
+		}
+	}
+
+
+	static void PrintBoneHierarchy(std::vector<Bone>& bones, uint16_t boneIndex)
+	{
+		if (bones.size() == 0)
+		{
+			ImGui::Text("Skeleton invalid, no bones found.");
+			return;
+		}
+
+		for (uint32_t i = 0; i < bones.size(); ++i)
+		{
+			Bone& curBone = bones[i];
+
+			if (ImGui::TreeNode(curBone._name.c_str()))
+			{
+				if (ImGui::IsItemHovered())
+				{
+					ImGui::BeginTooltip();
+
+					ImGui::Text("Local matrix");
+					GuiBlocks::displayTransform(curBone._localMatrix);
+
+					ImGui::Text("Inverse offset matrix");
+					GuiBlocks::displayTransform(curBone._invBindPose);
+
+					ImGui::EndTooltip();
+				}
+				ImGui::TreePop();
+			}
 		}
 	}
 
@@ -48,7 +74,7 @@ public:
 	{
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			printBoneHierarchy(skeleton->_bones, 0u);	//_root
+			PrintBoneHierarchy(skeleton->_bones, skeleton->_bones[0]);	//_root
 			ImGui::TreePop();
 		}
 	}

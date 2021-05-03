@@ -7,11 +7,11 @@ class AnimationInstance
 {
 public:
 
-	const Animation* _anim;
-	float _elapsed;
+	const Animation* _anim {};
+	float _elapsed { 0.f };
 
 
-	AnimationInstance(const Animation* anim) : _anim(anim), _elapsed(0.f) {}
+	AnimationInstance(const Animation* anim) : _anim(anim) {}
 
 
 	inline void update(float dTime)
@@ -23,8 +23,8 @@ public:
 	}
 
 
-	inline void getTransformAtTime(const std::vector<Bone>& bones, uint16_t boneIndex, std::vector<SMatrix>& vec, const SMatrix& parentMatrix, const SMatrix& glInvT)
+	inline void getTransformAtTime(const std::vector<Bone>& bones, std::vector<SMatrix>& vec, const SMatrix& glInvT)
 	{
-		_anim->getTransformAtTime(bones, boneIndex, parentMatrix, glInvT, _elapsed, vec);
+		_anim->getTransformAtTime(bones, glInvT, _elapsed, vec);
 	}
 };

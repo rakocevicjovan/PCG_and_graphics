@@ -14,25 +14,23 @@ class Bone
 public:
 
 	static constexpr BoneIndex INVALID_INDEX{ static_cast<BoneIndex>(~0) };
-
-	int _index{~0};
 	std::string _name;
 
 	SMatrix _invBindPose;
 	SMatrix _localMatrix;
 
 	BoneIndex _parent{0u};
-	std::vector<BoneIndex> _children;
+	std::pair<BoneIndex, uint16_t> _children { INVALID_INDEX, INVALID_INDEX };	// Span
 
 	Bone() = default;
 
-	Bone(int index, const char* name, SMatrix offset)
-		: _index(index), _name(name), _invBindPose(offset) {}
+	Bone(const char* name, SMatrix offset, BoneIndex parentIdx = Bone::INVALID_INDEX)
+		:_name(name), _invBindPose(offset), _parent(parentIdx) {}
 
 
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_index, _name, _invBindPose, _localMatrix, _parent, _children);
+		ar(_name, _invBindPose, _localMatrix, _parent);
 	}
 };

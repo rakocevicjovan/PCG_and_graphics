@@ -444,21 +444,29 @@ public:
 
 	void draw(ID3D11DeviceContext* context, float dTime)
 	{
-		if (_skModel)
+		float fakeDTime = dTime / 64.f;
+		for (int i = 0; i < 64; ++i)
 		{
-			_skModelInst->update(dTime * _playbackSpeed, _currentAnim);
-			Math::SetScale(_skModelInst->_transform, SVec3(_previewScale));
-			_skModelInst->draw(context);
-		}
-
-		if (_model)
-		{
-			for (Mesh& r : _model->_meshes)
+			SVec3 offset = SVec3(i >> 3, 0, i % 8) * 40;
+			if (_skModel)
 			{
-				Math::SetScale(r._transform, SVec3(_previewScale));
-				r.draw(context);
+				_skModelInst->update(fakeDTime * _playbackSpeed, _currentAnim);
+				Math::SetTranslation(_skModelInst->_transform, offset);
+				Math::SetScale(_skModelInst->_transform, SVec3(_previewScale));
+				_skModelInst->draw(context);
+			}
+
+			if (_model)
+			{
+				for (Mesh& r : _model->_meshes)
+				{
+					Math::SetTranslation(_model->_transform, offset);
+					Math::SetScale(r._transform, SVec3(_previewScale));
+					r.draw(context);
+				}
 			}
 		}
+		
 	}
 
 

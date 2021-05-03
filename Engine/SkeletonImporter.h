@@ -1,7 +1,7 @@
 #pragma once
 #include "AssimpWrapper.h"
 #include "Skeleton.h"
-#include <stack>
+#include <queue>
 #include <memory>
 
 
@@ -39,16 +39,16 @@ private:
 
 		for (aiNode* node : influencingNodes)
 		{
-			aiNode* parent = node->mParent;
+			aiNode* aiParent = node->mParent;
 
-			while (parent != nullptr)
+			while (aiParent != nullptr)
 			{
-				if (parent->mParent != nullptr)
+				if (aiParent->mParent != nullptr)
 				{
-					if (!boneNodes.insert(parent).second)	// Exit if parent is already added to the set as an optimization
+					if (!boneNodes.insert(aiParent).second)	// Exit if parent is already added to the set as an optimization
 						break;
 				}
-				parent = parent->mParent;
+				aiParent = aiParent->mParent;
 			}
 		}
 	}
@@ -78,59 +78,65 @@ private:
 	}
 
 
-	static void MakeLikeATree(aiNode* node, std::vector<Bone>& boneVec, uint16_t parentIndex,
-		const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
+	static void LinearizeBFT(aiNode* root, std::vector<Bone>& boneVec, uint16_t parentIndex, const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
 	{
-		// All bones are expected to form a fully reachable tree at this point so we can make this optimization.
-		// Nodes that do not belong to the boneNodes set are not bones, and their children will not be either - therefore stop traversing the tree. 
-		if (boneNodes.count(node) == 0)
+		std::queue<std::pair<aiNode*, BoneIndex>> _nodesToProcess;
+
+		_nodesToProcess.push({ root, Bone::INVALID_INDEX });
+
+		// Fix parent indices by pairing here
+		while (!_nodesToProcess.empty())
 		{
-			return;
-		}
+			auto [node, parentIndex] = _nodesToProcess.front();
+			_nodesToProcess.pop();
 
-		auto boneIndex = boneVec.size();
-
-		Bone bone(boneIndex, node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation));
-		bone._parent = parentIndex;
-
-		// A bit slow but this is offline and the sets are usually fairly small
-		for (aiBone* aiBone : bones)
-		{
-			if (aiBone->mNode == node)
+			// All bones are expected to form a fully reachable tree at this point so we can make this optimization.
+			// Nodes that do not belong to the boneNodes set are not bones, and their children will not be either - therefore stop traversing the tree. 
+			if (boneNodes.count(node) == 0)
 			{
-				bone._invBindPose = AssimpWrapper::aiMatToSMat(aiBone->mOffsetMatrix);
+				continue;
 			}
-		}
 
-		boneVec.push_back(bone);
+			Bone bone(node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation), parentIndex);
+			bone._children.second = node->mNumChildren;
 
-		if (bone._parent != Bone::INVALID_INDEX)
-		{
-			boneVec[bone._parent]._children.push_back(boneIndex);
-		}
+			// Set child offset for parent. We know children will be contiguous, and their count, when the parent is created, so that's already set.
+			if (parentIndex != Bone::INVALID_INDEX)
+			{
+				auto& parentsChild = boneVec[parentIndex]._children;
+				
+				if (parentsChild.first == Bone::INVALID_INDEX)
+				{
+					parentsChild.first = boneVec.size();
+				}
+			}
 
-		for (UINT i = 0; i < node->mNumChildren; ++i)
-		{
-			MakeLikeATree(node->mChildren[i], boneVec, boneIndex, boneNodes, bones);
+			for (aiBone* aiBone : bones)
+			{
+				if (aiBone->mNode == node)
+				{
+					bone._invBindPose = AssimpWrapper::aiMatToSMat(aiBone->mOffsetMatrix);
+				}
+			}
+
+			boneVec.push_back(bone);
+
+			for (UINT i = 0; i < node->mNumChildren; ++i)
+			{
+				_nodesToProcess.push({ node->mChildren[i], boneVec.size() - 1 });
+			}
 		}
 	}
 
 
 	static void LoadNodesAsBones(aiNode* node, std::vector<Bone>& bones, uint16_t parentIndex)
 	{
-		Bone b(bones.size(), node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation));
-		b._parent = parentIndex;
 		// Offset matrices are not present, they depend on the model we attach this to and can not be calculated...
-		bones.push_back(b);
-		
-		if (parentIndex != Bone::INVALID_INDEX)
-		{
-			bones[parentIndex]._children.push_back(b._index);
-		}
+		bones.push_back(Bone(node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation), parentIndex));
 
 		for (UINT i = 0; i < node->mNumChildren; ++i)
 		{
-			LoadNodesAsBones(node->mChildren[i], bones, b._index);
+			LoadNodesAsBones(node->mChildren[i], bones, bones.size() - 1);
 		}
 	}
 
@@ -156,9 +162,8 @@ public:
 
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
 		skeleton->_bones.reserve(boneNodes.size());
-		
 
-		MakeLikeATree(skelRoot, skeleton->_bones, Bone::INVALID_INDEX, boneNodes, bones);
+		LinearizeBFT(skelRoot, skeleton->_bones, Bone::INVALID_INDEX, boneNodes, bones);
 
 		// I NEVER SET THE SKELETON INVERSE GLOBAL TRANSFORM! INVESTIGATE WHY!
 
