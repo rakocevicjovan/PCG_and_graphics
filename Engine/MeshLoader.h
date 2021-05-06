@@ -193,14 +193,14 @@ public:
 			for (UINT i = 0; i < aiMesh->mNumBones; ++i)
 			{
 				aiBone* aiBone = aiMesh->mBones[i];
-				UINT boneIndex = skeleton->getBoneIndex(aiBone->mName.C_Str());
+				uint32_t boneIndex = skeleton->getInfluenceBoneIndex(aiBone->mName.C_Str());
 
 				for (UINT j = 0; j < aiBone->mNumWeights; ++j)
 				{
 					float weight = aiBone->mWeights[j].mWeight;
 
-					UINT vertID = aiBone->mWeights[j].mVertexId;
-					UINT vertByteOffset = vertID * vertByteWidth;
+					uint32_t vertID = aiBone->mWeights[j].mVertexId;
+					uint32_t vertByteOffset = vertID * vertByteWidth;
 					
 					uint8_t* boneDataPtr = vertPool.data() + biOffset + vertByteOffset;
 					VertBoneData* vbd = reinterpret_cast<VertBoneData*>(boneDataPtr);

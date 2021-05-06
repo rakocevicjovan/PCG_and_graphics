@@ -78,9 +78,11 @@ private:
 	}
 
 
-	static void LinearizeBFT(aiNode* root, std::vector<Bone>& boneVec, uint16_t parentIndex, const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
+	static void LinearizeBFT(aiNode* root, Skeleton* skeleton, uint16_t parentIndex, const std::set<aiNode*>& boneNodes, const std::set<aiBone*>& bones)
 	{
 		std::queue<std::pair<aiNode*, BoneIndex>> _nodesToProcess;
+
+		auto& boneVec = skeleton->_bones;
 
 		_nodesToProcess.push({ root, Bone::INVALID_INDEX });
 
@@ -115,11 +117,14 @@ private:
 			{
 				if (aiBone->mNode == node)
 				{
+					bone._isInfluenceBone = true;
 					bone._invBindPose = AssimpWrapper::aiMatToSMat(aiBone->mOffsetMatrix);
+					++(skeleton->_numInfluenceBones);
+					break;
 				}
 			}
 
-			boneVec.push_back(bone);
+			boneVec.push_back(std::move(bone));
 
 			for (UINT i = 0; i < node->mNumChildren; ++i)
 			{
@@ -145,14 +150,14 @@ public:
 
 	static std::unique_ptr<Skeleton> ImportSkeleton(const aiScene* scene)
 	{
+		std::set<aiBone*> influenceBones;
 		std::set<aiNode*> boneNodes;
-		std::set<aiBone*> bones;
 
 		aiNode* sceneRoot = scene->mRootNode;
 
-		FindInfluenceBones(scene, bones);
+		FindInfluenceBones(scene, influenceBones);
 
-		FindAllBoneNodes(bones, boneNodes);
+		FindAllBoneNodes(influenceBones, boneNodes);
 
 		// Find the closest aiNode to the root
 		aiNode* skelRoot = FindSkeletonRootNode(sceneRoot, boneNodes);
@@ -163,7 +168,8 @@ public:
 		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
 		skeleton->_bones.reserve(boneNodes.size());
 
-		LinearizeBFT(skelRoot, skeleton->_bones, Bone::INVALID_INDEX, boneNodes, bones);
+		// Remember to split influence bones from non influence bones
+		LinearizeBFT(skelRoot, skeleton.get(), Bone::INVALID_INDEX, boneNodes, influenceBones);
 
 		// I NEVER SET THE SKELETON INVERSE GLOBAL TRANSFORM! INVESTIGATE WHY!
 

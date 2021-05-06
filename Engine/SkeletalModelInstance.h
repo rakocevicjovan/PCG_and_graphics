@@ -24,7 +24,7 @@ public:
 		for (Animation* anim : skm->_anims)
 			_animInstances.emplace_back(anim);
 
-		UINT numBones = 144;
+		uint32_t numBones = _skm->_skeleton->getBoneCount();
 
 		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * numBones));
 
@@ -56,15 +56,17 @@ public:
 				mat = SMatrix::Identity;
 		}
 
-		for (SMatrix& mat : _skeletonMatrices)
-			mat = mat.Transpose();
+		for (auto i = 0; i < _skm->_skeleton->_numInfluenceBones; ++i)
+		{
+			_skeletonMatrices[i] = _skeletonMatrices[i].Transpose();
+		}
 	}
 
 
 
 	void draw(ID3D11DeviceContext* context)
 	{
-		_skMatsBuffer.update(context, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_bones.size());
+		_skMatsBuffer.update(context, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_numInfluenceBones);
 		_skMatsBuffer.bindToVS(context, 1);
 
 		for (SkeletalMesh& m : _skm->_meshes)

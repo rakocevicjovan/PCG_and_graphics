@@ -19,17 +19,17 @@ public:
 
 		ImGui::Text("Duration: %f; \nNum ticks: %f", anim->getDuration(), anim->getNumTicks());
 
-		const std::map<std::string, AnimChannel>* channels = anim->getChannels();
+		auto* channels = anim->getChannels();
 
 		for(auto ac = channels->begin(); ac != channels->end(); ++ac)
 		{
-			const AnimChannel& ch = ac->second;
+			const AnimChannel* ch = ac._Ptr;
 
-			UINT pkfc = ch._pKeys.size();
-			UINT rkfc = ch._rKeys.size();
-			UINT skfc = ch._sKeys.size();
+			UINT pkfc = ch->_pKeys.size();
+			UINT rkfc = ch->_rKeys.size();
+			UINT skfc = ch->_sKeys.size();
 
-			if (ImGui::TreeNode(ch._boneName.c_str()))
+			if (ImGui::TreeNode(ch->_boneName.c_str()))
 			{
 				ImGui::Text("Nr. Pos KFs: %d", pkfc);
 				ImGui::Text("Nr. Rot KFs: %d", rkfc);
@@ -40,7 +40,7 @@ public:
 					ImGui::Text("%d", i);
 
 					// Absolutely not a way to do this, really lame... Need a sequencer...
-					displayPositionKeyframe(ch._pKeys[i], i);
+					displayPositionKeyframe(ch->_pKeys[i], i);
 				}
 
 				ImGui::TreePop();

@@ -11,7 +11,7 @@ private:
 	{
 		auto [offset, size] = bone._children;
 
-		if (ImGui::TreeNode(bone._name.c_str()))
+		if (ImGui::TreeNode(bone.name()))
 		{
 			if (ImGui::IsItemHovered())
 			{
@@ -48,7 +48,7 @@ private:
 		{
 			Bone& curBone = bones[i];
 
-			if (ImGui::TreeNode(curBone._name.c_str()))
+			if (ImGui::TreeNode(curBone.name()))
 			{
 				if (ImGui::IsItemHovered())
 				{
