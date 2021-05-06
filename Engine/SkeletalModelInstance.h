@@ -26,10 +26,8 @@ public:
 
 		uint32_t numBones = _skm->_skeleton->getBoneCount();
 
-		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * numBones));
+		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 200 /*numBones*/));
 
-		// Jingle bells, code smells... Law of Demeter RIP
-		//_skeletonMatrices.resize(_skm->_skeleton->_boneMap.size());
 		_skeletonMatrices.resize(_skm->_skeleton->_bones.size());
 		return true;
 	}
@@ -61,7 +59,6 @@ public:
 			_skeletonMatrices[i] = _skeletonMatrices[i].Transpose();
 		}
 	}
-
 
 
 	void draw(ID3D11DeviceContext* context)
