@@ -94,14 +94,15 @@ public:
 
 	void draw(const RenderContext& rc) override
 	{
+		//DirectX::XMMatrixPerspectiveLH(1024, 1024, 1., 1000.); this seems... bugged? Or I don't understand the params well?
+
+		S_RANDY._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 1.f, 1., 1000.));
+		S_RANDY.updatePerCamBuffer(1024, 1024);
+
+		Viewport viewport(1024, 1024);
+		viewport.bind(rc.d3d->getContext());
 		_renderTarget.bind(rc.d3d->getContext());
 		_renderTarget.clear(rc.d3d->getContext());
-
-		// Nicer but requires camera to be bound as shown, which requires being able to bind it...
-		//Viewport viewport(1024, 1024);
-		//viewport.bind(rc.d3d->getContext());
-		//SMatrix oldMatrix = rc.cam->GetProjectionMatrix();
-		//rc.cam->SetProjectionMatrix(SMatrix::CreatePerspective(1024, 1024, 1., 1000.));
 
 		_floorMesh->draw(rc.d3d->getContext());
 
@@ -112,7 +113,11 @@ public:
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 		}
 
-		//rc.cam->SetProjectionMatrix(oldMatrix);
+		SMatrix oldProjMat = S_RANDY._cam.GetProjectionMatrix();
+		SMatrix projMat = DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 2560. / 1440., 1., 1000.);
+		rc.cam->SetProjectionMatrix(projMat);
+		S_RANDY.updatePerCamBuffer(2560, 1440);
+
 		_sys._renderer.setDefaultRenderTarget();
 
 		GUI::beginFrame();
@@ -129,11 +134,13 @@ public:
 
 		if (selected.has_value())
 		{
-			if (!alreadyLoaded(selected.value()))
+			auto& selectedPath = selected.value();
+
+			if (!alreadyLoaded(selectedPath))
 			{
 				_previews.push_back(std::make_unique<AssImport>());
 
-				if (!_previews.back()->loadAiScene(S_DEVICE, selected.value().path().string(), 0u, &S_RESMAN, &_shMan))
+				if (!_previews.back()->loadAiScene(S_DEVICE, selectedPath.path().string().c_str(), "C:\\Users\\metal\\Desktop\\AeonTest\\",  &S_RESMAN, &_shMan))
 				{
 					_previews.pop_back();
 				}

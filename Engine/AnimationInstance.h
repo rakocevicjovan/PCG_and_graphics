@@ -5,11 +5,13 @@
 
 class AnimationInstance
 {
+private:
+
+	const Animation* _anim{};
+
 public:
 
-	const Animation* _anim {};
 	float _elapsed { 0.f };
-
 
 	AnimationInstance(const Animation* anim) : _anim(anim) {}
 

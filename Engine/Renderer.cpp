@@ -3,10 +3,7 @@
 #include "Shader.h"
 
 
-Renderer::Renderer()
-{
-}
-
+Renderer::Renderer() = default;
 
 
 Renderer::~Renderer()
@@ -14,7 +11,6 @@ Renderer::~Renderer()
 	_deviceContext->Release();
 	_device->Release();
 }
-
 
 
 bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
@@ -39,7 +35,6 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 }
 
 
-
 void Renderer::resize(uint16_t width, uint16_t height)
 {
 	_windowWidth = width;
@@ -52,13 +47,10 @@ void Renderer::resize(uint16_t width, uint16_t height)
 }
 
 
-
 bool Renderer::createGlobalBuffers()
 {
 	_perCamBuffer.init(_device, CBuffer::createDesc(sizeof(PerCameraBuffer)));
-	_perCamBuffer.updateWithStruct(_deviceContext, PerCameraBuffer{ _cam.GetProjectionMatrix().Transpose(), _windowWidth, _windowHeight, _cam._frustum._zn, _cam._frustum._zf });
-	_perCamBuffer.bindToVS(_deviceContext, PER_CAMERA_CBUFFER_REGISTER);
-	_perCamBuffer.bindToPS(_deviceContext, PER_CAMERA_CBUFFER_REGISTER);
+	updatePerCamBuffer(_windowWidth, _windowHeight);
 
 	_VSperFrameBuffer.init(_device, CBuffer::createDesc(sizeof(VSPerFrameBuffer)));
 	_VSperFrameBuffer.bindToVS(_deviceContext, PER_FRAME_CBUFFER_REGISTER);
@@ -70,7 +62,6 @@ bool Renderer::createGlobalBuffers()
 }
 
 
-
 bool Renderer::frame(float dTime)
 {
 	_elapsed += dTime;
@@ -79,16 +70,24 @@ bool Renderer::frame(float dTime)
 
 	updateRenderContext(dTime);
 
-	return updatePerFrameBuffers(dTime);
+	updatePerFrameBuffers(dTime);
+
+	return true;
 }
 
 
-
-bool Renderer::updatePerFrameBuffers(float dTime)
+void Renderer::updatePerFrameBuffers(float dTime)
 {	
 	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed, SVec2() });
 	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), dTime, _elapsed, SVec2() });
-	return true;
+}
+
+
+void Renderer::updatePerCamBuffer(float ww, float wh)
+{
+	_perCamBuffer.updateWithStruct(_deviceContext, PerCameraBuffer{ _cam.GetProjectionMatrix().Transpose(), ww, wh, _cam._frustum._zn, _cam._frustum._zf });
+	_perCamBuffer.bindToVS(_deviceContext, PER_CAMERA_CBUFFER_REGISTER);
+	_perCamBuffer.bindToPS(_deviceContext, PER_CAMERA_CBUFFER_REGISTER);
 }
 
 

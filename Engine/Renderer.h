@@ -37,15 +37,15 @@ class Renderer
 {
 private:
 
-	float _windowWidth;
-	float _windowHeight;
-	float _fieldOfView;
-	float _aspectRatio;
-	float _elapsed = 0.f;
+	float _windowWidth{ 0.f };
+	float _windowHeight{ 0.f };
+	float _fieldOfView{ 0.f };
+	float _aspectRatio{ 0.f };
+	float _elapsed{ 0.f };
 
-	ID3D11Device* _device;
-	ID3D11DeviceContext* _deviceContext;
-	D3D* _d3d;
+	ID3D11Device* _device{};
+	ID3D11DeviceContext* _deviceContext{};
+	D3D* _d3d{};
 
 	CBuffer _perCamBuffer;
 	CBuffer _VSperFrameBuffer;
@@ -71,7 +71,8 @@ public:
 	bool initialize(int wWidth, int wHeight, D3D& d3d);
 	void resize(uint16_t width, uint16_t height);
 	bool frame(float dTime);
-	bool updatePerFrameBuffers(float dTime);
+	void updatePerFrameBuffers(float dTime);
+	void updatePerCamBuffer(float ww, float wh);
 	
 	void setDefaultRenderTarget();
 

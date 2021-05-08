@@ -25,18 +25,6 @@
 #include <cereal/types/string.hpp>
 
 
-
-/* Just adds complexity really...
-namespace
-{
-	template<typename Archive, typename Asset, typename... Args>
-	void serializeAsset(Archive& ar, const Asset& asset, Args...)
-	{
-		asset->save(ar);
-	}
-}*/
-
-
 class AssImport
 {
 private:
@@ -46,9 +34,11 @@ private:
 	//TextureCache* _pTexCache; @TODO merge with manager
 	TextureManager _textureManager;
 
-	std::string _path;
+	std::string _srcPath;
 	std::string _sceneName;
-	std::string _importPath = "C:\\Users\\metal\\Desktop\\AeonTest\\";
+	std::string _destPath;
+
+	std::vector<aiString> _extTexPaths;
 
 	Assimp::Importer _importer;
 	const aiScene* _aiScene;
@@ -64,8 +54,6 @@ private:
 	std::shared_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
 
-	//entt::registry _registry;
-
 	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;
 	bool _impSkeleton, _impSkModel, _impModel, _impAnims;
@@ -74,20 +62,17 @@ private:
 	// Preview settings
 	int _currentAnim{ 0u };
 	int _numToDraw[3]{ 1, 1, 50 };
-
 	float _playbackSpeed{ 1.f };
 	float _previewScale{ 1.f };
-
-	std::vector<aiString> _extTexPaths;
 
 public:
 
 
-	bool loadAiScene(ID3D11Device* device, const std::string& path, UINT inFlags, 
-		ResourceManager* resMan, ShaderManager* shMan)
+	bool loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, ResourceManager* resMan, ShaderManager* shMan)
 	{
-		_path = path;
-		_sceneName = std::filesystem::path(path).filename().replace_extension("").string();
+		_srcPath = importFrom;
+		_sceneName = std::filesystem::path(importFrom).filename().replace_extension("").string();
+		_destPath = importTo;
 		_device = device;
 
 		_pResMan = resMan;
@@ -95,6 +80,7 @@ public:
 		_pShMan = shMan;
 		_textureManager = TextureManager(&resMan->_assetLedger, device);
 
+		// Allow flag customization inhere
 		unsigned int pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_ConvertToLeftHanded |
@@ -106,7 +92,7 @@ public:
 		// This doesn't work, allegedly because optimization flags are on
 		//_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	
 
-		_aiScene = AssimpWrapper::loadScene(_importer, path, pFlags);
+		_aiScene = AssimpWrapper::loadScene(_importer, _srcPath, pFlags);
 
 		if (!_aiScene)
 			return false;
@@ -177,7 +163,7 @@ public:
 		}
 
 		// Pass these preloaded materials to meshes in either model type below
-		_matData = MatImporter::ImportSceneMaterials(_device, _aiScene, _path);
+		_matData = MatImporter::ImportSceneMaterials(_device, _aiScene, _srcPath);
 
 		if (_impSkModel)
 		{
@@ -185,7 +171,7 @@ public:
 
 			_skeleton = std::shared_ptr<Skeleton>(SkeletonImporter::ImportSkeleton(_aiScene).release());
 
-			_skModel->importFromAiScene(_device, _aiScene, _path, _matData._mats, _skeleton);
+			_skModel->importFromAiScene(_device, _aiScene, _srcPath, _matData._mats, _skeleton);
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
@@ -208,7 +194,7 @@ public:
 		{
 			//_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
 			_model = std::make_unique<Model>();
-			_model->loadFromAiScene(_device, _aiScene, _path);
+			_model->loadFromAiScene(_device, _aiScene, _srcPath);
 
 			for (Mesh& mesh : _model->_meshes)
 			{
@@ -293,7 +279,13 @@ public:
 		ImGui::Text("Preview settings");
 
 		ImGui::SliderFloat("Model scale: ", &_previewScale, .1f, 100.f);
-		ImGui::InputInt("Animation to play: ", &_currentAnim);
+		if (ImGui::InputInt("Animation to play: ", &_currentAnim))
+		{
+			if (_currentAnim >= 0 && _currentAnim < _skModelInst->_animInstances.size())
+			{
+				_skModelInst->_animInstances[_currentAnim]._elapsed = 0.f;	// Prevent crashes 
+			}
+		}
 		ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, 0.f, 1.f);
 		ImGui::InputInt3("Draw [#cols, #rows, spacing]", &_numToDraw[0]);
 
@@ -308,7 +300,7 @@ public:
 
 		if (ImGui::Button("Import as .aeon"))
 		{
-			if (std::filesystem::is_directory(_importPath))	// Add extra checks
+			if (std::filesystem::is_directory(_destPath))	// Add extra checks
 			{
 				persistAssets();
 			}
@@ -340,7 +332,7 @@ public:
 		persistTextures();
 		std::vector<uint32_t> matIDs = persistMats();
 
-		std::string mPath{ _importPath + _sceneName + ".aeon" };
+		std::string mPath{ _destPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
 		cereal::BinaryOutputArchive boa(ofs);
 
@@ -363,7 +355,7 @@ public:
 	{
 		if (_skeleton.get())
 		{
-			std::string skeletonPath{ _importPath + _sceneName + "_skeleton" + ".aeon" };
+			std::string skeletonPath{ _destPath + _sceneName + "_skeleton" + ".aeon" };
 			std::ofstream ofs(skeletonPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
 			//cereal::JSONOutputArchive boa(ofs);
@@ -381,7 +373,7 @@ public:
 		for (UINT i = 0; i < _anims.size(); ++i)
 		{
 			std::string animName = (_anims[i].getName().size() == 0 ? std::to_string(i) : _anims[i].getName()) + "_anim";
-			std::string animPath{ _importPath + animName + ".aeon" };
+			std::string animPath{ _destPath + animName + ".aeon" };
 
 			std::ofstream ofs(animPath, std::ios::binary);
 			cereal::BinaryOutputArchive boa(ofs);
@@ -399,7 +391,7 @@ public:
 		for (auto& [name, blob, embedded] : _matData._blobs)
 		{
 			std::string texName = std::filesystem::path(name).filename().string();
-			std::string texPath{ _importPath + texName };
+			std::string texPath{ _destPath + texName };
 
 			FileUtils::writeAllBytes(texPath, blob._data.get(), blob._size);
 			//_textureManager.create(texPath.c_str(), )
@@ -432,7 +424,7 @@ public:
 				});
 
 			// Serialize
-			std::string matPath{ _importPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
+			std::string matPath{ _destPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);	
 			//cereal::BinaryOutputArchive boa(ofs);
 			cereal::JSONOutputArchive output(ofs);
@@ -477,8 +469,7 @@ public:
 	}
 
 
-
-	std::filesystem::path getPath() { return std::filesystem::path(_path); }
+	std::filesystem::path getPath() { return std::filesystem::path(_srcPath); }
 
 	int getCurrentAnim() { return _currentAnim; }
 
