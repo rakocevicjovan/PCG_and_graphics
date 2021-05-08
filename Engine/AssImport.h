@@ -246,6 +246,15 @@ public:
 	{
 		ImGui::Text("Assimp scene inspector");
 
+		if (ImGui::TreeNode("Meta data keys"))
+		{
+			for (int i = 0; i < _aiScene->mMetaData->mNumProperties; ++i)
+			{
+				ImGui::Text(_aiScene->mMetaData->mKeys[i].C_Str());
+			}
+			ImGui::TreePop();
+		}
+
 		if (ImGui::TreeNode("Node tree"))
 		{
 			AssimpGUI::printaiNode(_aiScene->mRootNode, _aiScene, _aiScene->mRootNode->mTransformation);

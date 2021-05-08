@@ -118,6 +118,10 @@ public:
 	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames);
 
 	// Helpers
+
+	// This should be done by assimp internally now. If the metadata is missing, this will not help...
+	static void correctAxes(const aiScene* aiScene);
+
 	static std::vector<aiString> getExtTextureNames(const aiScene* scene);
 
 	static SVec3 calcFaceTangent(const std::vector<Vert3D>& vertices, const aiFace& face);

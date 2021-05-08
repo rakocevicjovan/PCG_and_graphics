@@ -242,8 +242,36 @@ void AssimpWrapper::loadAllBoneNames(const aiScene* scene, aiNode* node, std::se
 }
 
 
-
 // Helpers
+void AssimpWrapper::correctAxes(const aiScene* aiScene)
+{
+	int upAxis = 0;
+	aiScene->mMetaData->Get<int>("UpAxis", upAxis);
+	int upAxisSign = 1;
+	aiScene->mMetaData->Get<int>("UpAxisSign", upAxisSign);
+
+	int frontAxis = 0;
+	aiScene->mMetaData->Get<int>("FrontAxis", frontAxis);
+	int frontAxisSign = 1;
+	aiScene->mMetaData->Get<int>("FrontAxisSign", frontAxisSign);
+
+	int coordAxis = 0;
+	aiScene->mMetaData->Get<int>("RightAxis", coordAxis);
+	int coordAxisSign = 1;
+	aiScene->mMetaData->Get<int>("RightAxisSign", coordAxisSign);
+
+	aiVector3D upVec = upAxis == 0 ? aiVector3D(upAxisSign, 0, 0) : upAxis == 1 ? aiVector3D(0, upAxisSign, 0) : aiVector3D(0, 0, upAxisSign);
+	aiVector3D forwardVec = frontAxis == 0 ? aiVector3D(frontAxisSign, 0, 0) : frontAxis == 1 ? aiVector3D(0, frontAxisSign, 0) : aiVector3D(0, 0, frontAxisSign);
+	aiVector3D rightVec = coordAxis == 0 ? aiVector3D(coordAxisSign, 0, 0) : coordAxis == 1 ? aiVector3D(0, coordAxisSign, 0) : aiVector3D(0, 0, coordAxisSign);
+	aiMatrix4x4 mat(rightVec.x, rightVec.y, rightVec.z, 0.0f,
+		upVec.x, upVec.y, upVec.z, 0.0f,
+		forwardVec.x, forwardVec.y, forwardVec.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f);
+
+	aiScene->mRootNode->mTransformation = mat * aiScene->mRootNode->mTransformation;
+}
+
+
 std::vector<aiString> AssimpWrapper::getExtTextureNames(const aiScene* scene)
 {
 	std::vector<aiString> result;
