@@ -33,10 +33,7 @@ private:
 
 			for (auto j = offset; j < offset + size; ++j)
 			{
-				if (j < bones.size())	// Issue with a few faulty models crashing, just annoying
-				{
-					PrintBoneHierarchy(bones, bones[j]);
-				}
+				PrintBoneHierarchy(bones, bones[j]);
 			}
 
 			ImGui::TreePop();

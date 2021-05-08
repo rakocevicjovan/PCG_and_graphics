@@ -39,20 +39,17 @@ void Animation::getTransformAtTime(const std::vector<Bone>& bones, const SMatrix
 		// If the bone has an animation channel, replace local matrix of the bone with the animated one.
 		SMatrix animTransform = channel ? channel->getInterpolatedTransform(currentTick, t) : bone._localMatrix;
 
-		SMatrix nodeTransform = animTransform * parentMatrix;
-
-		vec[i] = nodeTransform;
+		vec[i] = animTransform * parentMatrix;
 	}
 
 	// Bind space to bone space, animate, apply global inverse - but only for influence bones
 	uint32_t realIndex{ 0u };
 
-	for (auto i = 0; i < vec.size(); ++i)
+	for (auto i = 0; i < bones.size(); ++i)
 	{
 		if (bones[i]._isInfluenceBone)
 		{
 			vec[realIndex++] = bones[i]._invBindPose * vec[i] * glInvT;
 		}
 	}
-	realIndex--;
 }

@@ -100,17 +100,17 @@ private:
 			}
 
 			Bone bone(node->mName.C_Str(), AssimpWrapper::aiMatToSMat(node->mTransformation), parentIndex);
-			bone._children.second = node->mNumChildren;
 
 			// Set child offset for parent. We know children will be contiguous, and their count, when the parent is created, so that's already set.
 			if (parentIndex != Bone::INVALID_INDEX)
 			{
-				auto& parentsChild = boneVec[parentIndex]._children;
+				auto& [childrenOffset, childrenCount] = boneVec[parentIndex]._children;
 				
-				if (parentsChild.first == Bone::INVALID_INDEX)
+				if (childrenOffset == Bone::INVALID_INDEX)
 				{
-					parentsChild.first = boneVec.size();
+					childrenOffset = boneVec.size();
 				}
+				++childrenCount;
 			}
 
 			for (aiBone* aiBone : bones)

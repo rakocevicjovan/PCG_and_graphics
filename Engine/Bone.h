@@ -24,13 +24,13 @@ public:
 	SMatrix _localMatrix;
 
 	BoneIndex _parent{0u};
-	std::pair<BoneIndex, uint16_t> _children { INVALID_INDEX, INVALID_INDEX };	// Span
+	std::pair<BoneIndex, uint16_t> _children { INVALID_INDEX, 0ui16 };	// Span
 	bool _isInfluenceBone{ false };
 
 	Bone() = default;
 
-	Bone(const char* name, SMatrix offset, BoneIndex parentIdx = Bone::INVALID_INDEX)
-		:_name(name), _invBindPose(offset), _parent(parentIdx)
+	Bone(const char* name, SMatrix localMatrix, BoneIndex parentIdx = Bone::INVALID_INDEX)
+		:_name(name), _localMatrix(localMatrix), _parent(parentIdx)
 	{}
 
 	inline bool isInfluenceBone() const

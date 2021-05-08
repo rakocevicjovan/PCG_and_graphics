@@ -56,6 +56,7 @@ SamplerState Sampler : register(s0);
 // Also, the index of texture coordinates used by each texture will be defined as UVCH_<TYPE>
 
 // TEXTURES BEGIN
+
 #if TEX_DIF > 0
 Texture2D diffuseMap : register(t0);
 #endif
