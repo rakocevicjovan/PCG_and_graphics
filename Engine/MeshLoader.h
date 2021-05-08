@@ -151,7 +151,6 @@ public:
 				tcOffset += tcByteWidth;
 			}
 		}
-		
 
 
 		if (aiMesh->HasNormals())

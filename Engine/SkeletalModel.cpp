@@ -53,18 +53,20 @@ bool SkeletalModel::importFromAiScene(ID3D11Device* device, const aiScene* scene
 
 
 
-bool SkeletalModel::processNode(aiNode* node, SMatrix globNodeTransform)
+bool SkeletalModel::processNode(aiNode* node, SMatrix modelSpaceTransform)
 {
 	SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
-	globNodeTransform = locNodeTransform * globNodeTransform;
+	modelSpaceTransform = locNodeTransform * modelSpaceTransform;
 
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
-		_meshes[node->mMeshes[i]]._localTransform = globNodeTransform;
+		_meshes[node->mMeshes[i]]._parentSpaceTransform = modelSpaceTransform;
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; i++)
-		this->processNode(node->mChildren[i], globNodeTransform);
+	{
+		processNode(node->mChildren[i], modelSpaceTransform);
+	}
 
 	return true;
 }

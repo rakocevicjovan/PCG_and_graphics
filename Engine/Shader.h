@@ -92,7 +92,7 @@ public:
 			{
 				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
 				{
-					_cbuffers[i].updateField(&(ri._transform.Transpose()), cbfd._size, cbfd._offset, mr);
+					_cbuffers[i].updateField(&(ri.renderTransform().Transpose()), cbfd._size, cbfd._offset, mr);
 				}
 			}
 

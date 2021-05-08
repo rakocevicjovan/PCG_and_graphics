@@ -38,18 +38,24 @@ namespace cereal
 class SkeletalMesh
 {
 public:
-	VertSignature _vertSig;
 
+	// Asset mesh holds these long term
+	VertSignature _vertSig;
 	std::vector<uint8_t> _vertices;
 	std::vector<UINT> _indices;
 
+	// And refers to these
+	std::shared_ptr<Material> _material;
+
+	// GPU mesh part - buffers - likely to change to allow spans in mega buffers etc.
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;
 
-	std::shared_ptr<Material> _material;
+	// Transform relative to parent model, concatenated by tree traversal
+	SMatrix _parentSpaceTransform;
 
-	SMatrix _transform;	// relative to parent model
-	SMatrix _localTransform;
+	// For rendering - should be moved out
+	SMatrix _worldSpaceTransform;	
 
 	SkeletalMesh() {}
 
@@ -65,11 +71,15 @@ public:
 
 	inline Material* getMaterial() { return _material.get(); }
 
+	inline const SMatrix& renderTransform() const
+	{
+		return _worldSpaceTransform;
+	}
 
 	template <typename Archive>
 	void serialize(Archive& archive, UINT matID)
 	{
-		archive(_indices.size(), _vertices.size(), matID, _transform, _indices, _vertices);
+		archive(_indices.size(), _vertices.size(), matID, _worldSpaceTransform, _indices, _vertices);
 	}
 };
 

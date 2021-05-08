@@ -9,19 +9,10 @@
 #include "AssimpWrapper.h"
 #include "VertSignature.h"
 
-typedef unsigned int UINT;
-class Hull;
-namespace Procedural { class Geometry; class Terrain; }
-
-
-
-namespace cereal
+namespace Procedural
 {
-	template<class Archive>
-	void serialize(Archive& archive, Vert3D& v)
-	{
-		archive(v.pos, v.texCoords, v.normal, v.tangent);
-	}
+	class Geometry;
+	class Terrain;
 }
 
 
@@ -53,6 +44,11 @@ public:
 
 	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
 		std::vector<std::shared_ptr<Material>>& mats, const std::string& path);
+
+	inline const SMatrix& renderTransform() const
+	{
+		return _transform;
+	}
 
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?

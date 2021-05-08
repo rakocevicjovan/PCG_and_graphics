@@ -141,7 +141,7 @@ namespace GuiBlocks
 	{
 		ImGui::Text("Transform: ");
 		ImGui::Indent();
-		displayTransform(mesh->_transform);
+		displayTransform(mesh->_worldSpaceTransform);
 		ImGui::Unindent();
 		ImGui::NewLine();
 

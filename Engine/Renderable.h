@@ -10,11 +10,11 @@ public:
 	// Memory heavy but... useful for now I guess?
 	SMatrix _localTransform;
 	SMatrix _transform;
-	Mesh* mesh;
-	Material* mat;
-	float zDepth;
+	Mesh* mesh{};
+	Material* mat{};
+	float zDepth{0.f};
 
-	Renderable() : mat(nullptr), mesh(nullptr), zDepth(0) {}
+	Renderable() = default;
 
 	Renderable(Mesh& mesh) : mesh(&mesh), mat(mesh._material.get()), _transform(mesh._transform)
 	{}
@@ -33,5 +33,10 @@ public:
 	{
 		mat->getVS()->setBuffers(dc);
 		mat->getPS()->setBuffers(dc);
+	}
+
+	inline const SMatrix& renderTransform() const
+	{
+		return _transform;
 	}
 };

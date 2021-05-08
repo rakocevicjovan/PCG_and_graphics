@@ -41,7 +41,7 @@ public:
 
 		for (int i = 0; i < _skm->_meshes.size(); ++i)
 		{
-			_skm->_meshes[i]._transform = _skm->_meshes[i]._localTransform * _transform;
+			_skm->_meshes[i]._worldSpaceTransform = _skm->_meshes[i]._parentSpaceTransform * _transform;
 		}
 
 		if (_animInstances.size() > animIndex)	// Avoid crashing when no anim is loaded

@@ -12,6 +12,12 @@ struct Vert3D
 
 	Vert3D() {};
 	Vert3D(const SVec3& position) : pos(position) {};
+
+	template<class Archive>
+	void serialize(Archive& archive, Vert3D& v)
+	{
+		archive(v.pos, v.texCoords, v.normal, v.tangent);
+	}
 };
 
 
