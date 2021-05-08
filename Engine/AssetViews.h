@@ -11,6 +11,11 @@ private:
 	{
 		auto [offset, size] = bone._children;
 
+		if (bone.isInfluenceBone())
+		{
+			ImGui::PushStyleColor(0, ImVec4(.2, 7., 1., 1.));
+		}
+
 		if (ImGui::TreeNode(bone.name()))
 		{
 			if (ImGui::IsItemHovered())
@@ -28,10 +33,18 @@ private:
 
 			for (auto j = offset; j < offset + size; ++j)
 			{
-				PrintBoneHierarchy(bones, bones[j]);
+				if (j < bones.size())	// Issue with a few faulty models crashing, just annoying
+				{
+					PrintBoneHierarchy(bones, bones[j]);
+				}
 			}
 
 			ImGui::TreePop();
+		}
+
+		if (bone.isInfluenceBone())
+		{
+			ImGui::PopStyleColor();
 		}
 	}
 
