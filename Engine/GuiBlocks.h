@@ -115,8 +115,8 @@ namespace GuiBlocks
 			return;
 		}
 
-		ImGui::Text("Offset matrix: ");
-		displayTransform(mesh->_transform);
+		ImGui::Text("Parent space matrix: ");
+		displayTransform(mesh->_parentSpaceTransform);
 
 		ImGui::Separator();
 

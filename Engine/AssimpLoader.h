@@ -7,7 +7,6 @@
 #include "SkeletalModelInstance.h"
 #include "Sampler.h"
 #include "ShaderManager.h"
-//#include "TextureCache.h"	@TODO merge this with manager!
 #include <memory>
 
 
@@ -45,18 +44,18 @@ public:
 
 	
 
-	void desiredApi()
-	{
-		Scene scene(_sys, AABB(SVec3(), SVec3(300)));
+	//void desiredApi()
+	//{
+	//	Scene scene(_sys, AABB(SVec3(), SVec3(300)));
 
-		// init floor
-		// scene.insert(floor)
+	//	// init floor
+	//	scene.insert(floor)
 
-		//init light
-		//scene.insert(light)
+	//	//init light
+	//	scene.insert(light)
 
-		// Show scene UI to allow adding stuff at will - althought not that useful
-	}
+	//	//Show scene UI to allow adding stuff at will
+	//}
 
 
 

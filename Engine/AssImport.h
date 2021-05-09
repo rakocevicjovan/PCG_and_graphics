@@ -13,8 +13,6 @@
 
 #include <entt/entt.hpp>
 
-#include "TextureManager.h"
-
 #include <cereal/cereal.hpp>
 
 #include <cereal/archives/binary.hpp>
@@ -31,8 +29,6 @@ private:
 	ResourceManager* _pResMan;
 	AssetLedger* _pLedger;
 	ShaderManager* _pShMan;
-	//TextureCache* _pTexCache; @TODO merge with manager
-	TextureManager _textureManager;
 
 	std::string _srcPath;
 	std::string _sceneName;
@@ -78,7 +74,6 @@ public:
 		_pResMan = resMan;
 		_pLedger = &resMan->_assetLedger;
 		_pShMan = shMan;
-		_textureManager = TextureManager(&resMan->_assetLedger, device);
 
 		// Allow flag customization inhere
 		unsigned int pFlags =
@@ -86,8 +81,8 @@ public:
 			aiProcess_ConvertToLeftHanded |
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
-			aiProcess_TransformUVCoords
-			| aiProcess_PopulateArmatureData;
+			aiProcess_TransformUVCoords |
+			aiProcess_PopulateArmatureData;
 
 		// This doesn't work, allegedly because optimization flags are on
 		//_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	
@@ -394,7 +389,6 @@ public:
 			std::string texPath{ _destPath + texName };
 
 			FileUtils::writeAllBytes(texPath, blob._data.get(), blob._size);
-			//_textureManager.create(texPath.c_str(), )
 			_pLedger->insert(texPath, ResType::TEXTURE);
 
 			if (embedded)
@@ -418,9 +412,9 @@ public:
 			textureIDs.reserve(matMetaData._tempTexData.size());
 
 			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(textureIDs),
-				[&texMan = _textureManager](MatImporter::TempTexData& ttd)
+				[&ledger = _pLedger](MatImporter::TempTexData& ttd)
 				{
-					return texMan.getID(ttd._path.c_str());
+					return ledger->insert(ttd._path.c_str(), ResType::TEXTURE);
 				});
 
 			// Serialize
@@ -457,10 +451,12 @@ public:
 
 			if (_model)
 			{
+				Math::SetTranslation(_model->_transform, offset);
+				Math::SetScale(_model->_transform, SVec3(_previewScale));
+
 				for (Mesh& r : _model->_meshes)
 				{
-					Math::SetTranslation(_model->_transform, offset);
-					Math::SetScale(r._transform, SVec3(_previewScale));
+					r._worldSpaceTransform = _model->_transform * r._parentSpaceTransform;
 					r.draw(context);
 				}
 			}

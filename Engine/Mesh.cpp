@@ -18,7 +18,7 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}	// Not sure if true
 	};
 	terrain.populateMesh(_vertices, _indices);
-	_transform = SMatrix::CreateTranslation(terrain.getOffset());
+	_worldSpaceTransform = SMatrix::CreateTranslation(terrain.getOffset());
 	setupMesh(device);
 }
 

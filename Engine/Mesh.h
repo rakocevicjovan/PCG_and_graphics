@@ -32,7 +32,11 @@ public:
 
 	std::shared_ptr<Material> _material;
 
-	SMatrix _transform;
+	// Transform relative to parent model, concatenated by tree traversal
+	SMatrix _parentSpaceTransform;
+
+	// For rendering - should be moved out
+	SMatrix _worldSpaceTransform;
 
 	Mesh() {};
 	~Mesh() = default;
@@ -47,7 +51,7 @@ public:
 
 	inline const SMatrix& renderTransform() const
 	{
-		return _transform;
+		return _worldSpaceTransform;
 	}
 
 
