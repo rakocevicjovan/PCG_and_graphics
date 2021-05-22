@@ -41,12 +41,9 @@ void SkeletalMesh::draw(ID3D11DeviceContext* dc)
 	//set shaders and similar geebees
 	_material->bind(dc);
 
-	//could sort by this as well... should be fairly uniform though
-	dc->IASetPrimitiveTopology(_material->_primitiveTopology);
-
 	//these have to change each time unless I'm packing multiple meshes per buffer... can live with that tbh
-	dc->IASetVertexBuffers(0, 1, _vertexBuffer.ptr(), &_vertexBuffer._stride, &_vertexBuffer._offset);
-	dc->IASetIndexBuffer(_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
+	_vertexBuffer.bind(dc);
+	_indexBuffer.bind(dc);
 
 	dc->DrawIndexed(_indexBuffer.getIdxCount(), 0, 0);
 }

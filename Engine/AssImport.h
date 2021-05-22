@@ -10,6 +10,8 @@
 #include "ShaderManager.h"
 #include "MatImporter.h"
 #include "AssimpGUI.h"
+
+// Structs representing serialized versions of different runtime types
 #include "MaterialAsset.h"
 
 #include <entt/entt.hpp>
@@ -356,7 +358,7 @@ public:
 			cereal::BinaryOutputArchive boa(ofs);
 			//cereal::JSONOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
-			return _pLedger->insert(skeletonPath, ResType::SKELETON);
+			return _pLedger->insert(skeletonPath.c_str(), ResType::SKELETON);
 		}
 		return 0;
 	}
@@ -375,7 +377,7 @@ public:
 			cereal::BinaryOutputArchive boa(ofs);
 
 			_anims[i].serialize(boa);
-			animIDs.push_back(_pLedger->insert(animPath, ResType::ANIMATION));
+			animIDs.push_back(_pLedger->insert(animPath.c_str(), ResType::ANIMATION));
 		}
 		return animIDs;
 	}
@@ -387,10 +389,10 @@ public:
 		for (auto& [name, blob, embedded] : _matData._blobs)
 		{
 			std::string texName = std::filesystem::path(name).filename().string();
-			std::string texPath{ _destPath + texName };
+			std::string texPath{ _destPath + "textures/" + texName };
 
 			FileUtils::writeAllBytes(texPath, blob._data.get(), blob._size);
-			_pLedger->insert(texPath, ResType::TEXTURE);
+			_pLedger->insert(texPath.c_str(), ResType::TEXTURE);
 
 			if (embedded)
 				blob._data.release();
@@ -404,29 +406,33 @@ public:
 	std::vector<AssetID> persistMats()
 	{
 		std::vector<uint32_t> matIDs;
+
 		for (UINT i = 0; i < _matData._mats.size(); ++i)
 		{
 			// Get texture IDs
 			auto& matMetaData = _matData._matMetaData[i];
 
-			std::vector<AssetID> textureIDs;
-			textureIDs.reserve(matMetaData._tempTexData.size());
+			MaterialAsset matAsset;
 
-			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(textureIDs),
+			// Hardcoded for now, fix
+			matAsset._opaque = true;
+
+			matAsset._textureIDs.reserve(matMetaData._tempTexData.size());
+
+			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(matAsset._textureIDs),
 				[&ledger = _pLedger](MatImporter::TempTexData& ttd)
 				{
-					return ledger->insert(ttd._path.c_str(), ResType::TEXTURE);
+					return ledger->getExistingID(ttd._path.c_str());
 				});
 
 			// Serialize
 			std::string matPath{ _destPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
 			std::ofstream ofs(matPath, std::ios::binary);	
-			//cereal::BinaryOutputArchive boa(ofs);
-			cereal::JSONOutputArchive output(ofs);
+			cereal::JSONOutputArchive output(ofs);	//cereal::BinaryOutputArchive boa(ofs);
 
-			_matData._mats[i]->save(output, textureIDs);
+			matAsset.serialize(output);
 
-			matIDs.push_back(_pLedger->insert(matPath, ResType::MATERIAL));
+			matIDs.push_back(_pLedger->insert(matPath.c_str(), ResType::MATERIAL));
 		}
 		return matIDs;
 	}

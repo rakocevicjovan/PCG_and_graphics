@@ -35,10 +35,6 @@ public:
 	// Determines whether it goes to the transparent or opaque queue
 	bool _opaque{false};
 
-	// This could also belong in the vertex buffer... like stride and offset do
-	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
-
-
 	Material() = default;
 
 	Material(VertexShader* vs, PixelShader* ps, bool opaque);
@@ -48,7 +44,6 @@ public:
 		_vertexShader->bind(context);
 		_pixelShader->bind(context);
 		bindTextures(context);
-		context->IASetPrimitiveTopology(_primitiveTopology);
 	}
 
 	void bindTextures(ID3D11DeviceContext* context) const;

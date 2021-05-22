@@ -48,13 +48,9 @@ public:
 
 		context->PSSetShaderResources(0, 1, &_shResView);
 
-		context->IASetPrimitiveTopology(_r.mat->_primitiveTopology);
+		_r.mesh->_vertexBuffer.bind(context);
+		_r.mesh->_indexBuffer.bind(context);
 
-		unsigned int stride = _r.mesh->_vertexBuffer._stride;
-		unsigned int offset = _r.mesh->_vertexBuffer._offset;
-
-		context->IASetVertexBuffers(0, 1, _r.mesh->_vertexBuffer.ptr(), &stride, &offset);
-		context->IASetIndexBuffer(_r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
 		context->DrawIndexed(_r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 
 		ID3D11ShaderResourceView* unbinder[] = { nullptr };

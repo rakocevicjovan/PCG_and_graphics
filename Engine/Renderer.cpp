@@ -127,15 +127,8 @@ void Renderer::render(const Renderable& r) const
 	// Set shaders and similar geebees
 	r.mat->bind(_deviceContext);
 
-	// Could sort by this as well... should be fairly uniform though
-	_deviceContext->IASetPrimitiveTopology(r.mat->_primitiveTopology);
-
-	// Packing vertex buffers together could be a good idea eventually
-	UINT stride = r.mesh->getStride();
-	UINT offset = r.mesh->getOffset();
-
-	_deviceContext->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
-	_deviceContext->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
+	r.mesh->_vertexBuffer.bind(_deviceContext);
+	r.mesh->_indexBuffer.bind(_deviceContext);
 
 	_deviceContext->DrawIndexed(r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 }

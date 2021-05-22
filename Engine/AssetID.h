@@ -2,6 +2,7 @@
 #include "ResourceType.h"
 
 using AssetID = uint32_t;
+
 static constexpr AssetID NULL_ASSET = (~static_cast <AssetID>(0)); // Can collide though...
 
 struct ResourceDef

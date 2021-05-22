@@ -165,14 +165,10 @@ public:
 		_wmBuffer.updateWithStruct(context, transformTranspose);
 		_wmBuffer.bindToVS(context, 1);
 
-		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
 		context->IASetInputLayout(_inLay);
 
-		UINT stride = r.mesh->getStride();
-		UINT offset = r.mesh->getOffset();
-
-		context->IASetVertexBuffers(0, 1, r.mesh->_vertexBuffer.ptr(), &stride, &offset);
-		context->IASetIndexBuffer(r.mesh->_indexBuffer.ptr(), DXGI_FORMAT_R32_UINT, 0);
+		r.mesh->_vertexBuffer.bind(context);
+		r.mesh->_indexBuffer.bind(context);
 
 		context->DrawIndexed(r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 	}

@@ -39,15 +39,15 @@ public:
 	}
 
 
-	AssetID insert(const std::string& path, ResType /*resType*/)
+	AssetID insert(const char* path, ResType /*resType*/)
 	{
-		AssetID pathHash = fnv1hash(path.c_str());
+		AssetID pathHash = fnv1hash(path);
 
 		auto iter = _assDefs.insert({ pathHash, path});
 		if (!iter.second)
 		{
-			OutputDebugStringA(std::string("HASH COLLISION!" + path).c_str());
-			return ~0;
+			OutputDebugStringA(std::string("HASH COLLISION!" + std::string{ path, strlen(path) }).c_str());
+			return NULL_ASSET;
 		}
 
 		_dirty = true;
@@ -63,6 +63,19 @@ public:
 			return &(iter->second);
 		else
 			return nullptr;
+	}
+
+
+	inline const AssetID getExistingID(const char* path)
+	{
+		AssetID pathHash = fnv1hash(path);
+
+		if (_assDefs.find(pathHash) != _assDefs.end())
+		{
+			return pathHash;
+		}
+
+		return NULL_ASSET;
 	}
 
 

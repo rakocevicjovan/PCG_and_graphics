@@ -15,7 +15,7 @@ public:
 
 	UINT _stride{0u};
 	UINT _offset{0u};
-
+	D3D11_PRIMITIVE_TOPOLOGY _primitiveTopology{ D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 
 	VBuffer() : _vbPtr(nullptr), _stride(0u), _offset(0u) {}
 
@@ -45,7 +45,8 @@ public:
 	// This will have to change when multiple buffers are at play
 	inline void bind(ID3D11DeviceContext* context)
 	{
-		context->IASetVertexBuffers(0, 1, &_vbPtr, &_stride, &_offset);
+		context->IASetPrimitiveTopology(_primitiveTopology);	// Probably a bad idea because it will almost never change, should be checked.
+		context->IASetVertexBuffers(0, 1, _vbPtr.GetAddressOf(), &_stride, &_offset);
 	}
 
 

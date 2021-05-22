@@ -55,7 +55,7 @@ public:
 
 	bool create(const std::string& path, const Texture& texture)
 	{
-		AssetID nameHash = _assetLedger->insert(path, ResType::TEXTURE);
+		AssetID nameHash = _assetLedger->insert(path.c_str(), ResType::TEXTURE);
 		return _texMap.insert({ nameHash, texture }).second;
 	}
 
