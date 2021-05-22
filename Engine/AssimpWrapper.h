@@ -134,6 +134,21 @@ public:
 
 	static UINT countChildren(const aiNode* node);
 
+	inline static D3D11_PRIMITIVE_TOPOLOGY getPrimitiveTopology(const aiMesh* mesh)
+	{
+		switch (mesh->mPrimitiveTypes)
+		{
+			case aiPrimitiveType_LINE:
+				return D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+			case aiPrimitiveType_POINT:
+				return D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+			case aiPrimitiveType_TRIANGLE:
+				return D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			default: 
+				OutputDebugStringA("Unexpected primitive topology found by assimp. Investigate.");
+				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		}
+	}
 
 	// Short helpers, inlined
 	inline static bool isOnlySkeleton(const aiScene* scene)

@@ -4,44 +4,8 @@
 #include "VertSignature.h"
 #include "Skeleton.h"
 
-class MeshLoader
+namespace MeshImporter
 {
-	VertSignature _vertSig;
-	std::vector<uint8_t> _vertPool;
-
-	std::vector<UINT> _indices;
-	
-	Material* _material;
-	std::vector<Texture> _textures;
-
-
-public:
-
-	/*
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, const std::string& path, const Skeleton* skeleton = nullptr)
-	{
-		_vertSig = createVertSignature(aiMesh);
-
-		loadVertData(_vertSig, _vertPool, aiMesh, skeleton);
-
-		AssimpWrapper::loadIndices(aiMesh, _indices);
-
-		_material = new Material();
-
-		AssimpWrapper::loadMaterial(scene, aiMesh->mMaterialIndex, path, _material, _textures);
-
-		_material->_opaque = true;
-
-		for (TextureMetaData& rtp : _material->_texMetaData)
-		{
-			rtp._tex = &_textures[reinterpret_cast<UINT>(rtp._tex.get())];
-			rtp._tex->SetUpAsResource(device);
-		}
-	}
-	*/
-
-
-
 	static VertSignature createVertSignature(aiMesh* aiMesh)
 	{
 		VertSignature vertSig;
@@ -106,8 +70,7 @@ public:
 	}
 
 
-	 //@TODO rework this so it's private, mesh should just call above
-	void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton = nullptr)
+	static void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton = nullptr)
 	{
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
@@ -125,7 +88,6 @@ public:
 				dst += vertByteWidth;
 			}
 		}
-
 
 		// There are potentially multiple texture coordinate channels, to be stored at an accumulating offset
 		// Initial offset is the offset to first channel, all channels will always be contiguous per vertex
@@ -208,5 +170,4 @@ public:
 			}
 		}
 	}
-
 };

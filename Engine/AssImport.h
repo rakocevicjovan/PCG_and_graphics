@@ -85,7 +85,8 @@ public:
 			aiProcess_Triangulate |
 			aiProcess_GenSmoothNormals |
 			aiProcess_TransformUVCoords |
-			aiProcess_PopulateArmatureData;
+			aiProcess_PopulateArmatureData |
+			aiProcess_SortByPType;
 
 		// This doesn't work, allegedly because optimization flags are on
 		//_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	

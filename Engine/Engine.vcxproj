@@ -447,7 +447,7 @@
     <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="MatImporter.h" />
     <ClInclude Include="Mesh2.h" />
-    <ClInclude Include="MeshLoader.h" />
+    <ClInclude Include="MeshImporter.h" />
     <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="ParallelPrefixSum.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

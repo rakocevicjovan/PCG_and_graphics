@@ -1,15 +1,15 @@
 #include "pch.h"
 #include "SkeletalMesh.h"
 #include "AssimpWrapper.h"
-#include "MeshLoader.h"
+#include "MeshImporter.h"
 
 
 void SkeletalMesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
 	std::vector<std::shared_ptr<Material>>& materials, Skeleton* skeleton, const std::string& path)
 {
-	_vertSig = MeshLoader::createVertSignature(aiMesh);
-	MeshLoader meshLoader;
-	meshLoader.loadVertData(_vertSig, _vertices, aiMesh, skeleton);
+	_vertSig = MeshImporter::createVertSignature(aiMesh);
+	MeshImporter::loadVertData(_vertSig, _vertices, aiMesh, skeleton);
+	_vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
 	// Use this index to associate the mesh material with the loaded material.

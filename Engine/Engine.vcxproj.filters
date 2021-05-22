@@ -957,7 +957,7 @@
     <ClInclude Include="AssetScanner.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="MeshLoader.h">
+    <ClInclude Include="MeshImporter.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="SkeletonImporter.h">
