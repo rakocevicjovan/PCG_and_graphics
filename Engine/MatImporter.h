@@ -78,7 +78,6 @@ public:
 					if (texBlob.blob._size == 0)	// Skip textures that were not found, for now.
 						return;
 
-					//tex->_fileName = path;	// We care about the final post-import path, not this
 					tex->loadFromMemory(reinterpret_cast<unsigned char*>(texBlob.blob._data.get()), texBlob.blob._size);
 					tex->setUpAsResource(device);
 

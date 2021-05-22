@@ -440,6 +440,7 @@
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="AssetViews.h" />
+    <ClInclude Include="MaterialAsset.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PooledSceneGraph.h" />

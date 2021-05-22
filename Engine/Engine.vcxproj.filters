@@ -1087,6 +1087,9 @@
     <ClInclude Include="TreeHelper.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialAsset.h">
+      <Filter>Rendering\High level\Materials</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

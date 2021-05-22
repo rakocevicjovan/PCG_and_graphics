@@ -43,8 +43,8 @@ public:
 	bool loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path);
 
 	template<class Archive>
-	void serialize(Archive& archive, std::vector<UINT>& meshIndices)
+	void serialize(Archive& archive, std::vector<AssetID>& matIndices)
 	{
-		archive(_transform, _meshes.size(), meshIndices);
+		archive(_transform);
 	}
 };

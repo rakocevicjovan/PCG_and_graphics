@@ -11,7 +11,6 @@ Material::Material(VertexShader* vs, PixelShader* ps, bool opaque)
 
 void Material::bindTextures(ID3D11DeviceContext* context) const
 {
-	//for (int i = 0; i < _materialTextures.size(); ++i)
 	for(auto& [metaData, tex] : _materialTextures)
 	{
 		if (tex->_dxID.Get())
@@ -27,11 +26,11 @@ std::vector<D3D11_SAMPLER_DESC> Material::createSamplerDescs() const
 {
 	static const std::map<TextureMapMode, D3D11_TEXTURE_ADDRESS_MODE> ADDR_MODE_MAP
 	{
-		{CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP},
-		{WRAP, D3D11_TEXTURE_ADDRESS_WRAP},
-		{MIRROR, D3D11_TEXTURE_ADDRESS_MIRROR},
-		{MIRROR_ONCE, D3D11_TEXTURE_ADDRESS_MIRROR_ONCE},
-		{BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
+		{TextureMapMode::CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP},
+		{TextureMapMode::WRAP, D3D11_TEXTURE_ADDRESS_WRAP},
+		{TextureMapMode::MIRROR, D3D11_TEXTURE_ADDRESS_MIRROR},
+		{TextureMapMode::MIRROR_ONCE, D3D11_TEXTURE_ADDRESS_MIRROR_ONCE},
+		{TextureMapMode::BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
 	};
 
 	std::vector<D3D11_SAMPLER_DESC> result;

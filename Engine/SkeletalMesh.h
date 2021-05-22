@@ -79,7 +79,7 @@ public:
 	template <typename Archive>
 	void serialize(Archive& archive, UINT matID)
 	{
-		archive(_indices.size(), _vertices.size(), matID, _worldSpaceTransform, _indices, _vertices);
+		archive(_indices, _vertices, _parentSpaceTransform, matID);
 	}
 };
 

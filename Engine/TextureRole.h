@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-enum TextureMapMode : uint8_t
+enum class TextureMapMode : uint8_t
 {
 	WRAP,
 	MIRROR,

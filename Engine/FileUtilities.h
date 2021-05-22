@@ -11,7 +11,7 @@
 struct Blob
 {
 	std::unique_ptr<char[]> _data;
-	uint64_t _size = 0u;
+	size_t _size = 0u;
 };
 
 

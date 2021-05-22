@@ -10,6 +10,7 @@
 #include "ShaderManager.h"
 #include "MatImporter.h"
 #include "AssimpGUI.h"
+#include "MaterialAsset.h"
 
 #include <entt/entt.hpp>
 
@@ -323,9 +324,9 @@ public:
 	void persistAssets()
 	{
 		uint32_t skeletonID = persistSkeleton();
-		std::vector<uint32_t> animIDs = persistAnims();
+		std::vector<AssetID> animIDs = persistAnims();
 		persistTextures();
-		std::vector<uint32_t> matIDs = persistMats();
+		std::vector<AssetID> matIDs = persistMats();
 
 		std::string mPath{ _destPath + _sceneName + ".aeon" };
 		std::ofstream ofs(mPath, std::ios::binary);
@@ -338,7 +339,7 @@ public:
 
 		if (_model.get())
 		{
-			//_model->serialize();
+			_model->serialize(boa, matIDs);
 		}
 
 		_pLedger->save();
