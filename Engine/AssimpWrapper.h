@@ -21,7 +21,7 @@ class AssimpWrapper
 {
 public:
 
-	typedef std::pair< aiTextureType, TextureRole> TEX_TYPE_ROLE;
+	typedef std::pair<aiTextureType, TextureRole> TEX_TYPE_ROLE;
 
 	static inline const std::vector<TEX_TYPE_ROLE> ASSIMP_TEX_TYPES
 	{

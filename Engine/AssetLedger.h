@@ -39,6 +39,18 @@ public:
 	}
 
 
+	inline bool contains(AssetID id)
+	{
+		return _assDefs.find(id) != _assDefs.end();
+	}
+
+
+	inline bool contains(const char* path)
+	{
+		return contains(fnv1hash(path));
+	}
+
+
 	AssetID insert(const char* path, ResType /*resType*/)
 	{
 		AssetID pathHash = fnv1hash(path);
@@ -59,10 +71,14 @@ public:
 	{
 		auto iter = _assDefs.find(ID);
 		
-		if (iter != _assDefs.end())
-			return &(iter->second);
-		else
-			return nullptr;
+		return iter == _assDefs.end() ? nullptr : &(iter->second);
+	}
+
+
+	AssetID getOrInsert(const char* path, ResType resType)
+	{
+		auto id = getExistingID(path);
+		return getExistingID(path) == NULL_ASSET ? insert(path, resType) : id;
 	}
 
 
@@ -70,18 +86,7 @@ public:
 	{
 		AssetID pathHash = fnv1hash(path);
 
-		if (_assDefs.find(pathHash) != _assDefs.end())
-		{
-			return pathHash;
-		}
-
-		return NULL_ASSET;
-	}
-
-
-	inline void remove(const std::string& assName)
-	{
-		remove(fnv1hash(assName.c_str()));
+		return contains(pathHash) ? pathHash : NULL_ASSET;
 	}
 
 
@@ -91,6 +96,12 @@ public:
 		{
 			_dirty = true;
 		}
+	}
+
+
+	inline void remove(const std::string& assName)
+	{
+		remove(fnv1hash(assName.c_str()));
 	}
 
 
