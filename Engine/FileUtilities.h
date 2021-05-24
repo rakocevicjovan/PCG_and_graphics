@@ -12,6 +12,12 @@ struct Blob
 {
 	std::unique_ptr<char[]> _data;
 	size_t _size = 0u;
+
+	void reset()
+	{
+		_data.reset();
+		_size = 0u;
+	}
 };
 
 

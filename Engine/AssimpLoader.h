@@ -68,7 +68,7 @@ public:
 		// Create point light for scene preview
 		LightData ld = LightData(SVec3(1.), .2, SVec3(1.), .6, SVec3(1.), .7);
 
-		_pointLight = PointLight(ld, SVec4(0., 300., 0., 1.));
+		_pointLight = PointLight(ld, SVec4(0., 300., -300., 1.));
 
 		_pointLight.createCBuffer(S_DEVICE, _pointLightCB);
 		_pointLight.updateCBuffer(S_CONTEXT, _pointLightCB);
@@ -76,8 +76,6 @@ public:
 
 		float _tSize = 500.f;
 		Procedural::Terrain terrain(2, 2, SVec3(_tSize), SVec3(-_tSize * .5f, -0.f, -_tSize * .5f));
-
-		//entt::entity entity = _scene._registry.create();
 
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
 		auto shPack = _shMan.getShaderAuto(_floorMesh->_vertSig, _floorMesh->_material.get());
