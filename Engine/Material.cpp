@@ -24,13 +24,13 @@ void Material::bindTextures(ID3D11DeviceContext* context) const
 // What is this even doing 
 std::vector<D3D11_SAMPLER_DESC> Material::createSamplerDescs() const
 {
-	static const std::map<TextureMapMode, D3D11_TEXTURE_ADDRESS_MODE> ADDR_MODE_MAP
+	static const std::map<SamplingMode, D3D11_TEXTURE_ADDRESS_MODE> ADDR_MODE_MAP
 	{
-		{TextureMapMode::CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP},
-		{TextureMapMode::WRAP, D3D11_TEXTURE_ADDRESS_WRAP},
-		{TextureMapMode::MIRROR, D3D11_TEXTURE_ADDRESS_MIRROR},
-		{TextureMapMode::MIRROR_ONCE, D3D11_TEXTURE_ADDRESS_MIRROR_ONCE},
-		{TextureMapMode::BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
+		{SamplingMode::CLAMP, D3D11_TEXTURE_ADDRESS_CLAMP},
+		{SamplingMode::WRAP, D3D11_TEXTURE_ADDRESS_WRAP},
+		{SamplingMode::MIRROR, D3D11_TEXTURE_ADDRESS_MIRROR},
+		{SamplingMode::MIRROR_ONCE, D3D11_TEXTURE_ADDRESS_MIRROR_ONCE},
+		{SamplingMode::BORDER, D3D11_TEXTURE_ADDRESS_BORDER}
 	};
 
 	std::vector<D3D11_SAMPLER_DESC> result;

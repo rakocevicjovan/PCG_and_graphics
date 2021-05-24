@@ -418,12 +418,12 @@ public:
 			// Hardcoded for now, fix
 			matAsset._opaque = true;
 
-			matAsset._textureIDs.reserve(matMetaData._tempTexData.size());
+			matAsset._textures.reserve(matMetaData._tempTexData.size());
 
-			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(matAsset._textureIDs),
-				[&ledger = _pLedger](MatImporter::TempTexData& ttd)
+			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(matAsset._textures),
+				[&ledger = _pLedger](MatImporter::TexturePathAndMetadata& texPathAndMetaData)
 				{
-					return ledger->getExistingID(ttd._path.c_str());
+					return MaterialAsset::AssetMaterialTexture{ texPathAndMetaData.metaData, ledger->getExistingID(texPathAndMetaData.path.c_str()) };
 				});
 
 			// Serialize

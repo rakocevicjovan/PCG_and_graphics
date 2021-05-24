@@ -44,12 +44,12 @@ public:
 		{ aiTextureType_UNKNOWN,			OTHER }
 	};
 
-	inline static const std::map<aiTextureMapMode, TextureMapMode> TEXMAPMODE_MAP
+	inline static const std::map<aiTextureMapMode, SamplingMode> TEXMAPMODE_MAP
 	{
-		{aiTextureMapMode_Wrap,		TextureMapMode::WRAP},
-		{aiTextureMapMode_Clamp,	TextureMapMode::CLAMP},
-		{aiTextureMapMode_Decal,	TextureMapMode::BORDER},
-		{aiTextureMapMode_Mirror,	TextureMapMode::MIRROR}
+		{aiTextureMapMode_Wrap,		SamplingMode::WRAP},
+		{aiTextureMapMode_Clamp,	SamplingMode::CLAMP},
+		{aiTextureMapMode_Decal,	SamplingMode::BORDER},
+		{aiTextureMapMode_Mirror,	SamplingMode::MIRROR}
 	};
 
 	// New code, trying to do this in a better way

@@ -12,19 +12,19 @@ class MatImporter
 {
 public:
 
-	struct TempTexData
+	struct TexturePathAndMetadata
 	{
-		std::string _path;
-		TextureMetaData _tmd;
+		std::string path;
+		TextureMetaData metaData;
 	};
 
 	struct MatMetaData
 	{
-		std::vector<TempTexData> _tempTexData;
+		std::vector<TexturePathAndMetadata> _tempTexData;
 		// ParameterBundle _paramBundle;	// When decided upon.
 	};
 
-	struct TexNameBlob
+	struct RawTextureData
 	{
 		std::string name;
 		Blob blob;
@@ -35,7 +35,7 @@ public:
 	{
 		std::vector<MatMetaData> _matMetaData;
 		std::vector<std::shared_ptr<Material>> _mats;
-		std::vector<TexNameBlob> _blobs;
+		std::vector<RawTextureData> _blobs;
 	};
 
 
@@ -57,41 +57,18 @@ public:
 		{
 			for (auto& ttd : mmd._tempTexData)
 			{
-				uniqueTextures.insert({ ttd._path, std::make_shared<Texture>() });
+				uniqueTextures.insert({ ttd.path, std::make_shared<Texture>() });
 			}
 		}
 
 		// Load uniquely identified textures as data blobs (in order to persist them later)
-		std::vector<TexNameBlob> texNameBlobs;
-		texNameBlobs.reserve(uniqueTextures.size());
+		auto texNameBlobs = LoadRawTextureData(scene, modPath, device, uniqueTextures);
 
-		{
-			std::mutex texNameBlobMutex;
-
-			std::for_each(std::execution::par, uniqueTextures.begin(), uniqueTextures.end(),
-				[&scene, &modPath, &device, &texNameBlobs, &texNameBlobMutex](std::pair<const std::string, std::shared_ptr<Texture>>& pair)
-				{
-					auto& [path, tex] = pair;
-
-					TexNameBlob texBlob = MatImporter::GetTextureBlob(scene, modPath, path);
-
-					if (texBlob.blob._size == 0)	// Skip textures that were not found, for now.
-						return;
-
-					tex->loadFromMemory(reinterpret_cast<unsigned char*>(texBlob.blob._data.get()), texBlob.blob._size);
-					tex->setUpAsResource(device);
-
-					texNameBlobMutex.lock();
-					texNameBlobs.push_back(std::move(texBlob));
-					texNameBlobMutex.unlock();
-				});
-		}
 
 		// Create materials from provided metadata and assign already loaded textures to them
 		std::vector<std::shared_ptr<Material>> materials;
 		materials.reserve(materialCount);
 
-		
 		for (const MatMetaData& mmd : matMetaData)
 		{
 			std::shared_ptr<Material> curMat = std::make_shared<Material>();
@@ -99,9 +76,9 @@ public:
 			UINT numTexRefs = mmd._tempTexData.size();
 			curMat->_materialTextures.reserve(numTexRefs);
 
-			for (const TempTexData& tempTexData : mmd._tempTexData)
+			for (const TexturePathAndMetadata& tempTexData : mmd._tempTexData)
 			{
-				curMat->_materialTextures.push_back({tempTexData._tmd, uniqueTextures[tempTexData._path]});
+				curMat->_materialTextures.push_back({tempTexData.metaData, uniqueTextures[tempTexData.path]});
 			}
 
 			materials.push_back(std::move(curMat));
@@ -120,39 +97,43 @@ private:
 		//loadParameterBlob(aiMat);
 
 		// Textures
-		std::vector<TempTexData> tempTexData;
+		std::vector<TexturePathAndMetadata> tempTexData;
 
-		for (AssimpWrapper::TEX_TYPE_ROLE ttr : AssimpWrapper::ASSIMP_TEX_TYPES)
+		for (AssimpWrapper::TEX_TYPE_ROLE textureTypeRolePair : AssimpWrapper::ASSIMP_TEX_TYPES)
 		{
-			GetTexMetaData(aiMat, ttr, tempTexData);
+			GetTexMetaData(aiMat, textureTypeRolePair, tempTexData);
 		}
 
-		return { tempTexData };
+		return MatMetaData{ tempTexData };
 	}
 
 
-	static void GetTexMetaData(const aiMaterial* aiMat, AssimpWrapper::TEX_TYPE_ROLE ttr, std::vector<TempTexData>& ttd)
+	static void GetTexMetaData(const aiMaterial* aiMat, const AssimpWrapper::TEX_TYPE_ROLE textureTypeRolePair, std::vector<TexturePathAndMetadata>& texPathAndMetaData)
 	{
-		// Iterate all textures related to the material, keep the ones that can load
-		UINT texCountByType = aiMat->GetTextureCount(ttr.first);
-		for (UINT i = 0; i < texCountByType; ++i)
+		auto& [aiType, role] = textureTypeRolePair;
+
+		auto texCountByType = aiMat->GetTextureCount(aiType);
+
+		for (uint32_t i = 0u; i < texCountByType; ++i)
 		{
 			aiString aiTexPath;
-			UINT uvIndex = 0u;
+			uint32_t uvIndex = 0u;
 			aiTextureMapMode aiMapModes[3]{ aiTextureMapMode_Wrap, aiTextureMapMode_Wrap, aiTextureMapMode_Wrap };
 
-			aiMat->GetTexture(ttr.first, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
+			aiMat->GetTexture(aiType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
 
-			TextureMapMode mapModes[3];
-			for (UINT j = 0; j < 3; ++j)
+			std::array<SamplingMode, 3> mapModes;
+			for (uint32_t j = 0; j < 3; ++j)
+			{
 				mapModes[j] = AssimpWrapper::TEXMAPMODE_MAP.at(aiMapModes[j]);
+			}
 
-			ttd.push_back(
+			texPathAndMetaData.push_back(
 				{
 					aiTexPath.C_Str(),
 					{
-						ttr.second,
-						{ mapModes[0], mapModes[1], mapModes[2] },
+						role,
+						mapModes,
 						static_cast<uint8_t>(uvIndex),
 						0u
 					}
@@ -161,7 +142,7 @@ private:
 	}
 
 
-	static TexNameBlob GetTextureBlob(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
+	static RawTextureData GetRawTextureData(const aiScene* scene, const std::string& modelPath, const std::string& texPath)
 	{
 		const char* texName = aiScene::GetShortFilename(texPath.c_str());
 
@@ -260,6 +241,34 @@ private:
 		aiColor4D reflectiveColour;
 		if (aiMat->Get(AI_MATKEY_COLOR_REFLECTIVE, reflectiveColour) != aiReturn_SUCCESS)
 			reflectiveColour = aiColor4D(0., 0., 0., 1.);
+	}
 
+
+	static std::vector<RawTextureData> LoadRawTextureData(const aiScene* scene, const std::string& modelPath, ID3D11Device* device, const std::map<std::string, std::shared_ptr<Texture>>& uniqueTextures)
+	{
+		std::vector<RawTextureData> rawTextureData;
+		rawTextureData.reserve(uniqueTextures.size());
+
+		std::mutex rawTextureDataMutex;
+
+		std::for_each(std::execution::par, uniqueTextures.begin(), uniqueTextures.end(),
+			[&scene, &modelPath, &device, &rawTextureData, &rawTextureDataMutex](const std::pair<std::string, std::shared_ptr<Texture>>& pair)
+			{
+				auto& [texturePath, tex] = pair;
+
+				RawTextureData rawTextureDatum = MatImporter::GetRawTextureData(scene, modelPath, texturePath);
+
+				if (rawTextureDatum.blob._size == 0)	// Skip textures that were not found, for now.
+					return;
+
+				tex->loadFromMemory(reinterpret_cast<unsigned char*>(rawTextureDatum.blob._data.get()), rawTextureDatum.blob._size);
+				tex->setUpAsResource(device);
+
+				rawTextureDataMutex.lock();
+				rawTextureData.push_back(std::move(rawTextureDatum));
+				rawTextureDataMutex.unlock();
+			});
+
+		return rawTextureData;
 	}
 };

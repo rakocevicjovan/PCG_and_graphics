@@ -78,7 +78,7 @@ bool AssimpWrapper::LoadMaterialTextures(
 
 		aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
 		
-		TextureMapMode mapModes[3];
+		SamplingMode mapModes[3];
 		for (UINT j = 0; j < 3; ++j)
 			mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
 
