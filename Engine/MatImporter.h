@@ -26,16 +26,15 @@ public:
 
 	struct RawTextureData
 	{
-		std::string name;
 		Blob blob;
 		bool embedded = false;	// Assimp will release embedded textures
 	};
 
+	// Includes both metadata and loaded versions of materials and textures
 	struct MatsAndTextureBlobs
 	{
-		std::vector<MatMetaData> _matMetaData;
-		std::vector<std::shared_ptr<Material>> _mats;
-		std::vector<RawTextureData> _blobs;
+		std::vector<std::pair<MatMetaData, std::shared_ptr<Material>>> _materials;
+		std::vector<std::pair<RawTextureData, std::shared_ptr<Texture>>> _textures;
 	};
 
 
@@ -52,17 +51,17 @@ public:
 		}
 
 		// Keep only unique textures, filtered by paths
-		std::map<std::string, std::shared_ptr<Texture>> uniqueTextures;
+		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>> uniqueTextures;
 		for (const auto& mmd : matMetaData)
 		{
 			for (auto& ttd : mmd._tempTexData)
 			{
-				uniqueTextures.insert({ ttd.path, std::make_shared<Texture>() });
+				uniqueTextures.insert({ ttd.path, std::make_pair(std::make_shared<Texture>(), RawTextureData{} ) });
 			}
 		}
 
 		// Load uniquely identified textures as data blobs (in order to persist them later)
-		auto texNameBlobs = LoadRawTextureData(scene, modPath, device, uniqueTextures);
+		LoadRawTextureData(scene, modPath, device, uniqueTextures);
 
 
 		// Create materials from provided metadata and assign already loaded textures to them
@@ -78,7 +77,7 @@ public:
 
 			for (const TexturePathAndMetadata& tempTexData : mmd._tempTexData)
 			{
-				curMat->_materialTextures.push_back({tempTexData.metaData, uniqueTextures[tempTexData.path]});
+				curMat->_materialTextures.push_back({tempTexData.metaData, uniqueTextures[tempTexData.path].first});
 			}
 
 			materials.push_back(std::move(curMat));
@@ -153,7 +152,7 @@ private:
 		if (embedded)
 		{
 			UINT len = aiTex->mHeight == 0 ? aiTex->mWidth : aiTex->mHeight * aiTex->mWidth;
-			return { texPath, std::unique_ptr<char[]>(reinterpret_cast<char*>(aiTex->pcData)), len, true };
+			return { std::unique_ptr<char[]>(reinterpret_cast<char*>(aiTex->pcData)), len, true };
 		}
 
 		// Texture is not embedded, search for external file
@@ -169,11 +168,11 @@ private:
 			}
 			else // Path is faulty, try to find it under model directory
 			{
-				return { texPath, Blob{}, false };
+				return { Blob{}, false };
 			}
 		}
 
-		return { texPath, FileUtils::readAllBytes(absTexPath.c_str()), false };
+		return { FileUtils::readAllBytes(absTexPath.c_str()), false };
 	}
 
 
@@ -244,17 +243,16 @@ private:
 	}
 
 
-	static std::vector<RawTextureData> LoadRawTextureData(const aiScene* scene, const std::string& modelPath, ID3D11Device* device, const std::map<std::string, std::shared_ptr<Texture>>& uniqueTextures)
+	static void LoadRawTextureData(const aiScene* scene, const std::string& modelPath, ID3D11Device* device, 
+		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>>& uniqueTextures)
 	{
-		std::vector<RawTextureData> rawTextureData;
-		rawTextureData.reserve(uniqueTextures.size());
-
-		std::mutex rawTextureDataMutex;
+		//std::mutex rawTextureDataMutex;
 
 		std::for_each(std::execution::par, uniqueTextures.begin(), uniqueTextures.end(),
-			[&scene, &modelPath, &device, &rawTextureData, &rawTextureDataMutex](const std::pair<std::string, std::shared_ptr<Texture>>& pair)
+			[&scene, &modelPath, &device/*, &rawTextureDataMutex*/](auto& namedPair)
 			{
-				auto& [texturePath, tex] = pair;
+				auto& [texturePath, texBlobPair] = namedPair;
+				auto& [tex, blob] = texBlobPair;
 
 				RawTextureData rawTextureDatum = MatImporter::GetRawTextureData(scene, modelPath, texturePath);
 
@@ -264,11 +262,9 @@ private:
 				tex->loadFromMemory(reinterpret_cast<unsigned char*>(rawTextureDatum.blob._data.get()), rawTextureDatum.blob._size);
 				tex->setUpAsResource(device);
 
-				rawTextureDataMutex.lock();
+				/*rawTextureDataMutex.lock();
 				rawTextureData.push_back(std::move(rawTextureDatum));
-				rawTextureDataMutex.unlock();
+				rawTextureDataMutex.unlock();*/
 			});
-
-		return rawTextureData;
 	}
 };
