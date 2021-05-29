@@ -42,7 +42,7 @@ public:
 	// Asset mesh holds these long term
 	VertSignature _vertSig;
 	std::vector<uint8_t> _vertices;
-	std::vector<UINT> _indices;
+	std::vector<uint32_t> _indices;
 
 	// And refers to these
 	std::shared_ptr<Material> _material;
@@ -58,9 +58,6 @@ public:
 	SMatrix _worldSpaceTransform;	
 
 	SkeletalMesh() {}
-
-	void loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
-		std::vector<std::shared_ptr<Material>>& materials, Skeleton* skeleton, const std::string& path);
 
 
 	bool setupSkeletalMesh(ID3D11Device* dvc);

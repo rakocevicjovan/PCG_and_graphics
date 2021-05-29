@@ -28,13 +28,28 @@ public:
 	{
 		Blob blob;
 		bool embedded = false;	// Assimp will release embedded textures
+
+		void freeMemory()
+		{
+			if (embedded)
+			{
+				blob._data.release();
+			}
+			blob.reset();
+		}
+
+		RawTextureData() = default;
+		RawTextureData& operator= (RawTextureData&& other) = default;
+		RawTextureData(const RawTextureData& other) = default;
+		RawTextureData(RawTextureData&& other) = default;
 	};
 
 	// Includes both metadata and loaded versions of materials and textures
 	struct MatsAndTextureBlobs
 	{
-		std::vector<std::pair<MatMetaData, std::shared_ptr<Material>>> _materials;
-		std::vector<std::pair<RawTextureData, std::shared_ptr<Texture>>> _textures;
+		std::vector<MatMetaData> _materialData;
+		std::vector<std::shared_ptr<Material>> _materials;
+		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>> _textures;
 	};
 
 
@@ -42,21 +57,27 @@ public:
 	{
 		const uint32_t materialCount{ scene->mNumMaterials };
 
-		std::vector<MatMetaData> matMetaData(materialCount);
+		MatsAndTextureBlobs result;
+		auto& outMats = result._materials;
+		auto& outMatData = result._materialData;
+		//auto& uniqueTextures = result._textures;
+		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>> uniqueTextures;
+
+		outMatData.reserve(materialCount);
+		outMats.reserve(materialCount);
 
 		// Get material metadata, including textures paths
 		for (UINT i = 0; i < materialCount; ++i)
 		{
-			matMetaData[i] = LoadMatMetaData(scene->mMaterials[i]);
+			outMatData.push_back(LoadMatMetaData(scene->mMaterials[i]));
 		}
 
 		// Keep only unique textures, filtered by paths
-		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>> uniqueTextures;
-		for (const auto& mmd : matMetaData)
+		for (const auto& mat : outMatData)
 		{
-			for (auto& ttd : mmd._tempTexData)
+			for (auto& tempTexData : mat._tempTexData)
 			{
-				uniqueTextures.insert({ ttd.path, std::make_pair(std::make_shared<Texture>(), RawTextureData{} ) });
+				uniqueTextures.emplace(std::make_pair(tempTexData.path, std::make_pair<std::shared_ptr<Texture>, RawTextureData>(std::make_shared<Texture>(), RawTextureData{})));
 			}
 		}
 
@@ -65,26 +86,27 @@ public:
 
 
 		// Create materials from provided metadata and assign already loaded textures to them
-		std::vector<std::shared_ptr<Material>> materials;
-		materials.reserve(materialCount);
+		outMats.reserve(materialCount);
 
-		for (const MatMetaData& mmd : matMetaData)
+		for (const auto& mat : outMatData)
 		{
+			auto& matMetaData = mat;
+
 			std::shared_ptr<Material> curMat = std::make_shared<Material>();
 
-			UINT numTexRefs = mmd._tempTexData.size();
+			UINT numTexRefs = matMetaData._tempTexData.size();
 			curMat->_materialTextures.reserve(numTexRefs);
 
-			for (const TexturePathAndMetadata& tempTexData : mmd._tempTexData)
+			for (const TexturePathAndMetadata& tempTexData : matMetaData._tempTexData)
 			{
 				curMat->_materialTextures.push_back({tempTexData.metaData, uniqueTextures[tempTexData.path].first});
 			}
 
-			materials.push_back(std::move(curMat));
+			outMats.push_back(std::move(curMat));
 		}
 		
 
-		return { matMetaData, materials, std::move(texNameBlobs) };
+		return { outMatData, outMats, std::move(uniqueTextures) };
 	}
 
 
@@ -246,13 +268,13 @@ private:
 	static void LoadRawTextureData(const aiScene* scene, const std::string& modelPath, ID3D11Device* device, 
 		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>>& uniqueTextures)
 	{
-		//std::mutex rawTextureDataMutex;
+		std::mutex rawTextureDataMutex;
 
 		std::for_each(std::execution::par, uniqueTextures.begin(), uniqueTextures.end(),
-			[&scene, &modelPath, &device/*, &rawTextureDataMutex*/](auto& namedPair)
+			[&scene, &modelPath, &device, &rawTextureDataMutex](auto& namedPair)
 			{
-				auto& [texturePath, texBlobPair] = namedPair;
-				auto& [tex, blob] = texBlobPair;
+				auto& [texturePath, textureAndRawData] = namedPair;
+				auto& [tex, rawTexData] = textureAndRawData;
 
 				RawTextureData rawTextureDatum = MatImporter::GetRawTextureData(scene, modelPath, texturePath);
 
@@ -262,9 +284,9 @@ private:
 				tex->loadFromMemory(reinterpret_cast<unsigned char*>(rawTextureDatum.blob._data.get()), rawTextureDatum.blob._size);
 				tex->setUpAsResource(device);
 
-				/*rawTextureDataMutex.lock();
-				rawTextureData.push_back(std::move(rawTextureDatum));
-				rawTextureDataMutex.unlock();*/
+				rawTextureDataMutex.lock();
+				rawTexData = std::move(rawTextureDatum);
+				rawTextureDataMutex.unlock();
 			});
 	}
 };

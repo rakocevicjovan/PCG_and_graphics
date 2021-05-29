@@ -442,6 +442,7 @@
     <ClInclude Include="AssetViews.h" />
     <ClInclude Include="MaterialAsset.h" />
     <ClInclude Include="Metrics.h" />
+    <ClInclude Include="ModelImporter.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PooledSceneGraph.h" />
     <ClInclude Include="MaterialEditor.h" />

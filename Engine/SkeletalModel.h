@@ -11,10 +11,6 @@
 
 class SkeletalModel
 {
-private:
-
-	bool processNode(aiNode* node, SMatrix globNodeTransform);
-
 public:
 
 	std::vector<SkeletalMesh> _meshes;
@@ -24,12 +20,7 @@ public:
 	std::vector<Animation*> _anims;
 
 	std::shared_ptr<Skeleton> _skeleton;
-
-	bool importFromFileAssimp(ID3D11Device* dvc, const std::string& path);
 	
-	bool importFromAiScene(ID3D11Device* dvc, const aiScene* scene, const std::string& path, 
-		std::vector<std::shared_ptr<Material>>& mats, std::shared_ptr<Skeleton>& skeleton);
-
 	//template <typename Archive>
 	void serialize(
 		cereal::BinaryOutputArchive &ar,

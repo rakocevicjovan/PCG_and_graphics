@@ -66,7 +66,7 @@ bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const st
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
 		_meshes.emplace_back();
-		_meshes.back().loadFromAssimp(scene, device, scene->mMeshes[i], mats._mats, _path);
+		_meshes.back().loadFromAssimp(scene, device, scene->mMeshes[i], mats._materials, _path);
 		_meshes.back().setupMesh(device);
 	}
 

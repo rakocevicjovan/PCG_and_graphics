@@ -1090,6 +1090,9 @@
     <ClInclude Include="MaterialAsset.h">
       <Filter>Rendering\High level\Materials</Filter>
     </ClInclude>
+    <ClInclude Include="ModelImporter.h">
+      <Filter>Asset importing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

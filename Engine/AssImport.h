@@ -10,6 +10,7 @@
 #include "ShaderManager.h"
 #include "MatImporter.h"
 #include "AssimpGUI.h"
+#include "ModelImporter.h"
 
 // Structs representing serialized versions of different runtime types
 #include "MaterialAsset.h"
@@ -29,7 +30,6 @@
 class AssImport
 {
 private:
-	ResourceManager* _pResMan;
 	AssetLedger* _pLedger;
 	ShaderManager* _pShMan;
 
@@ -67,15 +67,14 @@ private:
 public:
 
 
-	bool loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, ResourceManager* resMan, ShaderManager* shMan)
+	bool loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, ShaderManager* shMan)
 	{
 		_srcPath = importFrom;
 		_sceneName = std::filesystem::path(importFrom).filename().replace_extension("").string();
 		_destPath = importTo;
 		_device = device;
 
-		_pResMan = resMan;
-		_pLedger = &resMan->_assetLedger;
+		//_pLedger = &resMan->_assetLedger;
 		_pShMan = shMan;
 
 		// Allow flag customization inhere
@@ -166,11 +165,9 @@ public:
 
 		if (_impSkModel)
 		{
-			_skModel = std::make_unique<SkeletalModel>();
-
 			_skeleton = std::shared_ptr<Skeleton>(SkeletonImporter::ImportSkeleton(_aiScene).release());
 
-			_skModel->importFromAiScene(_device, _aiScene, _srcPath, _matData._mats, _skeleton);
+			_skModel = ModelImporter::ImportFromAiScene(_device, _aiScene, _srcPath, _matData._materials, _skeleton);
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
@@ -387,19 +384,17 @@ public:
 
 	void persistTextures()
 	{
-		for (auto& [name, blob, embedded] : _matData._blobs)
+		for (auto& [name, pair] : _matData._textures)
 		{
+			auto& [tex, rawTexData] = pair;
+
 			std::string texName = std::filesystem::path(name).filename().string();
 			std::string texPath{ _destPath + "textures/" + texName };
 
-			FileUtils::writeAllBytes(texPath, blob._data.get(), blob._size);
+			FileUtils::writeAllBytes(texPath, rawTexData.blob.data(), rawTexData.blob.size());
 			_pLedger->insert(texPath.c_str(), ResType::TEXTURE);
 
-			if (embedded)
-				blob._data.release();
-
-			blob._data.reset();
-			blob._size = 0u;
+			rawTexData.freeMemory();
 		}
 	}
 
@@ -408,10 +403,10 @@ public:
 	{
 		std::vector<uint32_t> matIDs;
 
-		for (UINT i = 0; i < _matData._mats.size(); ++i)
+		for (UINT i = 0; i < _matData._materials.size(); ++i)
 		{
 			// Get texture IDs
-			auto& matMetaData = _matData._matMetaData[i];
+			auto& matMetaData = _matData._materialData[i];
 
 			MaterialAsset matAsset;
 
@@ -483,10 +478,9 @@ public:
 
 	~AssImport()
 	{
-		for (auto& texBlob : _matData._blobs)
+		for (auto& texture : _matData._textures)
 		{
-			if (texBlob.embedded)
-				texBlob.blob._data.release();
+			texture.second.second.freeMemory();
 		}
 	}
 };

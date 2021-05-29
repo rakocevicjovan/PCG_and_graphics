@@ -1,12 +1,14 @@
 #pragma once
 #include "AssimpWrapper.h"
 #include "Mesh.h"
-#include "VertSignature.h"
+#include "SkeletalMesh.h"
 #include "Skeleton.h"
+
 
 namespace MeshImporter
 {
-	static VertSignature createVertSignature(aiMesh* aiMesh)
+
+	static VertSignature CreateVertSignature(aiMesh* aiMesh)
 	{
 		VertSignature vertSig;
 
@@ -70,7 +72,7 @@ namespace MeshImporter
 	}
 
 
-	static void loadVertData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton = nullptr)
+	static void ImportVertexData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton = nullptr)
 	{
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
@@ -169,5 +171,22 @@ namespace MeshImporter
 				}
 			}
 		}
+	}
+
+	static SkeletalMesh ImportFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
+		std::vector<std::shared_ptr<Material>>& materials, Skeleton* skeleton, const std::string& path)
+	{
+		SkeletalMesh skMesh;
+
+		skMesh._vertSig = MeshImporter::CreateVertSignature(aiMesh);
+		skMesh._vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
+
+		ImportVertexData(skMesh._vertSig, skMesh._vertices, aiMesh, skeleton);
+		AssimpWrapper::loadIndices(aiMesh, skMesh._indices);
+
+		// Use this index to associate the mesh material with the loaded material.
+		skMesh._material = materials[aiMesh->mMaterialIndex];
+
+		return skMesh;
 	}
 };

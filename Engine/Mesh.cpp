@@ -109,8 +109,8 @@ Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool
 void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
 	std::vector<std::shared_ptr<Material>>& mats, const std::string& path)
 {	
-	_vertSig = MeshImporter::createVertSignature(aiMesh);
-	MeshImporter::loadVertData(_vertSig, _vertices, aiMesh, nullptr);
+	_vertSig = MeshImporter::CreateVertSignature(aiMesh);
+	MeshImporter::ImportVertexData(_vertSig, _vertices, aiMesh, nullptr);
 	_vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
 	AssimpWrapper::loadIndices(aiMesh, _indices);
 
