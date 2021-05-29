@@ -13,8 +13,8 @@ struct Blob
 	std::unique_ptr<char[]> _data;
 	size_t _size = 0u;
 
-	const void* data() { return static_cast<void*>(_data.get()); }
-	size_t size() { return _size; }
+	const void* data() const { return static_cast<void*>(_data.get()); }
+	size_t size() const { return _size; }
 
 	Blob() = default;
 

@@ -75,10 +75,17 @@ public:
 	}
 
 
-	AssetID getOrInsert(const char* path, ResType resType)
+	// Return true if get succeeded
+	std::pair<bool, AssetID> getOrInsert(const char* path, ResType resType)
 	{
 		auto id = getExistingID(path);
-		return getExistingID(path) == NULL_ASSET ? insert(path, resType) : id;
+
+		if (getExistingID(path) == NULL_ASSET)
+		{
+			return  { false, insert(path, resType) };
+		}
+		
+		return { true, id };
 	}
 
 

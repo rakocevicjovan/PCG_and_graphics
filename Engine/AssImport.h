@@ -11,6 +11,7 @@
 #include "MatImporter.h"
 #include "AssimpGUI.h"
 #include "ModelImporter.h"
+#include "AssetLedger.h"
 
 // Structs representing serialized versions of different runtime types
 #include "MaterialAsset.h"
@@ -66,15 +67,14 @@ private:
 
 public:
 
-
-	bool loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, ShaderManager* shMan)
+	bool loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)
 	{
 		_srcPath = importFrom;
 		_sceneName = std::filesystem::path(importFrom).filename().replace_extension("").string();
 		_destPath = importTo;
 		_device = device;
 
-		//_pLedger = &resMan->_assetLedger;
+		_pLedger = &assetLedger;
 		_pShMan = shMan;
 
 		// Allow flag customization inhere
@@ -111,7 +111,6 @@ public:
 	}
 
 
-
 	void displayImportSettings()
 	{
 		if (ImGui::BeginChild("Import settings"))
@@ -145,7 +144,6 @@ public:
 		}
 		ImGui::EndChild();
 	}
-
 
 
 	void importSelectedAssets()
@@ -202,7 +200,6 @@ public:
 	}
 
 
-
 	bool displayPreview(const std::string& sName)
 	{
 		if (!_importConfigured)
@@ -221,7 +218,6 @@ public:
 
 		return displayCommands();
 	}
-
 
 
 	void displayAiScene()
@@ -253,7 +249,6 @@ public:
 	}
 
 
-
 	void displayParsedAssets()
 	{
 		ImGui::Text("Parsed asset inspector");
@@ -267,7 +262,6 @@ public:
 		if (_model.get())
 			AssetViews::printModel(_model.get());
 	}
-
 
 
 	bool displayCommands()
@@ -319,13 +313,11 @@ public:
 	}
 
 
-
 	// Eeeeehhhh... weird way to do it.
 	void persistAssets()
 	{
 		uint32_t skeletonID = persistSkeleton();
 		std::vector<AssetID> animIDs = persistAnims();
-		persistTextures();
 		std::vector<AssetID> matIDs = persistMats();
 
 		std::string mPath{ _destPath + _sceneName + ".aeon" };
@@ -346,7 +338,6 @@ public:
 	}
 
 
-
 	uint32_t persistSkeleton()
 	{
 		if (_skeleton.get())
@@ -360,7 +351,6 @@ public:
 		}
 		return 0;
 	}
-
 
 
 	std::vector<uint32_t> persistAnims()
@@ -381,21 +371,21 @@ public:
 	}
 
 
-
-	void persistTextures()
+	AssetID persistTexture(const std::string& name, const std::pair<std::shared_ptr<Texture>, MatImporter::RawTextureData>& texture)
 	{
-		for (auto& [name, pair] : _matData._textures)
+		auto& [tex, rawTexData] = texture;
+
+		std::string texName = std::filesystem::path(name).filename().string();
+		std::string texPath{ _destPath + texName };
+
+		auto [exists, assetID] = _pLedger->getOrInsert(texPath.c_str(), ResType::TEXTURE);
+
+		if (!exists)
 		{
-			auto& [tex, rawTexData] = pair;
-
-			std::string texName = std::filesystem::path(name).filename().string();
-			std::string texPath{ _destPath + "textures/" + texName };
-
 			FileUtils::writeAllBytes(texPath, rawTexData.blob.data(), rawTexData.blob.size());
-			_pLedger->insert(texPath.c_str(), ResType::TEXTURE);
-
-			rawTexData.freeMemory();
 		}
+
+		return assetID;
 	}
 
 
@@ -403,11 +393,11 @@ public:
 	{
 		std::vector<uint32_t> matIDs;
 
-		for (UINT i = 0; i < _matData._materials.size(); ++i)
+		for (auto i = 0; i < _matData._materials.size(); ++i)
 		{
 			// Get texture IDs
 			auto& matMetaData = _matData._materialData[i];
-
+			
 			MaterialAsset matAsset;
 
 			// Hardcoded for now, fix
@@ -416,9 +406,10 @@ public:
 			matAsset._textures.reserve(matMetaData._tempTexData.size());
 
 			std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(matAsset._textures),
-				[&ledger = _pLedger](MatImporter::TexturePathAndMetadata& texPathAndMetaData)
+				[&](MatImporter::TexturePathAndMetadata& texPathAndMetaData)
 				{
-					return MaterialAsset::AssetMaterialTexture{ texPathAndMetaData.metaData, ledger->getExistingID(texPathAndMetaData.path.c_str()) };
+					AssetID textureID = persistTexture(texPathAndMetaData.path, _matData._textures.at(texPathAndMetaData.path));
+					return MaterialAsset::AssetMaterialTexture{texPathAndMetaData.metaData, textureID};
 				});
 
 			// Serialize
