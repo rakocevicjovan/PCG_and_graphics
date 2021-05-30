@@ -6,33 +6,15 @@
 #include "Collider.h"
 #include "MatImporter.h"
 
-
-Model::Model(const std::string& path) : collider(nullptr)
-{
-	_path = path;
-}
-
-
-
-Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device) : collider(nullptr)
+Model::Model(const Procedural::Terrain& terrain, ID3D11Device* device)
 {
 	_meshes.emplace_back(terrain, device);
 	_transform = SMatrix::CreateTranslation(terrain.getOffset());
 }
 
 
-
-Model::~Model()
-{
-	if(collider) delete collider;
-}
-
-
-
 bool Model::loadFromAssimp(ID3D11Device* device, const std::string& path)
 {
-	_path = path;
-
 	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
 	UINT pFlags =
@@ -54,19 +36,16 @@ bool Model::loadFromAssimp(ID3D11Device* device, const std::string& path)
 }
 
 
-
 bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
 {
-	_path = path;
-
 	_meshes.reserve(scene->mNumMeshes);
 
-	auto mats = MatImporter::ImportSceneMaterials(device, scene, _path);
+	auto mats = MatImporter::ImportSceneMaterials(device, scene, path);
 
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
 		_meshes.emplace_back();
-		_meshes.back().loadFromAssimp(scene, device, scene->mMeshes[i], mats._materials, _path);
+		_meshes.back().loadFromAssimp(scene, device, scene->mMeshes[i], mats._materials, path);
 		_meshes.back().setupMesh(device);
 	}
 
@@ -74,7 +53,6 @@ bool Model::loadFromAiScene(ID3D11Device* device, const aiScene* scene, const st
 
 	return true;
 }
-
 
 
 bool Model::processNode(aiNode* node, SMatrix modelSpaceTransform)

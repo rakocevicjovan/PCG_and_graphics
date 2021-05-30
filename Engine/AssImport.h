@@ -224,6 +224,7 @@ public:
 	{
 		ImGui::Text("Assimp scene inspector");
 
+		/* Not really needed now but can extend to do this too.
 		if (ImGui::TreeNode("Meta data keys"))
 		{
 			for (int i = 0; i < _aiScene->mMetaData->mNumProperties; ++i)
@@ -231,7 +232,7 @@ public:
 				ImGui::Text(_aiScene->mMetaData->mKeys[i].C_Str());
 			}
 			ImGui::TreePop();
-		}
+		}*/
 
 		if (ImGui::TreeNode("Node tree"))
 		{

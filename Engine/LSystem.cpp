@@ -302,7 +302,7 @@ namespace Procedural
 		tree._meshes.clear();
 		tree._meshes.emplace_back(finalMesh._vertices, finalMesh._indices, finalMesh._textures, device);
 		*/
-		return tree;
+		return std::move(tree);
 	}
 
 

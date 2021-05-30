@@ -1,11 +1,9 @@
 #pragma once
-#include "Resource.h"
 #include "VBuffer.h"
 #include "IBuffer.h"
 #include "Material.h"
 #include "Math.h"
 
-#include "MeshDataStructs.h"
 #include "AssimpWrapper.h"
 #include "VertSignature.h"
 
@@ -16,7 +14,7 @@ namespace Procedural
 }
 
 
-class Mesh : public Resource
+class Mesh
 {
 public:
 
@@ -38,7 +36,7 @@ public:
 	// For rendering - should be moved out
 	SMatrix _worldSpaceTransform;
 
-	Mesh() {};
+	Mesh() = default;
 	~Mesh() = default;
 
 	// Not so sure, seems like heavy coupling for no reason really!
@@ -57,7 +55,6 @@ public:
 
 	//@TODO - pull D3D11_BUFFER_DESC from a parameter?
 	bool setupMesh(ID3D11Device* device);
-
 
 
 	void draw(ID3D11DeviceContext* dc)

@@ -1,19 +1,10 @@
 #pragma once
+#include "Mesh.h"
 
-#include <string>
 #include <vector>
 #include <d3d11_4.h>
 
-#include "Mesh.h"
-#include "Collider.h"
-
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-
-
 namespace Procedural { class Terrain; }
-
 
 class Model : public Resource
 {
@@ -23,22 +14,20 @@ private:
 
 public:
 
-	std::string _path;
-
 	std::vector<Mesh> _meshes;
 
 	SMatrix _transform;
 
-	//remove this eventually when game object becomes better defined... used model for it so far...
-	Collider* collider;
+	Model() = default;
+	Model(const Model&) = delete;
+	Model& operator=(const Model&) = delete;
+	Model(Model&&) = default;
+	Model& operator=(Model&&) = default;
 
-	Model() : collider(nullptr) {}
-	Model(const std::string& path);
-	~Model();
-
-	// Separate model and terrain completely, terrain needs a different way to render
+	// A convenience function should possibly exist in terrain to make a mesh, but certainly not here.
 	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
 
+	// Remove from here to an actual importer
 	bool loadFromAssimp(ID3D11Device* device, const std::string& path);
 	bool loadFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path);
 
