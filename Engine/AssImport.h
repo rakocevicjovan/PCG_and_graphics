@@ -271,7 +271,7 @@ public:
 		ImGui::SliderFloat("Model scale: ", &_previewScale, .1f, 100.f);
 		if (ImGui::InputInt("Animation to play: ", &_currentAnim))
 		{
-			if (_currentAnim >= 0 && _currentAnim < _skModelInst->_animInstances.size())
+			if (_skModel && _currentAnim >= 0 && _currentAnim < _skModelInst->_animInstances.size())
 			{
 				_skModelInst->_animInstances[_currentAnim]._elapsed = 0.f;	// Prevent crashes 
 			}

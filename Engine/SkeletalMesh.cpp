@@ -2,13 +2,11 @@
 #include "SkeletalMesh.h"
 
 
-bool SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
+void SkeletalMesh::setupSkeletalMesh(ID3D11Device* dvc)
 {
 	_vertexBuffer = VBuffer(dvc, _vertices.data(), _vertices.size(), _vertSig.getVertByteWidth(), 0u);
 
 	_indexBuffer = IBuffer(dvc, _indices);
-
-	return true;
 }
 
 

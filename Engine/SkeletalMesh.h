@@ -1,23 +1,11 @@
 #pragma once
 #include "VBuffer.h"
 #include "IBuffer.h"
-#include "MeshDataStructs.h"
 #include "Math.h"
 #include "Material.h"
-#include "AssimpWrapper.h"
 #include "VertSignature.h"
 
-#include <vector>
-#include <string>
-#include <memory>
-
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-
-
 class Skeleton;
-
 
 namespace cereal
 {
@@ -60,11 +48,9 @@ public:
 	SkeletalMesh() {}
 
 
-	bool setupSkeletalMesh(ID3D11Device* dvc);
-
+	void setupSkeletalMesh(ID3D11Device* dvc);
 
 	void draw(ID3D11DeviceContext* dc);
-
 
 	inline Material* getMaterial() { return _material.get(); }
 
@@ -79,11 +65,3 @@ public:
 		archive(_indices, _vertices, _parentSpaceTransform, matID);
 	}
 };
-
-/*
-// Maybe switching to serializing a separate object would be a lot cleaner
-struct MeshFileFormat
-{
-
-};
-*/

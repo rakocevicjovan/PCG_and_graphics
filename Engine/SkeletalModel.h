@@ -3,11 +3,6 @@
 #include "AnimationInstance.h"
 #include "Skeleton.h"
 
-#include <vector>
-#include <d3d11_4.h>
-#include <memory>
-
-
 
 class SkeletalModel
 {
