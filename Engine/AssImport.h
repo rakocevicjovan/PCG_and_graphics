@@ -15,6 +15,7 @@
 
 // Structs representing serialized versions of different runtime types
 #include "MaterialAsset.h"
+#include "ModelAsset.h"
 
 #include <entt/entt.hpp>
 
@@ -78,7 +79,7 @@ public:
 		_pShMan = shMan;
 
 		// Allow flag customization inhere
-		unsigned int pFlags =
+		uint32_t pFlags =
 			aiProcessPreset_TargetRealtime_MaxQuality |
 			aiProcess_ConvertToLeftHanded |
 			aiProcess_Triangulate |
@@ -86,9 +87,6 @@ public:
 			aiProcess_TransformUVCoords |
 			aiProcess_PopulateArmatureData |
 			aiProcess_SortByPType;
-
-		// This doesn't work, allegedly because optimization flags are on
-		//_importer.SetPropertyBool(AI_CONFIG_IMPORT_REMOVE_EMPTY_BONES, false);	
 
 		_aiScene = AssimpWrapper::loadScene(_importer, _srcPath, pFlags);
 
@@ -165,11 +163,13 @@ public:
 		{
 			_skeleton = std::shared_ptr<Skeleton>(SkeletonImporter::ImportSkeleton(_aiScene).release());
 
-			_skModel = ModelImporter::ImportFromAiScene(_device, _aiScene, _srcPath, _matData._materials, _skeleton);
+			_skModel = ModelImporter::ImportSkModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials, _skeleton);
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
+			{
 				_skModel->_anims.push_back(&anim);
+			}
 
 			// This code is here purely for presenting the loaded model
 			for (SkeletalMesh& skmesh : _skModel->_meshes)
@@ -186,9 +186,7 @@ public:
 
 		if (_impModel)
 		{
-			//_importer.ApplyPostProcessing(aiProcess_PreTransformVertices);
-			_model = std::make_unique<Model>();
-			_model->loadFromAiScene(_device, _aiScene, _srcPath);
+			_model = ModelImporter::ImportModelFromAiScene(_device, _aiScene, _srcPath);
 
 			for (Mesh& mesh : _model->_meshes)
 			{
@@ -224,7 +222,7 @@ public:
 	{
 		ImGui::Text("Assimp scene inspector");
 
-		/* Not really needed now but can extend to do this too.
+		/* Not really needed now but can be useful
 		if (ImGui::TreeNode("Meta data keys"))
 		{
 			for (int i = 0; i < _aiScene->mMetaData->mNumProperties; ++i)
@@ -332,6 +330,16 @@ public:
 
 		if (_model.get())
 		{
+			ModelAsset modelAsset;
+
+			for (auto& mesh : _model->_meshes)
+			{
+				/*MeshAsset meshAsset;
+				meshAsset.indices = mesh._indices;
+				meshAsset.vertices = mesh._vertices;
+				modelAsset._meshes*/
+			}
+			
 			_model->serialize(boa, matIDs);
 		}
 

@@ -12,30 +12,29 @@ namespace ModelImporter
 
 namespace
 {
-	static void ProcessNode(aiNode* node, SMatrix modelSpaceTransform, SkeletalModel& skModel)
+	template <typename AnyModelType>
+	static void ProcessNode(aiNode* node, SMatrix modelSpaceTransform, AnyModelType& skModel)
 	{
 		SMatrix locNodeTransform = AssimpWrapper::aiMatToSMat(node->mTransformation);
 		modelSpaceTransform = locNodeTransform * modelSpaceTransform;
 
-		for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+		for (uint32_t i = 0; i < node->mNumMeshes; ++i)
 		{
-			skModel._meshes[node->mMeshes[i]]._parentSpaceTransform = modelSpaceTransform;
+			skModel._meshes.at(node->mMeshes[i])._parentSpaceTransform = modelSpaceTransform;
 		}
 
-		for (unsigned int i = 0; i < node->mNumChildren; i++)
+		for (uint32_t i = 0; i < node->mNumChildren; i++)
 		{
 			ProcessNode(node->mChildren[i], modelSpaceTransform, skModel);
 		}
 	}
 }
 
-
-static std::unique_ptr<SkeletalModel> ImportFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path,
+// Skeletal model import
+static std::unique_ptr<SkeletalModel> ImportSkModelFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path,
 	std::vector<std::shared_ptr<Material>>& mats, std::shared_ptr<Skeleton>& skeleton)
 {
 	std::unique_ptr<SkeletalModel> skModel = std::make_unique<SkeletalModel>();
-
-	skModel->_path = path;
 
 	skModel->_skeleton = skeleton;
 
@@ -53,17 +52,15 @@ static std::unique_ptr<SkeletalModel> ImportFromAiScene(ID3D11Device* device, co
 }
 
 
-static std::unique_ptr<SkeletalModel> StandaloneImport(ID3D11Device* device, const std::string& path, uint32_t extraFlags = 0u)
+static std::unique_ptr<SkeletalModel> StandaloneSkModelImport(ID3D11Device* device, const std::string& path, uint32_t extraFlags = 0u)
 {
 	std::unique_ptr<SkeletalModel> skModel = std::make_unique<SkeletalModel>();
 
-	skModel->_path = path;
-
 	unsigned int pFlags =
 		aiProcessPreset_TargetRealtime_MaxQuality |
+		aiProcess_ConvertToLeftHanded |
 		aiProcess_Triangulate |
 		aiProcess_GenSmoothNormals |
-		aiProcess_ConvertToLeftHanded |
 		aiProcess_LimitBoneWeights;
 
 	pFlags |= extraFlags;
@@ -73,11 +70,55 @@ static std::unique_ptr<SkeletalModel> StandaloneImport(ID3D11Device* device, con
 	const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
 
 	if (!scene)
-		return false;
+	{
+		return nullptr;
+	}
 
 	auto mats = MatImporter::ImportSceneMaterials(device, scene, path);
 	std::shared_ptr<Skeleton> skeleton = SkeletonImporter::ImportSkeleton(scene);
-	return ImportFromAiScene(device, scene, path, mats._materials, skeleton);
+	return ImportSkModelFromAiScene(device, scene, path, mats._materials, skeleton);
 }
 
+
+// Static model import
+static std::unique_ptr<Model> ImportModelFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path)
+{
+	std::unique_ptr<Model> model = std::make_unique<Model>();
+	model->_meshes.reserve(scene->mNumMeshes);
+
+	auto mats = MatImporter::ImportSceneMaterials(device, scene, path);
+
+	for (UINT i = 0; i < scene->mNumMeshes; ++i)
+	{
+		model->_meshes.emplace_back();
+		model->_meshes.back().loadFromAssimp(scene, device, scene->mMeshes[i], mats._materials, path);
+		model->_meshes.back().setupMesh(device);
+	}
+
+	ProcessNode(scene->mRootNode, SMatrix::Identity, *model);
+
+	return model;
+}
+
+
+static std::unique_ptr<Model> StandaloneModelImport(ID3D11Device* device, const std::string& path)
+{
+	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
+
+	UINT pFlags =
+		aiProcessPreset_TargetRealtime_MaxQuality |
+		aiProcess_ConvertToLeftHanded | 
+		aiProcess_Triangulate |
+		aiProcess_GenSmoothNormals;
+
+	Assimp::Importer importer;
+
+	const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
+	if (!scene)
+	{
+		return nullptr;
+	}
+
+	return ImportModelFromAiScene(device, scene, path);
+}
 }

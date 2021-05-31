@@ -9,8 +9,6 @@ class SkeletalModel
 public:
 
 	std::vector<SkeletalMesh> _meshes;
-
-	std::string _path;
 	
 	std::vector<Animation*> _anims;
 
