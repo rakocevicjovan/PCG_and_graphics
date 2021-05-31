@@ -161,7 +161,7 @@ public:
 
 		if (_impSkModel)
 		{
-			_skeleton = std::shared_ptr<Skeleton>(SkeletonImporter::ImportSkeleton(_aiScene).release());
+			_skeleton = SkeletonImporter::ImportSkeleton(_aiScene);
 
 			_skModel = ModelImporter::ImportSkModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials, _skeleton);
 

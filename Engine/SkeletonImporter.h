@@ -148,7 +148,7 @@ private:
 
 public:
 
-	static std::unique_ptr<Skeleton> ImportSkeleton(const aiScene* scene)
+	static std::shared_ptr<Skeleton> ImportSkeleton(const aiScene* scene)
 	{
 		std::set<aiBone*> influenceBones;
 		std::set<aiNode*> boneNodes;
@@ -165,7 +165,7 @@ public:
 		if (!skelRoot)
 			return nullptr;
 
-		std::unique_ptr<Skeleton> skeleton = std::make_unique<Skeleton>();
+		std::shared_ptr<Skeleton> skeleton = std::make_shared<Skeleton>();
 		skeleton->_bones.reserve(boneNodes.size());
 
 		// Remember to split influence bones from non influence bones
