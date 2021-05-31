@@ -1,13 +1,11 @@
 #pragma once
 #include "Mesh.h"
-#include "SkeletalMesh.h"
 #include "GameObject.h"
 #include "IMGUI/imgui.h"
 #include <d3d11_4.h>
 #include <string>
 #include <sstream>
 #include <algorithm>
-
 
 
 namespace GuiBlocks
@@ -23,7 +21,6 @@ namespace GuiBlocks
 	}
 
 
-
 	static void displayTransform(SMatrix& m)
 	{
 		ImGui::InputFloat4("X##", &m.m[0][0]);
@@ -32,7 +29,6 @@ namespace GuiBlocks
 		ImGui::InputFloat4("T##", &m.m[3][0]);
 		ImGui::Separator();
 	}
-
 
 
 	static void displayTexture(const Texture* t)
@@ -44,7 +40,6 @@ namespace GuiBlocks
 		if (t->_arraySrv)
 			ImGui::Image(t->_arraySrv.Get(), ImVec2(256., 256.));
 	}
-
 
 
 	static void displayShaders(VertexShader* vs, PixelShader* ps)
@@ -69,7 +64,6 @@ namespace GuiBlocks
 		else
 			ImGui::Text("None loaded");
 	}
-
 
 
 	static void displayMaterial(Material* mat)
@@ -106,7 +100,6 @@ namespace GuiBlocks
 	}
 
 
-
 	static void displayMesh(Mesh* mesh, bool dMat = true)
 	{
 		if (!mesh)
@@ -136,31 +129,6 @@ namespace GuiBlocks
 	}
 
 
-
-	static void displaySkMesh(SkeletalMesh* mesh)
-	{
-		ImGui::Text("Transform: ");
-		ImGui::Indent();
-		displayTransform(mesh->_worldSpaceTransform);
-		ImGui::Unindent();
-		ImGui::NewLine();
-
-		ImGui::Text("Stats: ");
-		ImGui::Indent();
-		ImGui::Text("Vertex count: %d", mesh->_vertices.size());
-		ImGui::Text("Index count:  %d", mesh->_indices.size());
-		ImGui::Unindent();
-		ImGui::NewLine();
-
-		ImGui::Text("Material: ");
-		ImGui::Indent();
-		displayMaterial(mesh->getMaterial());
-		ImGui::Unindent();
-		ImGui::NewLine();
-	}
-
-
-
 	static void displayRenderable(Renderable& r)
 	{
 		ImGui::Text("Local transform: ");
@@ -183,7 +151,6 @@ namespace GuiBlocks
 
 		ImGui::Separator();
 	}
-
 
 
 	static void displayActor(Actor& a)
@@ -212,7 +179,6 @@ namespace GuiBlocks
 	}
 
 
-
 	static bool inTextStdStringHint(char* label, char* hint, std::string& inoutString)
 	{
 		return (ImGui::InputTextWithHint(label, hint, inoutString.data(), inoutString.capacity() + 1,
@@ -228,7 +194,6 @@ namespace GuiBlocks
 	}
 
 
-
 	static bool inputStdString(char* label, std::string& inoutString)
 	{
 		return (ImGui::InputText(label, inoutString.data(), inoutString.capacity() + 1,
@@ -242,7 +207,6 @@ namespace GuiBlocks
 			return 0;
 		}, &inoutString));
 	}
-
 
 
 	static bool displayOverwriteWarning(const char* filePath)
@@ -273,7 +237,6 @@ namespace GuiBlocks
 	}
 
 
-
 	// Useful for outputting debug textures
 	static void displayImage(ID3D11ShaderResourceView* srv, float pX, float pY, float sX, float sY, const char* title)
 	{
@@ -282,18 +245,5 @@ namespace GuiBlocks
 		ImGui::Begin(title, false);
 		ImGui::Image(srv, ImVec2(sX, sY));
 		ImGui::End();
-	}
-
-
-
-	// Doesn't do anything, syntax refresher (imagine having documentation)
-	static bool contextMenu()
-	{
-		if (ImGui::BeginPopupContextItem("Bruh"))	// ImGui::BeginPopupContextWindow();
-		{
-			if (ImGui::Selectable("zone"))
-			{
-			}
-		}
 	}
 };

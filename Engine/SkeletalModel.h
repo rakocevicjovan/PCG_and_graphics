@@ -1,5 +1,5 @@
 #pragma once
-#include "SkeletalMesh.h"
+#include "Mesh.h"
 #include "AnimationInstance.h"
 #include "Skeleton.h"
 
@@ -8,7 +8,7 @@ class SkeletalModel
 {
 public:
 
-	std::vector<SkeletalMesh> _meshes;
+	std::vector<Mesh> _meshes;
 	
 	std::vector<Animation*> _anims;
 

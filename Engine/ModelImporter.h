@@ -43,7 +43,7 @@ static std::unique_ptr<SkeletalModel> ImportSkModelFromAiScene(ID3D11Device* dev
 	for (UINT i = 0; i < scene->mNumMeshes; ++i)
 	{
 		skModel->_meshes.emplace_back(MeshImporter::ImportFromAssimp(scene, device, scene->mMeshes[i], mats, skModel->_skeleton.get(), path));
-		skModel->_meshes[i].setupSkeletalMesh(device);
+		skModel->_meshes[i].setupMesh(device);
 	}
 
 	ProcessNode(scene->mRootNode, SMatrix::Identity, *skModel);

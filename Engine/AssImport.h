@@ -172,7 +172,7 @@ public:
 			}
 
 			// This code is here purely for presenting the loaded model
-			for (SkeletalMesh& skmesh : _skModel->_meshes)
+			for (Mesh& skmesh : _skModel->_meshes)
 			{
 				Material* skMat = skmesh.getMaterial();
 				auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, skMat);

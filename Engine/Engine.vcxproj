@@ -343,7 +343,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="SkeletalMesh.cpp" />
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="StrifeLevel.cpp">
@@ -448,7 +447,6 @@
     <ClInclude Include="PooledSceneGraph.h" />
     <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="MatImporter.h" />
-    <ClInclude Include="Mesh2.h" />
     <ClInclude Include="MeshImporter.h" />
     <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="ParallelPrefixSum.h">
@@ -653,7 +651,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="ShaderCache.h" />
-    <ClInclude Include="SkeletalMesh.h" />
     <ClInclude Include="SkeletalModel.h" />
     <ClInclude Include="StackAllocator.h" />
     <ClInclude Include="Steering.h" />

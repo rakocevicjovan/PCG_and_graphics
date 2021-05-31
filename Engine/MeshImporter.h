@@ -1,7 +1,6 @@
 #pragma once
 #include "AssimpWrapper.h"
 #include "Mesh.h"
-#include "SkeletalMesh.h"
 #include "Skeleton.h"
 
 
@@ -173,10 +172,10 @@ namespace MeshImporter
 		}
 	}
 
-	static SkeletalMesh ImportFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
+	static Mesh ImportFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
 		std::vector<std::shared_ptr<Material>>& materials, Skeleton* skeleton, const std::string& path)
 	{
-		SkeletalMesh skMesh;
+		Mesh skMesh;
 
 		skMesh._vertSig = MeshImporter::CreateVertSignature(aiMesh);
 		skMesh._vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);

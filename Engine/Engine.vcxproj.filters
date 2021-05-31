@@ -401,9 +401,6 @@
     <ClCompile Include="VertSignature.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
-    <ClCompile Include="SkeletalMesh.cpp">
-      <Filter>Resources\SkelAnim</Filter>
-    </ClCompile>
     <ClCompile Include="AssimpWrapper.cpp">
       <Filter>Asset importing</Filter>
     </ClCompile>
@@ -496,9 +493,6 @@
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
-      <Filter>Resources\SkelAnim</Filter>
-    </ClInclude>
-    <ClInclude Include="SkeletalMesh.h">
       <Filter>Resources\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModel.h">
@@ -938,9 +932,6 @@
     </ClInclude>
     <ClInclude Include="MemChunk.h">
       <Filter>Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh2.h">
-      <Filter>Alternative</Filter>
     </ClInclude>
     <ClInclude Include="AssImport.h">
       <Filter>Asset importing</Filter>

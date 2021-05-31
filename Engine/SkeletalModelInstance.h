@@ -66,7 +66,7 @@ public:
 		_skMatsBuffer.update(context, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_numInfluenceBones);
 		_skMatsBuffer.bindToVS(context, 1);
 
-		for (SkeletalMesh& m : _skm->_meshes)
+		for (Mesh& m : _skm->_meshes)
 		{
 			m.draw(context);
 		}

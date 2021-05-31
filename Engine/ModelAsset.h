@@ -26,7 +26,7 @@ struct MeshAsset
 struct ModelAsset
 {
 	std::vector<MeshAsset> _meshes;
-
+	SMatrix transform;
 
 	template <typename Archive>
 	void serialize(Archive& ar)

@@ -86,11 +86,13 @@ public:
 
 	inline UINT getOffset() const { return _vertexBuffer._offset; }
 
+	inline Material* getMaterial() { return _material.get(); }
+
 
 
 	template<class Archive>
 	void serialize(Archive& archive, UINT matID)
 	{
-		archive(_indices.size(), _vertices.size(), matID, _transform, _indices, _vertices);
+		archive(_indices.size(), _vertices.size(), matID, _parentSpaceTransform, _indices, _vertices);
 	}
 };

@@ -97,8 +97,8 @@ public:
 			ImGui::PushID(i);
 			if (ImGui::TreeNode(&i, "Mesh %d", i))
 			{
-				SkeletalMesh* skm = &skModel->_meshes[i];
-				GuiBlocks::displaySkMesh(skm);
+				Mesh* skm = &skModel->_meshes[i];
+				GuiBlocks::displayMesh(skm);
 				ImGui::TreePop();
 			}
 			ImGui::PopID();
