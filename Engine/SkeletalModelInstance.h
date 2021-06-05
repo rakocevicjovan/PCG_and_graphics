@@ -26,6 +26,7 @@ public:
 
 		uint32_t numBones = _skm->_skeleton->getBoneCount();
 
+		// This should eventually be in a big shared buffer for skeletal animation so no need to think about it too much
 		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 200 /*numBones*/));
 
 		_skeletonMatrices.resize(_skm->_skeleton->_bones.size());
@@ -37,11 +38,14 @@ public:
 	void update(float dTime, UINT animIndex = 0u)
 	{
 		for (int i = 0; i < _animInstances.size(); ++i)
-			_animInstances[i].update(dTime);
-
-		for (int i = 0; i < _skm->_meshes.size(); ++i)
 		{
-			_skm->_meshes[i]._worldSpaceTransform = _skm->_meshes[i]._parentSpaceTransform * _transform;
+			_animInstances[i].update(dTime);
+		}
+
+		for (auto& meshNode : _skm->_meshNodeTree)
+		{
+			//_skm->_meshes[i]._worldSpaceTransform = _skm->_meshNodeTree[i].transform * _transform;
+			//@TODO replace this
 		}
 
 		if (_animInstances.size() > animIndex)	// Avoid crashing when no anim is loaded
@@ -66,9 +70,15 @@ public:
 		_skMatsBuffer.update(context, _skeletonMatrices.data(), sizeof(SMatrix) * _skm->_skeleton->_numInfluenceBones);
 		_skMatsBuffer.bindToVS(context, 1);
 
-		for (Mesh& m : _skm->_meshes)
+		for (auto& meshNode : _skm->_meshNodeTree)
 		{
-			m.draw(context);
+			SMatrix meshNodeTf = meshNode.transform.Transpose();
+			for (auto& meshIndex : meshNode.meshes)
+			{
+				auto& mesh = _skm->_meshes[meshIndex];
+				mesh._material->getVS()->updateCBufferDirectly(context, &meshNodeTf, 0);
+				mesh.draw(context);
+			}
 		}
 	}
 };

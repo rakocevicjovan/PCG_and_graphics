@@ -101,6 +101,9 @@ public:
 		_renderTarget.bind(rc.d3d->getContext());
 		_renderTarget.clear(rc.d3d->getContext());
 
+		SMatrix floorTransform = SMatrix::CreateTranslation(-250.f, 0., -250.f).Transpose();
+		
+		_floorMesh->getMaterial()->getVS()->updateCBufferDirectly(S_CONTEXT, &floorTransform, 0);
 		_floorMesh->draw(rc.d3d->getContext());
 
 		S_RANDY.d3d()->TurnOffAlphaBlending();

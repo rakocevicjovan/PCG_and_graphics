@@ -27,12 +27,6 @@ namespace MeshImporter
 
 			if (uvw != prevNumComponents)
 			{
-				// The "You are fired." version :V
-				//uvwType = (uvw == 1) ? VAttribType::FLOAT : ((uvw == 2) ? VAttribType::FLOAT2 : VAttribType::FLOAT3);
-
-				// Cool but requires FLOAT# enums to be contiguous, which they probably will be regardless
-				//uvwType = static_cast<VAttribType>(static_cast<UINT>(VAttribType::FLOAT) + uvw);
-
 				switch (uvw)
 				{
 				case 1: uvwType = VAttribType::FLOAT;	break;
@@ -172,20 +166,20 @@ namespace MeshImporter
 		}
 	}
 
+
 	static Mesh ImportFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
-		std::vector<std::shared_ptr<Material>>& materials, Skeleton* skeleton, const std::string& path)
+		std::shared_ptr<Material>& material, Skeleton* skeleton, const std::string& path)
 	{
-		Mesh skMesh;
+		Mesh mesh;
 
-		skMesh._vertSig = MeshImporter::CreateVertSignature(aiMesh);
-		skMesh._vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
-
-		ImportVertexData(skMesh._vertSig, skMesh._vertices, aiMesh, skeleton);
-		AssimpWrapper::loadIndices(aiMesh, skMesh._indices);
+		mesh._vertSig = MeshImporter::CreateVertSignature(aiMesh);
+		mesh._vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
+		ImportVertexData(mesh._vertSig, mesh._vertices, aiMesh, skeleton);
+		AssimpWrapper::loadIndices(aiMesh, mesh._indices);
 
 		// Use this index to associate the mesh material with the loaded material.
-		skMesh._material = materials[aiMesh->mMaterialIndex];
+		mesh._material = material;
 
-		return skMesh;
+		return mesh;
 	}
 };

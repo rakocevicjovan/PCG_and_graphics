@@ -71,7 +71,7 @@ void TDLevel::init(Engine& sys)
 	floorTex.setUpAsResource(S_DEVICE);
 	floorMesh._material->_materialTextures.push_back({ {TextureRole::DIFFUSE}, std::make_shared<Texture>(floorTex) });
 	
-	floorRenderable = Renderable(floorMesh);
+	floorRenderable = Renderable(floorMesh, SMatrix::CreateTranslation(terrain.getOffset()));
 	floorRenderable.mat->setVS(S_SHCACHE.getVertShader("csmSceneVS"));
 	floorRenderable.mat->setPS(S_SHCACHE.getPixShader("csmScenePS"));	//clusterPS clusterDebugPS
 

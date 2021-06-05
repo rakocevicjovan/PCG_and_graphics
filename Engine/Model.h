@@ -1,6 +1,6 @@
 #pragma once
 #include "Mesh.h"
-
+#include "MeshNode.h"
 #include <vector>
 #include <d3d11_4.h>
 
@@ -11,6 +11,7 @@ class Model : public Resource
 public:
 
 	std::vector<Mesh> _meshes;
+	std::vector<MeshNode> _meshNodeTree;
 
 	SMatrix _transform;
 

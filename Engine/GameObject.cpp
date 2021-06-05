@@ -9,12 +9,16 @@ Actor::Actor(Model* model, SMatrix& transform)
 {
 	_renderables.reserve(model->_meshes.size());
 
-	for (Mesh& mesh : model->_meshes)
+	for (MeshNode& meshNode : model->_meshNodeTree)
 	{
-		_renderables.emplace_back(mesh);
-		_renderables.back()._localTransform = mesh._parentSpaceTransform;
-		_renderables.back()._transform = transform * mesh._parentSpaceTransform;
-		_renderables.back().mat = mesh._material.get();
+		// Work this out
+		for (auto& meshInMeshNode : meshNode.meshes)
+		{
+			_renderables.emplace_back(model->_meshes[meshInMeshNode], meshNode.transform);
+		}
+		//_renderables.back()._localTransform = mesh._parentSpaceTransform;
+		//_renderables.back()._transform = transform * mesh._parentSpaceTransform;
+		//_renderables.back().mat = mesh._material.get();
 
 		_collider.addHull(new SphereHull(_renderables.back()._transform.Translation(), 1.f * transform._11));		//@TODO see what to do about this
 	}

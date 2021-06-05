@@ -2,8 +2,6 @@
 #include "Mesh.h"
 #include "Geometry.h"
 #include "Terrain.h"
-#include "Hull.h"
-#include "MeshDataStructs.h"
 #include "MeshImporter.h" // Reverse this eventually, mesh shouldn't know about it
 
 
@@ -18,7 +16,7 @@ Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
 		{VAttribSemantic::TANGENT, VAttribType::FLOAT3, 1u, 0u}	// Not sure if true
 	};
 	terrain.populateMesh(_vertices, _indices);
-	_worldSpaceTransform = SMatrix::CreateTranslation(terrain.getOffset());
+	//_worldSpaceTransform = SMatrix::CreateTranslation(terrain.getOffset());
 	setupMesh(device);
 }
 
@@ -103,18 +101,6 @@ Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool
 
 	if(setUp)
 		setupMesh(device);
-}
-
-
-void Mesh::loadFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh, 
-	std::vector<std::shared_ptr<Material>>& mats, const std::string& path)
-{	
-	_vertSig = MeshImporter::CreateVertSignature(aiMesh);
-	MeshImporter::ImportVertexData(_vertSig, _vertices, aiMesh, nullptr);
-	_vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
-	AssimpWrapper::loadIndices(aiMesh, _indices);
-
-	_material = mats[aiMesh->mMaterialIndex];
 }
 
 

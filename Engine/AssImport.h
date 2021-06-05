@@ -186,7 +186,7 @@ public:
 
 		if (_impModel)
 		{
-			_model = ModelImporter::ImportModelFromAiScene(_device, _aiScene, _srcPath);
+			_model = ModelImporter::ImportModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials);
 
 			for (Mesh& mesh : _model->_meshes)
 			{
@@ -300,10 +300,7 @@ public:
 			}
 		}
 
-		if (ImGui::Button("Check .aeon"))
-		{
-
-		}
+		if (ImGui::Button("Check .aeon")) {}
 
 		if (ImGui::Button("Close"))
 			return false;
@@ -334,10 +331,8 @@ public:
 
 			for (auto& mesh : _model->_meshes)
 			{
-				/*MeshAsset meshAsset;
-				meshAsset.indices = mesh._indices;
-				meshAsset.vertices = mesh._vertices;
-				modelAsset._meshes*/
+				//AssetID matID = 0u;
+				//modelAsset._meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, mesh._parentSpaceTransform, matID });
 			}
 			
 			_model->serialize(boa, matIDs);
@@ -457,10 +452,16 @@ public:
 				Math::SetTranslation(_model->_transform, offset);
 				Math::SetScale(_model->_transform, SVec3(_previewScale));
 
-				for (Mesh& r : _model->_meshes)
+				for (auto meshNode : _model->_meshNodeTree)
 				{
-					r._worldSpaceTransform = _model->_transform * r._parentSpaceTransform;
-					r.draw(context);
+					meshNode.transform = _model->_transform * meshNode.transform;
+					SMatrix meshNodeTf = meshNode.transform.Transpose();
+					for (auto meshIdx : meshNode.meshes)
+					{
+						auto& mesh = _model->_meshes[meshIdx];
+						mesh._material->getVS()->updateCBufferDirectly(context, &meshNodeTf, 0);
+						_model->_meshes[meshIdx].draw(context);
+					}
 				}
 			}
 		}

@@ -440,6 +440,7 @@
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="AssetViews.h" />
     <ClInclude Include="MaterialAsset.h" />
+    <ClInclude Include="MeshNode.h" />
     <ClInclude Include="Metrics.h" />
     <ClInclude Include="ModelAsset.h" />
     <ClInclude Include="ModelImporter.h" />

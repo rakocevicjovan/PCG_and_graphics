@@ -82,6 +82,7 @@ public:
 	template <typename RenderItem>
 	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
 	{
+		/* This sucked anyways
 		D3D11_MAPPED_SUBRESOURCE mr;
 
 		for (int i = 0; i < _cbuffers.size(); i++)
@@ -98,6 +99,7 @@ public:
 
 			_cbuffers[i].unmap(cont);
 		}
+		*/
 	}
 
 	inline void bind(ID3D11DeviceContext* context)

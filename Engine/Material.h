@@ -41,8 +41,12 @@ public:
 
 	void bind(ID3D11DeviceContext* context)
 	{
+		_vertexShader->setBuffers(context);
+		_pixelShader->setBuffers(context);
+
 		_vertexShader->bind(context);
 		_pixelShader->bind(context);
+
 		bindTextures(context);
 	}
 

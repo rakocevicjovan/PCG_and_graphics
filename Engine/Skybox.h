@@ -22,7 +22,7 @@ public:
 	Skybox(ID3D11Device* device, std::string path, Model* model, Material* m, UINT resolution = 512u)
 	{
 		CubeMap::loadCubeMapFromFile(device, path, resolution, _texPtr, _shResView);
-		_r = Renderable(model->_meshes[0]);
+		_r = Renderable(model->_meshes[0], SMatrix{});
 		_r.mat = m;
 	}
 
@@ -39,7 +39,8 @@ public:
 		Math::SetTranslation(_r._transform, cam.GetPosition());
 		
 		//update and set cbuffers
-		_r.updateBuffersAuto(context);
+		//_r.updateBuffersAuto(context);
+		_r.mat->getVS()->_cbuffers[0].updateWithStruct(renderer.context(), _r._transform);
 		_r.setBuffers(context);
 
 		//set shaders and similar geebees

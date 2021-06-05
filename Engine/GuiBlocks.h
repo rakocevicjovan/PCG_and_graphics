@@ -108,8 +108,9 @@ namespace GuiBlocks
 			return;
 		}
 
-		ImGui::Text("Parent space matrix: ");
-		displayTransform(mesh->_parentSpaceTransform);
+		// No longer part of the mesh
+		//ImGui::Text("Parent space matrix: ");
+		//displayTransform(mesh->_parentSpaceTransform);
 
 		ImGui::Separator();
 
@@ -136,7 +137,7 @@ namespace GuiBlocks
 		displayTransform(r._localTransform);
 		ImGui::PopID();
 
-		ImGui::Text("Transform: ");
+		ImGui::Text("World transform: ");
 		ImGui::PushID("gt");
 		displayTransform(r._transform);
 		ImGui::PopID();

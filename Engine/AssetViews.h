@@ -92,6 +92,25 @@ public:
 
 	static void printSkModel(SkeletalModel* skModel)
 	{
+		if (ImGui::TreeNode("Mesh node hierarchy: "))
+		{
+			for (auto& meshNode : skModel->_meshNodeTree)
+			{
+				//GuiBlocks::displayTransform(meshNode.transform);
+
+				ImGui::Text("Contained mesh indices: ");
+				ImGui::Indent();
+				for (auto& meshIndex : meshNode.meshes)
+				{
+					ImGui::Text("%i", meshIndex);
+				}
+				ImGui::Unindent();
+
+				ImGui::Text("Parent node: %d", meshNode.parent);
+			}
+			ImGui::TreePop();
+		}
+
 		for (UINT i = 0; i < skModel->_meshes.size(); ++i)
 		{
 			ImGui::PushID(i);
