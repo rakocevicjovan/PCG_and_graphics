@@ -8,14 +8,18 @@
 #include "SkeletalModelInstance.h"
 #include "SkeletonImporter.h"
 #include "ShaderManager.h"
-#include "MatImporter.h"
+
 #include "AssimpGUI.h"
-#include "ModelImporter.h"
 #include "AssetLedger.h"
 
-// Structs representing serialized versions of different runtime types
-#include "MaterialAsset.h"
+// Structs representing serialized versions of different runtime types, as well as their importers and loaders
+#include "ModelImporter.h"
 #include "ModelAsset.h"
+#include "ModelLoader.h"
+
+#include "MatImporter.h"
+#include "MaterialAsset.h"
+#include "MaterialLoader.h"
 
 #include <entt/entt.hpp>
 
@@ -50,8 +54,8 @@ private:
 
 	// Things that might get loaded
 	MatImporter::MatsAndTextureBlobs _matData;
-	std::unique_ptr<SkeletalModel> _skModel;
-	std::unique_ptr<Model> _model;
+	ModelImporter::ModelImportData<SkModel> _skModelData;
+	ModelImporter::ModelImportData<Model> _modelData;
 	std::shared_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
 
@@ -162,17 +166,18 @@ public:
 		if (_impSkModel)
 		{
 			_skeleton = SkeletonImporter::ImportSkeleton(_aiScene);
+			_skModelData = ModelImporter::ImportSkModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials, _skeleton);
 
-			_skModel = ModelImporter::ImportSkModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials, _skeleton);
+			auto& skModel = _skModelData.model;
 
 			// Skeletal model shouldn't even be pointing to animations tbh...
 			for (Animation& anim : _anims)
 			{
-				_skModel->_anims.push_back(&anim);
+				skModel->_anims.push_back(&anim);
 			}
 
 			// This code is here purely for presenting the loaded model
-			for (Mesh& skmesh : _skModel->_meshes)
+			for (Mesh& skmesh : skModel->_meshes)
 			{
 				Material* skMat = skmesh.getMaterial();
 				auto shPack = _pShMan->getShaderAuto(skmesh._vertSig, skMat);
@@ -181,14 +186,15 @@ public:
 			}
 
 			_skModelInst = std::make_unique<SkeletalModelInstance>();
-			_skModelInst->init(_device, _skModel.get());
+			_skModelInst->init(_device, skModel.get());
 		}
 
 		if (_impModel)
 		{
-			_model = ModelImporter::ImportModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials);
+			_modelData = ModelImporter::ImportModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials);
+			auto& model = _modelData.model;
 
-			for (Mesh& mesh : _model->_meshes)
+			for (Mesh& mesh : model->_meshes)
 			{
 				auto shPack = _pShMan->getShaderAuto(mesh._vertSig, mesh._material.get());
 				mesh._material->setVS(shPack->vs);
@@ -255,11 +261,11 @@ public:
 		if (_skeleton.get())
 			AssetViews::printSkeleton(_skeleton.get());
 		
-		if (_skModel.get())
-			AssetViews::printSkModel(_skModel.get());
+		if (_skModelData)
+			AssetViews::printSkModel(_skModelData.model.get());
 
-		if (_model.get())
-			AssetViews::printModel(_model.get());
+		if (_modelData)
+			AssetViews::printModel(_modelData.model.get());
 	}
 
 
@@ -270,7 +276,7 @@ public:
 		ImGui::SliderFloat("Model scale: ", &_previewScale, .1f, 100.f);
 		if (ImGui::InputInt("Animation to play: ", &_currentAnim))
 		{
-			if (_skModel && _currentAnim >= 0 && _currentAnim < _skModelInst->_animInstances.size())
+			if (_skModelData && _currentAnim >= 0 && _currentAnim < _skModelInst->_animInstances.size())
 			{
 				_skModelInst->_animInstances[_currentAnim]._elapsed = 0.f;	// Prevent crashes 
 			}
@@ -300,10 +306,18 @@ public:
 			}
 		}
 
-		if (ImGui::Button("Check .aeon")) {}
+		if (ImGui::Button("Check .aeon"))
+		{
+			if (_skModelData)
+			{
+				//ModelLoader::LoadSkModelFromAsset(_skModelData, *_pLedger);
+			}
+		}
 
 		if (ImGui::Button("Close"))
+		{
 			return false;
+		}
 
 		return true;
 	}
@@ -312,48 +326,69 @@ public:
 	// Eeeeehhhh... weird way to do it.
 	void persistAssets()
 	{
-		uint32_t skeletonID = persistSkeleton();
+		AssetID skeletonID = persistSkeleton();
 		std::vector<AssetID> animIDs = persistAnims();
 		std::vector<AssetID> matIDs = persistMats();
 
-		std::string mPath{ _destPath + _sceneName + ".aeon" };
-		std::ofstream ofs(mPath, std::ios::binary);
+		std::string modelPath{ _destPath + _sceneName + ".aeon" };
+		std::ofstream ofs(modelPath, std::ios::binary);
 		cereal::BinaryOutputArchive boa(ofs);
 
-		if (_skModel.get())
-		{
-			_skModel->serialize(boa, matIDs, animIDs, skeletonID);
-		}
-
-		if (_model.get())
+		if (_modelData)
 		{
 			ModelAsset modelAsset;
+			modelAsset.transform = SMatrix{};	// Review this, whether the transform should even exist and what is it
 
-			for (auto& mesh : _model->_meshes)
+			auto& model = _modelData.model;
+
+			for (auto i = 0; i < model->_meshes.size(); ++i)
 			{
-				//AssetID matID = 0u;
-				//modelAsset._meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, mesh._parentSpaceTransform, matID });
+				auto& mesh = model->_meshes[i];
+				modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]] });
 			}
 			
-			_model->serialize(boa, matIDs);
+			modelAsset.meshNodes = model->_meshNodeTree;
+
+			modelAsset.serialize(boa);
+		}
+
+		if (_skModelData)
+		{
+			SkModelAsset skModelAsset;
+			skModelAsset.model.transform = SMatrix{};
+
+			auto& skModel = _skModelData.model;
+
+			for (auto i = 0; i < skModel->_meshes.size(); ++i)
+			{
+				auto& mesh = skModel->_meshes[i];
+				skModelAsset.model.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices,  matIDs[_skModelData.meshMaterialMapping[i]] });
+			}
+
+			skModelAsset.model.meshNodes = skModel->_meshNodeTree;
+			
+			// Review this as well, probably shouldn't reference animations directly and probably not even the skeleton
+			skModelAsset.skeleton = skeletonID;
+			skModelAsset.animations = animIDs;
+
+			skModelAsset.serialize(boa);
 		}
 
 		_pLedger->save();
 	}
 
 
-	uint32_t persistSkeleton()
+	AssetID persistSkeleton()
 	{
 		if (_skeleton.get())
 		{
 			std::string skeletonPath{ _destPath + _sceneName + "_skeleton" + ".aeon" };
 			std::ofstream ofs(skeletonPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
-			//cereal::JSONOutputArchive boa(ofs);
+			cereal::BinaryOutputArchive boa(ofs);	//cereal::JSONOutputArchive boa(ofs);
 			_skeleton->serialize(boa);
 			return _pLedger->insert(skeletonPath.c_str(), ResType::SKELETON);
 		}
-		return 0;
+		return NULL_ASSET;
 	}
 
 
@@ -413,7 +448,7 @@ public:
 				[&](MatImporter::TexturePathAndMetadata& texPathAndMetaData)
 				{
 					AssetID textureID = persistTexture(texPathAndMetaData.path, _matData._textures.at(texPathAndMetaData.path));
-					return MaterialAsset::AssetMaterialTexture{texPathAndMetaData.metaData, textureID};
+					return MaterialAsset::TextureRef{texPathAndMetaData.metaData, textureID};
 				});
 
 			// Serialize
@@ -439,7 +474,7 @@ public:
 		{
 			SVec3 offset = SVec3(i % columns, 0, i / columns) * spacing;
 
-			if (_skModel)
+			if (_skModelData)
 			{
 				_skModelInst->update(fakeDTime * _playbackSpeed, _currentAnim);
 				Math::SetTranslation(_skModelInst->_transform, offset);
@@ -447,26 +482,63 @@ public:
 				_skModelInst->draw(context);
 			}
 
-			if (_model)
+			if (_modelData)
 			{
-				Math::SetTranslation(_model->_transform, offset);
-				Math::SetScale(_model->_transform, SVec3(_previewScale));
+				auto& model = _modelData.model;
 
-				for (auto meshNode : _model->_meshNodeTree)
+				Math::SetTranslation(model->_transform, offset);
+				Math::SetScale(model->_transform, SVec3(_previewScale));
+
+				for (auto meshNode : model->_meshNodeTree)
 				{
-					meshNode.transform = _model->_transform * meshNode.transform;
+					meshNode.transform = model->_transform * meshNode.transform;
 					SMatrix meshNodeTf = meshNode.transform.Transpose();
 					for (auto meshIdx : meshNode.meshes)
 					{
-						auto& mesh = _model->_meshes[meshIdx];
+						auto& mesh = model->_meshes[meshIdx];
 						mesh._material->getVS()->updateCBufferDirectly(context, &meshNodeTf, 0);
-						_model->_meshes[meshIdx].draw(context);
+						model->_meshes[meshIdx].draw(context);
 					}
 				}
 			}
 		}
 		
 	}
+
+	/*
+	std::unique_ptr<ModelAsset> makeModelAsset(Model& model, std::vector<AssetID> matIDs)
+	{
+		auto modelAsset = std::make_unique<ModelAsset>();
+		modelAsset->transform = SMatrix{};	// Review this, whether the transform should even exist and what is it
+
+		for (auto i = 0; i < model._meshes.size(); ++i)
+		{
+			auto& mesh = model._meshes[i];
+			modelAsset->meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]] });
+		}
+
+		modelAsset->meshNodes = model._meshNodeTree;
+
+		return modelAsset;
+	}
+
+
+	std::unique_ptr<SkModelAsset> makeSkModelAsset(SkModel& skModel, std::vector<AssetID> matIDs)
+	{
+		auto skModelAsset = std::make_unique<SkModelAsset>();
+		auto& modelAsset = skModelAsset->model;
+
+		modelAsset.transform = SMatrix{};
+
+		for (auto i = 0; i < skModel._meshes.size(); ++i)
+		{
+			auto& mesh = skModel._meshes[i];
+			modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]] });
+		}
+
+		return skModelAsset;
+	}
+	*/
 
 
 	std::filesystem::path getPath() { return std::filesystem::path(_srcPath); }

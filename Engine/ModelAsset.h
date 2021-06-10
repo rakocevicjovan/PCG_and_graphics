@@ -22,7 +22,6 @@ struct MeshAsset
 };
 
 
-
 struct ModelAsset
 {
 	std::vector<MeshAsset> meshes;
@@ -34,5 +33,20 @@ struct ModelAsset
 	void serialize(Archive& ar)
 	{
 		ar(meshes, meshNodes, transform);
+	}
+};
+
+
+struct SkModelAsset
+{
+	ModelAsset model;
+
+	AssetID skeleton;
+	std::vector<AssetID> animations;
+
+	template <typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(model, skeleton, animations);
 	}
 };

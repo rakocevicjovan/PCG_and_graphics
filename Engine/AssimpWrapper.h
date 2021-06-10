@@ -12,7 +12,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-class SkeletalModel;
+class SkModel;
 class Material;
 class Mesh;
 

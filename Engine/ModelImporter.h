@@ -11,6 +11,14 @@
 
 namespace ModelImporter
 {
+	template <typename ModelType>
+	struct ModelImportData
+	{
+		std::unique_ptr<ModelType> model;
+		std::vector<uint32_t> meshMaterialMapping;
+
+		operator bool() { return model.get(); }
+	};
 
 namespace
 {
@@ -40,31 +48,37 @@ namespace
 
 
 // Skeletal model import
-static std::unique_ptr<SkeletalModel> ImportSkModelFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path,
+static ModelImportData<SkModel> ImportSkModelFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path,
 	std::vector<std::shared_ptr<Material>>& mats, std::shared_ptr<Skeleton>& skeleton)
 {
-	std::unique_ptr<SkeletalModel> skModel = std::make_unique<SkeletalModel>();
+	std::unique_ptr<SkModel> skModel = std::make_unique<SkModel>();
 
 	skModel->_skeleton = skeleton;
 
-	skModel->_meshes.reserve(scene->mNumMeshes);
+	const auto numMeshes = scene->mNumMeshes;
 
-	for (UINT i = 0; i < scene->mNumMeshes; ++i)
+	std::vector<uint32_t> meshMatMapping(numMeshes);
+	skModel->_meshes.reserve(numMeshes);
+
+	for (UINT i = 0; i < numMeshes; ++i)
 	{
 		auto& aiMesh = scene->mMeshes[i];
+
 		skModel->_meshes.emplace_back(MeshImporter::ImportFromAssimp(scene, device, aiMesh, mats[aiMesh->mMaterialIndex], skModel->_skeleton.get(), path));
-		skModel->_meshes[i].setupMesh(device);
+		skModel->_meshes[i].setupMesh(device);	// Probably should move ALL this gpu related code out of here, would be a really good idea...
+
+		meshMatMapping[i] = aiMesh->mMaterialIndex;
 	}
 
 	ImportMeshNodeTree(scene->mRootNode, SMatrix::Identity, skModel->_meshNodeTree);
 
-	return skModel;
+	return { std::move(skModel), std::move(meshMatMapping)};
 }
 
 
-static std::unique_ptr<SkeletalModel> StandaloneSkModelImport(ID3D11Device* device, const std::string& path, uint32_t extraFlags = 0u)
+static ModelImportData<SkModel> StandaloneSkModelImport(ID3D11Device* device, const std::string& path, uint32_t extraFlags = 0u)
 {
-	std::unique_ptr<SkeletalModel> skModel = std::make_unique<SkeletalModel>();
+	std::unique_ptr<SkModel> skModel = std::make_unique<SkModel>();
 
 	unsigned int pFlags =
 		aiProcessPreset_TargetRealtime_MaxQuality |
@@ -81,7 +95,7 @@ static std::unique_ptr<SkeletalModel> StandaloneSkModelImport(ID3D11Device* devi
 
 	if (!scene)
 	{
-		return nullptr;
+		return { nullptr, {} };
 	}
 
 	auto mats = MatImporter::ImportSceneMaterials(device, scene, path);
@@ -91,36 +105,32 @@ static std::unique_ptr<SkeletalModel> StandaloneSkModelImport(ID3D11Device* devi
 
 
 // Static model import
-static std::unique_ptr<Model> ImportModelFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path, std::vector<std::shared_ptr<Material>>& mats)
+static  ModelImportData<Model> ImportModelFromAiScene(ID3D11Device* device, const aiScene* scene, const std::string& path, std::vector<std::shared_ptr<Material>>& mats)
 {
 	std::unique_ptr<Model> model = std::make_unique<Model>();
-	ModelAsset modelAsset;
 
 	auto& numMeshes = scene->mNumMeshes;
 
+	std::vector<uint32_t> meshMatMapping(numMeshes);
 	model->_meshes.reserve(numMeshes);
 
 	for (UINT i = 0; i < numMeshes; ++i)
 	{
 		auto& aiMesh = scene->mMeshes[i];
-		uint32_t matIndex = aiMesh->mMaterialIndex;
 
-		model->_meshes.emplace_back(MeshImporter::ImportFromAssimp(scene, device, aiMesh, mats[matIndex], nullptr, path));
+		model->_meshes.emplace_back(MeshImporter::ImportFromAssimp(scene, device, aiMesh, mats[aiMesh->mMaterialIndex], nullptr, path));
+		model->_meshes[i].setupMesh(device);
 
-		Mesh& mesh = model->_meshes.back();
-		mesh.setupMesh(device);
-
-		modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIndex });
-
+		meshMatMapping[i] = aiMesh->mMaterialIndex;
 	}
 
 	ImportMeshNodeTree(scene->mRootNode, SMatrix::Identity, model->_meshNodeTree);
 
-	return model;
+	return { std::move(model), std::move(meshMatMapping) };
 }
 
 
-static std::unique_ptr<Model> StandaloneModelImport(ID3D11Device* device, const std::string& path)
+static ModelImportData<Model> StandaloneModelImport(ID3D11Device* device, const std::string& path)
 {
 	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
@@ -135,10 +145,11 @@ static std::unique_ptr<Model> StandaloneModelImport(ID3D11Device* device, const 
 	const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
 	if (!scene)
 	{
-		return nullptr;
+		return { nullptr, {} };
 	}
 
 	auto mats = MatImporter::ImportSceneMaterials(device, scene, path);
 	return ImportModelFromAiScene(device, scene, path, mats._materials);
 }
+
 }

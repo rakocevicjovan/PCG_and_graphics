@@ -23,10 +23,4 @@ public:
 
 	// A convenience function should possibly exist in terrain to make a mesh, but certainly not here.
 	Model(const Procedural::Terrain& terrain, ID3D11Device* device);	
-
-	template<class Archive>
-	void serialize(Archive& archive, std::vector<AssetID>& matIndices)
-	{
-		//archive(_transform);
-	}
 };

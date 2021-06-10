@@ -6,11 +6,6 @@
 #include "IMGUI/imgui.h"
 #include <memory>
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
-
 class Material;
 
 struct VS_FileFormat
@@ -27,14 +22,6 @@ struct PS_FileFormat
 	std::string blobString;
 	std::vector<D3D11_SAMPLER_DESC> sDescs;
 };
-
-
-template<typename Archive>
-void serialize(Archive& ar, VAttrib& va)
-{
-	ar(va._semantic, va._type, va._size, va._numElements);
-}
-
 
 template<typename Archive>
 void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)

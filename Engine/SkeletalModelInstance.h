@@ -7,7 +7,7 @@ class SkeletalModelInstance
 {
 public:
 
-	SkeletalModel* _skm;
+	SkModel* _skm;
 	SMatrix _transform;
 
 	CBuffer _skMatsBuffer;
@@ -17,7 +17,7 @@ public:
 
 	SkeletalModelInstance() : _skm(nullptr) {}
 
-	bool init(ID3D11Device* device, SkeletalModel* skm)
+	bool init(ID3D11Device* device, SkModel* skm)
 	{
 		_skm = skm;
 

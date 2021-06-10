@@ -90,7 +90,7 @@ public:
 	}
 
 
-	static void printSkModel(SkeletalModel* skModel)
+	static void printSkModel(SkModel* skModel)
 	{
 		if (ImGui::TreeNode("Mesh node hierarchy: "))
 		{

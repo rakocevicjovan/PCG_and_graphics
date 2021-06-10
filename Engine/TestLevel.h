@@ -20,7 +20,7 @@ public:
 private:
 
 	Model floorModel;
-	SkeletalModel sm;
+	SkModel sm;
 	PointLight pLight;
 
 	std::vector<SMatrix> bts;

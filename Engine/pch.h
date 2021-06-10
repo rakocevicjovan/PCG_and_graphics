@@ -1,6 +1,7 @@
 #pragma once
 
-// C++ includes
+
+// C++ stl includes
 #include <algorithm>
 #include <array>
 #include <vector>
@@ -29,6 +30,8 @@
 
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
+#include <cereal/types/array.hpp>
+
 
 // Windows includes
 #include <wrl/client.h>

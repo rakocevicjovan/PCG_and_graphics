@@ -22,7 +22,7 @@ ParticleSystem::~ParticleSystem()
 
 void ParticleSystem::init(Model* pModel, unsigned int particleCount, SMatrix transform)
 {
-	_model = pModel;
+	model = pModel;
 
 	_numParticles = particleCount;
 

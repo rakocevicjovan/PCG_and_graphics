@@ -10,7 +10,7 @@ class ParticleSystem
 public:
 
 	unsigned int _numParticles;
-	Model* _model;
+	Model* model;
 	Phong* _shader;
 	ParticleUpdateData* pud;
 	SMatrix _transform;

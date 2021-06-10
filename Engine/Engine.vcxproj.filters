@@ -1090,6 +1090,15 @@
     <ClInclude Include="MeshNode.h">
       <Filter>Resources\Resource classes</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialLoader.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelLoader.h">
+      <Filter>Resources\Resource classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

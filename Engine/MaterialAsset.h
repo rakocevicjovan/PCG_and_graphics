@@ -1,8 +1,9 @@
+#pragma once
 #include "TextureMetaData.h"
 
 struct MaterialAsset
 {
-	struct AssetMaterialTexture
+	struct TextureRef
 	{
 		TextureMetaData _texMetaData;
 		AssetID _textureAssetID;
@@ -14,16 +15,16 @@ struct MaterialAsset
 		}
 	};
 
-	std::array<AssetID, 6> _shaderIDs{ NULL_ASSET };	// Vertex, pixel, geometry, hull, domain, tasselation
+	AssetID _shaderIDs;
 
-	std::vector<AssetMaterialTexture> _textures;
+	std::vector<TextureRef> _textures;
 
 	bool _opaque{ false };
 
 	MaterialAsset() = default;
 
 	template <typename Archive>
-	void serialize(Archive& ar) const
+	void serialize(Archive& ar)
 	{
 		ar(_shaderIDs, _textures, _opaque);
 	}

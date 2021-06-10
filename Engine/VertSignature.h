@@ -43,17 +43,23 @@ struct VAttrib
 {
 	static const std::vector<uint16_t> VERT_TYPE_SIZE;
 
-	VAttribSemantic _semantic;
-	VAttribType _type;
-	uint8_t _size;			// Needs to exist in order to support typeless... types...
-	uint8_t _numElements;	// For multiple of same semantic type, say {TEX_COORD, float2, 4}
+	VAttribSemantic _semantic{};
+	VAttribType _type{};
+	uint8_t _size{};			// Needs to exist in order to support typeless... types...
+	uint8_t _numElements{};		// For multiple of same semantic type, say {TEX_COORD, float2, 4}
 
-	VAttrib() {}
+	VAttrib() = default;
 
 	VAttrib(VAttribSemantic s, VAttribType t, uint8_t numElements = 1u, uint8_t elemByteSize = 0u)
 		: _semantic(s), _type(t), _numElements(numElements)
 	{
 		_size = elemByteSize == 0u ? VERT_TYPE_SIZE[static_cast<size_t>(t)] : elemByteSize;
+	}
+
+	template <typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(_semantic, _type, _size, _numElements);
 	}
 };
 
@@ -81,6 +87,12 @@ struct VertSignature
 			if (vertAttrib._semantic == vertAttribSemantic)
 				return vertAttrib._numElements;
 		return result;
+	}
+
+	template <typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(_attributes);
 	}
 };
 
