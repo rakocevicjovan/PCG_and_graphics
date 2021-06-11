@@ -33,6 +33,18 @@
 #include <cereal/types/string.hpp>
 
 
+template <typename AssetType, typename ArchiveType = cereal::BinaryOutputArchive>
+AssetID persistBinary(AssetType& asset, const std::string& path, ResType resType, AssetLedger& assetLedger)
+{
+	std::ofstream outputFileStream(path, std::ios::binary);
+	ArchiveType binaryOutputArchive(outputFileStream);
+	asset.serialize(binaryOutputArchive);
+	AssetID result = assetLedger.insert(path.c_str(), resType);
+	assetLedger.save();
+	return result;
+}
+
+
 class AssImport
 {
 private:
@@ -330,51 +342,21 @@ public:
 		std::vector<AssetID> animIDs = persistAnims();
 		std::vector<AssetID> matIDs = persistMats();
 
-		std::string modelPath{ _destPath + _sceneName + ".aeon" };
-		std::ofstream ofs(modelPath, std::ios::binary);
-		cereal::BinaryOutputArchive boa(ofs);
+		std::string importPath{ _destPath + _sceneName + ".aeon" };
+
+		AssetID importedID{};
 
 		if (_modelData)
 		{
-			ModelAsset modelAsset;
-			modelAsset.transform = SMatrix{};	// Review this, whether the transform should even exist and what is it
-
-			auto& model = _modelData.model;
-
-			for (auto i = 0; i < model->_meshes.size(); ++i)
-			{
-				auto& mesh = model->_meshes[i];
-				modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]] });
-			}
-			
-			modelAsset.meshNodes = model->_meshNodeTree;
-
-			modelAsset.serialize(boa);
+			auto modelAsset = makeModelAsset(*_modelData.model, matIDs);
+			importedID = persistBinary(*modelAsset, importPath, ResType::MODEL, *_pLedger);
 		}
 
 		if (_skModelData)
 		{
-			SkModelAsset skModelAsset;
-			skModelAsset.model.transform = SMatrix{};
-
-			auto& skModel = _skModelData.model;
-
-			for (auto i = 0; i < skModel->_meshes.size(); ++i)
-			{
-				auto& mesh = skModel->_meshes[i];
-				skModelAsset.model.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices,  matIDs[_skModelData.meshMaterialMapping[i]] });
-			}
-
-			skModelAsset.model.meshNodes = skModel->_meshNodeTree;
-			
-			// Review this as well, probably shouldn't reference animations directly and probably not even the skeleton
-			skModelAsset.skeleton = skeletonID;
-			skModelAsset.animations = animIDs;
-
-			skModelAsset.serialize(boa);
+			auto skModelAsset = makeSkModelAsset(*_skModelData.model, matIDs, animIDs, skeletonID);
+			importedID = persistBinary(*skModelAsset, importPath.c_str(), ResType::SK_MODEL, *_pLedger);
 		}
-
-		_pLedger->save();
 	}
 
 
@@ -382,11 +364,7 @@ public:
 	{
 		if (_skeleton.get())
 		{
-			std::string skeletonPath{ _destPath + _sceneName + "_skeleton" + ".aeon" };
-			std::ofstream ofs(skeletonPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);	//cereal::JSONOutputArchive boa(ofs);
-			_skeleton->serialize(boa);
-			return _pLedger->insert(skeletonPath.c_str(), ResType::SKELETON);
+			return persistBinary(*_skeleton, std::string{ _destPath + _sceneName + "_skeleton" + ".aeon" }, ResType::SKELETON, *_pLedger);
 		}
 		return NULL_ASSET;
 	}
@@ -397,14 +375,11 @@ public:
 		std::vector<uint32_t> animIDs;
 		for (UINT i = 0; i < _anims.size(); ++i)
 		{
-			std::string animName = (_anims[i].getName().size() == 0 ? std::to_string(i) : _anims[i].getName()) + "_anim";
-			std::string animPath{ _destPath + animName + ".aeon" };
+			const std::string animName = (_anims[i].getName().size() == 0 ? std::to_string(i) : _anims[i].getName()) + "_anim";
+			const std::string animPath{ _destPath + animName + ".aeon" };
 
-			std::ofstream ofs(animPath, std::ios::binary);
-			cereal::BinaryOutputArchive boa(ofs);
-
-			_anims[i].serialize(boa);
-			animIDs.push_back(_pLedger->insert(animPath.c_str(), ResType::ANIMATION));
+			AssetID animID = persistBinary(_anims[i], animPath, ResType::ANIMATION, *_pLedger);
+			animIDs.push_back(animID);
 		}
 		return animIDs;
 	}
@@ -505,7 +480,6 @@ public:
 		
 	}
 
-	/*
 	std::unique_ptr<ModelAsset> makeModelAsset(Model& model, std::vector<AssetID> matIDs)
 	{
 		auto modelAsset = std::make_unique<ModelAsset>();
@@ -523,7 +497,7 @@ public:
 	}
 
 
-	std::unique_ptr<SkModelAsset> makeSkModelAsset(SkModel& skModel, std::vector<AssetID> matIDs)
+	std::unique_ptr<SkModelAsset> makeSkModelAsset(SkModel& skModel, std::vector<AssetID> matIDs, std::vector<AssetID> animIDs, AssetID skeletonID)
 	{
 		auto skModelAsset = std::make_unique<SkModelAsset>();
 		auto& modelAsset = skModelAsset->model;
@@ -533,12 +507,16 @@ public:
 		for (auto i = 0; i < skModel._meshes.size(); ++i)
 		{
 			auto& mesh = skModel._meshes[i];
-			modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]] });
+			modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_skModelData.meshMaterialMapping[i]] });
 		}
+
+		modelAsset.meshNodes = skModel._meshNodeTree;
+
+		skModelAsset->animations = animIDs;
+		skModelAsset->skeleton = skeletonID;
 
 		return skModelAsset;
 	}
-	*/
 
 
 	std::filesystem::path getPath() { return std::filesystem::path(_srcPath); }
