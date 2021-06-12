@@ -1,5 +1,6 @@
 #include "GuiBlocks.h"
 #include "SceneEditor.h"
+#include "Bone.h"
 #include <span>
 
 // Contains helper functions to display skeleton hierarchy, model and mesh

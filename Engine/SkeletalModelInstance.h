@@ -72,7 +72,8 @@ public:
 
 		for (auto& meshNode : _skm->_meshNodeTree)
 		{
-			SMatrix meshNodeTf = meshNode.transform.Transpose();
+			SMatrix meshNodeTf = (_transform * meshNode.transform).Transpose();
+
 			for (auto& meshIndex : meshNode.meshes)
 			{
 				auto& mesh = _skm->_meshes[meshIndex];

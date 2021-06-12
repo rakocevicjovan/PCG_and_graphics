@@ -20,6 +20,13 @@ namespace ModelImporter
 		operator bool() { return model.get(); }
 	};
 
+	static constexpr uint32_t DEFAULT_IMPORT_FLAGS = 
+		aiProcessPreset_TargetRealtime_MaxQuality |
+		aiProcess_ConvertToLeftHanded |
+		aiProcess_Triangulate |
+		aiProcess_GenSmoothNormals |
+		aiProcess_LimitBoneWeights;
+
 namespace
 {
 	static void ImportMeshNodeTree(const aiNode* node, SMatrix modelSpaceTransform, std::vector<MeshNode>& meshTree, uint16_t parentIndex = static_cast<uint16_t>(~0))
@@ -78,16 +85,9 @@ static ModelImportData<SkModel> ImportSkModelFromAiScene(ID3D11Device* device, c
 
 static ModelImportData<SkModel> StandaloneSkModelImport(ID3D11Device* device, const std::string& path, uint32_t extraFlags = 0u)
 {
-	std::unique_ptr<SkModel> skModel = std::make_unique<SkModel>();
+	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
-	unsigned int pFlags =
-		aiProcessPreset_TargetRealtime_MaxQuality |
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_Triangulate |
-		aiProcess_GenSmoothNormals |
-		aiProcess_LimitBoneWeights;
-
-	pFlags |= extraFlags;
+	uint32_t pFlags = DEFAULT_IMPORT_FLAGS | extraFlags;
 
 	Assimp::Importer importer;
 
@@ -130,19 +130,16 @@ static  ModelImportData<Model> ImportModelFromAiScene(ID3D11Device* device, cons
 }
 
 
-static ModelImportData<Model> StandaloneModelImport(ID3D11Device* device, const std::string& path)
+static ModelImportData<Model> StandaloneModelImport(ID3D11Device* device, const std::string& path, uint32_t extraFlags = 0u)
 {
 	assert(FileUtils::fileExists(path) && "File does not exist! ...probably.");
 
-	UINT pFlags =
-		aiProcessPreset_TargetRealtime_MaxQuality |
-		aiProcess_ConvertToLeftHanded | 
-		aiProcess_Triangulate |
-		aiProcess_GenSmoothNormals;
+	uint32_t pFlags = DEFAULT_IMPORT_FLAGS | extraFlags;
 
 	Assimp::Importer importer;
 
 	const aiScene* scene = AssimpWrapper::loadScene(importer, path, pFlags);
+
 	if (!scene)
 	{
 		return { nullptr, {} };

@@ -159,7 +159,7 @@ public:
 				{
 					_curPreview = _previews[i].get();
 
-					if (!_previews[i]->displayPreview(sceneName))
+					if (!_previews[i]->displayPreview())
 					{
 						_previews.erase(_previews.begin() + i);
 						_curPreview = nullptr;

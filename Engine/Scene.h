@@ -4,6 +4,8 @@
 #include "Octree.h"
 #include "Renderer.h"
 #include "CSM.h"
+#include "MaterialCache.h"
+#include "Engine.h"
 #include "SparseSet.h"
 #include "entt/entt.hpp"
 
