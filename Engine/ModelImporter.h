@@ -25,7 +25,10 @@ namespace ModelImporter
 		aiProcess_ConvertToLeftHanded |
 		aiProcess_Triangulate |
 		aiProcess_GenSmoothNormals |
-		aiProcess_LimitBoneWeights;
+		aiProcess_LimitBoneWeights |
+		aiProcess_TransformUVCoords |
+		aiProcess_PopulateArmatureData |
+		aiProcess_SortByPType;
 
 namespace
 {

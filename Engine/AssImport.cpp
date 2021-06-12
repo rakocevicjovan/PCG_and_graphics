@@ -19,14 +19,7 @@ bool AssImport::loadAiScene(ID3D11Device* device, const char* importFrom, const 
 	_pShMan = shMan;
 
 	// Allow flag customization inhere
-	uint32_t pFlags =
-		aiProcessPreset_TargetRealtime_MaxQuality |
-		aiProcess_ConvertToLeftHanded |
-		aiProcess_Triangulate |
-		aiProcess_GenSmoothNormals |
-		aiProcess_TransformUVCoords |
-		aiProcess_PopulateArmatureData |
-		aiProcess_SortByPType;
+	uint32_t pFlags = ModelImporter::DEFAULT_IMPORT_FLAGS;
 
 	_aiScene = AssimpWrapper::loadScene(_importer, _srcPath, pFlags);
 
