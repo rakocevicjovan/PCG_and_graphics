@@ -34,16 +34,15 @@ void Controller::processTransformationFPS(float dTime, SMatrix& transform)
 
 void Controller::processRotationFPS(float dTime, SMatrix& transformation) const
 {
-	SMatrix rh;
-	rh = rh.CreateFromAxisAngle(SVec3::Up, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
+	SVec3 snappedUpVector = (transformation.Up().y > 0) ? SVec3(0, 1, 0) : SVec3(0, -1, 0);
+	SMatrix rh = SMatrix::CreateFromAxisAngle(snappedUpVector, DirectX::XMConvertToRadians(dx) * rotCf * dTime);
 
 	transformation = transformation * rh;
 
 	SVec3 right = transformation.Right();
 	right.Normalize();
 
-	SMatrix rv;
-	rv = rv.CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime);
+	SMatrix rv = SMatrix::CreateFromAxisAngle(right, DirectX::XMConvertToRadians(dy) * rotCf * dTime);
 
 	transformation = transformation * rv;
 }
