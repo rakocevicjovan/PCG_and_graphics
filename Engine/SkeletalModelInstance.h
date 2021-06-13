@@ -21,7 +21,7 @@ public:
 	{
 		_skm = skm;
 
-		for (Animation* anim : skm->_anims)
+		for (auto anim : skm->_anims)
 			_animInstances.emplace_back(anim);
 
 		uint32_t numBones = _skm->_skeleton->getBoneCount();

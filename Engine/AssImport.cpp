@@ -102,7 +102,7 @@ void AssImport::importSelectedAssets()
 		// Skeletal model shouldn't even be pointing to animations tbh...
 		for (Animation& anim : _anims)
 		{
-			skModel->_anims.push_back(&anim);
+			skModel->_anims.push_back(std::make_shared<Animation>(anim));
 		}
 
 		// This code is here purely for presenting the loaded model
@@ -235,11 +235,19 @@ bool AssImport::displayCommands()
 		}
 	}
 
-	if (ImGui::Button("Check .aeon"))
+	if (ImGui::Button("Verify .aeon worked"))
 	{
 		if (_skModelData)
 		{
-			//ModelLoader::LoadSkModelFromAsset(_skModelData, *_pLedger);
+			std::string importPath{ _destPath + _sceneName + ".aeon" };
+			AssetID skmID = _pLedger->getExistingID(importPath.c_str());
+
+			_skModelData.model.reset();
+			auto sharedPtrSkModel = ModelLoader::LoadSkModelFromID(skmID, *_pLedger);
+			_skModelData.model = std::make_unique<SkModel>(std::move(*sharedPtrSkModel));	//std::make_unique<SkModel>(std::move(*sharedPtrSkModel));
+
+			_skModelInst = std::make_unique<SkeletalModelInstance>();
+			_skModelInst->init(_device, _skModelData.model.get());
 		}
 	}
 
@@ -407,8 +415,6 @@ void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 
 		if (_skModelData)
 		{
-			auto& skModel = _modelData.model;
-
 			_skModelInst->update(fakeDTime * _playbackSpeed, _currentAnim);
 			
 			Math::SetTranslation(_skModelInst->_transform, offset);

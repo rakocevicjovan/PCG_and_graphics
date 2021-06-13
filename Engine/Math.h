@@ -2,10 +2,6 @@
 #include <d3d11_4.h>
 #include "SimpleMath.h"
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-
 using SMatrix	= DirectX::SimpleMath::Matrix;
 using SQuat		= DirectX::SimpleMath::Quaternion;
 using SVec2		= DirectX::SimpleMath::Vector2;

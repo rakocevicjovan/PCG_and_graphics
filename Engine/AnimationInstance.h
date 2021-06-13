@@ -7,13 +7,13 @@ class AnimationInstance
 {
 private:
 
-	const Animation* _anim{};
+	std::shared_ptr<Animation> _anim{};
 
 public:
 
 	float _elapsed { 0.f };
 
-	AnimationInstance(const Animation* anim) : _anim(anim) {}
+	AnimationInstance(std::shared_ptr<Animation> anim) : _anim(anim) {}
 
 
 	inline void update(float dTime)

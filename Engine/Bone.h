@@ -2,12 +2,6 @@
 #include "Math.h"
 #include <string>
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/utility.hpp>
-
 using BoneIndex = uint16_t;
 
 class Bone

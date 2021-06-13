@@ -33,10 +33,10 @@ namespace MaterialLoader
 		auto path = assetLedger.get(materialID);
 
 		std::ifstream ifs(*path, std::ios::binary);
-		cereal::BinaryInputArchive bia(ifs);
+		cereal::JSONInputArchive jia(ifs);
 
 		MaterialAsset materialAsset;
-		materialAsset.serialize(bia);
+		materialAsset.serialize(jia);
 
 		return LoadMaterialFromAsset(materialAsset, assetLedger);
 	}

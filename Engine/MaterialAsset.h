@@ -15,7 +15,7 @@ struct MaterialAsset
 		}
 	};
 
-	AssetID _shaderIDs;
+	std::array<AssetID, 6> _shaderIDs;
 
 	std::vector<TextureRef> _textures;
 

@@ -12,7 +12,7 @@ public:
 	std::vector<Mesh> _meshes;
 	std::vector<MeshNode> _meshNodeTree;
 
-	std::vector<Animation*> _anims;
+	std::vector<std::shared_ptr<Animation>> _anims;
 
 	std::shared_ptr<Skeleton> _skeleton;
 };

@@ -17,7 +17,7 @@ public:
 	inline uint32_t getBoneCount() const { return _bones.size(); }
 
 	template <typename Archive> 
-	void serialize(Archive& ar) const
+	void serialize(Archive& ar)
 	{
 		ar(_globalInverseTransform, _bones, _numInfluenceBones);
 	}
