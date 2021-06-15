@@ -15,12 +15,14 @@ namespace ModelLoader
 
 		for (auto i = 0; i < modelAsset.meshes.size(); ++i)
 		{
-			model->_meshes[i]._vertices = modelAsset.meshes[i].vertices;
-			model->_meshes[i]._indices = modelAsset.meshes[i].indices;
+			auto& mesh = model->_meshes[i];
+			auto& meshAsset = modelAsset.meshes[i];
 
-			auto matID = modelAsset.meshes[i].material;
+			mesh._vertices = meshAsset.vertices;
+			mesh._indices = meshAsset.indices;
 
-			model->_meshes[i]._material = MaterialLoader::LoadMaterialFromID(matID, assetLedger);
+			mesh._material = MaterialLoader::LoadMaterialFromID(meshAsset.material, assetLedger);
+			mesh._vertSig = meshAsset.vertSig;
 		}
 
 		model->_meshNodeTree = modelAsset.meshNodes;
@@ -49,12 +51,14 @@ namespace ModelLoader
 
 		for (auto i = 0; i < skModelAsset.model.meshes.size(); ++i)
 		{
-			skModel->_meshes[i]._vertices = skModelAsset.model.meshes[i].vertices;
-			skModel->_meshes[i]._indices = skModelAsset.model.meshes[i].indices;
+			auto& mesh = skModel->_meshes[i];
+			auto& meshAsset = skModelAsset.model.meshes[i];
 
-			auto matID = skModelAsset.model.meshes[i].material;
+			mesh._vertices = meshAsset.vertices;
+			mesh._indices = meshAsset.indices;
 
-			skModel->_meshes[i]._material = MaterialLoader::LoadMaterialFromID(matID, assetLedger);
+			mesh._material = MaterialLoader::LoadMaterialFromID(meshAsset.material, assetLedger);
+			mesh._vertSig = meshAsset.vertSig;
 		}
 
 		// This will not work like this later, must check the cache first for skeleton and animations. Same for materials!

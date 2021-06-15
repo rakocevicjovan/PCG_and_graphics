@@ -6,15 +6,15 @@
 
 void ShaderManager::loadExistingKeys(const std::wstring& path)
 {
-	auto shaderFiles = FileUtils::getFilesByExt(path, ".cmp");
+	auto shaderFiles = FileUtils::GetFilesByExt(path, ".cmp");
 
 	for (auto& file : shaderFiles)
 	{
 		const std::string& filename = file.path().filename().string();
 
-		UINT division = filename.find('.');
+		auto division = filename.find('.');
 
-		uint64_t key = std::stoull(filename.substr(0, division));
+		ShaderKey key = std::stoull(filename.substr(0, division));
 
 		_existingShaders.insert({ key, ShaderPack{ nullptr, nullptr } });
 	}

@@ -246,6 +246,16 @@ bool AssImport::displayCommands()
 			auto sharedPtrSkModel = ModelLoader::LoadSkModelFromID(skmID, *_pLedger);
 			_skModelData.model = std::make_unique<SkModel>(std::move(*sharedPtrSkModel));	//std::make_unique<SkModel>(std::move(*sharedPtrSkModel));
 
+			for (Mesh& skMesh : _skModelData.model->_meshes)
+			{
+				Material* skMat = skMesh.getMaterial();
+				auto shPack = _pShMan->getShaderAuto(skMesh._vertSig, skMat);
+				skMat->setVS(shPack->vs);
+				skMat->setPS(shPack->ps);
+
+				skMesh.setupMesh(_device);
+			}
+
 			_skModelInst = std::make_unique<SkeletalModelInstance>();
 			_skModelInst->init(_device, _skModelData.model.get());
 		}

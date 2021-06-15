@@ -124,7 +124,7 @@ namespace FileUtils
 
 
 
-	static std::vector<std::filesystem::directory_entry> getFilesByExt
+	static std::vector<std::filesystem::directory_entry> GetFilesByExt
 	(const std::filesystem::path& dir, const std::filesystem::path& ext)
 	{
 		std::vector<std::filesystem::directory_entry> files;
