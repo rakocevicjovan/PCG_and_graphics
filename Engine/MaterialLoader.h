@@ -3,13 +3,14 @@
 #include "MaterialAsset.h"
 #include "AssetLedger.h"
 #include "TextureLoader.h"
+#include "Deserialize.h"
 
 
 namespace MaterialLoader
 {
-	static std::shared_ptr<Material> LoadMaterialFromAsset(const MaterialAsset& materialAsset, AssetLedger& assetLedger)
+	static std::unique_ptr<Material> LoadMaterialFromAsset(const MaterialAsset& materialAsset, const AssetLedger& assetLedger)
 	{
-		std::shared_ptr<Material> material = std::make_shared<Material>();
+		auto material = std::make_unique<Material>();
 
 		material->_materialTextures.reserve(materialAsset._textures.size());
 
@@ -28,15 +29,11 @@ namespace MaterialLoader
 	}
 
 
-	static std::shared_ptr<Material> LoadMaterialFromID(AssetID materialID, AssetLedger& assetLedger)
+	static std::unique_ptr<Material> LoadMaterialFromID(AssetID materialID, const AssetLedger& assetLedger)
 	{
 		auto path = assetLedger.get(materialID);
 
-		std::ifstream ifs(*path, std::ios::binary);
-		cereal::JSONInputArchive jia(ifs);
-
-		MaterialAsset materialAsset;
-		materialAsset.serialize(jia);
+		MaterialAsset materialAsset = DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
 
 		return LoadMaterialFromAsset(materialAsset, assetLedger);
 	}

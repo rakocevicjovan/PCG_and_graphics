@@ -36,3 +36,6 @@
 
 // Windows includes
 #include <wrl/client.h>
+
+// First party code coming from aeolian that's commonly used elsewhere
+#include "Deserialize.h"

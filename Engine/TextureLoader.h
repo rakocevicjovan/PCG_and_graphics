@@ -3,7 +3,7 @@
 #include "AssetLedger.h"
 
 // Just a stand in, will be expanded on and texture cleaned up (needs it a lot)
-static std::shared_ptr<Texture> LoadTextureFromAsset(AssetID id, AssetLedger& assetLedger)
+static std::shared_ptr<Texture> LoadTextureFromAsset(AssetID id, const AssetLedger& assetLedger)
 {
 	std::shared_ptr<Texture> result = std::make_shared<Texture>();
 

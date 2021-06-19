@@ -22,12 +22,6 @@
     <Filter Include="Collision\Spatial partitioning">
       <UniqueIdentifier>{8f9f92cc-7b19-41f2-9964-cdf2ff740ee8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\Resource classes">
-      <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI\Pathfinding">
       <UniqueIdentifier>{188558f1-d5c9-4299-9204-18c36ead3c33}</UniqueIdentifier>
     </Filter>
@@ -84,9 +78,6 @@
     </Filter>
     <Filter Include="Memory Allocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resources\SkelAnim">
-      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
     </Filter>
     <Filter Include="Rendering\Low level">
       <UniqueIdentifier>{1da54352-487a-441b-a470-eaacbf7447e3}</UniqueIdentifier>
@@ -165,6 +156,15 @@
     <Filter Include="Vulkan">
       <UniqueIdentifier>{5f892ecd-eb9c-4b03-b4d5-05cb20fcc4e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\SkelAnim">
+      <UniqueIdentifier>{d96be86d-2dbb-45a5-b623-bdf74d5e0174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Asset classes">
+      <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -204,7 +204,7 @@
       <Filter>Collision</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="BitMapper.cpp">
       <Filter>Procedural</Filter>
@@ -213,31 +213,31 @@
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
     <ClCompile Include="ProjectPicker.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="LevelReader.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="Model.cpp">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClCompile>
     <ClCompile Include="MeshDataStructs.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClCompile>
     <ClCompile Include="Grid.cpp">
       <Filter>Collision\Spatial partitioning</Filter>
@@ -363,10 +363,10 @@
       <Filter>Rendering\High level\Lights</Filter>
     </ClCompile>
     <ClCompile Include="Skeleton.cpp">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="Project.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="Audio.cpp">
       <Filter>Audio</Filter>
@@ -396,7 +396,7 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="AnimChannel.cpp">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClCompile>
     <ClCompile Include="VertSignature.cpp">
       <Filter>Rendering</Filter>
@@ -437,7 +437,7 @@
       <Filter>Editor</Filter>
     </ClCompile>
     <ClCompile Include="MaterialAsset.cpp">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="AssImport.cpp">
       <Filter>Asset importing</Filter>
@@ -496,13 +496,13 @@
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModel.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
       <Filter>Rendering</Filter>
@@ -520,28 +520,28 @@
       <Filter>TowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPicker.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPickerLevel.h">
       <Filter>Old levels\__Picker</Filter>
     </ClInclude>
     <ClInclude Include="LevelReader.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="StackAllocator.h">
       <Filter>Memory Allocators</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Octree.h">
       <Filter>Collision\Spatial partitioning</Filter>
@@ -742,7 +742,7 @@
       <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="TextureRole.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Frustum.h">
       <Filter>Rendering\High level</Filter>
@@ -844,16 +844,16 @@
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="AnimationInstance.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Skeleton.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Project.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="Bone.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Curves.h">
       <Filter>Utils</Filter>
@@ -862,7 +862,7 @@
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="SkeletalModelInstance.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Sampler.h">
       <Filter>Rendering\Low level</Filter>
@@ -874,7 +874,7 @@
       <Filter>Rendering\Low level</Filter>
     </ClInclude>
     <ClInclude Include="Image.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="CubeMap.h">
       <Filter>Rendering\Low level</Filter>
@@ -883,7 +883,7 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="AnimChannel.h">
-      <Filter>Resources\SkelAnim</Filter>
+      <Filter>Assets\SkelAnim</Filter>
     </ClInclude>
     <ClInclude Include="Audio.h">
       <Filter>Audio</Filter>
@@ -925,16 +925,16 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="AssetID.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="AssetLedger.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="Fnv1Hash.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="MemChunk.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="AssImport.h">
       <Filter>Asset importing</Filter>
@@ -982,7 +982,7 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="TextureCache.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="AssimpGUI.h">
       <Filter>Asset importing</Filter>
@@ -1070,13 +1070,13 @@
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="ResourceType.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="TextureMetaData.h">
-      <Filter>Resources</Filter>
+      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="TreeHelper.h">
       <Filter>Utils</Filter>
@@ -1085,22 +1085,28 @@
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="MaterialAsset.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="ModelAsset.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="MeshNode.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="MaterialLoader.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="TextureLoader.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="ModelLoader.h">
-      <Filter>Resources\Resource classes</Filter>
+      <Filter>Assets\Asset classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Deserialize.h">
+      <Filter>Assets\Asset classes</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadSkeleton.h">
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

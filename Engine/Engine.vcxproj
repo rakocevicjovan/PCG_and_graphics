@@ -421,6 +421,7 @@
     <ClInclude Include="Curves.h" />
     <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DepthStencilState.h" />
+    <ClInclude Include="Deserialize.h" />
     <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
@@ -440,6 +441,7 @@
     <ClInclude Include="LightManager.h" />
     <ClInclude Include="GuiBlocks.h" />
     <ClInclude Include="AssetViews.h" />
+    <ClInclude Include="LoadSkeleton.h" />
     <ClInclude Include="MaterialAsset.h" />
     <ClInclude Include="MaterialLoader.h" />
     <ClInclude Include="MeshNode.h" />
