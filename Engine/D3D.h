@@ -45,8 +45,8 @@ private:
 	int _videoCardMemory;
 	char _videoCardDescription[128];
 	SwapChain _swapChain;
-	Microsoft::WRL::ComPtr<ID3D11Device> _device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> _deviceContext;
+	Microsoft::WRL::ComPtr<ID3D11Device5> _device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext4> _deviceContext;
 
 	DepthStencilState _depthStencilLess;
 	DepthStencilState _depthStencilLessEquals;

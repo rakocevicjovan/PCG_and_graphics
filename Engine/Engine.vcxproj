@@ -431,6 +431,7 @@
     <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="fts_fuzzy_match.h" />
     <ClInclude Include="GeoClipmap.h" />
+    <ClInclude Include="GPUMesh.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />

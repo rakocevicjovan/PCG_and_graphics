@@ -1,18 +1,18 @@
 #pragma once
-#include <d3d11.h>
+#include <d3d11_1.h>
 #include <wrl/client.h>
 
 class SwapChain
 {
 private:
 
-	Microsoft::WRL::ComPtr<IDXGISwapChain> _swapChain;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> _swapChain{};
 	bool _vSync{ false };
 
-	UINT _width;
-	UINT _height;
-	UINT _flags;
-	UINT _numBuffers;
+	UINT _width{};
+	UINT _height{};
+	UINT _flags{};
+	UINT _numBuffers{};
 
 	DXGI_FORMAT _format{ DXGI_FORMAT_R8G8B8A8_UNORM };
 
@@ -66,7 +66,10 @@ public:
 		_width = desc.BufferDesc.Width;
 		_height = desc.BufferDesc.Height;
 		_format = desc.BufferDesc.Format;
+		
+#ifdef _DEBUG
 		_flags = D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
 		HRESULT hr = D3D11CreateDeviceAndSwapChain(
 			NULL,						// Adapter
@@ -81,8 +84,6 @@ public:
 			device, 
 			NULL, 
 			context);
-
-
 
 		if (FAILED(hr))
 		{

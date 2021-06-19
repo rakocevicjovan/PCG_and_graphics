@@ -1108,6 +1108,9 @@
     <ClInclude Include="LoadSkeleton.h">
       <Filter>Assets\Asset classes</Filter>
     </ClInclude>
+    <ClInclude Include="GPUMesh.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

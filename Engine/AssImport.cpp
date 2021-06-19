@@ -419,6 +419,7 @@ void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 	float numDrawn = columns * rows;
 	float fakeDTime = dTime / numDrawn;
 
+	// Horribly inefficient but cba improving it here, make renderer work well and just plug the data in
 	for (int i = 0; i < numDrawn; ++i)
 	{
 		SVec3 offset = SVec3(i % columns, 0, i / columns) * spacing;

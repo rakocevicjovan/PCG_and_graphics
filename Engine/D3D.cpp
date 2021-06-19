@@ -37,9 +37,10 @@ bool D3D::initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	UINT numerator{};
-	UINT denominator{};
-	for(int i = 0; i < numModes; i++)
+	uint32_t numerator{ 0u };
+	uint32_t denominator{ 0u };
+
+	for(uint32_t i = 0; i < numModes; i++)
 	{
 		if(displayModeList[i].Width == (unsigned int)windowWidth)
 		{
@@ -53,8 +54,11 @@ bool D3D::initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Get the adapter (video card) description.
 	DXGI_ADAPTER_DESC adapterDesc;
-	if(FAILED(adapter->GetDesc(&adapterDesc)))
+	if (FAILED(adapter->GetDesc(&adapterDesc)))
+	{
+		OutputDebugStringA("Failed to get video card description.");
 		return false;
+	}
 
 	// Store the dedicated video card memory in megabytes.
 	_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
@@ -64,7 +68,7 @@ bool D3D::initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	int error = wcstombs_s(&stringLength, _videoCardDescription, 128, adapterDesc.Description, 128);
 	if (error != 0)
 	{
-		OutputDebugStringA("Video card description failed.");
+		OutputDebugStringA("Failed to get video card description.");
 		return false;
 	}
 
@@ -72,8 +76,16 @@ bool D3D::initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 
 	// Create the swap chain, Direct3D device, and Direct3D device context. D3D11_CREATE_DEVICE_DEBUG useful for now, not in release
 	
-	auto swapChainDesc = SwapChain::CreateDescription(windowWidth, windowHeight, numerator, denominator, hwnd, fullscreen, vsync, DXGI_FORMAT_R8G8B8A8_UNORM);
-	_swapChain.init(swapChainDesc, featureLevel, vsync, &_device, &_deviceContext);
+	{
+		Microsoft::WRL::ComPtr<ID3D11Device> deviceBase;
+		Microsoft::WRL::ComPtr<ID3D11DeviceContext> contextBase;
+
+		auto swapChainDesc = SwapChain::CreateDescription(windowWidth, windowHeight, numerator, denominator, hwnd, fullscreen, vsync, DXGI_FORMAT_R8G8B8A8_UNORM);
+		_swapChain.init(swapChainDesc, featureLevel, vsync, &deviceBase, &contextBase);
+
+		deviceBase->QueryInterface<ID3D11Device5>(_device.GetAddressOf());
+		contextBase->QueryInterface<ID3D11DeviceContext4>(_deviceContext.GetAddressOf());
+	}
 
 	// Get the pointer to the back buffer.
 	auto backBufferPtr = _swapChain.getBackBufferPointer();
