@@ -8,7 +8,7 @@ class TextureManager
 {
 public:
 
-	TextureManager() {}
+	TextureManager() = default;
 
 
 	TextureManager(AssetLedger* assetLedger, ID3D11Device* device)
@@ -18,7 +18,7 @@ public:
 
 	Texture* get(AssetID textureID)
 	{
-		Texture* result{ nullptr };	// @TODO placeholder texture, perhaps?
+		Texture* result{ nullptr };	// @TODO placeholder texture, perhaps? Also could be a handle, or consider a full blown proxy
 
 		auto iter = _texMap.find(textureID);
 
@@ -38,18 +38,6 @@ public:
 		}
 
 		return result;
-	}
-
-
-	inline Texture* get(const char* path)
-	{
-		return get(getID(path));
-	}
-
-
-	inline AssetID getID(const char* path)
-	{
-		return fnv1hash(path);
 	}
 
 
