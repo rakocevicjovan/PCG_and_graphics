@@ -64,39 +64,35 @@ private:
 	float _playbackSpeed{ 1.f };
 	float _previewScale{ 1.f };
 
-public:
-
-	bool loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan);
 
 	void importSelectedAssets();
-
 	void displayImportSettings();
-	bool displayPreview();
 	void displayAiScene();
 	void displayParsedAssets();
 	bool displayCommands();
 
-	// Eeeeehhhh... weird way to do it.
 	void persistAssets();
 	std::vector<AssetID> persistMats();
 	std::vector<AssetID> persistAnims();
 	std::map<std::string, AssetID> persistUniqueTextures();
 	AssetID persistTexture(const std::string& name, const MatImporter::RawTextureData& texture);
 	AssetID persistSkeleton();
-	
 
 	std::unique_ptr<ModelAsset> makeModelAsset(Model& model, std::vector<AssetID> matIDs);
 	std::unique_ptr<SkModelAsset> makeSkModelAsset(SkModel& skModel, std::vector<AssetID> matIDs, std::vector<AssetID> animIDs, AssetID skeletonID);
-
-	void draw(ID3D11DeviceContext* context, float dTime);
-
-	std::filesystem::path getPath() { return std::filesystem::path(_srcPath); }
 
 	int getCurrentAnim() { return _currentAnim; }
 
 	float getPlaybackSpeed() { return _playbackSpeed; }
 
 	const aiScene* getScene() { return _aiScene; }
+
+public:
+
+	bool importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan);
+	bool displayPreview();
+	void draw(ID3D11DeviceContext* context, float dTime);
+	const std::filesystem::path& getPath() { return std::filesystem::path(_srcPath); }
 
 	~AssImport()
 	{

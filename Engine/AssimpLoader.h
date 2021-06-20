@@ -140,7 +140,7 @@ public:
 			{
 				_previews.push_back(std::make_unique<AssImport>());
 
-				if (!_previews.back()->loadAiScene(S_DEVICE, selectedPath.path().string().c_str(), "C:\\Users\\metal\\Desktop\\AeonTest\\", S_RESMAN._assetLedger, &_shMan))
+				if (!_previews.back()->importAiScene(S_DEVICE, selectedPath.path().string().c_str(), "C:\\Users\\metal\\Desktop\\AeonTest\\", S_RESMAN._assetLedger, &_shMan))
 				{
 					_previews.pop_back();
 				}

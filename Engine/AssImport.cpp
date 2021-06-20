@@ -8,7 +8,7 @@
 #include "AnimationEditor.h"	// Not used yet, it's a todo in itself
 
 
-bool AssImport::loadAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)
+bool AssImport::importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)
 {
 	_srcPath = importFrom;
 	_sceneName = std::filesystem::path(importFrom).filename().replace_extension("").string();
