@@ -1,9 +1,7 @@
 #pragma once
 #include "AssetID.h"
 #include "Fnv1Hash.h"
-#include <cereal/cereal.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/types/unordered_map.hpp>
+
 #include <unordered_map>
 #include <string>
 #include <fstream>
@@ -45,12 +43,6 @@ public:
 	}
 
 
-	inline bool contains(const char* path)
-	{
-		return contains(fnv1hash(path));
-	}
-
-
 	AssetID insert(const char* path, ResType /*resType*/)
 	{
 		AssetID pathHash = fnv1hash(path);
@@ -75,28 +67,6 @@ public:
 	}
 
 
-	// Return true if get succeeded
-	std::pair<bool, AssetID> getOrInsert(const char* path, ResType resType)
-	{
-		auto id = getExistingID(path);
-
-		if (getExistingID(path) == NULL_ASSET)
-		{
-			return  { false, insert(path, resType) };
-		}
-		
-		return { true, id };
-	}
-
-
-	inline const AssetID getExistingID(const char* path)
-	{
-		AssetID pathHash = fnv1hash(path);
-
-		return contains(pathHash) ? pathHash : NULL_ASSET;
-	}
-
-
 	inline void remove(AssetID ID)
 	{
 		if (_assDefs.erase(ID))
@@ -106,25 +76,19 @@ public:
 	}
 
 
-	inline void remove(const std::string& assName)
-	{
-		remove(fnv1hash(assName.c_str()));
-	}
-
-
 	void save()
 	{
 		std::ofstream ofs(_ledgerFilePath);
-		cereal::JSONOutputArchive joArch(ofs);
-		serialize(joArch);
+		//cereal::JSONOutputArchive joArch(ofs);
+		//serialize(joArch);
 	}
 
 
 	void load()
 	{
 		std::ifstream ifs(_ledgerFilePath);
-		cereal::JSONInputArchive jiArch(ifs);
-		serialize(jiArch);
+		//cereal::JSONInputArchive jiArch(ifs);
+		//serialize(jiArch);
 	}
 
 

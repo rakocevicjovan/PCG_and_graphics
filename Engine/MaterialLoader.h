@@ -33,7 +33,7 @@ namespace MaterialLoader
 	{
 		auto path = assetLedger.get(materialID);
 
-		MaterialAsset materialAsset = DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
+		MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
 
 		return LoadMaterialFromAsset(materialAsset, assetLedger);
 	}

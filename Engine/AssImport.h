@@ -79,9 +79,11 @@ public:
 	// Eeeeehhhh... weird way to do it.
 	void persistAssets();
 	std::vector<AssetID> persistMats();
-	std::vector<uint32_t> persistAnims();
+	std::vector<AssetID> persistAnims();
+	std::map<std::string, AssetID> persistUniqueTextures();
+	AssetID persistTexture(const std::string& name, const MatImporter::RawTextureData& texture);
 	AssetID persistSkeleton();
-	AssetID persistTexture(const std::string& name, const std::pair<std::shared_ptr<Texture>, MatImporter::RawTextureData>& texture);
+	
 
 	std::unique_ptr<ModelAsset> makeModelAsset(Model& model, std::vector<AssetID> matIDs);
 	std::unique_ptr<SkModelAsset> makeSkModelAsset(SkModel& skModel, std::vector<AssetID> matIDs, std::vector<AssetID> animIDs, AssetID skeletonID);

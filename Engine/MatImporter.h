@@ -37,11 +37,6 @@ public:
 			}
 			blob.reset();
 		}
-
-		RawTextureData() = default;
-		RawTextureData& operator= (RawTextureData&& other) = default;
-		RawTextureData(const RawTextureData& other) = default;
-		RawTextureData(RawTextureData&& other) = default;
 	};
 
 	// Includes both metadata and loaded versions of materials and textures
@@ -60,7 +55,6 @@ public:
 		MatsAndTextureBlobs result;
 		auto& outMats = result._materials;
 		auto& outMatData = result._materialData;
-		//auto& uniqueTextures = result._textures;
 		std::map<std::string, std::pair<std::shared_ptr<Texture>, RawTextureData>> uniqueTextures;
 
 		outMatData.reserve(materialCount);

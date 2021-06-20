@@ -6,7 +6,7 @@
 #include "MaterialLoader.h"
 #include "Deserialize.h"
 
- 
+
 namespace ModelLoader
 {
 	static Mesh LoadMesh(const MeshAsset& meshAsset, const AssetLedger& assetLedger);
@@ -51,16 +51,6 @@ namespace ModelLoader
 	}
 
 
-	static std::shared_ptr<Model> LoadModelFromID(AssetID modelID, const AssetLedger& assetLedger)
-	{
-		auto path = assetLedger.get(modelID);
-
-		ModelAsset modelAsset = DeserializeFromFile<ModelAsset>(path->c_str());
-
-		return LoadModelFromAsset(modelAsset, assetLedger);
-	}
-
-
 	static std::unique_ptr<SkModel> LoadSkModelFromAsset(const SkModelAsset& skModelAsset, const AssetLedger& assetLedger)
 	{
 		auto skModel = std::make_unique<SkModel>();
@@ -72,25 +62,15 @@ namespace ModelLoader
 		// This will not work like this later, must check the cache first for skeleton and animations. Same for materials!
 		// It should be optional to check the cache (maybe pass cache as pointer not sure)
 		auto skeletonPath = assetLedger.get(skModelAsset.skeleton);
-		skModel->_skeleton = std::make_shared<Skeleton>(DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
+		skModel->_skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
 
 		skModel->_anims.reserve(skModelAsset.animations.size());
 		for (auto animID : skModelAsset.animations)
 		{
 			auto animPath = assetLedger.get(animID);
-			skModel->_anims.push_back(std::make_shared<Animation>(DeserializeFromFile<Animation>(animPath->c_str())));
+			skModel->_anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
 		}
 
 		return skModel;
-	}
-
-
-	static std::shared_ptr<SkModel> LoadSkModelFromID(AssetID modelID, const AssetLedger& assetLedger)
-	{
-		auto path = assetLedger.get(modelID);
-		
-		SkModelAsset skModelAsset = DeserializeFromFile<SkModelAsset>(path->c_str());
-
-		return LoadSkModelFromAsset(skModelAsset, assetLedger);
 	}
 }

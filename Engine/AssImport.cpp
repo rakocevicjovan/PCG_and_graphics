@@ -240,10 +240,11 @@ bool AssImport::displayCommands()
 		if (_skModelData)
 		{
 			std::string importPath{ _destPath + _sceneName + ".aeon" };
-			AssetID skmID = _pLedger->getExistingID(importPath.c_str());
 
 			_skModelData.model.reset();
-			auto sharedPtrSkModel = ModelLoader::LoadSkModelFromID(skmID, *_pLedger);
+			auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(importPath.c_str());
+			auto sharedPtrSkModel = ModelLoader::LoadSkModelFromAsset(skModelAsset, *_pLedger);
+
 			_skModelData.model = std::make_unique<SkModel>(std::move(*sharedPtrSkModel));	//std::make_unique<SkModel>(std::move(*sharedPtrSkModel));
 
 			for (Mesh& skMesh : _skModelData.model->_meshes)
@@ -320,26 +321,37 @@ std::vector<uint32_t> AssImport::persistAnims()
 }
 
 
-AssetID AssImport::persistTexture(const std::string& name, const std::pair<std::shared_ptr<Texture>, MatImporter::RawTextureData>& texture)
+std::map<std::string, AssetID> AssImport::persistUniqueTextures()
 {
-	auto& [tex, rawTexData] = texture;
+	std::map<std::string, AssetID> textureIDs;
 
-	std::string texName = std::filesystem::path(name).filename().string();
-	std::string texPath{ _destPath + texName };
-
-	auto [exists, assetID] = _pLedger->getOrInsert(texPath.c_str(), ResType::TEXTURE);
-
-	if (!exists)
+	for (auto& namedTextureData : _matData._textures)
 	{
-		FileUtils::writeAllBytes(texPath, rawTexData.blob.data(), rawTexData.blob.size());
-	}
+		auto& [name, pair] = namedTextureData;
+		auto& [tex, rawTexData] = pair;
 
-	return assetID;
+		std::string texName = std::filesystem::path(name).filename().string();
+		std::string texPath{ _destPath + texName };
+
+		textureIDs.insert({ name, persistTexture(texPath, rawTexData) });
+	}
+	return textureIDs;
+}
+
+
+AssetID AssImport::persistTexture(const std::string& path, const MatImporter::RawTextureData& rawTexData)
+{
+	FileUtils::writeAllBytes(path, rawTexData.blob.data(), rawTexData.blob.size());
+	AssetID textureID = _pLedger->insert(path.c_str(), ResType::TEXTURE);
+	return textureID;
 }
 
 
 std::vector<AssetID> AssImport::persistMats()
 {
+	// Materials depend on textures so it makes sense to persist them here
+	auto textureIDs = persistUniqueTextures();
+
 	std::vector<uint32_t> matIDs;
 
 	for (auto i = 0; i < _matData._materials.size(); ++i)
@@ -357,7 +369,7 @@ std::vector<AssetID> AssImport::persistMats()
 		std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(matAsset._textures),
 			[&](MatImporter::TexturePathAndMetadata& texPathAndMetaData)
 			{
-				AssetID textureID = persistTexture(texPathAndMetaData.path, _matData._textures.at(texPathAndMetaData.path));
+				AssetID textureID = textureIDs.at(texPathAndMetaData.path);
 				return MaterialAsset::TextureRef{ texPathAndMetaData.metaData, textureID };
 			});
 
