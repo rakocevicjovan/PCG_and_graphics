@@ -25,7 +25,7 @@ namespace Strife
 		terrain.setOffset(-edge * .5, 0.f, -edge * .5);
 		terrain.CalculateNormals();
 
-		floor = Model(terrain, S_DEVICE);
+		//floor = Model(terrain, S_DEVICE); The way this works changed, it's not really useful for the clouds so no need to fix it here
 		floor._transform = SMatrix::CreateTranslation(terrain.getOffset());
 
 

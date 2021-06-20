@@ -8,16 +8,6 @@ struct GPUMesh
 	VBuffer _vertexBuffer{};
 	IBuffer _indexBuffer{};
 
-	/* 
-		// Better to make a factory - rule of 0
-		GPUMesh() = default;
-		GPUMesh(const GPUMesh&) = default;
-		GPUMesh(GPUMesh&&) = default;
-		GPUMesh& operator=(const GPUMesh&) = default;
-		GPUMesh& operator=(GPUMesh&&) = default;
-		~GPUMesh() = default;
-	*/
-
 	static inline GPUMesh CreateFromMesh(ID3D11Device* device, Mesh& mesh)
 	{
 		GPUMesh gpuMesh;

@@ -8,7 +8,7 @@
 
 namespace Procedural 
 {
-	Terrain::Terrain(unsigned int rows, unsigned int columns, SVec3 scale, SVec3 offset) 
+	Terrain::Terrain(uint32_t rows, uint32_t columns, SVec3 scale, SVec3 offset) 
 		: _numRows(rows), _numColumns(columns), _scale(scale), _texCoordScale(1.f, 1.f)
 	{
 		_vertices.reserve(rows * columns);
@@ -91,10 +91,10 @@ namespace Procedural
 
 
 
-	void Terrain::GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax) 
+	void Terrain::GenWithDS(SVec4 corners, uint32_t steps, float decay, float randomMax) 
 	{
 		_numRows = _numColumns = pow(2, steps) + 1;
-		unsigned int stepSize = _numRows - 1;
+		uint32_t stepSize = _numRows - 1;
 
 		_vertices.clear();
 		_vertices.resize(_numRows * _numRows);
@@ -161,7 +161,7 @@ namespace Procedural
 
 
 
-	void Terrain::CellularAutomata(float initialDistribtuion, unsigned int steps)
+	void Terrain::CellularAutomata(float initialDistribtuion, uint32_t steps)
 	{
 		Chaos chaos(0.f, 1.f);
 
@@ -179,21 +179,21 @@ namespace Procedural
 		std::vector<bool> cellsNext(_vertices.size(), false);
 
 		//do the CA stuff
-		for (unsigned int step = 0; step < steps; ++step)
+		for (uint32_t step = 0; step < steps; ++step)
 		{
-			for (unsigned int z = 0; z < _numRows; ++z)
+			for (uint32_t z = 0; z < _numRows; ++z)
 			{
-				for (unsigned int x = 0; x < _numColumns; ++x)
+				for (uint32_t x = 0; x < _numColumns; ++x)
 				{
-					unsigned int index = z * _numColumns + x;
+					uint32_t index = z * _numColumns + x;
 
 					//wrap the grid
-					unsigned int topRow = (z == 0) ? _numRows - 1 : z - 1;
-					unsigned int bottomRow = (z == _numRows - 1) ? 0 : z + 1;
-					unsigned int leftColumn = (x == 0) ? _numColumns - 1 : x - 1;
-					unsigned int rightColumn = (x == _numColumns - 1) ? 0 : x + 1;
+					uint32_t topRow = (z == 0) ? _numRows - 1 : z - 1;
+					uint32_t bottomRow = (z == _numRows - 1) ? 0 : z + 1;
+					uint32_t leftColumn = (x == 0) ? _numColumns - 1 : x - 1;
+					uint32_t rightColumn = (x == _numColumns - 1) ? 0 : x + 1;
 					
-					unsigned int count = 0;
+					uint32_t count = 0;
 
 					//check the 8 surrounding cells (Moor configuration)
 					if(cells[topRow * _numColumns + leftColumn]) count++;
@@ -227,7 +227,7 @@ namespace Procedural
 
 
 
-	void Terrain::GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data) 
+	void Terrain::GenFromTexture(uint32_t width, uint32_t height, const std::vector<float>& data) 
 	{
 		_numColumns = width;
 		_numRows = height;
@@ -308,7 +308,7 @@ namespace Procedural
 			for (int j = 0; j < _numColumns; ++j) 
 			{
 				int index = i * _numColumns + j;
-				unsigned int facesFound = 0;
+				uint32_t facesFound = 0;
 				
 				SVec3 normal;
 				SVec3 tangent;
@@ -345,16 +345,16 @@ namespace Procedural
 		}
 
 
-		indices.clear();
-		indices.reserve(faces.size() * faces.size() * 6);	//square grid of faces, 2 faces per square, 3 indices per face
+		_indices.clear();
+		_indices.reserve(faces.size() * faces.size() * 6);	//square grid of faces, 2 faces per square, 3 indices per face
 
 		for (auto row : faces)
 		{
 			for (auto face : row)
 			{
-				indices.push_back((unsigned int)face.x);
-				indices.push_back((unsigned int)face.y);
-				indices.push_back((unsigned int)face.z);
+				_indices.push_back((uint32_t)face.x);
+				_indices.push_back((uint32_t)face.y);
+				_indices.push_back((uint32_t)face.z);
 			}
 		}
 	}
@@ -374,38 +374,9 @@ namespace Procedural
 
 	bool Terrain::SetUp(ID3D11Device* device) 
 	{
-		D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-		D3D11_SUBRESOURCE_DATA vertexData, indexData;
+		_vertexBuffer = VBuffer(device, _vertices.data(), _vertices.size() * sizeof(Vert3D));
 
-		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(Vert3D) * _vertices.size();
-		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.CPUAccessFlags = 0;
-		vertexBufferDesc.MiscFlags = 0;
-		vertexBufferDesc.StructureByteStride = 0;
-
-		vertexData.pSysMem = _vertices.data();
-		vertexData.SysMemPitch = 0;
-		vertexData.SysMemSlicePitch = 0;
-
-		if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexData, &_vertexBuffer)))
-			return false;
-
-		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof(unsigned int) * indices.size();
-		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		indexBufferDesc.CPUAccessFlags = 0;
-		indexBufferDesc.MiscFlags = 0;
-		indexBufferDesc.StructureByteStride = 0;
-
-
-		indexData.pSysMem = indices.data();
-		indexData.SysMemPitch = 0;
-		indexData.SysMemSlicePitch = 0;
-
-		// Create the index buffer.
-		if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexData, &_indexBuffer)))
-			return false;
+		_indexBuffer = IBuffer(device, _indices);
 
 		return true;
 	}
@@ -418,7 +389,6 @@ namespace Procedural
 
 		WMBuffer* dataPtr;
 		LightBuffer* dataPtr2;
-
 
 		SMatrix mT = SMatrix::CreateTranslation(_offset).Transpose();
 		SMatrix vT = cam.GetViewMatrix().Transpose();
@@ -445,8 +415,8 @@ namespace Procedural
 		dc->Unmap(s._lightBuffer, 0);
 		dc->PSSetConstantBuffers(0, 1, &s._lightBuffer);
 
-		unsigned int stride = sizeof(Vert3D);
-		unsigned int offset = 0;
+		uint32_t stride = sizeof(Vert3D);
+		uint32_t offset = 0;
 
 		dc->VSSetShader(s._vertexShader, NULL, 0);
 		dc->PSSetShader(s._pixelShader, NULL, 0);
@@ -456,13 +426,16 @@ namespace Procedural
 		for (int i = 0; i < textures.size(); ++i)
 			dc->PSSetShaderResources(i, 1, &(textures[i]._arraySrv));
 			
-		dc->IASetVertexBuffers(0, 1, &_vertexBuffer, &stride, &offset);
-		dc->IASetIndexBuffer(_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-		dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		_indexBuffer.bind(dc);
+		_vertexBuffer.bind(dc);
+
 		dc->PSSetSamplers(0, 1, &s._sampleState);
 		dc->IASetInputLayout(s._layout);
-		dc->DrawIndexed(indices.size(), 0, 0);
-		dc->PSSetShaderResources(0, 1, &(unbinder[0]));
+		dc->DrawIndexed(_indices.size(), 0, 0);
+
+#ifdef _DEBUG
+		dc->PSSetShaderResources(0, 1, &(unbinder[0]));	// Prevent leaking textures when debugging
+#endif
 	}
 
 
@@ -506,7 +479,7 @@ namespace Procedural
 
 
 	//keep decay under 1 for reasonable results? Still, something fun could happen otherwise... this is ugly anyways
-	void Terrain::TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay)
+	void Terrain::TerraSlash(const SRay& line, float displacement, uint32_t steps, float decay)
 	{
 		Chaos c;
 
@@ -530,7 +503,7 @@ namespace Procedural
 
 
 
-	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps, float initAngle)
+	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, uint32_t steps, float initAngle)
 	{
 		float curAngle = initAngle;
 
@@ -570,14 +543,14 @@ namespace Procedural
 
 	//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 	//apply this FIR function to rows and columns individually, in both directions
-	void Terrain::Smooth(unsigned int steps) 
+	void Terrain::Smooth(uint32_t steps) 
 	{
-		for (int i = 0; i < steps; ++i)
+		for (uint32_t i = 0; i < steps; ++i)
 		{
 			std::vector<float> smoothed;
 			smoothed.reserve(_vertices.size());
 
-			for (int z = 0; z < _numRows; ++z)
+			for (auto z = 0; z < _numRows; ++z)
 			{
 				for (int x = 0; x < _numColumns; ++x)
 				{

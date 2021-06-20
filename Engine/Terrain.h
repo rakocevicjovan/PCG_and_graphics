@@ -5,6 +5,8 @@
 #include "Math.h"
 #include "Light.h"
 #include "Texture.h"
+#include "VBuffer.h"
+#include "IBuffer.h"
 
 class Phong;
 class Camera;
@@ -16,10 +18,10 @@ namespace Procedural
 	struct CACell
 	{
 		CACell() {}
-		CACell(Vert3D vert, bool doa) : vertex(vert), deadOrAlive(doa) {}
+		CACell(Vert3D vert, bool doa) : vertex(vert), alive(doa) {}
 
 		Vert3D vertex;
-		bool deadOrAlive;
+		bool alive;
 	};
 
 	struct Triface
@@ -46,44 +48,47 @@ namespace Procedural
 	class Terrain
 	{
 		std::vector<Vert3D> _vertices;
-		std::vector<unsigned int> indices;
+		std::vector<uint32_t> _indices;
 		std::vector<std::vector<TangentTriface>> faces;
 		std::vector<Texture> textures;
 
-		unsigned int _numRows, _numColumns;
-		SVec2 _texCoordScale;
-		SVec3 _offset, _scale;
-		ID3D11Buffer *_vertexBuffer, *_indexBuffer;
+		uint32_t _numRows{};
+		uint32_t _numColumns{};
+		SVec2 _texCoordScale{};
+		SVec3 _offset{};
+		SVec3 _scale{};
+		VBuffer _vertexBuffer{};
+		IBuffer _indexBuffer{};
 
 		ID3D11ShaderResourceView* unbinder[1] = { nullptr };
 
 		///helper functions
-		inline unsigned int wr(int row) { return row < 0 ? _numRows + row : row % _numRows; }
-		inline unsigned int wc(int col) { return col < 0 ? _numColumns + col : col % _numColumns; }
+		inline uint32_t wr(int row) { return row < 0 ? _numRows + row : row % _numRows; }
+		inline uint32_t wc(int col) { return col < 0 ? _numColumns + col : col % _numColumns; }
 		float sampleDiamond(int i, int j, int reach);
 
 	public:
 		
 		Terrain() {}
-		Terrain(unsigned int x, unsigned int y, SVec3 scale = SVec3(1, 1, 1), SVec3 offset = SVec3(0, 0, 0));
+		Terrain(uint32_t x, uint32_t y, SVec3 scale = SVec3(1, 1, 1), SVec3 offset = SVec3(0, 0, 0));
 		~Terrain();
 
 		/// Generation methods
 		// Diamond square
-		void GenWithDS(SVec4 corners, unsigned int steps, float decay, float randomMax);
+		void GenWithDS(SVec4 corners, uint32_t steps, float decay, float randomMax);
 
 		// Load from heightmap
-		void GenFromTexture(unsigned int width, unsigned int height, const std::vector<float>& data);
+		void GenFromTexture(uint32_t width, uint32_t height, const std::vector<float>& data);
 
 		///manipulation methods
 		void Tumble(float chance, float displacement);
-		void CellularAutomata(float initialDistribtuion, unsigned int steps);
+		void CellularAutomata(float initialDistribtuion, uint32_t steps);
 		void Fault(const SRay& line, float displacement);
 		void NoisyFault(const SRay& line, float vertDp, float horiDp, float perlinZoom);
-		void TerraSlash(const SRay& line, float displacement, unsigned int steps, float decay);
-		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, unsigned int steps, float initAngle = 0.f);
+		void TerraSlash(const SRay& line, float displacement, uint32_t steps, float decay);
+		void CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, uint32_t steps, float initAngle = 0.f);
 		void Mesa(const SVec2& center, float radius, float bandWidth, float height);
-		void Smooth(unsigned int steps);	
+		void Smooth(uint32_t steps);	
 
 		/// Wrapping up and directX integration
 		void CalculateNormals();
@@ -92,19 +97,19 @@ namespace Procedural
 		bool SetUp(ID3D11Device* device);
 		void Draw(ID3D11DeviceContext* dc, Phong& s, const Camera& cam, const PointLight& pointLight, float deltaTime);
 
-		void populateMesh(std::vector<uint8_t>& verts, std::vector<unsigned int>& inds) const
+		void populateMesh(std::vector<uint8_t>& verts, std::vector<uint32_t>& inds) const
 		{
 			verts.resize(_vertices.size() * sizeof(Vert3D));
 			memcpy(verts.data(), _vertices.data(), verts.size());
-			inds = indices;
+			inds = _indices;
 		}
 
 		//utility for movement
 		float getHeightAtPosition(const SVec3& playerPos);
 		
 		//getters and setters
-		unsigned int	getNumCols() const { return _numColumns; }
-		unsigned int	getNumRows() const { return _numRows;    }
+		uint32_t	getNumCols() const { return _numColumns; }
+		uint32_t	getNumRows() const { return _numRows;    }
 		auto&			getVerts()   const { return _vertices;   }
 		SVec3			getOffset()  const { return _offset;     }
 		std::vector<SVec2> getHorizontalPositions();
