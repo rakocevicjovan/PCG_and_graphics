@@ -149,7 +149,7 @@ public:
 
 		if (ImGui::Begin("Content"))
 		{
-			ImGui::BeginTabBar("Loaded scenes", ImGuiTabBarFlags_AutoSelectNewTabs);
+			ImGui::BeginTabBar("Loaded scenes", ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_Reorderable);
 			ImGui::NewLine();
 
 			for (UINT i = 0; i < _previews.size(); i++)
