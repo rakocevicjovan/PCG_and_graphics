@@ -822,18 +822,6 @@
     <ClInclude Include="ClusteringMath.h">
       <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="ParallelPrefixSum.h">
-      <Filter>Multi Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPool.h">
-      <Filter>Multi Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="Callable.h">
-      <Filter>Multi Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="ThreadPoolTest.h">
-      <Filter>Multi Threading</Filter>
-    </ClInclude>
     <ClInclude Include="VitThreadPool.h">
       <Filter>Multi Threading</Filter>
     </ClInclude>

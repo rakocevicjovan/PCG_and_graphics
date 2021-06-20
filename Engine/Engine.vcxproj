@@ -403,9 +403,6 @@
     <ClInclude Include="AssImport.h" />
     <ClInclude Include="AssimpWrapper.h" />
     <ClInclude Include="Bone.h" />
-    <ClInclude Include="Callable.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="ClusteringMath.h" />
     <ClInclude Include="ClusteringUnusedCode.h" />
     <ClInclude Include="ClusterManager.h" />
@@ -456,9 +453,6 @@
     <ClInclude Include="MatImporter.h" />
     <ClInclude Include="MeshImporter.h" />
     <ClInclude Include="NumericVectorType.h" />
-    <ClInclude Include="ParallelPrefixSum.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="Project.h" />
     <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderingTestLevel.h" />
@@ -697,12 +691,6 @@
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureMetaData.h" />
     <ClInclude Include="TextureRole.h" />
-    <ClInclude Include="ThreadPool.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="ThreadPoolTest.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="ToolGUI.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
