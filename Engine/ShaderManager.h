@@ -134,7 +134,7 @@ public:
 		VertexShader* vs = new VertexShader(_pDevice, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
 		// Bootleg solution, need to be persisting these better in the first place
 		CBufferMeta WMBufferMeta(0, 64u);
-		WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix));
+		WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
 		vs->_id = shaderKey;
 		vs->describeBuffers({ WMBufferMeta });
 

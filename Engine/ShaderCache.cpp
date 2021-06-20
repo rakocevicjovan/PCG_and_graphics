@@ -93,17 +93,11 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 
 	D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(WMBuffer));
 	CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
-	WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(WMBuffer));
+	WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
 
 	D3D11_BUFFER_DESC lightBufferDesc = CBuffer::createDesc(sizeof(LightBuffer));
 	CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
-	//lightBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::P_LIGHT, 0, sizeof(LightBuffer));
 
-	/*
-	D3D11_BUFFER_DESC shadowBufferDesc = ShaderCompiler::createBufferDesc(sizeof(CSMBuffer<NUM_CASCADES>));
-	CBufferMeta shadowBufferMeta(11, shadowBufferDesc.ByteWidth);
-	shadowBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::CSM, 0, sizeof(CSMBuffer<NUM_CASCADES>));
-	*/
 
 	/// VERTEX SHADERS
 

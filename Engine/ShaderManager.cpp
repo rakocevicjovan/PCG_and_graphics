@@ -97,7 +97,7 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 	auto vertInLayElements = vertSig.createVertInLayElements();
 	D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
 	CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
-	WMBufferMeta.addFieldDescription(CBUFFER_FIELD_CONTENT::TRANSFORM, 0, sizeof(SMatrix));
+	WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
 
 	PersistVertexShader(cmpVsPath.c_str(), vsBlob, vertSig, { WMBufferDesc });
 

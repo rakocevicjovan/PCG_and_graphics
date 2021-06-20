@@ -3,22 +3,26 @@
 #include <wrl/client.h>
 #include <vector>
 
-// Basically halves the class size with the option to use 8 bit enums...
-enum class CBUFFER_FIELD_TYPE : uint8_t		{ BOOL, FLOAT, FLOAT4, MATRIX4 };
-enum class CBUFFER_FIELD_CONTENT : uint8_t { TRANSFORM, CSM };
+
+enum class CBUFFER_FIELD_TYPE : uint8_t
+{
+	BOOL, 
+	FLOAT, 
+	FLOAT4, 
+	MATRIX4
+};
+
 
 struct CBufferFieldDesc
 {
 	CBUFFER_FIELD_TYPE _type{ CBUFFER_FIELD_TYPE::FLOAT4 };
-	CBUFFER_FIELD_CONTENT _content;
 	uint16_t _offset{0};
 	uint16_t _size{16};
 
-	CBufferFieldDesc(CBUFFER_FIELD_CONTENT content, uint16_t offset, uint16_t size)
-		: _content(content), _offset(offset), _size(size)
+	CBufferFieldDesc(uint16_t offset, uint16_t size)
+		: _offset(offset), _size(size)
 	{}
 };
-
 
 
 struct CBufferMeta
@@ -31,9 +35,9 @@ struct CBufferMeta
 
 	CBufferMeta(uint8_t slot, size_t size) : _slot(slot), _size(size) {}
 
-	inline void addFieldDescription(CBUFFER_FIELD_CONTENT semantic, uint16_t offset, uint16_t size)
+	inline void addFieldDescription(uint16_t offset, uint16_t size)
 	{
-		_fields.push_back(CBufferFieldDesc(semantic, offset, size));
+		_fields.push_back(CBufferFieldDesc(offset, size));
 	}
 };
 
