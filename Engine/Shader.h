@@ -6,7 +6,7 @@
 #include <array>
 
 
-enum class SHADER_TYPE : uint8_t { VS, GS, PS, TS, HS };
+enum class ShaderType : uint8_t { VS, GS, PS, TS, HS };
 
 
 struct TexLayout
@@ -24,9 +24,9 @@ protected:
 	Shader(ID3D11Device* device, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
-	uint64_t _id;
-	SHADER_TYPE _type;
-	std::wstring _path;
+	uint64_t _id{};
+	ShaderType _type{};
+	std::wstring _path{};
 
 	//contains texture and constant buffer meta data along with register indices for each of them, reflected from shader directly
 	ShRef::SRShaderMetadata _refShMetaData;
@@ -36,9 +36,8 @@ public:
 	std::vector<CBufferMeta> _cbufferMetaData;
 
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
-	std::array<TexLayout, TextureRole::NUM_ROLES> _textureRegisters;
+	std::array<TexLayout, TextureRole::NUM_ROLES> _textureRegisters{};
 
-	// alternative to the automatic system, for custom data
 	void updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index);
 
 	inline void describeBuffers(const std::vector<CBufferMeta>& meta)
@@ -52,10 +51,10 @@ public:
 class VertexShader : public Shader
 {
 public:
-	ID3D11VertexShader* _vsPtr;
-	ID3D11InputLayout* _layout;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> _vsPtr;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> _layout;
 
-	VertexShader() : _vsPtr(nullptr), _layout(nullptr) {}
+	VertexShader() = default;
 
 	VertexShader(
 		const ShaderCompiler& shc, 
@@ -71,10 +70,6 @@ public:
 		const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay,
 		const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
-	~VertexShader();
-	VertexShader(const VertexShader& other);
-	VertexShader(const VertexShader&& other);
-	VertexShader& operator= (VertexShader other);
 
 	void setBuffers(ID3D11DeviceContext* cont);
 
@@ -104,8 +99,8 @@ public:
 
 	inline void bind(ID3D11DeviceContext* context)
 	{
-		context->VSSetShader(_vsPtr, nullptr, 0);
-		context->IASetInputLayout(_layout);
+		context->VSSetShader(_vsPtr.Get(), nullptr, 0);
+		context->IASetInputLayout(_layout.Get());
 	}
 };
 
@@ -114,10 +109,10 @@ public:
 class PixelShader : public Shader
 {
 public:
-	ID3D11PixelShader* _psPtr;
-	std::vector<ID3D11SamplerState*> _samplers;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> _psPtr;
+	std::vector<Microsoft::WRL::ComPtr<ID3D11SamplerState>> _samplers;
 
-	PixelShader() : _psPtr(nullptr) {}
+	PixelShader() = default;
 
 	PixelShader(
 		const ShaderCompiler& shc,
@@ -134,26 +129,14 @@ public:
 		const std::vector<D3D11_BUFFER_DESC>& descriptions
 	);
 
-
-	// @TODO CONSTRUCTORS (COPY, MOVE) AND ASSOP ARE REQUIRED!
-	~PixelShader()
-	{
-		if (_psPtr)
-			_psPtr->Release();
-
-		for (auto& s : _samplers)
-			if (s)
-				s->Release();
-	}
-
 	void setBuffers(ID3D11DeviceContext* cont);
 
 	inline void bind(ID3D11DeviceContext* context)
 	{
-		context->PSSetShader(_psPtr, nullptr, 0);
+		context->PSSetShader(_psPtr.Get(), nullptr, 0);
 
 		for (UINT i = 0; i < _samplers.size(); ++i)
-			context->PSSetSamplers(i, 1, &_samplers[i]);
+			context->PSSetSamplers(i, 1, _samplers[i].GetAddressOf());
 	}
 
 	template <typename RenderItem>

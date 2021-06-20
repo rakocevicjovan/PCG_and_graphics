@@ -31,7 +31,7 @@ private:
 	std::vector<SMatrix> _lvpMats;
 	std::vector<float> _distances;
 	std::vector<Frustum> _frusta;
-	ID3D11InputLayout* _inLay;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> _inLay;
 
 	CBuffer _wmBuffer;
 	CBuffer _lvpBuffer;
@@ -132,10 +132,12 @@ public:
 	// All of this below will probably be refactored to just return it's state and not set it directly...
 	void beginShadowPassSequence(ID3D11DeviceContext* context)
 	{
-		context->VSSetShader(_vs->_vsPtr, nullptr, 0);
+		// Check why not im not binding input layout - aka using vs.bind()
+		context->VSSetShader(_vs->_vsPtr.Get(), nullptr, 0);
+		_inLay = _vs->_layout;
+
 		context->PSSetShader(NULL, nullptr, 0);
 		_viewport.bind(context);
-		_inLay = _vs->_layout;
 	}
 
 
@@ -165,7 +167,7 @@ public:
 		_wmBuffer.updateWithStruct(context, transformTranspose);
 		_wmBuffer.bindToVS(context, 1);
 
-		context->IASetInputLayout(_inLay);
+		context->IASetInputLayout(_inLay.Get());
 
 		r.mesh->_vertexBuffer.bind(context);
 		r.mesh->_indexBuffer.bind(context);

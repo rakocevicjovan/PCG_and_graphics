@@ -283,9 +283,8 @@ void GeoClipmap::update(ID3D11DeviceContext* context)
 void GeoClipmap::draw(ID3D11DeviceContext* context)
 {
 	// Bind once, no need to repeat as the same state is used everywhere
-	context->VSSetShader(_vertShader._vsPtr, NULL, 0);
+	_vertShader.bind(context);
 	context->PSSetShader(NULL, NULL, 0);
-	context->IASetInputLayout(_vertShader._layout);
 	_cBuffer.bindToVS(context, 0);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

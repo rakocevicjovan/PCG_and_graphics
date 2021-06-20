@@ -92,7 +92,7 @@ public:
 	bool importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan);
 	bool displayPreview();
 	void draw(ID3D11DeviceContext* context, float dTime);
-	const std::filesystem::path& getPath() { return std::filesystem::path(_srcPath); }
+	std::filesystem::path getPath() { return std::filesystem::path(_srcPath); }
 
 	~AssImport()
 	{

@@ -24,7 +24,9 @@ bool AssImport::importAiScene(ID3D11Device* device, const char* importFrom, cons
 	_aiScene = AssimpWrapper::loadScene(_importer, _srcPath, pFlags);
 
 	if (!_aiScene)
+	{
 		return false;
+	}
 
 	_hasOnlySkeleton = AssimpWrapper::isOnlySkeleton(_aiScene);
 	_hasSkeletalModel = AssimpWrapper::containsRiggedMeshes(_aiScene);

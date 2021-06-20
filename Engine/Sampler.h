@@ -18,13 +18,13 @@ public:
 	inline static Sampler createSampler(ID3D11Device* device, const D3D11_SAMPLER_DESC* samplerDesc)
 	{
 		Sampler result;
-		setUp(device, samplerDesc, result._dxSampler);
+		SetUp(device, samplerDesc, result._dxSampler);
 		return result;
 	}
 
 
 
-	inline static void setUp(ID3D11Device* device, const D3D11_SAMPLER_DESC* samplerDesc, ID3D11SamplerState*& samplerState)
+	inline static void SetUp(ID3D11Device* device, const D3D11_SAMPLER_DESC* samplerDesc, ID3D11SamplerState*& samplerState)
 	{
 		if (FAILED(device->CreateSamplerState(samplerDesc, &samplerState)))
 		{

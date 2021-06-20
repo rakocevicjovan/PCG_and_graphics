@@ -4,7 +4,6 @@
 #include "CBuffer.h"
 
 
-
 Shader::Shader(ID3D11Device* device, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: _path(path)
 {
@@ -17,12 +16,10 @@ Shader::Shader(ID3D11Device* device, const std::wstring& path, const std::vector
 }
 
 
-
 void Shader::updateCBufferDirectly(ID3D11DeviceContext* cont, void* data, uint8_t index)
 {
 	_cbuffers[index].update(cont, data, _cbufferMetaData[index]._size);
 }
-
 
 
 VertexShader::VertexShader(
@@ -32,12 +29,10 @@ VertexShader::VertexShader(
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(shc.getDevice(), path, descriptions)
 {
-	_type = SHADER_TYPE::VS;
+	_type = ShaderType::VS;
 
-	if (!shc.compileVS(path, inputLayoutDesc, _vsPtr, _layout))
-		__debugbreak();
+	shc.compileVS(path, inputLayoutDesc, *_vsPtr.GetAddressOf(), *_layout.GetAddressOf());
 }
-
 
 
 VertexShader::VertexShader(
@@ -49,65 +44,13 @@ VertexShader::VertexShader(
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(device, path, descriptions)
 {
-	_type = SHADER_TYPE::VS;
+	_type = ShaderType::VS;
 	if (FAILED(device->CreateVertexShader(ptr, size, NULL, &_vsPtr)))
 		__debugbreak();
 
 	if (FAILED(device->CreateInputLayout(inLay.data(), inLay.size(), ptr, size, &_layout)))
 		__debugbreak();
 }
-
-
-
-VertexShader::~VertexShader()
-{
-	if (_vsPtr)
-		_vsPtr->Release();
-	if (_layout)
-		_layout->Release();
-}
-
-VertexShader::VertexShader(const VertexShader& other)
-	: Shader(other), _vsPtr(other._vsPtr), _layout(other._layout)
-{
-	if (_vsPtr)
-		_vsPtr->AddRef();
-	if (_layout)
-		_layout->AddRef();
-}
-
-VertexShader::VertexShader(const VertexShader&& other)
-	: Shader(other), _vsPtr(other._vsPtr), _layout(other._layout)
-{
-	if (_vsPtr)
-		_vsPtr->AddRef();
-	if (_layout)
-		_layout->AddRef();
-}
-
-
-VertexShader& VertexShader::operator= (VertexShader other)
-{
-	_vsPtr = other._vsPtr;
-	if (_vsPtr)
-		_vsPtr->AddRef();
-
-	_layout = other._layout;
-	if (_layout)
-		_layout->AddRef();
-
-	_id = other._id;
-	_type = other._type;
-	_path = other._path;
-
-	_refShMetaData = other._refShMetaData;
-	_cbuffers = other._cbuffers;
-
-	_textureRegisters = other._textureRegisters;
-
-	return *this;
-}
-
 
 
 void VertexShader::setBuffers(ID3D11DeviceContext* cont)
@@ -131,15 +74,16 @@ PixelShader::PixelShader(
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(shc.getDevice(), path, descriptions)
 {
-	_type = SHADER_TYPE::PS;
-	shc.compilePS(path, _psPtr, &_refShMetaData);
+	_type = ShaderType::PS;
+	shc.compilePS(path, *_psPtr.GetAddressOf(), &_refShMetaData);
 	
 	UINT numSamplers = samplerDescs.size();
 	_samplers.resize(numSamplers);
 
 	for (UINT i = 0; i < numSamplers; ++i)
-		Sampler::setUp(shc.getDevice(), &samplerDescs[i], _samplers[i]);
+		Sampler::SetUp(shc.getDevice(), &samplerDescs[i], *_samplers[i].GetAddressOf());
 }
+
 
 PixelShader::PixelShader(
 	ID3D11Device* device,
@@ -150,7 +94,7 @@ PixelShader::PixelShader(
 	const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: Shader(device, path, descriptions)
 {
-	_type = SHADER_TYPE::PS;
+	_type = ShaderType::PS;
 
 	if (FAILED(device->CreatePixelShader(ptr, size, NULL, &_psPtr)))
 		__debugbreak();
@@ -159,9 +103,8 @@ PixelShader::PixelShader(
 	_samplers.resize(numSamplers);
 
 	for (UINT i = 0; i < numSamplers; ++i)
-		Sampler::setUp(device, &samplerDescs[i], _samplers[i]);
+		Sampler::SetUp(device, &samplerDescs[i], *_samplers[i].GetAddressOf());
 }
-
 
 
 void PixelShader::setBuffers(ID3D11DeviceContext* cont)
