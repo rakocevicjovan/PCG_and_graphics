@@ -49,10 +49,13 @@
 
 
 
-	bool BitMapper::createTerrain() {
+	bool BitMapper::createTerrain()
+	{
+		// @TODO Make this into an image when its split fully
+		//if (!_t.loadFromStoredPath())
+			//return false;
 
-		if (!_t.loadFromStoredPath())
-			return false;
+		assert(false);
 
 		if (_t.w() % 2 != 0 || _t.h() % 2 != 0) {
 			std::cout << "Bitmap's width and height have to be even numbers." << std::endl;

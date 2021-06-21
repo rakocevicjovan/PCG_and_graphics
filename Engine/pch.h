@@ -36,7 +36,8 @@
 #include <entt/entt.hpp>
 
 // Graphics includes
-#include <d3d11.h>
+#include <d3d11_4.h>
+#include <dxgiformat.h>
 
 // Windows includes
 #include <wrl/client.h>

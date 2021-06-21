@@ -1,14 +1,5 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <memory>
-#include <d3d11_4.h>
 #include <wrl/client.h>
-#include <dxgiformat.h>
-
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-
 #include "Resource.h"
 #include "TextureRole.h"
 
@@ -33,7 +24,6 @@ class Texture : public Resource
 private:
 
 	friend class Procedural::TextureGen;
-	friend class cereal::access;
 	
 protected:
 	
@@ -41,17 +31,13 @@ protected:
 	uint16_t _w{ 0u };
 	uint16_t _h{ 0u };
 
-	// num channels in loaded data and storage data
+	// num channels
 	uint8_t _nc{ 0u };
-	uint8_t _snc{ 0u };
 
 	std::shared_ptr<unsigned char[]> _mdata;
 
 	static int GetFormatFromFile(const char* filename);
-
 	static int GetFormatFromMemory(const unsigned char* data, size_t size);
-
-	void loadFromFile(const char* filename);
 
 public:
 
@@ -64,12 +50,11 @@ public:
 	Texture(ID3D11Device* device, const std::string& fileName);
 	Texture(const std::string& fileName);
 
-	bool loadFromStoredPath();
-	bool loadFromPath(const char* path);
+	bool loadFromFile(const char* filename);
 	bool loadFromMemory(const unsigned char* data, size_t size);
+	
 	bool loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path);
 	bool loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin);
-	bool loadRegion();
 
 	bool setUpAsResource(ID3D11Device* device, bool deleteData = true);
 	bool createGPUResource(ID3D11Device* device, D3D11_TEXTURE2D_DESC* desc, D3D11_SUBRESOURCE_DATA* data);
@@ -81,7 +66,6 @@ public:
 	inline int w() const							{ return _w; } 
 	inline int h() const							{ return _h; }
 	inline int nc() const							{ return _nc; }
-	inline int snc() const							{ return _snc; }
 	inline const unsigned char* getData() const		{ return _mdata.get(); }	//data can't be modified, only read
 	inline const std::string& getName() const		{ return _fileName; }
 	inline ID3D11ShaderResourceView* getSRV()		{ return _arraySrv.Get(); }
@@ -91,11 +75,11 @@ public:
 	static std::vector<float> LoadAsFloatVec(const std::string& path);
 	static void SaveAsPng(const char* targetFile, int w, int h, int comp, const void* data, int stride_in_bytes = 0u);
 
-	//easier desc creation (hopefully... textures aren't quite so uniformly created in general)
+	// Easier desc creation (hopefully... textures aren't quite so uniformly created in general)
 	static inline D3D11_TEXTURE2D_DESC create2DTexDesc(
 		UINT w,
 		UINT h,
-		DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT,
+		DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM,
 		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
 		UINT bindFlags = D3D11_BIND_SHADER_RESOURCE,
 		UINT cpuAccessFlags = 0u,	//D3D11_CPU_ACCESS_WRITE (dynamic or staging), D3D11_CPU_ACCESS_READ	(staging)
@@ -108,10 +92,10 @@ public:
 	}
 
 
-	static std::vector<unsigned char> loadToSysMem(ID3D11Device* device, ID3D11DeviceContext* dc, const Texture& tex)
+	static std::vector<unsigned char> LoadToSysMem(ID3D11Device* device, ID3D11DeviceContext* dc, const Texture& tex)
 	{
 		// Create a staging texture to copy to, currently not the entire format is stored in texture so I only use number of channels
-		ID3D11Texture2D* stagingId = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> stagingTexture{};
 
 		D3D11_TEXTURE2D_DESC texDesc{}; //Texture::create2DTexDesc(_w, _h, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_STAGING, 0u, D3D11_CPU_ACCESS_READ, 0u);
 		texDesc.Width = tex.w();
@@ -126,34 +110,32 @@ public:
 		texDesc.BindFlags = 0;
 		texDesc.MiscFlags = 0;
 
-		if (FAILED(device->CreateTexture2D(&texDesc, 0, &stagingId)))
+		if (FAILED(device->CreateTexture2D(&texDesc, 0, stagingTexture.GetAddressOf())))
 		{
 			OutputDebugStringA("Can't create off-screen texture. \n");
 			exit(425);
 		}
 
 		// Copy data from the GPU texture to the staging texture
-		dc->CopyResource(stagingId, tex._dxID.Get());
+		dc->CopyResource(stagingTexture.Get(), tex._dxID.Get());
 
 		D3D11_MAPPED_SUBRESOURCE msr;
-		dc->Map(stagingId, 0, D3D11_MAP_READ, 0, &msr);
+		dc->Map(stagingTexture.Get(), 0, D3D11_MAP_READ, 0, &msr);
 
 		unsigned char* pDataPtr = static_cast<unsigned char*>(msr.pData);
 
 		std::vector<unsigned char> result(pDataPtr, pDataPtr + msr.DepthPitch);
 		
-		dc->Unmap(stagingId, 0);
-
-		stagingId->Release();
+		dc->Unmap(stagingTexture.Get(), 0);
 
 		return result;
 	}
 
 
 	// This is slow, intended for debugging
-	static void saveToFile(ID3D11Device* device, ID3D11DeviceContext* dc, const Texture& tex, const char* filepath)
+	static void SaveToFile(ID3D11Device* device, ID3D11DeviceContext* dc, const Texture& tex, const char* filepath)
 	{
-		auto imageData = loadToSysMem(device, dc, tex);
+		auto imageData = LoadToSysMem(device, dc, tex);
 		Texture::SaveAsPng(filepath, tex.w(), tex.h(), tex.nc(), imageData.data());
 	}
 };

@@ -15,6 +15,8 @@
 #include "MaterialAsset.h"
 #include "MaterialLoader.h"
 
+#include "Image.h"
+
 template <typename AssetType, typename ArchiveType = cereal::BinaryOutputArchive>
 AssetID persistBinary(AssetType& asset, const std::string& path, ResType resType, AssetLedger& assetLedger)
 {

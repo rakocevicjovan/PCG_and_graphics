@@ -21,7 +21,7 @@ Texture::Texture() : _dxID(nullptr), _arraySrv(nullptr) {}
 
 Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _arraySrv(nullptr)
 {
-	if (!loadFromStoredPath())
+	if (!loadFromFile(fileName.c_str()))
 	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 		return;
@@ -34,7 +34,7 @@ Texture::Texture(ID3D11Device* device, const std::string& fileName) : _fileName(
 
 Texture::Texture(const std::string& fileName) : _fileName(fileName), _dxID(nullptr), _arraySrv(nullptr)
 {
-	if (!loadFromStoredPath())
+	if (!loadFromFile(fileName.c_str()))
 	{
 		OutputDebugStringA("Texture not in file, checking memory... \n");
 	}
@@ -60,51 +60,25 @@ int Texture::GetFormatFromMemory(const unsigned char* data, size_t size)
 
 
 
-void Texture::loadFromFile(const char* filename)
+bool Texture::loadFromFile(const char* filename)
 {
 	int fileFormat, desiredFormat, w, h;
 	desiredFormat = GetFormatFromFile(filename);
 	_mdata = std::shared_ptr<unsigned char[]>(stbi_load(filename, &w, &h, &fileFormat, desiredFormat));
+
+	if (!_mdata)
+	{
+		return false;
+	}
+
 	_w = w;
 	_h = h;
 	_nc = desiredFormat;
-	_snc = fileFormat;
+
+	_fileName = filename;
+
+	return true;
 }
-
-
-
-bool Texture::loadFromStoredPath()
-{
-	try
-	{
-		loadFromFile(_fileName.c_str());
-		return (_mdata.get() != nullptr);
-	}
-	catch (...)
-	{
-		OutputDebugStringA( ("Error loading texture '" + _fileName + "' \n").c_str() );
-		return false;
-	}
-}
-
-
-
-bool Texture::loadFromPath(const char* path)
-{
-	_fileName = path;
-
-	try
-	{
-		loadFromFile(path);
-		return (_mdata.get() != nullptr);
-	}
-	catch (...)
-	{
-		OutputDebugStringA(("Error loading texture '" + _fileName + "' \n").c_str());
-		return false;
-	}
-}
-
 
 
 std::vector<float> Texture::LoadAsFloatVec(const std::string& path)
@@ -133,7 +107,6 @@ std::vector<float> Texture::LoadAsFloatVec(const std::string& path)
 }
 
 
-
 bool Texture::loadFromMemory(const unsigned char* data, size_t size)
 {
 	try
@@ -145,7 +118,6 @@ bool Texture::loadFromMemory(const unsigned char* data, size_t size)
 		_w = w;
 		_h = h;
 		_nc = desiredFormat;
-		_snc = fileFormat;
 
 		return (_mdata.get() != nullptr);
 	}
@@ -155,7 +127,6 @@ bool Texture::loadFromMemory(const unsigned char* data, size_t size)
 		return false;
 	}
 }
-
 
 
 bool Texture::loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
@@ -168,15 +139,6 @@ bool Texture::loadFromPerlin(ID3D11Device* device, Procedural::Perlin& perlin)
 
 	return setUpAsResource(device);
 }
-
-
-
-bool Texture::loadRegion()
-{
-	
-	return false;
-}
-
 
 
 bool Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* context, const std::string& path)

@@ -12,7 +12,7 @@
 struct TextureMetaData
 {
 	TextureRole _role{ DIFFUSE };
-	std::array<SamplingMode, 3> _mapMode{ SamplingMode::WRAP};
+	std::array<SamplingMode, 3> _mapMode{ SamplingMode::WRAP };
 	uint8_t _uvIndex{ 0u };
 	uint8_t _regIndex{ 0u };	// Decouple from role later
 

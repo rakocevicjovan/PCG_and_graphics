@@ -105,7 +105,7 @@ bool AssimpWrapper::LoadMaterialTextures(
 
 			curTexture._fileName = texPath;	// or texName, I really don't even know why either tbh
 
-			loaded = curTexture.loadFromStoredPath();
+			loaded = curTexture.loadFromFile(texPath.c_str());
 		}
 
 		// Load failed completely - most likely the data is corrupted or my library doesn't support it

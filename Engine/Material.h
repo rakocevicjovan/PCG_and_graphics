@@ -66,35 +66,4 @@ public:
 	{
 		_materialTextures.push_back({ tmd, std::shared_ptr<Texture>(t) });
 	}
-
-	template <typename Archive>
-	void save(Archive& ar, const std::vector<uint32_t>& texIDs) const
-	{
-		ShaderKey vsID = _vertexShader ? _vertexShader->_id : 0u;
-		ShaderKey psID = _pixelShader ? _pixelShader->_id : 0u;
-		
-		ar(vsID, psID, _primitiveTopology, _opaque, _materialTextures, texIDs);
-	}
-
-	template <typename Archive>
-	void load(Archive& ar, ShaderManager& shMan, TextureManager& texMan) const
-	{
-		ShaderKey vsID;
-		ShaderKey psID;
-
-		std::vector<AssetID> texIDs;
-
-		ar(vsID, psID, _primitiveTopology, _opaque, _texMetaData, texIDs);
-		
-		for (auto i = 0; i < _texMetaData.size(); ++i)
-		{
-			_texMetaData[i]._tex = texMan.get(texIDs[i]);
-		}
-
-		if (auto shaderPack = shMan.getShaderByKey(vsID))
-		{
-			_vertexShader = shaderPack->vs;
-			_pixelShader = shaderPack->ps;
-		}
-	}
 };
