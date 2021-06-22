@@ -10,7 +10,6 @@
 
 	void BitMapper::init(int smoothness, float widthScale, float lengthScale, float heightScale)
 	{
-
 		granularity = smoothness;
 		xScale = widthScale;
 		yScale = heightScale;
@@ -20,7 +19,6 @@
 
 	bool isGrayscale(std::vector<int>& colours)
 	{
-
 		const int c0 = colours[0];
 
 		for (int z = 1; z < colours.size(); z++)
@@ -35,7 +33,6 @@
 
 	float toGray(std::vector<int>& colours)
 	{
-
 		float total = std::accumulate(colours.begin(), colours.end(), 0.0f);
 		return total / (float)colours.size();
 	}
