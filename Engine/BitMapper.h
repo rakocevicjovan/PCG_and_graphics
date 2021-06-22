@@ -4,8 +4,8 @@
 #include "Texture.h"
 
 
-class BitMapper{
-
+class BitMapper
+{
 public:
 	BitMapper(Texture& tex);
 	~BitMapper();
@@ -14,11 +14,11 @@ public:
 	bool createTerrain();
 	bool terrainToFile(const std::string& filePath);
 
-	int granularity;
+	int granularity{};
 		
-	double xScale, yScale, zScale;
+	double xScale{}, yScale{}, zScale{};
 
-	Texture& _t;
+	Texture& _texture;
 
 	std::vector<std::vector<std::pair<int, SVec3>>> inVertMap;
 	std::vector<std::pair<int, SVec3>> vertexNormals;
@@ -28,7 +28,7 @@ public:
 	std::string outputFileName;
 };
 
-/*	works, and is optimized... wooooohoo!
+/*	Example
 BitMapper bitMapper;
 bitMapper.init("Textures\\heightMap.png", 1, 1, 1, 0.2);	//g, w, l, h
 if (bitMapper.createTerrain())
