@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <execution>
+#include <mutex>
 #include <numeric>
 #include <random>
 #include <unordered_map>

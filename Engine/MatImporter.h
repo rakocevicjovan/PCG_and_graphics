@@ -3,9 +3,6 @@
 #include "AssimpWrapper.h"
 #include "TextureCache.h"
 #include "VitThreadPool.h"
-#include <memory>
-#include <execution>
-#include <mutex>
 
 
 class MatImporter
