@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Image.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -223,18 +224,48 @@ bool Texture::createSRV(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& desc)
 }
 
 
-
-//for comp: 1=Y, 2=YA, 3=RGB, 4=RGBA 
-void Texture::SaveAsPng(const char* targetFile, int w, int h, int comp, const void* data, int stride_in_bytes)
+std::vector<uint8_t> Texture::LoadToSysMem(ID3D11Device* device, ID3D11DeviceContext* dc, const Texture& tex)
 {
-	try
+	// Create a staging texture to copy to, currently not the entire format is stored in texture so I only use number of channels
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> stagingTexture{};
+
+	D3D11_TEXTURE2D_DESC texDesc{}; //Texture::create2DTexDesc(_w, _h, DXGI_FORMAT_R32G32B32A32_FLOAT, D3D11_USAGE_STAGING, 0u, D3D11_CPU_ACCESS_READ, 0u);
+	texDesc.Width = tex.w();
+	texDesc.Height = tex.h();
+	texDesc.MipLevels = 1;
+	texDesc.ArraySize = 1;
+	texDesc.Format = N_TO_FORMAT_DX11[tex._nc - 1];
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Usage = D3D11_USAGE_STAGING;
+	texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+	texDesc.BindFlags = 0;
+	texDesc.MiscFlags = 0;
+
+	if (FAILED(device->CreateTexture2D(&texDesc, 0, stagingTexture.GetAddressOf())))
 	{
-		int result = stbi_write_png(targetFile, w, h, comp, data, stride_in_bytes);
+		OutputDebugStringA("Can't create off-screen texture. \n");
+		exit(425);
 	}
-	catch (...)
-	{
-		std::string errorMessage = "Error writing texture to file: ";
-		errorMessage += targetFile;
-		OutputDebugStringA(errorMessage.c_str());
-	}
+
+	// Copy data from the GPU texture to the staging texture
+	dc->CopyResource(stagingTexture.Get(), tex._dxID.Get());
+
+	D3D11_MAPPED_SUBRESOURCE msr;
+	dc->Map(stagingTexture.Get(), 0, D3D11_MAP_READ, 0, &msr);
+
+	unsigned char* pDataPtr = static_cast<unsigned char*>(msr.pData);
+
+	std::vector<unsigned char> result(pDataPtr, pDataPtr + msr.DepthPitch);
+
+	dc->Unmap(stagingTexture.Get(), 0);
+
+	return result;
+}
+
+
+void Texture::SaveToFile(ID3D11Device* device, ID3D11DeviceContext* dc, const Texture& tex, const char* filepath)
+{
+	auto imageData = LoadToSysMem(device, dc, tex);
+	Image::SaveAsPng(filepath, tex.w(), tex.h(), tex.nc(), imageData.data());
 }

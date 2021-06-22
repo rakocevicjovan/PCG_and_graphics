@@ -1,5 +1,7 @@
 #pragma once
-//#include "stb"
+#include "stb_image.h"
+#include "stb_image_write.h"
+
 
 class Image
 {
@@ -39,6 +41,7 @@ public:
 		}*/
 	}
 
+
 	bool loadFromStoredPath()
 	{
 		assert(false);	// Not impl yet
@@ -51,6 +54,23 @@ public:
 		{
 			OutputDebugStringA(("Error loading texture '" + _fileName + "' \n").c_str());
 			return false;
+		}
+	}
+
+
+	// These functions are unoptimized and slow, not intended for use per frame
+	//for comp: 1=Y, 2=YA, 3=RGB, 4=RGBA 
+	static void SaveAsPng(const char* targetFile, int w, int h, int comp, const void* data, uint32_t byteStride = 0u)
+	{
+		try
+		{
+			int result = stbi_write_png(targetFile, w, h, comp, data, byteStride);
+		}
+		catch (...)
+		{
+			std::string errorMessage = "Error writing texture to file: ";
+			errorMessage += targetFile;
+			OutputDebugStringA(errorMessage.c_str());
 		}
 	}
 

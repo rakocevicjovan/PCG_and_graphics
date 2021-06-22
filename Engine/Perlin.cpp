@@ -192,7 +192,8 @@ namespace Procedural
 
 	void Perlin::writeToFile(const char* targetFile)
 	{
-		Texture::SaveAsPng(targetFile, _w, _h, 1, texture.data(), 0);	// sizeof(unsigned char) * w
+		assert(false);	// Change for image if needed in the future, not worth thinking about rn
+		//Texture::SaveAsPng(targetFile, _w, _h, 1, texture.data(), 0);	// sizeof(unsigned char) * w
 	}
 
 
