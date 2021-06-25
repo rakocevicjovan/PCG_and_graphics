@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <memory>
 
-//#include <dirent.h>	// Using 17 now so not necessary?
 
 struct Blob
 {
@@ -15,8 +14,6 @@ struct Blob
 
 	const void* data() const { return static_cast<void*>(_data.get()); }
 	size_t size() const { return _size; }
-
-	Blob() = default;
 
 	void reset()
 	{

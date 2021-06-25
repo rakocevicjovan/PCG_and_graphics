@@ -189,6 +189,7 @@
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="FuzzySearch.cpp" />
     <ClCompile Include="GeoClipmap.cpp" />
+    <ClCompile Include="Image.cpp" />
     <ClCompile Include="imnodes.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -346,6 +347,7 @@
     </ClCompile>
     <ClCompile Include="SkeletalModel.cpp" />
     <ClCompile Include="Skeleton.cpp" />
+    <ClCompile Include="STBImporter.cpp" />
     <ClCompile Include="StrifeLevel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -431,6 +433,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="STBImporter.h" />
     <ClInclude Include="imnodes.h" />
     <ClInclude Include="ImportTool.h" />
     <ClInclude Include="InputLayout.h" />

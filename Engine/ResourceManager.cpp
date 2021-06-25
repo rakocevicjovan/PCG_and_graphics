@@ -34,9 +34,9 @@ void ResourceManager::loadBatch(const std::string& projDir, const std::vector<Re
 		}
 		else if (resDefs[i]._type == ResType::TEXTURE)
 		{
-			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(projDir + resDefs[i]._path);
+			Resource *temp = new (_stackAllocator.alloc(sizeof(Texture))) Texture(nullptr, projDir + resDefs[i]._path);
 			temp->incRef();
-			static_cast<Texture*>(temp)->setUpAsResource(_device);
+			//static_cast<Texture*>(temp)->create(_device); // @TODO fix this mess its bad anyways
 			_resourceMap.insert(std::make_pair<>(resDefs[i]._path, temp));
 		}
 	}

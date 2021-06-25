@@ -2,6 +2,7 @@
 #include "StrifeLevel.h"
 #include "Math.h"
 #include "ShaderUtils.h"
+#include "STBImporter.h"
 
 namespace Strife
 {
@@ -121,15 +122,12 @@ namespace Strife
 		size_t yeetSize = size * sheetSize;
 		yeetFloat.reserve(yeetSize);
 
-		std::vector<float> flVec;
-		flVec.reserve(sheetSize);
-
 		//not really optimal but it's still quite fast
 		for (int i = 0; i < size; ++i)
 		{
 			std::stringstream ss;
 			ss << std::setw(3) << std::setfill('0') << (i + 1);
-			flVec = Texture::LoadAsFloatVec("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+			auto flVec = STBImporter::ImportFloatVector(std::string("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga").c_str());
 			yeetFloat.insert(yeetFloat.end(), flVec.begin(), flVec.end());
 		}
 
@@ -263,10 +261,6 @@ namespace Strife
 		size_t finalSize = size * sheetSizeProcessed;
 		finalArray.reserve(finalSize);
 
-		std::vector<float> flVec;
-		size_t sheetSizeInitial = size * size * 4;
-		flVec.reserve(sheetSizeInitial);
-
 		std::vector<float> processedVec;
 		processedVec.reserve(sheetSizeProcessed);
 
@@ -275,7 +269,7 @@ namespace Strife
 		{
 			std::stringstream ss;
 			ss << std::setw(3) << std::setfill('0') << (i + 1);
-			flVec = Texture::LoadAsFloatVec("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga");
+			auto flVec = STBImporter::ImportFloatVector(std::string("../Textures/Generated/my3DTextureArray." + ss.str() + ".tga").c_str());
 
 			for (int j = 0; j < flVec.size(); j += 4)
 			{

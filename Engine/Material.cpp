@@ -15,7 +15,7 @@ void Material::bindTextures(ID3D11DeviceContext* context) const
 	{
 		if (tex->_dxID.Get())
 		{
-			context->PSSetShaderResources(metaData._role, 1, tex->_arraySrv.GetAddressOf());
+			context->PSSetShaderResources(metaData._role, 1, tex->_srv.GetAddressOf());
 		}
 	}
 }

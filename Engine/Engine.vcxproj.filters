@@ -442,6 +442,12 @@
     <ClCompile Include="AssImport.cpp">
       <Filter>Asset importing</Filter>
     </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>Assets\Asset classes</Filter>
+    </ClCompile>
+    <ClCompile Include="STBImporter.cpp">
+      <Filter>Assets\Asset classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1095,6 +1101,9 @@
     </ClInclude>
     <ClInclude Include="GPUMesh.h">
       <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="STBImporter.h">
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

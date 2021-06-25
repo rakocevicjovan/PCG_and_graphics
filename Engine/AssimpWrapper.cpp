@@ -6,7 +6,6 @@
 #include "AnimChannel.h"
 
 
-
 const aiScene* AssimpWrapper::loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags)
 {
 	assert(FileUtils::fileExists(path) && "File not accessible!");
@@ -22,116 +21,6 @@ const aiScene* AssimpWrapper::loadScene(Assimp::Importer& importer, const std::s
 
 	return scene;
 }
-
-
-
-std::vector<Material*> AssimpWrapper::loadMaterials(aiScene* scene, const std::string& path)
-{
-	std::vector<Material*> materials;
-	std::vector<Texture> textures;
-
-	for (int i = 0; i < scene->mNumMaterials; ++i)
-	{
-		materials.push_back(new Material());
-		loadMaterial(scene, i, path, materials.back(), textures);
-	}
-
-	return materials;
-}
-
-
-
-void AssimpWrapper::loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material* mat, std::vector<Texture>& textures)
-{
-	if (index >= 0 && index < scene->mNumMaterials)
-	{
-		aiMaterial* aiMat = scene->mMaterials[index];
-
-		// Textures
-		for (const auto& att : ASSIMP_TEX_TYPES)
-		{
-			LoadMaterialTextures(path, textures, scene, aiMat, mat, att.first, att.second);
-		}
-	}
-}
-
-
-// DOES NOT WORK CURRENTLY!
-
-bool AssimpWrapper::LoadMaterialTextures(
-	const std::string& modelPath,
-	std::vector<Texture>& textures,
-	const aiScene* scene,
-	aiMaterial *aiMat,
-	Material* mat,
-	aiTextureType aiTexType,
-	TextureRole role)
-{
-	// Iterate all textures related to the material, keep the ones that can load
-	for (UINT i = 0; i < aiMat->GetTextureCount(aiTexType); ++i)
-	{
-		Texture curTexture;
-
-		aiString aiTexPath;
-		UINT uvIndex = 0u;
-		aiTextureMapMode aiMapModes[3] {aiTextureMapMode_Wrap, aiTextureMapMode_Wrap , aiTextureMapMode_Wrap };
-
-		aiMat->GetTexture(aiTexType, i, &aiTexPath, nullptr, &uvIndex, nullptr, nullptr, &aiMapModes[0]);
-		
-		SamplingMode mapModes[3];
-		for (UINT j = 0; j < 3; ++j)
-			mapModes[j] = TEXMAPMODE_MAP.at(aiMapModes[j]);
-
-		std::string texName(aiScene::GetShortFilename(aiTexPath.C_Str()));
-
-		// Check if embedded first, not the most common case but faster to check anyways
-		bool loaded = loadEmbeddedTexture(curTexture, scene, aiTexPath.C_Str());
-		curTexture._fileName = texName;
-
-		// Not embedded, try to load from file
-		if (!loaded)
-		{
-			// Assumes relative paths
-			std::string modelFolderPath = modelPath.substr(0, modelPath.find_last_of("/\\"));
-			std::string texPath = modelFolderPath + "/" + std::string(aiTexPath.data);
-
-			// If path is faulty, try to find it in the model directory and subdirectories
-			if (!std::filesystem::exists(texPath))
-			{
-				std::filesystem::directory_entry texFile;
-				if (FileUtils::findFile(modelFolderPath, texName, texFile))
-					texPath = texFile.path().string();
-			}
-
-			curTexture._fileName = texPath;	// or texName, I really don't even know why either tbh
-
-			loaded = curTexture.loadFromFile(texPath.c_str());
-		}
-
-		// Load failed completely - most likely the data is corrupted or my library doesn't support it
-		if (!loaded)
-		{
-			OutputDebugStringA("TEX_LOAD::Texture did not load! \n"); //@TODO use logger here instead
-			continue;
-		}
-
-		textures.push_back(std::move(curTexture));	// Should try to do std::move when this is done
-		
-		mat->_materialTextures.push_back(
-			{ 
-				{
-					role, 
-					{mapModes[0], mapModes[1], mapModes[2]},
-					static_cast<uint8_t>(uvIndex),
-					0u
-				},
-				nullptr
-			});
-	}
-	
-	return true;
-}
-
 
 
 std::vector<std::string> AssimpWrapper::loadTextureNames(const aiScene * scene)
@@ -157,7 +46,6 @@ std::vector<std::string> AssimpWrapper::loadTextureNames(const aiScene * scene)
 }
 
 
-
 bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, const char* str)
 {
 	const aiTexture* aiTex = scene->GetEmbeddedTexture(str);
@@ -170,12 +58,10 @@ bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, 
 	if (aiTex->mHeight != 0)	//compressed textures could have height value of 0
 		texSize *= aiTex->mHeight;
 
-	texture.loadFromMemory(reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
-	texture._fileName = str;
+	texture.loadFromMemory(nullptr, reinterpret_cast<unsigned char*>(aiTex->pcData), texSize);
 
 	return true;
 }
-
 
 
 void AssimpWrapper::loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims)
@@ -219,7 +105,6 @@ void AssimpWrapper::loadAnimations(const aiScene* scene, std::vector<Animation>&
 		outAnims.push_back(anim);
 	}
 }
-
 
 
 void AssimpWrapper::loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames)

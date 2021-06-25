@@ -161,17 +161,16 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 void GeoClipmap::createTextures(ID3D11Device* device)
 {
 	// Textures - 2 per layer, but instead packed into two arrays of _numLayers for faster binding
-	D3D11_TEXTURE2D_DESC hmDesc = Texture::create2DTexDesc(_texSize, _texSize, DXGI_FORMAT_R32_FLOAT,
+	D3D11_TEXTURE2D_DESC hmDesc = Texture::Create2DTexDesc(_texSize, _texSize, DXGI_FORMAT_R32_FLOAT,
+		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u, _numLayers);
+	
+	_heightMap.create(device, hmDesc, nullptr, true);
+
+	D3D11_TEXTURE2D_DESC nmDesc = Texture::Create2DTexDesc(2.f * _texSize, 2.f * _texSize, DXGI_FORMAT_R8G8B8A8_SNORM,
 		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
 		_numLayers);
 
-	_heightMap.createGPUResource(device, &hmDesc, nullptr);
-
-	D3D11_TEXTURE2D_DESC nmDesc = Texture::create2DTexDesc(2.f * _texSize, 2.f * _texSize, DXGI_FORMAT_R8G8B8A8_SNORM,
-		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
-		_numLayers);
-
-	_normalMap.createGPUResource(device, &nmDesc, nullptr);
+	_normalMap.create(device, nmDesc, nullptr, true);
 }
 
 

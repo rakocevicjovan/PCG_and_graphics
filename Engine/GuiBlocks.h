@@ -33,12 +33,12 @@ namespace GuiBlocks
 
 	static void displayTexture(const Texture* t)
 	{
-		ImGui::Text(t->getName().c_str());
+		//ImGui::Text(t->getName().c_str()); // @TODO convert to image
 
 		ImGui::Text("Width: %i \nHeight: %i \nChannels: %i", t->w(), t->h(), t->nc());
 
-		if (t->_arraySrv)
-			ImGui::Image(t->_arraySrv.Get(), ImVec2(256., 256.));
+		if (t->_srv)
+			ImGui::Image(t->_srv.Get(), ImVec2(256., 256.));
 	}
 
 
@@ -83,8 +83,8 @@ namespace GuiBlocks
 			ImGui::SameLine();
 			if (tex)
 			{
-				ImGui::Text(tex->getName().c_str());
-				ImGui::Image(tex->_arraySrv.Get(), ImVec2(300, 300));
+				//ImGui::Text(tex->getName().c_str()); @TODO convert to image
+				ImGui::Image(tex->_srv.Get(), ImVec2(300, 300));
 			}
 			else
 			{

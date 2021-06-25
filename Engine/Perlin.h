@@ -1,6 +1,6 @@
 #pragma once
 #include "Math.h"
-#include <vector>
+#include "Image.h"
 
 namespace Procedural 
 {
@@ -32,6 +32,7 @@ namespace Procedural
 		float FBM(float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, SVec2 initialValue);
 		void generate2DTextureFBM(int w, int h, float amplitude, float frequency, unsigned int octaves, float lacunarity, float gain, bool warp = false);
 		void writeToFile(const char* targetFile);
+		Image makeImage();
 
 		void fillFloatVector();
 		std::vector<float>& getFloatVector();

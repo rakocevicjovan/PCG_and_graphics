@@ -52,8 +52,6 @@ public:
 		{aiTextureMapMode_Mirror,	SamplingMode::MIRROR}
 	};
 
-	// New code, trying to do this in a better way
-	std::vector<Material*> loadMaterials(aiScene* scene, const std::string& path);
 
 	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags);
 

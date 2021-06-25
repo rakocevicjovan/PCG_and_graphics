@@ -67,8 +67,7 @@ void TDLevel::init(Engine& sys)
 	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 
-	Texture floorTex("../Textures/LavaIntense/diffuse.jpg");
-	floorTex.setUpAsResource(S_DEVICE);
+	Texture floorTex(nullptr, "../Textures/LavaIntense/diffuse.jpg");
 	floorMesh._material->_materialTextures.push_back({ {TextureRole::DIFFUSE}, std::make_shared<Texture>(floorTex) });
 	
 	floorRenderable = Renderable(floorMesh, SMatrix::CreateTranslation(terrain.getOffset()));
@@ -175,7 +174,7 @@ void TDLevel::addBuildables()
 		BuildingGuiDef(
 			"Guard tower is a common, yet powerful defensive building.",
 			"Guard tower",
-			S_RESMAN.getByName<Texture>("guard_tower")->_arraySrv.Get()),
+			S_RESMAN.getByName<Texture>("guard_tower")->_srv.Get()),
 		Attack(100.f, 100.f, Attack::AttackType::PHYS, .5f, 0.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
@@ -188,7 +187,7 @@ void TDLevel::addBuildables()
 		BuildingGuiDef(
 			"Produces 10 wood per minute. Time to get lumber-jacked.",
 			"Lumberyard",
-			S_RESMAN.getByName<Texture>("lumber_yard")->_arraySrv.Get()),
+			S_RESMAN.getByName<Texture>("lumber_yard")->_srv.Get()),
 		Income(10.f, "Coin", 10.f)
 	);
 	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));

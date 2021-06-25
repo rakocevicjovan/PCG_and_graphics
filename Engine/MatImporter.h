@@ -272,8 +272,7 @@ private:
 				if (rawTextureDatum.blob._size == 0)	// Skip textures that were not found, for now.
 					return;
 
-				tex->loadFromMemory(reinterpret_cast<unsigned char*>(rawTextureDatum.blob._data.get()), rawTextureDatum.blob._size);
-				tex->setUpAsResource(device);
+				tex->loadFromMemory(device, reinterpret_cast<unsigned char*>(rawTextureDatum.blob._data.get()), rawTextureDatum.blob._size);
 
 				rawTextureDataMutex.lock();
 				rawTexData = std::move(rawTextureDatum);
