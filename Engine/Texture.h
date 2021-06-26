@@ -31,6 +31,7 @@ protected:
 	uint8_t _nc{ 0u };
 	DXGI_FORMAT _format{ DXGI_FORMAT_R8G8B8A8_UINT };
 
+	// This should probably be removed and if a cpu copy is needed it should be kept in an Image instance instead...?
 	std::shared_ptr<unsigned char[]> _mdata;
 
 public:

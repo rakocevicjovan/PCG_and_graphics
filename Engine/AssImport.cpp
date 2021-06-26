@@ -375,14 +375,14 @@ std::vector<AssetID> AssImport::persistMats()
 				return MaterialAsset::TextureRef{ texPathAndMetaData.metaData, textureID };
 			});
 
+		// Can't do since shader IDs are currently keys for automatic generation, which must change. Fix that first.
+		//matAsset._shaderIDs = { _matData._materials[i]->getVS()->_id, };
+
 		// Serialize
 		std::string matPath{ _destPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
-		std::ofstream ofs(matPath, std::ios::binary);
-		cereal::JSONOutputArchive output(ofs);	//cereal::BinaryOutputArchive boa(ofs);
+		AssetID matID = persistBinary<MaterialAsset, cereal::JSONOutputArchive>(matAsset, matPath, ResType::MATERIAL, *_pLedger);
 
-		matAsset.serialize(output);
-
-		matIDs.push_back(_pLedger->insert(matPath.c_str(), ResType::MATERIAL));
+		matIDs.push_back(matID);
 	}
 	return matIDs;
 }

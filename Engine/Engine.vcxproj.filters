@@ -1185,7 +1185,6 @@
     <Text Include="IMGUI\LICENSE.txt">
       <Filter>GUI\ImGui files</Filter>
     </Text>
-    <Text Include="SerializationDoc.txt" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="volumAirPS.hlsl">

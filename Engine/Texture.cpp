@@ -94,6 +94,11 @@ void Texture::create(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& desc, con
 {
 	_dxID = CreateTexture2D(device, desc, data);
 
+	if (_mdata.get())
+	{
+		_mdata.reset();
+	}
+
 	if (asSRV)
 	{
 		createSRV(device, desc);

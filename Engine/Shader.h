@@ -20,7 +20,7 @@ struct TexLayout
 class Shader
 {
 protected:
-	Shader() {}
+	Shader() = default;
 	Shader(ID3D11Device* device, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
