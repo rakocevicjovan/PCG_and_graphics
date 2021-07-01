@@ -91,7 +91,6 @@ void Renderer::updatePerCamBuffer(float ww, float wh)
 }
 
 
-
 void Renderer::updateRenderContext(float dTime)
 {
 	rc.cam = &_cam;
@@ -121,7 +120,7 @@ void Renderer::flushRenderQueue()
 void Renderer::render(const Renderable& r) const
 {
 	// Update and set cbuffers
-	r.updateBuffersAuto(_deviceContext);
+	// r.updateBuffersAuto(_deviceContext);
 	r.setBuffers(_deviceContext);
 
 	// Set shaders and similar geebees

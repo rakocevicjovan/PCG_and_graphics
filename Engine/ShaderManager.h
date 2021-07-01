@@ -83,7 +83,7 @@ public:
 
 
 
-	ShaderPack* getShaderAuto(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
+	ShaderPack* getShaderFromKey(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
 
 
 

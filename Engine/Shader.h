@@ -73,29 +73,6 @@ public:
 
 	void setBuffers(ID3D11DeviceContext* cont);
 
-	// Separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
-	template <typename RenderItem>
-	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
-	{
-		/* This sucked anyways
-		D3D11_MAPPED_SUBRESOURCE mr;
-
-		for (int i = 0; i < _cbuffers.size(); i++)
-		{
-			_cbuffers[i].map(cont, mr);
-
-			for (const CBufferFieldDesc& cbfd : _cbufferMetaData[i]._fields)
-			{
-				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
-				{
-					_cbuffers[i].updateField(&(ri.renderTransform().Transpose()), cbfd._size, cbfd._offset, mr);
-				}
-			}
-
-			_cbuffers[i].unmap(cont);
-		}
-		*/
-	}
 
 	inline void bind(ID3D11DeviceContext* context)
 	{
@@ -138,9 +115,32 @@ public:
 		for (UINT i = 0; i < _samplers.size(); ++i)
 			context->PSSetSamplers(i, 1, _samplers[i].GetAddressOf());
 	}
+};
 
+/*
+	// This was an idea... don't think it's that good any more.
+
+	// Separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
 	template <typename RenderItem>
 	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
 	{
+		This sucked anyways
+		D3D11_MAPPED_SUBRESOURCE mr;
+
+		for (int i = 0; i < _cbuffers.size(); i++)
+		{
+			_cbuffers[i].map(cont, mr);
+
+			for (const CBufferFieldDesc& cbfd : _cbufferMetaData[i]._fields)
+			{
+				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
+				{
+					_cbuffers[i].updateField(&(ri.renderTransform().Transpose()), cbfd._size, cbfd._offset, mr);
+				}
+			}
+
+			_cbuffers[i].unmap(cont);
+		}
+
 	}
-};
+*/

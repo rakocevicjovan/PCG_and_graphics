@@ -22,7 +22,7 @@ void ShaderManager::loadExistingKeys(const std::wstring& path)
 
 
 
-ShaderPack* ShaderManager::getShaderAuto(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
+ShaderPack* ShaderManager::getShaderFromKey(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
 {
 	ShaderKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
 

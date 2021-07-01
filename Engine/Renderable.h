@@ -20,11 +20,11 @@ public:
 	Renderable(Mesh& mesh, const SMatrix& transform) : mesh(&mesh), mat(mesh._material.get()), _transform(transform) {}
 
 	// Wrong, make material do this. It needs to encapsulate everything. This will become more complex over time.
-	void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
-	{
-		mat->getVS()->updateBuffersAuto(cont, *this);
-		mat->getPS()->updateBuffersAuto(cont, *this);
-	}
+	//void Renderable::updateBuffersAuto(ID3D11DeviceContext* cont) const
+	//{
+	//	mat->getVS()->updateBuffersAuto(cont, *this);
+	//	mat->getPS()->updateBuffersAuto(cont, *this);
+	//}
 
 
 	// Same as above. Can't allow this to become a god class.
