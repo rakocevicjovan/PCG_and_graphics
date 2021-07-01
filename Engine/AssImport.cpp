@@ -111,7 +111,7 @@ void AssImport::importSelectedAssets()
 		for (Mesh& skmesh : skModel->_meshes)
 		{
 			Material* skMat = skmesh.getMaterial();
-			auto shPack = _pShMan->getShaderFromKey(skmesh._vertSig, skMat);
+			auto shPack = _pShMan->getShaderByData(skmesh._vertSig, skMat);
 			skMat->setVS(shPack->vs);
 			skMat->setPS(shPack->ps);
 		}
@@ -127,7 +127,7 @@ void AssImport::importSelectedAssets()
 
 		for (Mesh& mesh : model->_meshes)
 		{
-			auto shPack = _pShMan->getShaderFromKey(mesh._vertSig, mesh._material.get());
+			auto shPack = _pShMan->getShaderByData(mesh._vertSig, mesh._material.get());
 			mesh._material->setVS(shPack->vs);
 			mesh._material->setPS(shPack->ps);
 		}
@@ -252,7 +252,7 @@ bool AssImport::displayCommands()
 			for (Mesh& skMesh : _skModelData.model->_meshes)
 			{
 				Material* skMat = skMesh.getMaterial();
-				auto shPack = _pShMan->getShaderFromKey(skMesh._vertSig, skMat);
+				auto shPack = _pShMan->getShaderByData(skMesh._vertSig, skMat);
 				skMat->setVS(shPack->vs);
 				skMat->setPS(shPack->ps);
 

@@ -77,29 +77,15 @@ public:
 		_pShCache = cache;
 	}
 
-
-
 	void loadExistingKeys(const std::wstring& path);
 
-
-
-	ShaderPack* getShaderFromKey(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
-
-
+	ShaderPack* getShaderByData(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
 
 	ShaderPack* getShaderByKey(ShaderKey shaderKey);
 
-
-
 	Shader* loadFromKey(ShaderKey shaderKey, const wchar_t* ext);
 
-
-
 	static ShaderPack CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat);
-
-
-
-
 
 	// These should probably be separated out
 	static void PersistVertexShader(
