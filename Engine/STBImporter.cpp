@@ -36,7 +36,7 @@ Image STBImporter::ImportFromFile(const char* fileName)
 	assert(fileName);
 	STB_info info = GetFormatFromFile(fileName);
 
-	auto decodedData = std::shared_ptr<uint8_t[]>(stbi_load(fileName, &info.width, &info.height, &info.srcChannels, info.wantedChannels));
+	auto decodedData = stbi_load(fileName, &info.width, &info.height, &info.srcChannels, info.wantedChannels);
 
 	if (!decodedData)
 	{
@@ -44,7 +44,7 @@ Image STBImporter::ImportFromFile(const char* fileName)
 		return Image{};
 	}
 
-	return Image(info.width, info.height, decodedData.get(), info.wantedChannels, fileName);
+	return Image(info.width, info.height, decodedData, info.wantedChannels, fileName);
 }
 
 
@@ -53,8 +53,8 @@ Image STBImporter::ImportFromMemory(const unsigned char* data, size_t size)
 	assert(data);
 	STB_info info = GetFormatFromMemory(data, size);
 
-	// This could be dangerous. If something throws here it could leak memory. 
-	// However the image constructor is probably not going to since it just takes ownership of data and doesnt allocate.
+	// This could be dangerous. If something throws here it could leak memory. See also, ImportFromFile()
+	// However the image constructor is probably not going to since it just takes ownership of data and doesnt dynamically allocate anything but the name.
 	auto decodedData = stbi_load_from_memory(data, size, &info.width, &info.height, &info.srcChannels, info.wantedChannels);	// std::shared_ptr<unsigned char[]>()
 
 	if (!decodedData)

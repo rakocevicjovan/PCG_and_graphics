@@ -2,11 +2,6 @@
 #include "AssetID.h"
 #include "Fnv1Hash.h"
 
-#include <unordered_map>
-#include <string>
-#include <fstream>
-#include <cassert>
-
 
 class AssetLedger
 {
@@ -45,7 +40,7 @@ public:
 
 	AssetID insert(const char* path, ResType /*resType*/)
 	{
-		AssetID pathHash = fnv1hash(path);
+		AssetID pathHash = fnv1hash_64(path);
 
 		auto iter = _assDefs.insert({ pathHash, path});
 		if (!iter.second)

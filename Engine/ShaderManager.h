@@ -50,24 +50,12 @@ class ShaderManager
 {
 private:
 
-	enum SHG_LIGHT_MODEL : uint8_t
-	{
-		SHG_LM_NONE = 0u,
-		SHG_LM_LAMBERT = 1u,
-		SHG_LM_PHONG = 2u
-	};
-
-	static constexpr SHG_LIGHT_MODEL DEFAULT_LM = SHG_LM_LAMBERT;
-
-
 	ID3D11Device* _pDevice{};
 	ShaderCache* _pShCache{};
 
 	std::map<uint64_t, ShaderPack> _existingShaders;
 
 public:
-
-	ShaderManager() {}
 
 	inline void init(ID3D11Device* device, ShaderCache* cache)
 	{

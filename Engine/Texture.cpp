@@ -92,6 +92,9 @@ bool Texture::loadWithMipLevels(ID3D11Device* device, ID3D11DeviceContext* conte
 // make asSrv into flags instead
 void Texture::create(ID3D11Device* device, const D3D11_TEXTURE2D_DESC& desc, const D3D11_SUBRESOURCE_DATA* data, bool asSRV)
 {
+	if (!device)	// This won't be a possibility eventually, at least not an intended one
+		return;
+
 	_dxID = CreateTexture2D(device, desc, data);
 
 	if (_mdata.get())

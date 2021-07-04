@@ -19,7 +19,6 @@ inline const char* VS_PERMUTATIONS	= "ShGen\\GeneratedVS\\";
 inline const char* PS_PERMUTATIONS	= "ShGen\\GeneratedPS\\";
 
 
-
 struct ShaderOption
 {
 	const char* name;
@@ -28,6 +27,16 @@ struct ShaderOption
 	uint16_t _maxVal{ 1 };
 	uint64_t depMask{ (~0ul) };
 };
+
+
+enum SHG_LIGHT_MODEL : uint8_t
+{
+	SHG_LM_NONE = 0u,
+	SHG_LM_LAMBERT = 1u,
+	SHG_LM_PHONG = 2u
+};
+
+static constexpr SHG_LIGHT_MODEL DEFAULT_LM = SHG_LM_LAMBERT;
 
 
 // Hardcoded, but rarely changes and it's the easiest way to expose it

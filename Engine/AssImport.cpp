@@ -241,13 +241,12 @@ bool AssImport::displayCommands()
 	{
 		if (_skModelData)
 		{
-			std::string importPath{ _destPath + _sceneName + ".aeon" };
-
 			_skModelData.model.reset();
-			auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(importPath.c_str());
-			auto sharedPtrSkModel = ModelLoader::LoadSkModelFromAsset(skModelAsset, *_pLedger);
 
-			_skModelData.model = std::make_unique<SkModel>(std::move(*sharedPtrSkModel));	//std::make_unique<SkModel>(std::move(*sharedPtrSkModel));
+			std::string importPath{ _destPath + _sceneName + ".aeon" };
+			auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(importPath.c_str());
+
+			_skModelData.model = ModelLoader::LoadSkModelFromAsset(skModelAsset, *_pLedger);
 
 			for (Mesh& skMesh : _skModelData.model->_meshes)
 			{
@@ -268,7 +267,6 @@ bool AssImport::displayCommands()
 }
 
 
-// Eeeeehhhh... weird way to do it.
 void AssImport::persistAssets()
 {
 	AssetID skeletonID = persistSkeleton();
@@ -303,9 +301,9 @@ AssetID AssImport::persistSkeleton()
 }
 
 
-std::vector<uint32_t> AssImport::persistAnims()
+std::vector<AssetID> AssImport::persistAnims()
 {
-	std::vector<uint32_t> animIDs;
+	std::vector<AssetID> animIDs;
 	for (UINT i = 0; i < _anims.size(); ++i)
 	{
 		const std::string animName = (_anims[i].getName().size() == 0 ? std::to_string(i) : _anims[i].getName()) + "_anim";
@@ -349,7 +347,7 @@ std::vector<AssetID> AssImport::persistMats()
 	// Materials depend on textures so it makes sense to persist them here
 	auto textureIDs = persistUniqueTextures();
 
-	std::vector<uint32_t> matIDs;
+	std::vector<AssetID> matIDs;
 
 	for (auto i = 0; i < _matData._materials.size(); ++i)
 	{
