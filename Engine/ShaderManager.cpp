@@ -14,7 +14,7 @@ void ShaderManager::loadExistingKeys(const std::wstring& path)
 
 		auto division = filename.find('.');
 
-		ShaderKey key = std::stoull(filename.substr(0, division));
+		ShaderGenKey key = std::stoull(filename.substr(0, division));
 
 		_existingShaders.insert({ key, ShaderPack{ nullptr, nullptr } });
 	}
@@ -24,7 +24,7 @@ void ShaderManager::loadExistingKeys(const std::wstring& path)
 
 ShaderPack* ShaderManager::getShaderByData(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
 {
-	ShaderKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
+	ShaderGenKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
 
 	ShaderPack* shPack = getShaderByKey(shaderKey);
 
@@ -40,7 +40,7 @@ ShaderPack* ShaderManager::getShaderByData(VertSignature vertSig, Material* mat,
 
 
 
-ShaderPack* ShaderManager::getShaderByKey(ShaderKey shaderKey)
+ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
 {
 	// Check if exists, check if loaded, create/load if needed, return
 	auto it = _existingShaders.find(shaderKey);
@@ -62,11 +62,10 @@ ShaderPack* ShaderManager::getShaderByKey(ShaderKey shaderKey)
 
 
 
-Shader* ShaderManager::loadFromKey(ShaderKey shaderKey, const wchar_t* ext)
+Shader* ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
 {
-	std::wstring wFileName = NATURAL_COMPS + std::to_wstring(shaderKey) + ext;
+	std::wstring wFileName = COMPILED_FOLDER + std::to_wstring(shaderKey) + ext;
 
-	// Load shaders, can't work yet...
 	if (ext == L"vs.cmp")
 	{
 		return loadVertexShader(wFileName, shaderKey);
@@ -88,8 +87,8 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 	shc.init(device);
 
 	// VS
-	std::wstring vsPathW(NATURAL_PERMS + std::to_wstring(shaderKey) + L"vs.hlsl");
-	std::wstring cmpVsPath(NATURAL_COMPS + std::to_wstring(shaderKey) + L"vs.cmp");
+	std::wstring vsPathW(PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"vs.hlsl");
+	std::wstring cmpVsPath(COMPILED_FOLDER + std::to_wstring(shaderKey) + L"vs.cmp");
 
 	ID3DBlob* vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
 	ID3D11VertexShader* d3dvs = shc.blobToVS(vsBlob);
@@ -107,8 +106,8 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 	vsBlob->Release();
 
 	// PS
-	std::wstring psPathW(NATURAL_PERMS + std::to_wstring(shaderKey) + L"ps.hlsl");
-	std::wstring cmpPsPath(NATURAL_COMPS + std::to_wstring(shaderKey) + L"ps.cmp");
+	std::wstring psPathW(PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"ps.hlsl");
+	std::wstring cmpPsPath(COMPILED_FOLDER + std::to_wstring(shaderKey) + L"ps.cmp");
 
 	ID3DBlob* psBlob = shc.compileToBlob(psPathW, "ps_5_0");
 	ID3D11PixelShader* d3dps = shc.blobToPS(psBlob);

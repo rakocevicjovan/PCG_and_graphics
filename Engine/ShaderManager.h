@@ -4,7 +4,6 @@
 #include "ShaderGenerator.h"
 #include "VertSignature.h"
 #include "IMGUI/imgui.h"
-#include <memory>
 
 class Material;
 
@@ -16,12 +15,12 @@ struct VS_FileFormat
 };
 
 
-
 struct PS_FileFormat
 {
 	std::string blobString;
 	std::vector<D3D11_SAMPLER_DESC> sDescs;
 };
+
 
 template<typename Archive>
 void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
@@ -37,7 +36,6 @@ void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
 	ar(sd.AddressU, sd.AddressV, sd.AddressW, sd.BorderColor, sd.ComparisonFunc, 
 		sd.Filter, sd.MaxAnisotropy, sd.MaxLOD, sd.MinLOD, sd.MipLODBias);
 }
-
 
 
 struct ShaderPack
@@ -81,9 +79,9 @@ public:
 
 	ShaderPack* getShaderByData(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
 
-	ShaderPack* getShaderByKey(ShaderKey shaderKey);
+	ShaderPack* getShaderByKey(ShaderGenKey shaderKey);
 
-	Shader* loadFromKey(ShaderKey shaderKey, const wchar_t* ext);
+	Shader* loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext);
 
 	static ShaderPack CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat);
 
@@ -104,7 +102,7 @@ public:
 
 
 
-	VertexShader* loadVertexShader(const std::wstring& path, ShaderKey shaderKey)
+	VertexShader* loadVertexShader(const std::wstring& path, ShaderGenKey shaderKey)
 	{
 		// Temporary data loaded from a file to reconstruct the shader
 		VS_FileFormat vsff;
@@ -145,7 +143,7 @@ public:
 
 
 
-	PixelShader* loadPixelShader(const std::wstring& path, ShaderKey shaderKey)
+	PixelShader* loadPixelShader(const std::wstring& path, ShaderGenKey shaderKey)
 	{
 		std::string blobString;
 		std::vector<D3D11_SAMPLER_DESC> sDescs;
@@ -163,8 +161,6 @@ public:
 		_existingShaders.at(shaderKey).ps = ps;
 		return ps;
 	}
-
-
 
 	static void DisplayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device);
 };

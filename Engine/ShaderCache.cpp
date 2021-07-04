@@ -7,19 +7,45 @@
 #include "FileUtilities.h"
 
 
-
 #define NUM_CASCADES 3u	// Absolutely get this out of here
 
 
+void ShaderCache::init() {}
 
-void ShaderCache::init(ShaderCompiler* shCompiler)
+
+VertexShader* ShaderCache::getVertShader(const std::string& name)
 {
-	_shc = shCompiler;
+	std::unordered_map<std::string, VertexShader*>::const_iterator found = _vsMap.find(name);
+	if (found == _vsMap.end())
+		assert(false && "VERTEX SHADER NOT FOUND!");
+	else
+		return found->second;
 }
 
 
+PixelShader* ShaderCache::getPixShader(const std::string& name)
+{
+	std::unordered_map<std::string, PixelShader*>::const_iterator found = _psMap.find(name);
+	if (found == _psMap.end())
+		assert(false && "PIXEL SHADER NOT FOUND!");
+	else
+		return found->second;
+}
 
-void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
+
+bool ShaderCache::addVertShader(const std::string& name, VertexShader* vs)
+{
+	return _vsMap.insert(std::unordered_map<std::string, VertexShader*>::value_type(name, vs)).second;
+}
+
+
+bool ShaderCache::addPixShader(const std::string& name, PixelShader* ps)
+{
+	return _psMap.insert(std::unordered_map<std::string, PixelShader*>::value_type(name, ps)).second;
+}
+
+
+void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(ShaderCompiler* shc)
 {
 	/// Shader initialization data
 
@@ -102,25 +128,25 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	/// VERTEX SHADERS
 
 	// PTN vertex shader
-	VertexShader* basicVS = new VertexShader(*_shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
+	VertexShader* basicVS = new VertexShader(*shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
 	basicVS->describeBuffers({ WMBufferMeta });
 	addVertShader("basicVS", basicVS);
 
 	// Skybox vertex shader, uses xyww trick for infinite distance
-	VertexShader* skyboxVS = new VertexShader(*_shc, L"skyboxVS.hlsl", ptn_layout, { WMBufferDesc });
+	VertexShader* skyboxVS = new VertexShader(*shc, L"skyboxVS.hlsl", ptn_layout, { WMBufferDesc });
 	skyboxVS->describeBuffers({ WMBufferMeta });
 	addVertShader("skyboxVS", skyboxVS);
 
 	// Instanced vertex shader- @TODO determine where to put instancing VB and how to handle updating it...
-	VertexShader* instancedVS = new VertexShader(*_shc, L"InstancedVS.hlsl", ptn_instanced_layout, { WMBufferDesc });
+	VertexShader* instancedVS = new VertexShader(*shc, L"InstancedVS.hlsl", ptn_instanced_layout, { WMBufferDesc });
 	instancedVS->describeBuffers({ WMBufferMeta });
 	addVertShader("instancedVS", instancedVS);
 
-	VertexShader* csmVS = new VertexShader(*_shc, L"CSMVS.hlsl", p_layout, { WMBufferDesc });
+	VertexShader* csmVS = new VertexShader(*shc, L"CSMVS.hlsl", p_layout, { WMBufferDesc });
 	csmVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmVS", csmVS);
 
-	VertexShader* csmSceneVS = new VertexShader(*_shc, L"csmSceneVS.hlsl", ptn_layout, { WMBufferDesc });
+	VertexShader* csmSceneVS = new VertexShader(*shc, L"csmSceneVS.hlsl", ptn_layout, { WMBufferDesc });
 	csmSceneVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmSceneVS", csmSceneVS);
 
@@ -130,65 +156,27 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven()
 	/// PIXEL SHADERS
 
 	// Phong
-	PixelShader* phong = new PixelShader(*_shc, L"lightPS.hlsl", { regularSD }, {});
+	PixelShader* phong = new PixelShader(*shc, L"lightPS.hlsl", { regularSD }, {});
 	//phong->describeBuffers({ lightBufferMeta });
 	addPixShader("phongPS", phong);
 
 	// Skybox ps, special sampler, no lights
-	PixelShader* skyboxPS = new PixelShader(*_shc, L"skyboxPS.hlsl", { skbyoxSD }, {});
+	PixelShader* skyboxPS = new PixelShader(*shc, L"skyboxPS.hlsl", { skbyoxSD }, {});
 	addPixShader("skyboxPS", skyboxPS);
 
 	// PBR shader
-	PixelShader* CookTorrance = new PixelShader(*_shc, L"CookTorrancePS.hlsl", { regularSD }, { lightBufferDesc });
-	CookTorrance->describeBuffers({lightBufferMeta});
+	PixelShader* CookTorrance = new PixelShader(*shc, L"CookTorrancePS.hlsl", { regularSD }, { lightBufferDesc });
+	CookTorrance->describeBuffers({ lightBufferMeta });
 	addPixShader("CookTorrancePS", CookTorrance);
 
-	//PixelShader* hudPS = new PixelShader(*_shc, L"hudPS.hlsl", clampSD, {});	addPixShader("hudPS", hudPS);
-
 	// CSM Scene shader
-	PixelShader* csmScenePs = new PixelShader(*_shc, L"csmScenePS.hlsl", { regularSD }, { });
+	PixelShader* csmScenePs = new PixelShader(*shc, L"csmScenePS.hlsl", { regularSD }, { });
 	//csmScenePs->describeBuffers({ lightBufferMeta });
 	addPixShader("csmScenePS", csmScenePs);
 
-	PixelShader* clusterDebugPs = new PixelShader(*_shc, L"clusterDebug.hlsl", { regularSD }, {});
+	PixelShader* clusterDebugPs = new PixelShader(*shc, L"clusterDebug.hlsl", { regularSD }, {});
 	addPixShader("clusterDebugPS", clusterDebugPs);
 
-	PixelShader* clusterPs = new PixelShader(*_shc, L"ClusteredPS.hlsl", { regularSD }, {});
+	PixelShader* clusterPs = new PixelShader(*shc, L"ClusteredPS.hlsl", { regularSD }, {});
 	addPixShader("clusterPS", clusterPs);
-}
-
-
-
-VertexShader* ShaderCache::getVertShader(const std::string& name)
-{
-	std::unordered_map<std::string, VertexShader*>::const_iterator found = _vsMap.find(name);
-	if (found == _vsMap.end())
-		assert(false && "VERTEX SHADER NOT FOUND!");
-	else
-		return found->second;
-}
-
-
-
-PixelShader* ShaderCache::getPixShader(const std::string& name)
-{
-	std::unordered_map<std::string, PixelShader*>::const_iterator found = _psMap.find(name);
-	if (found == _psMap.end())
-		assert(false && "PIXEL SHADER NOT FOUND!");
-	else
-		return found->second;
-}
-
-
-
-bool ShaderCache::addVertShader(const std::string& name, VertexShader* vs)
-{
-	return _vsMap.insert(std::unordered_map<std::string, VertexShader*>::value_type(name, vs)).second;
-}
-
-
-
-bool ShaderCache::addPixShader(const std::string& name, PixelShader* ps)
-{
-	return _psMap.insert(std::unordered_map<std::string, PixelShader*>::value_type(name, ps)).second;
 }

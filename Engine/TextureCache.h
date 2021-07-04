@@ -17,7 +17,6 @@ private:
 
 public:
 
-	
 	bool insert(std::string& name, Texture* tex)
 	{
 		std::unique_ptr<Texture> upTexture;
@@ -27,7 +26,6 @@ public:
 	}
 
 
-	
 	Texture* getTexture(const std::string& name)
 	{
 		auto iter = _textures.find(name);
@@ -37,12 +35,10 @@ public:
 	}
 
 
-
 	bool exists(const char* name)
 	{
 		return (_textures.find(name) != _textures.end());
 	}
-
 
 
 	TexMapRange autocomplete(const std::string& name)
@@ -51,6 +47,4 @@ public:
 		auto iter = _textures.equal_range(name);
 		return iter;
 	}
-	
-	
 };

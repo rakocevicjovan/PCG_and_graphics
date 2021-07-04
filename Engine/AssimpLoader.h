@@ -63,7 +63,7 @@ public:
 	{
 		// Move later
 		_shMan.init(S_DEVICE, &sys._shaderCache);
-		_shMan.loadExistingKeys(NATURAL_COMPS);
+		_shMan.loadExistingKeys(COMPILED_FOLDER);
 
 		// Create point light for scene preview
 		LightData ld = LightData(SVec3(1.), .2, SVec3(1.), .6, SVec3(1.), .7);

@@ -33,7 +33,7 @@ void TDLevel::init(Engine& sys)
 
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
-	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
+	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 	_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
 	Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");

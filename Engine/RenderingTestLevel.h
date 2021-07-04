@@ -49,7 +49,7 @@ public:
 	void init(Engine& sys) override final
 	{
 		_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
-		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven();
+		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 		_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
 		// All of this should not have to be here! Goal of this refactor is to kill it.

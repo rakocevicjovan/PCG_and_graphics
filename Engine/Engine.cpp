@@ -45,7 +45,6 @@ bool Engine::initialize()
 	_resMan.init(_D3D.getDevice());
 
 	_shaderCompiler.init(_D3D.getDevice());
-	_shaderCache.init(&_shaderCompiler);
 	_matCache.init(&_shaderCache, &_resMan);
 
 	_renderer._cam._controller = &_defController;
