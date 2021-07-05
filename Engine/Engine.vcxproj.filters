@@ -448,6 +448,9 @@
     <ClCompile Include="STBImporter.cpp">
       <Filter>Assets\Asset classes</Filter>
     </ClCompile>
+    <ClCompile Include="AeonLoader.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1104,6 +1107,9 @@
     </ClInclude>
     <ClInclude Include="STBImporter.h">
       <Filter>Assets\Asset classes</Filter>
+    </ClInclude>
+    <ClInclude Include="AeonLoader.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

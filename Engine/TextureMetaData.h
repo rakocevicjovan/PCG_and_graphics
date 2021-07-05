@@ -1,13 +1,6 @@
 #pragma once
 #include "TextureRole.h"
 
-#include <cereal/cereal.hpp>
-//#include <cereal/archives/binary.hpp>
-#include <cereal/archives/json.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/array.hpp>
-#include <cereal/types/string.hpp>
-
 // Used to describe how a texture is used within the context of a material - sampling, binding, role etc.
 struct TextureMetaData
 {

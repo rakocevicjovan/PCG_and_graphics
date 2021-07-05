@@ -176,6 +176,7 @@
     <ClCompile Include="..\..\imgui - docking branch\imgui_tables.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="AeonLoader.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimChannel.cpp" />
     <ClCompile Include="AssImport.cpp" />
@@ -392,6 +393,7 @@
   <ItemGroup>
     <ClInclude Include="AABB.h" />
     <ClInclude Include="AABB2D.h" />
+    <ClInclude Include="AeonLoader.h" />
     <ClInclude Include="Affliction.h" />
     <ClInclude Include="AiController.h" />
     <ClInclude Include="Animation.h" />

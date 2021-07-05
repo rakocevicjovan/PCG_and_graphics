@@ -15,6 +15,8 @@ struct Blob
 	const void* data() const { return static_cast<void*>(_data.get()); }
 	size_t size() const { return _size; }
 
+	bool empty() const { return !_data; }
+
 	void reset()
 	{
 		_data.reset();
