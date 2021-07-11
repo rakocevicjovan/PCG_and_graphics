@@ -263,9 +263,6 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Rendering\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialCache.cpp">
-      <Filter>Rendering\High level\Materials</Filter>
-    </ClCompile>
     <ClCompile Include="Controller.cpp">
       <Filter>Scene management\Controllers</Filter>
     </ClCompile>
@@ -605,9 +602,6 @@
     </ClInclude>
     <ClInclude Include="NavGraphTypes.h">
       <Filter>AI\Pathfinding</Filter>
-    </ClInclude>
-    <ClInclude Include="MaterialCache.h">
-      <Filter>Rendering\High level\Materials</Filter>
     </ClInclude>
     <ClInclude Include="Steering.h">
       <Filter>AI\Steering</Filter>
@@ -975,9 +969,6 @@
     <ClInclude Include="DXT.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="TextureCache.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
     <ClInclude Include="AssimpGUI.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
@@ -1110,6 +1101,12 @@
     </ClInclude>
     <ClInclude Include="AeonLoader.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelDepLoader.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="TCache.h">
+      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

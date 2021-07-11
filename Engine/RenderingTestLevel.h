@@ -50,11 +50,11 @@ public:
 	{
 		_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
 		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
-		_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
+		//_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
 		// All of this should not have to be here! Goal of this refactor is to kill it.
 		Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");
-		_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
+		//_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 

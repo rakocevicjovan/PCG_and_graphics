@@ -4,7 +4,6 @@
 #include "Octree.h"
 #include "Renderer.h"
 #include "CSM.h"
-#include "MaterialCache.h"
 #include "Engine.h"
 #include "SparseSet.h"
 #include "entt/entt.hpp"
@@ -18,7 +17,7 @@ class Scene
 private:
 	Renderer& _renderer;
 	ShaderCache& _shCache;
-	MaterialCache& _matCache;
+	//MaterialCache& _matCache;
 	Engine& _sys;
 
 	//SparseSet<Renderable> _renderCache;
@@ -56,7 +55,6 @@ public:
 		:
 		_renderer(sys._renderer),
 		_shCache(sys._shaderCache),
-		_matCache(sys._matCache),
 		_sys(sys),
 		_octree(scope, subdivLevels),
 		_numCulled(0u)

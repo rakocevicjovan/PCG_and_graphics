@@ -7,6 +7,7 @@
 #include "SkeletonImporter.h"
 #include "AnimationEditor.h"	// Not used yet, it's a todo in itself
 
+#include "TCache.h"	// Trying this out
 
 bool AssImport::importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)
 {
@@ -462,3 +463,21 @@ void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 		}
 	}
 }
+
+/* This is randomly here to be preserved but not to be used here at all. 
+	
+	Material* floorMat = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("phongPS"), true);
+	addMaterial("floorMat", floorMat);
+
+	Material* skybox = new Material(_shCache->getVertShader("skyboxVS"), _shCache->getPixShader("skyboxPS"), true);
+	addMaterial("skybox", skybox);
+
+	Material* cookTorrance = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("CookTorrancePS"), true);
+	addMaterial("PBR", cookTorrance);
+
+	Material* csmMaterial = new Material(_shCache->getVertShader("csmVS"), nullptr, true);
+	addMaterial("csm", csmMaterial);
+
+	//Material* hudMaterial = new Material(_shCache->getVertShader("hudVS"), _shCache->getPixShader("hudPS"), true);
+	//addMaterial("HUD", hudMaterial);
+*/

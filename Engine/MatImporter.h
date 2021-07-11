@@ -1,7 +1,6 @@
 #pragma once
 #include "Material.h"
 #include "AssimpWrapper.h"
-#include "TextureCache.h"
 #include "VitThreadPool.h"
 
 

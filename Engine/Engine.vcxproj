@@ -258,7 +258,6 @@
     <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="LSystem.cpp" />
     <ClCompile Include="Material.cpp" />
-    <ClCompile Include="MaterialCache.cpp" />
     <ClCompile Include="Maze.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -435,6 +434,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="ModelDepLoader.h" />
     <ClInclude Include="STBImporter.h" />
     <ClInclude Include="imnodes.h" />
     <ClInclude Include="ImportTool.h" />
@@ -503,6 +503,7 @@
     <ClInclude Include="SphereHull.h" />
     <ClInclude Include="SBuffer.h" />
     <ClInclude Include="SwapChain.h" />
+    <ClInclude Include="TCache.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />
@@ -547,7 +548,6 @@
     <ClInclude Include="Logger.h" />
     <ClInclude Include="LSystem.h" />
     <ClInclude Include="Material.h" />
-    <ClInclude Include="MaterialCache.h" />
     <ClInclude Include="Maze.h" />
     <ClInclude Include="NavGraphTypes.h" />
     <ClInclude Include="NavGrid.h" />
@@ -690,7 +690,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="TextureGen.h" />
-    <ClInclude Include="TextureCache.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="TextureMetaData.h" />

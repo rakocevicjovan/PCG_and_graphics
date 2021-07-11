@@ -17,7 +17,6 @@
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 #include "ShaderManager.h"
-#include "MaterialCache.h"
 #include "VitThreadPool.h"
 
 
@@ -65,7 +64,7 @@ public:
 	Renderer _renderer;
 	ShaderCompiler _shaderCompiler;
 	ShaderCache _shaderCache;
-	MaterialCache _matCache;
+	//TCache<Material> _matCache;
 
 	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
 	D3D _D3D;

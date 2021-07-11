@@ -34,7 +34,7 @@ void TDLevel::init(Engine& sys)
 	/* Load everything up for the level. Preserve order of these functions three */
 	_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
-	_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
+	//_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
 	Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");
 
@@ -42,7 +42,7 @@ void TDLevel::init(Engine& sys)
 
 	S_INMAN.registerController(&_tdController);
 
-	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
+	//_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
 
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");

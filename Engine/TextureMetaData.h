@@ -11,13 +11,7 @@ struct TextureMetaData
 
 
 	template <typename Archive>
-	void save(Archive& ar) const
-	{
-		ar(_role, _mapMode, _uvIndex, _regIndex);
-	}
-
-	template <typename Archive>
-	void load(Archive& ar)
+	void serialize(Archive& ar)
 	{
 		ar(_role, _mapMode, _uvIndex, _regIndex);
 	}
