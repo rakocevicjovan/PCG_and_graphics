@@ -10,6 +10,7 @@
 #include <fstream>
 #include <memory>
 #include <execution>
+#include <future>
 #include <mutex>
 #include <numeric>
 #include <random>

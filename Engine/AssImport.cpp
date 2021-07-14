@@ -7,6 +7,7 @@
 #include "SkeletonImporter.h"
 #include "AnimationEditor.h"	// Not used yet, it's a todo in itself
 
+#include "ModelDepLoader.h"
 #include "TCache.h"	// Trying this out
 
 bool AssImport::importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)

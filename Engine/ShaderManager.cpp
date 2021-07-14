@@ -3,7 +3,6 @@
 #include "Material.h"
 
 
-
 void ShaderManager::loadExistingKeys(const std::wstring& path)
 {
 	auto shaderFiles = FileUtils::GetFilesByExt(path, ".cmp");

@@ -1,8 +1,8 @@
 #pragma once
 #include "ModelLoader.h"
 #include "TextureLoader.h"
-#include "MaterialLoader.h"
-#include "ShaderManager.h"
+#include "MaterialManager.h"
+#include "AeonLoader.h"
 
 
 class ModelDepLoader
@@ -10,30 +10,56 @@ class ModelDepLoader
 public:
 	
 	AssetLedger* assetLedger;
-	ShaderManager* shaderManager;
+	MaterialManager* materialManager;
+	AeonLoader* aeonLoader;
 
 
 	std::unique_ptr<SkModel> loadSkModel(AssetID assetID)
 	{
 		auto filePath = assetLedger->get(assetID);
 
+		if (!filePath)
+		{
+			assert(false && "File path not found for given assetID.");
+			return {};
+		}
+
+		//aeonLoader->requestAsset(assetID, filePath->c_str());
+		
+		aeonLoader->request(filePath->c_str(), 
+			[](Blob&& loadedBlob)
+			{
+				std::istringstream iss(std::ios_base::binary | std::ios_base::beg);
+				iss.rdbuf()->pubsetbuf(loadedBlob.dataAsType<char>(), loadedBlob.size());
+				
+				cereal::BinaryInputArchive bia(iss);
+				
+				ModelAsset modelAsset;
+				modelAsset.serialize(bia);
+
+				return modelAsset;
+			});
+
 		auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(filePath->c_str());
 
-		auto skModel = ModelLoader::LoadSkModelFromAsset(skModelAsset, *assetLedger);
+		auto result = std::make_unique<SkModel>();
 
-		for (Mesh& skMesh : skModel->_meshes)
+		result->_meshes.reserve(skModelAsset.model.meshes.size());
+
+		for (auto& meshAsset : skModelAsset.model.meshes)
 		{
-			Material* skMat = skMesh.getMaterial();
-			auto shPack = shaderManager->getShaderByData(skMesh._vertSig, skMat);
-			skMat->setVS(shPack->vs);
-			skMat->setPS(shPack->ps);
+			result->_meshes.push_back(Mesh{});
+			Mesh& mesh = result->_meshes.back();
+
+			mesh._vertices = std::move(meshAsset.vertices);
+			mesh._indices = std::move(meshAsset.indices);
+			mesh._vertSig = std::move(meshAsset.vertSig);
+
+			// External dependency, use the cached version
+			//mesh._material = MaterialLoader::LoadMaterialFromID(meshAsset.material, *assetLedger);
+			materialManager->get(meshAsset.material);
 		}
+
+		return result;
 	}
-
-
-	std::unique_ptr<Material> loadMaterial(AssetID assetID)
-	{
-
-	}
-
 };

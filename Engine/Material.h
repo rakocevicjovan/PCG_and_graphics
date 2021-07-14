@@ -3,7 +3,6 @@
 #include "TextureMetaData.h"
 #include "TextureManager.h"
 #include "ShaderManager.h"
-#include <memory>
 
 
 struct MaterialTexture

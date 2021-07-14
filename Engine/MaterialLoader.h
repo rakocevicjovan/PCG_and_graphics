@@ -1,3 +1,4 @@
+
 #pragma once
 #include "Material.h"
 #include "MaterialAsset.h"
@@ -8,11 +9,6 @@
 
 namespace MaterialLoader
 {
-	static Shader* LoadShaderFromID(AssetID assetID)
-	{
-
-	}
-
 	static std::unique_ptr<Material> LoadMaterialFromAsset(const MaterialAsset& materialAsset, const AssetLedger& assetLedger)
 	{
 		auto material = std::make_unique<Material>();
@@ -27,12 +23,6 @@ namespace MaterialLoader
 
 			material->_materialTextures.emplace_back(std::move(materialTexture));
 		}
-
-		/*VertexShader* vs = LoadShaderFromID(1);
-		material->setVS(vs);
-
-		PixelShader* ps = LoadShaderFromID(2);
-		material->setPS(ps);*/
 
 		material->_opaque = materialAsset._opaque;
 

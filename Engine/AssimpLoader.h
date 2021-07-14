@@ -62,7 +62,7 @@ public:
 	void init(Engine& sys) override
 	{
 		// Move later
-		_shMan.init(S_DEVICE, &sys._shaderCache);
+		_shMan.init(S_DEVICE);
 		_shMan.loadExistingKeys(COMPILED_FOLDER);
 
 		// Create point light for scene preview

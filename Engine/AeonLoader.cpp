@@ -3,35 +3,51 @@
 #include "AeonLoader.h"
 
 
-void AeonLoader::requestAsset(AssetID assetID)
+
+void AeonLoader::requestAsset(AssetID assetID, const char* path)
 {
-	_loadingJobs.insert({ assetID, LoadingJob{ LoadingStatus::QUEUED, Blob{} } });
-}
-
-
-LoadingStatus AeonLoader::queryLoadingStatus(AssetID assetID)
-{
-	return _loadingJobs.at(assetID).loadingStatus;
-}
-
-
-Blob AeonLoader::claimLoadedAsset(AssetID assetID)
-{
-	auto iter = _loadingJobs.find(assetID);
-
-	if (iter != _loadingJobs.end())
-	{
-		LoadingJob& loadingJob = iter->second;
-
-		if (loadingJob.loadingStatus == LoadingStatus::FINISHED)
+	auto futureBlob = _threadPool.push(std::bind(
+		[&](const char* path)
 		{
-			Blob result = std::move(loadingJob.blob);
+			return FileUtils::readAllBytes(path);
+		}, 
+		path));
 
-			_loadingJobs.erase(iter);
-
-			return result;
-		}
-	}
-
-	return Blob{};
+	_jobQueMutex.lock();
+	_futures.insert({assetID, std::move(futureBlob)});
+	_jobQueMutex.unlock();
 }
+
+
+void AeonLoader::update()
+{
+	
+}
+
+
+//LoadingStatus AeonLoader::queryLoadingStatus(AssetID assetID)
+//{
+//	return _loadingJobs.at(assetID).loadingStatus;
+//}
+
+
+//Blob AeonLoader::claimLoadedAsset(AssetID assetID)
+//{
+//	auto iter = _loadingJobs.find(assetID);
+//
+//	if (iter != _loadingJobs.end())
+//	{
+//		LoadingJob& loadingJob = iter->second;
+//
+//		if (loadingJob.loadingStatus == LoadingStatus::FINISHED)
+//		{
+//			Blob result = std::move(loadingJob.blob);
+//
+//			_loadingJobs.erase(iter);
+//
+//			return result;
+//		}
+//	}
+//
+//	return Blob{};
+//}

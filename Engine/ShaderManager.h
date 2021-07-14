@@ -1,6 +1,7 @@
 #pragma once
 #include "Shader.h"
-#include "ShaderCache.h"
+#include "AssetID.h"
+#include "TCache.h"
 #include "ShaderGenerator.h"
 #include "VertSignature.h"
 #include "IMGUI/imgui.h"
@@ -51,16 +52,20 @@ class ShaderManager
 private:
 
 	ID3D11Device* _pDevice{};
-	ShaderCache* _pShCache{};
+	TCache<Shader> _cache{};
 
 	std::map<uint64_t, ShaderPack> _existingShaders;
 
 public:
 
-	inline void init(ID3D11Device* device, ShaderCache* cache)
+	inline void init(ID3D11Device* device)
 	{
 		_pDevice = device;
-		_pShCache = cache;
+	}
+
+	ShaderPack getShaderByID(AssetID assetID)
+	{
+
 	}
 
 	void loadExistingKeys(const std::wstring& path);

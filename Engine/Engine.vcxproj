@@ -434,6 +434,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelDepLoader.h" />
     <ClInclude Include="STBImporter.h" />
     <ClInclude Include="imnodes.h" />

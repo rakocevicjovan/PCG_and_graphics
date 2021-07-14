@@ -12,7 +12,22 @@ struct Blob
 	std::unique_ptr<char[]> _data;
 	size_t _size = 0u;
 
-	const void* data() const { return static_cast<void*>(_data.get()); }
+	const void* data() const 
+	{
+		return static_cast<void*>(_data.get()); 
+	}
+
+	void* mutableData()
+	{
+		return static_cast<void*>(_data.get());
+	}
+
+	template <typename DesiredType>
+	DesiredType* dataAsType()
+	{
+		return reinterpret_cast<DesiredType*>(_data.get());
+	}
+
 	size_t size() const { return _size; }
 
 	bool empty() const { return !_data; }
@@ -87,7 +102,7 @@ namespace FileUtils
 
 
 
-	static Blob readAllBytes(char const* filename)
+	static Blob readAllBytes(const char* filename)
 	{
 		std::ifstream ifs(filename, std::ios::binary | std::ios::ate);	// Construct with cursor "At-The-End"
 		std::ifstream::pos_type byteCount = ifs.tellg();				// Save file size

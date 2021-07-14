@@ -37,7 +37,7 @@ public:
 			}
 		}
 
-		assert(result && "Could not find the texture with this ID");
+		assert(result && "Could not find a texture with this ID.");
 
 		return result;
 	}
