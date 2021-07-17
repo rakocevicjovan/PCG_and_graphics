@@ -1,7 +1,7 @@
 #include "pch.h"
+
 #include "Engine.h"
 #include "GUI.h"
-#include <Mouse.h>
 
 #include "ShaderGenerator.h"
 
@@ -11,12 +11,6 @@ Engine::Engine() :
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
 {}
-
-
-Engine::~Engine()
-{
-	shutDown();
-}
 
 
 bool Engine::initialize()
@@ -42,8 +36,6 @@ bool Engine::initialize()
 		return false;
 	}
 
-	_resMan.init(_D3D.getDevice());
-
 	_shaderCompiler.init(_D3D.getDevice());
 	//_matCache.init(&_shaderCache, &_resMan);
 
@@ -59,9 +51,9 @@ bool Engine::initialize()
 
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "../Tower Defense/Ledger.json";
-	_resMan._assetLedger._ledgerFilePath = _project._ledgerPath;
-	_resMan._assetLedger.load();
-	_resMan._assetLedger.purge();
+	_assetLedger._ledgerFilePath = _project._ledgerPath;
+	//_assetLedger.load(); eventually do this per project
+	_assetLedger.purge();
 
 	_levelMan = new LevelManager(*this);
 

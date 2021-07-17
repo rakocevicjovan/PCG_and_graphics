@@ -215,9 +215,6 @@
     <ClCompile Include="SkeletalModel.cpp">
       <Filter>Assets\SkelAnim</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Assets</Filter>
-    </ClCompile>
     <ClCompile Include="D3D.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
@@ -509,9 +506,6 @@
     </ClInclude>
     <ClInclude Include="SkeletalModel.h">
       <Filter>Assets\SkelAnim</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
       <Filter>Rendering</Filter>

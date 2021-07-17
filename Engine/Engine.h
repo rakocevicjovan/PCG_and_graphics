@@ -13,7 +13,6 @@
 #include "FPSCounter.h"
 #include "Audio.h"
 #include "LevelManager.h"
-#include "ResourceManager.h"
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 #include "ShaderManager.h"
@@ -39,7 +38,6 @@ private:
 public:
 
 	Engine();
-	~Engine();
 
 	bool initialize();
 	void start();
@@ -48,13 +46,13 @@ public:
 	// Instead of making the editor right now, I'll just chuck things here and extract them when it makes sense
 	FileBrowser _fileBrowser;
 	ShaderManager _shaderManager;
+	AssetLedger _assetLedger;
 
 	// My very own engine window
 	Window<Engine> _engineWindow;
 	
 	// Engine subsystems
 	InputManager _inputManager;
-	ResourceManager _resMan;
 	Audio _audio;
 	GameClock _clock;
 	FPSCounter _fpsCounter;

@@ -81,7 +81,7 @@ public:
 
 	void load()
 	{
-		std::ifstream ifs(_ledgerFilePath);
+		//std::ifstream ifs(_ledgerFilePath);
 		//cereal::JSONInputArchive jiArch(ifs);
 		//serialize(jiArch);
 	}

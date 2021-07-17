@@ -268,7 +268,6 @@
     <ClCompile Include="ProjectPicker.cpp" />
     <ClCompile Include="QuadTree.cpp" />
     <ClCompile Include="RenderQueue.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="RTSController.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Phong.cpp">
@@ -355,6 +354,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="TDLevel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainShader.cpp">
@@ -463,7 +463,9 @@
     <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="RenderConfig.h" />
-    <ClInclude Include="RenderingTestLevel.h" />
+    <ClInclude Include="RenderingTestLevel.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="RenderStage.h" />
     <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ReservedBuffers.h" />
@@ -572,7 +574,6 @@
     <ClInclude Include="RenderState.h" />
     <ClInclude Include="RenderStateManager.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="RTSController.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="Shader.h" />
@@ -671,6 +672,7 @@
     <ClInclude Include="TDGUI.h" />
     <ClInclude Include="TDLevel.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Terrain.h" />
