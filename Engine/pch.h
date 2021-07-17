@@ -7,7 +7,10 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <fstream>
+#include <sstream>
+#include <iostream>
 #include <memory>
 #include <execution>
 #include <future>
@@ -17,6 +20,7 @@
 #include <unordered_map>
 #include <string>
 #include <map>
+
 
 // Cereal includes - this is abundant throughout the codebase
 #include <cereal/cereal.hpp>

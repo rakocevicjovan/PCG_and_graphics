@@ -111,8 +111,8 @@ bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDes
 	_indexBuffer = IBuffer(device, _indices);
 
 	//this ABSOLUTELY needs to happen!
-	//vertices.clear();
-	//indices.clear();
+	_vertices.clear();
+	_indices.clear();
 
 	return true;
 }

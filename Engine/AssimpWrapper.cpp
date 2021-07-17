@@ -64,7 +64,7 @@ bool AssimpWrapper::loadEmbeddedTexture(Texture& texture, const aiScene* scene, 
 }
 
 
-void AssimpWrapper::loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims)
+void AssimpWrapper::ImportAnimations(const aiScene* scene, std::vector<Animation>& outAnims)
 {
 	if (!scene->HasAnimations())
 		return;

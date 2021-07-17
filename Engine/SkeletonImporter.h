@@ -177,7 +177,7 @@ public:
 	}
 
 
-	static std::unique_ptr<Skeleton> loadStandalone(const aiScene* scene)
+	static std::unique_ptr<Skeleton> ImportStandalone(const aiScene* scene)
 	{
 		std::unique_ptr<Skeleton> skelly = std::make_unique<Skeleton>();
 

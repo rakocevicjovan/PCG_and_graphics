@@ -167,8 +167,7 @@ namespace MeshImporter
 	}
 
 
-	static Mesh ImportFromAssimp(const aiScene* scene, ID3D11Device* device, aiMesh* aiMesh,
-		std::shared_ptr<Material>& material, Skeleton* skeleton, const std::string& path)
+	static Mesh ImportFromAssimp(aiMesh* aiMesh, Skeleton* skeleton, const std::string& path)
 	{
 		Mesh mesh;
 
@@ -176,9 +175,6 @@ namespace MeshImporter
 		mesh._vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
 		ImportVertexData(mesh._vertSig, mesh._vertices, aiMesh, skeleton);
 		AssimpWrapper::loadIndices(aiMesh, mesh._indices);
-
-		// Use this index to associate the mesh material with the loaded material.
-		mesh._material = material;
 
 		return mesh;
 	}

@@ -3,6 +3,7 @@
 #include "TextureLoader.h"
 #include "MaterialManager.h"
 #include "AeonLoader.h"
+#include "Deserialize.h"
 
 
 class ModelDepLoader
@@ -27,17 +28,13 @@ public:
 		//aeonLoader->requestAsset(assetID, filePath->c_str());
 		
 		aeonLoader->request(filePath->c_str(), 
-			[](Blob&& loadedBlob)
+			[&ledger = assetLedger](Blob&& loadedBlob)
 			{
-				std::istringstream iss(std::ios_base::binary | std::ios_base::beg);
-				iss.rdbuf()->pubsetbuf(loadedBlob.dataAsType<char>(), loadedBlob.size());
-				
-				cereal::BinaryInputArchive bia(iss);
-				
-				ModelAsset modelAsset;
-				modelAsset.serialize(bia);
+				SkModelAsset skModelAsset = AssetHelpers::DeserializeFromBlob<SkModelAsset>(std::move(loadedBlob));
 
-				return modelAsset;
+				ModelLoader::LoadSkModelFromAsset(skModelAsset, *ledger);
+
+				return skModelAsset;
 			});
 
 		auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(filePath->c_str());

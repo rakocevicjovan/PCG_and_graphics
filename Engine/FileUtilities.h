@@ -1,43 +1,6 @@
 #pragma once
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <string>
-#include <filesystem>
-#include <memory>
 
-
-struct Blob
-{
-	std::unique_ptr<char[]> _data;
-	size_t _size = 0u;
-
-	const void* data() const 
-	{
-		return static_cast<void*>(_data.get()); 
-	}
-
-	void* mutableData()
-	{
-		return static_cast<void*>(_data.get());
-	}
-
-	template <typename DesiredType>
-	DesiredType* dataAsType()
-	{
-		return reinterpret_cast<DesiredType*>(_data.get());
-	}
-
-	size_t size() const { return _size; }
-
-	bool empty() const { return !_data; }
-
-	void reset()
-	{
-		_data.reset();
-		_size = 0u;
-	}
-};
+#include "Blob.h"
 
 
 namespace FileUtils
@@ -52,13 +15,11 @@ namespace FileUtils
 	}
 
 
-
 	inline static bool fileExists(const std::string& name)
 	{
 		std::ifstream f(name.c_str());
 		return f.good();
 	}
-
 
 
 	static void printDirContents(const std::string& path)
@@ -68,7 +29,6 @@ namespace FileUtils
 			std::cout << entry.path().string() << std::endl;
 		}
 	}
-
 
 
 	static bool getDirContentsAsStrings(const std::string& path, std::vector<std::string>& contents)
@@ -83,7 +43,6 @@ namespace FileUtils
 
 		return true;
 	}
-
 
 
 	static bool findFile(const std::string& baseFolder, const std::string& fileName, std::filesystem::directory_entry& out)
@@ -101,7 +60,6 @@ namespace FileUtils
 	}
 
 
-
 	static Blob readAllBytes(const char* filename)
 	{
 		std::ifstream ifs(filename, std::ios::binary | std::ios::ate);	// Construct with cursor "At-The-End"
@@ -117,13 +75,11 @@ namespace FileUtils
 	}
 
 
-
 	static void writeAllBytes(std::filesystem::path filename, const void* content, const size_t size, int flags = std::ios::out | std::ios::binary)
 	{
 		std::ofstream writer(filename, flags);
 		writer.write(static_cast<const char*>(content), size);
 	}
-
 
 
 	static bool getRecursiveIterator(const std::filesystem::path& dirPath, std::filesystem::recursive_directory_iterator& iter)
@@ -135,7 +91,6 @@ namespace FileUtils
 		}
 		return false;
 	}
-
 
 
 	static std::vector<std::filesystem::directory_entry> GetFilesByExt

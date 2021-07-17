@@ -111,7 +111,7 @@ public:
 
 	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, const char* str);
 
-	static void loadAnimations(const aiScene* scene, std::vector<Animation>& outAnims);
+	static void ImportAnimations(const aiScene* scene, std::vector<Animation>& outAnims);
 
 	static void loadAllBoneNames(const aiScene* scene, aiNode* node, std::set<std::string>& boneNames);
 

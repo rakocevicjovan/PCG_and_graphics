@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Blob.h"
+
 namespace AssetHelpers
 {
 
@@ -11,9 +13,23 @@ namespace AssetHelpers
 		std::ifstream ifs(path, std::ios::binary);
 		ArchiveType inputArchive(ifs);
 
-		AssetType deserializedAsset;
-		deserializedAsset.serialize(inputArchive);	// Don't get confused. This call actually deserializes when archive type is input!
+		AssetType asset;
+		asset.serialize(inputArchive);	// Don't get confused. This call actually deserializes when archive type is input!
 
-		return deserializedAsset;
+		return asset;
+	}
+
+	template <typename AssetType, typename ArchiveType = cereal::BinaryInputArchive>
+	static AssetType DeserializeFromBlob(Blob&& blob)
+	{
+		std::istringstream iss(std::ios_base::binary | std::ios_base::beg);
+		iss.rdbuf()->pubsetbuf(blob.dataAsType<char>(), blob.size());
+
+		cereal::BinaryInputArchive bia(iss);
+
+		AssetType asset;
+		asset.serialize(bia);
+
+		return asset;
 	}
 }

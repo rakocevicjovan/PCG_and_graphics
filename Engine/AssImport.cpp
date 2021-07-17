@@ -9,6 +9,7 @@
 
 #include "ModelDepLoader.h"
 #include "TCache.h"	// Trying this out
+#include "AssetManagerLocator.h"
 
 bool AssImport::importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)
 {
@@ -85,12 +86,12 @@ void AssImport::importSelectedAssets()
 {
 	if (_impSkeleton)
 	{
-		_skeleton = SkeletonImporter::loadStandalone(_aiScene);
+		_skeleton = SkeletonImporter::ImportStandalone(_aiScene);
 	}
 
 	if (_impAnims)
 	{
-		AssimpWrapper::loadAnimations(_aiScene, _anims);
+		AssimpWrapper::ImportAnimations(_aiScene, _anims);
 	}
 
 	// Pass these preloaded materials to meshes in either model type below

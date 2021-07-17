@@ -74,7 +74,8 @@ static ModelImportData<SkModel> ImportSkModelFromAiScene(ID3D11Device* device, c
 	{
 		auto& aiMesh = scene->mMeshes[i];
 
-		skModel->_meshes.emplace_back(MeshImporter::ImportFromAssimp(scene, device, aiMesh, mats[aiMesh->mMaterialIndex], skModel->_skeleton.get(), path));
+		skModel->_meshes.emplace_back(MeshImporter::ImportFromAssimp(aiMesh, skModel->_skeleton.get(), path));
+		skModel->_meshes[i]._material = mats[aiMesh->mMaterialIndex];
 		skModel->_meshes[i].setupMesh(device);	// Probably should move ALL this gpu related code out of here, would be a really good idea...
 
 		meshMatMapping[i] = aiMesh->mMaterialIndex;
@@ -121,7 +122,8 @@ static  ModelImportData<Model> ImportModelFromAiScene(ID3D11Device* device, cons
 	{
 		auto& aiMesh = scene->mMeshes[i];
 
-		model->_meshes.emplace_back(MeshImporter::ImportFromAssimp(scene, device, aiMesh, mats[aiMesh->mMaterialIndex], nullptr, path));
+		model->_meshes.emplace_back(MeshImporter::ImportFromAssimp(aiMesh, nullptr, path));
+		model->_meshes[i]._material = mats[aiMesh->mMaterialIndex];
 		model->_meshes[i].setupMesh(device);
 
 		meshMatMapping[i] = aiMesh->mMaterialIndex;

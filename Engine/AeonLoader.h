@@ -49,9 +49,5 @@ public:
 				return callback(std::move(loadedBlob));
 			},
 			path));
-
-		//_jobQueMutex.lock();
-		//_futures.insert({ assetID, std::move(futureBlob) });
-		//_jobQueMutex.unlock();
 	}
 };

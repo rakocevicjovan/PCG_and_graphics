@@ -179,6 +179,7 @@
     <ClCompile Include="AeonLoader.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimChannel.cpp" />
+    <ClCompile Include="AssetManagerLocator.cpp" />
     <ClCompile Include="AssImport.cpp" />
     <ClCompile Include="AssimpWrapper.cpp" />
     <ClCompile Include="ClusterManager.cpp">
@@ -400,10 +401,12 @@
     <ClInclude Include="AnimationInstance.h" />
     <ClInclude Include="AnimChannel.h" />
     <ClInclude Include="AssetExplorer.h" />
+    <ClInclude Include="AssetManagerLocator.h" />
     <ClInclude Include="AssimpGUI.h" />
     <ClInclude Include="AssimpLoader.h" />
     <ClInclude Include="AssImport.h" />
     <ClInclude Include="AssimpWrapper.h" />
+    <ClInclude Include="Blob.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="ClusteringMath.h" />
     <ClInclude Include="ClusteringUnusedCode.h" />
