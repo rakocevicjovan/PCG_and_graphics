@@ -1,4 +1,5 @@
 #pragma once
+
 #include "AssetID.h"
 #include "VitThreadPool.h"
 #include "FileUtilities.h"
@@ -30,7 +31,12 @@ class AeonLoader
 public:
 
 	AeonLoader() : _threadPool(4u){}
-	AeonLoader(uint8_t maxThreadCount) : _threadPool(maxThreadCount) {}
+	AeonLoader(uint32_t maxThreadCount) : _threadPool(maxThreadCount) {}
+
+	void resizeThreadPool(uint32_t maxThreadCount)
+	{
+		_threadPool.resize(std::min(maxThreadCount, std::thread::hardware_concurrency()));
+	}
 
 	void requestAsset(AssetID assetID, const char* path);
 	void update();
@@ -39,15 +45,16 @@ public:
 
 
 	template <typename OnLoadedCallback>
-	void request(const char* path, const OnLoadedCallback& callback)
+	auto request(const char* path, const OnLoadedCallback& callback)
 	{
-
-		auto futureBlob = _threadPool.push(std::bind(
-			[&callback](const char* path)
-			{
-				Blob loadedBlob = FileUtils::readAllBytes(path);
-				return callback(std::move(loadedBlob));
-			},
-			path));
+		return
+			std::move(
+				_threadPool.push(std::bind(
+					[&callback](const char* path)
+					{
+						return callback(path);
+					},
+					path))
+			);
 	}
 };

@@ -105,14 +105,17 @@ Mesh::Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp, bool
 
 
 
-bool Mesh::setupMesh(ID3D11Device* device) //, D3D11_BUFFER_DESC vertexBufferDesc, D3D11_BUFFER_DESC indexBufferDesc)
+bool Mesh::setupMesh(ID3D11Device* device, bool releaseCpuResources)
 {
 	_vertexBuffer = VBuffer(device, _vertices, _vertSig, 0u);
 	_indexBuffer = IBuffer(device, _indices);
 
-	//this ABSOLUTELY needs to happen!
-	_vertices.clear();
-	_indices.clear();
+	//this ABSOLUTELY needs to happen by default! For now, it's weird
+	if (releaseCpuResources)
+	{
+		_vertices.clear();
+		_indices.clear();
+	}
 
 	return true;
 }

@@ -39,7 +39,7 @@ public:
 	Mesh(const Procedural::Geometry& g, ID3D11Device* device, bool setUp = true, bool hasTangents = true);
 	Mesh(const Procedural::Terrain& terrain, ID3D11Device* device);
 
-	bool setupMesh(ID3D11Device* device);
+	bool setupMesh(ID3D11Device* device, bool releaseCpuResources = true);
 
 
 	void draw(ID3D11DeviceContext* dc)

@@ -16,7 +16,6 @@ class Scene
 {
 private:
 	Renderer& _renderer;
-	ShaderCache& _shCache;
 	//MaterialCache& _matCache;
 	Engine& _sys;
 
@@ -54,7 +53,6 @@ public:
 		UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) 
 		:
 		_renderer(sys._renderer),
-		_shCache(sys._shaderCache),
 		_sys(sys),
 		_octree(scope, subdivLevels),
 		_numCulled(0u)

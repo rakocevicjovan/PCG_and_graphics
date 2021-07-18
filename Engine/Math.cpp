@@ -98,7 +98,7 @@ SVec3 Math::projectVecOntoVec(const SVec3& toProject, const SVec3& onto)
 
 float Math::clamp(float minX, float maxX, float x)
 {
-	return min(max(minX, x), maxX);
+	return std::min(std::max(minX, x), maxX);
 }
 
 float Math::smoothstep(float edge0, float edge1, float x)

@@ -13,10 +13,17 @@
 #include "FPSCounter.h"
 #include "Audio.h"
 #include "LevelManager.h"
+
+// Assets
+#include "ModelManager.h"
+#include "MaterialManager.h"
+#include "TextureManager.h"
+#include "ShaderManager.h"
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
-#include "ShaderManager.h"
+
 #include "VitThreadPool.h"
+#include "AssetManagerLocator.h"
 
 
 
@@ -45,8 +52,6 @@ public:
 
 	// Instead of making the editor right now, I'll just chuck things here and extract them when it makes sense
 	FileBrowser _fileBrowser;
-	ShaderManager _shaderManager;
-	AssetLedger _assetLedger;
 
 	// My very own engine window
 	Window<Engine> _engineWindow;
@@ -69,6 +74,16 @@ public:
 
 	// This should be in game code really, it's up to it to define different states etc.
 	LevelManager* _levelMan;
+
+	// Managers
+	AssetLedger _assetLedger;
+	AeonLoader _aeonLoader;
+
+	ModelManager _modelManager;
+	MaterialManager _materialManager;
+	TextureManager _textureManager;
+	ShaderManager _shaderManager;
+	AssetManagerLocator _assetManagerLocator;
 
 	// Here so we have something for camera controls in every level, move out eventually
 	Controller _defController;

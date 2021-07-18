@@ -1,10 +1,14 @@
 #pragma once
+
 #include "Shader.h"
-#include "AssetID.h"
-#include "TCache.h"
 #include "ShaderGenerator.h"
 #include "VertSignature.h"
 #include "IMGUI/imgui.h"
+#include "AssetID.h"
+#include "TCache.h"
+#include "IAssetManager.h"
+#include "AssetLedger.h"
+#include "AeonLoader.h"
 
 class Material;
 
@@ -47,16 +51,25 @@ struct ShaderPack
 
 
 
-class ShaderManager
+class ShaderManager : public IAssetManager
 {
 private:
 
-	ID3D11Device* _pDevice{};
+	AssetLedger* _assetLedger{};
+	AeonLoader* _aeonLoader{};
 	TCache<Shader> _cache{};
 
-	std::map<uint64_t, ShaderPack> _existingShaders;
+	ID3D11Device* _pDevice{};
+
+	std::map<ShaderGenKey, ShaderPack> _existingShaders;
 
 public:
+
+	ShaderManager() = default;
+
+	ShaderManager(AssetLedger& ledger/*, AssetManagerLocator& locator*/)
+		: _assetLedger(&ledger) {}
+
 
 	inline void init(ID3D11Device* device)
 	{
@@ -101,6 +114,7 @@ public:
 		VS_FileFormat vsff;
 		
 		{
+			//AssetHelpers::DeserializeFromFile(path.c_str());
 			std::ifstream ifs(path, std::ios::binary);
 			cereal::BinaryInputArchive ar(ifs);
 			ar(vsff.blobString, vsff.vertSig._attributes, vsff.cbDescs);
@@ -120,7 +134,6 @@ public:
 	}
 
 
-
 	static void PersistPixelShader(
 		const wchar_t* path,
 		ID3DBlob* blob,
@@ -133,7 +146,6 @@ public:
 		cereal::BinaryOutputArchive ar(ofs);
 		ar(blobString, sDescs, cbDescs);
 	}
-
 
 
 	PixelShader* loadPixelShader(const std::wstring& path, ShaderGenKey shaderKey)

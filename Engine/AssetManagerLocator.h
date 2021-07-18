@@ -1,50 +1,51 @@
 #pragma once
 
-
-template <typename AssetManagerType, typename... Extras>
-inline constexpr uint32_t asset_manager_index_v{~(0u)};
-
-inline constexpr uint32_t asset_manager_count_v{ 0u };
-
-
-struct IAssetManager{};
+#include "IAssetManager.h"
 
 
 class AssetManagerLocator
 {
 private:
 
-	std::vector<IAssetManager*> _assetManagers;
+	std::vector<IAssetManager*> _managers;
 
-	template <typename AssetManagerType>
-	void registerAssetManager(const AssetManagerType& assetManagerType)
+	template <typename ManagerType, typename... Specifier>
+	inline static uint32_t manager_index{ ~0u };
+
+	inline static uint32_t num_managers{0u};
+
+	template <typename ManagerType>
+	void registerManager(ManagerType manager)
 	{
-		static_assert(std::is_base_of_v<IAssetManager, AssetManagerType>);
-		_assetManagers.push_back(assetManagerType);
-		asset_manager_index_v<AssetManagerType> = _assetManagers.size() - 1;
-		++asset_manager_count_v;
+		_managers.push_back(manager);
+		manager_index<ManagerType> = num_managers++;
 	}
 
 public:
 
-	template <typename... AssetManagerTypes>
-	void registerAssetManagers(AssetManagerTypes... assetManagerType)
+	// Intended to be called once. Can be called multiple times, however all managers have to be re-registered every time.
+	template <typename... ManagerTypes>
+	void registerManagers(ManagerTypes*... managers)
 	{
-		_assetManagers.reserve(sizeof...(AssetManagerTypes));
+		num_managers = 0u;
+		_managers.clear();
 
-		(registerAssetManager(assetManagerType), ...);
+		_managers.reserve(sizeof...(ManagerTypes));
+		(registerManager(managers), ...);
 	}
 
-
-	template <typename AssetManagerType>
-	AssetManagerType* getAssetManager()
+	template <typename... ManagerTypes>
+	void appendManagers(ManagerTypes*... managers)
 	{
-		static_assert(!std::is_pointer_v<AssetManagerType>);
+		_managers.reserve(_managers.size() + sizeof...(ManagerTypes));
+		(registerManager(managers), ...);
+	}
 
-		auto& assetManagerIndex = asset_manager_index_v<int>;
-
-		static_assert(assetManagerIndex < asset_manager_count_v);
-
-		return wat = static_cast<AssetManagerType*>(_assetManagers[assetManagerIndex]);
+	template <typename ManagerType>
+	ManagerType* get()
+	{
+		const auto& index = manager_index<ManagerType>;
+		assert(index < num_managers, "Attempted to access undeclared asset manager through the locator.");
+		return reinterpret_cast<ManagerType*>(_managers[index]);
 	}
 };

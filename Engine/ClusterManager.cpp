@@ -246,29 +246,16 @@ LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2
 	uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
 	uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
 
+	// This is fragile AF! @TODO inspect
 	return
 	{
-		static_cast<uint8_t>(xyi.x),											// min x
-		static_cast<uint8_t>(xyi.y),											// min y
-		min(static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(gDims[0] - 1u)),	// max x
-		min(static_cast<uint8_t>(xyi.w), static_cast<uint8_t>(gDims[1] - 1u)),	// max y
-		max(zMin, static_cast <uint8_t>(0)),									// min z
-		min(zMax, static_cast<uint8_t>(gDims[2] - 1))							// max z
+		static_cast<uint8_t>(xyi.x),												// min x
+		static_cast<uint8_t>(xyi.y),												// min y
+		std::min(static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(gDims[0] - 1u)),	// max x
+		std::min(static_cast<uint8_t>(xyi.w), static_cast<uint8_t>(gDims[1] - 1u)),	// max y
+		std::max(zMin, static_cast <uint8_t>(0)),									// min z
+		std::min(zMax, static_cast<uint8_t>(gDims[2] - 1))							// max z
 	};
-
-	// Learn SSE one day... THIS REVERSES THE ORDER OF STORED ELEMENTS BE CAREFUL!
-	//__m128 rectSSE = _mm_load_ps(&rect.x);	// rect.y, rect.z, rect.w
-	//__m128 invGridSSE = _mm_set_ps(30.f, 17.f, 30.f, 17.f);
-	//__m128 res = _mm_mul_ps(rectSSE, invGridSSE);
-	//__m128i intRes = _mm_cvttps_epi32(res);
-	/*
-	return
-	{
-		intRes.m128_u32[0], intRes.m128_u32[1],	// min indices
-		intRes.m128_u32[2], intRes.m128_u32[3],	// max indices
-		zMin, zMax
-	};
-	*/
 }
 
 

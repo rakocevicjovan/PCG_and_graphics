@@ -30,11 +30,11 @@ namespace ModelLoader
 	{
 		Mesh mesh;
 
-		mesh._vertices = meshAsset.vertices;
-		mesh._indices = meshAsset.indices;
+		mesh._vertices = std::move(meshAsset.vertices);
+		mesh._indices = std::move(meshAsset.indices);
+		mesh._vertSig = std::move(meshAsset.vertSig);
 
 		mesh._material = MaterialLoader::LoadMaterialFromID(meshAsset.material, assetLedger);
-		mesh._vertSig = meshAsset.vertSig;
 
 		return mesh;
 	}
@@ -52,24 +52,24 @@ namespace ModelLoader
 	}
 
 
-	static std::unique_ptr<SkModel> LoadSkModelFromAsset(const SkModelAsset& skModelAsset, const AssetLedger& assetLedger)
+	static SkModel LoadSkModelFromAsset(const SkModelAsset& skModelAsset, const AssetLedger& assetLedger)
 	{
-		auto skModel = std::make_unique<SkModel>();
+		SkModel skModel;
 		
-		LoadMeshes(skModel->_meshes, skModelAsset.model, assetLedger);
+		LoadMeshes(skModel._meshes, skModelAsset.model, assetLedger);
 
-		skModel->_meshNodeTree = skModelAsset.model.meshNodes;
+		skModel._meshNodeTree = skModelAsset.model.meshNodes;
 
 		// This will not work like this later, must check the cache first for skeleton and animations. Same for materials!
 		// It should be optional to check the cache (maybe pass cache as pointer not sure)
 		auto skeletonPath = assetLedger.get(skModelAsset.skeleton);
-		skModel->_skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
+		skModel._skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
 
-		skModel->_anims.reserve(skModelAsset.animations.size());
+		skModel._anims.reserve(skModelAsset.animations.size());
 		for (auto animID : skModelAsset.animations)
 		{
 			auto animPath = assetLedger.get(animID);
-			skModel->_anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
+			skModel._anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
 		}
 
 		return skModel;

@@ -145,7 +145,7 @@ bool QuadTree::insert(QTObject* pObject)
 	else
 		ui32Y = 7UL - Bits::msbDeBruijn32(ui32Y);
 
-	uint32_t ui32Level = min(ui32X, ui32Y);
+	uint32_t ui32Level = std::min(ui32X, ui32Y);
 
 	// Now we know which level in the tree it is.
 	// Find out which node on that level owns it.

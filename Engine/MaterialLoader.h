@@ -1,5 +1,5 @@
-
 #pragma once
+
 #include "Material.h"
 #include "MaterialAsset.h"
 #include "AssetLedger.h"

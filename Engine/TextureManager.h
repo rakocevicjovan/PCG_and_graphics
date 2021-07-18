@@ -1,23 +1,29 @@
 #pragma once
+
 #include "AssetLedger.h"
 #include "Texture.h"
 #include "TCache.h"
+#include "IAssetManager.h"
+#include "AeonLoader.h"
 
 
-class TextureManager
+class TextureManager : public IAssetManager
 {
 private:
 
 	AssetLedger* _assetLedger{ nullptr };
-	ID3D11Device* _device{ nullptr };
+	AeonLoader* _aeonLoader{};
 	TCache<Texture> _cache{};
+
+	ID3D11Device* _device{ nullptr };
+	
 
 public:
 
 	TextureManager() = default;
 
-
-	TextureManager(AssetLedger* assetLedger, ID3D11Device* device) : _assetLedger(assetLedger), _device(device)
+	/*, AssetManagerLocator& locator*/
+	TextureManager(AssetLedger& assetLedger, ID3D11Device* device) : _assetLedger(&assetLedger), _device(device)
 	{}
 
 

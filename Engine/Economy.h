@@ -65,7 +65,7 @@ public:
 
 	void deposit(const std::string& type, const UINT quantity)
 	{
-		_vault.at(type)._qty = min(_vault.at(type)._qty + quantity, _vault.at(type)._capacity);
+		_vault.at(type)._qty = std::min(_vault.at(type)._qty + quantity, _vault.at(type)._capacity);
 	}
 
 	

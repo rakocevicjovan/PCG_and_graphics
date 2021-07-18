@@ -71,7 +71,7 @@ namespace Sebh
 
 					tp = pCell - tp - SVec3(noise(SVec3(fmodf(tp.x, cellCount), fmodf(tp.y, cellCount), fmodf(tp.z, cellCount))));
 
-					d = min(d, tp.Dot(tp));
+					d = std::min(d, tp.Dot(tp));
 				}
 			}
 		}

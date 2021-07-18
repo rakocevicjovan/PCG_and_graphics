@@ -6,7 +6,7 @@
 void ShaderGenerator::AddToKey(const VertSignature& vertSig, ShaderGenKey& key, VAttribSemantic semantic, const ShaderOption& shOpt)
 {
 	UINT elemCount = vertSig.countAttribute(semantic);
-	elemCount = min(elemCount, shOpt._maxVal);
+	elemCount = std::min(elemCount, static_cast<uint32_t>(shOpt._maxVal));
 	key |= (static_cast<ShaderGenKey>(elemCount) << shOpt._offset);
 }
 

@@ -1,25 +1,32 @@
 #pragma once
+
 #include "AssetLedger.h"
 #include "Material.h"
 #include "MaterialLoader.h"
 #include "TextureManager.h"
 #include "ShaderManager.h"
 #include "TCache.h"
+#include "IAssetManager.h"
+#include "AssetManagerLocator.h"
+#include "AeonLoader.h"
 
 
-class MaterialManager
+class MaterialManager : public IAssetManager
 {
 private:
 
 	AssetLedger* _assetLedger{};
-	ShaderManager* _shaderManager{};
-	TextureManager* _textureManager{};
+	AeonLoader* _aeonLoader{};
 	TCache<Material> _cache{};
-	
+
+	AssetManagerLocator* _assetManagerLocator{};
 
 public:
 
 	MaterialManager() = default;
+
+	MaterialManager(AssetLedger& ledger, AssetManagerLocator& locator, AeonLoader& aeonLoader)
+		: _assetLedger(&ledger), _assetManagerLocator(&locator), _aeonLoader(&aeonLoader) {}
 
 
 	MaterialManager(AssetLedger* assetLedger) : _assetLedger(assetLedger)
@@ -28,10 +35,8 @@ public:
 
 	Material* get(AssetID assetID)
 	{
-		// @TODO placeholder texture, perhaps? Also could be a handle, or consider a full blown proxy
 		Material* result{ nullptr };
 
-		// Check if loaded, otherwise load and cache it
 		result = _cache.get(assetID);
 
 		if (!result)
@@ -40,11 +45,13 @@ public:
 			{
 				MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
 
-				//result = _cache.store(assetID, material);
+				result = _cache.store(assetID, *MaterialLoader::LoadMaterialFromAsset(materialAsset, *_assetLedger));
+			}
+			else
+			{
+				assert(result && "Could not find a material with this ID in the asset ledger.");
 			}
 		}
-
-		assert(result && "Could not find a material with this ID.");
 
 		return result;
 	}
@@ -62,10 +69,11 @@ public:
 			materialTexture._metaData = texRef._texMetaData;
 			materialTexture._tex = LoadTextureFromAsset(texRef._textureAssetID, *_assetLedger);
 
+			_assetManagerLocator->get<TextureManager>()->get(texRef._textureAssetID);
 			material._materialTextures.emplace_back(std::move(materialTexture));
 		}
 
-		auto shaderPack = _shaderManager->getShaderByKey(1);
+		auto shaderPack = _assetManagerLocator->get<ShaderManager>()->getShaderByKey(1);
 
 		material.setVS(shaderPack->vs);
 		material.setPS(shaderPack->ps);

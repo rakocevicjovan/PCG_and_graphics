@@ -7,7 +7,7 @@
 #include "SkeletonImporter.h"
 #include "AnimationEditor.h"	// Not used yet, it's a todo in itself
 
-#include "ModelDepLoader.h"
+#include "ModelManager.h"
 #include "TCache.h"	// Trying this out
 #include "AssetManagerLocator.h"
 
@@ -242,6 +242,7 @@ bool AssImport::displayCommands()
 
 	if (ImGui::Button("Verify .aeon worked"))
 	{
+		/*
 		if (_skModelData)
 		{
 			_skModelData.model.reset();
@@ -264,6 +265,8 @@ bool AssImport::displayCommands()
 			_skModelInst = std::make_unique<SkeletalModelInstance>();
 			_skModelInst->init(_device, _skModelData.model.get());
 		}
+		*/
+
 	}
 
 	return !ImGui::Button("Close");

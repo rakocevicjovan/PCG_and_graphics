@@ -74,16 +74,16 @@ public:
 	void save()
 	{
 		std::ofstream ofs(_ledgerFilePath);
-		//cereal::JSONOutputArchive joArch(ofs);
-		//serialize(joArch);
+		cereal::JSONOutputArchive joArch(ofs);
+		serialize(joArch);
 	}
 
 
 	void load()
 	{
-		//std::ifstream ifs(_ledgerFilePath);
-		//cereal::JSONInputArchive jiArch(ifs);
-		//serialize(jiArch);
+		std::ifstream ifs(_ledgerFilePath);
+		cereal::JSONInputArchive jiArch(ifs);
+		serialize(jiArch);
 	}
 
 

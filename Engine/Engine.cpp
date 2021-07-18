@@ -4,6 +4,7 @@
 #include "GUI.h"
 
 #include "ShaderGenerator.h"
+#include "OmniAssetManager.h"
 
 
 Engine::Engine() :
@@ -52,8 +53,25 @@ bool Engine::initialize()
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "../Tower Defense/Ledger.json";
 	_assetLedger._ledgerFilePath = _project._ledgerPath;
-	//_assetLedger.load(); eventually do this per project
-	_assetLedger.purge();
+	_assetLedger.load(); //eventually do this per project
+	//_assetLedger.purge();
+
+	_assetManagerLocator.registerManagers(
+		&_modelManager,
+		&_materialManager,
+		&_textureManager,
+		&_shaderManager);
+
+	_aeonLoader.resizeThreadPool(8);
+
+	_shaderManager = ShaderManager(_assetLedger);
+	_textureManager = TextureManager(_assetLedger, _renderer.device());
+
+	_materialManager = MaterialManager(_assetLedger, _assetManagerLocator, _aeonLoader);
+
+	_modelManager = ModelManager(_assetLedger, _assetManagerLocator, _aeonLoader, _materialManager);
+
+	_modelManager.get(14860112417756073496); 	//material 4163540020502587002
 
 	_levelMan = new LevelManager(*this);
 

@@ -1099,7 +1099,7 @@
     <ClInclude Include="AeonLoader.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="ModelDepLoader.h">
+    <ClInclude Include="ModelManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="TCache.h">
@@ -1112,6 +1112,12 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="AssetManagerLocator.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="IAssetManager.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="OmniAssetManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>

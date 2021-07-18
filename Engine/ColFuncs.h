@@ -130,8 +130,8 @@ namespace Col
 		if (fDimHigh < lo) return false;
 		if (fDimLow > hi) return false;
 
-		lo = max(fDimLow, lo);
-		hi = max(fDimHigh, hi);
+		lo = std::max(fDimLow, lo);
+		hi = std::max(fDimHigh, hi);
 
 		return (lo < hi);
 	}

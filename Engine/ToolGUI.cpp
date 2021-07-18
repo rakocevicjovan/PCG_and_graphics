@@ -70,7 +70,7 @@ namespace Strife
 		GUI::endFrame();
 
 		//doesn't fix automatically so I do
-		csDef.heightMask.y = max(csDef.heightMask.x, csDef.heightMask.y);
+		csDef.heightMask.y = std::max(csDef.heightMask.x, csDef.heightMask.y);
 	}
 
 }
