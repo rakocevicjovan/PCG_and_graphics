@@ -32,7 +32,7 @@ namespace MaterialLoader
 
 	static std::unique_ptr<Material> LoadMaterialFromID(AssetID materialID, const AssetLedger& assetLedger)
 	{
-		auto path = assetLedger.get(materialID);
+		auto path = assetLedger.getPath(materialID);
 
 		MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
 

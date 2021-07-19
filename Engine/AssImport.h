@@ -18,12 +18,12 @@
 #include "Image.h"
 
 template <typename AssetType, typename ArchiveType = cereal::BinaryOutputArchive>
-AssetID persistBinary(AssetType& asset, const std::string& path, ResType resType, AssetLedger& assetLedger)
+AssetID persistBinary(AssetType& asset, AssetMetaData amd, AssetLedger& assetLedger)
 {
-	std::ofstream outputFileStream(path, std::ios::binary);
+	std::ofstream outputFileStream(amd.path, std::ios::binary);
 	ArchiveType binaryOutputArchive(outputFileStream);
 	asset.serialize(binaryOutputArchive);
-	AssetID result = assetLedger.insert(path.c_str(), resType);
+	AssetID result = assetLedger.insert(amd);
 	assetLedger.save();
 	return result;
 }

@@ -16,7 +16,6 @@ private:
 	TCache<Texture> _cache{};
 
 	ID3D11Device* _device{ nullptr };
-	
 
 public:
 
@@ -37,7 +36,7 @@ public:
 
 		if(!result)
 		{
-			if (const std::string* path = _assetLedger->get(textureID); path)
+			if (const std::string* path = _assetLedger->getPath(textureID); path)
 			{
 				result = _cache.store(textureID, Texture(_device, *path));
 			}

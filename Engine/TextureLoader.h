@@ -7,7 +7,7 @@ static std::shared_ptr<Texture> LoadTextureFromAsset(AssetID id, const AssetLedg
 {
 	std::shared_ptr<Texture> result = std::make_shared<Texture>();
 
-	auto path = assetLedger.get(id);
+	auto path = assetLedger.getPath(id);
 
 	result->loadFromFile(nullptr, path->c_str());
 

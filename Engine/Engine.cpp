@@ -71,7 +71,8 @@ bool Engine::initialize()
 
 	_modelManager = ModelManager(_assetLedger, _assetManagerLocator, _aeonLoader, _materialManager);
 
-	_modelManager.get(14860112417756073496); 	//material 4163540020502587002
+	//_modelManager.get(14860112417756073496); 	//material 4163540020502587002
+
 
 	_levelMan = new LevelManager(*this);
 

@@ -286,13 +286,17 @@ void AssImport::persistAssets()
 	if (_modelData)
 	{
 		auto modelAsset = makeModelAsset(*_modelData.model, matIDs);
-		importedID = persistBinary(*modelAsset, importPath, ResType::MODEL, *_pLedger);
+		importedID = persistBinary(*modelAsset, { importPath, matIDs, AssetType::MODEL }, *_pLedger);
 	}
 
 	if (_skModelData)
 	{
 		auto skModelAsset = makeSkModelAsset(*_skModelData.model, matIDs, animIDs, skeletonID);
-		importedID = persistBinary(*skModelAsset, importPath.c_str(), ResType::SK_MODEL, *_pLedger);
+
+		auto allDeps = matIDs;
+		allDeps.insert(allDeps.end(), matIDs.begin(), matIDs.end());
+		allDeps.push_back(skeletonID);
+		importedID = persistBinary(*skModelAsset, { importPath, allDeps, AssetType::SK_MODEL }, *_pLedger);
 	}
 }
 
@@ -301,7 +305,7 @@ AssetID AssImport::persistSkeleton()
 {
 	if (_skeleton.get())
 	{
-		return persistBinary(*_skeleton, std::string{ _destPath + _sceneName + "_skeleton" + ".aeon" }, ResType::SKELETON, *_pLedger);
+		return persistBinary(*_skeleton, { std::string{ _destPath + _sceneName + "_skeleton" + ".aeon" }, {}, AssetType::SKELETON }, *_pLedger);
 	}
 	return NULL_ASSET;
 }
@@ -315,7 +319,7 @@ std::vector<AssetID> AssImport::persistAnims()
 		const std::string animName = (_anims[i].getName().size() == 0 ? std::to_string(i) : _anims[i].getName()) + "_anim";
 		const std::string animPath{ _destPath + animName + ".aeon" };
 
-		AssetID animID = persistBinary(_anims[i], animPath, ResType::ANIMATION, *_pLedger);
+		AssetID animID = persistBinary(_anims[i], { animPath, {}, AssetType::ANIMATION }, *_pLedger);
 		animIDs.push_back(animID);
 	}
 	return animIDs;
@@ -343,7 +347,7 @@ std::map<std::string, AssetID> AssImport::persistUniqueTextures()
 AssetID AssImport::persistTexture(const std::string& path, const MatImporter::RawTextureData& rawTexData)
 {
 	FileUtils::writeAllBytes(path, rawTexData.blob.data(), rawTexData.blob.size());
-	AssetID textureID = _pLedger->insert(path.c_str(), ResType::TEXTURE);
+	AssetID textureID = _pLedger->insert({ path, {}, AssetType::TEXTURE });
 	return textureID;
 }
 
@@ -367,10 +371,14 @@ std::vector<AssetID> AssImport::persistMats()
 
 		matAsset._textures.reserve(matMetaData._tempTexData.size());
 
+		std::vector<AssetID> thisMatsTextureIDs;
+		thisMatsTextureIDs.reserve(10);
+
 		std::transform(matMetaData._tempTexData.begin(), matMetaData._tempTexData.end(), std::back_inserter(matAsset._textures),
 			[&](MatImporter::TexturePathAndMetadata& texPathAndMetaData)
 			{
 				AssetID textureID = textureIDs.at(texPathAndMetaData.path);
+				thisMatsTextureIDs.push_back(textureID);
 				return MaterialAsset::TextureRef{ texPathAndMetaData.metaData, textureID };
 			});
 
@@ -379,7 +387,7 @@ std::vector<AssetID> AssImport::persistMats()
 
 		// Serialize
 		std::string matPath{ _destPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
-		AssetID matID = persistBinary<MaterialAsset, cereal::JSONOutputArchive>(matAsset, matPath, ResType::MATERIAL, *_pLedger);
+		AssetID matID = persistBinary<MaterialAsset, cereal::JSONOutputArchive>(matAsset, { matPath, thisMatsTextureIDs, AssetType::MATERIAL }, *_pLedger);
 
 		matIDs.push_back(matID);
 	}

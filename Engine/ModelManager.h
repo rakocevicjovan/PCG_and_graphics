@@ -18,7 +18,6 @@ private:
 	AssetManagerLocator* _assetManagerLocator{};
 	MaterialManager* _materialManager{};
 
-
 	std::map<AssetID, std::future<SkModel>> _skModelFutures;
 
 public:
@@ -38,7 +37,7 @@ public:
 
 		if (!result)
 		{
-			auto filePath = _assetLedger->get(assetID);
+			auto filePath = _assetLedger->getPath(assetID);
 
 			if (!filePath)
 			{

@@ -3,19 +3,45 @@
 #include "Fnv1Hash.h"
 
 
+struct AssetMetaData
+{
+	std::string path;
+	std::vector<AssetID> dependencies;
+	AssetType type;
+
+	template<typename Archive>
+	void serialize(Archive& ar)
+	{
+		ar(path, dependencies, type);
+	}
+};
+
+
 class AssetLedger
 {
 private:
 	
 	bool _dirty{false};
 
-	std::unordered_map<AssetID, std::string> _assDefs;
+	std::unordered_map<AssetID, AssetMetaData> _assDefs;
 
 	// This will write it all out at once, something I don't like one bit (might use sqlite)
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
 		ar(_assDefs);
+	}
+
+	void getDepsRecursive(AssetID ID, std::vector<AssetID>& outDeps) const
+	{
+		auto& immediateDeps = get(ID)->dependencies;
+
+		std::copy(immediateDeps.begin(), immediateDeps.end(), std::back_inserter(outDeps));
+
+		for (auto& dep : immediateDeps)
+		{
+			getDepsRecursive(dep, outDeps);
+		}
 	}
 
 public:
@@ -38,14 +64,14 @@ public:
 	}
 
 
-	AssetID insert(const char* path, ResType /*resType*/)
+	AssetID insert(const AssetMetaData& amd)
 	{
-		AssetID pathHash = fnv1hash_64(path);
+		AssetID pathHash = fnv1hash_64(amd.path.c_str());
 
-		auto iter = _assDefs.insert({ pathHash, path});
+		auto iter = _assDefs.insert({ pathHash, amd });
 		if (!iter.second)
 		{
-			OutputDebugStringA(std::string("HASH COLLISION!" + std::string{ path, strlen(path) }).c_str());
+			OutputDebugStringA(std::string("HASH COLLISION!" + amd.path).c_str());
 			return NULL_ASSET;
 		}
 
@@ -54,11 +80,32 @@ public:
 	}
 
 
-	inline const std::string* get(AssetID ID) const
+	inline const AssetMetaData* get(AssetID ID) const
 	{
 		auto iter = _assDefs.find(ID);
 		
 		return iter == _assDefs.end() ? nullptr : &(iter->second);
+	}
+
+
+	inline const std::string* getPath(AssetID ID) const
+	{
+		return &(get(ID)->path);
+	}
+
+
+	const std::vector<AssetID>&& getAllDependencies(AssetID ID) const
+	{
+		static std::vector<AssetID> result;
+		result.clear();
+		result.reserve(10);
+
+		getDepsRecursive(ID, result);
+
+		std::sort(result.begin(), result.end());
+		result.erase(std::unique(result.begin(), result.end()), result.end());
+
+		return std::move(result);
 	}
 
 

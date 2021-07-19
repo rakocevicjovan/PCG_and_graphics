@@ -41,7 +41,7 @@ public:
 
 		if (!result)
 		{
-			if (const std::string* path = _assetLedger->get(assetID); path)
+			if (const std::string* path = _assetLedger->getPath(assetID); path)
 			{
 				MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
 

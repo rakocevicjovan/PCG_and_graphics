@@ -3,7 +3,7 @@
 #include "AeonLoader.h"
 
 
-
+// Not currently in use, disregard.
 void AeonLoader::requestAsset(AssetID assetID, const char* path)
 {
 	auto futureBlob = _threadPool.push(std::bind(

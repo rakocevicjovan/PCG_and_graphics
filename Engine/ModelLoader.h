@@ -62,13 +62,13 @@ namespace ModelLoader
 
 		// This will not work like this later, must check the cache first for skeleton and animations. Same for materials!
 		// It should be optional to check the cache (maybe pass cache as pointer not sure)
-		auto skeletonPath = assetLedger.get(skModelAsset.skeleton);
+		auto skeletonPath = assetLedger.getPath(skModelAsset.skeleton);
 		skModel._skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
 
 		skModel._anims.reserve(skModelAsset.animations.size());
 		for (auto animID : skModelAsset.animations)
 		{
-			auto animPath = assetLedger.get(animID);
+			auto animPath = assetLedger.getPath(animID);
 			skModel._anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
 		}
 

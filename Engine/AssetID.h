@@ -9,7 +9,7 @@ struct ResourceDef
 {
 	AssetID _id;
 	std::string _path;
-	ResType _type;
+	AssetType _type;
 
 	template<typename Archive>
 	void serialize(Archive& ar)
