@@ -37,13 +37,16 @@ public:
 
 		if (!result)
 		{
-			auto filePath = _assetLedger->getPath(assetID);
+			auto* AMD = _assetLedger->get(assetID);
+			auto* filePath = &AMD->path;
 
-			if (!filePath)
+			if (!AMD)
 			{
-				assert(false && "File path not found for given assetID.");
+				assert(false && "Asset not found for given assetID.");
 				return {};
 			}
+
+			auto allDeps = _assetLedger->getAllDependencies(assetID);
 
 			// Send out an asynchronous request
 			auto futureThing = _aeonLoader->request(filePath->c_str(),

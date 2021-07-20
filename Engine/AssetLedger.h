@@ -100,6 +100,7 @@ public:
 		result.clear();
 		result.reserve(10);
 
+		//result.push_back(ID); // Include self for convenience?
 		getDepsRecursive(ID, result);
 
 		std::sort(result.begin(), result.end());

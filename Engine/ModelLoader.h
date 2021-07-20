@@ -10,11 +10,11 @@
 
 namespace ModelLoader
 {
-	static Mesh LoadMesh(const MeshAsset& meshAsset, const AssetLedger& assetLedger);
+	static Mesh LoadMesh(MeshAsset& meshAsset, const AssetLedger& assetLedger);
 
 	namespace
 	{
-		static void LoadMeshes(std::vector<Mesh>& meshes, const ModelAsset modelAsset, const AssetLedger& assetLedger)
+		static void LoadMeshes(std::vector<Mesh>& meshes, ModelAsset& modelAsset, const AssetLedger& assetLedger)
 		{
 			meshes.resize(modelAsset.meshes.size());
 
@@ -26,7 +26,7 @@ namespace ModelLoader
 	}
 
 
-	static Mesh LoadMesh(const MeshAsset& meshAsset, const AssetLedger& assetLedger)
+	static Mesh LoadMesh(MeshAsset& meshAsset, const AssetLedger& assetLedger)
 	{
 		Mesh mesh;
 
@@ -40,7 +40,7 @@ namespace ModelLoader
 	}
 
 
-	static std::unique_ptr<Model> LoadModelFromAsset(const ModelAsset& modelAsset, const AssetLedger& assetLedger)
+	static std::unique_ptr<Model> LoadModelFromAsset(ModelAsset& modelAsset, const AssetLedger& assetLedger)
 	{
 		auto model = std::make_unique<Model>();
 		
@@ -52,7 +52,7 @@ namespace ModelLoader
 	}
 
 
-	static SkModel LoadSkModelFromAsset(const SkModelAsset& skModelAsset, const AssetLedger& assetLedger)
+	static SkModel LoadSkModelFromAsset(SkModelAsset& skModelAsset, const AssetLedger& assetLedger)
 	{
 		SkModel skModel;
 		

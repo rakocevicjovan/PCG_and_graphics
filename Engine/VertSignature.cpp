@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "VertSignature.h"
 
 void VertSignature::addAttribute(VAttrib attrib)
