@@ -1,8 +1,6 @@
 #pragma once
 #include "Engine.h"
 #include "GameObject.h"
-#include "Terrain.h"
-#include "Perlin.h"
 #include "Observer.h"
 
 // For lazy typers (read, me), easy access to engine subsystems and some data

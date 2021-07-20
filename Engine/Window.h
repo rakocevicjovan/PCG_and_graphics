@@ -2,18 +2,10 @@
 
 #ifndef WIN32_LEAN_AND_MEAN
 	#define WIN32_LEAN_AND_MEAN
-	#ifndef NOMINMAX
-	#define NOMINMAX
-	#endif
 #endif
 
 #include <windows.h>
-#include <cstdint>
-#include <memory>
-#include <cstdlib>
 #include <cstring>
-#include <cassert>
-#include <map>
 
 // Necessary for friend declaration
 template <typename WindowInputHandlerType>
