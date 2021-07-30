@@ -5,18 +5,7 @@
 
 // Not currently in use, disregard.
 void AeonLoader::requestAsset(AssetID assetID, const char* path)
-{
-	auto futureBlob = _threadPool.push(std::bind(
-		[&](const char* path)
-		{
-			return FileUtils::readAllBytes(path);
-		}, 
-		path));
-
-	_jobQueMutex.lock();
-	_futures.insert({assetID, std::move(futureBlob)});
-	_jobQueMutex.unlock();
-}
+{}
 
 
 void AeonLoader::update()

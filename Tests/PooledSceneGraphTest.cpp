@@ -1,6 +1,7 @@
 #pragma once
+
 #include "pch.h"
-#include "gtest/gtest.h"
+
 #include "../Engine/PooledSceneGraph.h"
 #include "../Engine/Math.h"
 

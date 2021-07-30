@@ -9,6 +9,7 @@ enum class AssetType : uint8_t
 	ANIMATION,
 	SKELETON,
 	MATERIAL,
+	SHADER,
 	TEXTURE,
 	SOUND,
 	TEXT,

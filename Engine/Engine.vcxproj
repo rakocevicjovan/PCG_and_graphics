@@ -75,9 +75,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(WindowsSDK_IncludePath);$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
-    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x64;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include;C:\VulkanSDK\1.2.182.0\Include;$(SolutionDir)vk-bootstrap\src</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x64;C:\VulkanSDK\1.2.182.0\Lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -427,6 +427,7 @@
     <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
+    <ClInclude Include="EnumToTypeMap.h" />
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="FileBrowser.h" />
     <ClInclude Include="Fnv1Hash.h" />
@@ -438,6 +439,7 @@
     <ClInclude Include="IAssetManager.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="OmniAssetManager.h" />
@@ -473,7 +475,7 @@
     <ClInclude Include="ReservedBuffers.h" />
     <ClInclude Include="AssetID.h" />
     <ClInclude Include="AssetLedger.h" />
-    <ClInclude Include="ResourceType.h" />
+    <ClInclude Include="AssetType.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="MemChunk.h" />
@@ -707,12 +709,15 @@
     </ClInclude>
     <ClInclude Include="Tower.h" />
     <ClInclude Include="TreeHelper.h" />
+    <ClInclude Include="TypeID.h" />
     <ClInclude Include="UIGraph.h" />
     <ClInclude Include="VBuffer.h" />
     <ClInclude Include="VertSignature.h" />
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="VirtualTexture.h" />
     <ClInclude Include="VitThreadPool.h" />
+    <ClInclude Include="VkInit.h" />
+    <ClInclude Include="VkTypes.h" />
     <ClInclude Include="Volumetric.h" />
     <ClInclude Include="VolumetricScreen.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

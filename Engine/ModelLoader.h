@@ -62,6 +62,7 @@ namespace ModelLoader
 
 		// This will not work like this later, must check the cache first for skeleton and animations. Same for materials!
 		// It should be optional to check the cache (maybe pass cache as pointer not sure)
+
 		auto skeletonPath = assetLedger.getPath(skModelAsset.skeleton);
 		skModel._skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
 

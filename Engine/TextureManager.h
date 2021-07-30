@@ -13,11 +13,12 @@ private:
 
 	AssetLedger* _assetLedger{ nullptr };
 	AeonLoader* _aeonLoader{};
-	TCache<Texture> _cache{};
 
 	ID3D11Device* _device{ nullptr };
 
 public:
+
+	TCache<Texture> _cache{};
 
 	TextureManager() = default;
 

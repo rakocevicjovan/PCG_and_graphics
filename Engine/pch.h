@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <string>
 #include <map>
+#include <type_traits>
 
 
 // Cereal includes - this is abundant throughout the codebase

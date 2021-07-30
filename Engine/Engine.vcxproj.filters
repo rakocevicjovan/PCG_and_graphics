@@ -165,6 +165,9 @@
     <Filter Include="Assets\Asset classes">
       <UniqueIdentifier>{c3b08aa0-a67f-4fa1-84be-037289c89eac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TMP">
+      <UniqueIdentifier>{e1d174bf-05e8-4ff9-aab4-e9e16cde4eff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -1051,7 +1054,7 @@
     <ClInclude Include="ImportTool.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceType.h">
+    <ClInclude Include="AssetType.h">
       <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
@@ -1119,6 +1122,21 @@
     </ClInclude>
     <ClInclude Include="OmniAssetManager.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceLocator.h">
+      <Filter>TMP</Filter>
+    </ClInclude>
+    <ClInclude Include="VkInit.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VkTypes.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumToTypeMap.h">
+      <Filter>TMP</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeID.h">
+      <Filter>TMP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

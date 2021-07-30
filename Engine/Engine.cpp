@@ -6,6 +6,8 @@
 #include "ShaderGenerator.h"
 #include "OmniAssetManager.h"
 
+#include "AssetManagerLocator.h"
+
 
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
@@ -56,12 +58,6 @@ bool Engine::initialize()
 	_assetLedger.load(); //eventually do this per project
 	//_assetLedger.purge();
 
-	_assetManagerLocator.registerManagers(
-		&_modelManager,
-		&_materialManager,
-		&_textureManager,
-		&_shaderManager);
-
 	_aeonLoader.resizeThreadPool(8);
 
 	_shaderManager = ShaderManager(_assetLedger);
@@ -71,8 +67,22 @@ bool Engine::initialize()
 
 	_modelManager = ModelManager(_assetLedger, _assetManagerLocator, _aeonLoader, _materialManager);
 
-	//_modelManager.get(14860112417756073496); 	//material 4163540020502587002
+	_modelManager.get(14860112417756073496); 	//material 4163540020502587002
 
+	
+	// Another option is this. Wrap them all into one class. Probably a lot cleaner as well!
+	OmniAssetManager OAM(
+		_aeonLoader,
+		_assetLedger, 
+		_assetManagerLocator);
+
+	/*std::move(_shaderManager),
+		std::move(_textureManager),
+		std::move(_materialManager),
+		std::move(_modelManager)
+	*/
+
+	OAM.request(14860112417756073496);
 
 	_levelMan = new LevelManager(*this);
 

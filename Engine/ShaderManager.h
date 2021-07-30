@@ -57,13 +57,14 @@ private:
 
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
-	TCache<Shader> _cache{};
 
 	ID3D11Device* _pDevice{};
 
 	std::map<ShaderGenKey, ShaderPack> _existingShaders;
 
 public:
+
+	TCache<Shader> _cache{};
 
 	ShaderManager() = default;
 

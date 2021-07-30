@@ -1,51 +1,51 @@
 #pragma once
 
 #include "IAssetManager.h"
+#include "AssetType.h"
 
 
 class AssetManagerLocator
 {
 private:
 
-	std::vector<IAssetManager*> _managers;
-
-	template <typename ManagerType, typename... Specifier>
-	inline static uint32_t manager_index{ ~0u };
-
-	inline static uint32_t num_managers{0u};
-
-	template <typename ManagerType>
-	void registerManager(ManagerType manager)
-	{
-		_managers.push_back(manager);
-		manager_index<ManagerType> = num_managers++;
-	}
+	std::unordered_map<AssetType, IAssetManager*> _assetManagerMap;
 
 public:
 
-	// Intended to be called once. Can be called multiple times, however all managers have to be re-registered every time.
-	template <typename... ManagerTypes>
-	void registerManagers(ManagerTypes*... managers)
+	bool registerManagerForType(AssetType type, IAssetManager* assetManager)
 	{
-		num_managers = 0u;
-		_managers.clear();
+		auto it = _assetManagerMap.find(type);
 
-		_managers.reserve(sizeof...(ManagerTypes));
-		(registerManager(managers), ...);
+		if (it == _assetManagerMap.end())
+		{
+			_assetManagerMap.insert({ type, assetManager });
+			return true;
+		}
+		else
+		{
+			if (assetManager == it->second)
+			{
+				return false;	// Already registered
+			}
+			else
+			{
+				assert(false && "Attempting to overwrite asset manager for asset. This is not allowed. Because I said so.");
+			}
+		}
 	}
 
-	template <typename... ManagerTypes>
-	void appendManagers(ManagerTypes*... managers)
+	template <typename T>
+	T* get(AssetType assetType)
 	{
-		_managers.reserve(_managers.size() + sizeof...(ManagerTypes));
-		(registerManager(managers), ...);
+		auto it = _assetManagerMap.find(assetType);
+
+		if (it == _assetManagerMap.end())
+		{
+			assert(false && "Asset manager for requested asset type was not found.");
+			return nullptr;
+		}
+
+		return static_cast<T*>(it->second);
 	}
 
-	template <typename ManagerType>
-	ManagerType* get()
-	{
-		const auto& index = manager_index<ManagerType>;
-		assert(index < num_managers, "Attempted to access undeclared asset manager through the locator.");
-		return reinterpret_cast<ManagerType*>(_managers[index]);
-	}
 };

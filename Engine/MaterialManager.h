@@ -17,11 +17,12 @@ private:
 
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
-	TCache<Material> _cache{};
 
 	AssetManagerLocator* _assetManagerLocator{};
 
 public:
+
+	TCache<Material> _cache{};
 
 	MaterialManager() = default;
 
@@ -69,11 +70,11 @@ public:
 			materialTexture._metaData = texRef._texMetaData;
 			materialTexture._tex = LoadTextureFromAsset(texRef._textureAssetID, *_assetLedger);
 
-			_assetManagerLocator->get<TextureManager>()->get(texRef._textureAssetID);
+			_assetManagerLocator->get<TextureManager>(AssetType::TEXTURE)->get(texRef._textureAssetID);
 			material._materialTextures.emplace_back(std::move(materialTexture));
 		}
 
-		auto shaderPack = _assetManagerLocator->get<ShaderManager>()->getShaderByKey(1);
+		auto shaderPack = _assetManagerLocator->get<ShaderManager>(AssetType::SHADER)->getShaderByKey(1);
 
 		material.setVS(shaderPack->vs);
 		material.setPS(shaderPack->ps);

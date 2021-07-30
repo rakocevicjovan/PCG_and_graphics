@@ -13,7 +13,6 @@ private:
 
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
-	TCache<SkModel> _cache{};
 
 	AssetManagerLocator* _assetManagerLocator{};
 	MaterialManager* _materialManager{};
@@ -21,6 +20,8 @@ private:
 	std::map<AssetID, std::future<SkModel>> _skModelFutures;
 
 public:
+
+	TCache<SkModel> _cache{};
 
 	ModelManager() = default;
 
@@ -46,18 +47,19 @@ public:
 				return {};
 			}
 
-			auto allDeps = _assetLedger->getAllDependencies(assetID);
+			// This should be ok as well
+			//auto allDeps = _assetLedger->getAllDependencies(assetID);
 
 			// Send out an asynchronous request
-			auto futureThing = _aeonLoader->request(filePath->c_str(),
-				[this](const char* path) -> SkModel
+			auto futureAsset = _aeonLoader->request(filePath->c_str(),
+				[this](const char* path)
 				{
 					auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path);
 					auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), *_assetLedger);
 					return skModel;
 				});
 
-			_skModelFutures.insert({ assetID, std::move(futureThing) });
+			_skModelFutures.insert({ assetID, std::move(futureAsset) });
 
 			//result = _cache.store(assetID, 
 		}

@@ -1,14 +1,13 @@
 #include "pch.h"
+
 #include "ShaderCompiler.h"
 #include "Logger.h"
-
 
 
 void ShaderCompiler::ShaderCompiler::init(ID3D11Device* device)
 {
 	_device = device;
 }
-
 
 
 bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D3D11_INPUT_ELEMENT_DESC>& inLay, 
@@ -34,7 +33,6 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 }
 
 
-
 bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*& pixelShader, ShRef::SRShaderMetadata* shMetaData) const
 {
 	ID3DBlob* shaderBuffer = compileToBlob(filePath, "ps_5_0");
@@ -50,7 +48,6 @@ bool ShaderCompiler::compilePS(const std::wstring& filePath, ID3D11PixelShader*&
 }
 
 
-
 bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShader*& geometryShader) const
 {
 	ID3DBlob* shaderBuffer = compileToBlob(filePath, "gs_5_0");
@@ -58,7 +55,6 @@ bool ShaderCompiler::compileGS(const std::wstring& filePath, ID3D11GeometryShade
 	shaderBuffer->Release();
 	return geometryShader;
 }
-
 
 
 ID3D11VertexShader* ShaderCompiler::blobToVS(ID3DBlob* shaderBlob) const
@@ -73,7 +69,6 @@ ID3D11VertexShader* ShaderCompiler::blobToVS(ID3DBlob* shaderBlob) const
 }
 
 
-
 ID3D11PixelShader* ShaderCompiler::blobToPS(ID3DBlob* shaderBlob) const
 {
 	ID3D11PixelShader* result;
@@ -84,7 +79,6 @@ ID3D11PixelShader* ShaderCompiler::blobToPS(ID3DBlob* shaderBlob) const
 	}
 	return result;
 }
-
 
 
 ID3D11GeometryShader* ShaderCompiler::blobToGS(ID3DBlob* shaderBlob) const
@@ -116,12 +110,10 @@ ID3DBlob* ShaderCompiler::compileToBlob(const std::wstring& filePath, const char
 }
 
 
-
 inline void ShaderCompiler::PersistBlob(const std::wstring & filePath, ID3DBlob * blob)
 {
 	D3DWriteBlobToFile(blob, filePath.c_str(), true);
 }
-
 
 
 ID3DBlob* ShaderCompiler::loadBlobFromFile(const std::wstring& filePath) const
@@ -130,7 +122,6 @@ ID3DBlob* ShaderCompiler::loadBlobFromFile(const std::wstring& filePath) const
 	D3DReadFileToBlob(filePath.c_str(), &shaderBlob);
 	return shaderBlob;
 }
-
 
 
 bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& shMetaData)
@@ -207,7 +198,6 @@ bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& sh
 		}
 	}
 }
-
 
 
 void ShaderCompiler::outputError(ID3DBlob* errBlob, WCHAR shaderFilename, const std::wstring& filePath) const

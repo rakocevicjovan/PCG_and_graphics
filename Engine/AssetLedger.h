@@ -32,15 +32,25 @@ private:
 		ar(_assDefs);
 	}
 
-	void getDepsRecursive(AssetID ID, std::vector<AssetID>& outDeps) const
+	void getDepsRecursive(const AssetMetaData* amd, std::vector<const AssetMetaData*>& outDeps) const
 	{
-		auto& immediateDeps = get(ID)->dependencies;
+		auto& immediateDepIDs = amd->dependencies;
 
-		std::copy(immediateDeps.begin(), immediateDeps.end(), std::back_inserter(outDeps));
+		// If we only wanted asset IDs
+		//std::copy(immediateDepIDs.begin(), immediateDepIDs.end(), std::back_inserter(outDeps));
 
-		for (auto& dep : immediateDeps)
+		auto first = outDeps.size();
+		auto last = first + immediateDepIDs.size();
+
+		std::transform(immediateDepIDs.begin(), immediateDepIDs.end(), std::back_inserter(outDeps),
+			[this](AssetID curDepID)
+			{
+				return get(curDepID);
+			});
+
+		for (auto i = first; i < last; ++i)
 		{
-			getDepsRecursive(dep, outDeps);
+			getDepsRecursive(outDeps[i], outDeps);
 		}
 	}
 
@@ -94,15 +104,15 @@ public:
 	}
 
 
-	const std::vector<AssetID>&& getAllDependencies(AssetID ID) const
+	std::vector<const AssetMetaData*> getAllDependencies(AssetID ID, uint32_t numDepsHint = 10u) const
 	{
-		static std::vector<AssetID> result;
-		result.clear();
-		result.reserve(10);
+		std::vector<const AssetMetaData*> result;
+		result.reserve(numDepsHint);
 
 		//result.push_back(ID); // Include self for convenience?
-		getDepsRecursive(ID, result);
+		getDepsRecursive(get(ID), result);
 
+		// Questionable if this should be done here
 		std::sort(result.begin(), result.end());
 		result.erase(std::unique(result.begin(), result.end()), result.end());
 

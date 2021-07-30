@@ -1,5 +1,5 @@
 #pragma once
-#include "ResourceType.h"
+#include "AssetType.h"
 
 using AssetID = uint64_t;
 
