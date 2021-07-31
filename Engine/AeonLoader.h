@@ -28,10 +28,19 @@ class AeonLoader
 	std::unordered_map<AssetID, std::future<Blob>> _futures;
 	//std::unordered_map<AssetID, LoadingJob> _loadingJobs;
 
+	template <typename Fn, typename... Args>
+	constexpr auto makeTaskForFn(const Fn& fn, Args... args)
+	{
+		return
+			[&](int threadNum)
+		{
+			return fn(args...);
+		};
+	}
+
 public:
 
-	AeonLoader() : _threadPool(4u){}
-	AeonLoader(uint32_t maxThreadCount) : _threadPool(maxThreadCount) {}
+	AeonLoader(uint32_t maxThreadCount = 4u) : _threadPool(maxThreadCount) {}
 
 	void resizeThreadPool(uint32_t maxThreadCount)
 	{
@@ -53,5 +62,14 @@ public:
 						path)
 				)
 			);
+	}
+
+	
+	template <typename Task, typename... TaskArgs>
+	auto pushTask(const Task& task, TaskArgs... args)
+	{
+		auto threadTask = makeTaskForFn(task, std::forward<TaskArgs>(args)...);
+		auto result = _threadPool.push(threadTask);
+		return result;
 	}
 };

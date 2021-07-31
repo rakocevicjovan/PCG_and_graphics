@@ -61,7 +61,7 @@ bool Engine::initialize()
 	_aeonLoader.resizeThreadPool(8);
 
 	_shaderManager = ShaderManager(_assetLedger);
-	_textureManager = TextureManager(_assetLedger, _renderer.device());
+	_textureManager = TextureManager(_assetLedger, _aeonLoader, _renderer.device());
 
 	_materialManager = MaterialManager(_assetLedger, _shaderManager, _textureManager, _aeonLoader);
 
@@ -81,17 +81,17 @@ bool Engine::initialize()
 	//	wat->path.c_str()));
 	//future.wait();
 
-	/*auto test1 = _modelManager.get(9916003768089073041);
-	auto test2 = _modelManager.get(9916003768089073041);*/
+	auto test1 = _modelManager.get(9916003768089073041);
+	//auto test2 = _modelManager.get(9916003768089073041);
 
 
 	// Another option is this. Wrap them all into one class.
-	OmniAssetManager OAM(
-		_aeonLoader,
-		_assetLedger, 
-		_assetManagerLocator);
+	//OmniAssetManager OAM(
+	//	_aeonLoader,
+	//	_assetLedger, 
+	//	_assetManagerLocator);
 
-	OAM.request<SkModel>(9916003768089073041);
+	//OAM.request<SkModel>(9916003768089073041);
 
 	_levelMan = new LevelManager(*this);
 

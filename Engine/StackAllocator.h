@@ -10,7 +10,7 @@ class StackAllocator
 private:
 
 	byte* _stackPtr;
-	size_t _stackSize;
+	uint32_t _stackSize;
 
 	uint32_t _head;
 
@@ -30,7 +30,7 @@ public:
 
 
 
-	inline void init(size_t size)
+	inline void init(uint32_t size)
 	{
 		_stackSize = size;
 		_stackPtr = new byte[_stackSize];
@@ -39,7 +39,7 @@ public:
 
 
 
-	inline byte* alloc(size_t size)
+	inline byte* alloc(uint32_t size)
 	{
 		byte* address = getHeadPtr();	// Return the pointer to the current head offset
 		_head += size;					// Increment the head offset

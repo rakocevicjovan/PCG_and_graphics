@@ -83,13 +83,13 @@ void AssimpWrapper::ImportAnimations(const aiScene* scene, std::vector<Animation
 			AnimChannel ac(channel->mNumPositionKeys, channel->mNumRotationKeys, channel->mNumScalingKeys);
 			ac._boneName = std::string(channel->mNodeName.C_Str());
 
-			for (int c = 0; c < channel->mNumScalingKeys; c++)
+			for (uint32_t c = 0; c < channel->mNumScalingKeys; c++)
 				ac._sKeys.emplace_back(SVec3(&channel->mScalingKeys[c].mValue.x), channel->mScalingKeys[c].mTime);	
 
-			for (int a = 0; a < channel->mNumPositionKeys; a++)
+			for (uint32_t a = 0; a < channel->mNumPositionKeys; a++)
 				ac._pKeys.emplace_back(SVec3(&channel->mPositionKeys[a].mValue.x), channel->mPositionKeys[a].mTime);
 
-			for (int b = 0; b < channel->mNumRotationKeys; b++)
+			for (uint32_t b = 0; b < channel->mNumRotationKeys; b++)
 			{
 				SQuat quat = aiQuatToSQuat(channel->mRotationKeys[b].mValue);
 				if (quat.w < 0.f)

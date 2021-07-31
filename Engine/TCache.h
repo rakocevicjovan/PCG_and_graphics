@@ -6,11 +6,11 @@ class TCache
 {
 private:
 
-	using AssetHandle = std::shared_ptr<AssetType>;
-
 	std::unordered_map<AssetID, AssetHandle> _cache;
 
 public:
+
+	using AssetHandle = std::shared_ptr<AssetType>;
 
 	bool exists(AssetID assetID)
 	{
@@ -51,5 +51,15 @@ public:
 		{
 			_cache.erase(iter);
 		}
+	}
+
+
+	void overwrite(AssetID assetID, AssetType& type)
+	{
+		auto iter = _cache.find(assetID);
+
+		assert(iter != _cache.end() && "Asset your are trying to overwrite was not found");
+
+		iter->second = type;
 	}
 };

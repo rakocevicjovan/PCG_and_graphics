@@ -44,9 +44,8 @@ public:
 			if (const std::string* path = _assetLedger->getPath(assetID); path)
 			{
 				MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
-
-				result = _cache.store(assetID, Material(nullptr, nullptr, true));
-				//result = _cache.store(assetID, *MaterialLoader::LoadMaterialFromAsset(materialAsset, _shaderManager, _textureManager));
+				auto material = MaterialLoader::LoadMaterialFromAsset(materialAsset, _shaderManager, _textureManager);
+				result = _cache.store(assetID, material);
 			}
 			else
 			{

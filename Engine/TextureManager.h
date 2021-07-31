@@ -10,6 +10,8 @@
 class TextureManager : public IAssetManager
 {
 private:
+	using AssetHandle = TCache<Texture>::AssetHandle;
+	TCache<Texture> _cache{};
 
 	AssetLedger* _assetLedger{ nullptr };
 	AeonLoader* _aeonLoader{};
@@ -18,19 +20,27 @@ private:
 
 public:
 
-	TCache<Texture> _cache{};
-
 	TextureManager() = default;
 
 	/*, AssetManagerLocator& locator*/
-	TextureManager(AssetLedger& assetLedger, ID3D11Device* device) : _assetLedger(&assetLedger), _device(device)
-	{}
+	TextureManager(AssetLedger& assetLedger, AeonLoader& aeonLoader, ID3D11Device* device) 
+		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader), _device(device) {}
 
 
-	std::shared_ptr<Texture> get(AssetID textureID)
+	std::future<AssetHandle> get_async(AssetID textureID)
+	{
+		return _aeonLoader->pushTask(
+			[this](AssetID assetID)
+			{
+				return get(assetID);
+			}, textureID);
+	}
+
+
+	AssetHandle get(AssetID textureID)
 	{
 		// @TODO placeholder texture, perhaps? Also could be a handle, or consider a full blown proxy
-		std::shared_ptr<Texture> result{ nullptr };
+		AssetHandle result{ nullptr };
 
 		// Check if loaded, otherwise load and cache it
 		result = _cache.get(textureID);
