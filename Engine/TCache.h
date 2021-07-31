@@ -6,13 +6,9 @@ class TCache
 {
 private:
 
-	std::unordered_map<AssetID, AssetType> _cache;
+	using AssetHandle = std::shared_ptr<AssetType>;
 
-
-	inline auto getIterator(AssetID assetID)
-	{
-		return _cache.find(assetID);
-	}
+	std::unordered_map<AssetID, AssetHandle> _cache;
 
 public:
 
@@ -22,34 +18,27 @@ public:
 	}
 
 
-	AssetType* store(AssetID assetID, const AssetType& assetType)
+	AssetHandle store(AssetID assetID, AssetType& assetType)
 	{
-		auto [iter, success] = _cache.try_emplace(assetID, assetType);
+		auto [iter, success] = _cache.try_emplace(assetID, std::make_shared<AssetType>(std::move(assetType)));
 		assert(success && "An asset with this ID already exists in the cache.");
-		return &iter->second;
+		return iter->second;
 	}
 
 
-	AssetType* store_or_get(AssetID assetID, const AssetType& assetType)
+	AssetHandle store_or_get(AssetID assetID, AssetType& assetType)
 	{
-		auto [iter, success] = _cache.try_emplace(assetID, assetType);
-		return &(iter->second);
+		auto [iter, success] = _cache.try_emplace(assetID, std::make_shared<AssetType>(std::move(assetType)));
+		return iter->second;
 	}
 
 
-	bool try_store(AssetID assetID, const AssetType& assetType)
+	AssetHandle get(AssetID assetID)
 	{
-		auto [iter, success] = _cache.try_emplace(assetID, assetType);
-		return success;
-	}
-
-
-	AssetType* get(AssetID assetID)
-	{
-		auto iter = getIterator(assetID);
+		auto iter = _cache.find(assetID);
 		if (iter != _cache.end())
 		{
-			return &iter->second;
+			return iter->second;
 		}
 		return nullptr;
 	}
@@ -57,7 +46,7 @@ public:
 
 	bool erase(AssetID assetID)
 	{
-		auto iter = getIterator(assetID);
+		auto iter = _cache.find(assetID);
 		if (iter != _cache.end())
 		{
 			_cache.erase(iter);

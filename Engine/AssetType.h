@@ -2,7 +2,7 @@
 #include <map>
 #include <string>
 
-enum class AssetType : uint8_t
+enum class EAssetType : uint8_t
 {
 	MODEL = 0u,
 	SK_MODEL,
@@ -17,22 +17,22 @@ enum class AssetType : uint8_t
 	UNSUPPORTED
 };
 
-inline static const std::map<std::string, AssetType> RES_TYPE_MAP
+inline static const std::map<std::string, EAssetType> RES_TYPE_MAP
 {
-	{ "model",		AssetType::MODEL		},
-	{ "texture",	AssetType::TEXTURE	},
-	{ "material",	AssetType::MATERIAL	},
-	{ "skeleton",	AssetType::SKELETON	},
-	{ "animation",	AssetType::ANIMATION	},
-	{ "sound",		AssetType::SOUND		}
+	{ "model",		EAssetType::MODEL		},
+	{ "texture",	EAssetType::TEXTURE	},
+	{ "material",	EAssetType::MATERIAL	},
+	{ "skeleton",	EAssetType::SKELETON	},
+	{ "animation",	EAssetType::ANIMATION	},
+	{ "sound",		EAssetType::SOUND		}
 };
 
-inline static AssetType ResTypeFromString(const std::string& str)
+inline static EAssetType ResTypeFromString(const std::string& str)
 {
 	auto it = RES_TYPE_MAP.find(str);
 
 	if (it == RES_TYPE_MAP.end())
-		return AssetType::UNSUPPORTED;
+		return EAssetType::UNSUPPORTED;
 
 	return it->second;
 }

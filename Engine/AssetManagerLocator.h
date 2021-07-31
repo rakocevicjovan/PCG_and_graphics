@@ -8,11 +8,11 @@ class AssetManagerLocator
 {
 private:
 
-	std::unordered_map<AssetType, IAssetManager*> _assetManagerMap;
+	std::unordered_map<EAssetType, IAssetManager*> _assetManagerMap;
 
 public:
 
-	bool registerManagerForType(AssetType type, IAssetManager* assetManager)
+	bool registerManagerForType(EAssetType type, IAssetManager* assetManager)
 	{
 		auto it = _assetManagerMap.find(type);
 
@@ -34,8 +34,8 @@ public:
 		}
 	}
 
-	template <typename T>
-	T* get(AssetType assetType)
+
+	IAssetManager* get(EAssetType assetType)
 	{
 		auto it = _assetManagerMap.find(assetType);
 
@@ -45,7 +45,7 @@ public:
 			return nullptr;
 		}
 
-		return static_cast<T*>(it->second);
+		return it->second;
 	}
 
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetType.h"
 
+// This is not used now. See AssetLedger.h for AssetMetaData struct
 using AssetID = uint64_t;
 
 static constexpr AssetID NULL_ASSET = (~static_cast <AssetID>(0)); // Can collide though...
@@ -9,7 +10,7 @@ struct ResourceDef
 {
 	AssetID _id;
 	std::string _path;
-	AssetType _type;
+	EAssetType _type;
 
 	template<typename Archive>
 	void serialize(Archive& ar)

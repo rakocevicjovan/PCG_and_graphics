@@ -38,23 +38,20 @@ public:
 		_threadPool.resize(std::min(maxThreadCount, std::thread::hardware_concurrency()));
 	}
 
-	void requestAsset(AssetID assetID, const char* path);
-	void update();
-	LoadingStatus queryLoadingStatus(AssetID assetID);
-	Blob claimLoadedAsset(AssetID assetID);
-
 
 	template <typename OnLoadedCallback>
 	auto request(const char* path, const OnLoadedCallback& callback)
 	{
 		return
 			std::move(
-				_threadPool.push(std::bind(
-					[&callback](const char* path)
-					{
-						return callback(path);
-					},
-					path))
+				_threadPool.push(
+					std::bind(
+						[&callback](const char* path)
+						{
+							return callback(path);
+						},
+						path)
+				)
 			);
 	}
 };

@@ -1138,6 +1138,9 @@
     <ClInclude Include="TypeID.h">
       <Filter>TMP</Filter>
     </ClInclude>
+    <ClInclude Include="ViewStreamBuffer.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

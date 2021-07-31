@@ -17,7 +17,7 @@ Engine::Engine() :
 
 
 bool Engine::initialize()
-{	
+{
 	_engineWindow.createWindow("Aeolian engine", this, _windowWidth, _windowHeight,
 		Window<Engine>::CreationFlags::SHOW_WINDOW |
 		Window<Engine>::CreationFlags::START_FOCUSED |
@@ -48,7 +48,7 @@ bool Engine::initialize()
 
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_project.loadFromConfig("../Tower Defense/Tower defense.json");
-	
+
 	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
 		assert(false && "Failed to load level list.");
 
@@ -63,26 +63,35 @@ bool Engine::initialize()
 	_shaderManager = ShaderManager(_assetLedger);
 	_textureManager = TextureManager(_assetLedger, _renderer.device());
 
-	_materialManager = MaterialManager(_assetLedger, _assetManagerLocator, _aeonLoader);
+	_materialManager = MaterialManager(_assetLedger, _shaderManager, _textureManager, _aeonLoader);
 
-	_modelManager = ModelManager(_assetLedger, _assetManagerLocator, _aeonLoader, _materialManager);
+	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
 
-	_modelManager.get(14860112417756073496); 	//material 4163540020502587002
+	_assetManagerLocator.registerManagerForType(EAssetType::SK_MODEL, &_modelManager);
+	_assetManagerLocator.registerManagerForType(EAssetType::MATERIAL, &_materialManager);
+	_assetManagerLocator.registerManagerForType(EAssetType::TEXTURE, &_textureManager);
+	_assetManagerLocator.registerManagerForType(EAssetType::SHADER, &_shaderManager);
 
-	
-	// Another option is this. Wrap them all into one class. Probably a lot cleaner as well!
+	//auto * wat = _assetLedger.get(9916003768089073041);
+	//auto future = _threadPool.push(std::bind(
+	//	[this](const char* path)
+	//	{
+	//		auto test1 = _modelManager.get(9916003768089073041);
+	//	},
+	//	wat->path.c_str()));
+	//future.wait();
+
+	/*auto test1 = _modelManager.get(9916003768089073041);
+	auto test2 = _modelManager.get(9916003768089073041);*/
+
+
+	// Another option is this. Wrap them all into one class.
 	OmniAssetManager OAM(
 		_aeonLoader,
 		_assetLedger, 
 		_assetManagerLocator);
 
-	/*std::move(_shaderManager),
-		std::move(_textureManager),
-		std::move(_materialManager),
-		std::move(_modelManager)
-	*/
-
-	OAM.request(14860112417756073496);
+	OAM.request<SkModel>(9916003768089073041);
 
 	_levelMan = new LevelManager(*this);
 

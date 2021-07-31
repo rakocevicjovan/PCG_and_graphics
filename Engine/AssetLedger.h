@@ -7,7 +7,7 @@ struct AssetMetaData
 {
 	std::string path;
 	std::vector<AssetID> dependencies;
-	AssetType type;
+	EAssetType type;
 
 	template<typename Archive>
 	void serialize(Archive& ar)
@@ -19,7 +19,7 @@ struct AssetMetaData
 
 class AssetLedger
 {
-private:
+public:
 	
 	bool _dirty{false};
 
@@ -116,7 +116,7 @@ public:
 		std::sort(result.begin(), result.end());
 		result.erase(std::unique(result.begin(), result.end()), result.end());
 
-		return std::move(result);
+		return result;
 	}
 
 

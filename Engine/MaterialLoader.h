@@ -9,7 +9,7 @@
 
 namespace MaterialLoader
 {
-	static std::unique_ptr<Material> LoadMaterialFromAsset(const MaterialAsset& materialAsset, const AssetLedger& assetLedger)
+	static std::unique_ptr<Material> LoadMaterialFromAsset(const MaterialAsset& materialAsset, ShaderManager* shaderManager, TextureManager* textureManager)
 	{
 		auto material = std::make_unique<Material>();
 
@@ -19,7 +19,7 @@ namespace MaterialLoader
 		{
 			MaterialTexture materialTexture;
 			materialTexture._metaData = texRef._texMetaData;
-			materialTexture._tex = LoadTextureFromAsset(texRef._textureAssetID, assetLedger);
+			materialTexture._tex = textureManager->get(texRef._textureAssetID);
 
 			material->_materialTextures.emplace_back(std::move(materialTexture));
 		}
@@ -27,15 +27,5 @@ namespace MaterialLoader
 		material->_opaque = materialAsset._opaque;
 
 		return material;
-	}
-
-
-	static std::unique_ptr<Material> LoadMaterialFromID(AssetID materialID, const AssetLedger& assetLedger)
-	{
-		auto path = assetLedger.getPath(materialID);
-
-		MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
-
-		return LoadMaterialFromAsset(materialAsset, assetLedger);
 	}
 }

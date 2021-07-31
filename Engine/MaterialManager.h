@@ -6,8 +6,9 @@
 #include "TextureManager.h"
 #include "ShaderManager.h"
 #include "TCache.h"
-#include "IAssetManager.h"
-#include "AssetManagerLocator.h"
+
+//#include "IAssetManager.h"
+//#include "AssetManagerLocator.h"
 #include "AeonLoader.h"
 
 
@@ -18,7 +19,9 @@ private:
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
-	AssetManagerLocator* _assetManagerLocator{};
+	//AssetManagerLocator* _assetManagerLocator{};		// , _assetManagerLocator(&locator)
+	ShaderManager* _shaderManager;
+	TextureManager* _textureManager;
 
 public:
 
@@ -26,17 +29,13 @@ public:
 
 	MaterialManager() = default;
 
-	MaterialManager(AssetLedger& ledger, AssetManagerLocator& locator, AeonLoader& aeonLoader)
-		: _assetLedger(&ledger), _assetManagerLocator(&locator), _aeonLoader(&aeonLoader) {}
+	MaterialManager(AssetLedger& ledger, ShaderManager& shaderManager, TextureManager& textureManager, AeonLoader& aeonLoader)
+		: _assetLedger(&ledger), _shaderManager(&shaderManager), _textureManager(&textureManager), _aeonLoader(&aeonLoader) {}
 
 
-	MaterialManager(AssetLedger* assetLedger) : _assetLedger(assetLedger)
-	{}
-
-
-	Material* get(AssetID assetID)
+	std::shared_ptr<Material> get(AssetID assetID)
 	{
-		Material* result{ nullptr };
+		std::shared_ptr<Material> result{ nullptr };
 
 		result = _cache.get(assetID);
 
@@ -46,7 +45,8 @@ public:
 			{
 				MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
 
-				result = _cache.store(assetID, *MaterialLoader::LoadMaterialFromAsset(materialAsset, *_assetLedger));
+				result = _cache.store(assetID, Material(nullptr, nullptr, true));
+				//result = _cache.store(assetID, *MaterialLoader::LoadMaterialFromAsset(materialAsset, _shaderManager, _textureManager));
 			}
 			else
 			{
@@ -58,29 +58,29 @@ public:
 	}
 
 
-	Material fromAsset(MaterialAsset& materialAsset)
-	{
-		Material material;
+	//Material fromAsset(MaterialAsset& materialAsset)
+	//{
+	//	Material material;
 
-		material._materialTextures.reserve(materialAsset._textures.size());
+	//	material._materialTextures.reserve(materialAsset._textures.size());
 
-		for (auto& texRef : materialAsset._textures)
-		{
-			MaterialTexture materialTexture;
-			materialTexture._metaData = texRef._texMetaData;
-			materialTexture._tex = LoadTextureFromAsset(texRef._textureAssetID, *_assetLedger);
+	//	for (auto& texRef : materialAsset._textures)
+	//	{
+	//		MaterialTexture materialTexture;
+	//		materialTexture._metaData = texRef._texMetaData;
+	//		materialTexture._tex = LoadTextureFromAsset(texRef._textureAssetID, *_assetLedger);
 
-			_assetManagerLocator->get<TextureManager>(AssetType::TEXTURE)->get(texRef._textureAssetID);
-			material._materialTextures.emplace_back(std::move(materialTexture));
-		}
+	//		//_assetManagerLocator->get<TextureManager>(AssetType::TEXTURE)->get(texRef._textureAssetID);
+	//		material._materialTextures.emplace_back(std::move(materialTexture));
+	//	}
 
-		auto shaderPack = _assetManagerLocator->get<ShaderManager>(AssetType::SHADER)->getShaderByKey(1);
+	//	//auto shaderPack = _assetManagerLocator->get<ShaderManager>(AssetType::SHADER)->getShaderByKey(1);
 
-		material.setVS(shaderPack->vs);
-		material.setPS(shaderPack->ps);
+	//	//material.setVS(shaderPack->vs);
+	//	//material.setPS(shaderPack->ps);
 
-		material._opaque = materialAsset._opaque;
+	//	material._opaque = materialAsset._opaque;
 
-		return material;
-	}
+	//	return material;
+	//}
 };

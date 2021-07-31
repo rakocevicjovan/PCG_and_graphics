@@ -14,7 +14,7 @@ private:
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
-	AssetManagerLocator* _assetManagerLocator{};
+	//AssetManagerLocator* _assetManagerLocator{};	// , _assetManagerLocator(&locator)
 	MaterialManager* _materialManager{};
 
 	std::map<AssetID, std::future<SkModel>> _skModelFutures;
@@ -25,13 +25,13 @@ public:
 
 	ModelManager() = default;
 
-	ModelManager(AssetLedger& ledger, AssetManagerLocator& locator, AeonLoader& aeonLoader, MaterialManager& matMan)
-		: _assetLedger(&ledger), _assetManagerLocator(&locator), _aeonLoader(&aeonLoader), _materialManager(&matMan) {}
+	ModelManager(AssetLedger& ledger, AeonLoader& aeonLoader, MaterialManager& matMan)
+		: _assetLedger(&ledger), _aeonLoader(&aeonLoader), _materialManager(&matMan) {}
 
 
-	SkModel* get(AssetID assetID)
+	std::shared_ptr<SkModel> get(AssetID assetID)
 	{
-		SkModel* result{ nullptr };
+		std::shared_ptr<SkModel> result{ nullptr };
 
 		// Check if loaded, otherwise load and cache it
 		result = _cache.get(assetID);
@@ -39,7 +39,6 @@ public:
 		if (!result)
 		{
 			auto* AMD = _assetLedger->get(assetID);
-			auto* filePath = &AMD->path;
 
 			if (!AMD)
 			{
@@ -47,23 +46,25 @@ public:
 				return {};
 			}
 
-			// This should be ok as well
-			//auto allDeps = _assetLedger->getAllDependencies(assetID);
+			auto& [path, deps, type] = *AMD;
 
-			// Send out an asynchronous request
-			auto futureAsset = _aeonLoader->request(filePath->c_str(),
-				[this](const char* path)
-				{
-					auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path);
-					auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), *_assetLedger);
-					return skModel;
-				});
+			auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path.c_str());
+			auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager);
 
-			_skModelFutures.insert({ assetID, std::move(futureAsset) });
-
-			//result = _cache.store(assetID, 
+			result = _cache.store(assetID, skModel);
 		}
 
 		return result;
 	}
 };
+
+// // Send out an asynchronous request
+//auto futureAsset = _aeonLoader->request(filePath->c_str(),
+//	[&matMan = std::ref(_materialManager)](const char* path)
+//{
+//	auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path);
+//	auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), matMan);
+//	return skModel;
+//});
+//
+//_skModelFutures.insert({ assetID, std::move(futureAsset) });

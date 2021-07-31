@@ -27,10 +27,10 @@ public:
 	{}
 
 
-	Texture* get(AssetID textureID)
+	std::shared_ptr<Texture> get(AssetID textureID)
 	{
 		// @TODO placeholder texture, perhaps? Also could be a handle, or consider a full blown proxy
-		Texture* result{ nullptr };	
+		std::shared_ptr<Texture> result{ nullptr };
 
 		// Check if loaded, otherwise load and cache it
 		result = _cache.get(textureID);

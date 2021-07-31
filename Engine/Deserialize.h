@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Blob.h"
+#include "ViewStreamBuffer.h"
 
 namespace AssetHelpers
 {
@@ -22,16 +23,12 @@ namespace AssetHelpers
 	template <typename AssetType, typename ArchiveType = cereal::BinaryInputArchive>
 	static AssetType DeserializeFromBlob(Blob&& blob)
 	{
-		assert(false); // This won't work! Need to write my own I think... because pubsetbuf does nothing. But it would be useful to have
-		std::istringstream iss(std::ios_base::binary | std::ios_base::beg);
-		
-		char* wat = blob.dataAsType<char>();
-		iss.rdbuf()->pubsetbuf(blob.dataAsType<char>(), blob.size());
-
-		cereal::BinaryInputArchive bia(iss);
+		ViewStreamBuffer vsb(assetLedgerBlob._data.get(), assetLedgerBlob.size());
+		std::istream istream(&vsb);
+		cereal::ArchiveType ia(istream);
 
 		AssetType asset;
-		asset.serialize(bia);
+		asset.serialize(ia);
 
 		return asset;
 	}
