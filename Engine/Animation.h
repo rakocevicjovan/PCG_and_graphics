@@ -40,7 +40,7 @@ public:
 				return ac._boneName == name;
 			});
 
-		return (it != _channels.end()) ? std::distance(_channels.begin(), it) : static_cast<uint32_t>(~0);
+		return static_cast<uint32_t>((it != _channels.end()) ? std::distance(_channels.begin(), it) : (~0));
 	}
 
 

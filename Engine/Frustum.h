@@ -12,10 +12,10 @@ public:
 	//left, right, bottom, top, near, far
 	std::array<SPlane, 6> _planes;
 
-	float _fov;
-	float _ar;
-	float _zn;
-	float _zf;
+	float _fov{ 0.f };
+	float _ar{ 0.f };
+	float _zn{ 0.f };
+	float _zf{ 0.f };
 
 	
 	Frustum() {}

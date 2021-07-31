@@ -1,19 +1,10 @@
 #include "pch.h"
+
 #include "Volumetric.h"
 #include "TextureGen.h"
 
 namespace Procedural
 {
-	Volumetric::Volumetric()
-	{
-	};
-
-	Volumetric::~Volumetric()
-	{
-	};
-
-
-
 	void Volumetric::init(UINT w, UINT h, UINT d)
 	{
 		_w = w;
@@ -22,11 +13,11 @@ namespace Procedural
 
 		_volume.resize(_w * _h * _d);
 
-		for (int x = 0; x < _w; ++x)
+		for (UINT x = 0; x < _w; ++x)
 		{
-			for (int y = 0; y < _h; ++y)
+			for (UINT y = 0; y < _h; ++y)
 			{
-				for (int z = 0; z < _d; ++z)
+				for (UINT z = 0; z < _d; ++z)
 				{
 					UINT index = access(x, y, z);
 					_volume[index].pos = SVec3(x, y, z);
@@ -37,14 +28,12 @@ namespace Procedural
 	}
 
 
-
 	inline UINT Volumetric::access(UINT x, UINT y, UINT z)
 	{
 		UINT index;
 		index = x * _h * _d + y * _d + z;
 		return index;
 	}
-
 
 
 	void Volumetric::petrurb()
@@ -56,8 +45,7 @@ namespace Procedural
 		}
 	}
 
-
-
+	// @TODO move elsewhere, useful
 	void Volumetric::Create3DTexture(ID3D11Device* device)
 	{
 		D3D11_TEXTURE3D_DESC tex3Desc;
@@ -95,5 +83,4 @@ namespace Procedural
 			exit(43);
 		}
 	}
-
 }

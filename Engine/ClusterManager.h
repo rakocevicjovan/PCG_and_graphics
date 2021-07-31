@@ -21,10 +21,17 @@ typedef std::array<uint8_t, 6> LightBounds;
 struct OffsetListItem
 {
 	OffsetListItem() noexcept : _index(0u), _count(0u) {}
-	OffsetListItem(const OffsetListItem&) = delete;
-	OffsetListItem(const OffsetListItem&& other) noexcept : _index(std::move(other._index)), _count(other._count.load()) {}
 
+	OffsetListItem(const OffsetListItem&) = delete;
 	OffsetListItem& operator=(const OffsetListItem&) = delete;
+
+	OffsetListItem(OffsetListItem&& other) noexcept : _index(other._index), _count(other._count.load()) {}
+	OffsetListItem& operator=(OffsetListItem&& other) noexcept
+	{
+		_index = other._index;
+		_count = other._count.load();
+	}
+	
 
 	uint32_t _index{ 0u };	//uint16_t _index;
 	std::atomic<uint32_t> _count{0u};		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough

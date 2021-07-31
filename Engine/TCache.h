@@ -4,13 +4,15 @@
 template <typename AssetType>
 class TCache
 {
+public:
+
+	using AssetHandle = std::shared_ptr<AssetType>;
+
 private:
 
 	std::unordered_map<AssetID, AssetHandle> _cache;
 
 public:
-
-	using AssetHandle = std::shared_ptr<AssetType>;
 
 	bool exists(AssetID assetID)
 	{

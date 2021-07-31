@@ -10,8 +10,9 @@
 class TextureManager : public IAssetManager
 {
 private:
-	using AssetHandle = TCache<Texture>::AssetHandle;
+	
 	TCache<Texture> _cache{};
+	using AssetHandle = TCache<Texture>::AssetHandle;
 
 	AssetLedger* _assetLedger{ nullptr };
 	AeonLoader* _aeonLoader{};

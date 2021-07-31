@@ -68,7 +68,7 @@ public:
 	}
 
 
-	inline const byte const* getStackPtr() const
+	inline const byte* const getStackPtr() const
 	{
 		return _stackPtr;
 	}

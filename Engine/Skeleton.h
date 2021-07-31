@@ -14,7 +14,7 @@ public:
 	int getBoneIndex(const char* name) const;
 	int getInfluenceBoneIndex(const char* name) const;
 
-	inline uint32_t getBoneCount() const { return _bones.size(); }
+	inline uint32_t getBoneCount() const { return static_cast<uint32_t>(_bones.size()); }
 
 	template <typename Archive> 
 	void serialize(Archive& ar)

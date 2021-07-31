@@ -62,18 +62,18 @@ inline static float zSliceToViewDepth(float zNear, float zFar, uint8_t slice, ui
 
 inline static uint8_t viewDepthToZSlice(float n, float f, float viewDepth, float Sz)
 {
-	return log(viewDepth) * Sz / log(f / n) - Sz * log(n) / log(f / n);
+	return static_cast<uint8_t>(log(viewDepth) * Sz / log(f / n) - Sz * log(n) / log(f / n));
 }
 
 
 
 inline static uint8_t viewDepthToZSliceOpt(float sz_div_log_fdn, float log_n, float viewDepth)
 {
-	//log(viewDepth) * Sz / log(f / n)  - Sz * log(n) / log(f / n);		// Original
-	//log(viewDepth) * Sz / log_fdn		- Sz * log_n / log_fdn;			// Remove constant logs
-	//log(viewDepth) * Sz * inv_log_fdn - Sz * log_n * inv_log_fdn;		// Remove constant divisions
+	//log(viewDepth) * Sz / log(f / n)  - Sz * log(n) / log(f / n);			// Original
+	//log(viewDepth) * Sz / log_fdn		- Sz * log_n / log_fdn;				// Remove constant logs
+	//log(viewDepth) * Sz * inv_log_fdn - Sz * log_n * inv_log_fdn;			// Remove constant divisions
 	//return log(viewDepth) * sz_div_log_fdn	- sz_div_log_fdn * log_n;	// Sz * _inv_log_fdn can be precalculated					
-	return sz_div_log_fdn * (log(viewDepth) - log_n);					// Extract sz_div_log_fdn from both sides
+	return static_cast<uint8_t>(sz_div_log_fdn * (log(viewDepth) - log_n));	// Extract sz_div_log_fdn from both sides
 }
 
 

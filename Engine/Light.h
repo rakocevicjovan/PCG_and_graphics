@@ -16,7 +16,7 @@
 class SceneLight
 {
 protected:
-	SVec4 _chromaIntensity;
+	SVec4 _chromaIntensity{};
 
 	//const float MIN_LIGHT = 0.05f;
 
@@ -39,7 +39,7 @@ public:
 class DLight : public SceneLight
 {
 public:
-	SVec4 _dir;	//takes care of cbuffer byte alignment on it's own... safest solution
+	SVec4 _dir{};	//takes care of cbuffer byte alignment on it's own... safest solution
 
 	DLight() {}
 	DLight(const SVec3& rgb, float intensity, const SVec3& dir) : SceneLight(rgb, intensity), _dir(Math::fromVec3(dir, 0)) {}
@@ -67,9 +67,9 @@ public:
 class SLight : public SceneLight
 {
 public:
-	SVec4 _posRange;
-	SVec4 _dirCosTheta;
-	float _radius{0.f};
+	SVec4 _posRange{};
+	SVec4 _dirCosTheta{};
+	float _radius{};
 
 	SLight() { sizeof(SLight); }
 
@@ -88,12 +88,12 @@ public:
 
 struct LightData
 {
-	SVec3 alc;
-	float ali;
-	SVec3 dlc;
-	float dli;
-	SVec3 slc;
-	float sli;
+	SVec3 alc{};
+	float ali{};
+	SVec3 dlc{};
+	float dli{};
+	SVec3 slc{};
+	float sli{};
 
 	LightData() {}
 
@@ -117,7 +117,7 @@ struct LightData
 
 struct DirectionalLight : LightData
 {
-	SVec4 dir;
+	SVec4 dir{};
 
 	DirectionalLight(){}
 	
@@ -143,7 +143,7 @@ struct DirectionalLight : LightData
 
 struct PointLight : LightData
 {
-	SVec4 pos;
+	SVec4 pos{};
 
 	PointLight(){}
 
@@ -170,7 +170,7 @@ struct PointLight : LightData
 
 struct SpotLight : PointLight
 {
-	SVec4 coneAxisAngle;	//minimal dot product being the w component of the vector
+	SVec4 coneAxisAngle{};	//minimal dot product being the w component of the vector
 
 	SpotLight() {}
 	SpotLight(PointLight pl, SVec3 coneAxis, float dotProdMin) : PointLight(pl), coneAxisAngle(coneAxisAngle) {}

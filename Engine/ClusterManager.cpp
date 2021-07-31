@@ -67,7 +67,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	UINT chunkSize = pLights.size() / (nThreads + 1u);
 
 	// Launch nThreads 
-	for (int i = 0; i < nThreads; i++)
+	for (UINT i = 0; i < nThreads; i++)
 	{
 		UINT minOff = i * chunkSize;
 		UINT maxOff = (i + 1) * chunkSize;
@@ -82,10 +82,10 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	}
 	
 
-	// Do the exact same thing but on the main thread as well
+	// Do the exact same thing but on the main thread as well... should really just use the function though
 
 	// Convert all lights into clip space and obtain their min/max cluster indices
-	for (int i = nThreads * chunkSize; i < nLights; ++i)	// nThreads * chunkSize
+	for (UINT i = nThreads * chunkSize; i < nLights; ++i)	// nThreads * chunkSize
 	{
 		const PLight& pl = pLights[i];
 
@@ -111,7 +111,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	}
 
 	// Make sure all threads have finished. The rest of the algorithm is not yet multithreaded so it's the same as it was
-	for (int i = 0; i < nThreads; i++)
+	for (UINT i = 0; i < nThreads; i++)
 		futures[i].wait();
 
 
@@ -135,7 +135,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	// 2. Use atomic decrement on ._count (operators ++ and -- are already overloaded on atomic)
 	// 3. This makes _lightIndexList[cellListStart + listOffset] unique every time, but cache thrashing might cause issues
 	
-	for (int i = 0; i < nLights; i++)
+	for (UINT i = 0; i < nLights; i++)
 	{
 		for (uint8_t z = _lightBounds[i][4]; z <= _lightBounds[i][5]; z++)
 		{
@@ -186,7 +186,7 @@ void ClusterManager::processLightsMT(
 	UINT sliceSize = gridDims[0] * gridDims[1];
 	UINT rowSize = gridDims[0];
 
-	for (int i = mindex; i < maxdex; ++i)
+	for (UINT i = mindex; i < maxdex; ++i)
 	{
 		const PLight& pl = pLights[i];
 

@@ -16,6 +16,9 @@ class MaterialManager : public IAssetManager
 {
 private:
 
+	TCache<Material> _cache{};
+	using AssetHandle = TCache<Material>::AssetHandle;
+
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
@@ -25,12 +28,20 @@ private:
 
 public:
 
-	TCache<Material> _cache{};
-
 	MaterialManager() = default;
 
 	MaterialManager(AssetLedger& ledger, ShaderManager& shaderManager, TextureManager& textureManager, AeonLoader& aeonLoader)
 		: _assetLedger(&ledger), _shaderManager(&shaderManager), _textureManager(&textureManager), _aeonLoader(&aeonLoader) {}
+
+
+	std::future<AssetHandle> get_async(AssetID matID)
+	{
+		return _aeonLoader->pushTask(
+			[this](AssetID assetID)
+			{
+				return get(assetID);
+			}, matID);
+	}
 
 
 	std::shared_ptr<Material> get(AssetID assetID)

@@ -49,7 +49,7 @@ private:
 
 	inline UINT nodeCountFromDepth(UINT l)
 	{
-		return ( (pow(8, l + 1) - 1) / (8 - 1) );	// size is (N^(L+1)-1) / (N-1) where N = 8, L = depth (I'm using depth 8)
+		return (std::pow(8, l + 1) - 1) / (8 - 1);	// size is (N^(L+1)-1) / (N-1) where N = 8, L = depth (I'm using depth 8)
 	}
 
 	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent);

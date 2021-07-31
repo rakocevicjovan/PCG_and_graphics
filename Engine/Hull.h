@@ -17,7 +17,7 @@ enum BoundingVolumeType : uint8_t
 class Hull
 {
 public:
-	Collider* _collider;	//points to the collider, but does not own it
+	Collider* _collider{};	//points to the collider, but does not own it
 
 	virtual HitResult intersect(const Hull* other, BoundingVolumeType otherType) const = 0;
 	inline virtual SVec3 getPosition() const = 0;
@@ -72,8 +72,8 @@ public:
 class SphereHull : public Hull
 {
 public:
-	SVec3 ctr;
-	float r;
+	SVec3 ctr{};
+	float r{};
 
 	SphereHull() {};
 	SphereHull(const SVec3& pos, float rad) : ctr(pos), r(rad) {};

@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning( disable : 4267 )
+
 // C++ stl includes
 #include <algorithm>
 #include <array>
