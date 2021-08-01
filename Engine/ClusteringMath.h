@@ -3,13 +3,11 @@
 #include "ColFuncs.h"
 
 
-
 // My preferred method, z project and unproject, in SVec4 w should be 1 (because of vectorized multiply)
 inline static SVec4 unprojectPoint(SVec4 clipSpaceXYZ1, float clipSpaceW, const SMatrix& invProj)
 {
 	return SVec4::Transform((clipSpaceXYZ1 * clipSpaceW), invProj);
 }
-
 
 
 // My method, precalculate ray direction z and unproject the ray
@@ -26,14 +24,12 @@ inline static SVec3 viewRayDepthSliceIntersection(SVec3 rayDir, float vs_planeZ,
 }
 
 
-
 // From the tutorial
 inline static SVec4 clipToView(SVec4 clip, SMatrix invProj)
 {
 	SVec4 view = SVec4::Transform(clip, invProj);	// View space transform
 	return (view / view.w);							// Perspective division
 }
-
 
 
 // From the tutorial, use z = 0 and w = 1, then convert ray direction to view space, gives same results as above (I think?)
@@ -50,7 +46,6 @@ inline static SVec3 viewRayDepthSliceIntersection(float dirX, float dirY, float 
 }
 
 
-
 /* Taken from Doom presentation http://advances.realtimerendering.com/s2016/Siggraph2016_idTech6.pdf page 5/58 */
 inline static float zSliceToViewDepth(float zNear, float zFar, uint8_t slice, uint8_t numSlices)
 {
@@ -59,12 +54,10 @@ inline static float zSliceToViewDepth(float zNear, float zFar, uint8_t slice, ui
 }
 
 
-
 inline static uint8_t viewDepthToZSlice(float n, float f, float viewDepth, float Sz)
 {
 	return static_cast<uint8_t>(log(viewDepth) * Sz / log(f / n) - Sz * log(n) / log(f / n));
 }
-
 
 
 inline static uint8_t viewDepthToZSliceOpt(float sz_div_log_fdn, float log_n, float viewDepth)
@@ -77,12 +70,10 @@ inline static uint8_t viewDepthToZSliceOpt(float sz_div_log_fdn, float log_n, fl
 }
 
 
-
 inline static float zViewToZClip(float zNear, float zFar, float viewDepth)
 {
 	return (zFar * (viewDepth - zNear)) / ((zFar - zNear) * viewDepth);
 }
-
 
 
 inline static float clipZToViewZ(float n, float f, float z)

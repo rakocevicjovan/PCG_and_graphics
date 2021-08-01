@@ -29,14 +29,12 @@ public:
 	}
 
 
-
 	inline void init(uint32_t size)
 	{
 		_stackSize = size;
 		_stackPtr = new byte[_stackSize];
 		_head = 0u;
 	}
-
 
 
 	inline byte* alloc(uint32_t size)
@@ -54,12 +52,10 @@ public:
 	}
 
 
-
 	inline byte* getHeadPtr() const
 	{
 		return _stackPtr + _head;
 	}
-
 
 
 	inline void clear()

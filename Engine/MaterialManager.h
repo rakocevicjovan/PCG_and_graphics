@@ -26,6 +26,8 @@ private:
 	ShaderManager* _shaderManager;
 	TextureManager* _textureManager;
 
+	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
+
 public:
 
 	MaterialManager() = default;
@@ -34,19 +36,24 @@ public:
 		: _assetLedger(&ledger), _shaderManager(&shaderManager), _textureManager(&textureManager), _aeonLoader(&aeonLoader) {}
 
 
-	std::future<AssetHandle> get_async(AssetID matID)
+	std::shared_future<AssetHandle> get_async(AssetID assetID)
 	{
-		return _aeonLoader->pushTask(
+		auto future = _aeonLoader->pushTask(
 			[this](AssetID assetID)
 			{
 				return get(assetID);
-			}, matID);
+			}, assetID);
+
+		auto shared_future = future.share();
+
+		_futures.emplace(assetID, shared_future);
+		return shared_future;
 	}
 
 
-	std::shared_ptr<Material> get(AssetID assetID)
+	AssetHandle get(AssetID assetID)
 	{
-		std::shared_ptr<Material> result{ nullptr };
+		AssetHandle result{};
 
 		result = _cache.get(assetID);
 
@@ -66,31 +73,4 @@ public:
 
 		return result;
 	}
-
-
-	//Material fromAsset(MaterialAsset& materialAsset)
-	//{
-	//	Material material;
-
-	//	material._materialTextures.reserve(materialAsset._textures.size());
-
-	//	for (auto& texRef : materialAsset._textures)
-	//	{
-	//		MaterialTexture materialTexture;
-	//		materialTexture._metaData = texRef._texMetaData;
-	//		materialTexture._tex = LoadTextureFromAsset(texRef._textureAssetID, *_assetLedger);
-
-	//		//_assetManagerLocator->get<TextureManager>(AssetType::TEXTURE)->get(texRef._textureAssetID);
-	//		material._materialTextures.emplace_back(std::move(materialTexture));
-	//	}
-
-	//	//auto shaderPack = _assetManagerLocator->get<ShaderManager>(AssetType::SHADER)->getShaderByKey(1);
-
-	//	//material.setVS(shaderPack->vs);
-	//	//material.setPS(shaderPack->ps);
-
-	//	material._opaque = materialAsset._opaque;
-
-	//	return material;
-	//}
 };

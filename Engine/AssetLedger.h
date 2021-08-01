@@ -1,4 +1,5 @@
 #pragma once
+
 #include "AssetID.h"
 #include "Fnv1Hash.h"
 

@@ -35,7 +35,6 @@ namespace ModelLoader
 		mesh._vertSig = std::move(meshAsset.vertSig);
 
 		mesh._material = materialManager->get(meshAsset.material);
-		//MaterialLoader::LoadMaterialFromID(meshAsset.material, assetLedger);	// Old way
 
 		return mesh;
 	}

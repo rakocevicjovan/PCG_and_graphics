@@ -115,7 +115,7 @@ public:
 		VS_FileFormat vsff;
 		
 		{
-			//AssetHelpers::DeserializeFromFile(path.c_str());
+			//AssetHelpers::DeserializeFromFile<VS_FileFormat>(path.c_str());
 			std::ifstream ifs(path, std::ios::binary);
 			cereal::BinaryInputArchive ar(ifs);
 			ar(vsff.blobString, vsff.vertSig._attributes, vsff.cbDescs);

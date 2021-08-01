@@ -75,11 +75,8 @@ private:
 		UINT min, UINT max, std::array<UINT, 3u> gridDims, float zn, float zf, float sz_div_log_fdn, float log_n, 
 		const SMatrix& v, const SMatrix& p);
 
-
-
 	// Get min/max indices of grid clusters, slightly optimized to use precalculated log(x), supposedly SVec is SIMD already?
 	static LightBounds getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n);
-
 
 
 	// Copyright 2010 Intel Corporation
@@ -112,8 +109,6 @@ private:
 		float& clipMin,
 		float& clipMax);
 
-
-
 	static void updateClipRegion(
 		float lc,				// Light x or y coordinate (view space)
 		float lz,				// Light z coordinate (view space)
@@ -121,7 +116,6 @@ private:
 		float cameraScale,		// Projection scale for coordinate (_11 for x, or _22 for y)
 		float& clipMin,
 		float& clipMax);
-
 
 public:
 	static SVec4 getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj);

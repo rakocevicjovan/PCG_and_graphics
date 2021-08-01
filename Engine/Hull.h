@@ -27,7 +27,7 @@ public:
 
 
 
-class AABB : public Hull
+class AABB final : public Hull
 {
 public:
 	SVec3 minPoint, maxPoint;
@@ -69,7 +69,7 @@ public:
 
 
 
-class SphereHull : public Hull
+class SphereHull final : public Hull
 {
 public:
 	SVec3 ctr{};

@@ -194,7 +194,7 @@ namespace Col
 
 
 
-	static bool RayPlaneIntersection(const SRay& ray, const SPlane plane, SVec3& intersectionPoint)
+	static bool RayPlaneIntersection(const SRay& ray, const SPlane& plane, SVec3& intersectionPoint)
 	{
 		SVec3 normal(&plane.x);
 

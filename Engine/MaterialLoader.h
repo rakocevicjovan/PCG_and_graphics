@@ -14,7 +14,7 @@ namespace MaterialLoader
 		//auto material = std::make_unique<Material>();
 		Material material;
 
-		std::vector<std::future<std::shared_ptr<Texture>>> futureTextures(materialAsset._textures.size());
+		std::vector<std::shared_future<std::shared_ptr<Texture>>> futureTextures(materialAsset._textures.size());
 		material._materialTextures.resize(materialAsset._textures.size());
 
 		for (auto i = 0u; i < materialAsset._textures.size(); ++i)	//auto& texRef : materialAsset._textures
@@ -22,8 +22,7 @@ namespace MaterialLoader
 			auto& texRef = materialAsset._textures[i];
 			MaterialTexture materialTexture;
 			materialTexture._metaData = texRef._texMetaData;
-			futureTextures[i] = textureManager->get_async(texRef._textureAssetID);
-			//material._materialTextures.emplace_back(std::move(materialTexture));
+			futureTextures[i] = textureManager->getAsync(texRef._textureAssetID);
 		}
 
 		for (auto i = 0u; i < futureTextures.size(); ++i)

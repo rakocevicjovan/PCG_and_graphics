@@ -61,7 +61,7 @@ bool Engine::initialize()
 	_aeonLoader.resizeThreadPool(8);
 
 	_shaderManager = ShaderManager(_assetLedger);
-	_textureManager = TextureManager(_assetLedger, _aeonLoader, _renderer.device());
+	_textureManager = std::move(TextureManager(_assetLedger, _aeonLoader, _renderer.device()));
 
 	_materialManager = MaterialManager(_assetLedger, _shaderManager, _textureManager, _aeonLoader);
 
@@ -72,18 +72,8 @@ bool Engine::initialize()
 	_assetManagerLocator.registerManagerForType(EAssetType::TEXTURE, &_textureManager);
 	_assetManagerLocator.registerManagerForType(EAssetType::SHADER, &_shaderManager);
 
-	//auto * wat = _assetLedger.get(9916003768089073041);
-	//auto future = _threadPool.push(std::bind(
-	//	[this](const char* path)
-	//	{
-	//		auto test1 = _modelManager.get(9916003768089073041);
-	//	},
-	//	wat->path.c_str()));
-	//future.wait();
-
 	auto test1 = _modelManager.get(9916003768089073041);
 	//auto test2 = _modelManager.get(9916003768089073041);
-
 
 	// Another option is this. Wrap them all into one class.
 	//OmniAssetManager OAM(

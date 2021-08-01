@@ -2,7 +2,6 @@
 #include "ClusterManager.h"
 
 
-
 ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights, ID3D11Device* device)
 	: _gridDims(gridDims), _gridSize(gridDims[0] * gridDims[1] * gridDims[2])
 {
@@ -23,7 +22,6 @@ ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights,
 	_gridSB  = SBuffer(device, sizeof(OffsetListItem), _gridSize);
 	SBuffer::createSBufferSRV(device, _gridSB.getPtr(), sizeof(OffsetListItem), _gridSize, _gridSRV);
 }
-
 
 
 void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Camera& cam, ctpl::thread_pool& threadPool)
@@ -51,7 +49,6 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	// Do this once rather than per every light
 	float sz_div_log_fdn = static_cast<float>(_gridDims[2]) / log(zf / zn);
 	float log_n = log(zn);
-
 
 	// Used for binning
 	UINT zOffset = 0u;
@@ -163,7 +160,6 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 }
 
 
-
 void ClusterManager::upload(ID3D11DeviceContext* context, const std::vector<PLight>& lights)
 {
 	_lightSB.upload(context, lights.data(), lights.size() * sizeof(PLight));
@@ -174,7 +170,6 @@ void ClusterManager::upload(ID3D11DeviceContext* context, const std::vector<PLig
 	context->PSSetShaderResources(16, 1, &_indexSRV);
 	context->PSSetShaderResources(17, 1, &_gridSRV);
 }
-
 
 
 // This function purely reads the matrices so I can pass them by ref, copying the 3 big data structures is a no-no as well
@@ -213,7 +208,6 @@ void ClusterManager::processLightsMT(
 }
 
 
-
 LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float zf, const SMatrix& v, const SMatrix& p,
 	std::array<UINT, 3u> gridDims, float sz_div_log_fdn, float log_n)
 {
@@ -230,7 +224,6 @@ LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float
 	LightBounds res = getLightMinMaxIndices(rect, viewZMinMax, zn, zf, gridDims, sz_div_log_fdn, log_n);
 	return res;
 }
-
 
 
 LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n)
@@ -259,7 +252,6 @@ LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2
 }
 
 
-
 void ClusterManager::updateClipRegionRoot(
 	float nc,          // Tangent plane x or y normal coordinate (view space)
 	float lc,          // Light x or y coordinate (view space)
@@ -277,24 +269,16 @@ void ClusterManager::updateClipRegionRoot(
 		float c = -nz * cameraScale / nc;
 		if (nc > 0.0)
 		{
-#pragma push_macro("max")
-#undef max
 			//clipMin = std::max(clipMin, c);		// Left side boundary, (x or y >= -1.)
 			clipMin = Math::clamp(-1., 1., c);
-#pragma pop_macro("max")
 		}	
 		else
 		{
-#pragma push_macro("min")
-#undef min
 			//clipMax = std::min(clipMax, c);		// Right side boundary, (x or y less than 1.)
 			clipMax = Math::clamp(-1., 1., c);		// I suspect I need this because of false positives on frustum culling
-#pragma pop_macro("min")
 		}
-			
 	}
 }
-
 
 
 void ClusterManager::updateClipRegion(
@@ -323,7 +307,6 @@ void ClusterManager::updateClipRegion(
 		updateClipRegionRoot(nx1, lc, lz, lightRadius, cameraScale, clipMin, clipMax);
 	}
 }
-
 
 
 SVec4 ClusterManager::getProjectedRectangle(SVec4 lightPosView, float zNear, float zFar, const SMatrix& proj)
