@@ -22,7 +22,7 @@ void ShaderManager::loadExistingKeys(const std::wstring& path)
 
 
 
-ShaderPack* ShaderManager::getShaderByData(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
+ShaderPack* ShaderManager::getBestFit(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
 {
 	ShaderGenKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
 
@@ -83,8 +83,7 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 {
 	ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
 
-	ShaderCompiler shc;
-	shc.init(device);
+	ShaderCompiler shc(device);
 
 	// VS
 	std::wstring vsPathW(PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"vs.hlsl");
@@ -94,6 +93,7 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 	ID3D11VertexShader* d3dvs = shc.blobToVS(vsBlob);
 
 	auto vertInLayElements = vertSig.createVertInLayElements();
+
 	D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
 	CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
 	WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));

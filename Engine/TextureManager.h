@@ -12,12 +12,12 @@ class TextureManager : public IAssetManager
 private:
 	
 	TCache<Texture> _cache{};
-	using TextureHandle = TCache<Texture>::AssetHandle;
+	using AssetHandle = TCache<Texture>::AssetHandle;
 
 	AssetLedger* _assetLedger{ nullptr };
 	AeonLoader* _aeonLoader{};
 
-	std::unordered_map<AssetID, std::shared_future<TextureHandle>> _futures;
+	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
 
 	// Remove both of these and make them not static, this is a stopgap! @TODO
 	inline static std::mutex FUTURE_MUTEX{};
@@ -26,7 +26,7 @@ private:
 	ID3D11Device* _device{ nullptr };
 
 
-	std::shared_future<TextureHandle> load(AssetID assetID)
+	std::shared_future<AssetHandle> load(AssetID assetID)
 	{
 		auto shared_future = _aeonLoader->pushTask(
 			[this](AssetID assetID)
@@ -47,29 +47,27 @@ private:
 	}
 
 
-	std::shared_future<TextureHandle> pendingOrLoad(AssetID assetID)
+	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
 	{
+		FUTURE_MUTEX.lock();
+		if (auto it = _futures.find(assetID); it != _futures.end())
 		{
-			std::lock_guard futuresGuard(FUTURE_MUTEX);
-
-			if (auto it = _futures.find(assetID); it != _futures.end())
-			{
-				return it->second;
-			}
+			return it->second;
 		}
+		FUTURE_MUTEX.unlock();
 
 		return load(assetID);
 	}
 
 
-	inline TextureHandle getFromCache(AssetID assetID)
+	inline AssetHandle getFromCache(AssetID assetID)
 	{
 		std::lock_guard cacheGuard(CACHE_MUTEX);
 		return _cache.get(assetID);
 	}
 
 
-	inline TextureHandle addToCache(AssetID assetID, TextureHandle handle)
+	inline AssetHandle addToCache(AssetID assetID, AssetHandle handle)
 	{
 		std::lock_guard cacheGuard(CACHE_MUTEX);
 		return _cache.store(assetID, *handle);
@@ -84,37 +82,31 @@ public:
 		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader), _device(device) {}
 
 
-	std::shared_future<TextureHandle> getAsync(AssetID assetID)
+	std::shared_future<AssetHandle> getAsync(AssetID assetID)
 	{
-		std::shared_future<TextureHandle> result;
-		
 		if (auto existing = getFromCache(assetID); existing)
 		{
-			std::promise<TextureHandle> promise;
+			std::promise<AssetHandle> promise;
 			promise.set_value(existing);
-			result = promise.get_future();
-			return result;
+			return promise.get_future();
 		}
 
-		// They will get put in the cache by an update()? It isn't written yet @TODO - think about this design!
 		return pendingOrLoad(assetID);
 	}
 
 
-	TextureHandle getBlocking(AssetID assetID)
+	AssetHandle getBlocking(AssetID assetID)
 	{
 		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
 		
-		TextureHandle result{ getFromCache(assetID) };
-
-		if (!result)
+		if (AssetHandle result{ getFromCache(assetID) }; result)
 		{
-			// Check if it's currently being loaded, if not load it
-			auto assetFuture = pendingOrLoad(assetID);
-			assetFuture.wait();
-			result = addToCache(assetID, assetFuture.get());
+			return result;
 		}
 
-		return result;
+		// Check if it's currently being loaded, if not load it
+		auto assetFuture = pendingOrLoad(assetID);
+		assetFuture.wait();
+		return addToCache(assetID, assetFuture.get());
 	}
 };

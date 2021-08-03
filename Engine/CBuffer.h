@@ -28,12 +28,12 @@ struct CBufferFieldDesc
 struct CBufferMeta
 {
 	uint8_t _slot{ 0 };
-	size_t _size{ 0 };
+	uint16_t _size{ 0 };
 	std::vector<CBufferFieldDesc> _fields{};
 	
 	CBufferMeta() {}
 
-	CBufferMeta(uint8_t slot, size_t size) : _slot(slot), _size(size) {}
+	CBufferMeta(uint8_t slot, uint16_t size) : _slot(slot), _size(size) {}
 
 	inline void addFieldDescription(uint16_t offset, uint16_t size)
 	{

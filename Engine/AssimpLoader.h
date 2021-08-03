@@ -78,7 +78,7 @@ public:
 		Procedural::Terrain terrain(2, 2, SVec3(_tSize), SVec3(-_tSize * .5f, -0.f, -_tSize * .5f));
 
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
-		auto shPack = _shMan.getShaderByData(_floorMesh->_vertSig, _floorMesh->_material.get());
+		auto shPack = _shMan.getBestFit(_floorMesh->_vertSig, _floorMesh->_material.get());
 		_floorMesh->_material->setVS(shPack->vs);
 		_floorMesh->_material->setPS(shPack->ps);
 	}

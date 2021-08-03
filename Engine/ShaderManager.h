@@ -55,6 +55,9 @@ class ShaderManager : public IAssetManager
 {
 private:
 
+	TCache<Shader> _cache{};
+	using AssetHandle = TCache<Shader>::AssetHandle;
+
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
@@ -64,18 +67,17 @@ private:
 
 public:
 
-	TCache<Shader> _cache{};
-
 	ShaderManager() = default;
 
-	ShaderManager(AssetLedger& ledger/*, AssetManagerLocator& locator*/)
-		: _assetLedger(&ledger) {}
+	ShaderManager(AssetLedger& ledger, ID3D11Device* device)
+		: _assetLedger(&ledger), _pDevice(device) {}
 
 
 	inline void init(ID3D11Device* device)
 	{
 		_pDevice = device;
 	}
+
 
 	ShaderPack getShaderByID(AssetID assetID)
 	{
@@ -84,7 +86,7 @@ public:
 
 	void loadExistingKeys(const std::wstring& path);
 
-	ShaderPack* getShaderByData(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
+	ShaderPack* getBestFit(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
 
 	ShaderPack* getShaderByKey(ShaderGenKey shaderKey);
 
@@ -115,7 +117,6 @@ public:
 		VS_FileFormat vsff;
 		
 		{
-			//AssetHelpers::DeserializeFromFile<VS_FileFormat>(path.c_str());
 			std::ifstream ifs(path, std::ios::binary);
 			cereal::BinaryInputArchive ar(ifs);
 			ar(vsff.blobString, vsff.vertSig._attributes, vsff.cbDescs);

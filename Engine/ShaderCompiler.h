@@ -49,7 +49,7 @@ class ShaderCompiler
 {
 private:
 
-	ID3D11Device* _device;
+	ID3D11Device* _device{};
 
 	void ShaderCompiler::outputError(ID3DBlob* errorMessage, WCHAR shaderFilename, const std::wstring& filePath) const;
 

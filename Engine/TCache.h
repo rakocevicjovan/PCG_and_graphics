@@ -11,6 +11,7 @@ public:
 private:
 
 	std::unordered_map<AssetID, AssetHandle> _cache;
+	//std::mutex _cMut;	// Consider if I should lock internally or externally
 
 public:
 

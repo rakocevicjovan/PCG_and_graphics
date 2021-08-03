@@ -43,9 +43,6 @@
     <Filter Include="Old levels\__Picker">
       <UniqueIdentifier>{2980542b-fbb1-4bfc-b730-d448ccf02636}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TowerDefense">
-      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Input">
       <UniqueIdentifier>{1a0b1252-978b-4ec4-843f-e14ff86410ac}</UniqueIdentifier>
     </Filter>
@@ -54,9 +51,6 @@
     </Filter>
     <Filter Include="Old levels\Strife">
       <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TowerDefense\Buildings">
-      <UniqueIdentifier>{3a84d31f-b925-429e-9d0a-695dfe515ee3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{48809b9d-88ab-4cad-a975-8831cf39c049}</UniqueIdentifier>
@@ -167,6 +161,12 @@
     </Filter>
     <Filter Include="TMP">
       <UniqueIdentifier>{e1d174bf-05e8-4ff9-aab4-e9e16cde4eff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ZZTowerDefense">
+      <UniqueIdentifier>{d311a2e2-85c5-4b74-82b7-6677b2904d7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ZZTowerDefense\Buildings">
+      <UniqueIdentifier>{3a84d31f-b925-429e-9d0a-695dfe515ee3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -414,7 +414,7 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="TDLevel.cpp">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClCompile>
     <ClCompile Include="GeoClipmap.cpp">
       <Filter>Rendering</Filter>
@@ -523,7 +523,7 @@
       <Filter>Procedural</Filter>
     </ClInclude>
     <ClInclude Include="TDLevel.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="ProjectPicker.h">
       <Filter>Assets</Filter>
@@ -631,13 +631,13 @@
       <Filter>Scene management\Controllers</Filter>
     </ClInclude>
     <ClInclude Include="Controls.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Input</Filter>
     </ClInclude>
     <ClInclude Include="TDController.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="InputContext.h">
       <Filter>Input</Filter>
@@ -646,31 +646,31 @@
       <Filter>Input</Filter>
     </ClInclude>
     <ClInclude Include="TDGUI.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="Economy.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="ScreenSpaceDrawer.h">
       <Filter>Rendering\GUI</Filter>
     </ClInclude>
     <ClInclude Include="BuildingGuiDef.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="Enemy.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="Affliction.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="Building.h">
-      <Filter>TowerDefense\Buildings</Filter>
+      <Filter>ZZTowerDefense\Buildings</Filter>
     </ClInclude>
     <ClInclude Include="Tower.h">
-      <Filter>TowerDefense\Buildings</Filter>
+      <Filter>ZZTowerDefense\Buildings</Filter>
     </ClInclude>
     <ClInclude Include="IndustrialBuilding.h">
-      <Filter>TowerDefense\Buildings</Filter>
+      <Filter>ZZTowerDefense\Buildings</Filter>
     </ClInclude>
     <ClInclude Include="PoolAllocator.h">
       <Filter>Memory Allocators</Filter>
@@ -1033,7 +1033,7 @@
       <Filter>Rendering</Filter>
     </ClInclude>
     <ClInclude Include="RenderingTestLevel.h">
-      <Filter>TowerDefense</Filter>
+      <Filter>ZZTowerDefense</Filter>
     </ClInclude>
     <ClInclude Include="FPSCounter.h">
       <Filter>Utils</Filter>

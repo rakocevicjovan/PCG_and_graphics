@@ -42,7 +42,6 @@ public:
 	auto pushTask(Task&& task, TaskArgs... args)
 	{
 		((_RPT1(0, "AssetID when pushing task: %" PRIu64 "!\n", std::forward<TaskArgs>(args))), ...);
-		//_RPT1(0, "AssetID when pushing task: %" PRIu64 "!\n", assetID);
 		
 		auto result = _threadPool.push(
 			std::bind(

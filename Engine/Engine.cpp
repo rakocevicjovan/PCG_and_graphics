@@ -67,20 +67,18 @@ bool Engine::initialize()
 
 	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
 
-	_assetManagerLocator.registerManagerForType(EAssetType::SK_MODEL, &_modelManager);
-	_assetManagerLocator.registerManagerForType(EAssetType::MATERIAL, &_materialManager);
-	_assetManagerLocator.registerManagerForType(EAssetType::TEXTURE, &_textureManager);
-	_assetManagerLocator.registerManagerForType(EAssetType::SHADER, &_shaderManager);
-
 	auto test1 = _modelManager.get(9916003768089073041);
 	//auto test2 = _modelManager.get(9916003768089073041);
 
+	//_assetManagerLocator.registerManagerForType(EAssetType::SK_MODEL, &_modelManager);
+	//_assetManagerLocator.registerManagerForType(EAssetType::MATERIAL, &_materialManager);
+	//_assetManagerLocator.registerManagerForType(EAssetType::TEXTURE, &_textureManager);
+	//_assetManagerLocator.registerManagerForType(EAssetType::SHADER, &_shaderManager);
 	// Another option is this. Wrap them all into one class.
 	//OmniAssetManager OAM(
 	//	_aeonLoader,
 	//	_assetLedger, 
 	//	_assetManagerLocator);
-
 	//OAM.request<SkModel>(9916003768089073041);
 
 	_levelMan = new LevelManager(*this);
