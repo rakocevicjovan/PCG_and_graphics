@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "ShaderGenerator.h"
 #include "Material.h"
+#include "FileUtilities.h"
 
 
 void ShaderGenerator::AddToKey(const VertSignature& vertSig, ShaderGenKey& key, VAttribSemantic semantic, const ShaderOption& shOpt)

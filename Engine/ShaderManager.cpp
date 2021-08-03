@@ -21,7 +21,6 @@ void ShaderManager::loadExistingKeys(const std::wstring& path)
 }
 
 
-
 ShaderPack* ShaderManager::getBestFit(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
 {
 	ShaderGenKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
@@ -37,7 +36,6 @@ ShaderPack* ShaderManager::getBestFit(VertSignature vertSig, Material* mat, SHG_
 
 	return &(inserted.first->second);
 }
-
 
 
 ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
@@ -61,7 +59,6 @@ ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
 }
 
 
-
 Shader* ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
 {
 	std::wstring wFileName = COMPILED_FOLDER + std::to_wstring(shaderKey) + ext;
@@ -78,7 +75,7 @@ Shader* ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
 }
 
 
-
+// @TODO this has way too many implementation details of ShaderGenerator, shouldn't be here.
 ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat)
 {
 	ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
@@ -124,6 +121,7 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 }
 
 
+// @TODO This should be in an editor wrapper, separate concerns
 void ShaderManager::DisplayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device)
 {
 	// For UI

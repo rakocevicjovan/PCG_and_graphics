@@ -60,7 +60,7 @@ bool Engine::initialize()
 
 	_aeonLoader.resizeThreadPool(8);
 
-	_shaderManager = ShaderManager(_assetLedger);
+	_shaderManager = ShaderManager(_assetLedger, _renderer.device());
 	_textureManager = std::move(TextureManager(_assetLedger, _aeonLoader, _renderer.device()));
 
 	_materialManager = MaterialManager(_assetLedger, _shaderManager, _textureManager, _aeonLoader);

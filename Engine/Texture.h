@@ -1,6 +1,5 @@
 #pragma once
 #include <wrl/client.h>
-#include "Resource.h"
 #include "TextureRole.h"
 
 // This will be eventually used and expanded
@@ -17,7 +16,7 @@ enum class TexFormat : uint8_t
 class Image;
 
 
-class Texture : public Resource
+class Texture
 {
 protected:
 

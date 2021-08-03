@@ -514,6 +514,7 @@
     <ClInclude Include="SBuffer.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="TCache.h" />
+    <ClInclude Include="TCachedLoader.h" />
     <ClInclude Include="TDController.h" />
     <ClInclude Include="LevelReader.h" />
     <ClInclude Include="Audio.h" />
@@ -577,7 +578,6 @@
     <ClInclude Include="RenderQueue.h" />
     <ClInclude Include="RenderState.h" />
     <ClInclude Include="RenderStateManager.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="RTSController.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="Shader.h" />

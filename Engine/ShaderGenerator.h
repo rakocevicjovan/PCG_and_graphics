@@ -1,12 +1,11 @@
 #pragma once
 #include "ShaderCompiler.h"
-#include "FileUtilities.h"
 #include "VertSignature.h"
 #include "TextureMetaData.h"
 
 class Material;
 class Texture;
-class MaterialTexture;	// This was not on purpose I promise...
+class MaterialTexture;
 using ShaderGenKey = uint64_t;
 
 // Constants for external code to have some default paths
@@ -35,6 +34,7 @@ enum SHG_LIGHT_MODEL : uint8_t
 	SHG_LM_LAMBERT = 1u,
 	SHG_LM_PHONG = 2u
 };
+
 
 static constexpr SHG_LIGHT_MODEL DEFAULT_LM = SHG_LM_LAMBERT;
 
@@ -71,6 +71,7 @@ constexpr ShaderOption SHG_TX_MTL { "TEX_MTL", PS_T_O + 7 };
 constexpr ShaderOption SHG_TX_RGH { "TEX_RGH", PS_T_O + 8 };
 constexpr ShaderOption SHG_TX_RFL { "TEX_RFL", PS_T_O + 9 };
 constexpr ShaderOption SHG_TX_RFR { "TEX_RFR", PS_T_O + 10 };
+
 
 inline const std::map<TextureRole, const ShaderOption*> TEX_ROLE_TO_SHADER_OPTION
 {

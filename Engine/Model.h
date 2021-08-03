@@ -6,7 +6,7 @@
 
 namespace Procedural { class Terrain; }
 
-class Model : public Resource
+class Model
 {
 public:
 

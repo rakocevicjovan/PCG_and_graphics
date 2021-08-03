@@ -442,13 +442,13 @@
     <ClCompile Include="Image.cpp">
       <Filter>Assets\Asset classes</Filter>
     </ClCompile>
-    <ClCompile Include="STBImporter.cpp">
-      <Filter>Assets\Asset classes</Filter>
-    </ClCompile>
     <ClCompile Include="AeonLoader.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
     <ClCompile Include="AssetManagerLocator.cpp">
+      <Filter>Assets</Filter>
+    </ClCompile>
+    <ClCompile Include="STBImporter.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
   </ItemGroup>
@@ -541,9 +541,6 @@
       <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Assets\Asset classes</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
       <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
@@ -1096,17 +1093,11 @@
     <ClInclude Include="GPUMesh.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="STBImporter.h">
-      <Filter>Assets\Asset classes</Filter>
-    </ClInclude>
     <ClInclude Include="AeonLoader.h">
       <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="ModelManager.h">
       <Filter>Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="TCache.h">
-      <Filter>Assets\Asset classes</Filter>
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
       <Filter>Assets</Filter>
@@ -1140,6 +1131,15 @@
     </ClInclude>
     <ClInclude Include="ViewStreamBuffer.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="TCache.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="STBImporter.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="TCachedLoader.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

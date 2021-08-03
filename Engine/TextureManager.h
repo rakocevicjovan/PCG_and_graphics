@@ -14,7 +14,7 @@ private:
 	TCache<Texture> _cache{};
 	using AssetHandle = TCache<Texture>::AssetHandle;
 
-	AssetLedger* _assetLedger{ nullptr };
+	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
 	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
@@ -49,13 +49,13 @@ private:
 
 	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
 	{
-		FUTURE_MUTEX.lock();
-		if (auto it = _futures.find(assetID); it != _futures.end())
 		{
-			return it->second;
+			std::lock_guard guard(FUTURE_MUTEX);
+			if (auto it = _futures.find(assetID); it != _futures.end())
+			{
+				return it->second;
+			}
 		}
-		FUTURE_MUTEX.unlock();
-
 		return load(assetID);
 	}
 

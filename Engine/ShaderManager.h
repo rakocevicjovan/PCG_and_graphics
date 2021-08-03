@@ -50,7 +50,6 @@ struct ShaderPack
 };
 
 
-
 class ShaderManager : public IAssetManager
 {
 private:
@@ -79,11 +78,6 @@ public:
 	}
 
 
-	ShaderPack getShaderByID(AssetID assetID)
-	{
-
-	}
-
 	void loadExistingKeys(const std::wstring& path);
 
 	ShaderPack* getBestFit(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel = DEFAULT_LM);
@@ -92,6 +86,7 @@ public:
 
 	Shader* loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext);
 
+	// Get this outtie here
 	static ShaderPack CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat);
 
 	// These should probably be separated out
@@ -108,7 +103,6 @@ public:
 		cereal::BinaryOutputArchive ar(ofs);
 		ar(blobString, vertSig._attributes, constantBufferDescs);
 	}
-
 
 
 	VertexShader* loadVertexShader(const std::wstring& path, ShaderGenKey shaderKey)
