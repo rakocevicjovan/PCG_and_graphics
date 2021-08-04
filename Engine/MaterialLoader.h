@@ -17,7 +17,7 @@ namespace MaterialLoader
 		std::vector<std::shared_future<std::shared_ptr<Texture>>> futureTextures(materialAsset._textures.size());
 		material._materialTextures.resize(materialAsset._textures.size());
 
-		for (auto i = 0u; i < materialAsset._textures.size(); ++i)	//auto& texRef : materialAsset._textures
+		for (auto i = 0u; i < materialAsset._textures.size(); ++i)
 		{
 			auto& texRef = materialAsset._textures[i];
 			MaterialTexture materialTexture;

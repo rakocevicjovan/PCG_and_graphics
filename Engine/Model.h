@@ -1,8 +1,6 @@
 #pragma once
 #include "Mesh.h"
 #include "MeshNode.h"
-#include <vector>
-#include <d3d11_4.h>
 
 namespace Procedural { class Terrain; }
 

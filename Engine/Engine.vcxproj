@@ -203,6 +203,7 @@
     <ClCompile Include="ShaderCompiler.cpp" />
     <ClCompile Include="ShaderGenerator.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
+    <ClCompile Include="ShaderPicker.cpp" />
     <ClCompile Include="SkelAnimShader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -443,6 +444,9 @@
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="OmniAssetManager.h" />
+    <ClInclude Include="ShaderLoader.h" />
+    <ClInclude Include="ShaderOption.h" />
+    <ClInclude Include="ShaderPicker.h" />
     <ClInclude Include="STBImporter.h" />
     <ClInclude Include="imnodes.h" />
     <ClInclude Include="ImportTool.h" />

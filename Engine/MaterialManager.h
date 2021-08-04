@@ -22,7 +22,6 @@ private:
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
-	//AssetManagerLocator* _assetManagerLocator{};		// , _assetManagerLocator(&locator)
 	ShaderManager* _shaderManager;
 	TextureManager* _textureManager;
 

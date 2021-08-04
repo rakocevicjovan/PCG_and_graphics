@@ -3,11 +3,15 @@
 #include "ShaderGenerator.h"
 #include "Material.h"
 #include "FileUtilities.h"
+#include "ShaderCompiler.h"
 
+
+namespace ShGen
+{
 
 void ShaderGenerator::AddToKey(const VertSignature& vertSig, ShaderGenKey& key, VAttribSemantic semantic, const ShaderOption& shOpt)
 {
-	UINT elemCount = vertSig.countAttribute(semantic);
+	uint32_t elemCount = vertSig.countAttribute(semantic);
 	elemCount = std::min(elemCount, static_cast<uint32_t>(shOpt._maxVal));
 	key |= (static_cast<ShaderGenKey>(elemCount) << shOpt._offset);
 }
@@ -15,12 +19,12 @@ void ShaderGenerator::AddToKey(const VertSignature& vertSig, ShaderGenKey& key, 
 
 void ShaderGenerator::EncodeVertexData(const VertSignature& vertSig, ShaderGenKey& key)
 {
-	AddToKey(vertSig, key, VAttribSemantic::TEX_COORD, SHG_OPT_TEX);
-	AddToKey(vertSig, key, VAttribSemantic::COL, SHG_OPT_COL);
-	AddToKey(vertSig, key, VAttribSemantic::NORMAL, SHG_OPT_NRM);
-	AddToKey(vertSig, key, VAttribSemantic::TANGENT, SHG_OPT_TAN);
-	AddToKey(vertSig, key, VAttribSemantic::BITANGENT, SHG_OPT_BTN);
-	AddToKey(vertSig, key, VAttribSemantic::B_IDX, SHG_OPT_SIW);
+	AddToKey(vertSig, key, VAttribSemantic::TEX_COORD, OPT_TEX);
+	AddToKey(vertSig, key, VAttribSemantic::COL, OPT_COL);
+	AddToKey(vertSig, key, VAttribSemantic::NORMAL, OPT_NRM);
+	AddToKey(vertSig, key, VAttribSemantic::TANGENT, OPT_TAN);
+	AddToKey(vertSig, key, VAttribSemantic::BITANGENT, OPT_BTN);
+	AddToKey(vertSig, key, VAttribSemantic::B_IDX, OPT_SIW);
 }
 
 
@@ -44,7 +48,7 @@ ShaderGenKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, cons
 {
 	ShaderGenKey shaderKey{0ul};
 
-	shaderKey |= (static_cast<uint64_t>(lmIndex) << SHG_OPT_LMOD._offset);
+	shaderKey |= (static_cast<uint64_t>(lmIndex) << OPT_LMOD._offset);
 	EncodeVertexData(vertSig, shaderKey);
 	EncodeTextureData(mat->_materialTextures, shaderKey);
 
@@ -197,4 +201,6 @@ void ShaderGenerator::CreatePermFromKey(
 		return;
 
 	CreateShPerm(outDirPath.c_str(), textBuffer, matchingPermOptions, L"vs", total);
+}
+
 }

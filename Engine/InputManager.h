@@ -1,6 +1,4 @@
 #pragma once
-#include <memory>
-#include <vector>
 #include "Mouse.h"
 #include "Controller.h"
 #include "Observer.h"

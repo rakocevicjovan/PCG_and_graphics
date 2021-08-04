@@ -12,10 +12,10 @@ class OmniAssetManager
 {
 public:
 
-	AeonLoader* _loader;
-	AssetLedger* _assetLedger;
+	AeonLoader* _loader{};
+	AssetLedger* _assetLedger{};
 	
-	AssetManagerLocator* _locator;
+	AssetManagerLocator* _locator{};
 
 public:
 

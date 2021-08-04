@@ -1,27 +1,25 @@
 #pragma once
 
 #include "AssetLedger.h"
-#include "Texture.h"
-#include "TCache.h"
-#include "IAssetManager.h"
 #include "AeonLoader.h"
+#include "TCache.h"
 
 
-class TextureManager : public IAssetManager
+template <typename AssetType, typename TLoadFn>
+class TCachedLoader
 {
 private:
-	
-	TCache<Texture> _cache{};
-	using AssetHandle = TCache<Texture>::AssetHandle;
+
+	TCache<AssetType> _cache{};
+	using AssetHandle = typename TCache<AssetType>::AssetHandle;
 
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
 	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
-	inline static std::mutex FUTURE_MUTEX{};	// Make non static, stopgap for now cba changing construction
-	inline static std::mutex CACHE_MUTEX{};
 
-	ID3D11Device* _device{ nullptr };
+	std::mutex _futureMutex{};
+	std::mutex _cacheMutex{};
 
 
 	std::shared_future<AssetHandle> load(AssetID assetID)
@@ -31,24 +29,24 @@ private:
 			{
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
-					return addToCache(assetID, std::make_shared<Texture>(_device, *path));
+					TLoadFn(path);
 				}
-				assert(false && "Could not find a texture with this ID.");
+				assert(false && "Could not find an asset with this ID.");
 			},
 			assetID).share();
 
-		FUTURE_MUTEX.lock();
-		_futures.insert({ assetID, shared_future });
-		FUTURE_MUTEX.unlock();
+			_futureMutex.lock();
+			_futures.insert({ assetID, shared_future });
+			_futureMutex.unlock();
 
-		return shared_future;
+			return shared_future;
 	}
 
 
 	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
 	{
 		{
-			std::lock_guard guard(FUTURE_MUTEX);
+			std::lock_guard guard(_futureMutex);
 			if (auto it = _futures.find(assetID); it != _futures.end())
 			{
 				return it->second;
@@ -60,24 +58,24 @@ private:
 
 	inline AssetHandle getFromCache(AssetID assetID)
 	{
-		std::lock_guard cacheGuard(CACHE_MUTEX);
+		std::lock_guard cacheGuard(_cacheMutex);
 		return _cache.get(assetID);
 	}
 
 
 	inline AssetHandle addToCache(AssetID assetID, AssetHandle handle)
 	{
-		std::lock_guard cacheGuard(CACHE_MUTEX);
+		std::lock_guard cacheGuard(_cacheMutex);
 		return _cache.store(assetID, *handle);
 	}
 
 public:
 
-	TextureManager() = default;
+	TCachedLoader() = default;
 
 
-	TextureManager(AssetLedger& assetLedger, AeonLoader& aeonLoader, ID3D11Device* device) 
-		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader), _device(device) {}
+	TCachedLoader(AssetLedger& assetLedger, AeonLoader& aeonLoader)
+		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader) {}
 
 
 	std::shared_future<AssetHandle> getAsync(AssetID assetID)
@@ -96,7 +94,7 @@ public:
 	AssetHandle getBlocking(AssetID assetID)
 	{
 		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
-		
+
 		if (AssetHandle result{ getFromCache(assetID) }; result)
 		{
 			return result;

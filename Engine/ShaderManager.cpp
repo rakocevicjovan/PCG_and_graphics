@@ -2,6 +2,7 @@
 
 #include "ShaderManager.h"
 #include "Material.h"
+#include "IMGUI/imgui.h"
 
 
 void ShaderManager::loadExistingKeys(const std::wstring& path)
@@ -21,9 +22,9 @@ void ShaderManager::loadExistingKeys(const std::wstring& path)
 }
 
 
-ShaderPack* ShaderManager::getBestFit(VertSignature vertSig, Material* mat, SHG_LIGHT_MODEL lightModel)
+ShaderPack* ShaderManager::getBestFit(VertSignature vertSig, Material* mat, ShGen::LIGHT_MODEL lightModel)
 {
-	ShaderGenKey shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
+	ShaderGenKey shaderKey = ShGen::ShaderGenerator::CreateShaderKey(vertSig, mat, lightModel);
 
 	ShaderPack* shPack = getShaderByKey(shaderKey);
 
@@ -61,15 +62,15 @@ ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
 
 Shader* ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
 {
-	std::wstring wFileName = COMPILED_FOLDER + std::to_wstring(shaderKey) + ext;
+	std::wstring wFileName = ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + ext;
 
 	if (ext == L"vs.cmp")
 	{
-		return loadVertexShader(wFileName, shaderKey);
+		return LoadVertexShader(wFileName, shaderKey, _pDevice);
 	}
 	if (ext == L"ps.cmp")
 	{
-		return loadPixelShader(wFileName, shaderKey);
+		return LoadPixelShader(wFileName, shaderKey, _pDevice);
 	}
 	return nullptr;
 }
@@ -78,13 +79,13 @@ Shader* ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
 // @TODO this has way too many implementation details of ShaderGenerator, shouldn't be here.
 ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey, VertSignature vertSig, Material* mat)
 {
-	ShaderGenerator::CreatePermFromKey(ShaderGenerator::AllOptions, shaderKey);
+	ShGen::ShaderGenerator::CreatePermFromKey(ShGen::ShaderGenerator::AllOptions, shaderKey);
 
 	ShaderCompiler shc(device);
 
 	// VS
-	std::wstring vsPathW(PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"vs.hlsl");
-	std::wstring cmpVsPath(COMPILED_FOLDER + std::to_wstring(shaderKey) + L"vs.cmp");
+	std::wstring vsPathW(ShGen::PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"vs.hlsl");
+	std::wstring cmpVsPath(ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + L"vs.cmp");
 
 	ID3DBlob* vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
 	ID3D11VertexShader* d3dvs = shc.blobToVS(vsBlob);
@@ -103,8 +104,8 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 	vsBlob->Release();
 
 	// PS
-	std::wstring psPathW(PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"ps.hlsl");
-	std::wstring cmpPsPath(COMPILED_FOLDER + std::to_wstring(shaderKey) + L"ps.cmp");
+	std::wstring psPathW(ShGen::PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"ps.hlsl");
+	std::wstring cmpPsPath(ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + L"ps.cmp");
 
 	ID3DBlob* psBlob = shc.compileToBlob(psPathW, "ps_5_0");
 	ID3D11PixelShader* d3dps = shc.blobToPS(psBlob);
@@ -118,51 +119,4 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 	psBlob->Release();
 
 	return ShaderPack{ vs, ps };
-}
-
-
-// @TODO This should be in an editor wrapper, separate concerns
-void ShaderManager::DisplayShaderPicker(VertSignature vertSig, Material* mat, ID3D11Device* device)
-{
-	// For UI
-	struct LightModelIndex
-	{
-		std::string name;
-		SHG_LIGHT_MODEL index;
-	};
-	uint64_t shaderKey{ 0 };
-
-	static const std::vector<LightModelIndex> lmiOptions
-	{
-		{ "NONE",		SHG_LM_NONE},
-		{ "LAMBERT",	SHG_LM_LAMBERT},
-		{ "PHONG",		SHG_LM_PHONG}
-	};
-
-	// Default lambert
-	static const LightModelIndex* selected = &lmiOptions[1];
-
-	if (ImGui::Begin("Shader picker"))
-	{
-		if (ImGui::BeginCombo("Light model", selected->name.data()))
-		{
-			for (UINT i = 0; i < lmiOptions.size(); ++i)
-			{
-				if (ImGui::Selectable(lmiOptions[i].name.c_str()))
-					selected = &lmiOptions[i];
-			}
-			ImGui::EndCombo();
-		}
-	}
-
-	shaderKey = ShaderGenerator::CreateShaderKey(vertSig, mat, selected->index);
-
-	ImGui::Text("Key: %lu", shaderKey);
-
-	if (ImGui::Button("Create shader"))
-	{
-		CreateShader(device, shaderKey, vertSig, mat);
-	}
-
-	ImGui::End();
 }

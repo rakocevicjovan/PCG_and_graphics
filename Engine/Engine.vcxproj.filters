@@ -451,6 +451,9 @@
     <ClCompile Include="STBImporter.cpp">
       <Filter>Assets</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderPicker.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1140,6 +1143,15 @@
     </ClInclude>
     <ClInclude Include="TCachedLoader.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderLoader.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderOption.h">
+      <Filter>Rendering\Shaders\Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderPicker.h">
+      <Filter>Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@
 #include "Observer.h"
 
 class InputManager;
-class MCoords;
+struct MCoords;
 
 
 enum CTRL_MODE

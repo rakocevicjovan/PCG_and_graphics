@@ -8,6 +8,8 @@
 
 #include "AssetManagerLocator.h"
 
+#include "TCachedLoader.h"
+
 
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
@@ -67,8 +69,13 @@ bool Engine::initialize()
 
 	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
 
-	auto test1 = _modelManager.get(9916003768089073041);
+	auto test1 = _modelManager.getBlocking(9916003768089073041);
 	//auto test2 = _modelManager.get(9916003768089073041);
+
+
+	//TCachedLoader<VertexShader> vsManager;
+	
+	//TCachedLoader<PixelShader> psManager;
 
 	//_assetManagerLocator.registerManagerForType(EAssetType::SK_MODEL, &_modelManager);
 	//_assetManagerLocator.registerManagerForType(EAssetType::MATERIAL, &_materialManager);

@@ -1,13 +1,14 @@
 #pragma once
+#include "TCache.h"
+#include "AeonLoader.h"
+#include "AssetLedger.h"
 #include "ModelLoader.h"
-#include "TextureLoader.h"
 #include "MaterialManager.h"
-#include "AeonLoader.h"
 #include "Deserialize.h"
-#include "IAssetManager.h"
-#include "AeonLoader.h"
+//#include "IAssetManager.h"
 
-class ModelManager : public IAssetManager
+
+class ModelManager // final : public IAssetManager
 {
 private:
 
@@ -17,21 +18,61 @@ private:
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
-	//AssetManagerLocator* _assetManagerLocator{};	// , _assetManagerLocator(&locator)
-	MaterialManager* _materialManager{};
-
 	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
 
-	std::shared_future<AssetHandle> checkIfLoading(AssetID assetID)
+	inline static std::mutex FUTURE_MUTEX{};
+	inline static std::mutex CACHE_MUTEX{};
+
+	MaterialManager* _materialManager{};
+
+
+	std::shared_future<AssetHandle> load(AssetID assetID)
 	{
-		auto iter = _futures.find(assetID);
-		if (iter != _futures.end())
-		{
-			return iter->second;
-		}
-		return {};
+		auto shared_future = _aeonLoader->pushTask(
+			[this](AssetID assetID)
+			{
+				if (const std::string* path = _assetLedger->getPath(assetID); path)
+				{
+					auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path->c_str());
+					return addToCache(assetID, std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager)));
+				}
+				assert(false && "Could not find an asset with this ID.");
+			},
+			assetID).share();
+
+			FUTURE_MUTEX.lock();
+			_futures.insert({ assetID, shared_future });
+			FUTURE_MUTEX.unlock();
+
+			return shared_future;
 	}
 
+
+	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
+	{
+		{
+			std::lock_guard guard(FUTURE_MUTEX);
+			if (auto it = _futures.find(assetID); it != _futures.end())
+			{
+				return it->second;
+			}
+		}
+		return load(assetID);
+	}
+
+
+	inline AssetHandle getFromCache(AssetID assetID)
+	{
+		std::lock_guard cacheGuard(CACHE_MUTEX);
+		return _cache.get(assetID);
+	}
+
+
+	inline AssetHandle addToCache(AssetID assetID, AssetHandle handle)
+	{
+		std::lock_guard cacheGuard(CACHE_MUTEX);
+		return _cache.store(assetID, *handle);
+	}
 
 public:
 
@@ -43,69 +84,31 @@ public:
 		: _assetLedger(&ledger), _aeonLoader(&aeonLoader), _materialManager(&matMan) {}
 
 
-	std::shared_future<AssetHandle> get_async(AssetID assetID)
+	std::shared_future<AssetHandle> getAsync(AssetID assetID)
 	{
-		auto shared_future = _aeonLoader->pushTask(
-			[this](AssetID assetID)
-			{
-				return get(assetID);
-			}, assetID).share();
-
-		static std::mutex _futureMutex;
-		_futureMutex.lock();
-		_futures.emplace(assetID, shared_future);
-		_futureMutex.unlock();
-
-		return shared_future;
-	}
-
-
-	// Blocking function from the viewpoint of the caller. It can internally spawn threads for dependencies.
-	std::shared_ptr<SkModel> get(AssetID assetID)
-	{
-		AssetHandle result{ nullptr };
-
-		// Check if already loaded
-		result = _cache.get(assetID);
-
-		if (!result)
+		if (auto existing = getFromCache(assetID); existing)
 		{
-			// Check if it's currently being loaded
-			auto future = checkIfLoading(assetID);
-			if (future.valid())
-			{
-				future.wait();
-				return future.get();
-			}
-
-			// Not loaded or loading, issue a request
-			auto* AMD = _assetLedger->get(assetID);
-
-			if (!AMD)
-			{
-				assert(false && "Asset not found for given assetID.");
-				return {};
-			}
-
-			auto& [path, deps, type] = *AMD;
-
-			auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path.c_str());
-			auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager);
-
-			result = _cache.store(assetID, skModel);
+			std::promise<AssetHandle> promise;
+			promise.set_value(existing);
+			return promise.get_future();
 		}
 
-		return result;
+		return pendingOrLoad(assetID);
+	}
+
+
+	AssetHandle getBlocking(AssetID assetID)
+	{
+		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
+
+		if (AssetHandle result{ getFromCache(assetID) }; result)
+		{
+			return result;
+		}
+
+		// Check if it's currently being loaded, if not load it
+		auto assetFuture = pendingOrLoad(assetID);
+		assetFuture.wait();
+		return addToCache(assetID, assetFuture.get());
 	}
 };
-
-// // Send out an asynchronous request
-//auto futureAsset = _aeonLoader->request(filePath->c_str(),
-//	[&matMan = std::ref(_materialManager)](const char* path)
-//{
-//	auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path);
-//	auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), matMan);
-//	return skModel;
-//});
-//
-//_skModelFutures.insert({ assetID, std::move(futureAsset) });
