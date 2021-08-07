@@ -104,11 +104,11 @@ public:
 		}
 
 		
-		_sys._renderer._mainStage = RenderStage(
-			S_RANDY.device(),
-			&(S_RANDY._cam),
-			&(S_RANDY.d3d()->_renderTarget),
-			&(S_RANDY.d3d()->_viewport));
+		//_sys._renderer._mainStage = RenderStage(
+		//	S_RANDY.device(),
+		//	&(S_RANDY._cam),
+		//	&(S_RANDY.d3d()->_renderTarget),
+		//	&(S_RANDY.d3d()->_viewport));
 			
 
 		/*
@@ -186,19 +186,20 @@ public:
 	{
 		//_sys._renderer.setDefaultRenderTarget();
 
+		_dirLight.updateCBuffer(S_CONTEXT, _dirLightCB);
 		_dirLight.bind(S_CONTEXT, _dirLightCB);
 
-		//_scene.draw();
+		_scene.draw();
 
-		_sys._renderer.setDefaultRenderTarget();
+		//_sys._renderer.setDefaultRenderTarget();
 
 		fakeRenderSystem(rc.d3d->getContext(), _scene._registry);
 
-		/*S_RANDY.d3d()->setRSWireframe();
+		S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(S_CONTEXT);
-		S_RANDY.d3d()->setRSSolidCull();*/
+		S_RANDY.d3d()->setRSSolidCull();
 
-		//_skybox.renderSkybox(*rc.cam, S_RANDY);
+		_skybox.renderSkybox(*rc.cam, S_RANDY);
 
 		GUI::beginFrame();
 

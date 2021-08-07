@@ -1162,6 +1162,15 @@
     <ClInclude Include="CSkModel.h">
       <Filter>Scene management\Components</Filter>
     </ClInclude>
+    <ClInclude Include="CRTP.h">
+      <Filter>TMP</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonManager.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationManager.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

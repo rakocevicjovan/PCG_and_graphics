@@ -18,6 +18,9 @@
 #include "ModelManager.h"
 #include "MaterialManager.h"
 #include "TextureManager.h"
+#include "SkeletonManager.h"
+#include "AnimationManager.h"
+
 #include "ShaderManager.h"
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
@@ -82,7 +85,10 @@ public:
 	ModelManager _modelManager;
 	MaterialManager _materialManager;
 	TextureManager _textureManager;
+	SkeletonManager _skeletonManager;
+	AnimationManager _animationManager;
 	ShaderManager _shaderManager;
+
 	AssetManagerLocator _assetManagerLocator;
 
 	// Here so we have something for camera controls in every level, move out eventually

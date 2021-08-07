@@ -5,22 +5,22 @@
 #include "TCache.h"
 
 
-template <typename AssetType, typename TLoadFn>
+template <typename AssetType, typename CRTPDerived>
 class TCachedLoader
 {
-private:
+protected:
 
-	TCache<AssetType> _cache{};
 	using AssetHandle = typename TCache<AssetType>::AssetHandle;
+	TCache<AssetType> _cache{};
 
 	AssetLedger* _assetLedger{};
 	AeonLoader* _aeonLoader{};
 
 	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
 
-	std::mutex _futureMutex{};
-	std::mutex _cacheMutex{};
-
+	// @TODO make not static asap
+	inline static std::mutex _futureMutex{};
+	inline static std::mutex _cacheMutex{};
 
 	std::shared_future<AssetHandle> load(AssetID assetID)
 	{
@@ -29,7 +29,9 @@ private:
 			{
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
-					TLoadFn(path);
+					CRTPDerived& derived = *static_cast<CRTPDerived*>(this);
+					auto result = std::make_shared<AssetType>(derived.loadImpl(path->c_str()));
+					return addToCache(assetID, result);
 				}
 				assert(false && "Could not find an asset with this ID.");
 			},
@@ -73,7 +75,6 @@ public:
 
 	TCachedLoader() = default;
 
-
 	TCachedLoader(AssetLedger& assetLedger, AeonLoader& aeonLoader)
 		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader) {}
 
@@ -103,6 +104,13 @@ public:
 		// Check if it's currently being loaded, if not load it
 		auto assetFuture = pendingOrLoad(assetID);
 		assetFuture.wait();
-		return addToCache(assetID, assetFuture.get());
+		return assetFuture.get();
 	}
 };
+
+
+template <typename AssetType, typename LoadFunctionType>
+static auto make_cached_loader(AssetLedger& assetLedger, AeonLoader& aeonLoader, const LoadFunctionType& loadFunction)
+{
+	return TCachedLoader<AssetType, LoadFunctionType>(assetLedger, aeonLoader, loadFunction);
+}

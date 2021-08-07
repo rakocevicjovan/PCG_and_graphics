@@ -464,16 +464,6 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
-	//S_RANDY._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 1.f, 1., 1000.));
-	//S_RANDY.updatePerCamBuffer(1024, 1024);
-
-	//Viewport viewport(1024, 1024);
-	//viewport.bind(rc.d3d->getContext());
-	//_renderTarget.bind(rc.d3d->getContext());
-	//_renderTarget.clear(rc.d3d->getContext());
-
-	//S_RANDY.setDefaultRenderTarget();
-
 	if (_inBuildingMode)
 	{
 		for (Renderable& r : _templateBuilding->_renderables)

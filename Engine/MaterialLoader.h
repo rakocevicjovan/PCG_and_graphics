@@ -28,7 +28,6 @@ namespace MaterialLoader
 		material._opaque = materialAsset._opaque;
 		
 		// Load shaders too
-		
 
 		// Wait for textures to finish
 		for (auto i = 0u; i < futureTextures.size(); ++i)

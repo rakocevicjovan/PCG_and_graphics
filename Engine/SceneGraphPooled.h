@@ -2,6 +2,8 @@
 
 #include "Math.h"
 #include "PoolAllocator.h"
+#include <array>
+
 
 template <UINT MAX_DEPTH = 16u>
 class SceneGraphPooled

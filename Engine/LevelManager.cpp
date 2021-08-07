@@ -9,25 +9,22 @@
 #include "RenderingTestLevel.h"
 
 
-
 LevelManager::LevelManager(Engine& systems)
 {	
 	//_current = new ProjectPickerLevel(systems);	//boring to click through...
 
 	//_current = new AssimpLoader(systems);
 
-	_current = new TDLevel(systems);
+	//_current = new TDLevel(systems);
 
-	//_current = new RenderingTestLevel(systems);
+	_current = new RenderingTestLevel(systems);
 
 	_current->init(systems);
 	_levels.push_back(_current);
 }
 
 
-
 LevelManager::~LevelManager() {}
-
 
 
 void LevelManager::advanceLevel(Engine& systems)
@@ -40,7 +37,6 @@ void LevelManager::advanceLevel(Engine& systems)
 	_levels[0]->init(systems);
 	_current = _levels[0];
 }
-
 
 
 void LevelManager::handleInput(Engine& systems, float dTime)
@@ -56,7 +52,6 @@ void LevelManager::handleInput(Engine& systems, float dTime)
 		sinceLastInput = 0;
 	}
 }
-
 
 
 void LevelManager::updateAndDrawCurrent(RenderContext& renderContext)

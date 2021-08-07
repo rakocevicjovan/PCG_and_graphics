@@ -401,6 +401,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationEditor.h" />
     <ClInclude Include="AnimationInstance.h" />
+    <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="AnimChannel.h" />
     <ClInclude Include="AssetExplorer.h" />
     <ClInclude Include="AssetManagerLocator.h" />
@@ -418,6 +419,7 @@
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Cone.h" />
     <ClInclude Include="CParentLink.h" />
+    <ClInclude Include="CRTP.h" />
     <ClInclude Include="CSkModel.h" />
     <ClInclude Include="CSM.h" />
     <ClInclude Include="CModel.h" />
@@ -449,6 +451,7 @@
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="ShaderOption.h" />
     <ClInclude Include="ShaderPicker.h" />
+    <ClInclude Include="SkeletonManager.h" />
     <ClInclude Include="STBImporter.h" />
     <ClInclude Include="imnodes.h" />
     <ClInclude Include="ImportTool.h" />

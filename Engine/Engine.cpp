@@ -8,6 +8,7 @@
 
 #include "AssetManagerLocator.h"
 
+#include "Skeleton.h"
 #include "TCachedLoader.h"
 
 
@@ -67,14 +68,16 @@ bool Engine::initialize()
 
 	_materialManager = MaterialManager(_assetLedger, _shaderManager, _textureManager, _aeonLoader);
 
-	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
+	_skeletonManager = SkeletonManager(_assetLedger, _aeonLoader);
+	
+	_animationManager = AnimationManager(_assetLedger, _aeonLoader);
+
+	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager, _skeletonManager, _animationManager);
+
+
 
 	//auto test1 = _modelManager.getBlocking(9916003768089073041);
 	//auto test2 = _modelManager.get(9916003768089073041);
-
-	//TCachedLoader<VertexShader> vsManager;
-	
-	//TCachedLoader<PixelShader> psManager;
 
 	//_assetManagerLocator.registerManagerForType(EAssetType::SK_MODEL, &_modelManager);
 	//_assetManagerLocator.registerManagerForType(EAssetType::MATERIAL, &_materialManager);

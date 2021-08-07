@@ -2,8 +2,11 @@
 #include "Model.h"
 #include "SkeletalModel.h"
 #include "ModelAsset.h"
+
 #include "MaterialManager.h"
-#include "Animation.h"
+#include "SkeletonManager.h"
+#include "AnimationManager.h"
+
 #include "AssetLedger.h"
 #include "Deserialize.h"
 
@@ -51,8 +54,8 @@ namespace ModelLoader
 		return model;
 	}
 
-
-	static SkModel LoadSkModelFromAsset(SkModelAsset& skModelAsset, MaterialManager* materialManager)
+	/*, SkeletonManager* skeletonManager, AnimationManager* animationManager */
+	static SkModel LoadSkModelFromAsset(SkModelAsset& skModelAsset, MaterialManager* materialManager, SkeletonManager* skMan, AnimationManager* aniMan)
 	{
 		SkModel skModel;
 		
@@ -60,18 +63,30 @@ namespace ModelLoader
 
 		skModel._meshNodeTree = skModelAsset.model.meshNodes;
 
-		// This will not work like this later, must check the cache first for skeleton and animations. Same for materials!
-		// It should be optional to check the cache (maybe pass cache as pointer not sure)
+		// Schedule skeleton load
+		auto skeletonFuture = skMan->getAsync(skModelAsset.skeleton);
+		//skModel._skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
 
-		/*auto skeletonPath = assetLedger.getPath(skModelAsset.skeleton);
-		skModel._skeleton = std::make_shared<Skeleton>(AssetHelpers::DeserializeFromFile<Skeleton>(skeletonPath->c_str()));
+		// Schedule animation loads
+		std::vector<std::shared_future<std::shared_ptr<Animation>>> animFutures;
+		animFutures.reserve(skModelAsset.animations.size());
 
-		skModel._anims.reserve(skModelAsset.animations.size());
 		for (auto animID : skModelAsset.animations)
 		{
-			auto animPath = assetLedger.getPath(animID);
-			skModel._anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
-		}*/
+			animFutures.push_back(std::move(aniMan->getAsync(animID)));
+			//skModel._anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
+		}
+
+		// Wait for skeleton
+		skModel._skeleton = skeletonFuture.get();
+
+		// Wait for animations
+		skModel._anims.reserve(skModelAsset.animations.size());
+
+		for (auto& animFuture : animFutures)
+		{
+			skModel._anims.push_back(animFuture.get());
+		}
 
 		return skModel;
 	}

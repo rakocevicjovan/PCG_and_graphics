@@ -4,6 +4,8 @@
 #include "AssetLedger.h"
 #include "ModelLoader.h"
 #include "MaterialManager.h"
+#include "SkeletonManager.h"
+#include "AnimationManager.h"
 #include "Deserialize.h"
 //#include "IAssetManager.h"
 
@@ -24,6 +26,8 @@ private:
 	inline static std::mutex CACHE_MUTEX{};
 
 	MaterialManager* _materialManager{};
+	SkeletonManager* _skMan{};
+	AnimationManager* _aniMan{};
 
 
 	std::shared_future<AssetHandle> load(AssetID assetID)
@@ -34,10 +38,8 @@ private:
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
 					auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path->c_str());
-
-					// The only way to free the user from caching async loaded stuff manually is to have the task do it, OR, when cleaning up the future list
 					//return std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager));
-					return addToCache(assetID, std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager)));
+					return addToCache(assetID, std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager, _skMan, _aniMan)));
 				}
 				assert(false && "Could not find an asset with this ID.");
 			},
@@ -83,8 +85,8 @@ public:
 	ModelManager() = default;
 
 
-	ModelManager(AssetLedger& ledger, AeonLoader& aeonLoader, MaterialManager& matMan)
-		: _assetLedger(&ledger), _aeonLoader(&aeonLoader), _materialManager(&matMan) {}
+	ModelManager(AssetLedger& ledger, AeonLoader& aeonLoader, MaterialManager& matMan, SkeletonManager& skMan, AnimationManager& aniMan)
+		: _assetLedger(&ledger), _aeonLoader(&aeonLoader), _materialManager(&matMan), _skMan(&skMan), _aniMan(&aniMan) {}
 
 
 	std::shared_future<AssetHandle> getAsync(AssetID assetID)
