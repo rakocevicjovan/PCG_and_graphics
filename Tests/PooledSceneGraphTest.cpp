@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "../Engine/PooledSceneGraph.h"
+#include "../Engine/SceneGraphPooled.h"
 #include "../Engine/Math.h"
 
 
@@ -10,7 +10,7 @@ TEST(PooledSceneGraph, MaxDepth)
 {
 	int a = 0;
 	
-	PooledSceneGraph<4> psg(16);
+	SceneGraphPooled<4> psg(16);
 	auto n1 = psg.createNode(SMatrix{}, nullptr);
 	auto n2 = psg.createNode(SMatrix::CreateRotationX(PI), nullptr);
 	auto n3 = psg.createNode(SMatrix::CreateRotationY(PI), n1);
