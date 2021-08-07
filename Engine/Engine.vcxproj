@@ -187,6 +187,7 @@
       <FloatingPointExceptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </FloatingPointExceptions>
     </ClCompile>
+    <ClCompile Include="ComponentEditors.cpp" />
     <ClCompile Include="DXT.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="FuzzySearch.cpp" />

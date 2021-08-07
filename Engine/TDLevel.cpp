@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Steering.h"
 #include "Terrain.h"
+#include "ModelImporter.h"
 
 //#include "SceneGraphPooled.h"
 #include "entt/entt.hpp"
@@ -26,24 +27,19 @@ TDLevel::TDLevel(Engine& sys)
 ///INIT AND HELPERS
 void TDLevel::init(Engine& sys)
 {
-	//ShaderGenerator shg(_sys._shaderCompiler);	shg.mix();
-
+	// Testing 
 	_geoClipMap.init(S_DEVICE);
-
 	_sceneEditor.init(&_scene);
 
-	/* Load everything up for the level. Preserve order of these functions three */
-	//_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
-	//_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
-	Model* skyBoxModel = nullptr;//S_RESMAN.getByName<Model>("Skysphere");
+	auto skyBoxModel = ModelImporter::StandaloneModelImport(S_DEVICE, "../Models/Skysphere.fbx").model.release();
+	Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("skyboxVS"), _sys._shaderCache.getPixShader("skyboxPS"), true);
+	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, skyBoxMat);
 
 	_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 	S_INMAN.registerController(&_tdController);
-
-	//_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
 
 	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
 	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
@@ -97,23 +93,23 @@ void TDLevel::init(Engine& sys)
 
 	for (int i = 0; i < NUM_ENEMIES; ++i)
 	{
-		SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
+		//SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
-		_creeps.emplace_back(
-			modelPtr,
-			SMatrix::CreateScale(2.f) * SMatrix::CreateTranslation(pos),
-			100.f, 50.f, 1.1f, 0.9f
-		);
+		//_creeps.emplace_back(
+		//	modelPtr,
+		//	SMatrix::CreateScale(2.f) * SMatrix::CreateTranslation(pos),
+		//	100.f, 50.f, 1.1f, 0.9f
+		//);
 
-		_creeps[i]._steerComp._mspeed = 40.f;
-		//_creeps[i].renderableHandle = _scene.addRenderable() @TODO MAKE IT WORK LIKE THIS!
-		
-		_creeps[i].patchMaterial(vsPtr, psPtr);
+		//_creeps[i]._steerComp._mspeed = 40.f;
+		////_creeps[i].renderableHandle = _scene.addRenderable() @TODO MAKE IT WORK LIKE THIS!
+		//
+		//_creeps[i].patchMaterial(vsPtr, psPtr);
 
-		for (Hull* h : _creeps[i]._collider.getHulls())
-			_scene._octree.insertObject(static_cast<SphereHull*>(h));
+		//for (Hull* h : _creeps[i]._collider.getHulls())
+		//	_scene._octree.insertObject(static_cast<SphereHull*>(h));
 
-		_scene._actors.push_back(&(_creeps[i]));
+		//_scene._actors.push_back(&(_creeps[i]));
 	}
 
 	//Add building types, @TODO make data driven
@@ -468,6 +464,16 @@ void TDLevel::steerEnemies(float dTime)
 ///DRAW AND HELPERS
 void TDLevel::draw(const RenderContext& rc)
 {
+	//S_RANDY._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 1.f, 1., 1000.));
+	//S_RANDY.updatePerCamBuffer(1024, 1024);
+
+	//Viewport viewport(1024, 1024);
+	//viewport.bind(rc.d3d->getContext());
+	//_renderTarget.bind(rc.d3d->getContext());
+	//_renderTarget.clear(rc.d3d->getContext());
+
+	//S_RANDY.setDefaultRenderTarget();
+
 	if (_inBuildingMode)
 	{
 		for (Renderable& r : _templateBuilding->_renderables)

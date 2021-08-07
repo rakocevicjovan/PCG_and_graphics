@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CParentLink.h"
 #include "CTransform.h"
 #include "CModel.h"
@@ -9,96 +10,42 @@ namespace ComponentEditor
 	// Displaying
 	// This could stay here but normalize the namespace.
 	template<typename Component>
-	static void Display(Component& component)
+	void Display(Component& component)
 	{
 		// Could we do it the everything'sfinae way instead?
 		static_assert(false && "Missing Display() implementation for component");
 	};
 
-	// Individual template specs for editor display... I believe it's cleaner to keep them in one file.
+	// Forward declarations for specializations
 	template<>
-	static void Display(CTransform& transform)
-	{
-		ImGui::PushID(&transform);
-		GuiBlocks::displayTransform(transform);
-		ImGui::PopID();
-	}
+	void Display<CTransform>(CTransform&);
 
 	template<>
-	static void Display(CParentLink& parentLink)
-	{
-		ImGui::Text("Parent: %d", parentLink.parent);
-	}
+	void Display<CParentLink>(CParentLink&);
 
 	template<>
-	static void Display(CModel& model)
-	{
-		if (!model.model)
-		{
-			ImGui::Text("No model assigned.");
-			return;
-		}
-
-		ImGui::Indent();
-
-		for (auto& mesh : model.model->_meshes)
-		{
-			GuiBlocks::displayMesh(&mesh);
-		}
-
-		ImGui::Unindent();
-	}
-
+	void Display<CModel>(CModel&);
 
 	template<>
-	static void Display(CSkModel& skModel)
-	{
-		if (!skModel._skModel)
-		{
-			ImGui::Text("No model assigned.");
-			return;
-		}
-
-		ImGui::Indent();
-
-		for (auto& mesh : skModel._skModel->_meshes)
-		{
-			GuiBlocks::displayMesh(&mesh);
-		}
-
-		ImGui::Unindent();
-	}
+	void Display<CSkModel>(CSkModel&);
 
 
-	// Just a name
+	// Forward declarations for specializations
 	template<typename Component>
-	static const char* GetComponentTypeName()
+	const char* GetComponentTypeName()
 	{
-		return "";
+		return "undefined type";
 	}
 
 	template<>
-	static const char* GetComponentTypeName<CTransform>()
-	{
-		return "transform component";
-	}
+	const char* GetComponentTypeName<CTransform>();
 
 	template<>
-	static const char* GetComponentTypeName<CParentLink>()
-	{
-		return "parent link component";
-	}
+	const char* GetComponentTypeName<CParentLink>();
 
 	template<>
-	static const char* GetComponentTypeName<CModel>()
-	{
-		return "static model component";
-	}
+	const char* GetComponentTypeName<CModel>();
 
 	template<>
-	static const char* GetComponentTypeName<CSkModel>()
-	{
-		return "skeletal model component";
-	}
-
+	const char* GetComponentTypeName<CSkModel>();
 }

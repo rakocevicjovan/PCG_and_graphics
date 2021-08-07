@@ -204,7 +204,7 @@ void D3D::SetBackBufferRenderTarget()
 {
 	_deviceContext->RSSetViewports(1, &_viewport._viewport);
 	_renderTarget.bind(_deviceContext.Get());
-	_renderTarget.clear(_deviceContext.Get());
+	_renderTarget.clear(_deviceContext.Get());	// @TODO Likely shouldn't be here??
 }
 
 

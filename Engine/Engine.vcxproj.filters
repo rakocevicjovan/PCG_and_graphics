@@ -454,6 +454,9 @@
     <ClCompile Include="ShaderPicker.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
+    <ClCompile Include="ComponentEditors.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

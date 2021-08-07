@@ -13,6 +13,9 @@
 #include "FPSCounter.h"
 #include "entt/entt.hpp"
 
+#include "CParentLink.h"
+#include "CTransform.h"
+#include "CModel.h"
 #include "CSkModel.h"
 
 
@@ -36,6 +39,7 @@ private:
 	DirectionalLight _dirLight;
 	CBuffer _dirLightCB;
 	CBuffer _positionBuffer;
+	CBuffer _skMatsBuffer;
 	Skybox _skybox;
 
 	std::vector<RenderStage> _stages;
@@ -52,17 +56,25 @@ public:
 	{
 		//_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
 		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
-		//_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
 		// All of this should not have to be here! Goal of this refactor is to kill it.
-		//Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");
-		//_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, S_MATCACHE.getMaterial("skybox"));
+
+		auto skyBoxModel = ModelImporter::StandaloneModelImport(S_DEVICE, "../Models/Skysphere.fbx").model.release();
+		Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("skyboxVS"), _sys._shaderCache.getPixShader("skyboxPS"), true);
+
+		_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, skyBoxMat);
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 
 		_dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
 		_dirLight.createCBuffer(S_DEVICE, _dirLightCB);
 		_dirLight.updateCBuffer(S_CONTEXT, _dirLightCB);
+
+		_skMatsBuffer.init(S_DEVICE, CBuffer::createDesc(sizeof(SMatrix) * 200 /*numBones*/));
+
+		std::vector<SMatrix> wat(200);
+		_skMatsBuffer.update(S_CONTEXT, wat.data(), sizeof(SMatrix) * 200);
+		_skMatsBuffer.bindToVS(S_CONTEXT, 1);
 
 		_geoClipmap.init(S_DEVICE);
 
@@ -128,8 +140,8 @@ public:
 		// Can try a single buffer for position
 		//_positionBuffer.bindToVS(context, 0);
 
-		auto& mainPass = _sys._renderer._mainStage;
-		mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
+		//auto& mainPass = _sys._renderer._mainStage;
+		//mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
 
 		group.each([&context, &posBuffer = _positionBuffer](CTransform& transform, CSkModel& renderComp)
 			{
@@ -172,9 +184,13 @@ public:
 
 	void draw(const RenderContext& rc) override final
 	{
+		//_sys._renderer.setDefaultRenderTarget();
+
 		_dirLight.bind(S_CONTEXT, _dirLightCB);
 
-		_scene.draw();
+		//_scene.draw();
+
+		_sys._renderer.setDefaultRenderTarget();
 
 		fakeRenderSystem(rc.d3d->getContext(), _scene._registry);
 

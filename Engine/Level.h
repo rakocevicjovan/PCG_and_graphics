@@ -12,7 +12,6 @@
 #define S_DOOT		_sys._audio
 #define S_INMAN		_sys._inputManager
 #define S_SHCACHE	_sys._shaderCache
-#define S_MATCACHE	_sys._matCache
 #define S_SW		_sys.getScrW()
 #define S_SH		_sys.getScrH()
 #define S_WW		_sys.getWinW()

@@ -7,7 +7,7 @@
 
 class Material;
 class Texture;
-class MaterialTexture;
+struct MaterialTexture;
 using ShaderGenKey = uint64_t;
 
 

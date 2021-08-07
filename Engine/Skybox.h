@@ -39,8 +39,7 @@ public:
 		Math::SetTranslation(_r._transform, cam.GetPosition());
 		
 		//update and set cbuffers
-		//_r.updateBuffersAuto(context);
-		_r.mat->getVS()->_cbuffers[0].updateWithStruct(renderer.context(), _r._transform);
+		_r.mat->getVS()->_cbuffers[0].updateWithStruct(renderer.context(), _r._transform.Transpose());
 		_r.setBuffers(context);
 
 		//set shaders and similar geebees
