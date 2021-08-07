@@ -3,8 +3,10 @@
 #include "PoolAllocator.h"
 #include "Frustum.h"
 #include "ColFuncs.h"
-#include <list>
 
+
+// Completely redo with entt::registry and ditch the god damn lists. The issue previously was that I couldn't allow swaps in the pool allocator because
+// naked pointers were being returned. There was no time to schmuck about with that, and sparse sets are a good solution here.
 
 struct PlPoolStruct
 {

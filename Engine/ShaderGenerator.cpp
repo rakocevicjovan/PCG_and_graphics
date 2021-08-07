@@ -100,9 +100,9 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseOptionsFromKey(const 
 
 		// If current option fits the bitmask, add it in
 		bool hasDependency{ so.depMask != (~0u) };
-		bool dependency = (!hasDependency) ? true : ((so.depMask & key) == so.depMask);
+		bool isDependencyFulfilled = (!hasDependency) ? true : ((so.depMask & key) == so.depMask);
 
-		if (result > 0 && result <= so._maxVal && dependency)
+		if (result > 0 && result <= so._maxVal && isDependencyFulfilled)
 		{
 			values.push_back(std::to_string(result));
 			matchedOptions.push_back({ so.name, values.back().c_str() });

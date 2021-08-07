@@ -34,6 +34,9 @@ private:
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
 					auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path->c_str());
+
+					// The only way to free the user from caching async loaded stuff manually is to have the task do it, OR, when cleaning up the future list
+					//return std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager));
 					return addToCache(assetID, std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager)));
 				}
 				assert(false && "Could not find an asset with this ID.");
@@ -101,14 +104,14 @@ public:
 	{
 		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
 
-		if (AssetHandle result{ getFromCache(assetID) }; result)
+		if (auto existing{ getFromCache(assetID) }; existing)
 		{
-			return result;
+			return existing;
 		}
 
 		// Check if it's currently being loaded, if not load it
 		auto assetFuture = pendingOrLoad(assetID);
 		assetFuture.wait();
-		return addToCache(assetID, assetFuture.get());
+		return assetFuture.get();
 	}
 };

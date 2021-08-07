@@ -1,10 +1,10 @@
 #pragma once
+
 #include "Math.h"
 #include "PoolAllocator.h"
-#include <array>
 
 template <UINT MAX_DEPTH = 16u>
-class PooledSceneGraph
+class SceneGraphPooled
 {
 public:
 
@@ -22,7 +22,7 @@ private:
 
 public:
 
-	PooledSceneGraph(UINT capacity = 1024u) : _nodes(capacity)
+	SceneGraphPooled(UINT capacity = 1024u) : _nodes(capacity)
 	{}
 
 	// Parent can be null. Usually will be.

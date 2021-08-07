@@ -355,7 +355,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="TDLevel.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TerrainShader.cpp">
@@ -464,7 +464,7 @@
     <ClInclude Include="ModelImporter.h" />
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PooledSceneGraph.h" />
+    <ClInclude Include="SceneGraphPooled.h" />
     <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="MatImporter.h" />
     <ClInclude Include="MeshImporter.h" />
@@ -680,7 +680,7 @@
     <ClInclude Include="TDGUI.h" />
     <ClInclude Include="TDLevel.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Terrain.h" />
@@ -732,6 +732,7 @@
     </ClInclude>
     <ClInclude Include="Voronoi.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Clustering.hlsli">

@@ -7,8 +7,9 @@
 #include "ColFuncs.h"
 #include "Shader.h"
 #include "Steering.h"
+#include "Terrain.h"
 
-#include "PooledSceneGraph.h"
+//#include "SceneGraphPooled.h"
 #include "entt/entt.hpp"
 
 
@@ -36,7 +37,7 @@ void TDLevel::init(Engine& sys)
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 	//_sys._matCache.createAllMaterialsBecauseIAmTooLazyToMakeThisDataDriven();
 
-	Model* skyBoxModel = S_RESMAN.getByName<Model>("Skysphere");
+	Model* skyBoxModel = nullptr;//S_RESMAN.getByName<Model>("Skysphere");
 
 	_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
@@ -59,7 +60,7 @@ void TDLevel::init(Engine& sys)
 	_dirLight.updateCBuffer(S_CONTEXT, _dirLightCB);
 
 	float _tSize = 500.f;
-	terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
+	Procedural::Terrain terrain = Procedural::Terrain(2, 2, SVec3(_tSize));
 	terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 	terrain.SetUp(S_DEVICE);
 
@@ -90,7 +91,7 @@ void TDLevel::init(Engine& sys)
 	// Initialize all enemies
 	_creeps.reserve(NUM_ENEMIES);
 
-	auto modelPtr = S_RESMAN.getByName<Model>("FlyingMage");
+	auto modelPtr = nullptr; // S_RESMAN.getByName<Model>("FlyingMage");
 	auto vsPtr = sys._shaderCache.getVertShader("basicVS");
 	auto psPtr = sys._shaderCache.getPixShader("phongPS");
 
@@ -167,7 +168,7 @@ void TDLevel::init(Engine& sys)
 void TDLevel::addBuildables()
 {
 	_buildable.reserve(2);
-	Building* b = new Tower(
+	/*Building* b = new Tower(
 		Actor(S_RESMAN.getByName<Model>("GuardTower")),
 		"Guard tower",
 		BuildingType::MARTIAL,
@@ -189,9 +190,9 @@ void TDLevel::addBuildables()
 			"Lumberyard",
 			S_RESMAN.getByName<Texture>("lumber_yard")->_srv.Get()),
 		Income(10.f, "Coin", 10.f)
-	);
-	b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
-	fixBuildable(b);
+	);*/
+	//b->patchMaterial(_sys._shaderCache.getVertShader("basicVS"), _sys._shaderCache.getPixShader("phongPS"));
+	//fixBuildable(b);
 }
 
 
@@ -453,7 +454,7 @@ void TDLevel::steerEnemies(float dTime)
 		}
 
 		//height
-		float h = terrain.getHeightAtPosition(_creeps[i].getPosition());
+		float h = 0.f; // terrain.getHeightAtPosition(_creeps[i].getPosition()); No use pretending this is needed, it's 0
 		float intervalPassed = fmod(_sys._clock.totalTime() * 5.f + i * 2.f, 10.f);
 		float sway = intervalPassed < 5.f ? Math::smoothstep(0, 5, intervalPassed) : Math::smoothstep(10, 5, intervalPassed);
 		Math::setHeight(_creeps[i]._transform, h + 2 * sway + FLYING_HEIGHT);

@@ -3,6 +3,7 @@
 #include "Controller.h"
 #include "Observer.h"
 
+
 struct MCoords
 {
 	int16_t x{0u};

@@ -13,22 +13,6 @@
 class Material;
 
 
-template<typename Archive>
-void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
-{
-	ar(bd.ByteWidth, bd.Usage,
-		bd.BindFlags, bd.CPUAccessFlags, bd.MiscFlags, bd.StructureByteStride);
-}
-
-
-template<typename Archive>
-void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
-{
-	ar(sd.AddressU, sd.AddressV, sd.AddressW, sd.BorderColor, sd.ComparisonFunc, 
-		sd.Filter, sd.MaxAnisotropy, sd.MaxLOD, sd.MinLOD, sd.MipLODBias);
-}
-
-
 struct ShaderPack
 {
 	VertexShader* vs = nullptr;

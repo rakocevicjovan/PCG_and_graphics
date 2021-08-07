@@ -2,7 +2,6 @@
 #include "InputManager.h"
 
 
-
 InputManager::InputManager() : _mouse(std::make_unique<DirectX::Mouse>())
 {}
 
@@ -11,7 +10,6 @@ void InputManager::initialize(HWND hwnd)
 {
 	_mouse->SetWindow(hwnd);
 
-	
 	// See https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawinputdevice
 	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
 
@@ -30,7 +28,6 @@ void InputManager::initialize(HWND hwnd)
 		OutputDebugStringA("Could not register the raw input devices.");
 		__debugbreak();
 	}
-	
 
 	memset(&_keys[0], 0, sizeof(_keys));
 }

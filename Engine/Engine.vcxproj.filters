@@ -1008,7 +1008,7 @@
     <ClInclude Include="RenderConfig.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="PooledSceneGraph.h">
+    <ClInclude Include="SceneGraphPooled.h">
       <Filter>Scene management</Filter>
     </ClInclude>
     <ClInclude Include="Metrics.h">
@@ -1152,6 +1152,9 @@
     </ClInclude>
     <ClInclude Include="ShaderPicker.h">
       <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Scene management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

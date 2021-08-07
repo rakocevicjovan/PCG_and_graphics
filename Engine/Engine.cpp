@@ -72,7 +72,6 @@ bool Engine::initialize()
 	auto test1 = _modelManager.getBlocking(9916003768089073041);
 	//auto test2 = _modelManager.get(9916003768089073041);
 
-
 	//TCachedLoader<VertexShader> vsManager;
 	
 	//TCachedLoader<PixelShader> psManager;

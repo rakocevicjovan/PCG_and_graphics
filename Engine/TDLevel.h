@@ -39,7 +39,6 @@ private:
 
 	// Scene data
 	Scene _scene;
-	Procedural::Terrain terrain;
 	Skybox _skybox;
 
 	FPSCounter _fpsCounter;

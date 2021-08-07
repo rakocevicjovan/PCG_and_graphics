@@ -16,6 +16,22 @@ struct PS_FileFormat
 };
 
 
+template<typename Archive>
+void serialize(Archive& ar, D3D11_BUFFER_DESC& bd)
+{
+	ar(bd.ByteWidth, bd.Usage,
+		bd.BindFlags, bd.CPUAccessFlags, bd.MiscFlags, bd.StructureByteStride);
+}
+
+
+template<typename Archive>
+void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
+{
+	ar(sd.AddressU, sd.AddressV, sd.AddressW, sd.BorderColor, sd.ComparisonFunc,
+		sd.Filter, sd.MaxAnisotropy, sd.MaxLOD, sd.MinLOD, sd.MipLODBias);
+}
+
+
 static void PersistVertexShader(
 	const wchar_t* path,
 	ID3DBlob* blob, // Could be const, but d3d calls are not const correct...

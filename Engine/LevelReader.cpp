@@ -1,11 +1,11 @@
 #include "pch.h"
 #include "LevelReader.h"
-#include <rapidjson/document.h>
-#include <rapidjson/rapidjson.h>
 #include "FileUtilities.h"
 #include "Mesh.h"
 #include "Model.h"
 
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
 
 
 namespace
@@ -23,6 +23,7 @@ namespace
 		return rd;
 	}
 
+
 	bool loadResourceDefs(const rapidjson::Document& levelDef, std::vector<ResourceDef>& resourceDefs)
 	{
 		if (!levelDef.FindMember("assets")->value.IsArray())
@@ -36,6 +37,7 @@ namespace
 		return true;
 	}
 }
+
 
 bool LevelReader::loadLevel(const std::string& levelPath)
 {
@@ -53,7 +55,6 @@ bool LevelReader::loadLevel(const std::string& levelPath)
 
 	return true;
 }
-
 
 
 bool LevelReader::loadLevelDef(const rapidjson::Document& levelDef)
@@ -75,24 +76,16 @@ bool LevelReader::loadLevelDef(const rapidjson::Document& levelDef)
 }
 
 
-
-
-
-
-
-
 void LevelReader::setProjectPath(const std::string & projectPath)
 {
 	_projectPath = projectPath;
 }
 
 
-
 const std::vector<ResourceDef>& LevelReader::getLevelResourceDefs()
 {
 	return _resourceDefs;
 }
-
 
 
 void LevelReader::clearLevelResourceDefs()

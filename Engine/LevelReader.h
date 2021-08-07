@@ -1,9 +1,6 @@
 #pragma once
-#include <vector>
-#include <map>
 #include "AssetID.h"
 #include <rapidjson/fwd.h>
-
 
 
 struct LevelDef
@@ -16,7 +13,6 @@ struct LevelDef
 	std::string createdAt;
 	std::string updatedAt;
 };
-
 
 
 class LevelReader
