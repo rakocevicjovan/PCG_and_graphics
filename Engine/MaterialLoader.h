@@ -25,15 +25,17 @@ namespace MaterialLoader
 			futureTextures[i] = textureManager->getAsync(texRef._textureAssetID);
 		}
 
+		material._opaque = materialAsset._opaque;
+		
+		// Load shaders too
+		
+
+		// Wait for textures to finish
 		for (auto i = 0u; i < futureTextures.size(); ++i)
 		{
 			futureTextures[i].wait();
 			material._materialTextures[i]._tex = futureTextures[i].get();
 		}
-
-		material._opaque = materialAsset._opaque;
-		
-		// Load shaders too
 
 		return material;
 	}

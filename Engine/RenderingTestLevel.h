@@ -13,6 +13,8 @@
 #include "FPSCounter.h"
 #include "entt/entt.hpp"
 
+#include "CSkModel.h"
+
 
 struct Deleted
 {
@@ -68,9 +70,9 @@ public:
 
 		_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
-		//S_RANDY._cam._controller->setFlying(true);
+		S_RANDY._cam._controller->setFlying(true);
 
-		Model* modelPtr = nullptr; // THIS WONT WORK UNTIL "S_RESMAN.getByName<Model>("FlyingMage");" IS REPLACED WITH NEW ASSET REQUESTS!
+		auto modelPtr = _sys._modelManager.getBlocking(9916003768089073041);
 		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
 		auto psPtr = sys._shaderCache.getPixShader("phongPS");
 		
@@ -80,12 +82,12 @@ public:
 			mesh._material->setPS(psPtr);
 		}
 
-		auto _renderGroup = _scene._registry.group<CTransform, CStaticMesh>();
+		auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
 
 		for (UINT i = 0; i < 100; ++i)
 		{
 			auto entity = _scene._registry.create();
-			_scene._registry.emplace<CStaticMesh>(entity, modelPtr);
+			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
 			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, (i % 10), 10) * 10.f));
 		}
 
@@ -121,18 +123,17 @@ public:
 
 	void fakeRenderSystem(ID3D11DeviceContext* context, entt::registry& registry)
 	{
-		auto group = _scene._registry.group<CTransform, CStaticMesh>();
+		auto group = _scene._registry.group<CTransform, CSkModel>();
 
 		// Can try a single buffer for position
-
 		//_positionBuffer.bindToVS(context, 0);
 
 		auto& mainPass = _sys._renderer._mainStage;
 		mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
 
-		group.each([&context, &posBuffer = _positionBuffer](CTransform& transform, CStaticMesh& renderComp)
+		group.each([&context, &posBuffer = _positionBuffer](CTransform& transform, CSkModel& renderComp)
 			{
-				Model* model = renderComp.model;
+				auto model = renderComp._skModel;
 
 				if (!model)
 					return;
@@ -154,7 +155,7 @@ public:
 					//mat->getPS()->setBuffers(context);
 
 					// Set shaders and textures.
-					mat->bind(context);
+					mat->bindTextures(context);
 
 					context->DrawIndexed(mesh._indexBuffer.getIdxCount(), 0, 0);
 				}
@@ -177,11 +178,11 @@ public:
 
 		fakeRenderSystem(rc.d3d->getContext(), _scene._registry);
 
-		S_RANDY.d3d()->setRSWireframe();
+		/*S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(S_CONTEXT);
-		S_RANDY.d3d()->setRSSolidCull();
+		S_RANDY.d3d()->setRSSolidCull();*/
 
-		_skybox.renderSkybox(*rc.cam, S_RANDY);
+		//_skybox.renderSkybox(*rc.cam, S_RANDY);
 
 		GUI::beginFrame();
 
@@ -198,7 +199,7 @@ public:
 
 		GUI::endFrame();
 
-		rc.d3d->EndScene();
+		rc.d3d->present();
 	}
 
 };

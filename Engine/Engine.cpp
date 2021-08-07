@@ -69,7 +69,7 @@ bool Engine::initialize()
 
 	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
 
-	auto test1 = _modelManager.getBlocking(9916003768089073041);
+	//auto test1 = _modelManager.getBlocking(9916003768089073041);
 	//auto test2 = _modelManager.get(9916003768089073041);
 
 	//TCachedLoader<VertexShader> vsManager;

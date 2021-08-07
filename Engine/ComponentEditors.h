@@ -1,7 +1,8 @@
 #pragma once
 #include "CParentLink.h"
-#include "CStaticMesh.h"
 #include "CTransform.h"
+#include "CModel.h"
+#include "CSkModel.h"
 
 namespace ComponentEditor
 {
@@ -30,9 +31,9 @@ namespace ComponentEditor
 	}
 
 	template<>
-	static void Display(CStaticMesh& staticMesh)
+	static void Display(CModel& model)
 	{
-		if (!staticMesh.model)
+		if (!model.model)
 		{
 			ImGui::Text("No model assigned.");
 			return;
@@ -40,7 +41,27 @@ namespace ComponentEditor
 
 		ImGui::Indent();
 
-		for (auto& mesh : staticMesh.model->_meshes)
+		for (auto& mesh : model.model->_meshes)
+		{
+			GuiBlocks::displayMesh(&mesh);
+		}
+
+		ImGui::Unindent();
+	}
+
+
+	template<>
+	static void Display(CSkModel& skModel)
+	{
+		if (!skModel._skModel)
+		{
+			ImGui::Text("No model assigned.");
+			return;
+		}
+
+		ImGui::Indent();
+
+		for (auto& mesh : skModel._skModel->_meshes)
 		{
 			GuiBlocks::displayMesh(&mesh);
 		}
@@ -69,9 +90,15 @@ namespace ComponentEditor
 	}
 
 	template<>
-	static const char* GetComponentTypeName<CStaticMesh>()
+	static const char* GetComponentTypeName<CModel>()
 	{
-		return "static mesh component";
+		return "static model component";
+	}
+
+	template<>
+	static const char* GetComponentTypeName<CSkModel>()
+	{
+		return "skeletal model component";
 	}
 
 }

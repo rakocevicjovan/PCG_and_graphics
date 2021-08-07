@@ -19,6 +19,6 @@ public:
 
 		finished = !pp.Render();
 
-		rc.d3d->EndScene();
+		rc.d3d->present();
 	}
 };

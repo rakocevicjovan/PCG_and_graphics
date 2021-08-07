@@ -18,7 +18,7 @@ public:
 	bool initialize(int, int, bool, HWND, bool);
 	
 	void ClearColourDepthBuffers();
-	void EndScene();
+	void present();
 
 	void GetVideoCardInfo(char*, int&);
 	void SetBackBufferRenderTarget();

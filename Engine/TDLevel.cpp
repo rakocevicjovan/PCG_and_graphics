@@ -68,7 +68,7 @@ void TDLevel::init(Engine& sys)
 	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 
-	Texture floorTex(nullptr, "../Textures/LavaIntense/diffuse.jpg");
+	Texture floorTex(S_DEVICE, "../Textures/LavaIntense/diffuse.jpg");
 	floorMesh._material->_materialTextures.push_back({ {TextureRole::DIFFUSE}, std::make_shared<Texture>(floorTex) });
 	
 	floorRenderable = Renderable(floorMesh, SMatrix::CreateTranslation(terrain.getOffset()));
@@ -546,7 +546,7 @@ void TDLevel::draw(const RenderContext& rc)
 	
 	GUI::endFrame();
 
-	rc.d3d->EndScene();
+	rc.d3d->present();
 }
 
 

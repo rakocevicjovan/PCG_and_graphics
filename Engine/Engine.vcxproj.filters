@@ -1026,7 +1026,7 @@
     <ClInclude Include="CParentLink.h">
       <Filter>Scene management\Components</Filter>
     </ClInclude>
-    <ClInclude Include="CStaticMesh.h">
+    <ClInclude Include="CModel.h">
       <Filter>Scene management\Components</Filter>
     </ClInclude>
     <ClInclude Include="ReservedBuffers.h">
@@ -1155,6 +1155,9 @@
     </ClInclude>
     <ClInclude Include="World.h">
       <Filter>Scene management</Filter>
+    </ClInclude>
+    <ClInclude Include="CSkModel.h">
+      <Filter>Scene management\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -106,7 +106,7 @@ namespace Strife
 		if(S_INMAN.getMouseVisibility())
 			ToolGUI::Render(csDef);
 
-		rc.d3d->EndScene();
+		rc.d3d->present();
 	}
 
 

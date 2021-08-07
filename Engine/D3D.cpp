@@ -187,7 +187,7 @@ void D3D::ClearColourDepthBuffers()
 }
 
 
-void D3D::EndScene()
+void D3D::present()
 {
 	_swapChain.present();
 }

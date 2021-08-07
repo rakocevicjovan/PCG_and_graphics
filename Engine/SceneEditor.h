@@ -2,9 +2,6 @@
 #include "Scene.h"
 #include "GuiBlocks.h"
 #include "GUI.h"
-#include "CTransform.h"
-#include "ComponentEditors.h"
-#include "CStaticMesh.h"
 #include "ComponentEditors.h"
 
 
@@ -24,7 +21,8 @@ private:
 	static constexpr DisplayComponents<
 		CTransform,
 		CParentLink,
-		CStaticMesh
+		CModel,
+		CSkModel
 	> _displayComponents{};
 
 
