@@ -1105,9 +1105,6 @@
     <ClInclude Include="ModelManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialManager.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
     <ClInclude Include="Blob.h">
       <Filter>Utils</Filter>
     </ClInclude>
@@ -1171,7 +1168,7 @@
     <ClInclude Include="AnimationManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="MatMan.h">
+    <ClInclude Include="MaterialManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>

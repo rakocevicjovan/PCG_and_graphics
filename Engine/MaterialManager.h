@@ -1,73 +1,30 @@
-//#pragma once
-//
-//#include "AssetLedger.h"
-//#include "Material.h"
-//#include "MaterialLoader.h"
-//#include "TextureManager.h"
-//#include "ShaderManager.h"
-//#include "TCache.h"
-//
-//#include "AeonLoader.h"
-//
-//
-//class MaterialManager : public IAssetManager
-//{
-//private:
-//
-//	TCache<Material> _cache{};
-//	using AssetHandle = TCache<Material>::AssetHandle;
-//
-//	AssetLedger* _assetLedger{};
-//	AeonLoader* _aeonLoader{};
-//
-//	ShaderManager* _shaderManager;
-//	TextureManager* _textureManager;
-//
-//	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
-//
-//public:
-//
-//	MaterialManager() = default;
-//
-//	MaterialManager(AssetLedger& ledger, AeonLoader& aeonLoader, ShaderManager& shaderManager, TextureManager& textureManager)
-//		: _assetLedger(&ledger), _shaderManager(&shaderManager), _textureManager(&textureManager), _aeonLoader(&aeonLoader) {}
-//
-//
-//	std::shared_future<AssetHandle> get_async(AssetID assetID)
-//	{
-//		auto future = _aeonLoader->pushTask(
-//			[this](AssetID assetID)
-//			{
-//				return get(assetID);
-//			}, assetID);
-//
-//		auto shared_future = future.share();
-//
-//		_futures.emplace(assetID, shared_future);
-//		return shared_future;
-//	}
-//
-//
-//	AssetHandle get(AssetID assetID)
-//	{
-//		AssetHandle result{};
-//
-//		result = _cache.get(assetID);
-//
-//		if (!result)
-//		{
-//			if (const std::string* path = _assetLedger->getPath(assetID); path)
-//			{
-//				MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path->c_str());
-//				auto material = MaterialLoader::LoadMaterialFromAsset(std::move(materialAsset), _shaderManager, _textureManager);
-//				result = _cache.store(assetID, std::make_shared<Material>(std::move(material)));
-//			}
-//			else
-//			{
-//				assert(result && "Could not find a material with this ID in the asset ledger.");
-//			}
-//		}
-//
-//		return result;
-//	}
-//};
+#pragma once
+
+#include "TCachedLoader.h"
+#include "Material.h"
+#include "MaterialAsset.h"
+#include "MaterialLoader.h"
+#include "Deserialize.h"
+
+
+class MaterialManager final : public TCachedLoader<Material, MaterialManager>
+{
+private:
+	using base = TCachedLoader<Material, MaterialManager>;
+
+	ShaderManager* _shaderManager;
+	TextureManager* _textureManager;
+
+public:
+	using base::base;
+
+	MaterialManager(AssetLedger& ledger, AeonLoader& aeonLoader, ShaderManager& shaderManager, TextureManager& textureManager)
+		: base::TCachedLoader(ledger, aeonLoader), _shaderManager(&shaderManager), _textureManager(&textureManager)
+	{}
+
+	Material loadImpl(const char* path)
+	{
+		MaterialAsset materialAsset = AssetHelpers::DeserializeFromFile<MaterialAsset, cereal::JSONInputArchive>(path);
+		return MaterialLoader::LoadMaterialFromAsset(std::move(materialAsset), _shaderManager, _textureManager);
+	}
+};

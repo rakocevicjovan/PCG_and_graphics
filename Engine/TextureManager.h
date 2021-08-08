@@ -105,6 +105,6 @@ public:
 		// Check if it's currently being loaded, if not load it
 		auto assetFuture = pendingOrLoad(assetID);
 		assetFuture.wait();
-		return addToCache(assetID, assetFuture.get());
+		return assetFuture.get();
 	}
 };

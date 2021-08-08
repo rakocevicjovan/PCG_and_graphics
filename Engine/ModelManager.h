@@ -3,7 +3,7 @@
 #include "AeonLoader.h"
 #include "AssetLedger.h"
 #include "ModelLoader.h"
-#include "MatMan.h"
+#include "MaterialManager.h"
 #include "SkeletonManager.h"
 #include "AnimationManager.h"
 #include "Deserialize.h"

@@ -16,8 +16,7 @@
 
 // Assets
 #include "ModelManager.h"
-//#include "MaterialManager.h"
-#include "MatMan.h"
+#include "MaterialManager.h"
 #include "TextureManager.h"
 #include "SkeletonManager.h"
 #include "AnimationManager.h"
