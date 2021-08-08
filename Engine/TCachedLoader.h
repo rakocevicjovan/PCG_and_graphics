@@ -31,7 +31,7 @@ protected:
 				{
 					CRTPDerived& derived = *static_cast<CRTPDerived*>(this);
 					auto result = std::make_shared<AssetType>(derived.loadImpl(path->c_str()));
-					return addToCache(assetID, result);
+					return addToCache(assetID, std::move(result));
 				}
 				assert(false && "Could not find an asset with this ID.");
 			},
@@ -65,10 +65,10 @@ protected:
 	}
 
 
-	inline AssetHandle addToCache(AssetID assetID, AssetHandle handle)
+	inline AssetHandle addToCache(AssetID assetID, const AssetHandle& handle)
 	{
 		std::lock_guard cacheGuard(_cacheMutex);
-		return _cache.store(assetID, *handle);
+		return _cache.store(assetID, std::move(handle));
 	}
 
 public:

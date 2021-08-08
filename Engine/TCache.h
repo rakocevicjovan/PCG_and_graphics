@@ -21,9 +21,9 @@ public:
 	}
 
 
-	AssetHandle store(AssetID assetID, AssetType& assetType)
+	AssetHandle store(AssetID assetID, const AssetHandle& assetType)
 	{
-		auto [iter, success] = _cache.try_emplace(assetID, std::make_shared<AssetType>(std::move(assetType)));
+		auto [iter, success] = _cache.try_emplace(assetID, std::move(assetType));
 		assert(success && "An asset with this ID already exists in the cache.");
 		return iter->second;
 	}

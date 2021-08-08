@@ -6,6 +6,7 @@ enum class TexelFormat : uint8_t
 	// idk stuff
 };
 
+
 class Image
 {
 private:
@@ -15,7 +16,7 @@ private:
 
 	uint8_t _numChannels{};
 
-	std::unique_ptr<unsigned char[]> _data;
+	std::shared_ptr<unsigned char[]> _data;
 
 	// Helpful for debug, likely to be removed in release...
 	std::string _fileName;
@@ -25,10 +26,8 @@ public:
 	Image() = default;
 
 	Image(uint32_t width, uint32_t height, unsigned char* data, uint8_t texel_width, const char* name = "")
-		: _width(width), _height(height), _fileName(name), _numChannels(texel_width), _data(std::unique_ptr<unsigned char[]>(data))
-	{
-		//_data = std::unique_ptr<unsigned char[]>(data);
-	}
+		: _width(width), _height(height), _fileName(name), _numChannels(texel_width), _data(std::shared_ptr<unsigned char[]>(data))
+	{}
 
 	void saveAsPng(const char* outputPath);
 	void loadFromStoredPath();

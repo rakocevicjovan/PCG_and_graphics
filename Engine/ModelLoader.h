@@ -3,7 +3,7 @@
 #include "SkeletalModel.h"
 #include "ModelAsset.h"
 
-#include "MaterialManager.h"
+#include "MatMan.h"
 #include "SkeletonManager.h"
 #include "AnimationManager.h"
 
@@ -13,23 +13,32 @@
 
 namespace ModelLoader
 {
-	static Mesh LoadMesh(MeshAsset& meshAsset, MaterialManager* materialManager);
+	static Mesh LoadMesh(MeshAsset&, MaterialManager*, std::vector<std::shared_future<std::shared_ptr<Material>>>&);
 
 	namespace
 	{
 		static void LoadMeshes(std::vector<Mesh>& meshes, ModelAsset& modelAsset, MaterialManager* materialManager)
 		{
-			meshes.resize(modelAsset.meshes.size());
+			auto numMeshes = modelAsset.meshes.size();
 
-			for (auto i = 0; i < meshes.size(); ++i)
+			std::vector<std::shared_future<std::shared_ptr<Material>>> futureMats;
+			futureMats.reserve(numMeshes);
+			meshes.reserve(numMeshes);
+
+			for (auto i = 0; i < numMeshes; ++i)
 			{
-				meshes[i] = LoadMesh(modelAsset.meshes[i], materialManager);
+				meshes.emplace_back(LoadMesh(modelAsset.meshes[i], materialManager, futureMats));
+			}
+
+			for (auto i = 0; i < numMeshes; ++i)
+			{
+				meshes[i]._material = futureMats[i].get();
 			}
 		}
 	}
 
 
-	static Mesh LoadMesh(MeshAsset& meshAsset, MaterialManager* materialManager)
+	static Mesh LoadMesh(MeshAsset& meshAsset, MaterialManager* materialManager, std::vector<std::shared_future<std::shared_ptr<Material>>>& futureMats)
 	{
 		Mesh mesh;
 
@@ -37,7 +46,7 @@ namespace ModelLoader
 		mesh._indices = std::move(meshAsset.indices);
 		mesh._vertSig = std::move(meshAsset.vertSig);
 
-		mesh._material = materialManager->get(meshAsset.material);
+		futureMats.push_back(materialManager->getAsync(meshAsset.material));
 
 		return mesh;
 	}

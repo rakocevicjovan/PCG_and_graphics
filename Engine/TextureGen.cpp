@@ -17,7 +17,7 @@ namespace Procedural
 	{
 		return stb_perlin_fbm_noise3(x, y, z, lacunarity, gain, octaves);
 	}
-
+	
 	float TextureGen::Turbulence3D(float x, float  y, float z, float lacunarity, float gain, UINT octaves)
 	{
 		return stb_perlin_turbulence_noise3(x, y, z, lacunarity, gain, octaves);

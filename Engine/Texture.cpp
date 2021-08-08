@@ -40,7 +40,7 @@ Texture::Texture(ID3D11Device* device, uint32_t w, uint32_t h, DXGI_FORMAT forma
 bool Texture::loadFromFile(ID3D11Device* device, const char* filename)
 {
 	Image img = STBImporter::ImportFromFile(filename);
-	return loadFromImage(device, img);
+	return loadFromImage(device, std::move(img));
 }
 
 
@@ -58,8 +58,7 @@ bool Texture::loadFromImage(ID3D11Device* device, const Image& image, bool asSRV
 	_nc = image.numChannels();
 
 	// Remove this eventually
-	auto imageData = std::make_unique<unsigned char[]>(image.data().get()[image.width() * image.height() * image.numChannels()]);
-	_mdata = std::move(imageData);
+	_mdata = image.data();
 
 	// For now always uses 1 byte per channel textures, @TODO add proper format both in image and here!
 	auto inferredFormat = TO_API_FORMAT(_nc - 1);

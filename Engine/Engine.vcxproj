@@ -444,6 +444,7 @@
     <ClInclude Include="IAssetManager.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="MatMan.h" />
     <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />

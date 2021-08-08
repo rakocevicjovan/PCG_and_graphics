@@ -16,10 +16,7 @@ class Scene
 {
 private:
 	Renderer& _renderer;
-	//MaterialCache& _matCache;
 	Engine& _sys;
-
-	//SparseSet<Renderable> _renderCache;
 
 	// Terrain chunks, lights, meshes, cameras... you name it! Master list, will probably separate into several lists instead
 	std::vector<GameObject*> _objects;

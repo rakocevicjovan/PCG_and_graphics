@@ -31,7 +31,7 @@ private:
 			{
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
-					return addToCache(assetID, std::make_shared<Texture>(_device, *path));
+					return addToCache(assetID, std::move(std::make_shared<Texture>(_device, *path)));
 				}
 				assert(false && "Could not find a texture with this ID.");
 			},
@@ -65,10 +65,10 @@ private:
 	}
 
 
-	inline AssetHandle addToCache(AssetID assetID, AssetHandle handle)
+	inline AssetHandle addToCache(AssetID assetID, const AssetHandle& handle)
 	{
 		std::lock_guard cacheGuard(CACHE_MUTEX);
-		return _cache.store(assetID, *handle);
+		return _cache.store(assetID, std::move(handle));
 	}
 
 public:

@@ -109,7 +109,6 @@ private:
 		}
 	}
 
-	
 
 	template <typename Editable>
 	void displayExistingComponent(entt::registry* registry, entt::entity entity)
@@ -140,6 +139,7 @@ private:
 		ImGui::End();
 	}
 
+
 	template<typename Editable>
 	void showAddComponent(entt::registry* registry, entt::entity entity)
 	{
@@ -169,5 +169,5 @@ private:
 			ImGui::EndPopup();
 		}
 	}
-	
+
 };

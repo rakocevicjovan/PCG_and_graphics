@@ -61,12 +61,13 @@ bool Engine::initialize()
 	_assetLedger.load(); //eventually do this per project
 	//_assetLedger.purge();
 
-	_aeonLoader.resizeThreadPool(8);
+	auto num_threads_available = std::thread::hardware_concurrency() - 1;
+	_aeonLoader.resizeThreadPool(num_threads_available);	//8
 
 	_shaderManager = ShaderManager(_assetLedger, _renderer.device());
 	_textureManager = std::move(TextureManager(_assetLedger, _aeonLoader, _renderer.device()));
 
-	_materialManager = MaterialManager(_assetLedger, _shaderManager, _textureManager, _aeonLoader);
+	_materialManager = MaterialManager(_assetLedger, _aeonLoader, _shaderManager, _textureManager);
 
 	_skeletonManager = SkeletonManager(_assetLedger, _aeonLoader);
 	

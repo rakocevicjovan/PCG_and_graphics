@@ -3,7 +3,7 @@
 #include "AeonLoader.h"
 #include "AssetLedger.h"
 #include "ModelLoader.h"
-#include "MaterialManager.h"
+#include "MatMan.h"
 #include "SkeletonManager.h"
 #include "AnimationManager.h"
 #include "Deserialize.h"
@@ -38,8 +38,8 @@ private:
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
 					auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path->c_str());
-					//return std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager));
-					return addToCache(assetID, std::make_shared<SkModel>(ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager, _skMan, _aniMan)));
+					auto skModel = ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager, _skMan, _aniMan);
+					return addToCache(assetID, std::make_shared<SkModel>(std::move(skModel)));
 				}
 				assert(false && "Could not find an asset with this ID.");
 			},
@@ -73,10 +73,10 @@ private:
 	}
 
 
-	inline AssetHandle addToCache(AssetID assetID, AssetHandle handle)
+	inline AssetHandle addToCache(AssetID assetID, AssetHandle& handle)
 	{
 		std::lock_guard cacheGuard(CACHE_MUTEX);
-		return _cache.store(assetID, *handle);
+		return _cache.store(assetID, handle);
 	}
 
 public:
@@ -113,7 +113,6 @@ public:
 
 		// Check if it's currently being loaded, if not load it
 		auto assetFuture = pendingOrLoad(assetID);
-		assetFuture.wait();
 		return assetFuture.get();
 	}
 };

@@ -1171,6 +1171,9 @@
     <ClInclude Include="AnimationManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
+    <ClInclude Include="MatMan.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
