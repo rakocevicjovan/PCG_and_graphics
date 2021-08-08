@@ -37,24 +37,22 @@ protected:
 			},
 			assetID).share();
 
-			_futureMutex.lock();
-			_futures.insert({ assetID, shared_future });
-			_futureMutex.unlock();
-
 			return shared_future;
 	}
 
 
 	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
 	{
+		std::lock_guard guard(_futureMutex);
+
+		if (auto it = _futures.find(assetID); it != _futures.end())
 		{
-			std::lock_guard guard(_futureMutex);
-			if (auto it = _futures.find(assetID); it != _futures.end())
-			{
-				return it->second;
-			}
+			return it->second;
 		}
-		return load(assetID);
+
+		auto sharedFuture = load(assetID);
+		_futures.insert({ assetID, sharedFuture });
+		return sharedFuture;
 	}
 
 

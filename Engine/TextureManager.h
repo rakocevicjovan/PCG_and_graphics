@@ -37,24 +37,22 @@ private:
 			},
 			assetID).share();
 
-		FUTURE_MUTEX.lock();
-		_futures.insert({ assetID, shared_future });
-		FUTURE_MUTEX.unlock();
-
 		return shared_future;
 	}
 
 
 	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
 	{
+		std::lock_guard guard(FUTURE_MUTEX);
+		
+		if (auto it = _futures.find(assetID); it != _futures.end())
 		{
-			std::lock_guard guard(FUTURE_MUTEX);
-			if (auto it = _futures.find(assetID); it != _futures.end())
-			{
-				return it->second;
-			}
+			return it->second;
 		}
-		return load(assetID);
+
+		auto sharedFuture = load(assetID);
+		_futures.insert({ assetID, sharedFuture });
+		return sharedFuture;
 	}
 
 
@@ -95,8 +93,6 @@ public:
 
 	AssetHandle getBlocking(AssetID assetID)
 	{
-		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
-		
 		if (AssetHandle result{ getFromCache(assetID) }; result)
 		{
 			return result;
