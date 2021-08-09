@@ -17,13 +17,20 @@ bool ShaderCompiler::compileVS(const std::wstring& filePath, const std::vector<D
 	vertexShader = blobToVS(vsBlob);
 
 	// Create the layout related to the vertex shader.
-	if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(),
-		vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &layout)))
+	if (inLay.size() > 0)
 	{
-		OutputDebugStringA("Failed to create vertex input layout.");
-		__debugbreak();
-		vsBlob->Release();
-		return false;
+		if (FAILED(_device->CreateInputLayout(inLay.data(), inLay.size(),
+			vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &layout)))
+		{
+			OutputDebugStringA("Failed to create vertex input layout.");
+			__debugbreak();
+			vsBlob->Release();
+			return false;
+		}
+	}
+	else
+	{
+		layout = nullptr;
 	}
 
 	// Release the shader buffer since it's no longer needed
