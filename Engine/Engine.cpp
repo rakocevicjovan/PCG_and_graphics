@@ -79,7 +79,6 @@ void Engine::initialize()
 }
 
 
-
 void Engine::start()
 {
 	_clock.reset();
@@ -110,7 +109,6 @@ void Engine::start()
 }
 
 
-
 bool Engine::tick(float dTime)
 {
 	if (_inputManager.isKeyDown(VK_ESCAPE))
@@ -131,7 +129,6 @@ bool Engine::tick(float dTime)
 }
 
 
-
 void Engine::shutDown()
 {
 	ShowCursor(true);
@@ -141,13 +138,14 @@ void Engine::shutDown()
 }
 
 
-
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wparam, lparam))
+	{
 		return true;
+	}
 
 	static uint16_t newSize[2]{0, 0};
 
@@ -165,25 +163,24 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		}
 		case WM_INPUT:
 		{
-			UINT dwSize{};
-
+			static constexpr uint32_t MAX_DW_SIZE = 512u;
+			uint32_t dwSize{};
 			GetRawInputData((HRAWINPUT)lparam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-			
+			assert(dwSize <= MAX_DW_SIZE);
+
 			if (dwSize > 0)
 			{
-				LPBYTE lpb = new BYTE[dwSize];
+				LPBYTE lpb[MAX_DW_SIZE]; // Can be allocated dynamically with exact size however this just won't break in practice and a new per frame is meh...
 
 				if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
-					OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
-
-				RAWINPUT* raw = (RAWINPUT*)lpb;
-
-				if (raw->header.dwType == RIM_TYPEMOUSE)
 				{
-					_inputManager.setRelativeXY((short)(raw->data.mouse.lLastX), (short)(raw->data.mouse.lLastY));
+					OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
 				}
 
-				delete[] lpb;
+				if (auto rawInput = (RAWINPUT*)lpb; rawInput->header.dwType == RIM_TYPEMOUSE)
+				{
+					_inputManager.setRelativeXY((short)(rawInput->data.mouse.lLastX), (short)(rawInput->data.mouse.lLastY));
+				}
 			}		
 			break;
 		}

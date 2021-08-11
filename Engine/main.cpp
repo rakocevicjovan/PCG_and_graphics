@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Engine.h"
-#include "Editor.h"
+//#include "Editor.h"
 
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow)
@@ -13,8 +13,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	Engine engine;
 	engine.initialize();
 	engine.start();
-
-
 
 	//Editor editor(engine);
 	//editor.start();
