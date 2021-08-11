@@ -18,6 +18,8 @@
 #include "CModel.h"
 #include "CSkModel.h"
 
+#include "LevelAsset.h"
+
 
 struct Deleted
 {
@@ -85,25 +87,36 @@ public:
 		S_RANDY._cam._controller->setFlying(true);
 
 		auto modelPtr = _sys._modelManager.getBlocking(9916003768089073041);
+
 		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
 		auto psPtr = sys._shaderCache.getPixShader("phongPS");
 		
 		for (auto& mesh : modelPtr->_meshes)
 		{
+			mesh.setupMesh(S_DEVICE);
 			mesh._material->setVS(vsPtr);
 			mesh._material->setPS(psPtr);
 		}
 
-		auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
+		//auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
+		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
 
 		for (UINT i = 0; i < 100; ++i)
 		{
 			auto entity = _scene._registry.create();
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
-			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, (i % 10), 10) * 10.f));
+			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, 0, (i % 10)) * 100.f));
 		}
 
-		
+		{
+			// This works as expected. Thanks Skypjack! JSON is a poor choice for matrices though (or anything that should load fast)
+			// so it's a good idea to use a binary format if nothing at least for part of the data
+			
+			//std::ofstream ofs("AAAAAA.json", std::ios::binary);
+			//cereal::JSONOutputArchive joa(ofs);
+			//LevelAsset::serializeScene(joa, _scene._registry);
+		}
+
 		//_sys._renderer._mainStage = RenderStage(
 		//	S_RANDY.device(),
 		//	&(S_RANDY._cam),
@@ -143,7 +156,7 @@ public:
 		//auto& mainPass = _sys._renderer._mainStage;
 		//mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
 
-		group.each([&context, &posBuffer = _positionBuffer](CTransform& transform, CSkModel& renderComp)
+		group.each([&context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer](CTransform& transform, CSkModel& renderComp)
 			{
 				auto model = renderComp._skModel;
 
@@ -151,6 +164,7 @@ public:
 					return;
 
 				posBuffer.bindToVS(context, 0);
+				skBuffer.bindToVS(context, 1);
 
 				for (auto& mesh : model->_meshes)
 				{
@@ -158,13 +172,16 @@ public:
 					posBuffer.updateWithStruct(context, transform.transform.Transpose());
 
 					Material* mat = mesh._material.get();
-					mat->bind(context);
+					//mat->bind(context);
 
 					// This is bad and needs to be rewritten...
 					//mat->getVS()->updateBuffersAuto(context, mesh);
 					//mat->getVS()->setBuffers(context);
 					//mat->getPS()->updateBuffersAuto(context, mesh);
 					//mat->getPS()->setBuffers(context);
+
+					mat->getVS()->bind(context);
+					mat->getPS()->bind(context);
 
 					// Set shaders and textures.
 					mat->bindTextures(context);

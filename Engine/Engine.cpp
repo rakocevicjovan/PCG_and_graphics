@@ -4,12 +4,7 @@
 #include "GUI.h"
 
 #include "ShaderGenerator.h"
-#include "OmniAssetManager.h"
-
-#include "AssetManagerLocator.h"
-
-#include "Skeleton.h"
-#include "TCachedLoader.h"
+#include "LevelAsset.h"
 
 
 Engine::Engine() :

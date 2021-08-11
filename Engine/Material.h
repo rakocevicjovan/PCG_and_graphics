@@ -18,6 +18,7 @@ struct MaterialTexture
 	}
 };
 
+
 class Material
 {
 protected:

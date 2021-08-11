@@ -457,6 +457,9 @@
     <ClCompile Include="ComponentEditors.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Scene management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1170,6 +1173,9 @@
     </ClInclude>
     <ClInclude Include="MaterialManager.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAsset.h">
+      <Filter>Scene management</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

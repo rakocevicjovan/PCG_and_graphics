@@ -391,6 +391,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Voronoi.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AABB.h" />
@@ -444,6 +445,7 @@
     <ClInclude Include="IAssetManager.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="LevelAsset.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="ModelManager.h" />

@@ -1,23 +1,6 @@
 #include "Light.hlsli"
 #include "Clustering.hlsli"
-
-
-cbuffer PSPerCameraBuffer : register(b9)
-{
-	float scr_w;
-	float scr_h;
-	float zNear;
-	float zFar;
-}
-
-
-cbuffer PSPerFrameBuffer : register(b10)
-{
-	float4 eyePos;
-	float elapsed;
-	float delta;
-	float2 padding;
-}
+#include "Reserved_CB_PS.hlsli"
 
 struct PixelInputType
 {
@@ -70,10 +53,8 @@ float4 main(PixelInputType input) : SV_TARGET
 	input.normal = normalize(input.normal);
 
 	// Don't hardcode this, provide in a buffer
-	float n = 1.;
-	float f = 1000.;
-	float viewDepth = zToViewSpace(input.position.z, n, f);
-	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, n, f);
+	float viewDepth = zToViewSpace(input.position.z, zNear, zFar);
+	uint clusterIndex = getClusterIndex(trunc(input.position.xy), viewDepth, zNear, zFar);
 	//uint3 xyz = getClusterIndexTriplet(input.position.xy, viewDepth, n, f);
 
 	// Independent of lights, determined once

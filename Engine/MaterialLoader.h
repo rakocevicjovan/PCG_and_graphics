@@ -20,14 +20,16 @@ namespace MaterialLoader
 		for (auto i = 0u; i < materialAsset._textures.size(); ++i)
 		{
 			auto& texRef = materialAsset._textures[i];
-			MaterialTexture materialTexture;
-			materialTexture._metaData = texRef._texMetaData;
+			
+			material._materialTextures[i]._metaData = texRef._texMetaData;
+
 			futureTextures[i] = textureManager->getAsync(texRef._textureAssetID);
 		}
 
 		material._opaque = materialAsset._opaque;
 		
-		// Load shaders too
+		// @TODO Load shaders too
+
 
 		// Wait for textures to finish
 		for (auto i = 0u; i < futureTextures.size(); ++i)

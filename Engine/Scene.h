@@ -5,10 +5,7 @@
 #include "Renderer.h"
 #include "CSM.h"
 #include "Engine.h"
-#include "SparseSet.h"
 #include "entt/entt.hpp"
-
-#include <memory>
 
 #define DEFAULT_SUBDIV_LEVELS 4u
 
@@ -44,6 +41,7 @@ public:
 
 	std::vector<Actor*> _actors;
 
+
 	Scene(
 		Engine& sys,
 		const AABB& scope, 
@@ -56,12 +54,6 @@ public:
 	{
 		_lightManager = std::make_unique<LightManager>(4, 256, 256, 128, 128);
 		_octree.preallocateRootOnly();
-	}
-
-
-	auto addRenderable(Renderable&& renderable)
-	{
-		//return _renderCache.insert(std::move(renderable));
 	}
 
 
