@@ -1066,9 +1066,6 @@
     <ClInclude Include="AssetType.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="TextureManager.h">
-      <Filter>Asset importing</Filter>
-    </ClInclude>
     <ClInclude Include="TextureMetaData.h">
       <Filter>Assets</Filter>
     </ClInclude>
@@ -1108,7 +1105,7 @@
     <ClInclude Include="AeonLoader.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="ModelManager.h">
+    <ClInclude Include="SkModelManager.h">
       <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="Blob.h">
@@ -1182,6 +1179,12 @@
     </ClInclude>
     <ClInclude Include="Proj.h">
       <Filter>Project</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelManager.h">
+      <Filter>Assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

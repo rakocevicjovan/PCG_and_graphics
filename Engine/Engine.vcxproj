@@ -447,9 +447,10 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="LevelAsset.h" />
     <ClInclude Include="MaterialManager.h" />
+    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="Proj.h" />
     <ClInclude Include="ServiceLocator.h" />
-    <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="SkModelManager.h" />
     <ClInclude Include="OmniAssetManager.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="ShaderOption.h" />

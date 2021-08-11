@@ -16,6 +16,7 @@
 
 // Assets
 #include "ModelManager.h"
+#include "SkModelManager.h"
 #include "MaterialManager.h"
 #include "TextureManager.h"
 #include "SkeletonManager.h"
@@ -83,6 +84,7 @@ public:
 	AeonLoader _aeonLoader;
 
 	ModelManager _modelManager;
+	SkModelManager _skModelManager;
 	MaterialManager _materialManager;
 	TextureManager _textureManager;
 	SkeletonManager _skeletonManager;

@@ -23,15 +23,16 @@ void Engine::initialize()
 		Window<Engine>::CreationFlags::START_FOCUSED |
 		Window<Engine>::CreationFlags::START_FOREGROUND);
 
+	_inputManager.initialize(_engineWindow.handle());
+	_defController = Controller(&_inputManager);
+	_inputManager.registerController(&_defController);
+
+
 	if (!_D3D.initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), _engineWindow.fullscreen()))
 	{
 		assert("Can't initialize D3D!");
 		return;
 	}
-
-	_inputManager.initialize(_engineWindow.handle());
-	_defController = Controller(&_inputManager);
-	_inputManager.registerController(&_defController);
 
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
@@ -39,11 +40,12 @@ void Engine::initialize()
 		return;
 	}
 
-	_shaderCompiler.init(_D3D.getDevice());
-
 	_renderer._cam._controller = &_defController;
 
 	GUI::initDxWin32(_engineWindow.handle(), _D3D.getDevice(), _D3D.getContext());
+
+	_shaderCompiler.init(_D3D.getDevice());	// This is meh, could well not exist and it would barely matter
+
 
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "../Tower Defense/Ledger.json";
@@ -52,7 +54,7 @@ void Engine::initialize()
 	//_assetLedger.purge();
 
 	auto num_threads_available = std::thread::hardware_concurrency() - 1;
-	_aeonLoader.resizeThreadPool(num_threads_available);	//8
+	_aeonLoader.resizeThreadPool(num_threads_available);	// Might wanna make it 8
 
 	_shaderManager = ShaderManager(_assetLedger, _renderer.device());
 
@@ -64,7 +66,9 @@ void Engine::initialize()
 
 	_animationManager = AnimationManager(_assetLedger, _aeonLoader);
 
-	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager, _skeletonManager, _animationManager);
+	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
+
+	_skModelManager = SkModelManager(_assetLedger, _aeonLoader, _materialManager, _skeletonManager, _animationManager);
 
 	_levelMan = new LevelManager(*this);
 

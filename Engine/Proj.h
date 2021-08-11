@@ -22,5 +22,4 @@ public:
 	{
 		ar(_name, _path, _ledgerPath);
 	}
-
 };

@@ -86,7 +86,7 @@ public:
 
 		S_RANDY._cam._controller->setFlying(true);
 
-		auto modelPtr = _sys._modelManager.getBlocking(9916003768089073041);
+		auto modelPtr = _sys._skModelManager.getBlocking(9916003768089073041);
 
 		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
 		auto psPtr = sys._shaderCache.getPixShader("phongPS");

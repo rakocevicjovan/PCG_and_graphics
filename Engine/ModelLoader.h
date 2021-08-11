@@ -52,13 +52,13 @@ namespace ModelLoader
 	}
 
 
-	static std::unique_ptr<Model> LoadModelFromAsset(ModelAsset& modelAsset, MaterialManager* materialManager)
+	static Model LoadModelFromAsset(ModelAsset& modelAsset, MaterialManager* materialManager)
 	{
-		auto model = std::make_unique<Model>();
+		Model model{};
 		
-		LoadMeshes(model->_meshes, modelAsset, materialManager);
+		LoadMeshes(model._meshes, modelAsset, materialManager);
 
-		model->_meshNodeTree = modelAsset.meshNodes;
+		model._meshNodeTree = modelAsset.meshNodes;
 
 		return model;
 	}
