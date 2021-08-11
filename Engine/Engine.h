@@ -49,7 +49,7 @@ public:
 
 	Engine();
 
-	bool initialize();
+	void initialize();
 	void start();
 	void shutDown();
 

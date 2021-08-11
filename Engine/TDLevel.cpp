@@ -23,7 +23,6 @@ TDLevel::TDLevel(Engine& sys)
 };
 
 
-
 ///INIT AND HELPERS
 void TDLevel::init(Engine& sys)
 {
@@ -60,7 +59,7 @@ void TDLevel::init(Engine& sys)
 	terrain.setOffset(-_tSize * .5f, -0.f, -_tSize * .5f);
 	terrain.SetUp(S_DEVICE);
 
-	
+
 	// Generate the floor gemetry... really simple but a lot of material fuss afterwards
 	floorMesh = Mesh(terrain, S_DEVICE);
 
@@ -192,7 +191,6 @@ void TDLevel::addBuildables()
 }
 
 
-
 void TDLevel::fixBuildable(Building* b)
 {
 	_buildable.push_back(b);
@@ -205,7 +203,6 @@ void TDLevel::fixBuildable(Building* b)
 	//can use pointers but this much data replicated is not really important
 	_tdgui.addBuildingGuiDef(_buildable.back()->_guiDef);
 }
-
 
 
 ///UPDATE AND HELPERS
@@ -264,7 +261,6 @@ void TDLevel::update(const RenderContext& rc)
 }
 
 
-
 //really simple for now, don't need more - also this should go to game logic not here...
 float TDLevel::resolveAttack(const Attack& att, const Armour& arm)
 {
@@ -291,7 +287,6 @@ void TDLevel::rayPickTerrain(const Camera* cam)
 	SVec3 snappedPos = _navGrid.snapToCell(POI);
 	Math::SetTranslation(_templateBuilding->_transform, snappedPos);
 }
-
 
 
 void TDLevel::handleInput(const Camera* cam)

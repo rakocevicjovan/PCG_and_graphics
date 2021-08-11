@@ -3,7 +3,6 @@
 #include "FileUtilities.h"
 
 
-
 bool Project::loadFromConfig(const std::string& projConfPath)
 {
 	_configPath = projConfPath;
@@ -19,7 +18,6 @@ bool Project::loadFromConfig(const std::string& projConfPath)
 }
 
 
-
 bool Project::loadProjectConfiguration(const rapidjson::Document& projConfDoc)
 {
 	// Load a bunch of variables relevant to the current project from the json file
@@ -33,7 +31,6 @@ bool Project::loadProjectConfiguration(const rapidjson::Document& projConfDoc)
 
 	return loadLevelList(projConfDoc); //streams release on exit regardless
 }
-
 
 
 bool Project::loadLevelList(const rapidjson::Document& projConfDoc)

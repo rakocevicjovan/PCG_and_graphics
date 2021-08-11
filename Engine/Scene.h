@@ -7,7 +7,7 @@
 #include "Engine.h"
 #include "entt/entt.hpp"
 
-#define DEFAULT_SUBDIV_LEVELS 4u
+inline static constexpr uint32_t DEFAULT_SUBDIV_LEVELS = 4u;
 
 class Scene
 {

@@ -168,6 +168,9 @@
     <Filter Include="ZZTowerDefense\Buildings">
       <UniqueIdentifier>{3a84d31f-b925-429e-9d0a-695dfe515ee3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Project">
+      <UniqueIdentifier>{eeb7164e-d0f5-4e0c-bc8f-a566edad15a1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -1176,6 +1179,9 @@
     </ClInclude>
     <ClInclude Include="LevelAsset.h">
       <Filter>Scene management</Filter>
+    </ClInclude>
+    <ClInclude Include="Proj.h">
+      <Filter>Project</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

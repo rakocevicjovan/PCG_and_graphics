@@ -6,6 +6,8 @@
 #include "ShaderGenerator.h"
 #include "LevelAsset.h"
 
+#include "Proj.h"
+
 
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
@@ -14,7 +16,7 @@ Engine::Engine() :
 {}
 
 
-bool Engine::initialize()
+void Engine::initialize()
 {
 	_engineWindow.createWindow("Aeolian engine", this, _windowWidth, _windowHeight,
 		Window<Engine>::CreationFlags::SHOW_WINDOW |
@@ -23,8 +25,8 @@ bool Engine::initialize()
 
 	if (!_D3D.initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), _engineWindow.fullscreen()))
 	{
-		OutputDebugStringA("Can't initialize D3D!");
-		return false;
+		assert("Can't initialize D3D!");
+		return;
 	}
 
 	_inputManager.initialize(_engineWindow.handle());
@@ -33,22 +35,15 @@ bool Engine::initialize()
 
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
-		OutputDebugStringA("Could not initialize the renderer!");
-		return false;
+		assert("Could not initialize the renderer!");
+		return;
 	}
 
 	_shaderCompiler.init(_D3D.getDevice());
-	//_matCache.init(&_shaderCache, &_resMan);
 
 	_renderer._cam._controller = &_defController;
 
 	GUI::initDxWin32(_engineWindow.handle(), _D3D.getDevice(), _D3D.getContext());
-
-	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
-	_project.loadFromConfig("../Tower Defense/Tower defense.json");
-
-	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
-		assert(false && "Failed to load level list.");
 
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "../Tower Defense/Ledger.json";
@@ -60,35 +55,27 @@ bool Engine::initialize()
 	_aeonLoader.resizeThreadPool(num_threads_available);	//8
 
 	_shaderManager = ShaderManager(_assetLedger, _renderer.device());
+
 	_textureManager = std::move(TextureManager(_assetLedger, _aeonLoader, _renderer.device()));
 
 	_materialManager = MaterialManager(_assetLedger, _aeonLoader, _shaderManager, _textureManager);
 
 	_skeletonManager = SkeletonManager(_assetLedger, _aeonLoader);
-	
+
 	_animationManager = AnimationManager(_assetLedger, _aeonLoader);
 
 	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager, _skeletonManager, _animationManager);
 
-
-
-	//auto test1 = _modelManager.getBlocking(9916003768089073041);
-	//auto test2 = _modelManager.get(9916003768089073041);
-
-	//_assetManagerLocator.registerManagerForType(EAssetType::SK_MODEL, &_modelManager);
-	//_assetManagerLocator.registerManagerForType(EAssetType::MATERIAL, &_materialManager);
-	//_assetManagerLocator.registerManagerForType(EAssetType::TEXTURE, &_textureManager);
-	//_assetManagerLocator.registerManagerForType(EAssetType::SHADER, &_shaderManager);
-	// Another option is this. Wrap them all into one class.
-	//OmniAssetManager OAM(
-	//	_aeonLoader,
-	//	_assetLedger, 
-	//	_assetManagerLocator);
-	//OAM.request<SkModel>(9916003768089073041);
-
 	_levelMan = new LevelManager(*this);
 
-	return true;
+	// This is here as a bandaid, shouldn't be.
+	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
+	_project.loadFromConfig("../Tower Defense/Tower defense.json");
+
+	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
+	{
+		assert(false && "Failed to load level list.");
+	}
 }
 
 
@@ -97,8 +84,8 @@ void Engine::start()
 {
 	_clock.reset();
 
-	MSG msg = {};
-	bool done = false;
+	MSG msg{};
+	bool done{ false };
 
 	// Loop until there is a quit message from the window or the user.
 	while(!done)

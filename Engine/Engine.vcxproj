@@ -447,6 +447,7 @@
     <ClInclude Include="Image.h" />
     <ClInclude Include="LevelAsset.h" />
     <ClInclude Include="MaterialManager.h" />
+    <ClInclude Include="Proj.h" />
     <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="OmniAssetManager.h" />
