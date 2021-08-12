@@ -34,6 +34,7 @@ public:
 		_registry = &_scene->_registry;
 	}
 
+
 	void display()
 	{
 		if(ImGui::Begin("Editor"))
@@ -154,6 +155,7 @@ private:
 			}
 		}
 	}
+
 
 	template <typename... Editables>
 	void showAddComponentPopup(entt::registry* registry, entt::entity entity)

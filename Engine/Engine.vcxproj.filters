@@ -463,6 +463,9 @@
     <ClCompile Include="World.cpp">
       <Filter>Scene management</Filter>
     </ClCompile>
+    <ClCompile Include="AssetExplorer.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">

@@ -179,6 +179,7 @@
     <ClCompile Include="AeonLoader.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimChannel.cpp" />
+    <ClCompile Include="AssetExplorer.cpp" />
     <ClCompile Include="AssetManagerLocator.cpp" />
     <ClCompile Include="AssImport.cpp" />
     <ClCompile Include="AssimpWrapper.cpp" />

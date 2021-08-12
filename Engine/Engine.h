@@ -72,7 +72,7 @@ public:
 	ShaderCompiler _shaderCompiler;
 	ShaderCache _shaderCache;
 
-	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
+	// Extra rendering data - this should end up in the renderer
 	D3D _D3D;
 
 	// This should be in game code really, it's up to it to define different states etc.
