@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Shader.h"
+#include "TCachedLoader.h"
+
 #include "ShaderGenerator.h"
 #include "VertSignature.h"
-#include "AssetID.h"
-#include "TCache.h"
-#include "IAssetManager.h"
-#include "AssetLedger.h"
-#include "AeonLoader.h"
+
+#include "Shader.h"
 #include "ShaderLoader.h"
+
 
 class Material;
 
@@ -20,7 +19,7 @@ struct ShaderPack
 };
 
 
-class ShaderManager : public IAssetManager
+class ShaderManager
 {
 private:
 

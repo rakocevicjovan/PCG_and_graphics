@@ -110,7 +110,7 @@ public:
 
 		{
 			// This works as expected. Thanks Skypjack! JSON is a poor choice for matrices though (or anything that should load fast)
-			// so it's a good idea to use a binary format if nothing at least for part of the data
+			// so it's a good idea to use a binary format if nothing at least for part of the data. In general, only serialization test runs are to use json
 			
 			//std::ofstream ofs("AAAAAA.json", std::ios::binary);
 			//cereal::JSONOutputArchive joa(ofs);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "VertSignature.h"
 
 struct VS_FileFormat
 {

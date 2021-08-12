@@ -71,13 +71,12 @@ public:
 	Renderer _renderer;
 	ShaderCompiler _shaderCompiler;
 	ShaderCache _shaderCache;
-	//TCache<Material> _matCache;
 
 	// Extra rendering data - this should end up in the renderer and loaders ONLY @TODO
 	D3D _D3D;
 
 	// This should be in game code really, it's up to it to define different states etc.
-	LevelManager* _levelMan;
+	LevelManager* _levelMan{};
 
 	// Managers
 	AssetLedger _assetLedger;
