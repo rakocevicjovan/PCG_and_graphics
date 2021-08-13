@@ -9,6 +9,9 @@ InputManager::InputManager() : _mouse(std::make_unique<DirectX::Mouse>())
 void InputManager::initialize(HWND hwnd)
 {
 	_mouse->SetWindow(hwnd);
+	
+	// NB: This IS the default but in the case it changes I still want to enforce it.
+	_mouse->SetMode(DirectX::Mouse::Mode::MODE_ABSOLUTE);
 
 	// See https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawinputdevice
 	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
@@ -36,7 +39,6 @@ void InputManager::initialize(HWND hwnd)
 void InputManager::update()
 {
 	queryMouse();
-	setRelativeXY(0, 0);
 }
 
 
@@ -94,8 +96,9 @@ void InputManager::queryMouse()
 {
 	DirectX::Mouse::State state = _mouse->GetState();
 	_tracker.Update(state);
-	_abs.x = state.x;
-	_abs.y = state.y;
+	
+	_abs.x = static_cast<uint16_t>(state.x);
+	_abs.y = static_cast<uint16_t>(state.y);
 
 	if (_tracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED)
 	{

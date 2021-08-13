@@ -99,35 +99,25 @@ void Engine::start()
 			DispatchMessage(&msg);
 		}
 
-		if(msg.message == WM_QUIT)
-		{
-			done = true;
-		}
-		else
-		{
-			_clock.tick();
-			_fpsCounter.tickAccurate(_clock.deltaTime());
-			done = !tick(_clock.deltaTime());	// Otherwise do the frame processing.
-		}
+		_clock.tick();
+		_fpsCounter.tickAccurate(_clock.deltaTime());
+		done = !tick(_clock.deltaTime());	// Otherwise do the frame processing.
 	}
 }
 
 
 bool Engine::tick(float dTime)
 {
-	if (_inputManager.isKeyDown(VK_ESCAPE))
-		return false;
+	_inputManager.update();
 
-	if (!_renderer.frame(dTime))
-		return false;
-
-	_levelMan->handleInput(*this, dTime);
+	_renderer.frame(dTime);
 
 	_levelMan->updateAndDrawCurrent(_renderer.rc);
 
 	//_colEngine.update(); Old stuff, has some nice code in there though, need to pull it out and refactor it into something useful
 
-	_inputManager.update();
+	// No mouse movement is not an event, so reset relative values to 0.
+	_inputManager.setRelativeXY(0, 0);
 
 	return true;
 }
@@ -148,7 +138,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, message, wparam, lparam))
 	{
-		return true;
+		return 0;
 	}
 
 	static uint16_t newSize[2]{0, 0};
@@ -158,13 +148,15 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		case WM_KEYDOWN:
 		{
 			_inputManager.setKeyPressed((unsigned int)wparam);
-			break;
+			return 0;
 		}
+
 		case WM_KEYUP:
 		{
 			_inputManager.setKeyReleased((unsigned int)wparam);
-			break;
+			return 0;
 		}
+
 		case WM_INPUT:
 		{
 			static constexpr uint32_t MAX_DW_SIZE = 512u;
@@ -185,8 +177,9 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 				{
 					_inputManager.setRelativeXY((short)(rawInput->data.mouse.lLastX), (short)(rawInput->data.mouse.lLastY));
 				}
-			}		
-			break;
+			}
+
+			return 0;
 		}
 
 		case WM_SIZE:
@@ -218,13 +211,10 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		case WM_XBUTTONUP:
 		case WM_MOUSEHOVER:
 			DirectX::Mouse::ProcessMessage(message, wparam, lparam);
-			break;
-		}
-		default:
-		{
-			return DefWindowProc(hwnd, message, wparam, lparam);
+
+			return 0;
 		}
 	}
 
-	return 0;
+	return DefWindowProc(hwnd, message, wparam, lparam);
 }

@@ -62,7 +62,7 @@ bool Renderer::createGlobalBuffers()
 }
 
 
-bool Renderer::frame(float dTime)
+void Renderer::frame(float dTime)
 {
 	_elapsed += dTime;
 	
@@ -71,8 +71,6 @@ bool Renderer::frame(float dTime)
 	updateRenderContext(dTime);
 
 	updatePerFrameBuffers(dTime);
-
-	return true;
 }
 
 

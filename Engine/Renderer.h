@@ -7,7 +7,6 @@
 #include "ClusterManager.h"
 #include "RenderStage.h"
 #include "ReservedBuffers.h"
-#include <memory>
 
 
 // @TODO make data driven and add a menu to set them...
@@ -70,7 +69,7 @@ public:
 
 	bool initialize(int wWidth, int wHeight, D3D& d3d);
 	void resize(uint16_t width, uint16_t height);
-	bool frame(float dTime);
+	void frame(float dTime);
 	void updatePerFrameBuffers(float dTime);
 	void updatePerCamBuffer(float ww, float wh);
 	

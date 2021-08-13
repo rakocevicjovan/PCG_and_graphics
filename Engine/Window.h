@@ -184,6 +184,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	switch (message)
 	{
+		case WM_QUIT:
+		{
+			PostQuitMessage(0);
+			return 0;
+		}
+
 		case WM_DESTROY:
 		{
 			PostQuitMessage(0);
@@ -194,6 +200,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		{
 			PostQuitMessage(0);
 			return 0;
+		}
+
+		case WM_NCCREATE:
+		{
+			return 1;	// This one is wrapped here because it's dumb. Needs to return TRUE, contrary to most other uses where returning 0 is expected.
+		}
+
+		case WM_CREATE:
+		{
+			return 0;	// Zero to continue creation, -1 to abort it
 		}
 
 		default:
