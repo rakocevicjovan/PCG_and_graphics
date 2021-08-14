@@ -43,6 +43,8 @@ private:
 	UINT _windowWidth = 2560;
 	UINT _windowHeight = 1440;
 
+	bool _minimized{false};
+
 	// Contains metadata of the project and lists of assets the project needs
 	Project _project;
 

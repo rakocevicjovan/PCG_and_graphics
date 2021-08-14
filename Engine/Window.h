@@ -214,7 +214,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 
 		default:
 		{
-			return Window<WindowInputHandlerType>::WindowInputHandlers[hwnd]->HandleWindowInput(hwnd, message, wparam, lparam);
+			if (auto& handler = Window<WindowInputHandlerType>::WindowInputHandlers[hwnd]; handler)
+			{
+				return handler->HandleWindowInput(hwnd, message, wparam, lparam);
+			}
+			else
+			{
+				return DefWindowProc(hwnd, message, wparam, lparam);
+			}
 		}
 	}
 }

@@ -99,9 +99,12 @@ void Engine::start()
 			DispatchMessage(&msg);
 		}
 
-		_clock.tick();
-		_fpsCounter.tickAccurate(_clock.deltaTime());
-		done = !tick(_clock.deltaTime());	// Otherwise do the frame processing.
+		if (!_minimized)
+		{
+			_clock.tick();
+			_fpsCounter.tickAccurate(_clock.deltaTime());
+			done = !tick(_clock.deltaTime());	// Otherwise do the frame processing.
+		}
 	}
 }
 
@@ -142,6 +145,20 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 	}
 
 	static uint16_t newSize[2]{0, 0};
+
+	static auto onMinEvent = [this](bool minimized)
+	{
+		_minimized = minimized;
+		if (minimized)
+		{
+			_clock.stop();
+		}
+		else
+		{
+			_clock.start();
+		}
+	};
+
 
 	switch (message)
 	{
@@ -184,10 +201,34 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 		case WM_SIZE:
 		{
-			//auto flag = wparam;
-			//newSize[0] = LOWORD(lparam);	// width of client area
-			//newSize[1] = HIWORD(lparam);	// height of client area
+			auto flag = wparam;
+			if (wparam == SIZE_MINIMIZED)
+			{
+				onMinEvent(true);
+			}
+			else if (wparam == SIZE_MAXIMIZED || wparam == SIZE_RESTORED)
+			{
+				onMinEvent(false);
+			}
+
+			// Not doing anything with this yet
+			newSize[0] = LOWORD(lparam);	// width of client area
+			newSize[1] = HIWORD(lparam);	// height of client area
 			break;
+		}
+
+		// Alt tabbing out
+		case WM_KILLFOCUS:
+		{
+			onMinEvent(true);
+			return 0;
+		}
+
+		// Alt tabbing in
+		case WM_SETFOCUS:
+		{
+			onMinEvent(false);
+			return 0;
 		}
 
 		case WM_EXITSIZEMOVE:
@@ -199,16 +240,27 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		//mouse
 		{
 		case WM_ACTIVATEAPP:
+			[[fallthrough]];
 		case WM_MOUSEMOVE:
+			[[fallthrough]];
 		case WM_LBUTTONDOWN:
+			[[fallthrough]];
 		case WM_LBUTTONUP:
+			[[fallthrough]];
 		case WM_RBUTTONDOWN:
+			[[fallthrough]];
 		case WM_RBUTTONUP:
+			[[fallthrough]];
 		case WM_MBUTTONDOWN:
+			[[fallthrough]];
 		case WM_MBUTTONUP:
+			[[fallthrough]];
 		case WM_MOUSEWHEEL:
+			[[fallthrough]];
 		case WM_XBUTTONDOWN:
+			[[fallthrough]];
 		case WM_XBUTTONUP:
+			[[fallthrough]];
 		case WM_MOUSEHOVER:
 			DirectX::Mouse::ProcessMessage(message, wparam, lparam);
 			return 0;
