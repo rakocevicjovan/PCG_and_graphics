@@ -15,8 +15,8 @@ class InputManager
 {
 private:
 	std::vector<Observer*> _observers;
-	std::unique_ptr<DirectX::Mouse> _mouse{};
-	DirectX::Mouse::ButtonStateTracker _tracker;
+	DirectX::Mouse _mouse{};
+	DirectX::Mouse::ButtonStateTracker _tracker{};
 
 	bool _keys[256]{false};
 	MCoords _rel{ 0, 0 };
@@ -30,7 +30,7 @@ private:
 
 public:
 
-	InputManager();
+	InputManager() = default;
 
 	void initialize(HWND hwnd);
 	void update();
@@ -40,15 +40,17 @@ public:
 
 	void setKeyPressed(uint32_t);
 	void setKeyReleased(uint32_t);
-	
-	void getRelativeXY(int16_t& x, int16_t&y);
-	void setRelativeXY(int16_t, int16_t);
-	
-	MCoords getAbsXY() { return _abs; }
+
+	void setRelXY(int16_t, int16_t);
 	void setAbsXY(const MCoords& abs) { _abs = abs; }
 
-	bool isKeyDown(uint32_t);
-
+	void setMouseVisibility(bool isVisible);
 	void toggleMouseVisibility();
-	bool getMouseVisibility();
+
+	void getRelativeXY(int16_t& x, int16_t& y) const;
+	bool isKeyDown(uint16_t) const;
+	bool getMouseVisibility() const;
+
+	inline MCoords getAbsXY() const { return _abs; }
+	inline MCoords getRelXY() const { return _rel; }
 };

@@ -80,7 +80,7 @@ public:
 
 		_geoClipmap.init(S_DEVICE);
 
-		_sceneEditor.init(&_scene);
+		_sceneEditor.init(&_scene, &S_INMAN);
 
 		_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 

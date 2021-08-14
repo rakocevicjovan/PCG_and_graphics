@@ -3,6 +3,7 @@
 #include "GuiBlocks.h"
 #include "GUI.h"
 #include "ComponentEditors.h"
+#include "InputManager.h"
 
 
 class SceneEditor
@@ -13,6 +14,8 @@ private:
 	entt::registry* _registry;
 
 	entt::entity _selected = entt::null;
+
+	const InputManager* _inputManager;
 
 	template <typename... DisplayableComponents>
 	struct DisplayComponents {};
@@ -28,10 +31,11 @@ private:
 
 public:
 
-	void init(Scene* scene)
+	void init(Scene* scene, const InputManager* inMan)
 	{
 		_scene = scene;
 		_registry = &_scene->_registry;
+		_inputManager = inMan;
 	}
 
 
@@ -41,14 +45,13 @@ public:
 		{
 			ImGui::DockSpace(ImGui::GetID("Editor docker"));
 
-			drawEntities();
-
 			if (_selected != entt::null)
 			{
-				displayNodeProperties(_registry, _selected, _displayComponents);
+				displayEntityDetails(_registry, _selected);
 			}
-		}
 
+			drawEntities();
+		}
 		ImGui::End();
 	}
 
@@ -94,6 +97,12 @@ private:
 			_selected = entity;
 		}
 
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+		{
+			_selected = entity;
+			goToEntityIfLocatable(registry, entity);
+		}
+
 		// If dragging this somewhere
 		if (ImGui::BeginDragDropSource())
 		{
@@ -113,6 +122,24 @@ private:
 			ImGui::TreePop();
 		}
 
+	}
+
+
+	void displayEntityDetails(entt::registry* registry, entt::entity& selected)
+	{
+		if (_inputManager->isKeyDown(VK_DELETE))
+		{
+			_registry->destroy(selected);
+			selected = entt::null;
+			return;
+		}
+
+		if (_inputManager->isKeyDown('F'))
+		{
+			goToEntityIfLocatable(registry, selected);
+		}
+
+		displayNodeProperties(_registry, _selected, _displayComponents);
 	}
 
 
@@ -177,4 +204,12 @@ private:
 		}
 	}
 
+
+	void goToEntityIfLocatable(entt::registry* registry, entt::entity entity)
+	{
+		if (_registry->has<CTransform>(entity))
+		{
+
+		}
+	}
 };

@@ -53,19 +53,19 @@ SVec3 Controller::processTranslationFPS(const float dTime, const SMatrix& transf
 
 	SVec3 deltaTranslation(0, 0, 0);
 
-	if (_inMan->isKeyDown((uint16_t)'W')) {
+	if (_inMan->isKeyDown('W')) {
 		deltaTranslation = deltaTranslation + dir;
 	}
 
-	if (_inMan->isKeyDown((uint16_t)'S')) {
+	if (_inMan->isKeyDown('S')) {
 		deltaTranslation = deltaTranslation - dir;
 	}
 
-	if (_inMan->isKeyDown((uint16_t)'A')) {
+	if (_inMan->isKeyDown('A')) {
 		deltaTranslation = deltaTranslation - right;
 	}
 
-	if (_inMan->isKeyDown((uint16_t)'D')) {
+	if (_inMan->isKeyDown('D')) {
 		deltaTranslation = deltaTranslation + right;
 	}
 
@@ -106,22 +106,22 @@ SVec3 Controller::processTranslationTP(float dTime, const SMatrix & transformati
 
 	SVec3 deltaTranslation(0, 0, 0);
 
-	if (_inMan->isKeyDown((short)'W'))
+	if (_inMan->isKeyDown('W'))
 	{
 		deltaTranslation = deltaTranslation + dir;
 	}
 
-	if (_inMan->isKeyDown((short)'S'))
+	if (_inMan->isKeyDown('S'))
 	{
 		deltaTranslation = deltaTranslation - dir;
 	}
 
-	if (_inMan->isKeyDown((short)'Q'))
+	if (_inMan->isKeyDown('Q'))
 	{
 		deltaTranslation = deltaTranslation - right;
 	}
 
-	if (_inMan->isKeyDown((short)'E'))
+	if (_inMan->isKeyDown('E'))
 	{
 		deltaTranslation = deltaTranslation + right;
 	}
@@ -141,10 +141,10 @@ void Controller::processRotationTP(float dTime, SMatrix& transform, SMatrix& cam
 
 	float rotator = 0;
 
-	if (_inMan->isKeyDown((short)'A'))
+	if (_inMan->isKeyDown('A'))
 		rotator += rotCf * .1f * dTime;
 
-	if (_inMan->isKeyDown((short)'D'))
+	if (_inMan->isKeyDown('D'))
 		rotator -= rotCf * .1f * dTime;
 
 	transform *= SMatrix::CreateRotationY(-rotator);

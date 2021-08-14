@@ -11,7 +11,7 @@
 
 
 
-class AssimpLoader : public Level
+class AssimpLevel : public Level
 {
 private:
 	// Temporarily here, pass them as ptr/ref from the editor to feed into that one
@@ -34,7 +34,7 @@ private:
 
 public:
 
-	AssimpLoader(Engine& sys) : 
+	AssimpLevel(Engine& sys) : 
 		Level(sys), 
 		_scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5),
 		_fileBrowser("C:\\Users\\metal\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated")

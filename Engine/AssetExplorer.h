@@ -1,6 +1,7 @@
 #pragma once
 
-class AssimpLoader;
+#include "AssimpLevel.h"
+#include "AssetLedger.h"
 
 // This class is the next logical step towards the engine.
 // Use some of assimp loader functionality and allow a loader to be spawned from the scene editor through this.
@@ -8,10 +9,18 @@ class AssimpLoader;
 
 class AssetExplorer
 {
+private:
+
+	AssimpLevel* _loaderLevel{};
+	AssetLedger* _pLedger{};
+
 public:
 
-	AssimpLoader* _loaderLevel;
+	void init(AssetLedger* ledger)
+	{
+		_pLedger = ledger;
+	}
 
-private:
+
 
 };

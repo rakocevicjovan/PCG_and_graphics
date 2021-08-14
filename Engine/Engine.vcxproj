@@ -408,7 +408,7 @@
     <ClInclude Include="AssetExplorer.h" />
     <ClInclude Include="AssetManagerLocator.h" />
     <ClInclude Include="AssimpGUI.h" />
-    <ClInclude Include="AssimpLoader.h" />
+    <ClInclude Include="AssimpLevel.h" />
     <ClInclude Include="AssImport.h" />
     <ClInclude Include="AssimpWrapper.h" />
     <ClInclude Include="Blob.h" />

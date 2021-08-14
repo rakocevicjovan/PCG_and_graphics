@@ -2,16 +2,12 @@
 #include "InputManager.h"
 
 
-InputManager::InputManager() : _mouse(std::make_unique<DirectX::Mouse>())
-{}
-
-
 void InputManager::initialize(HWND hwnd)
 {
-	_mouse->SetWindow(hwnd);
+	_mouse.SetWindow(hwnd);
 	
 	// NB: This IS the default but in the case it changes I still want to enforce it.
-	_mouse->SetMode(DirectX::Mouse::Mode::MODE_ABSOLUTE);
+	_mouse.SetMode(DirectX::Mouse::Mode::MODE_ABSOLUTE);
 
 	// See https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawinputdevice
 	RAWINPUTDEVICE RIDs[2];			//@TODO do i need this? probably do...
@@ -72,31 +68,49 @@ void InputManager::setKeyReleased(uint32_t input)
 }
 
 
-void InputManager::setRelativeXY(int16_t x, int16_t y)
+void InputManager::setRelXY(int16_t x, int16_t y)
 {
 	_rel.x = x;
 	_rel.y = y;
 }
 
 
-void InputManager::getRelativeXY(int16_t& x, int16_t& y)
+void InputManager::setMouseVisibility(bool isVisible)
+{
+	_mouse.SetVisible(isVisible);
+}
+
+
+void InputManager::toggleMouseVisibility()
+{
+	_mouse.SetVisible(!_mouse.IsVisible());
+}
+
+
+void InputManager::getRelativeXY(int16_t& x, int16_t& y) const
 {
 	x = _rel.x;
 	y = _rel.y;
 }
 
 
-bool InputManager::isKeyDown(uint32_t key)
+bool InputManager::isKeyDown(uint16_t key) const
 {
 	return _keys[key];
 }
 
 
+bool InputManager::getMouseVisibility() const
+{
+	return _mouse.IsVisible();
+}
+
+
 void InputManager::queryMouse()
 {
-	DirectX::Mouse::State state = _mouse->GetState();
+	DirectX::Mouse::State state = _mouse.GetState();
 	_tracker.Update(state);
-	
+
 	_abs.x = static_cast<uint16_t>(state.x);
 	_abs.y = static_cast<uint16_t>(state.y);
 
@@ -119,10 +133,11 @@ void InputManager::queryMouse()
 }
 
 
+// Notify observers, seems like a minefield if I start polling input in a separate thread... probably won't stay around in that case
 void InputManager::mouseLPressed()
 {
 	for (auto obs : _observers)
-		obs->Observe({_abs.x, _abs.y, MBT::LEFT, 1});
+		obs->Observe({ _abs.x, _abs.y, MBT::LEFT, 1 });
 }
 
 
@@ -144,16 +159,4 @@ void InputManager::mouseRReleased()
 {
 	for (auto obs : _observers)
 		obs->Observe({ _abs.x, _abs.y, MBT::RIGHT, 0 });
-}
-
-
-void InputManager::toggleMouseVisibility()
-{
-	_mouse->SetVisible(!_mouse->IsVisible());
-}
-
-
-bool InputManager::getMouseVisibility()
-{
-	return _mouse->IsVisible();
 }

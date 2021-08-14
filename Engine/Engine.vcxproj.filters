@@ -171,6 +171,9 @@
     <Filter Include="Project">
       <UniqueIdentifier>{eeb7164e-d0f5-4e0c-bc8f-a566edad15a1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editor\Scene editor">
+      <UniqueIdentifier>{a4a64c12-95f7-479e-980d-8eebfabc01da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Perlin.cpp">
@@ -942,7 +945,7 @@
     <ClInclude Include="AssImport.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpLoader.h">
+    <ClInclude Include="AssimpLevel.h">
       <Filter>Asset importing</Filter>
     </ClInclude>
     <ClInclude Include="FBXLoader.h">
@@ -1025,9 +1028,6 @@
     </ClInclude>
     <ClInclude Include="Metrics.h">
       <Filter>Metrics</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneEditor.h">
-      <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="CTransform.h">
       <Filter>Scene management\Components</Filter>
@@ -1188,6 +1188,9 @@
     </ClInclude>
     <ClInclude Include="ModelManager.h">
       <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneEditor.h">
+      <Filter>Editor\Scene editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

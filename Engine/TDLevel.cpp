@@ -28,7 +28,7 @@ void TDLevel::init(Engine& sys)
 {
 	// Testing 
 	_geoClipMap.init(S_DEVICE);
-	_sceneEditor.init(&_scene);
+	_sceneEditor.init(&_scene, &S_INMAN);
 
 	_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 

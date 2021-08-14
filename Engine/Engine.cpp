@@ -117,7 +117,7 @@ bool Engine::tick(float dTime)
 	//_colEngine.update(); Old stuff, has some nice code in there though, need to pull it out and refactor it into something useful
 
 	// No mouse movement is not an event, so reset relative values to 0.
-	_inputManager.setRelativeXY(0, 0);
+	_inputManager.setRelXY(0, 0);
 
 	return true;
 }
@@ -175,7 +175,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 				if (auto rawInput = (RAWINPUT*)lpb; rawInput->header.dwType == RIM_TYPEMOUSE)
 				{
-					_inputManager.setRelativeXY((short)(rawInput->data.mouse.lLastX), (short)(rawInput->data.mouse.lLastY));
+					_inputManager.setRelXY((short)(rawInput->data.mouse.lLastX), (short)(rawInput->data.mouse.lLastY));
 				}
 			}
 
@@ -211,7 +211,6 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		case WM_XBUTTONUP:
 		case WM_MOUSEHOVER:
 			DirectX::Mouse::ProcessMessage(message, wparam, lparam);
-
 			return 0;
 		}
 	}

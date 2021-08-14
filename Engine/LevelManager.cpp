@@ -5,7 +5,7 @@
 #include "TestLevel.h"
 #include "TDLevel.h"
 #include "ProjectPickerLevel.h"
-#include "AssimpLoader.h"
+#include "AssimpLevel.h"
 #include "RenderingTestLevel.h"
 
 
@@ -13,7 +13,7 @@ LevelManager::LevelManager(Engine& systems)
 {	
 	//_current = new ProjectPickerLevel(systems);	//boring to click through...
 
-	//_current = new AssimpLoader(systems);
+	//_current = new AssimpLevel(systems);
 
 	//_current = new TDLevel(systems);
 
