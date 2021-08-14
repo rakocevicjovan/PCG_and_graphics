@@ -101,7 +101,6 @@ public:
 		}
 
 		// @TODO If done like this, only objects in the camera frustum will cast shadows, need to account for it
-
 		return DirectX::XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	}
 

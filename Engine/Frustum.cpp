@@ -33,6 +33,10 @@ void Frustum::update(const SMatrix& vpm)
 //this can be slightly faster with pmat precombined with vmat (In row major it's vmat*pmat) because vmat is an inverted cmat
 std::array<SVec3, 8> Frustum::extractCorners(const SMatrix& pMat)	//, const SMatrix& cMat)
 {
+	// Try this alternative
+	// use only Vec3 initially so you can transform in place
+	// then add right column of the matrix to everything to simulate what SVec4::transform() would do
+
 	static const std::array<SVec4, 8> vec4s =
 	{
 		SVec4(-1, -1,  0, 1.),	//nbl
@@ -51,10 +55,7 @@ std::array<SVec3, 8> Frustum::extractCorners(const SMatrix& pMat)	//, const SMat
 	for (int i = 0; i < 8; ++i)
 	{
 		SVec4 temp = SVec4::Transform(vec4s[i], inv);
-		SVec3 res(temp.x, temp.y, temp.z);
-		res /= temp.w;
-		//res = SVec3::Transform(res, cMat);
-		result[i] = res;
+		result[i] = SVec3(temp.x, temp.y, temp.z) / temp.w;
 	}
 
 	return result;
@@ -91,7 +92,7 @@ std::vector<SMatrix> Frustum::createCascadeProjMatrices(uint8_t n, const std::ve
 
 	for (int i = 0; i < zees.size(); ++i)
 	{
-		float currentFarZ = _zn + zees[i];	// currentNearZ +
+		float currentFarZ = _zn + zees[i];
 		result.push_back(DirectX::XMMatrixPerspectiveFovLH(_fov, _ar, currentNearZ, currentFarZ));
 		currentNearZ = currentFarZ;
 	}

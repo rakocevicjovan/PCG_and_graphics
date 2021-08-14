@@ -80,7 +80,6 @@ public:
 	}
 
 
-
 	void draw()
 	{
 		/* This works. Now to add culling and connect it to transforms in a good way.
@@ -132,7 +131,6 @@ public:
 	}
 
 
-
 	void frustumCullScene(const Camera& cam)
 	{
 		const SMatrix v = cam.GetViewMatrix();
@@ -148,7 +146,6 @@ public:
 
 		_numCulled = _actors.size() - _visibleActors.size();
 	}
-
 
 
 	void frustumCull(const Frustum& frustum, const std::vector<Actor*>& all, std::vector<Actor*>& culled)
@@ -167,7 +164,6 @@ public:
 	}
 
 
-
 	void illuminate(const Camera& c)
 	{
 		// Obtain a list of visible lights, which will remain stored in the light manager
@@ -183,7 +179,6 @@ public:
 		// Well, implement spot light culling eventually...
 
 	}
-
 
 
 	void frameCleanUp()

@@ -94,20 +94,25 @@ private:
 			_selected = entity;
 		}
 
-		if (open)
+		// If dragging this somewhere
+		if (ImGui::BeginDragDropSource())
 		{
-			ImGui::TreePop();
+			// Some processing...
+			ImGui::EndDragDropSource();
 		}
-		
-		if (ImGui::BeginDragDropTarget()) {
+
+		// If dragging into this
+		if (ImGui::BeginDragDropTarget())
+		{
 			// Some processing...
 			ImGui::EndDragDropTarget();
 		}
 
-		if (ImGui::BeginDragDropSource()) {
-			// Some processing...
-			ImGui::EndDragDropSource();
+		if (open)
+		{
+			ImGui::TreePop();
 		}
+
 	}
 
 
