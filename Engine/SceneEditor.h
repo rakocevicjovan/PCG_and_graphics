@@ -4,18 +4,19 @@
 #include "GUI.h"
 #include "ComponentEditors.h"
 #include "InputManager.h"
-
+#include "CEntityName.h"
 
 class SceneEditor
 {
 private:
 
-	Scene* _scene;
-	entt::registry* _registry;
+	Scene* _scene{};
+	entt::registry* _registry{};
 
-	entt::entity _selected = entt::null;
+	entt::entity _selected{ entt::null };
+	entt::entity _toBeRenamed{ entt::null };
 
-	const InputManager* _inputManager;
+	const InputManager* _inputManager{};
 
 	template <typename... DisplayableComponents>
 	struct DisplayComponents {};
@@ -45,10 +46,7 @@ public:
 		{
 			ImGui::DockSpace(ImGui::GetID("Editor docker"));
 
-			if (_selected != entt::null)
-			{
-				displayEntityDetails(_registry, _selected);
-			}
+			displayEntityDetails(_registry, _selected);
 
 			drawEntities();
 		}
@@ -64,9 +62,12 @@ private:
 		{
 			if (ImGui::BeginListBox("Entities"))
 			{
+				uint32_t i{ 0 };
 				_registry->each([&](auto entity)
 					{
-						drawSceneNode(_registry, entity);
+						ImGui::PushStyleColor(ImGuiCol_Text, (++i % 2) ? ImVec4(1., 1., 1., 1.) : ImVec4(.8, .8, .8, 1.));
+						drawEntityListItem(_registry, entity);
+						ImGui::PopStyleColor();
 					});
 				ImGui::EndListBox();
 			}
@@ -86,11 +87,24 @@ private:
 	}
 
 
-	void drawSceneNode(entt::registry* registry, entt::entity entity)
+	void drawEntityListItem(entt::registry* registry, entt::entity entity)
 	{
-		ImGuiTreeNodeFlags flags =  ImGuiTreeNodeFlags_OpenOnArrow;
+		if (_toBeRenamed == entity)
+		{
+			auto& name = _registry->get<CEntityName>(_toBeRenamed);
 
-		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(entity), flags, "Entity %d", entity);
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0, 0 });
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
+			if (ImGui::InputTextWithHint("", "Rename", name.get(), 32, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				_toBeRenamed = entt::null;
+			}
+			ImGui::PopStyleColor();
+			ImGui::PopStyleVar();
+			return;
+		}
+
+		bool open = ImGui::TreeNodeEx(reinterpret_cast<void*>(entity), ImGuiTreeNodeFlags_OpenOnArrow, _registry->get<CEntityName>(entity).get());
 
 		if (ImGui::IsItemClicked())
 		{
@@ -121,17 +135,26 @@ private:
 		{
 			ImGui::TreePop();
 		}
-
 	}
 
 
 	void displayEntityDetails(entt::registry* registry, entt::entity& selected)
 	{
+		if (selected == entt::null)
+		{
+			return;
+		}
+
 		if (_inputManager->isKeyDown(VK_DELETE))
 		{
 			_registry->destroy(selected);
 			selected = entt::null;
 			return;
+		}
+
+		if (_inputManager->isKeyDown('R'))
+		{
+			_toBeRenamed = selected;
 		}
 
 		if (_inputManager->isKeyDown('F'))
@@ -209,7 +232,7 @@ private:
 	{
 		if (_registry->has<CTransform>(entity))
 		{
-
+			// This has a lot of set up work to get right. Must have camera access too...
 		}
 	}
 };

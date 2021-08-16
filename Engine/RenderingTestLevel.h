@@ -106,6 +106,7 @@ public:
 			auto entity = _scene._registry.create();
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
 			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, 0, (i % 10)) * 100.f));
+			_scene._registry.emplace<CEntityName>(entity, "Entity name");
 		}
 
 		{

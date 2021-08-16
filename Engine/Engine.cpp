@@ -148,6 +148,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 	static auto onMinEvent = [this](bool minimized)
 	{
+#ifdef STOP_ON_LOSE_FOCUS
 		_minimized = minimized;
 		if (minimized)
 		{
@@ -157,6 +158,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 		{
 			_clock.start();
 		}
+#endif
 	};
 
 

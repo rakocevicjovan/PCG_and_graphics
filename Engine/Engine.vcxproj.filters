@@ -1192,6 +1192,9 @@
     <ClInclude Include="SceneEditor.h">
       <Filter>Editor\Scene editor</Filter>
     </ClInclude>
+    <ClInclude Include="CEntityName.h">
+      <Filter>Editor\Scene editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
