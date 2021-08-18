@@ -159,7 +159,7 @@ public:
 
 		group.each([&context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer](CTransform& transform, CSkModel& renderComp)
 			{
-				auto model = renderComp._skModel;
+				auto model = renderComp.skModel;
 
 				if (!model)
 					return;

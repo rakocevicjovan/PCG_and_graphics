@@ -5,4 +5,6 @@
 struct CModel
 {
 	Model* model;
+
+	operator Model& () { return *model; }
 };

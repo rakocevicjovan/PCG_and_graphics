@@ -1,10 +1,10 @@
 #include "pch.h"
 
-#include "ComponentEditors.h"
+#include "ComponentTraits.h"
 #include "GuiBlocks.h"
 
 
-namespace ComponentEditor
+namespace ComponentTraits
 {
 
 	// Individual template specs for editor display... I believe it's cleaner to keep them in one file.
@@ -47,7 +47,7 @@ namespace ComponentEditor
 	template<>
 	void Display(CSkModel& skModel)
 	{
-		if (!skModel._skModel)
+		if (!skModel.skModel)
 		{
 			ImGui::Text("No model assigned.");
 			return;
@@ -55,7 +55,7 @@ namespace ComponentEditor
 
 		ImGui::Indent();
 
-		for (auto& mesh : skModel._skModel->_meshes)
+		for (auto& mesh : skModel.skModel->_meshes)
 		{
 			GuiBlocks::displayMesh(&mesh);
 		}
@@ -87,5 +87,4 @@ namespace ComponentEditor
 	{
 		return "skeletal model component";
 	}
-
 }

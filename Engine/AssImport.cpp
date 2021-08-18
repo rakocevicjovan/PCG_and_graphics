@@ -4,12 +4,7 @@
 #include "AssimpGUI.h"
 #include "AssetLedger.h"
 #include "FileUtilities.h"
-#include "SkeletonImporter.h"
-#include "AnimationEditor.h"	// Not used yet, it's a todo in itself
 
-#include "ModelManager.h"
-#include "TCache.h"	// Trying this out
-#include "AssetManagerLocator.h"
 
 bool AssImport::importAiScene(ID3D11Device* device, const char* importFrom, const char* importTo, AssetLedger& assetLedger, ShaderManager* shMan)
 {

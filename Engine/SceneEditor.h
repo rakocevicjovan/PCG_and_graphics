@@ -2,9 +2,10 @@
 #include "Scene.h"
 #include "GuiBlocks.h"
 #include "GUI.h"
-#include "ComponentEditors.h"
+#include "ComponentTraits.h"
 #include "InputManager.h"
 #include "CEntityName.h"
+
 
 class SceneEditor
 {
@@ -171,10 +172,10 @@ private:
 	{
 		if (registry->has<Editable>(entity))
 		{
-			if (ImGui::TreeNode(ComponentEditor::GetComponentTypeName<Editable>()))
+			if (ImGui::TreeNode(ComponentTraits::GetComponentTypeName<Editable>()))
 			{
 				auto& component = registry->get<Editable>(entity);
-				ComponentEditor::Display(component);
+				ComponentTraits::Display(component);
 				ImGui::TreePop();
 			}
 		}
@@ -202,7 +203,7 @@ private:
 		if (!registry->has<Editable>(entity))
 		{
 			char buf[128];
-			sprintf(buf, "Add %s", ComponentEditor::GetComponentTypeName<Editable>());
+			sprintf(buf, "Add %s", ComponentTraits::GetComponentTypeName<Editable>());
 			if (ImGui::Button(buf))
 			{
 				registry->emplace<Editable>(entity);

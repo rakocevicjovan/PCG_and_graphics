@@ -460,14 +460,14 @@
     <ClCompile Include="ShaderPicker.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentEditors.cpp">
-      <Filter>Editor</Filter>
-    </ClCompile>
     <ClCompile Include="World.cpp">
       <Filter>Scene management</Filter>
     </ClCompile>
     <ClCompile Include="AssetExplorer.cpp">
       <Filter>Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentTraits.cpp">
+      <Filter>Editor\Scene editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1032,9 +1032,6 @@
     <ClInclude Include="CTransform.h">
       <Filter>Scene management\Components</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentEditors.h">
-      <Filter>Editor</Filter>
-    </ClInclude>
     <ClInclude Include="CParentLink.h">
       <Filter>Scene management\Components</Filter>
     </ClInclude>
@@ -1193,6 +1190,9 @@
       <Filter>Editor\Scene editor</Filter>
     </ClInclude>
     <ClInclude Include="CEntityName.h">
+      <Filter>Editor\Scene editor</Filter>
+    </ClInclude>
+    <ClInclude Include="ComponentTraits.h">
       <Filter>Editor\Scene editor</Filter>
     </ClInclude>
   </ItemGroup>

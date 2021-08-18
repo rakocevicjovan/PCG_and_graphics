@@ -23,6 +23,7 @@
 #include <string>
 #include <map>
 #include <type_traits>
+#include <variant>
 
 
 // Cereal includes - this is abundant throughout the codebase

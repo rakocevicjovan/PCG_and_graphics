@@ -46,7 +46,6 @@ void Engine::initialize()
 
 	_shaderCompiler.init(_D3D.getDevice());	// This is meh, could well not exist and it would barely matter
 
-
 	// Seems pointless but the project's ledger path will be in a file just not done yet.
 	_project._ledgerPath = "../Tower Defense/Ledger.json";
 	_assetLedger._ledgerFilePath = _project._ledgerPath;

@@ -5,18 +5,17 @@
 #include "CModel.h"
 #include "CSkModel.h"
 
-namespace ComponentEditor
+
+namespace ComponentTraits
 {
-	// Displaying
-	// This could stay here but normalize the namespace.
+	// Widgets for component previews
 	template<typename Component>
 	void Display(Component& component)
 	{
 		// Could we do it the everything'sfinae way instead?
-		static_assert(false && "Missing Display() implementation for component");
+		static_assert(false && "Missing Display() specialization for component");
 	};
 
-	// Forward declarations for specializations
 	template<>
 	void Display<CTransform>(CTransform&);
 
@@ -30,7 +29,7 @@ namespace ComponentEditor
 	void Display<CSkModel>(CSkModel&);
 
 
-	// Forward declarations for specializations
+	// Component name, used by the editor
 	template<typename Component>
 	const char* GetComponentTypeName()
 	{

@@ -3,5 +3,7 @@
 
 struct CSkModel
 {
-	SkModel* _skModel;
+	SkModel* skModel;
+
+	operator SkModel& () { return *skModel; }
 };

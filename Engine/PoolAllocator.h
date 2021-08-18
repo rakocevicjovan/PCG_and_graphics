@@ -56,7 +56,7 @@ public:
 	inline Object* allocate()
 	{
 		//a bit aggressive but I'd rather know right away
-		assert(_free, "Pool allocator overflow.");
+		assert(_free && "Pool allocator overflow.");
 
 		Object* result = reinterpret_cast<Object*>(_free);
 
