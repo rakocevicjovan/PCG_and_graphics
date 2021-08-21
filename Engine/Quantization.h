@@ -66,6 +66,7 @@ namespace quantization
 
 		// Since sqrt() isn't constexpr: 1. / sqrt(2.) = 0.70710678118 
 		constexpr float maxQuatValue = 0.70710678118;
+		constexpr float minQuatValue = -maxQuatValue;
 		constexpr float valRange = 2. * maxQuatValue;
 
 		constexpr uint32_t outComponentBitWidth = 10u;
@@ -80,30 +81,22 @@ namespace quantization
 			if (i == maxValIndex)
 				continue;
 			
-			const float remappedElement = ((&quat.x)[i] - (-maxQuatValue)) / (valRange);
-
-			const uint32_t quantized = static_cast<uint32_t>(remappedElement * resultMaxVal);
-			
-			float unpacked = -maxQuatValue + ( ((quantized * 2.) / resultMaxVal) * maxQuatValue );
-
+			const float remappedElement = ((&quat.x)[i] - minQuatValue) / (valRange);
+			const auto quantized = static_cast<uint32_t>(remappedElement * resultMaxVal);
 			result |= quantized << (packingIndex++ * outComponentBitWidth);
 		}
 
 		result |= maxValIndex << 30;
 
-		// This tests it worked. It was passing when implemented.
-		//testDecompress();
-
 		return result;
 	}
 
 
-	// Should pass
+	// Tested and passing when first written.
 	SQuat testDecompress(uint32_t compressedQuat)
 	{
 		constexpr float maxQuatValue = 0.70710678118;
 		constexpr float valRange = 2. * maxQuatValue;
-
 		constexpr uint32_t outComponentBitWidth = 10u;
 		constexpr uint32_t resultMaxVal = 1u << outComponentBitWidth - 1;
 
@@ -115,10 +108,9 @@ namespace quantization
 		auto realUpkIndex{ 0u };
 		for (auto i = 0; i < 4; ++i)
 		{
-			//bool isBiggest = ;
 			i += (i == unpacked_index);
 
-			uint32_t bitmaskI = CreateContiguousBitmask<uint32_t>(realUpkIndex, realUpkIndex + 10);
+			uint32_t bitmaskI = CreateContiguousBitmask<uint32_t>(realUpkIndex, realUpkIndex + outComponentBitWidth);
 			uint32_t unpackedInt = (compressedQuat & bitmaskI) >> realUpkIndex;
 
 			float& floatI = (&unpacked.x)[i];
@@ -126,7 +118,7 @@ namespace quantization
 
 			total += floatI * floatI;
 
-			realUpkIndex += 10;
+			realUpkIndex += outComponentBitWidth;
 		}
 
 		(&unpacked.x)[unpacked_index] = sqrt(1. - total);
