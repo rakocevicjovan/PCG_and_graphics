@@ -1,7 +1,7 @@
 #include "pch.h"
+
 #include "Animation.h"
 #include "Bone.h"
-
 
 
 Animation::Animation() noexcept = default;
@@ -24,7 +24,7 @@ void Animation::getTransformAtTime(const std::vector<Bone>& bones, const SMatrix
 	{
 		const Bone& bone = bones[i];
 
-		SMatrix parentMatrix;
+		SMatrix parentMatrix{};
 		
 		[[likely]]
 		if (bone._parent != Bone::INVALID_INDEX)
@@ -51,5 +51,14 @@ void Animation::getTransformAtTime(const std::vector<Bone>& bones, const SMatrix
 		{
 			vec[realIndex++] = bones[i]._invBindPose * vec[i] * glInvT;
 		}
+	}
+}
+
+
+void Animation::expand()
+{
+	for (auto& channel : _channels)
+	{
+
 	}
 }

@@ -152,4 +152,9 @@ public:
 	{
 		context->PSSetConstantBuffers(slot, 1, _cbPtr.GetAddressOf());
 	}
+
+	inline ID3D11Buffer* ptr()
+	{
+		return _cbPtr.Get();
+	}
 };

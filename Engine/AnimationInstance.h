@@ -8,10 +8,9 @@ class AnimationInstance
 private:
 
 	std::shared_ptr<Animation> _anim{};
+	float _elapsed{ 0.f };
 
 public:
-
-	float _elapsed { 0.f };
 
 	AnimationInstance(std::shared_ptr<Animation> anim) : _anim(anim) {}
 
@@ -29,4 +28,7 @@ public:
 	{
 		_anim->getTransformAtTime(bones, glInvT, _elapsed, vec);
 	}
+
+	inline float elapsed() { return _elapsed; }
+	inline void restart() { _elapsed = 0.f; }
 };

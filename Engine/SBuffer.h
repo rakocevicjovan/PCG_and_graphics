@@ -1,25 +1,24 @@
 #pragma once
-#include <d3d11_4.h>
 
 
 class SBuffer
 {
-	ID3D11Buffer* _sbPtr;
+private:
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> _sbPtr{};
 
 public:
 
-	SBuffer::SBuffer() : _sbPtr(nullptr) {}
-
+	SBuffer::SBuffer() = default;
 
 
 	SBuffer::SBuffer(ID3D11Device* device, UINT elementSize, UINT numElements)
 	{
-		_sbPtr = createSBuffer(device, elementSize, numElements);
+		_sbPtr = CreateSBuffer(device, elementSize, numElements);
 	}
 
 
-
-	static ID3D11Buffer* createSBuffer(ID3D11Device* device, UINT elementSize, UINT numElements)
+	static ID3D11Buffer* CreateSBuffer(ID3D11Device* device, UINT elementSize, UINT numElements)
 	{
 		ID3D11Buffer* structBuffer;
 
@@ -78,12 +77,12 @@ public:
 	inline void upload(ID3D11DeviceContext* context, const void* data, UINT byteWidth)
 	{
 		D3D11_MAPPED_SUBRESOURCE resource;
-		context->Map(_sbPtr, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		context->Map(_sbPtr.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
 		memcpy(resource.pData, data, byteWidth);
-		context->Unmap(_sbPtr, 0);
+		context->Unmap(_sbPtr.Get(), 0);
 	}
 
 
 
-	inline ID3D11Buffer* getPtr() { return _sbPtr; }
+	inline ID3D11Buffer* getPtr() { return _sbPtr.Get(); }
 };

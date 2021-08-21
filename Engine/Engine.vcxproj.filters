@@ -469,6 +469,9 @@
     <ClCompile Include="ComponentTraits.cpp">
       <Filter>Editor\Scene editor</Filter>
     </ClCompile>
+    <ClCompile Include="SkAnimRenderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -996,9 +999,6 @@
     <ClInclude Include="GeoClipmap.h">
       <Filter>Rendering</Filter>
     </ClInclude>
-    <ClInclude Include="NumericVectorType.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Window.h">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -1068,9 +1068,6 @@
     </ClInclude>
     <ClInclude Include="TextureMetaData.h">
       <Filter>Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="TreeHelper.h">
-      <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="ModelImporter.h">
       <Filter>Asset importing</Filter>
@@ -1194,6 +1191,18 @@
     </ClInclude>
     <ClInclude Include="ComponentTraits.h">
       <Filter>Editor\Scene editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SkAnimRenderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdateableBuffer.h">
+      <Filter>Rendering\Low level\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletonAnimationPair.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Quantization.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

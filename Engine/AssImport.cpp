@@ -207,7 +207,7 @@ bool AssImport::displayCommands()
 	{
 		if (_skModelData && _currentAnim >= 0 && _currentAnim < _skModelInst->_animInstances.size())
 		{
-			_skModelInst->_animInstances[_currentAnim]._elapsed = 0.f;	// Prevent crashes 
+			_skModelInst->_animInstances[_currentAnim].restart();	// Prevent crashes when setting a new animation.
 		}
 	}
 	ImGui::SliderFloat("Playback speed: ", &_playbackSpeed, 0.f, 1.f);

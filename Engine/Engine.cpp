@@ -8,12 +8,19 @@
 
 #include "Proj.h"
 
+#include "Quantization.h"
 
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
-{}
+{
+	SQuat quat(0., 1., 0., 1.);
+	quat.Normalize();
+
+	auto compressed = quantization::compressQuaternion(quat);
+	__debugbreak();
+}
 
 
 void Engine::initialize()

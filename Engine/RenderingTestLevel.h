@@ -11,7 +11,6 @@
 #include "CSM.h"
 #include "RenderStage.h"
 #include "FPSCounter.h"
-#include "entt/entt.hpp"
 
 #include "CParentLink.h"
 #include "CTransform.h"
@@ -56,10 +55,8 @@ public:
 
 	void init(Engine& sys) override final
 	{
-		//_sys._resMan.loadBatch(PROJ.getProjDir(), PROJ.getLevelReader().getLevelResourceDefs());	// This actually is data driven :)
-		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
-
 		// All of this should not have to be here! Goal of this refactor is to kill it.
+		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 
 		auto skyBoxModel = ModelImporter::StandaloneModelImport(S_DEVICE, "../Models/Skysphere.fbx").model.release();
 		Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("skyboxVS"), _sys._shaderCache.getPixShader("skyboxPS"), true);
@@ -173,13 +170,6 @@ public:
 					posBuffer.updateWithStruct(context, transform.transform.Transpose());
 
 					Material* mat = mesh._material.get();
-					//mat->bind(context);
-
-					// This is bad and needs to be rewritten...
-					//mat->getVS()->updateBuffersAuto(context, mesh);
-					//mat->getVS()->setBuffers(context);
-					//mat->getPS()->updateBuffersAuto(context, mesh);
-					//mat->getPS()->setBuffers(context);
 
 					mat->getVS()->bind(context);
 					mat->getPS()->bind(context);

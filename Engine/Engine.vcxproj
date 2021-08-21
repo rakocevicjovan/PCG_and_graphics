@@ -206,6 +206,7 @@
     <ClCompile Include="ShaderGenerator.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="ShaderPicker.cpp" />
+    <ClCompile Include="SkAnimRenderer.cpp" />
     <ClCompile Include="SkelAnimShader.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -451,7 +452,10 @@
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="Proj.h" />
+    <ClInclude Include="Quantization.h" />
     <ClInclude Include="ServiceLocator.h" />
+    <ClInclude Include="SkAnimRenderer.h" />
+    <ClInclude Include="SkeletonAnimationPair.h" />
     <ClInclude Include="SkModelManager.h" />
     <ClInclude Include="OmniAssetManager.h" />
     <ClInclude Include="ShaderLoader.h" />
@@ -479,7 +483,6 @@
     <ClInclude Include="MaterialEditor.h" />
     <ClInclude Include="MatImporter.h" />
     <ClInclude Include="MeshImporter.h" />
-    <ClInclude Include="NumericVectorType.h" />
     <ClInclude Include="Project.h" />
     <ClInclude Include="RenderConfig.h" />
     <ClInclude Include="RenderingTestLevel.h">
@@ -723,9 +726,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Tower.h" />
-    <ClInclude Include="TreeHelper.h" />
     <ClInclude Include="TypeID.h" />
     <ClInclude Include="UIGraph.h" />
+    <ClInclude Include="UpdateableBuffer.h" />
     <ClInclude Include="VBuffer.h" />
     <ClInclude Include="VertSignature.h" />
     <ClInclude Include="Viewport.h" />
