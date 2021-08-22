@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef WIN32_LEAN_AND_MEAN
-	#define WIN32_LEAN_AND_MEAN
-#endif
-
 #include <windows.h>
 #include <cstring>
 
@@ -41,7 +37,7 @@ private:
 		wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
 		wc.hIconSm = wc.hIcon;
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-		//wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);		//This clears the window but we do it ourselves.
+		wc.hbrBackground = 0;					//This clears the window but we do it ourselves. (HBRUSH)GetStockObject(BLACK_BRUSH);
 		wc.lpszMenuName = NULL;
 		wc.lpszClassName = CLASS_NAME;
 		wc.cbSize = sizeof(WNDCLASSEX);

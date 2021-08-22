@@ -56,7 +56,7 @@ void Engine::initialize()
 
 	_shaderManager = ShaderManager(_assetLedger, _renderer.device());
 
-	_textureManager = std::move(TextureManager(_assetLedger, _aeonLoader, _renderer.device()));
+	_textureManager = TextureManager(_assetLedger, _aeonLoader, _renderer.device());
 
 	_materialManager = MaterialManager(_assetLedger, _aeonLoader, _shaderManager, _textureManager);
 
