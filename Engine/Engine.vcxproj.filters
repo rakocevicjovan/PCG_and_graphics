@@ -1201,7 +1201,7 @@
     <ClInclude Include="SkeletonAnimationPair.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="Quantization.h">
+    <ClInclude Include="QuatCompression.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>

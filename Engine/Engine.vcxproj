@@ -452,7 +452,7 @@
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />
     <ClInclude Include="Proj.h" />
-    <ClInclude Include="Quantization.h" />
+    <ClInclude Include="QuatCompression.h" />
     <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="SkAnimRenderer.h" />
     <ClInclude Include="SkeletonAnimationPair.h" />
