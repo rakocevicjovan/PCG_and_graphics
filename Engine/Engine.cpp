@@ -12,13 +12,7 @@ Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
-{
-	SQuat quat(1., 1., 1., 1.);
-	quat.Normalize();
-
-	auto compressed = quatCompression::compressQuaternion(quat);
-	__debugbreak();
-}
+{}
 
 
 void Engine::initialize()
