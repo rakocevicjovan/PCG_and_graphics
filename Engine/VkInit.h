@@ -4,7 +4,7 @@
 #include "VkTypes.h"
 
 
-static void vkCheck(VkResult x)
+inline static void vkCheck(VkResult x)
 {
 	if (x)
 	{
