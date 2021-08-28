@@ -2,6 +2,7 @@
 
 #include "ComponentTraits.h"
 #include "GuiBlocks.h"
+#include "AssetViews.h"
 
 
 namespace ComponentTraits
@@ -55,10 +56,7 @@ namespace ComponentTraits
 
 		ImGui::Indent();
 
-		for (auto& mesh : skModel.skModel->_meshes)
-		{
-			GuiBlocks::displayMesh(&mesh);
-		}
+		AssetViews::PrintSkModel(skModel.skModel);
 
 		ImGui::Unindent();
 	}

@@ -1,7 +1,7 @@
 #include "GuiBlocks.h"
 #include "SceneEditor.h"
 #include "Bone.h"
-#include <span>
+
 
 // Contains helper functions to display skeleton hierarchy, model and mesh
 class AssetViews
@@ -81,18 +81,20 @@ private:
 
 public:
 
-	static void printSkeleton(Skeleton* skeleton)
+	static void PrintSkeleton(Skeleton* skeleton)
 	{
 		if (ImGui::TreeNode("Skeleton"))
 		{
-			PrintBoneHierarchy(skeleton->_bones, skeleton->_bones[0]);	//_root
+			PrintBoneHierarchy(skeleton->_bones, skeleton->_bones[0]);
 			ImGui::TreePop();
 		}
 	}
 
 
-	static void printSkModel(SkModel* skModel)
+	static void PrintSkModel(SkModel* skModel)
 	{
+		PrintSkeleton(skModel->_skeleton.get());
+
 		if (ImGui::TreeNode("Mesh node hierarchy: "))
 		{
 			for (auto& meshNode : skModel->_meshNodeTree)
@@ -126,7 +128,7 @@ public:
 	}
 
 
-	static void printModel(Model* model)
+	static void PrintModel(Model* model)
 	{
 		for (UINT i = 0; i < model->_meshes.size(); ++i)
 		{

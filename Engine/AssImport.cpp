@@ -188,13 +188,13 @@ void AssImport::displayParsedAssets()
 	ImGui::Text("Parsed asset inspector");
 
 	if (_skeleton.get())
-		AssetViews::printSkeleton(_skeleton.get());
+		AssetViews::PrintSkeleton(_skeleton.get());
 
 	if (_skModelData)
-		AssetViews::printSkModel(_skModelData.model.get());
+		AssetViews::PrintSkModel(_skModelData.model.get());
 
 	if (_modelData)
-		AssetViews::printModel(_modelData.model.get());
+		AssetViews::PrintModel(_modelData.model.get());
 }
 
 

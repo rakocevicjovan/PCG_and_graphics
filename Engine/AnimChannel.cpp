@@ -1,6 +1,14 @@
 #include "pch.h"
 #include "AnimChannel.h"
-#include <type_traits>
+
+
+AnimChannel::AnimChannel(int p, int r, int s) noexcept
+{
+	_pKeys.reserve(p);
+	_rKeys.reserve(r);
+	_sKeys.reserve(s);
+}
+
 
 namespace
 {
@@ -41,12 +49,4 @@ SMatrix AnimChannel::getInterpolatedTransform(float currentTick, float t) const
 	SQuat quat = GetFrameDataAtTime<SQuat>(_rKeys, currentTick, t);
 
 	return DirectX::XMMatrixAffineTransformation(scale, SVec3(), quat, pos);
-}
-
-
-AnimChannel::AnimChannel(int p, int r, int s) noexcept
-{
-	_pKeys.reserve(p);
-	_rKeys.reserve(r);
-	_sKeys.reserve(s);
 }
