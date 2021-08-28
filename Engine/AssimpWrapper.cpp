@@ -92,10 +92,7 @@ void AssimpWrapper::ImportAnimations(const aiScene* scene, std::vector<Animation
 			for (uint32_t b = 0; b < channel->mNumRotationKeys; b++)
 			{
 				SQuat quat = aiQuatToSQuat(channel->mRotationKeys[b].mValue);
-				if (quat.w < 0.f)
-				{
-					quat = -quat;
-				}
+				quat = quat.w >= 0.f ? quat : -quat;
 				ac._rKeys.emplace_back(quat, channel->mRotationKeys[b].mTime);
 			}
 

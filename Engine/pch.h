@@ -24,6 +24,7 @@
 #include <map>
 #include <type_traits>
 #include <variant>
+#include <span>
 
 
 // Cereal includes - this is abundant throughout the codebase
