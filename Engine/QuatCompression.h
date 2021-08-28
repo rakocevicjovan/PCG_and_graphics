@@ -41,7 +41,7 @@ namespace quatCompression
 
 
 	// Tested and passing when first written.
-	SQuat testDecompress(uint32_t compressedQuat)
+	SQuat Decompress(uint32_t compressedQuat)
 	{
 		const uint32_t unpacked_index = compressedQuat >> 30;
 
@@ -66,7 +66,7 @@ namespace quatCompression
 	{
 		uint8_t maxValIndex{ 0u };
 
-		float maxVal = quat.x;
+		float maxVal = fabs(quat.x);
 
 		for (auto i = 1; i < 4; ++i)
 		{
@@ -84,9 +84,9 @@ namespace quatCompression
 
 	uint32_t compressQuaternion(SQuat& quat)
 	{
-		SQuat positiveWQuat = quat.w > 0.f ? quat : quat * (-1.f);
-		
 		uint8_t maxValIndex = findMaxQuatVal(quat);
+
+		quat = static_cast<float*>(&quat.x)[maxValIndex] > 0.f ? quat : -quat;
 
 		uint32_t packingIndex{ 0u };
 		uint32_t result{ 0u };
