@@ -472,6 +472,9 @@
     <ClCompile Include="SkAnimRenderer.cpp">
       <Filter>Rendering</Filter>
     </ClCompile>
+    <ClCompile Include="RuntimeAnimation.cpp">
+      <Filter>Assets\SkelAnim</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1202,6 +1205,15 @@
       <Filter>Assets</Filter>
     </ClInclude>
     <ClInclude Include="QuatCompression.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="RuntimeAnimation.h">
+      <Filter>Assets\SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyFrame.h">
+      <Filter>Assets\SkelAnim</Filter>
+    </ClInclude>
+    <ClInclude Include="Quantization.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>

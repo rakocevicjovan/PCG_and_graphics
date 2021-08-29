@@ -132,18 +132,18 @@ bool QuadTree::insert(QTObject* pObject)
 	uint32_t ui32MaxY = static_cast<uint32_t>(Math::clamp(ceil(a2Shifted._max.y), 0, static_cast<float>(255.f)));
 
 	// Get the level at which the object will be inserted.
-	//XOR min and max values, kinda mapping the bits to exists/doesn't along the axis (
+	//XOR min and max values, kinda mapping the bits to exists/doesn't along the axis
 	uint32_t ui32X = ui32MinX ^ ui32MaxX;	
 	if (!ui32X)
 		ui32X = 7UL;	// 100% flat objects go to the highest (smallest) level.
 	else
-		ui32X = 7UL - Bits::msbDeBruijn32(ui32X);
+		ui32X = 7UL - bits::msbDeBruijn32(ui32X);
 
 	uint32_t ui32Y = ui32MinY ^ ui32MaxY;
 	if (!ui32Y)
 		ui32Y = 7UL;	// 100% flat objects go to the highest (smallest) level.
 	else
-		ui32Y = 7UL - Bits::msbDeBruijn32(ui32Y);
+		ui32Y = 7UL - bits::msbDeBruijn32(ui32Y);
 
 	uint32_t ui32Level = std::min(ui32X, ui32Y);
 

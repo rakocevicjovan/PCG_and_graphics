@@ -3,8 +3,33 @@
 
 
 
-namespace Bits
+namespace bits
 {
+
+	// Creates a bitmask with bits [msb, lsb) set to 1, others set to 0. Zero indexed. Can be used at runtime
+	template <typename IntegralType>
+	constexpr IntegralType CreateContiguousBitmask(uint32_t lsb, uint32_t msb)
+	{
+		static_assert(std::is_integral_v<IntegralType>);
+		constexpr uint32_t typeBitSize = sizeof(IntegralType) * 8u;
+		auto result{ static_cast<IntegralType>(~0u) << lsb };
+		return result & (result >> (typeBitSize - msb));
+	}
+
+
+	// Compile time mask
+	template <typename IntegralType, IntegralType lsb, IntegralType msb>
+	struct ContiguousBitmask
+	{
+	private:
+		static_assert(std::is_integral_v<IntegralType>);
+		static constexpr uint32_t typeBitSize = sizeof(IntegralType) * 8u;
+		static constexpr IntegralType maxVal = static_cast<IntegralType>(~0u);
+	public:
+		static constexpr IntegralType mask{ (maxVal << lsb) & (maxVal >> (typeBitSize - msb)) };
+	};
+
+
 	// Absolute magic to find the most significant set bit, I barely understand it
 	uint32_t msbDeBruijn32(uint32_t v)
 	{
@@ -14,7 +39,7 @@ namespace Bits
 			8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31
 		};
 
-		v |= v >> 1; // first round down to one less than a power of 2
+		v |= v >> 1;
 		v |= v >> 2;
 		v |= v >> 4;
 		v |= v >> 8;
@@ -24,10 +49,10 @@ namespace Bits
 	}
 
 
-	// Used for Morton order, @todo make smarter so it works on 8 and 32 bit as well
+	// Used for Morton order, @todo make smarter so it works on different input/output types and N inputs (not just 2)
 	inline uint32_t intertwine(uint16_t a, uint16_t b)
 	{
-		constexpr uint32_t B[]			{ 0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF };
+		constexpr uint32_t BM[]			{ 0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF };
 		constexpr uint32_t bitOffset[]	{ 1, 2, 4, 8 };
 
 		// Gives wiggle room to bits, but we enforce they are at most 16 bits by parameter type
@@ -41,15 +66,15 @@ namespace Bits
 			0000 0101 0000 1101	-> NOW THE BITS ARE SPLIT APART! REPEAT IN FINER STEPS UNTIL DONE
 		*/
 
-		x = (x | (x << bitOffset[3])) & B[3];
-		x = (x | (x << bitOffset[2])) & B[2];
-		x = (x | (x << bitOffset[1])) & B[1];
-		x = (x | (x << bitOffset[0])) & B[0];
+		x = (x | (x << bitOffset[3])) & BM[3];
+		x = (x | (x << bitOffset[2])) & BM[2];
+		x = (x | (x << bitOffset[1])) & BM[1];
+		x = (x | (x << bitOffset[0])) & BM[0];
 
-		y = (y | (y << bitOffset[3])) & B[3];
-		y = (y | (y << bitOffset[2])) & B[2];
-		y = (y | (y << bitOffset[1])) & B[1];
-		y = (y | (y << bitOffset[0])) & B[0];
+		y = (y | (y << bitOffset[3])) & BM[3];
+		y = (y | (y << bitOffset[2])) & BM[2];
+		y = (y | (y << bitOffset[1])) & BM[1];
+		y = (y | (y << bitOffset[0])) & BM[0];
 
 		return x | (y << 1);	// Y is shifted once to the left, y msb is result msb
 	}

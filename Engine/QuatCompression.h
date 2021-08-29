@@ -1,5 +1,6 @@
 #pragma once
 #include "Math.h"
+#include "Bits.h"
 #include <cstdint>
 #include <type_traits>
 #include <tmmintrin.h>
@@ -8,29 +9,6 @@
 // For now it's only enabled for float/double input and integral output
 namespace quatCompression
 {
-	// Creates a bitmask with bits [msb, lsb) set to 1, others set to 0. Zero indexed. Can be used at runtime
-	template <typename IntegralType>
-	constexpr IntegralType CreateContiguousBitmask(uint32_t lsb, uint32_t msb)
-	{
-		static_assert(std::is_integral_v<IntegralType>);
-		constexpr uint32_t typeBitSize = sizeof(IntegralType) * 8u;
-		auto result{ static_cast<IntegralType>(~0u) << lsb };
-		return result & (result >> (typeBitSize - msb));
-	}
-
-	// Compile time mask
-	template <typename IntegralType, IntegralType lsb, IntegralType msb>
-	struct ContiguousBitmask
-	{
-	private:
-		static_assert(std::is_integral_v<IntegralType>);
-		static constexpr uint32_t typeBitSize = sizeof(IntegralType) * 8u;
-		static constexpr IntegralType maxVal = static_cast<IntegralType>(~0u);
-	public:
-		static constexpr IntegralType mask{ (maxVal << lsb) & (maxVal >> (typeBitSize - msb)) };
-	};
-
-
 	// Quaternion (de)compression constants
 	constexpr float maxQuatValue = 0.70710678118;	// Since sqrt() isn't constexpr: 1. / sqrt(2.) = 0.70710678118 
 	constexpr float minQuatValue = -maxQuatValue;
@@ -53,9 +31,9 @@ namespace quatCompression
 
 		float result[4]{0.f};
 		float total{ 0.f };
-		total += (result[0 + (unpacked_index == 0)] = decompress((compressedQuat & ContiguousBitmask<uint32_t, 00, 10>::mask) >> 00));
-		total += (result[1 + (unpacked_index <= 1)] = decompress((compressedQuat & ContiguousBitmask<uint32_t, 10, 20>::mask) >> 10));
-		total += (result[2 + (unpacked_index <= 2)] = decompress((compressedQuat & ContiguousBitmask<uint32_t, 20, 30>::mask) >> 20));
+		total += (result[0 + (unpacked_index == 0)] = decompress((compressedQuat & bits::ContiguousBitmask<uint32_t, 00, 10>::mask) >> 00));
+		total += (result[1 + (unpacked_index <= 1)] = decompress((compressedQuat & bits::ContiguousBitmask<uint32_t, 10, 20>::mask) >> 10));
+		total += (result[2 + (unpacked_index <= 2)] = decompress((compressedQuat & bits::ContiguousBitmask<uint32_t, 20, 30>::mask) >> 20));
 		result[unpacked_index] = sqrt(1. - static_cast<SVec4>(result).Dot(static_cast<SVec4>(result)));
 
 		return static_cast<SQuat>(result);

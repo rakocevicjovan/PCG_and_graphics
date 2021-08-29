@@ -8,6 +8,7 @@
 
 #include "Proj.h"
 
+
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
@@ -51,7 +52,7 @@ void Engine::initialize()
 	_assetLedger.load(); //eventually do this per project
 	//_assetLedger.purge();
 
-	auto num_threads_available = std::thread::hardware_concurrency() - 1;
+	const auto num_threads_available = std::thread::hardware_concurrency() - 1;
 	_aeonLoader.resizeThreadPool(num_threads_available);	// Might wanna make it 8
 
 	_shaderManager = ShaderManager(_assetLedger, _renderer.device());

@@ -19,6 +19,8 @@
 
 #include "LevelAsset.h"
 
+#include "RuntimeAnimation.h"
+
 
 struct Deleted
 {
@@ -83,11 +85,14 @@ public:
 
 		S_RANDY._cam._controller->setFlying(true);
 
+		//auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
+		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
+
 		auto modelPtr = _sys._skModelManager.getBlocking(9916003768089073041);
 
 		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
 		auto psPtr = sys._shaderCache.getPixShader("phongPS");
-		
+
 		for (auto& mesh : modelPtr->_meshes)
 		{
 			mesh.setupMesh(S_DEVICE);
@@ -95,8 +100,7 @@ public:
 			mesh._material->setPS(psPtr);
 		}
 
-		//auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
-		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
+		BuildRuntimeAnimation(*modelPtr->_skeleton.get(), *modelPtr->_anims[0].get());
 
 		for (UINT i = 0; i < 100; ++i)
 		{
