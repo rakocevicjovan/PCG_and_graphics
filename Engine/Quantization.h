@@ -2,23 +2,14 @@
 #include "pch.h"
 
 
-// Expects min < max, does not check or assert for it, it's your responsibility to assure it.
+// Expects min < max, does not check or assert for it, it's your responsibility to assure it. In practice min and max will almost never be equal
 template <typename InType, typename OutType>
-inline OutType Quantize(InType in, InType min, InType max)
+inline OutType QuantizeToType(InType in, InType min, InType max)
 {
-	static_assert(std::is_floating_point_v<InType>);
-	static_assert(sizeof(InType) < sizeof(OutType));
+	static_assert(std::is_floating_point_v<InType>);	// May work for others but as far as I can see, it would generally be a mistake to create it
+	static_assert(sizeof(InType) < sizeof(OutType));	// What's the point otherwise? At least for my use cases.
 
 	InType ratio = (in - min) / (max - min);
 
-	OutType result = ratio * static_cast<OutType>(~0);
-}
-
-
-// Expects min < max, does not check or assert for it, it's your responsibility to assure it.
-inline uint16_t QuantizeFToUi16(const float in, float min, float max)
-{
-	float ratio = (in - min) / (max - min);
-
-	uint16_t result = ratio * static_cast<uint16_t>(~0);
+	return ratio * static_cast<OutType>(~0);
 }
