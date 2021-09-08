@@ -1216,6 +1216,21 @@
     <ClInclude Include="Quantization.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="VkRenderer.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VkCmdPool.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VkCmdBuffer.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VkRenderPass.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="VkFramebuffer.h">
+      <Filter>Vulkan</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
