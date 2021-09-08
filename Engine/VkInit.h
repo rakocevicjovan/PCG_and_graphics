@@ -4,15 +4,8 @@
 #include "VkTypes.h"
 
 
-inline static void vkCheck(VkResult x)
-{
-	if (x)
-	{
-		assert(false && "Detected Vulkan error");
-	}
-}
-
-
+// This is duplicated in the renderer... 
+// probably best to keep it here eventually and separate initialization code since there's going to be a lot of it, even with vkBootstrap.
 struct VulkanHandles
 {
 	VkInstance _instance;
