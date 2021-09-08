@@ -4,3 +4,6 @@
 [submodule "submodules/googletest"]
 	path = submodules/googletest
 	url = https://github.com/google/googletest
+[submodule "Deps/lz4"]
+	path = Deps/lz4
+	url = https://github.com/lz4/lz4
