@@ -13,24 +13,7 @@ Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
-{
-	/*
-	// This works well, wrap and use
-	#include "lz4.h"
-
-	auto lz4VersionNumber = LZ4_versionNumber();
-
-	constexpr uint32_t input_size = 256 * 1024;
-	char* fakeInputData = new char[input_size];
-	std::iota(fakeInputData, fakeInputData + input_size, 0);
-	auto worstCaseOutputSize = LZ4_compressBound(input_size);
-
-	char* outputBuffer = new char[worstCaseOutputSize];
-
-	int result = LZ4_compress_default(fakeInputData, outputBuffer, input_size, worstCaseOutputSize);
-
-	OutputDebugStringA(std::to_string(result).c_str());*/
-}
+{}
 
 
 void Engine::initialize()
@@ -88,7 +71,7 @@ void Engine::initialize()
 
 	_levelMan = new LevelManager(*this);
 
-	// This is here as a bandaid, shouldn't be.
+	// This is here as a bandaid, shouldn't be - once the project is in place.
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
 	_project.loadFromConfig("../Tower Defense/Tower defense.json");
 

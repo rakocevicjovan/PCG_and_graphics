@@ -41,14 +41,14 @@ public:
 	template <typename Task, typename... TaskArgs>
 	auto pushTask(Task&& task, TaskArgs... args)
 	{
-#ifdef DEBUG
+#ifdef _DEBUG
 		((_RPT1(0, "AssetID when pushing task: %" PRIu64 "!\n", std::forward<TaskArgs>(args))), ...);
 #endif
 		auto result = _threadPool.push(
 			std::bind(
 				[](int threadNum, const Task& task, AssetID assetID)
 				{
-#ifdef DEBUG
+#ifdef _DEBUG
 					_RPT1(0, "In thread %d: AssetID is : %" PRIu64 "!\n", threadNum, assetID);
 #endif
 					return task(assetID);
@@ -58,6 +58,6 @@ public:
 				std::forward<TaskArgs>(args)...)
 		);
 
-		return std::move(result);
+		return result;
 	}
 };
