@@ -177,7 +177,7 @@
     <Filter Include="Compression">
       <UniqueIdentifier>{87b3ccaf-e6cd-4802-900a-9114651e3653}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Editor\ImGuizmo">
+    <Filter Include="Editor\Gizmo">
       <UniqueIdentifier>{d160ca9b-8eb5-4339-873b-94ae68cbf72a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -482,10 +482,10 @@
       <Filter>Compression</Filter>
     </ClCompile>
     <ClCompile Include="ImGuizmo.cpp">
-      <Filter>Editor\ImGuizmo</Filter>
+      <Filter>Editor\Gizmo</Filter>
     </ClCompile>
     <ClCompile Include="Gizmo.cpp">
-      <Filter>Editor</Filter>
+      <Filter>Editor\Gizmo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1244,10 +1244,10 @@
       <Filter>Compression</Filter>
     </ClInclude>
     <ClInclude Include="ImGuizmo.h">
-      <Filter>Editor\ImGuizmo</Filter>
+      <Filter>Editor\Gizmo</Filter>
     </ClInclude>
     <ClInclude Include="Gizmo.h">
-      <Filter>Editor</Filter>
+      <Filter>Editor\Gizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

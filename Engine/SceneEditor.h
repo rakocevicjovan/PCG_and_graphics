@@ -5,6 +5,7 @@
 #include "ComponentTraits.h"
 #include "InputManager.h"
 #include "CEntityName.h"
+#include "Gizmo.h"
 
 
 class SceneEditor
@@ -18,6 +19,17 @@ private:
 	entt::entity _toBeRenamed{ entt::null };
 
 	const InputManager* _inputManager{};
+
+	Gizmo _gizmo;
+
+
+	void select(entt::entity entity)
+	{
+		_selected = entity;
+
+		bool isSelected = entity != entt::null;
+		_gizmo.setEnabled(isSelected);
+	}
 
 	template <typename... DisplayableComponents>
 	struct DisplayComponents {};
@@ -81,7 +93,7 @@ private:
 
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
 		{
-			_selected = entt::null;
+			select(entt::null);
 		}
 
 		ImGui::End();
@@ -109,13 +121,13 @@ private:
 
 		if (ImGui::IsItemClicked())
 		{
-			_selected = entity;
+			select(entity);
 		}
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 		{
-			_selected = entity;
-			goToEntityIfLocatable(registry, entity);
+			select(entity);
+			//goToEntityIfLocatable(registry, entity);
 		}
 
 		// If dragging this somewhere
@@ -164,6 +176,27 @@ private:
 		}
 
 		displayNodeProperties(_registry, _selected, _displayComponents);
+
+
+		// Don't remove the check, this will move to another function where it might not be guarded already.
+		if (_selected != entt::null)
+		{
+			if (_inputManager->isKeyDown('E'))
+			{
+				_gizmo.setOp(Gizmo::Op::S);
+			}
+			else if (_inputManager->isKeyDown('R'))
+			{
+				_gizmo.setOp(Gizmo::Op::R);
+			}
+			else if(_inputManager->isKeyDown('T'))
+			{
+				_gizmo.setOp(Gizmo::Op::T);
+			}
+
+			auto cam = _scene->getActiveCamera();
+			_gizmo.display(_registry->get<CTransform>(_selected), cam.getViewMatrix(), cam.getProjectionMatrix());
+		}
 	}
 
 

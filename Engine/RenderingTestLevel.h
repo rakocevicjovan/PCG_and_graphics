@@ -240,10 +240,6 @@ public:
 		};
 		GUI::RenderGuiElems(guiElems);
 
-		static SMatrix watMat{};
-		static Gizmo gizmo{};
-		gizmo.display(watMat, rc.cam->getViewMatrix(), rc.cam->getProjectionMatrix(), Gizmo::Op::T, Gizmo::Space::WORLD);
-
 		GUI::EndFrame();
 
 		rc.d3d->present();

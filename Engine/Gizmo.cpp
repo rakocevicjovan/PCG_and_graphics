@@ -7,9 +7,12 @@
 
 namespace
 {
-	inline ImGuizmo::MODE getMode(Gizmo::Space gizmoSpace) { return gizmoSpace == Gizmo::Space::LOCAL ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;  }
+	constexpr static inline ImGuizmo::MODE AsImGuizmoMode(Gizmo::Space gizmoSpace)
+	{ 
+		return gizmoSpace == Gizmo::Space::LOCAL ? ImGuizmo::MODE::LOCAL : ImGuizmo::MODE::WORLD;
+	}
 	
-	constexpr inline ImGuizmo::OPERATION getOp(Gizmo::Op op)
+	constexpr static inline ImGuizmo::OPERATION AsImGuizmoOp(Gizmo::Op op)
 	{
 		switch (op)
 		{
@@ -36,27 +39,51 @@ void Gizmo::BeginFrame()
 }
 
 
-float Gizmo::display(SMatrix& target, const SMatrix& view, const SMatrix& proj, Gizmo::Op op, Gizmo::Space gizmoSpace)
+float Gizmo::display(SMatrix& target, const SMatrix& view, const SMatrix& proj)
 {
-	ImGuizmo::Enable(_enabled);
 	if (_enabled)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
-		ImGuizmo::Manipulate(&view._11, &proj._11, getOp(op), getMode(gizmoSpace), &target._11);
+		ImGuizmo::Manipulate(&view._11, &proj._11, AsImGuizmoOp(_op), AsImGuizmoMode(_space), &target._11);
 	}
 	return 0.f;
 }
 
 
-void Gizmo::enable()
+void Gizmo::setEnabled(bool enabled)
 {
-	_enabled = true;
+	_enabled = enabled;
+	ImGuizmo::Enable(_enabled);
 }
 
 
-bool Gizmo::isEnabled()
+bool Gizmo::getEnabled()
 {
 	return _enabled;
+}
+
+
+void Gizmo::setOp(Gizmo::Op op)
+{
+	_op = op;
+}
+
+
+Gizmo::Op Gizmo::getOp()
+{
+	return _op;
+}
+
+
+void Gizmo::setSpace(Gizmo::Space space)
+{
+	_space = space;
+}
+
+
+Gizmo::Space Gizmo::getSpace()
+{
+	return _space;
 }

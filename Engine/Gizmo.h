@@ -3,11 +3,6 @@
 
 class Gizmo
 {
-private:
-
-	bool _enabled{ true };
-	bool _widget{ true };
-
 public:
 
 	enum class Space : uint8_t
@@ -30,8 +25,22 @@ public:
 	// Internal use, don't call on your own (unless you are future me). Has no EndFrame equivalent, probably wraps up along with ImGui?
 	static void BeginFrame();
 
-	float display(SMatrix& target, const SMatrix& view, const SMatrix& proj, Op op, Space gizmoSpace);
+	float display(SMatrix& target, const SMatrix& view, const SMatrix& proj);
 
-	void enable();
-	bool isEnabled();
+	void setEnabled(bool enabled);
+	bool getEnabled();
+
+	void setOp(Gizmo::Op op);
+	Gizmo::Op getOp();
+
+	void setSpace(Gizmo::Space space);
+	Gizmo::Space getSpace();
+
+private:
+
+	bool _enabled{ true };
+	bool _widget{ true };
+
+	Gizmo::Op _op{Gizmo::Op::T};
+	Gizmo::Space _space{Gizmo::Space::WORLD};
 };

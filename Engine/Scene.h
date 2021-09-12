@@ -187,4 +187,9 @@ public:
 		_lightManager->resetPerFramePools();
 	}
 
+
+	const Camera& getActiveCamera()
+	{
+		return _renderer._cam;
+	}
 };
