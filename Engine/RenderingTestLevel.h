@@ -21,6 +21,8 @@
 
 #include "RuntimeAnimation.h"
 
+#include "SkAnimRenderer.h"
+
 
 struct Deleted
 {
@@ -44,6 +46,8 @@ private:
 	CBuffer _positionBuffer;
 	CBuffer _skMatsBuffer;
 	Skybox _skybox;
+
+	SkAnimRender _skAnimRenderer;
 
 	std::vector<RenderStage> _stages;
 
@@ -100,7 +104,8 @@ public:
 			mesh._material->setPS(psPtr);
 		}
 
-		BuildRuntimeAnimation(*modelPtr->_skeleton.get(), *modelPtr->_anims[0].get());
+		// @TODO test this
+		//BuildRuntimeAnimation(*modelPtr->_skeleton.get(), *modelPtr->_anims[0].get());
 
 		for (UINT i = 0; i < 100; ++i)
 		{
@@ -191,6 +196,16 @@ public:
 	{
 		_scene.update();
 		_fpsCounter.tickFast(rc.dTime);
+
+
+		static uint64_t frameCount{ 0u };
+		if (frameCount++ % 512 == 0)
+		{
+			AnimationInstance instance = AnimationInstance(_scene._registry.get<CSkModel>(0));
+			_skAnimRenderer.addInstance();
+		}
+
+		_skAnimRenderer.update(_scene._registry, rc.dTime);
 	}
 
 
