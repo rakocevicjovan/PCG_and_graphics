@@ -236,7 +236,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Collider.cpp" />
-    <ClCompile Include="CollisionEngine.cpp" />
     <ClCompile Include="Controller.cpp" />
     <ClCompile Include="CubeMapper.cpp" />
     <ClCompile Include="D3D.cpp" />
@@ -565,7 +564,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Collider.h" />
-    <ClInclude Include="CollisionEngine.h" />
     <ClInclude Include="Controller.h" />
     <ClInclude Include="CubeMapper.h" />
     <ClInclude Include="D3D.h" />

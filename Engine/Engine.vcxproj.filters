@@ -212,9 +212,6 @@
     <ClCompile Include="StrifeLevel.cpp">
       <Filter>Old levels\Strife</Filter>
     </ClCompile>
-    <ClCompile Include="CollisionEngine.cpp">
-      <Filter>Collision</Filter>
-    </ClCompile>
     <ClCompile Include="Collider.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
@@ -530,9 +527,6 @@
     </ClInclude>
     <ClInclude Include="ShaderUtils.h">
       <Filter>Old levels\Strife</Filter>
-    </ClInclude>
-    <ClInclude Include="CollisionEngine.h">
-      <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="Collider.h">
       <Filter>Collision</Filter>

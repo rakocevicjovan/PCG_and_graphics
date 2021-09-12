@@ -116,8 +116,6 @@ bool Engine::tick(float dTime)
 
 	_levelMan->updateAndDrawCurrent(_renderer.rc);
 
-	//_colEngine.update(); Old stuff, has some nice code in there though, need to pull it out and refactor it into something useful
-
 	// No mouse movement is not an event, so reset relative values to 0.
 	_inputManager.setRelXY(0, 0);
 
