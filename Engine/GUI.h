@@ -7,6 +7,7 @@
 #include "IMGUI/imgui_internal.h"
 #include "IMGUI/imgui_impl_win32.h"
 #include "IMGUI/imgui_impl_dx11.h"
+#include "Gizmo.h"
 #include "imnodes.h"
 #include "FontHeaders/IconsFontAwesome4.h"
 
@@ -24,7 +25,7 @@ class GUI
 {
 public:
 
-	static void initDxWin32(HWND hwnd, ID3D11Device* device, ID3D11DeviceContext* context)
+	static void InitDxWin32(HWND hwnd, ID3D11Device* device, ID3D11DeviceContext* context)
 	{
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -50,10 +51,11 @@ public:
 		ImGui_ImplDX11_Init(device, context);
 
 		imnodes::Initialize();
+		Gizmo::Initialize();
 	}
 
 
-	static void shutDown()
+	static void ShutDown()
 	{
 		imnodes::Shutdown();
 		ImGui_ImplDX11_Shutdown();
@@ -62,15 +64,16 @@ public:
 	}
 
 
-	static void beginFrame()
+	static void BeginFrame()
 	{
 		ImGui_ImplDX11_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
+		Gizmo::BeginFrame();
 	}
 
 	//convenience function for fast windows
-	static void renderGuiElems(const std::vector<GuiElement>& elements)
+	static void RenderGuiElems(const std::vector<GuiElement>& elements)
 	{
 		for (const GuiElement& e : elements)
 		{
@@ -81,7 +84,7 @@ public:
 	}
 
 
-	static void endFrame()
+	static void EndFrame()
 	{
 		ImGui::Render();
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

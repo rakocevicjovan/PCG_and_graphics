@@ -239,14 +239,10 @@ public:
 			{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 		};
 		GUI::RenderGuiElems(guiElems);
-		
-		ImGuizmo::Enable(true);
-
-		ImGuiIO& io = ImGui::GetIO();
-		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 
 		static SMatrix watMat{};
-		ImGuizmo::Manipulate(&(rc.cam->getViewMatrix()._11), &(rc.cam->getProjectionMatrix()._11), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::WORLD, &watMat._11);
+		static Gizmo gizmo{};
+		gizmo.display(watMat, rc.cam->getViewMatrix(), rc.cam->getProjectionMatrix(), Gizmo::Op::T, Gizmo::Space::WORLD);
 
 		GUI::EndFrame();
 
