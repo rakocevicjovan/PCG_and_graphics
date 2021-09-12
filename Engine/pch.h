@@ -24,8 +24,10 @@
 #include <map>
 #include <type_traits>
 #include <variant>
-#include <span>
 
+#if __cplusplus > 201703L
+#include <span>
+#endif
 
 // Cereal includes - this is abundant throughout the codebase
 #include <cereal/cereal.hpp>
@@ -60,4 +62,5 @@
 #include <wrl/client.h>
 
 // First party code coming from aeolian that's commonly used elsewhere
+#include "Math.h"
 #include "Deserialize.h"

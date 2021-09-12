@@ -8,7 +8,6 @@
 #include "RenderTarget.h"
 #include "SwapChain.h"
 #include "Viewport.h"
-#include "Math.h"
 
 
 class D3D

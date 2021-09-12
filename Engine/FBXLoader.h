@@ -1,10 +1,10 @@
 #pragma once
-#include "Math.h"
+
 #include "Mesh.h"
 #include <vector>
 #include <string>
 
-#include <fbxsdk.h>
+//#include <fbxsdk.h>
 
 
 

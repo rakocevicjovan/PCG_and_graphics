@@ -1,7 +1,4 @@
 #pragma once
-#include "Math.h"
-#include <vector>
-#include <array>
 
 class Camera;
 

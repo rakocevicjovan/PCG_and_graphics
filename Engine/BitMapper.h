@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Math.h"
 #include "Texture.h"
 
 

@@ -1,6 +1,5 @@
 #pragma once
 #include "Level.h"
-#include "Math.h"
 #include "Model.h"
 #include "Light.h"
 #include "Scene.h"
@@ -201,8 +200,8 @@ public:
 		static uint64_t frameCount{ 0u };
 		if (frameCount++ % 512 == 0)
 		{
-			AnimationInstance instance = AnimationInstance(_scene._registry.get<CSkModel>(0));
-			_skAnimRenderer.addInstance();
+			AnimationInstance instance = AnimationInstance(_scene._registry.get<CSkModel>(entt::entity{ 0 }).skModel->_anims[0]);
+			//_skAnimRenderer.addInstance();
 		}
 
 		_skAnimRenderer.update(_scene._registry, rc.dTime);

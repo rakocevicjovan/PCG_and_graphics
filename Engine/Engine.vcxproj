@@ -104,6 +104,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <AdditionalOptions>/Zc:__cplusplus</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,6 +126,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <AdditionalOptions>/Zc:__cplusplus</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,6 +148,8 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\entt\src;$(SolutionDir)Deps\googletest\googletest\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>;26812</DisableSpecificWarnings>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <AdditionalOptions>/Zc:__cplusplus</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -165,6 +171,8 @@
       <AdditionalIncludeDirectories>$(SolutionDir)Deps\stb-master;%(AdditionalIncludeDirectories);$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\lz4\lib</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <DisableSpecificWarnings>;26812</DisableSpecificWarnings>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <AdditionalOptions>/Zc:__cplusplus</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -196,6 +204,7 @@
     <ClCompile Include="FuzzySearch.cpp" />
     <ClCompile Include="GeoClipmap.cpp" />
     <ClCompile Include="Image.cpp" />
+    <ClCompile Include="ImGuizmo.cpp" />
     <ClCompile Include="imnodes.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -452,6 +461,7 @@
     <ClInclude Include="IAssetManager.h" />
     <ClInclude Include="IBuffer.h" />
     <ClInclude Include="Image.h" />
+    <ClInclude Include="ImGuizmo.h" />
     <ClInclude Include="KeyFrame.h" />
     <ClInclude Include="LevelAsset.h" />
     <ClInclude Include="LZ4Wrapper.h" />

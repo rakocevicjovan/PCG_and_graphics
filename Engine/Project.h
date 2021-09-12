@@ -1,6 +1,9 @@
 #pragma once
 
+#define _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
 #include "rapidjson/document.h"
+#undef _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+
 #include "LevelReader.h"
 
 

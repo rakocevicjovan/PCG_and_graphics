@@ -96,7 +96,7 @@ inline std::vector<D3D_SHADER_MACRO> ShaderGenerator::ParseOptionsFromKey(const 
 	for (UINT j = 0; j < optionCount; ++j)
 	{
 		const ShaderOption& so = options[j];
-		uint64_t result = (key >> so._offset) & (~(~0ul << so._numBits));
+		uint64_t result = (key >> so._offset) & (~(std::numeric_limits<uint64_t>::max() << so._numBits));
 
 		// If current option fits the bitmask, add it in
 		bool hasDependency{ so.depMask != (~0u) };

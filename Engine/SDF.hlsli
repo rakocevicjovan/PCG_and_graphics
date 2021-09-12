@@ -61,8 +61,3 @@ float3 opTwist(float3 p, float angle)
 	float2x2 rotoMato = float2x2(c, -s, s, c);
 	return float3(mul(p.xz, rotoMato), p.y);
 }
-
-float3 opRound(float3 p, float r)
-{
-	return 
-}

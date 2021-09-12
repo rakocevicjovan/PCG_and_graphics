@@ -1,9 +1,5 @@
 #pragma once
-#include "Math.h"
-#include "IMGUI/imgui.h"
-#include <string>
-#include <map>
-#include <vector>
+#include "pch.h"
 
 //not really easy to modify and make data driven, strings would be more flexible for marginal perf loss...
 //enum class TD_RES_TYPE { COIN, WOOD, STONE, IRON };

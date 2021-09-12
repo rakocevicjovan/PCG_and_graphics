@@ -1,5 +1,5 @@
 #pragma once
-#include "Math.h"
+
 #include <string>
 
 using BoneIndex = uint16_t;

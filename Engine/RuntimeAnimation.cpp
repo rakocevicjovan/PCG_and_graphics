@@ -4,7 +4,6 @@
 #include "Animation.h"
 #include "Skeleton.h"
 #include "KeyFrame.h"
-#include "Math.h"
 
 
 namespace
