@@ -21,7 +21,7 @@ namespace Strife
 
 	void ToolGUI::Render(CloudscapeDefinition& csDef)
 	{
-		GUI::beginFrame();
+		GUI::BeginFrame();
 
 		ImGui::Begin("Cloud rendering control panel");
 
@@ -67,7 +67,7 @@ namespace Strife
 
 		ImGui::End();
 
-		GUI::endFrame();
+		GUI::EndFrame();
 
 		//doesn't fix automatically so I do
 		csDef.heightMask.y = std::max(csDef.heightMask.x, csDef.heightMask.y);

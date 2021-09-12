@@ -227,7 +227,7 @@ public:
 
 		_skybox.renderSkybox(*rc.cam, S_RANDY);
 
-		GUI::beginFrame();
+		GUI::BeginFrame();
 
 		_sceneEditor.display();
 
@@ -238,9 +238,17 @@ public:
 			{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
 			{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 		};
-		GUI::renderGuiElems(guiElems);
+		GUI::RenderGuiElems(guiElems);
+		
+		ImGuizmo::Enable(true);
 
-		GUI::endFrame();
+		ImGuiIO& io = ImGui::GetIO();
+		ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+		static SMatrix watMat{};
+		ImGuizmo::Manipulate(&(rc.cam->getViewMatrix()._11), &(rc.cam->getProjectionMatrix()._11), ImGuizmo::OPERATION::TRANSLATE, ImGuizmo::MODE::WORLD, &watMat._11);
+
+		GUI::EndFrame();
 
 		rc.d3d->present();
 	}

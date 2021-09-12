@@ -99,7 +99,7 @@ bool ShaderCM::SetShaderParameters(ID3D11DeviceContext* deviceContext, const SMa
 	dataPtr2->slc = dLight.slc;
 	dataPtr2->sli = dLight.sli;
 	dataPtr2->pos = dLight.pos;	//actually direction but uses the same struct...
-	SVec4 uwotm8 = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
+	SVec4 uwotm8 = Math::fromVec3(cam.getCameraMatrix().Translation(), 1.f);
 	dataPtr2->ePos = uwotm8;
 	deviceContext->Unmap(_lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);

@@ -118,7 +118,7 @@ public:
 		for (int i = 0; i < camFrustumSubdivisionPMs.size(); ++i)
 		{
 			// Obtain the corners in world space
-			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.GetViewMatrix() * camFrustumSubdivisionPMs[i]);
+			std::array<SVec3, 8> corners = Frustum::extractCorners(cam.getViewMatrix() * camFrustumSubdivisionPMs[i]);
 			projMats.push_back(createLightProjectionMatrix(corners, lightViewMatrix, i));	// Transform them to light space
 			_lvpMats[i] = lightViewMatrix * projMats.back();
 			_frusta[i]  = Frustum::createFrustumWithPlanesOnly(_lvpMats[i]);	//Used for collision only, needs only planes, faster

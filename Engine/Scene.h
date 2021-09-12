@@ -133,9 +133,9 @@ public:
 
 	void frustumCullScene(const Camera& cam)
 	{
-		const SMatrix v = cam.GetViewMatrix();
+		const SMatrix v = cam.getViewMatrix();
 		const SVec3 viewForward(v._13, v._23, v._33);
-		const SVec3 camPos = cam.GetPosition();
+		const SVec3 camPos = cam.getPosition();
 
 		frustumCull(cam._frustum, _actors, _visibleActors);
 

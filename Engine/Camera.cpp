@@ -2,13 +2,6 @@
 #include "Camera.h"
 
 
-Camera::Camera()
-{
-	_controller = nullptr;
-}
-
-
-
 Camera::Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix)
 {
 	_cameraMatrix = cameraMatrix;
@@ -19,7 +12,6 @@ Camera::Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix)
 }
 
 
-
 Camera::Camera(const SMatrix& cameraMatrix, float fov, float ar, float zNear, float zFar)
 {
 	_cameraMatrix = cameraMatrix;
@@ -28,11 +20,6 @@ Camera::Camera(const SMatrix& cameraMatrix, float fov, float ar, float zNear, fl
 
 	_frustum = Frustum(fov, ar, zNear, zFar);
 }
-
-
-
-Camera::~Camera() {}
-
 
 
 Camera Camera::CreateFromViewProjection(const SMatrix& view, const SMatrix& projection)
@@ -48,24 +35,7 @@ Camera Camera::CreateFromViewProjection(const SMatrix& view, const SMatrix& proj
 }
 
 
-
-void Camera::SetCameraMatrix(const SMatrix& transform)
-{
-	_cameraMatrix = transform;
-	_viewMatrix = _cameraMatrix.Invert();
-}
-
-
-
-void Camera::SetProjectionMatrix(const SMatrix& proj)
-{
-	_projectionMatrix = proj;
-	_frustum = Frustum(_projectionMatrix);
-}
-
-
-
-void Camera::Update(float dTime)
+void Camera::update(float dTime)
 {
 	_controller->processTransformationFPS(dTime, _cameraMatrix);
 	_viewMatrix = _cameraMatrix.Invert();
@@ -73,40 +43,87 @@ void Camera::Update(float dTime)
 }
 
 
+void Camera::transform(const SMatrix& inTransform)
+{
+	_cameraMatrix *= inTransform;
+	_viewMatrix = _cameraMatrix.Invert();
+}
 
-void Camera::Translate(const SVec3& t)
+
+void Camera::translate(const SVec3& t)
 {
 	Math::Translate(_cameraMatrix, t);
 	_viewMatrix = _cameraMatrix.Invert();	//@todo can this be optimized to not invert the whole matrix :thinking: probably yes!
 }
 
 
-
-void Camera::SetTranslation(const SVec3& t)
-{
-	Math::SetTranslation(_cameraMatrix, t);
-	_viewMatrix = _cameraMatrix.Invert();
-}
-
-
-
-void Camera::Rotate(const SMatrix& inRotMat)
+void Camera::rotate(const SMatrix& inRotMat)
 {
 	_cameraMatrix *= inRotMat;
 	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
-
-void Camera::Rotate(const SQuat& inQuat)
+void Camera::rotate(const SQuat& inQuat)
 {
 	_cameraMatrix = SMatrix::Transform(_cameraMatrix, inQuat);
 	_viewMatrix = _cameraMatrix.Invert();
 }
 
 
+const SMatrix& Camera::getViewMatrix() const
+{
+	return _viewMatrix;
+}
 
-void Camera::SetRotation(const SMatrix& inRotMat)
+
+void Camera::setViewMatrix(const SMatrix& transform)
+{
+	_viewMatrix = transform;
+	_cameraMatrix = _viewMatrix.Invert();
+}
+
+
+const SMatrix& Camera::getCameraMatrix() const
+{
+	return _cameraMatrix;
+}
+
+
+void Camera::setCameraMatrix(const SMatrix& transform)
+{
+	_cameraMatrix = transform;
+	_viewMatrix = _cameraMatrix.Invert();
+}
+
+
+const SMatrix& Camera::getProjectionMatrix() const
+{
+	return _projectionMatrix;
+}
+
+
+void Camera::setProjectionMatrix(const SMatrix& proj)
+{
+	_projectionMatrix = proj;
+	_frustum = Frustum(_projectionMatrix);
+}
+
+
+SVec3 Camera::getPosition() const
+{
+	return getCameraMatrix().Translation();
+}
+
+
+void Camera::setPosition(const SVec3& t)
+{
+	Math::SetTranslation(_cameraMatrix, t);
+	_viewMatrix = _cameraMatrix.Invert();
+}
+
+
+void Camera::setRotation(const SMatrix& inRotMat)
 {
 	SVec3 tempTranslation = _cameraMatrix.Translation();
 	_cameraMatrix = inRotMat;
@@ -115,47 +132,10 @@ void Camera::SetRotation(const SMatrix& inRotMat)
 }
 
 
-
-void Camera::SetRotation(const SQuat& inQuat)
+void Camera::setRotation(const SQuat& inQuat)
 {
 	SVec3 tempTranslation = _cameraMatrix.Translation();
 	_cameraMatrix = SMatrix::CreateFromQuaternion(inQuat);
 	Math::SetTranslation(_cameraMatrix, tempTranslation);
 	_viewMatrix = _cameraMatrix.Invert();
-}
-
-
-
-void Camera::Transform(const SMatrix& inTransform)
-{
-	_cameraMatrix *= inTransform;
-	_viewMatrix = _cameraMatrix.Invert();
-}
-
-
-
-SMatrix Camera::GetViewMatrix() const
-{
-	return _viewMatrix;
-}
-
-
-
-SMatrix Camera::GetCameraMatrix() const
-{
-	return _cameraMatrix;
-}
-
-
-
-SMatrix Camera::GetProjectionMatrix() const
-{
-	return _projectionMatrix;
-}
-
-
-
-SVec3 Camera::GetPosition() const
-{
-	return GetCameraMatrix().Translation();
 }

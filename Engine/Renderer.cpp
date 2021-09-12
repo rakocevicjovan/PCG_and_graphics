@@ -66,7 +66,7 @@ void Renderer::frame(float dTime)
 {
 	_elapsed += dTime;
 	
-	_cam.Update(dTime);
+	_cam.update(dTime);
 
 	updateRenderContext(dTime);
 
@@ -76,14 +76,14 @@ void Renderer::frame(float dTime)
 
 void Renderer::updatePerFrameBuffers(float dTime)
 {	
-	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.GetViewMatrix().Transpose(), dTime, _elapsed, SVec2() });
-	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.GetPosition(), 1.), dTime, _elapsed, SVec2() });
+	_VSperFrameBuffer.updateWithStruct(_deviceContext, VSPerFrameBuffer{ _cam.getViewMatrix().Transpose(), dTime, _elapsed, SVec2() });
+	_PSperFrameBuffer.updateWithStruct(_deviceContext, PSPerFrameBuffer{ Math::fromVec3(_cam.getPosition(), 1.), dTime, _elapsed, SVec2() });
 }
 
 
 void Renderer::updatePerCamBuffer(float ww, float wh)
 {
-	_perCamBuffer.updateWithStruct(_deviceContext, PerCameraBuffer{ _cam.GetProjectionMatrix().Transpose(), ww, wh, _cam._frustum._zn, _cam._frustum._zf });
+	_perCamBuffer.updateWithStruct(_deviceContext, PerCameraBuffer{ _cam.getProjectionMatrix().Transpose(), ww, wh, _cam._frustum._zn, _cam._frustum._zf });
 	_perCamBuffer.bindToVS(_deviceContext, PER_CAMERA_CBUFFER_REGISTER);
 	_perCamBuffer.bindToPS(_deviceContext, PER_CAMERA_CBUFFER_REGISTER);
 }

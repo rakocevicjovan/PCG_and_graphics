@@ -30,7 +30,7 @@ public:
 
 	void display(Scene* scene)
 	{
-		GUI::beginFrame();
+		GUI::BeginFrame();
 
 		if (ImGui::Begin("Aeolian"))
 		{
@@ -43,7 +43,7 @@ public:
 		}
 		ImGui::End();
 
-		GUI::endFrame();
+		GUI::EndFrame();
 	}
 
 

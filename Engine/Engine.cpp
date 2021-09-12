@@ -42,7 +42,7 @@ void Engine::initialize()
 
 	_renderer._cam._controller = &_defController;
 
-	GUI::initDxWin32(_engineWindow.handle(), _D3D.getDevice(), _D3D.getContext());
+	GUI::InitDxWin32(_engineWindow.handle(), _D3D.getDevice(), _D3D.getContext());
 
 	_shaderCompiler.init(_D3D.getDevice());	// This is meh, could well not exist and it would barely matter
 

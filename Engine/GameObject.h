@@ -81,9 +81,9 @@ public:
 
 	void UpdateCamTP(float dTime)
 	{
-		SMatrix camMat = cam.GetCameraMatrix();
+		SMatrix camMat = cam.getCameraMatrix();
 		con.processTransformationTP(dTime, a._transform, camMat);
-		cam.SetCameraMatrix(camMat);
+		cam.setCameraMatrix(camMat);
 	}
 
 	inline SVec3 getPosition() { return a._transform.Translation(); }

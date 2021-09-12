@@ -53,7 +53,7 @@ bool VolumetricScreen::SetShaderParameters(ID3D11DeviceContext* deviceContext, c
 	VolumetricScreenBuffer* volumScreenBuffer;
 
 	//near plane offset
-	SMatrix camOffset = camera.GetCameraMatrix();
+	SMatrix camOffset = camera.getCameraMatrix();
 	Math::Translate(camOffset, camOffset.Backward() * .15f);
 
 	SMatrix mT = camOffset.Transpose();
@@ -69,8 +69,8 @@ bool VolumetricScreen::SetShaderParameters(ID3D11DeviceContext* deviceContext, c
 	if (FAILED(deviceContext->Map(_volumScreenBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	volumScreenBuffer = (VolumetricScreenBuffer*)mappedResource.pData;
-	volumScreenBuffer->cameraPosition = Math::fromVec3(camera.GetPosition(), elapsed);
-	volumScreenBuffer->cameraDirection = Math::fromVec3(camera.GetCameraMatrix().Backward(), 1.f);
+	volumScreenBuffer->cameraPosition = Math::fromVec3(camera.getPosition(), elapsed);
+	volumScreenBuffer->cameraDirection = Math::fromVec3(camera.getCameraMatrix().Backward(), 1.f);
 	volumScreenBuffer->gale1 = SVec4(256,	333,	256,	20);
 	volumScreenBuffer->gale2 = SVec4(280,	333,	240,	20);
 	volumScreenBuffer->gale3 = SVec4(220,	333,	256,	20);

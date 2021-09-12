@@ -13,36 +13,38 @@ protected:
 	SMatrix _projectionMatrix;
 
 public:
-	Controller* _controller;
+	Controller* _controller{};
 	Frustum _frustum;
 
-	Camera();
+	Camera() = default;
 	Camera(const SMatrix& cameraMatrix, const SMatrix& projectionMatrix);
 	Camera(const SMatrix& cameraMatrix, float fov, float ar, float zNear, float zFar);
-	~Camera();
+	~Camera() = default;
 
-	void Update(float dTime);
+	void update(float dTime);
 
-	void Translate(const SVec3& t);
-	void SetTranslation(const SVec3& t);
+	void translate(const SVec3& t);
+	void setPosition(const SVec3& t);
 
-	void Rotate(const SMatrix& inRotMat);
-	void Rotate(const SQuat& inQuat);
-	void SetRotation(const SMatrix& inRotMat);
-	void SetRotation(const SQuat& inQuat);
+	void rotate(const SMatrix& inRotMat);
+	void rotate(const SQuat& inQuat);
+	void setRotation(const SMatrix& inRotMat);
+	void setRotation(const SQuat& inQuat);
 
-	void Transform(const SMatrix& inTransform);
+	void transform(const SMatrix& inTransform);
 	
 	//CTRL_MODE ctrlMode = CTRL_MODE::CTRL_FPS;	void SetMode(CTRL_MODE cm) { ctrlMode = cm; }
 
 	static Camera CreateFromViewProjection(const SMatrix& view, const SMatrix& projection);
-	SMatrix GetViewMatrix() const;
+	
+	const SMatrix& getViewMatrix() const;
+	void setViewMatrix(const SMatrix& transform);
 
-	SMatrix GetCameraMatrix() const;
-	void SetCameraMatrix(const SMatrix& transform);
+	const SMatrix& getCameraMatrix() const;
+	void setCameraMatrix(const SMatrix& transform);
 
-	SMatrix GetProjectionMatrix() const;
-	void SetProjectionMatrix(const SMatrix& proj);
+	const SMatrix& getProjectionMatrix() const;
+	void setProjectionMatrix(const SMatrix& proj);
 
-	SVec3   GetPosition() const;
+	SVec3 getPosition() const;
 };

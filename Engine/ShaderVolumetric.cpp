@@ -86,7 +86,7 @@ bool ShaderVolumetric::SetShaderParameters(ID3D11DeviceContext* deviceContext, c
 		return false;
 	dataPtr2 = (VolumShaderBuffer*)mappedResource.pData;
 	dataPtr2->rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * 0.5f * elapsed);
-	dataPtr2->ePos = Math::fromVec3(camera.GetCameraMatrix().Translation(), 1.0f);
+	dataPtr2->ePos = Math::fromVec3(camera.getCameraMatrix().Translation(), 1.0f);
 	deviceContext->Unmap(_volumShaderBuffer, 0);
 	deviceContext->PSSetConstantBuffers(1, 1, &_volumShaderBuffer);
 

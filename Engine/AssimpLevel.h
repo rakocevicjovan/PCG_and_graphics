@@ -93,7 +93,7 @@ public:
 	{
 		//DirectX::XMMatrixPerspectiveLH(1024, 1024, 1., 1000.); this seems... bugged? Or I don't understand the params well?
 
-		S_RANDY._cam.SetProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 1.f, 1., 1000.));
+		S_RANDY._cam.setProjectionMatrix(DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 1.f, 1., 1000.));
 		S_RANDY.updatePerCamBuffer(1024, 1024);
 
 		Viewport viewport(1024, 1024);
@@ -113,16 +113,16 @@ public:
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 		}
 
-		SMatrix oldProjMat = S_RANDY._cam.GetProjectionMatrix();
+		SMatrix oldProjMat = S_RANDY._cam.getProjectionMatrix();
 		SMatrix projMat = DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 2560. / 1440., 1., 1000.);
-		rc.cam->SetProjectionMatrix(projMat);
+		rc.cam->setProjectionMatrix(projMat);
 		S_RANDY.updatePerCamBuffer(2560, 1440);
 
 		_sys._renderer.setDefaultRenderTarget();
 
-		GUI::beginFrame();
+		GUI::BeginFrame();
 		drawUI();
-		GUI::endFrame();
+		GUI::EndFrame();
 
 		rc.d3d->present();
 	}

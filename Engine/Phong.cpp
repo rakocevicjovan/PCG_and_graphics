@@ -85,7 +85,7 @@ bool Phong::SetShaderParameters(ID3D11DeviceContext* dc, SMatrix& modelMat, cons
 	lptr->slc = pLight.slc;
 	lptr->sli = pLight.sli;
 	lptr->pos = pLight.pos;
-	lptr->ePos = Math::fromVec3(cam.GetPosition(), 1.f);
+	lptr->ePos = Math::fromVec3(cam.getPosition(), 1.f);
 
 	dc->Unmap(_lightBuffer, 0);
 

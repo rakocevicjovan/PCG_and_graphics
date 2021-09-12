@@ -347,7 +347,7 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 
 	for (SphereHull* s : sps)
 	{
-		float dist = (s->ctr - cam->GetPosition()).LengthSquared();
+		float dist = (s->ctr - cam->getPosition()).LengthSquared();
 		if (dist < minDist)
 		{
 			closest = s;
@@ -499,7 +499,7 @@ void TDLevel::draw(const RenderContext& rc)
 #endif
 
 
-	GUI::beginFrame();
+	GUI::BeginFrame();
 
 	_sceneEditor.display();
 		
@@ -514,7 +514,7 @@ void TDLevel::draw(const RenderContext& rc)
 		{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
 		{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
 	};
-	GUI::renderGuiElems(guiElems);
+	GUI::RenderGuiElems(guiElems);
 
 
 	UINT structureIndex;
@@ -535,7 +535,7 @@ void TDLevel::draw(const RenderContext& rc)
 
 	_eco.renderEconomyWidget();
 	
-	GUI::endFrame();
+	GUI::EndFrame();
 
 	rc.d3d->present();
 }

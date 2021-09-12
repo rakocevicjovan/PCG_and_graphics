@@ -391,8 +391,8 @@ namespace Procedural
 		LightBuffer* dataPtr2;
 
 		SMatrix mT = SMatrix::CreateTranslation(_offset).Transpose();
-		SMatrix vT = cam.GetViewMatrix().Transpose();
-		SMatrix pT = cam.GetProjectionMatrix().Transpose();
+		SMatrix vT = cam.getViewMatrix().Transpose();
+		SMatrix pT = cam.getProjectionMatrix().Transpose();
 
 		if (FAILED(dc->Map(s._matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 			return;

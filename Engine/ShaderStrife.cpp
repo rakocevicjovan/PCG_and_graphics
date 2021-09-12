@@ -84,7 +84,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr2->lightPos = csDef.celestial.pos * 99999999.f;
 	dataPtr2->lightRGBI = Math::fromVec3(csDef.celestial.alc, csDef.celestial.ali);
 	dataPtr2->extinction = Math::fromVec3(csDef.rgb_sig_absorption, 1.f - csDef.globalCoverage);
-	dataPtr2->eyePosElapsed = Math::fromVec3(cam.GetPosition(), elapsed);
+	dataPtr2->eyePosElapsed = Math::fromVec3(cam.getPosition(), elapsed);
 	dataPtr2->eccentricity = SVec4(csDef.eccentricity, csDef.heightMask.x, csDef.heightMask.y, csDef.scrQuadOffset);
 	dataPtr2->repeat = csDef.repeat;
 	dataPtr2->opt = SVec4(1.f / (csDef.heightMask.y - csDef.heightMask.x),
@@ -94,7 +94,7 @@ bool ShaderStrife::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	dataPtr2->misc = Math::fromVec3(csDef.skyRGB, csDef.distanceLimit);
 	dataPtr2->ALTop = Math::fromVec3(csDef.ALTop, csDef.carvingThreshold);
 	dataPtr2->ALBot = Math::fromVec3(csDef.ALBot, csDef.textureSpan);
-	dataPtr2->camMatrix = cam.GetCameraMatrix().Transpose();
+	dataPtr2->camMatrix = cam.getCameraMatrix().Transpose();
 	deviceContext->Unmap(_cloudBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_cloudBuffer);
 

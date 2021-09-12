@@ -49,7 +49,7 @@ bool ShaderSkybox::SetShaderParameters(ID3D11DeviceContext* deviceContext, const
 	if (FAILED(deviceContext->Map(_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource)))
 		return false;
 	dataPtr = (WMBuffer*)mappedResource.pData;
-	dataPtr->world = SMatrix::CreateTranslation(c.GetCameraMatrix().Translation()).Transpose();
+	dataPtr->world = SMatrix::CreateTranslation(c.getCameraMatrix().Translation()).Transpose();
 	deviceContext->Unmap(_matrixBuffer, 0);
 	deviceContext->VSSetConstantBuffers(0, 1, &_matrixBuffer);
 

@@ -6,9 +6,6 @@
 #include "FileUtilities.h"
 
 
-#define NUM_CASCADES 3u	// Absolutely get this out of here
-
-
 void ShaderCache::init() {}
 
 

@@ -36,7 +36,7 @@ public:
 		d3d->setRSSolidNoCull();
 		d3d->setDSSLessEquals();
 
-		Math::SetTranslation(_r._transform, cam.GetPosition());
+		Math::SetTranslation(_r._transform, cam.getPosition());
 		
 		//update and set cbuffers
 		_r.mat->getVS()->_cbuffers[0].updateWithStruct(renderer.context(), _r._transform.Transpose());

@@ -37,8 +37,8 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	_lightBounds.resize(nLights);	//as opposed to reserve
 
 	// Get some data out for easier access/naming
-	SMatrix v = cam.GetViewMatrix();
-	SMatrix p = cam.GetProjectionMatrix();
+	SMatrix v = cam.getViewMatrix();
+	SMatrix p = cam.getProjectionMatrix();
 
 	float p33 = p._33;
 	float p43 = p._43;

@@ -28,7 +28,7 @@ void buildClipSpacePlanes(const Camera& cam, std::vector<SPlane>& planes, std::a
 	float zNear = cam._frustum._zn;
 	float zFar = cam._frustum._zf;
 
-	SMatrix invProj = cam.GetProjectionMatrix().Invert();
+	SMatrix invProj = cam.getProjectionMatrix().Invert();
 
 	// Slice widths
 	float w = 2. / gridDims[0];
@@ -71,7 +71,7 @@ void buildGrid(const Camera& cam, std::array<UINT, 3> gridDims)
 {
 	float zNear = cam._frustum._zn;
 	float zFar = cam._frustum._zf;
-	SMatrix invProj = cam.GetProjectionMatrix().Invert();
+	SMatrix invProj = cam.getProjectionMatrix().Invert();
 
 	float w = 2. / gridDims[0];
 	float h = 2. / gridDims[1];
@@ -142,8 +142,8 @@ void renderSphereProjections(std::vector<PLight>& culledList, const Camera& cam)
 		sprintf(windowName, "SPHERE_DEBUG %d", i);
 
 		SVec3 ws_lightPos(culledList[i]._posRange);																				// OK
-		SVec4 viewPosRange = Math::fromVec3(SVec3::Transform(ws_lightPos, cam.GetViewMatrix()), culledList[i]._posRange.w);	// OK
-		SVec4 mm = ClusterManager::getProjectedRectangle(viewPosRange, 1., 1000., cam.GetProjectionMatrix());
+		SVec4 viewPosRange = Math::fromVec3(SVec3::Transform(ws_lightPos, cam.getViewMatrix()), culledList[i]._posRange.w);	// OK
+		SVec4 mm = ClusterManager::getProjectedRectangle(viewPosRange, 1., 1000., cam.getProjectionMatrix());
 
 		SVec2 p = SVec2(mm.x, mm.w) + SVec2(1.f);	//-1, 1 to 0, 2
 		p *= 0.5f;		//0, 2 to 0, 1

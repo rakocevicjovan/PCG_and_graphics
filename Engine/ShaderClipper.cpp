@@ -81,7 +81,7 @@ bool ShaderClipper::SetShaderParameters(ID3D11DeviceContext* deviceContext, cons
 	dataPtr2->slc = pLight.slc;
 	dataPtr2->sli = pLight.sli;
 	dataPtr2->pos = pLight.pos;
-	dataPtr2->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
+	dataPtr2->ePos = Math::fromVec3(cam.getCameraMatrix().Translation(), 1.f);
 	deviceContext->Unmap(_lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
 

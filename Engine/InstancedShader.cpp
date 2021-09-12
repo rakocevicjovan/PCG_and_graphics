@@ -81,7 +81,7 @@ bool InstancedShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, co
 	lightBufferPtr->slc = pLight.slc;
 	lightBufferPtr->sli = pLight.sli;
 	lightBufferPtr->pos = pLight.pos;
-	lightBufferPtr->ePos = Math::fromVec3(cam.GetCameraMatrix().Translation(), 1.f);
+	lightBufferPtr->ePos = Math::fromVec3(cam.getCameraMatrix().Translation(), 1.f);
 	deviceContext->Unmap(_lightBuffer, 0);
 	deviceContext->PSSetConstantBuffers(0, 1, &_lightBuffer);
 
