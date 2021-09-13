@@ -124,10 +124,18 @@ private:
 			select(entity);
 		}
 
+		// Cram this in if F is clicked or something, once it works
+		//goToEntityIfLocatable(registry, entity);
+
+		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
+		{
+			_toBeRenamed = _selected;
+		}
+
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
 		{
 			select(entity);
-			//goToEntityIfLocatable(registry, entity);
+			
 		}
 
 		// If dragging this somewhere
@@ -165,14 +173,14 @@ private:
 			return;
 		}
 
-		if (_inputManager->isKeyDown('R'))
-		{
-			_toBeRenamed = selected;
-		}
-
 		if (_inputManager->isKeyDown('F'))
 		{
 			goToEntityIfLocatable(registry, selected);
+		}
+
+		if (_inputManager->isKeyDown(VK_ESCAPE))
+		{
+			_toBeRenamed = entt::null;
 		}
 
 		displayNodeProperties(_registry, _selected, _displayComponents);
