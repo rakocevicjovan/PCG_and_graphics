@@ -1,6 +1,6 @@
 #pragma once
-#include <stdint.h>
 
+#include <stdint.h>
 
 
 namespace bits
@@ -31,7 +31,7 @@ namespace bits
 
 
 	// Absolute magic to find the most significant set bit, I barely understand it
-	uint32_t msbDeBruijn32(uint32_t v)
+	inline uint32_t msbDeBruijn32(uint32_t v)
 	{
 		constexpr int MultiplyDeBruijnBitPosition[32] =
 		{

@@ -8,12 +8,18 @@
 
 #include "Proj.h"
 
+#include "RadixSort.h"
+
 
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
-{}
+{
+
+	std::vector<uint32_t> testData{ 4, 1, 8, 340, 267, 754 };
+	RadixSort(testData.data(), testData.size());
+}
 
 
 void Engine::initialize()

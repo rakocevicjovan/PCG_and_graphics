@@ -1249,6 +1249,9 @@
     <ClInclude Include="Gizmo.h">
       <Filter>Editor\Gizmo</Filter>
     </ClInclude>
+    <ClInclude Include="RadixSort.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

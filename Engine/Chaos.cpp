@@ -33,7 +33,7 @@ void Chaos::fillVector(std::vector<float>& target, int count)
 }
 
 
-
+// Todo, make any integral available as input
 void Chaos::fillIntVector(std::vector<int>& target, int min, int max)
 {
 	std::uniform_int_distribution<int> intDist(min, max);

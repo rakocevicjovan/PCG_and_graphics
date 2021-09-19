@@ -154,7 +154,7 @@ public:
 
 	void fakeRenderSystem(ID3D11DeviceContext* context, entt::registry& registry)
 	{
-		auto group = _scene._registry.group<CTransform, CSkModel>();
+		
 
 		// Can try a single buffer for position
 		//_positionBuffer.bindToVS(context, 0);
@@ -162,17 +162,19 @@ public:
 		//auto& mainPass = _sys._renderer._mainStage;
 		//mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
 
+		auto group = _scene._registry.group<CTransform, CSkModel>();
+
 		group.each([&context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer](CTransform& transform, CSkModel& renderComp)
 			{
-				auto model = renderComp.skModel;
+				auto skModel = renderComp.skModel;
 
-				if (!model)
+				if (!skModel)
 					return;
 
 				posBuffer.bindToVS(context, 0);
 				skBuffer.bindToVS(context, 1);
 
-				for (auto& mesh : model->_meshes)
+				for (auto& mesh : skModel->_meshes)
 				{
 					mesh.bind(context);
 					posBuffer.updateWithStruct(context, transform.transform.Transpose());
