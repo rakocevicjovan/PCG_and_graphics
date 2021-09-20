@@ -5,7 +5,7 @@
 #include "Bits.h"
 
 
-template<typename T, uint32_t lsb, uint32_t msb>
+template<typename T, uint32_t lsb = 0, uint32_t msb = sizeof(T) * 8 - 1>
 void CountingSort(T* input, uint32_t inputSize)
 {
 	constexpr uint32_t BitSpan = msb - lsb;
@@ -52,8 +52,7 @@ template <typename T, uint32_t bits_per_batch = 8u>
 void RadixSort(T* inputArray, uint32_t inputSize)
 {
 	constexpr uint32_t numBatches{ (sizeof(T) * 8u) / bits_per_batch };
-
 	constexpr std::integer_sequence int_seq = std::make_integer_sequence<uint32_t, numBatches>();
 
-	/* return */ CountingSortRadixWrapper<T, bits_per_batch>(inputArray, inputSize, int_seq);
+	CountingSortRadixWrapper<T, bits_per_batch>(inputArray, inputSize, int_seq);
 }
