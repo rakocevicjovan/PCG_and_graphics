@@ -15,7 +15,7 @@ namespace quatCompression
 	constexpr float valRange = 2. * maxQuatValue;
 
 	constexpr uint32_t outComponentBitWidth = 10u;
-	constexpr uint32_t resultMaxVal = 1u << outComponentBitWidth - 1;
+	constexpr uint32_t resultMaxVal = (1u << outComponentBitWidth) - 1;
 
 
 	// Tested and passing when first written.
@@ -26,7 +26,7 @@ namespace quatCompression
 		constexpr auto decompress =
 			[](uint32_t unpackedInt) -> float
 			{
-				return minQuatValue + (unpackedInt * 2.0 / resultMaxVal) * maxQuatValue;
+				return minQuatValue + (unpackedInt / resultMaxVal) * valRange;
 			};
 
 		float result[4]{0.f};
