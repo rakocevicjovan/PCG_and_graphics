@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include;C:\VulkanSDK\1.2.182.0\Include;$(SolutionDir)vk-bootstrap\src</IncludePath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include;C:\VulkanSDK\1.2.182.0\Include;$(SolutionDir)\submodules\lz4\lib</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x64;C:\VulkanSDK\1.2.182.0\Lib;$(SolutionDir)Deps\libs\lz4_x64\Debug;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
@@ -88,7 +88,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Utilities\bin\x64;$(SolutionDir)Deps\include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include;$(SolutionDir)submodules\lz4\lib</IncludePath>
     <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(DXSDK_DIR)Lib\x86;$(SolutionDir)Deps\libs\lz4_x64\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
