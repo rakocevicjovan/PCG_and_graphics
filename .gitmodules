@@ -1,9 +1,9 @@
 [submodule "submodules/vk-bootstrap"]
-	path = vk-bootstrap
+	path = submodules/vk-bootstrap
 	url = https://github.com/charles-lunarg/vk-bootstrap
 [submodule "submodules/googletest"]
 	path = submodules/googletest
 	url = https://github.com/google/googletest
 [submodule "submodules/lz4"]
-	path = Deps/lz4
+	path = submodules/lz4
 	url = https://github.com/lz4/lz4
