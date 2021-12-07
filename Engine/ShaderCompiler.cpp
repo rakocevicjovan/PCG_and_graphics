@@ -223,7 +223,6 @@ void ShaderCompiler::outputError(ID3DBlob* errBlob, WCHAR shaderFilename, const 
 	FileUtils::writeAllBytes("shader-error.txt", errMsg.data(), errMsg.size());
 
 	errBlob->Release();
-	errBlob = nullptr;
 
 	OutputDebugStringA(outMsg.c_str());
 	OutputDebugStringA(errMsg.c_str());

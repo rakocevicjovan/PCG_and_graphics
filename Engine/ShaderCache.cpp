@@ -121,58 +121,61 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(ShaderCo
 	CBufferMeta lightBufferMeta(0, lightBufferDesc.ByteWidth);
 
 
+#define SH_BASE_PATH L"Shaders/"
 	/// VERTEX SHADERS
 
 	// PTN vertex shader
-	VertexShader* basicVS = new VertexShader(*shc, L"lightVS.hlsl", ptn_layout, { WMBufferDesc });
+	VertexShader* basicVS = new VertexShader(*shc, SH_BASE_PATH"lightVS.hlsl", ptn_layout, { WMBufferDesc });
 	basicVS->describeBuffers({ WMBufferMeta });
 	addVertShader("basicVS", basicVS);
 
 	// Skybox vertex shader, uses xyww trick for infinite distance
-	VertexShader* skyboxVS = new VertexShader(*shc, L"skyboxVS.hlsl", ptn_layout, { WMBufferDesc });
+	VertexShader* skyboxVS = new VertexShader(*shc, SH_BASE_PATH"skyboxVS.hlsl", ptn_layout, { WMBufferDesc });
 	skyboxVS->describeBuffers({ WMBufferMeta });
 	addVertShader("skyboxVS", skyboxVS);
 
 	// Instanced vertex shader- @TODO determine where to put instancing VB and how to handle updating it...
-	VertexShader* instancedVS = new VertexShader(*shc, L"InstancedVS.hlsl", ptn_instanced_layout, { WMBufferDesc });
+	VertexShader* instancedVS = new VertexShader(*shc, SH_BASE_PATH"InstancedVS.hlsl", ptn_instanced_layout, { WMBufferDesc });
 	instancedVS->describeBuffers({ WMBufferMeta });
 	addVertShader("instancedVS", instancedVS);
 
-	VertexShader* csmVS = new VertexShader(*shc, L"CSMVS.hlsl", p_layout, { WMBufferDesc });
+	VertexShader* csmVS = new VertexShader(*shc, SH_BASE_PATH"CSMVS.hlsl", p_layout, { WMBufferDesc });
 	csmVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmVS", csmVS);
 
-	VertexShader* csmSceneVS = new VertexShader(*shc, L"csmSceneVS.hlsl", ptn_layout, { WMBufferDesc });
+	VertexShader* csmSceneVS = new VertexShader(*shc, SH_BASE_PATH"csmSceneVS.hlsl", ptn_layout, { WMBufferDesc });
 	csmSceneVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmSceneVS", csmSceneVS);
 
-	//VertexShader* hudVS = new VertexShader(*_shc, L"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
+	//VertexShader* hudVS = new VertexShader(*_shc, SH_BASE_PATH"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
 
 
 	/// PIXEL SHADERS
 
 	// Phong
-	PixelShader* phong = new PixelShader(*shc, L"lightPS.hlsl", { regularSD }, {});
+	PixelShader* phong = new PixelShader(*shc, SH_BASE_PATH"lightPS.hlsl", { regularSD }, {});
 	//phong->describeBuffers({ lightBufferMeta });
 	addPixShader("phongPS", phong);
 
 	// Skybox ps, special sampler, no lights
-	PixelShader* skyboxPS = new PixelShader(*shc, L"skyboxPS.hlsl", { skbyoxSD }, {});
+	PixelShader* skyboxPS = new PixelShader(*shc, SH_BASE_PATH"skyboxPS.hlsl", { skbyoxSD }, {});
 	addPixShader("skyboxPS", skyboxPS);
 
 	// PBR shader
-	PixelShader* CookTorrance = new PixelShader(*shc, L"CookTorrancePS.hlsl", { regularSD }, { lightBufferDesc });
+	PixelShader* CookTorrance = new PixelShader(*shc, SH_BASE_PATH"CookTorrancePS.hlsl", { regularSD }, { lightBufferDesc });
 	CookTorrance->describeBuffers({ lightBufferMeta });
 	addPixShader("CookTorrancePS", CookTorrance);
 
 	// CSM Scene shader
-	PixelShader* csmScenePs = new PixelShader(*shc, L"csmScenePS.hlsl", { regularSD }, { });
+	PixelShader* csmScenePs = new PixelShader(*shc, SH_BASE_PATH"csmScenePS.hlsl", { regularSD }, { });
 	//csmScenePs->describeBuffers({ lightBufferMeta });
 	addPixShader("csmScenePS", csmScenePs);
 
-	PixelShader* clusterDebugPs = new PixelShader(*shc, L"clusterDebug.hlsl", { regularSD }, {});
+	PixelShader* clusterDebugPs = new PixelShader(*shc, SH_BASE_PATH"clusterDebug.hlsl", { regularSD }, {});
 	addPixShader("clusterDebugPS", clusterDebugPs);
 
-	PixelShader* clusterPs = new PixelShader(*shc, L"ClusteredPS.hlsl", { regularSD }, {});
+	PixelShader* clusterPs = new PixelShader(*shc, SH_BASE_PATH"ClusteredPS.hlsl", { regularSD }, {});
 	addPixShader("clusterPS", clusterPs);
+
+#undef SH_BASE_PATH
 }

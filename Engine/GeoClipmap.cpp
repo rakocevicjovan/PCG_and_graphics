@@ -3,7 +3,6 @@
 #include "VertSignature.h"
 
 
-
 GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
 	: _numLayers(numLayers), _edgeVertCount(pow(2, edgeSizeLog2) - 1), _coreVertSpacing(xzScale)
 {
@@ -16,7 +15,6 @@ GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
 }
 
 
-
 void GeoClipmap::init(ID3D11Device* device)
 {
 	// DO THIS INSTEAD OF TEST DESC WHEN EVERYTHING IS FIXED
@@ -24,7 +22,7 @@ void GeoClipmap::init(ID3D11Device* device)
 	VertSignature vertSig;
 	vertSig.addAttribute(VAttribSemantic::POS, VAttribType::FLOAT2);	// Will be packed into float16
 	std::vector<D3D11_INPUT_ELEMENT_DESC> inLayDesc = vertSig.createVertInLayElements();
-	_vertShader = VertexShader(device, L"GeoClipmapVS.hlsl", inLayDesc, {});
+	_vertShader = VertexShader(device, L"Shaders\\GeoClipmapVS.hlsl", inLayDesc, {});
 
 	D3D11_BUFFER_DESC bufferDesc = CBuffer::createDesc(sizeof(GeoClipmapBuffer));
 	_cBuffer.init(device, bufferDesc);
@@ -33,7 +31,6 @@ void GeoClipmap::init(ID3D11Device* device)
 	createTextures(device);
 	createTransformData();
 }
-
 
 
 // @TODO replace with bufferless, no need for it on newer GPUs (probably not worth it for the rim though)
@@ -56,7 +53,7 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	_blockIB = IBuffer(device, createGridIndices(_blockEdgeVertCount, _blockEdgeVertCount));
 	vertexData.clear();
 
-	
+
 	// still puzzled, want to fit them into a single buffer but not make them too small 
 	// or fpp could createa artefacts given the amount of scaling present in geo clipmaps,
 	// but high scaling is always far away so might be invisible anyways...
@@ -157,7 +154,6 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 }
 
 
-
 void GeoClipmap::createTextures(ID3D11Device* device)
 {
 	// Textures - 2 per layer, but instead packed into two arrays of _numLayers for faster binding
@@ -172,7 +168,6 @@ void GeoClipmap::createTextures(ID3D11Device* device)
 
 	_normalMap.create(device, nmDesc, nullptr, true);
 }
-
 
 
 void GeoClipmap::createTransformData()
@@ -222,7 +217,6 @@ void GeoClipmap::createTransformData()
 }
 
 
-
 void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec2>& output)
 {
 	UINT requiredSize = numCols * numRows;
@@ -236,7 +230,6 @@ void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec
 			output.emplace_back(x, z - 1);
 	}
 }
-
 
 
 std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
@@ -265,7 +258,6 @@ std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
 }
 
 
-
 void GeoClipmap::update(ID3D11DeviceContext* context)
 {
 	// Update the texture
@@ -276,7 +268,6 @@ void GeoClipmap::update(ID3D11DeviceContext* context)
 	// 2. Run a pixel shader to update the the gpu texture
 	// 3. Update the sampling offsets for toroidal access
 }
-
 
 
 void GeoClipmap::draw(ID3D11DeviceContext* context)
@@ -355,11 +346,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 	// Use instancing later, try to pack the above into a single cbuffer for all instances, should fit easily
 	//context->DrawIndexedInstanced(_coreIB.getIdxCount(), _numLayers * 12, 0, 0, 0);
 	*/
-
-
-
 }
-
 
 
 // @TODO
