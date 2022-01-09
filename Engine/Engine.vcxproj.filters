@@ -1499,7 +1499,7 @@
     <FxCompile Include="Shaders\strifeps.hlsl">
       <Filter>Rendering\Shader Files\Clouds</Filter>
     </FxCompile>
-    <FxCompile Include="FrustumCull.hlsl">
+    <FxCompile Include="Shaders\FrustumCull.hlsl">
       <Filter>Rendering\Shader Files\Compute shaders</Filter>
     </FxCompile>
   </ItemGroup>
