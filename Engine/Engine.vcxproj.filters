@@ -487,6 +487,15 @@
     <ClCompile Include="Gizmo.cpp">
       <Filter>Editor\Gizmo</Filter>
     </ClCompile>
+    <ClCompile Include="DXC.cpp">
+      <Filter>Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeShader.cpp">
+      <Filter>Rendering\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scene management</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1489,6 +1498,9 @@
     </FxCompile>
     <FxCompile Include="Shaders\strifeps.hlsl">
       <Filter>Rendering\Shader Files\Clouds</Filter>
+    </FxCompile>
+    <FxCompile Include="FrustumCull.hlsl">
+      <Filter>Rendering\Shader Files\Compute shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

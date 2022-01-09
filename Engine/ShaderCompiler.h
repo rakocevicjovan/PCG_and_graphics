@@ -1,9 +1,9 @@
 #pragma once
 #pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxguid.lib")
 
 #include <d3dcompiler.h>
 #include <d3d11_4.h>
-//#include <dxcapi.h>
 
 
 namespace ShRef

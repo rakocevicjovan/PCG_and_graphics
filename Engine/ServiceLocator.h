@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TypeID.h" 
+#include <assert.h>
 
 // All instances instantiated with the same BaseType will SHARE values. For all intents and purposes, every instantiation of this template is a "static" class.
 template <typename BaseType>
@@ -19,7 +20,8 @@ private:
 	{
 		static_assert(std::is_base_of_v<BaseType, std::remove_pointer<ServiceType>::type>);
 		auto id = seq_type_id<ServiceType, my_type>::value();
-		_services.push_back(manager);
+		assert(_services[id] == nullptr && "Types stored in the service locator must be unique and distinct.");
+		_services[id] = manager;
 	}
 
 public:
@@ -29,8 +31,7 @@ public:
 	static void registerServices(ServiceTypes*... services)
 	{
 		_services.clear();
-
-		_services.reserve(sizeof...(ServiceTypes));
+		_services.resize(sizeof...(ServiceTypes));
 		(registerService(services), ...);
 	}
 
@@ -38,7 +39,7 @@ public:
 	template <typename... ServiceTypes>
 	static void appendServices(ServiceTypes*... services)
 	{
-		_services.reserve(_services.size() + sizeof...(ServiceTypes));
+		_services.resize(_services.size() + sizeof...(ServiceTypes));
 		(registerService(services), ...);
 	}
 

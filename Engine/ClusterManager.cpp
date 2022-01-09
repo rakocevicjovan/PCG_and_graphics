@@ -12,15 +12,15 @@ ClusterManager::ClusterManager(std::array<UINT, 3> gridDims, uint16_t maxLights,
 
 	// max 32 kb on point lights
 	_lightSB = SBuffer(device, sizeof(PLight), 1024);
-	SBuffer::createSBufferSRV(device, _lightSB.getPtr(), sizeof(PLight), 1024, _lightSRV);
+	SBuffer::CreateSBufferSRV(device, _lightSB.getPtr(), 1024, _lightSRV);
 
 	// 1020 kb max for indices, but 32 bit packed
 	_indexSB = SBuffer(device, sizeof(uint32_t), _lightIndexList.capacity());
-	SBuffer::createSBufferSRV(device, _indexSB.getPtr(), sizeof(uint32_t), _lightIndexList.capacity(), _indexSRV);
+	SBuffer::CreateSBufferSRV(device, _indexSB.getPtr(), _lightIndexList.capacity(), _indexSRV);
 
 	// ~32 kb for grid offset list
 	_gridSB  = SBuffer(device, sizeof(OffsetListItem), _gridSize);
-	SBuffer::createSBufferSRV(device, _gridSB.getPtr(), sizeof(OffsetListItem), _gridSize, _gridSRV);
+	SBuffer::CreateSBufferSRV(device, _gridSB.getPtr(), _gridSize, _gridSRV);
 }
 
 

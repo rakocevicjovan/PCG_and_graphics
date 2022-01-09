@@ -6,6 +6,10 @@
 #include "VkRenderPass.h"
 #include "VkFramebuffer.h"
 
+inline constexpr uint64_t s_to_ns(uint64_t seconds)
+{
+	return seconds * 1'000'000'000;
+}
 
 class VkRenderer
 {
@@ -32,6 +36,9 @@ class VkRenderer
 	VkRenderPass _defaultRenderPass;
 	std::vector<VkFramebuffer> _framebuffers;
 
+	VkSemaphore _presentSemaphore, _renderSemaphore;
+	VkFence _renderFence;
+
 	static constexpr uint32_t W_WIDTH = 2560u;
 	static constexpr uint32_t W_HEIGHT = 1440u;
 
@@ -45,6 +52,7 @@ class VkRenderer
 		initCommands();
 		initDefaultRenderPass();
 		initFrameBuffers();
+		initSyncStructures();
 		_isInitialized = true;	// If we got here, it's good. Above would throw/assert otherwise.
 	}
 
@@ -95,17 +103,16 @@ class VkRenderer
 
 	void initSwapchain()
 	{
-		vkb::SwapchainBuilder swapchainBuilder{ _chosenGPU,_device,_surface };
+		vkb::SwapchainBuilder swapchainBuilder{ _chosenGPU, _device, _surface };
 
 		vkb::Swapchain vkbSwapchain = swapchainBuilder
 			.use_default_format_selection()
-			//use vsync present mode
 			.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)	// FIFO_KHR = VSync, good enough for now
 			.set_desired_extent(W_WIDTH, W_HEIGHT)	// Window width and height
 			.build()
 			.value();
 
-		//store swapchain and its related images
+		// Store swapchain and its related images
 		_swapchain = vkbSwapchain.swapchain;
 		_swapchainImages = vkbSwapchain.get_images().value();
 		_swapchainImageViews = vkbSwapchain.get_image_views().value();
@@ -140,13 +147,136 @@ class VkRenderer
 	}
 
 
+	void initSyncStructures()
+	{
+		// Create synchronization structures - create the fence with the Create Signaled flag, so we can wait on it before using it on a GPU command (for the first frame)
+		VkFenceCreateInfo fenceCreateInfo = {};
+		fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceCreateInfo.pNext = nullptr;
+		fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+		vkCheck(vkCreateFence(_device, &fenceCreateInfo, nullptr, &_renderFence));
+
+		// For the semaphores we don't need any flags
+		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		semaphoreCreateInfo.pNext = nullptr;
+		semaphoreCreateInfo.flags = 0;
+
+		vkCheck(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_presentSemaphore));
+		vkCheck(vkCreateSemaphore(_device, &semaphoreCreateInfo, nullptr, &_renderSemaphore));
+	}
+
+
+	void draw()
+	{
+		//wait until the GPU has finished rendering the last frame. Timeout of 1 second
+		vkCheck(vkWaitForFences(_device, 1, &_renderFence, true, s_to_ns(1)));	// Using this function with 0 timeout can be used to quickly check if it's done
+		vkCheck(vkResetFences(_device, 1, &_renderFence));
+
+		// Request image from the swapchain, one second timeout. Signal the _presentSemaphore to synchronize with vkQueueSubmit below (swapchain image must be ready then)
+		uint32_t swapchainImageIndex;
+		vkCheck(vkAcquireNextImageKHR(_device, _swapchain, s_to_ns(1), _presentSemaphore, nullptr, &swapchainImageIndex));
+
+		vkCheck(vkResetCommandBuffer(_mainCommandBuffer, 0));
+
+		// Naming it cmd for shorter writing
+		VkCommandBuffer cmd = _mainCommandBuffer;
+
+		//begin the command buffer recording. We will use this command buffer exactly once, so we want to let Vulkan know that
+		VkCommandBufferBeginInfo cmdBeginInfo{};
+		cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmdBeginInfo.pNext = nullptr;
+
+		cmdBeginInfo.pInheritanceInfo = nullptr;
+		cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		vkCheck(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+		//make a clear-color from frame number. This will flash with a 120*pi frame period.
+		VkClearValue clearValue;
+		static uint64_t frameNumber{ 0u };
+		float flash = abs(sin(frameNumber++ / 120.f));
+		clearValue.color = { { 0.0f, 0.0f, flash, 1.0f } };
+
+		// Start the main renderpass
+		// We will use the clear color from above, and the framebuffer of the index the swapchain gave us
+		VkRenderPassBeginInfo rpInfo = {};
+		rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		rpInfo.pNext = nullptr;
+
+		rpInfo.renderPass = _defaultRenderPass;
+		rpInfo.renderArea.offset = { 0, 0 };
+		rpInfo.renderArea.extent = VkExtent2D{ W_WIDTH, W_HEIGHT };
+		rpInfo.framebuffer = _framebuffers[swapchainImageIndex];
+
+		//connect clear values
+		rpInfo.clearValueCount = 1;
+		rpInfo.pClearValues = &clearValue;
+
+		vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+		/// Rendering goes here (for this renderpass)
+
+		/// Rendering ends here (for this renderpass)
+
+		vkCmdEndRenderPass(cmd);
+		vkCheck(vkEndCommandBuffer(cmd));
+
+		// Prepare the submission to the queue.
+		// Wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
+		// Signal the _renderSemaphore, to signal that rendering has finished
+
+		VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+		VkSubmitInfo submit = {};
+		submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submit.pNext = nullptr;
+
+		submit.pWaitDstStageMask = &waitStage;
+
+		submit.waitSemaphoreCount = 1;
+		submit.pWaitSemaphores = &_presentSemaphore;
+
+		submit.signalSemaphoreCount = 1;
+		submit.pSignalSemaphores = &_renderSemaphore;
+
+		submit.commandBufferCount = 1;
+		submit.pCommandBuffers = &cmd;
+
+		// Submit command buffer to the queue and execute it.
+		// _renderFence will now block until the graphic commands finish execution
+		vkCheck(vkQueueSubmit(_graphicsQueue, 1, &submit, _renderFence));
+
+		// this will put the image we just rendered into the visible window.
+		// we want to wait on the _renderSemaphore for that,
+		// as it's necessary that drawing commands have finished before the image is displayed to the user
+		VkPresentInfoKHR presentInfo = {};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.pNext = nullptr;
+
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = &_swapchain;
+
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = &_renderSemaphore;
+
+		presentInfo.pImageIndices = &swapchainImageIndex;
+
+		vkCheck(vkQueuePresentKHR(_graphicsQueue, &presentInfo));
+
+		//increase the number of frames drawn
+		frameNumber++;
+	}
+
+
 	// Destroy
 	void cleanup()
 	{
 		if (_isInitialized)
 		{
 			// VkQueue, much like the VkPhysicalDevice, is a handle to an existing thing as opposed to something we created, and can't be destroyed here
-			// Individual buffers allocated from this pool will be destroyed with it (can't destroy individually)
+			
+			// Individual buffers allocated from this command pool will be destroyed with it (can't be destroyed individually)
 			vkDestroyCommandPool(_device, _commandPool, nullptr);	
 
 			vkDestroySwapchainKHR(_device, _swapchain, nullptr);

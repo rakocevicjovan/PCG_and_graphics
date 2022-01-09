@@ -57,7 +57,8 @@ float sqDistPointAABB(float3 min, float3 max, float3 p)
 
 bool aabbSphereIntersection(float3 min, float3 max, float4 sphere)
 {
-
+	// Todo
+    return false;
 }
 
 [numthreads(32, 32, 1)]

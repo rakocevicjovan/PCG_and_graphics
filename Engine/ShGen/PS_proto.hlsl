@@ -1,6 +1,6 @@
-#include "Light.hlsli"
-#include "Clustering.hlsli"
-#include "Reserved_CB_PS.hlsli"
+#include "Shaders/Light.hlsli"
+#include "Shaders/Clustering.hlsli"
+#include "Shaders/Reserved_CB_PS.hlsli"
 
 cbuffer LightBuffer : register(b0)
 {

@@ -22,6 +22,8 @@
 
 #include "SkAnimRenderer.h"
 
+#include "ComputeShader.h"
+
 
 struct Deleted
 {
@@ -50,6 +52,15 @@ private:
 
 	std::vector<RenderStage> _stages;
 
+	CBuffer _frustumBuffer;
+	SBuffer _spheresBuffer;
+	ID3D11ShaderResourceView* _spheresSRV;
+
+	SBuffer _resultBuffer;
+	ID3D11UnorderedAccessView* _resultUAV;
+
+	ComputeShader _cullShader;
+
 public:
 
 	RenderingTestLevel(Engine& sys)
@@ -60,31 +71,34 @@ public:
 
 	void init(Engine& sys) override final
 	{
+		auto device = S_DEVICE;
+		auto context = S_CONTEXT;
+
 		// All of this should not have to be here! Goal of this refactor is to kill it.
 		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 
-		auto skyBoxModel = ModelImporter::StandaloneModelImport(S_DEVICE, "../Models/Skysphere.fbx").model.release();
+		auto skyBoxModel = ModelImporter::StandaloneModelImport(device, "../Models/Skysphere.fbx").model.release();
 		Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("skyboxVS"), _sys._shaderCache.getPixShader("skyboxPS"), true);
 
-		_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, skyBoxMat);
+		_skybox = Skybox(device, "../Textures/day.dds", skyBoxModel, skyBoxMat);
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 
 		_dirLight = DirectionalLight(lightData, SVec4(0, -1, 0, 0));
-		_dirLight.createCBuffer(S_DEVICE, _dirLightCB);
-		_dirLight.updateCBuffer(S_CONTEXT, _dirLightCB);
+		_dirLight.createCBuffer(device, _dirLightCB);
+		_dirLight.updateCBuffer(context, _dirLightCB);
 
-		_skMatsBuffer.init(S_DEVICE, CBuffer::createDesc(sizeof(SMatrix) * 200 /*numBones*/));
+		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 200 /*numBones*/));
 
 		std::vector<SMatrix> wat(200);
-		_skMatsBuffer.update(S_CONTEXT, wat.data(), sizeof(SMatrix) * 200);
-		_skMatsBuffer.bindToVS(S_CONTEXT, 1);
+		_skMatsBuffer.update(context, wat.data(), sizeof(SMatrix) * 200);
+		_skMatsBuffer.bindToVS(context, 1);
 
-		_geoClipmap.init(S_DEVICE);
+		_geoClipmap.init(device);
 
 		_sceneEditor.init(&_scene, &S_INMAN);
 
-		_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
+		_scene._csm.init(device, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 
 		S_RANDY._cam._controller->setFlying(true);
 
@@ -98,7 +112,7 @@ public:
 
 		for (auto& mesh : modelPtr->_meshes)
 		{
-			mesh.setupMesh(S_DEVICE);
+			mesh.setupMesh(device);
 			mesh._material->setVS(vsPtr);
 			mesh._material->setPS(psPtr);
 		}
@@ -113,6 +127,9 @@ public:
 			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, 0, (i % 10)) * 100.f));
 			_scene._registry.emplace<CEntityName>(entity, "Entity name");
 		}
+
+		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix)));
+		_positionBuffer.bindToVS(context, 0);
 
 		{
 			// This works as expected. Thanks Skypjack! JSON is a poor choice for matrices though (or anything that should load fast)
@@ -146,16 +163,25 @@ public:
 		_stages.push_back(std::move(shadowStage));
 		_stages.push_back(std::move(mainStage));
 		*/
+		
+		constexpr uint32_t test_sphere_count = 1024 * 1024;
 
-		_positionBuffer.init(S_RANDY.device(), CBuffer::createDesc(sizeof(SMatrix)));
-		_positionBuffer.bindToVS(S_RANDY.context(), 0);
+
+
+		_frustumBuffer.init(device, CBuffer::createDesc(sizeof(SVec4) * 6));
+
+		_spheresBuffer = SBuffer(device, sizeof(SVec4), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
+		SBuffer::CreateSBufferSRV(device, _spheresBuffer.getPtr(), test_sphere_count, _spheresSRV);
+
+		_resultBuffer = SBuffer(device, sizeof(float), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
+		SBuffer::createSBufferUAV(device, _resultBuffer.getPtr(), sizeof(float), _resultUAV);
+
+		_cullShader.createFromFile(device, L"Shaders/FrustumCull.hlsl");
 	}
 
 
 	void fakeRenderSystem(ID3D11DeviceContext* context, entt::registry& registry)
 	{
-		
-
 		// Can try a single buffer for position
 		//_positionBuffer.bindToVS(context, 0);
 
@@ -243,6 +269,10 @@ public:
 		GUI::RenderGuiElems(guiElems);
 
 		GUI::EndFrame();
+
+		std::vector<ID3D11ShaderResourceView*> wat1{_spheresSRV};
+		std::vector<ID3D11UnorderedAccessView*> wat2{_resultUAV};
+		_cullShader.execute(S_RANDY.context(), {16, 16, 1}, wat1, wat2);
 
 		rc.d3d->present();
 	}

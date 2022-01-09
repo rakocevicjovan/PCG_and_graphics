@@ -1,4 +1,4 @@
-#include "Reserved_CB_VS.hlsli"
+#include "Shaders/Reserved_CB_VS.hlsli"
 
 #ifdef SIW
 cbuffer TransformsBuffer : register(b1)

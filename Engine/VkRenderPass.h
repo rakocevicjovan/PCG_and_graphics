@@ -30,15 +30,6 @@ VkAttachmentDescription CreateAttachmentDescription(VkFormat format,
 }
 
 
-VkAttachmentReference CreateAttachmentRef(VkImageLayout layout, uint32_t index)
-{
-	VkAttachmentReference attachmentRef{};
-	attachmentRef.attachment = index;
-	attachmentRef.layout = layout;
-	return attachmentRef;
-}
-
-
 VkSubpassDescription CreateSubpassDescription(const VkAttachmentReference& attachmentRefs, 
 	uint32_t attachmentCount = 1u,
 	VkPipelineBindPoint bindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS)
@@ -57,7 +48,7 @@ VkRenderPass CreateRenderPass(VkDevice device, VkFormat format)
 	VkAttachmentDescription colorAttachmentDesc = CreateAttachmentDescription(format);
 
 	// Attachment number will index into the pAttachments array in the parent renderpass itself
-	VkAttachmentReference colorAttachmentRef = CreateAttachmentRef(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0u);
+	VkAttachmentReference colorAttachmentRef{ 0u, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL };
 
 	// Create 1 subpass, which is the minimum you can do
 	VkSubpassDescription subpass = CreateSubpassDescription(colorAttachmentRef);
