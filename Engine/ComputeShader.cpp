@@ -3,6 +3,11 @@
 
 bool ComputeShader::createFromFile(ID3D11Device* device, const std::wstring& path)
 {
+	// Reminder for constants
+	D3D11_CS_THREAD_GROUP_MAX_THREADS_PER_GROUP;
+	D3D11_PS_CS_UAV_REGISTER_COUNT;
+	D3D11_CS_DISPATCH_MAX_THREAD_GROUPS_PER_DIMENSION;
+
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( _DEBUG )
 	flags |= D3DCOMPILE_DEBUG;
