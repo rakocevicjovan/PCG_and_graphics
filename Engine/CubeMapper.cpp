@@ -15,7 +15,7 @@ CubeMapper::~CubeMapper() {}
 void CubeMapper::init(ID3D11Device* device)
 {
 	// Create a texture (and a description) for the cube mapper, using misc_texturecube and 4 8-bit channels
-	D3D11_TEXTURE2D_DESC texDesc = CubeMap::createCubeMapDesc(_edgeLength, true, DXGI_FORMAT_R32G32B32A32_FLOAT);
+	D3D11_TEXTURE2D_DESC texDesc = CubeMap::CreateCubeMapDesc(_edgeLength, true, DXGI_FORMAT_R32G32B32A32_FLOAT);
 	CubeMap::CreateCubeMap(device, texDesc, _texPtr);
 
 

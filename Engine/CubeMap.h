@@ -9,7 +9,7 @@ class CubeMap
 
 public:
 
-	static inline D3D11_TEXTURE2D_DESC createCubeMapDesc(UINT edgeLength, bool renderTarget, DXGI_FORMAT format)
+	static inline D3D11_TEXTURE2D_DESC CreateCubeMapDesc(UINT edgeLength, bool renderTarget, DXGI_FORMAT format)
 	{
 		D3D11_TEXTURE2D_DESC texDesc = {};
 		texDesc.Width = edgeLength;
@@ -61,9 +61,9 @@ public:
 
 
 	// Utility function for skybox rendering. Loads the maps once, no render targets / depth stencil textures involved
-	static void loadCubeMapFromFile(ID3D11Device* device, const std::string& filename, UINT edgeLength, ID3D11Texture2D*& texPtr, ID3D11ShaderResourceView*& shResView)
+	static void LoadCubeMapFromFile(ID3D11Device* device, const std::string_view& filename, UINT edgeLength, ID3D11Texture2D*& texPtr, ID3D11ShaderResourceView*& shResView)
 	{
-		D3D11_TEXTURE2D_DESC texDesc = createCubeMapDesc(edgeLength, false, DXGI_FORMAT_R32G32B32A32_FLOAT);
+		D3D11_TEXTURE2D_DESC texDesc = CreateCubeMapDesc(edgeLength, false, DXGI_FORMAT_R32G32B32A32_FLOAT);
 
 		CreateCubeMap(device, texDesc, texPtr);
 

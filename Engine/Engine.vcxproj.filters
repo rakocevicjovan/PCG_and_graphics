@@ -1502,5 +1502,11 @@
     <FxCompile Include="Shaders\FrustumCull.hlsl">
       <Filter>Rendering\Shader Files\Compute shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\FullScreenTriNoBufferVS.hlsl">
+      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FullScreenTriNoBufferPS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

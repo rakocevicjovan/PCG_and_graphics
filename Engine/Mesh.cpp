@@ -2,7 +2,6 @@
 #include "Mesh.h"
 #include "Geometry.h"
 #include "Terrain.h"
-#include "MeshImporter.h" // Reverse this eventually, mesh shouldn't know about it
 
 
 Mesh::Mesh(const Procedural::Terrain& terrain, ID3D11Device* device)
