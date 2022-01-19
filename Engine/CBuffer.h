@@ -153,8 +153,18 @@ public:
 		context->PSSetConstantBuffers(slot, 1, _cbPtr.GetAddressOf());
 	}
 
+	inline void bindToCS(ID3D11DeviceContext* context, uint8_t slot)
+	{
+		context->CSSetConstantBuffers(slot, 1, _cbPtr.GetAddressOf());
+	}
+
 	inline ID3D11Buffer* ptr()
 	{
 		return _cbPtr.Get();
+	}
+
+	inline ID3D11Buffer** ptrAddr()
+	{
+		return _cbPtr.GetAddressOf();
 	}
 };

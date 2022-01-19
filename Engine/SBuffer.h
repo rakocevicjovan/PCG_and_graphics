@@ -30,8 +30,7 @@ public:
 		sbDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 		sbDesc.StructureByteStride = elementSize;
 
-		HRESULT result = device->CreateBuffer(&sbDesc, NULL, &structBuffer);
-
+		HRESULT result = device->CreateBuffer(&sbDesc, nullptr, &structBuffer);
 		assert(!FAILED(result));
 
 		return structBuffer;
@@ -72,7 +71,7 @@ public:
 	inline void upload(ID3D11DeviceContext* context, const void* data, UINT byteWidth)
 	{
 		D3D11_MAPPED_SUBRESOURCE resource;
-		context->Map(_sbPtr.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+		context->Map(_sbPtr.Get(), 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &resource);
 		memcpy(resource.pData, data, byteWidth);
 		context->Unmap(_sbPtr.Get(), 0);
 	}
