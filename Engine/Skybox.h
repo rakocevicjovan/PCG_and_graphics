@@ -10,8 +10,8 @@ private:
 	Material* _skyboxMaterial;
 	Renderable _r;
 
-	ID3D11Texture2D *_texPtr;
-	ID3D11ShaderResourceView* _shResView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> _texPtr;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> _shResView;
 
 public:
 
@@ -19,9 +19,9 @@ public:
 
 
 
-	Skybox(ID3D11Device* device, std::string path, Model* model, Material* m, UINT resolution = 512u)
+	Skybox(ID3D11Device* device, std::string_view path, Model* model, Material* m, UINT resolution = 512u)
 	{
-		CubeMap::loadCubeMapFromFile(device, path, resolution, _texPtr, _shResView);
+		CubeMap::LoadCubeMapFromFile(device, path, resolution, _texPtr.GetAddressOf(), _shResView.GetAddressOf());
 		_r = Renderable(model->_meshes[0], SMatrix{});
 		_r.mat = m;
 	}
@@ -46,15 +46,15 @@ public:
 		_r.mat->getVS()->bind(context);
 		_r.mat->getPS()->bind(context);
 
-		context->PSSetShaderResources(0, 1, &_shResView);
+		context->PSSetShaderResources(0, 1, _shResView.GetAddressOf());
 
 		_r.mesh->_vertexBuffer.bind(context);
 		_r.mesh->_indexBuffer.bind(context);
 
 		context->DrawIndexed(_r.mesh->_indexBuffer.getIdxCount(), 0, 0);
 
-		ID3D11ShaderResourceView* unbinder[] = { nullptr };
-		context->PSSetShaderResources(0, 1, unbinder);
+		thread_local ID3D11ShaderResourceView* unbinder{ nullptr };
+		context->PSSetShaderResources(0, 1, &unbinder);
 
 		d3d->setDSSLess();
 		d3d->setRSSolidCull();

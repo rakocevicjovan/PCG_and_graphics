@@ -7,20 +7,15 @@
 CubeMapper::CubeMapper(unsigned int edgeLength) : _edgeLength(edgeLength) {}
 
 
-
-CubeMapper::~CubeMapper() {}
-
-
-
 void CubeMapper::init(ID3D11Device* device)
 {
 	// Create a texture (and a description) for the cube mapper, using misc_texturecube and 4 8-bit channels
 	D3D11_TEXTURE2D_DESC texDesc = CubeMap::CreateCubeMapDesc(_edgeLength, true, DXGI_FORMAT_R32G32B32A32_FLOAT);
-	CubeMap::CreateCubeMap(device, texDesc, _texPtr);
+	CubeMap::CreateCubeMap(device, texDesc, &_texPtr);
 
 
 	// Create ONE resource view as a texturecube view (this handles six faces internally, so one is enough)
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvd;
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd{};
 	srvd.Format = texDesc.Format;
 	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	srvd.TextureCube.MipLevels = texDesc.MipLevels;
@@ -33,7 +28,7 @@ void CubeMapper::init(ID3D11Device* device)
 	}
 
 	// Create SIX render target views, each render target view being a slice in an array (this is sketchy, @TODO)
-	D3D11_RENDER_TARGET_VIEW_DESC rtvd;
+	D3D11_RENDER_TARGET_VIEW_DESC rtvd{};
 	rtvd.Format = texDesc.Format;
 	rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
 	rtvd.Texture2D.MipSlice = 0;
@@ -51,9 +46,8 @@ void CubeMapper::init(ID3D11Device* device)
 		}
 	}
 
-
 	// Create a depth stencil texture, same size as the original
-	D3D11_TEXTURE2D_DESC depthTexDesc = {};
+	D3D11_TEXTURE2D_DESC depthTexDesc{};
 	depthTexDesc.Width = _edgeLength;
 	depthTexDesc.Height = _edgeLength;
 	depthTexDesc.MipLevels = 1;
@@ -72,7 +66,7 @@ void CubeMapper::init(ID3D11Device* device)
 	}
 
 	// Create a depth stencil texture view
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvd{};
 	dsvd.Format = depthTexDesc.Format;
 	dsvd.Flags = 0;
 	dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -96,7 +90,6 @@ void CubeMapper::init(ID3D11Device* device)
 }
 
 
-
 // Fills in view matrices for all six cameras, only needs to be called if the reflecting object moved
 void CubeMapper::updateCams(const SVec3& pos)
 {
@@ -109,7 +102,6 @@ void CubeMapper::updateCams(const SVec3& pos)
 }
 
 
-
 // Advances to the next render target view, clears it and the depth stencil view (it's reused for all of them)
 void CubeMapper::advance(ID3D11DeviceContext* dc, UINT i)
 {
@@ -118,7 +110,6 @@ void CubeMapper::advance(ID3D11DeviceContext* dc, UINT i)
 	dc->ClearDepthStencilView(_depthStencilViews, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	dc->OMSetRenderTargets(1, &_renderTargetViews[i], _depthStencilViews);
 }
-
 
 
 Camera CubeMapper::getCameraAtIndex(unsigned int i)
