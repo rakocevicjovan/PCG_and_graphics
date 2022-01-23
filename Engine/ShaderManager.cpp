@@ -47,7 +47,7 @@ ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
 	if (it != _existingShaders.end())	// Exists
 	{
 		ShaderPack& sp = it->second;
-		if (sp.vs == nullptr)	// VS not loaded, load
+		if (!sp.vs)				// VS not loaded, load
 			sp.vs = static_cast<VertexShader*>(loadFromKey(shaderKey, L"vs.cmp"));
 		if (!sp.ps)				// PS not loaded, load
 			sp.ps = static_cast<PixelShader*>(loadFromKey(shaderKey, L"ps.cmp"));
