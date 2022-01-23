@@ -167,9 +167,7 @@ float applyPCF(float4 shadowCoord, Texture2DArray<float> csms, SamplerState Samp
 		
         percentageLit += dot((shadowCoord.z < shadowMapDists + BIAS), perPixelRowDivisor);
     }
-#endif	
-
-	
+#endif
 
 	//percentageLit = smoothstep(0., 1., percentageLit);
 	return percentageLit;
