@@ -25,12 +25,6 @@
 #include "ComputeShader.h"
 
 
-struct Deleted
-{
-	bool whatever{false};
-};
-
-
 // Clean version of TDLevel without all the accumulated cruft.
 class RenderingTestLevel : public Level
 {
@@ -41,7 +35,7 @@ private:
 	SceneEditor _sceneEditor;
 	FPSCounter _fpsCounter;
 
-	// Make it cozy in here for now, but move these to scene ultimately!
+	// Make it cozy in here for now, but move these to world/scene/renderer ultimately!
 	DirectionalLight _dirLight;
 	CBuffer _dirLightCB;
 	CBuffer _positionBuffer;
@@ -60,6 +54,9 @@ private:
 	ID3D11UnorderedAccessView* _resultUAV;
 
 	ComputeShader _cullShader;
+
+	VertexShader _fullScreenVS;
+	PixelShader _fullScreenPS;
 
 public:
 
@@ -164,9 +161,8 @@ public:
 		_stages.push_back(std::move(mainStage));
 		*/
 		
+		/* Do not discard this, it works as intended
 		constexpr uint32_t test_sphere_count = 1024 * 1024;
-
-
 
 		_frustumBuffer.init(device, CBuffer::createDesc(sizeof(SVec4) * 6));
 
@@ -174,9 +170,13 @@ public:
 		SBuffer::CreateSBufferSRV(device, _spheresBuffer.getPtr(), test_sphere_count, _spheresSRV);
 
 		_resultBuffer = SBuffer(device, sizeof(float), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
-		SBuffer::createSBufferUAV(device, _resultBuffer.getPtr(), sizeof(float), _resultUAV);
+		SBuffer::createSBufferUAV(device, _resultBuffer.getPtr(), test_sphere_count, _resultUAV);
 
 		_cullShader.createFromFile(device, L"Shaders/FrustumCull.hlsl");
+		*/
+
+		_fullScreenVS = VertexShader(sys._shaderCompiler, L"Shaders/FullScreenTriNoBufferVS.hlsl", {});
+		_fullScreenPS = PixelShader(sys._shaderCompiler, L"Shaders/FullScreenTriNoBufferPS.hlsl", {});
 	}
 
 
@@ -238,10 +238,12 @@ public:
 
 	void draw(const RenderContext& rc) override final
 	{
+		const auto context = rc.d3d->getContext();
+
 		//_sys._renderer.setDefaultRenderTarget();
 
-		_dirLight.updateCBuffer(S_CONTEXT, _dirLightCB);
-		_dirLight.bind(S_CONTEXT, _dirLightCB);
+		_dirLight.updateCBuffer(context, _dirLightCB);
+		_dirLight.bind(context, _dirLightCB);
 
 		_scene.draw();
 
@@ -250,10 +252,16 @@ public:
 		fakeRenderSystem(rc.d3d->getContext(), _scene._registry);
 
 		S_RANDY.d3d()->setRSWireframe();
-		_geoClipmap.draw(S_CONTEXT);
+		_geoClipmap.draw(context);
 		S_RANDY.d3d()->setRSSolidCull();
 
 		_skybox.renderSkybox(*rc.cam, S_RANDY);
+
+		// testing full screen shader - works, confirmed
+		//S_RANDY.d3d()->setRSSolidNoCull();
+		//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
+		//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
+		//context->Draw(3, 0);
 
 		GUI::BeginFrame();
 
@@ -270,11 +278,26 @@ public:
 
 		GUI::EndFrame();
 
+		rc.d3d->present();
+
+		/* Do not discard this, it works as intended
+		// Instead of a real cull we will just get anything right of the origin to pass to see if the shader works
+		std::array<SPlane, 6> planes;
+		for (auto& p : planes)
+		{
+			p.x = 1;
+			p.y = 0;
+			p.z = 0;
+			p.w = 0;
+		}
+
+		_frustumBuffer.update(S_RANDY.context(), &planes, sizeof(SPlane) * 6);
+		_frustumBuffer.bindToCS(S_RANDY.context(), 0);
+
 		std::vector<ID3D11ShaderResourceView*> wat1{_spheresSRV};
 		std::vector<ID3D11UnorderedAccessView*> wat2{_resultUAV};
 		_cullShader.execute(S_RANDY.context(), {16, 16, 1}, wat1, wat2);
-
-		rc.d3d->present();
+		*/
 	}
 
 };
