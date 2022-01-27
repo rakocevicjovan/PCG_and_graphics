@@ -1508,5 +1508,8 @@
     <FxCompile Include="Shaders\FullScreenTriNoBufferPS.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Shaders\SkyboxTrianglePS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

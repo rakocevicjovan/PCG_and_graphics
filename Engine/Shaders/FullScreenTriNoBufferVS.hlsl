@@ -1,7 +1,10 @@
+#include "Reserved_CB_VS.hlsli"
+
 struct VSOut
 {
     float4 pos : SV_Position;
-    float2 uv : colour;
+    float2 uv : TEXCOORD0;
+    float3 dir : direction;
 };
 
 // Shader assumes top left is uv = (0, 0) and clockwise = front face
@@ -16,8 +19,11 @@ VSOut main(uint vertexId : SV_VertexID)
     int x = (vertexId & 1) * 4 - 1;
     int y = 1 - (vertexId & 2) * 2;
 
-    output.pos = float4((float) x, (float)y, 0.5f, 1.0f);
+    output.pos = float4((float)x, (float)y, 1.0f, 1.0f);
     output.uv = float2((vertexId & 1) * 2, (vertexId & 2));
+    
+    float4 unprojectedDir = mul(output.pos, invProjectionMatrix); 
+    output.dir = mul(unprojectedDir.xyz, (float3x3) cameraMatrix);
 
-     return output;
+    return output;
 }

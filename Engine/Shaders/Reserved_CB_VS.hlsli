@@ -1,6 +1,7 @@
 cbuffer PerCameraBuffer : register(b10)
 {
 	matrix projectionMatrix;
+    matrix invProjectionMatrix;
 	float scr_w;
 	float scr_h;
 	float zNear;
@@ -9,6 +10,7 @@ cbuffer PerCameraBuffer : register(b10)
 
 cbuffer VSPerFrameBuffer : register(b11)
 {
+    matrix cameraMatrix;
 	matrix viewMatrix;
 	float dTime;
 	float eTime;

@@ -32,16 +32,16 @@ public:
 	void prepare(ID3D11DeviceContext* context, float dTime, float elapsed)
 	{
 		// These have to be bound because its a different buffer for now... Not sure if that's needed, could reuse the same ones.
-		_VSperFrameBuffer.updateWithStruct(context, VSPerFrameBuffer{ _cam->getViewMatrix().Transpose(), dTime, elapsed });
+		_VSperFrameBuffer.updateWithStruct(context, VSPerFrameBuffer{ _cam->getCameraMatrix().Transpose(), _cam->getViewMatrix().Transpose(), dTime, elapsed });
 		_VSperFrameBuffer.bindToPS(context, PER_FRAME_CBUFFER_REGISTER);
 
-		_PSperFrameBuffer.updateWithStruct(context, PSPerFrameBuffer{ Math::fromVec3(_cam->getPosition(), 1.), dTime, elapsed });
+		_PSperFrameBuffer.updateWithStruct(context, PSPerFrameBuffer{ _cam->getCameraMatrix().Transpose(), _cam->getViewMatrix().Transpose(), Math::fromVec3(_cam->getPosition(), 1.), dTime, elapsed });
 		_PSperFrameBuffer.bindToPS(context, PER_FRAME_CBUFFER_REGISTER);
 
 		auto [w, h] = _renderTarget->size();
 
 		_perCamBuffer.updateWithStruct(context, 
-			PerCameraBuffer{ _cam->getProjectionMatrix().Transpose(), w, h, _cam->_frustum._zn, _cam->_frustum._zf });
+			PerCameraBuffer{ _cam->getProjectionMatrix().Transpose(), _cam->getProjectionMatrix().Invert().Transpose(), w, h, _cam->_frustum._zn, _cam->_frustum._zf });
 
 		_perCamBuffer.bindToVS(context, PER_CAMERA_CBUFFER_REGISTER);
 		_perCamBuffer.bindToPS(context, PER_CAMERA_CBUFFER_REGISTER);

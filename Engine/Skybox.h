@@ -15,14 +15,12 @@ private:
 
 public:
 
-	Skybox() {}
+	Skybox() = default;
 
-
-
-	Skybox(ID3D11Device* device, std::string_view path, Model* model, Material* m, UINT resolution = 512u)
+	Skybox(ID3D11Device* device, std::string_view path/*, Model* model*/, Material* m, UINT resolution = 512u)
 	{
 		CubeMap::LoadCubeMapFromFile(device, path, resolution, _texPtr.GetAddressOf(), _shResView.GetAddressOf());
-		_r = Renderable(model->_meshes[0], SMatrix{});
+		//_r = Renderable(model->_meshes[0], SMatrix{});
 		_r.mat = m;
 	}
 
@@ -33,14 +31,14 @@ public:
 		D3D* d3d = renderer.d3d();
 		ID3D11DeviceContext* context = renderer.context();
 
-		d3d->setRSSolidNoCull();
-		d3d->setDSSLessEquals();
+		//d3d->setRSSolidNoCull();
+		//d3d->setDSSLessEquals();
 
-		Math::SetTranslation(_r._transform, cam.getPosition());
+		//Math::SetTranslation(_r._transform, cam.getPosition());
 		
 		//update and set cbuffers
-		_r.mat->getVS()->_cbuffers[0].updateWithStruct(renderer.context(), _r._transform.Transpose());
-		_r.setBuffers(context);
+		//_r.mat->getVS()->_cbuffers[0].updateWithStruct(renderer.context(), _r._transform.Transpose());
+		//_r.setBuffers(context);
 
 		//set shaders and similar geebees
 		_r.mat->getVS()->bind(context);
@@ -48,15 +46,17 @@ public:
 
 		context->PSSetShaderResources(0, 1, _shResView.GetAddressOf());
 
-		_r.mesh->_vertexBuffer.bind(context);
-		_r.mesh->_indexBuffer.bind(context);
+		//_r.mesh->_vertexBuffer.bind(context);
+		//_r.mesh->_indexBuffer.bind(context);
 
-		context->DrawIndexed(_r.mesh->_indexBuffer.getIdxCount(), 0, 0);
+		//context->DrawIndexed(_r.mesh->_indexBuffer.getIdxCount(), 0, 0);
+
+		context->Draw(3, 0);
 
 		thread_local ID3D11ShaderResourceView* unbinder{ nullptr };
 		context->PSSetShaderResources(0, 1, &unbinder);
 
-		d3d->setDSSLess();
-		d3d->setRSSolidCull();
+		//d3d->setDSSLess();
+		//d3d->setRSSolidCull();
 	}
 };

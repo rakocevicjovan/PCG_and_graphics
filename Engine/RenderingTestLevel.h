@@ -74,10 +74,10 @@ public:
 		// All of this should not have to be here! Goal of this refactor is to kill it.
 		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 
-		auto skyBoxModel = ModelImporter::StandaloneModelImport(device, "../Models/Skysphere.fbx").model.release();
-		Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("skyboxVS"), _sys._shaderCache.getPixShader("skyboxPS"), true);
+		//auto skyBoxModel = ModelImporter::StandaloneModelImport(device, "../Models/Skysphere.fbx").model.release();
+		Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("FSTriangleVS"), _sys._shaderCache.getPixShader("skyboxTrianglePS"), true);
 
-		_skybox = Skybox(device, "../Textures/day.dds", skyBoxModel, skyBoxMat);
+		_skybox = Skybox(device, "../Textures/day.dds", skyBoxMat);
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 

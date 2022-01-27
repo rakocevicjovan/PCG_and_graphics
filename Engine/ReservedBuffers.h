@@ -20,7 +20,8 @@ constexpr uint32_t PS_CSM_TEXTURE_REGISTER = 11u;
 // Lower frequency - per camera (changes if camera changes projection matrix, for example
 struct PerCameraBuffer
 {
-	SMatrix _projection;
+	SMatrix projection;
+	SMatrix invProjection;
 	float w;
 	float h;
 	float n;
@@ -30,7 +31,8 @@ struct PerCameraBuffer
 // Higher frequency - per frame
 struct VSPerFrameBuffer
 {
-	SMatrix viewMat;
+	SMatrix cameraMatrix;
+	SMatrix viewMatrix;
 	float delta;
 	float elapsed;
 	SVec2 padding{};
@@ -38,6 +40,8 @@ struct VSPerFrameBuffer
 
 struct PSPerFrameBuffer
 {
+	SMatrix cameraMatrix;
+	SMatrix viewMatrix;
 	SVec4 eyePos;
 	float delta;
 	float elapsed;

@@ -34,7 +34,9 @@ void TDLevel::init(Engine& sys)
 
 	auto skyBoxModel = ModelImporter::StandaloneModelImport(S_DEVICE, "../Models/Skysphere.fbx").model.release();
 	Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("skyboxVS"), _sys._shaderCache.getPixShader("skyboxPS"), true);
-	_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxModel, skyBoxMat);
+
+	// This was since reworked, works on a full screen triangle now
+	//_skybox = Skybox(S_DEVICE, "../Textures/day.dds", skyBoxMat);
 
 	_scene._csm.init(S_DEVICE, 1024u, 1024u, S_SHCACHE.getVertShader("csmVS"));
 

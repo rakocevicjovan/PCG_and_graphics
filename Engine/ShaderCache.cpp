@@ -147,7 +147,8 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(ShaderCo
 	csmSceneVS->describeBuffers({ WMBufferMeta });
 	addVertShader("csmSceneVS", csmSceneVS);
 
-	//VertexShader* hudVS = new VertexShader(*_shc, SH_BASE_PATH"screenspaceVS.hlsl", pt_layout, {});	addVertShader("hudVS", hudVS);
+	VertexShader* FSTriangleVS = new VertexShader(*shc, SH_BASE_PATH"FullScreenTriNoBufferVS.hlsl", {}, {});
+	addVertShader("FSTriangleVS", FSTriangleVS);
 
 
 	/// PIXEL SHADERS
@@ -176,6 +177,9 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(ShaderCo
 
 	PixelShader* clusterPs = new PixelShader(*shc, SH_BASE_PATH"ClusteredPS.hlsl", { regularSD }, {});
 	addPixShader("clusterPS", clusterPs);
+
+	PixelShader* skyboxTrianglePS = new PixelShader(*shc, SH_BASE_PATH"SkyboxTrianglePS.hlsl", { skbyoxSD }, {});
+	addPixShader("skyboxTrianglePS", skyboxTrianglePS);
 
 #undef SH_BASE_PATH
 }
