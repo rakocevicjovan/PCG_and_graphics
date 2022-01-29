@@ -1,6 +1,35 @@
-//a bunch of utility function that deal with light calculations
+// Light structs
+cbuffer LightBuffer
+{
+    float3 alc;
+    float ali;
+    float3 dlc;
+    float dli;
+    float3 slc;
+    float sli;
+    float4 lightPosition;
+};
 
+struct PLight
+{
+    float4 rgbi;
+    float4 posRange;
+};
 
+struct DirLight
+{
+    float4 rgbi;
+    float4 dir;
+};
+
+// Subject to change based on what gives fastests light calculations / culling
+struct SpotLight
+{
+    float4 rgbi;
+    float4 dirCosTheta;
+};
+
+//A bunch of utility function that deal with light calculations
 float4 calcAmbient(in float3 alc, in float ali)
 {
 	return saturate(float4(alc, 1.0f) * ali);

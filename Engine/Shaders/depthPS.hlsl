@@ -4,8 +4,6 @@ struct PixelInputType
     float4 depthPosition : TEXTURE0;
 };
 
-
-
 float4 main(PixelInputType input) : SV_TARGET
 {
 	float depthValue = input.depthPosition.z / input.depthPosition.w;

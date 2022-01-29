@@ -1,29 +1,10 @@
-#include "Constants.hlsli"
+#include "Reserved_CB_PS.hlsli"
+#include "CookTorrance.hlsli"
 #include "Light.hlsli"
+
 
 // This shader is an absolute mess by now
 // Strip out useful parts into helper function file PBR.hlsli
-
-cbuffer LightBuffer : register(b0)
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightPosition;
-	float4 stupidThingIUsedToDo;
-};
-
-cbuffer PSPerFrameBuffer : register(b10)
-{
-	float4 eyePos;
-	float elapsed;
-	float delta;
-	float2 padding;
-}
-
 
 struct PixelInputType
 {
@@ -35,19 +16,18 @@ struct PixelInputType
 };
 
 /* 
-// OPTION 1 - pack data as a constant for the whole mesh
-cbuffer PBRBuffer : register(b1)
-{
-	float metallic;
-	float3 materialColour;
-}
-*/
+	// OPTION 1 - pack data as a constant for the whole mesh
+	cbuffer PBRBuffer : register(b1)
+	{
+		float metallic;
+		float3 materialColour;
+	}
 
-// OPTION 2 - use textures
-/* bootleg models and materials for now, need to improvise, using textures below to test the shader
-Texture2D diffuseMap : register(t0);
-Texture2D surfaceMap : register(t1);
-Texture2D normalMap : register(t2);
+	// OPTION 2 - use textures
+	Bootleg models and materials for now, need to improvise, using textures below to test the shader
+	Texture2D diffuseMap : register(t0);
+	Texture2D surfaceMap : register(t1);
+	Texture2D normalMap : register(t2);
 */
 
 Texture2D<float4> diffuseMap : register(t0);
@@ -55,92 +35,7 @@ Texture2D<float4> metalMap : register(t1);
 Texture2D<float4> roughMap : register(t2);
 Texture2D<float4> ambOcMap : register(t3);
 
-
 SamplerState Sampler : register(s0);
-
-
-// Made by courtesy of : 
-// https://learnopengl.com/PBR/Theory
-// http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx
-
-
-float ndfGGXTR(float3 n, float3 h, float a)		//normal, halfway vector, roughness (const value/texture sample)
-{
-	float NdH = saturate(dot(n, h));		//check all these max operations... is this required?? can't tell trivially
-	float NdH2 = NdH * NdH;
-	float aa = a * a;							//MIGHT WANT TO GO a^4 INSTEAD OF a^2, NOT SURE
-	float toSq = NdH2 * (aa - 1.) + 1.;
-	//float toSq = NdH * aa + (1. - NdH2);
-	float denom = PI * toSq * toSq;
-	return aa / denom;
-}
-
-
-
-
-//Can work for both metals and dielectricts but its hacky... I don't like it.
-//f0 = ( (ni1 - ni2) / (ni1 + ni2) ) ^ 2 - should not be calculated in the shader though... just a reference
-float3 fresnelSchlick(float cosTheta, float3 f0)
-{
-	cosTheta = min(cosTheta, 1.0);
-	return max(f0 + (float3(1., 1., 1.) - f0) * pow(1. - cosTheta, 5.), 0.);
-}
-
-
-float kDirect(float a)
-{
-	float ap1 = a + 1.;
-	return (ap1 * ap1) / 8.;
-}
-
-
-float kIBL(float a)
-{
-	return a * a / 2.;
-}
-
-
-float geometrySchlickGGX(float NdX, float a)	//substitute X once with V, once with L and combine in geometrySmith
-{
-	float k = kDirect(a);
-	float denom = NdX * (1. - k) + k;
-	return NdX / denom;
-}
-
-
-float geometrySmith(float3 n, float3 v, float3 l, float a)
-{
-	float NdV = saturate(dot(n, v));
-	float NdL = saturate(dot(n, l));
-	float ggx1 = geometrySchlickGGX(NdV, a);
-	float ggx2 = geometrySchlickGGX(NdL, a);
-	return ggx1 * ggx2;
-}
-
-
-float3 specCookTorrance(float3 n, float3 v, float3 h, float3 l, float a, in float3 f0, inout float3 fresnel)
-{
-	fresnel = fresnelSchlick(max(dot(h, v), 0.), f0);
-	float3 dfg = ndfGGXTR(n, h, a) * fresnel * geometrySmith(n, v, l, a);
-	float denom = 4 * saturate(dot(n, v)) * saturate(dot(n, l));
-	return dfg / max(denom, EPS_def);
-}
-
-
-float3 diffuseLambert(float3 albedo)
-{
-	return albedo * PI_inv;
-}
-
-
-float3 brdfCookTorrance(float3 n, float3 v, float3 h, float3 l, float a, float3 albedo, float metallic, float3 f0)
-{
-	float3 ks = 0.f;
-	float3 specular = specCookTorrance(n, v, h, l, a, f0, ks);	//ks is basically fresnel
-	float3 kd = float3(1., 1., 1.) - ks;
-	kd *= (1. - metallic);		//id prefer to separate metallic and dielectric PBR as two shaders tbh... but for now
-	return kd * diffuseLambert(albedo) + specular;
-}
 
 
 float4 main(PixelInputType input) : SV_TARGET
@@ -148,7 +43,6 @@ float4 main(PixelInputType input) : SV_TARGET
 	// Per pixel/fragment properties
 	float3 n = normalize(input.normal);
 	float3 toEye = normalize(eyePos.xyz - input.worldPos.xyz);
-
 
 	// Per material sample properties
 

@@ -1270,6 +1270,9 @@
     <ClInclude Include="DXC.h">
       <Filter>Rendering\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="WorldData.h">
+      <Filter>Scene management</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1312,6 +1315,9 @@
     <None Include="Shaders\Cube.hlsli">
       <Filter>Rendering\Shader Files\HLSL helpers</Filter>
     </None>
+    <None Include="Shaders\CookTorrance.hlsli">
+      <Filter>Rendering\Shader Files\HLSL helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="shader-error.txt">
@@ -1331,22 +1337,13 @@
     <FxCompile Include="Shaders\AnimaVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\brightnessMaskVS.hlsl">
-      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
     <FxCompile Include="Shaders\clipperVS.hlsl">
-      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\clusterDebug.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\csmSceneVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\csmVS.hlsl">
-      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\cubemapVS.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\depthVS.hlsl">
@@ -1374,12 +1371,6 @@
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\shadowvs.hlsl">
-      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\ShGengenerated.hlsl">
-      <Filter>Rendering\Shader Files\Vertex shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="Shaders\skyboxvs.hlsl">
       <Filter>Rendering\Shader Files\Vertex shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\volumVS.hlsl">
@@ -1509,6 +1500,9 @@
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SkyboxTrianglePS.hlsl">
+      <Filter>Rendering\Shader Files\Pixel shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\clusterDebug.hlsl">
       <Filter>Rendering\Shader Files\Pixel shaders</Filter>
     </FxCompile>
   </ItemGroup>

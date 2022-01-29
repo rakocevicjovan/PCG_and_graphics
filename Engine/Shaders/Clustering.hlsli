@@ -1,15 +1,6 @@
-
 static const float GX = 30.;
 static const float GY = 17.;	//16.875
 static const float GZ = 16.;
-
-
-/*
-static const float GX = 2.;
-static const float GY = 2.;
-static const float GZ = 2.;
-*/
-
 
 
 /*
@@ -58,11 +49,11 @@ float zToViewSpace(float z, float n, float f)
 
 int3 getClusterIndexTriplet(int2 ss_xy, float linearDepth, float n, float f)	//Useful for debug
 {
-	//int x = (ss_xy.x / 1920.f) * GX;
+	//int x = (ss_xy.x / 2560.f) * GX;
 	//int y = GY - (ss_xy.y >> 6);	// Not correct as I use 17 slices, not 16.875 (would be better for wave coherency...)
 
 	int x = (ss_xy.x >> 6);
-	int y = ((1080.f - ss_xy.y) / 1080.f) * GY;
+    int y = ((1440.f - ss_xy.y) / 1440.f) * GY;
 	int z = (log(linearDepth) * GZ / log(f / n)) - (GZ * log(n) / log(f / n));
 	
 	/* This does NOT fix the wrap around the right to the left edge of the screen, or whatever else is causing the bug...

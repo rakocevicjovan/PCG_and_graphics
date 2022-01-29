@@ -1,18 +1,5 @@
 #include "Light.hlsli"
 
-cbuffer LightBuffer
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightPosition;
-	float4 eyePos;
-};
-
-
 struct PixelInputType
 {
 	float4 position : SV_POSITION;

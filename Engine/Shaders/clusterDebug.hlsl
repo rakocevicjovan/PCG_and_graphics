@@ -1,15 +1,6 @@
 #include "Constants.hlsli"
 #include "Clustering.hlsli"
 
-cbuffer PSPerFrameBuffer : register(b10)
-{
-	float4 eyePos;
-	float elapsed;
-	float delta;
-	float2 padding;
-}
-
-
 struct PixelInputType
 {
 	float4 position : SV_POSITION;

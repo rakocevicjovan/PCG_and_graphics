@@ -129,11 +129,6 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(ShaderCo
 	basicVS->describeBuffers({ WMBufferMeta });
 	addVertShader("basicVS", basicVS);
 
-	// Skybox vertex shader, uses xyww trick for infinite distance
-	VertexShader* skyboxVS = new VertexShader(*shc, SH_BASE_PATH"skyboxVS.hlsl", ptn_layout, { WMBufferDesc });
-	skyboxVS->describeBuffers({ WMBufferMeta });
-	addVertShader("skyboxVS", skyboxVS);
-
 	// Instanced vertex shader- @TODO determine where to put instancing VB and how to handle updating it...
 	VertexShader* instancedVS = new VertexShader(*shc, SH_BASE_PATH"InstancedVS.hlsl", ptn_instanced_layout, { WMBufferDesc });
 	instancedVS->describeBuffers({ WMBufferMeta });
@@ -157,10 +152,6 @@ void ShaderCache::createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(ShaderCo
 	PixelShader* phong = new PixelShader(*shc, SH_BASE_PATH"lightPS.hlsl", { regularSD }, {});
 	//phong->describeBuffers({ lightBufferMeta });
 	addPixShader("phongPS", phong);
-
-	// Skybox ps, special sampler, no lights
-	PixelShader* skyboxPS = new PixelShader(*shc, SH_BASE_PATH"skyboxPS.hlsl", { skbyoxSD }, {});
-	addPixShader("skyboxPS", skyboxPS);
 
 	// PBR shader
 	PixelShader* CookTorrance = new PixelShader(*shc, SH_BASE_PATH"CookTorrancePS.hlsl", { regularSD }, { lightBufferDesc });

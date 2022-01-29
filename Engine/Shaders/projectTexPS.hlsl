@@ -1,15 +1,4 @@
-
-cbuffer LightBuffer : register(b0)
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightPosition;
-	float4 eyePos;
-};
+#include "Light.hlsli"
 
 struct PixelInputType
 {

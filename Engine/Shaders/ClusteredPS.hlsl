@@ -14,12 +14,6 @@ Texture2D shaderTexture : register(t0);
 SamplerState SampleType;
 static const float SpecularPower = 8.f;
 
-struct PLight
-{
-	float4 rgbi;
-	float4 posRange;
-};
-
 StructuredBuffer<PLight> lightBuffer : register(t15);
 StructuredBuffer<uint> lightIndexBuffer : register(t16);
 StructuredBuffer<uint2> offsetGrid : register(t17);

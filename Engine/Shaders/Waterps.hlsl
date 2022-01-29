@@ -1,18 +1,5 @@
 #include "Light.hlsli"
-
-cbuffer LightBuffer : register(b0)
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightPos;
-	float4 eyePos;
-	float elapsed;
-	float3 padding;
-};
+#include "Reserved_CB_PS.hlsli"
 
 struct PixelInputType
 {
@@ -97,8 +84,8 @@ float4 main(PixelInputType input) : SV_TARGET
 	NDC_xy.y = -input.clipSpace.y / input.clipSpace.w / 2.f + 0.5f;
 	
 	//light
-	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
-	float3 lightDir = normalize(input.worldPos.xyz - lightPos.xyz);
+    float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
+    float3 lightDir = normalize(input.worldPos.xyz - lightPosition.xyz);
 	float4 ambient = calcAmbient(alc, ali);
 	float dFactor = 0.f;
 	float4 diffuse = calcDiffuse(-lightDir, input.normal, dlc, dli, dFactor);

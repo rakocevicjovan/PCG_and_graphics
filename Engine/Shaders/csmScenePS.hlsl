@@ -1,17 +1,6 @@
 #include "Light.hlsli"
 #include "Reserved_CB_PS.hlsli"
 
-cbuffer LightBuffer : register(b0)
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightDir;
-};
-
 struct PixelInputType
 {
 	float4 position : SV_POSITION;
@@ -42,7 +31,7 @@ float4 main(PixelInputType input) : SV_TARGET
 {
 	input.normal = normalize(input.normal);
 
-	float3 invLightDir = -lightDir;
+    float3 invLightDir = -lightPosition.xyz;
 	float3 viewDir = normalize(input.worldPos.xyz - eyePos.xyz);
 
 	float percentageLit = obscur(input.depth, lvpMatrix, cascadeLimits, input.worldPos, csms, Sampler);
