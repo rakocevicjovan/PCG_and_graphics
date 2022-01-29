@@ -74,7 +74,7 @@ public:
 		// All of this should not have to be here! Goal of this refactor is to kill it.
 		_sys._shaderCache.createAllShadersBecauseIAmTooLazyToMakeThisDataDriven(&sys._shaderCompiler);
 
-		Material* skyBoxMat = new Material(_sys._shaderCache.getVertShader("FSTriangleVS"), _sys._shaderCache.getPixShader("skyboxTrianglePS"), true);
+		auto skyBoxMat = std::make_shared<Material>(_sys._shaderCache.getVertShader("FSTriangleVS"), _sys._shaderCache.getPixShader("skyboxTrianglePS"), true);
 
 		_skybox = Skybox(device, "../Textures/day.dds", skyBoxMat);
 

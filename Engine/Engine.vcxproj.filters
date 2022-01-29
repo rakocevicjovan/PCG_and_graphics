@@ -287,9 +287,6 @@
     <ClCompile Include="QuadTree.cpp">
       <Filter>Collision\Spatial partitioning\QuadTree</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderSkybox.cpp">
-      <Filter>Rendering\DeprMaterials</Filter>
-    </ClCompile>
     <ClCompile Include="InstancedShader.cpp">
       <Filter>Rendering\DeprMaterials</Filter>
     </ClCompile>
@@ -495,6 +492,9 @@
     </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene management</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Rendering\High level</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -728,9 +728,6 @@
     </ClInclude>
     <ClInclude Include="TextureGen.h">
       <Filter>Procedural</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderSkybox.h">
-      <Filter>Rendering\DeprMaterials</Filter>
     </ClInclude>
     <ClInclude Include="InstancedShader.h">
       <Filter>Rendering\DeprMaterials</Filter>
