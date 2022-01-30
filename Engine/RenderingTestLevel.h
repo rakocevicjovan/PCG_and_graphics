@@ -76,6 +76,7 @@ public:
 
 		auto skyBoxMat = std::make_shared<Material>(_sys._shaderCache.getVertShader("FSTriangleVS"), _sys._shaderCache.getPixShader("skyboxTrianglePS"), true);
 
+		// TODO make this optional by storing it in the registry as a "component" would be in unreal/unity
 		_skybox = Skybox(device, "../Textures/day.dds", skyBoxMat);
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
@@ -101,6 +102,7 @@ public:
 		//auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
 		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
 
+		// TODO fix this so it needs no manual fixup for pointers to shaders, use asset IDs instead
 		auto modelPtr = _sys._skModelManager.getBlocking(9916003768089073041);
 
 		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
