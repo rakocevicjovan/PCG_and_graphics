@@ -75,6 +75,20 @@ public:
 	}
 
 
+	AssetID getOrInsert(const AssetMetaData& amd)
+	{
+		AssetID pathHash = fnv1hash_64(amd.path.c_str());
+		
+		const auto [assetEntry, inserted] = _assDefs.try_emplace(pathHash, amd);
+		
+		auto assetID = assetEntry->first;
+
+		_dirty |= inserted;
+
+		return assetID;
+	}
+
+
 	AssetID insert(const AssetMetaData& amd)
 	{
 		AssetID pathHash = fnv1hash_64(amd.path.c_str());

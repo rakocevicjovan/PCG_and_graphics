@@ -54,6 +54,7 @@ private:
 	ModelImporter::ModelImportData<Model> _modelData;
 	std::shared_ptr<Skeleton> _skeleton;
 	std::vector<Animation> _anims;
+	std::map<uint32_t, std::array<AssetID, 6>> _shadersPerMaterial;
 
 	// Import settings
 	bool _hasOnlySkeleton, _hasSkeletalModel, _hasAnimations;

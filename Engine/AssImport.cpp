@@ -92,6 +92,9 @@ void AssImport::importSelectedAssets()
 	// Pass these preloaded materials to meshes in either model type below
 	_matData = MatImporter::ImportSceneMaterials(_device, _aiScene, _srcPath);
 
+
+	std::vector<Mesh>* importedMeshes{};
+
 	if (_impSkModel)
 	{
 		_skeleton = SkeletonImporter::ImportSkeleton(_aiScene);
@@ -105,14 +108,7 @@ void AssImport::importSelectedAssets()
 			skModel->_anims.push_back(std::make_shared<Animation>(anim));
 		}
 
-		// This code is here purely for presenting the loaded model
-		for (Mesh& skmesh : skModel->_meshes)
-		{
-			Material* skMat = skmesh.getMaterial();
-			auto shPack = _pShMan->getBestFit(skmesh._vertSig, skMat);
-			skMat->setVS(shPack->vs);
-			skMat->setPS(shPack->ps);
-		}
+		importedMeshes = &(_skModelData.model->_meshes);
 
 		_skModelInst = std::make_unique<SkeletalModelInstance>();
 		_skModelInst->init(_device, skModel.get());
@@ -121,13 +117,32 @@ void AssImport::importSelectedAssets()
 	if (_impModel)
 	{
 		_modelData = ModelImporter::ImportModelFromAiScene(_device, _aiScene, _srcPath, _matData._materials);
-		auto& model = _modelData.model;
 
-		for (Mesh& mesh : model->_meshes)
+		importedMeshes = &(_skModelData.model->_meshes);
+	}
+
+	// File might not have any meshes
+	if (importedMeshes)
+	{
+		for (auto i = 0; i < importedMeshes->size(); ++i)
 		{
-			auto shPack = _pShMan->getBestFit(mesh._vertSig, mesh._material.get());
-			mesh._material->setVS(shPack->vs);
-			mesh._material->setPS(shPack->ps);
+			auto& mesh = importedMeshes->at(i);
+			const auto& matIndex = _impModel ? _modelData.meshMaterialMapping[i] : _skModelData.meshMaterialMapping[i];
+
+			Material* mat = mesh.getMaterial();
+			auto shPack = _pShMan->getBestFit(mesh._vertSig, mat);
+
+			mat->setVS(shPack->vs);
+			mat->setPS(shPack->ps);
+
+			// This will cause shaders to be generated and tracked by the ledger regardless of whether the model is imported.
+			auto vsPathStr = std::string(shPack->vs->_path.begin(), shPack->vs->_path.end());
+			auto psPathStr = std::string(shPack->ps->_path.begin(), shPack->ps->_path.end());
+
+			auto vsAssetID = _pLedger->getOrInsert(AssetMetaData{ vsPathStr, {}, EAssetType::SHADER });
+			auto psAssetID = _pLedger->getOrInsert(AssetMetaData{ psPathStr, {}, EAssetType::SHADER });
+
+			_shadersPerMaterial[matIndex] = { vsAssetID, psAssetID, 0, 0, 0, 0 };
 		}
 	}
 }
@@ -187,7 +202,7 @@ void AssImport::displayParsedAssets()
 {
 	ImGui::Text("Parsed asset inspector");
 
-	if (_skeleton.get())
+	if (_skeleton.get() && ! _skModelData)
 		AssetViews::PrintSkeleton(_skeleton.get());
 
 	if (_skModelData)
@@ -377,8 +392,8 @@ std::vector<AssetID> AssImport::persistMats()
 				return MaterialAsset::TextureRef{ texPathAndMetaData.metaData, textureID };
 			});
 
-		// Can't do since shader IDs are currently keys for automatic generation, which must change. Fix that first.
-		//matAsset._shaderIDs = { _matData._materials[i]->getVS()->_id, };
+
+		matAsset._shaderIDs = _shadersPerMaterial[i];
 
 		// Serialize
 		std::string matPath{ _destPath + _sceneName + "_mat_" + std::to_string(i) + ".aeon" };
@@ -471,21 +486,3 @@ void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 		}
 	}
 }
-
-/* This is randomly here to be preserved but not to be used here at all. 
-	
-	Material* floorMat = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("phongPS"), true);
-	addMaterial("floorMat", floorMat);
-
-	Material* skybox = new Material(_shCache->getVertShader("skyboxVS"), _shCache->getPixShader("skyboxPS"), true);
-	addMaterial("skybox", skybox);
-
-	Material* cookTorrance = new Material(_shCache->getVertShader("basicVS"), _shCache->getPixShader("CookTorrancePS"), true);
-	addMaterial("PBR", cookTorrance);
-
-	Material* csmMaterial = new Material(_shCache->getVertShader("csmVS"), nullptr, true);
-	addMaterial("csm", csmMaterial);
-
-	//Material* hudMaterial = new Material(_shCache->getVertShader("hudVS"), _shCache->getPixShader("hudPS"), true);
-	//addMaterial("HUD", hudMaterial);
-*/
