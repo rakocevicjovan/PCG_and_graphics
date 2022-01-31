@@ -40,18 +40,6 @@ Actor::Actor(const Actor& other)
 }
 
 
-
-void Actor::patchMaterial(VertexShader* vs, PixelShader* ps)
-{
-	for (Renderable& r : _renderables)
-	{
-		r.mat->setVS(vs);
-		r.mat->setPS(ps);
-	}
-}
-
-
-
 void Actor::propagate()
 {
 	for (Renderable& r : _renderables)
