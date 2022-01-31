@@ -2,22 +2,6 @@
 #include "Shaders/Clustering.hlsli"
 #include "Shaders/Reserved_CB_PS.hlsli"
 
-cbuffer LightBuffer : register(b0)
-{
-	float3 alc;
-	float ali;
-	float3 dlc;
-	float dli;
-	float3 slc;
-	float sli;
-	float4 lightPosition;
-};
-
-struct PLight
-{
-	float4 rgbi;
-	float4 posRange;
-};
 
 // Clustered shading buffers
 StructuredBuffer<PLight> lightBuffer : register(t15);
@@ -124,7 +108,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	colour.xyz = input.colour;
 #endif
 	
-#ifdef (LMOD > 0)
+#if LMOD > 0
 	float3 viewDir = input.worldPos.xyz - eyePos.xyz;
 	float distToPoint = length(viewDir);
 	viewDir /= distToPoint;
@@ -220,7 +204,7 @@ void calcColour(in PLight pl, in PixelInputType input, in float3 viewDir, inout 
 	//specular *= diffIntensity; Is this needed?
 
 	diffuse += specular;
-#endif;
+#endif
 
 	lightContrib += (diffuse * intensity);
 }
