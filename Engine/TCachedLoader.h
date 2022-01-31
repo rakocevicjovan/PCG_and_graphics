@@ -18,30 +18,32 @@ protected:
 
 	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
 
-	// @TODO make not static asap
+	// @TODO these shouldn't be static or thread local, but it's ok right now as I only use one instantiated instance of this template
 	inline static std::mutex _futureMutex{};
 	inline static std::mutex _cacheMutex{};
 
-	std::shared_future<AssetHandle> load(AssetID assetID)
+	template<typename... AdditionalParams>
+	std::shared_future<AssetHandle> load(AssetID assetID, AdditionalParams... params)
 	{
 		auto shared_future = _aeonLoader->pushTask(
-			[this](AssetID assetID)
+			[this](AssetID assetID, AdditionalParams... params)
 			{
 				if (const std::string* path = _assetLedger->getPath(assetID); path)
 				{
 					CRTPDerived& derived = *static_cast<CRTPDerived*>(this);
-					auto result = std::make_shared<AssetType>(derived.loadImpl(path->c_str()));
+					auto result = std::make_shared<AssetType>(derived.loadImpl(path->c_str(), std::forward<AdditionalParams>(params)...));
 					return addToCache(assetID, std::move(result));
 				}
 				assert(false && "Could not find an asset with this ID.");
 			},
-			assetID).share();
+			assetID,
+			std::forward<AdditionalParams>(params)...).share();
 
 			return shared_future;
 	}
 
-
-	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID)
+	template<typename... AdditionalParams>
+	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID, AdditionalParams... params)
 	{
 		std::lock_guard guard(_futureMutex);
 
@@ -50,7 +52,7 @@ protected:
 			return it->second;
 		}
 
-		auto sharedFuture = load(assetID);
+		auto sharedFuture = load(assetID, std::forward<AdditionalParams>(params)...);
 		_futures.insert({ assetID, sharedFuture });
 		return sharedFuture;
 	}
@@ -77,7 +79,8 @@ public:
 		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader) {}
 
 
-	std::shared_future<AssetHandle> getAsync(AssetID assetID)
+	template<typename... AdditionalParams>
+	std::shared_future<AssetHandle> getAsync(AssetID assetID, AdditionalParams... params)
 	{
 		if (auto existing = getFromCache(assetID); existing)
 		{
@@ -86,11 +89,12 @@ public:
 			return promise.get_future();
 		}
 
-		return pendingOrLoad(assetID);
+		return pendingOrLoad(assetID, std::forward<AdditionalParams>(params)...);
 	}
 
 
-	AssetHandle getBlocking(AssetID assetID)
+	template<typename... AdditionalParams>
+	AssetHandle getBlocking(AssetID assetID, AdditionalParams... params)
 	{
 		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
 
@@ -100,7 +104,7 @@ public:
 		}
 
 		// Check if it's currently being loaded, if not load it
-		auto assetFuture = pendingOrLoad(assetID);
+		auto assetFuture = pendingOrLoad(assetID, std::forward<AdditionalParams>(params)...);
 		assetFuture.wait();
 		return assetFuture.get();
 	}

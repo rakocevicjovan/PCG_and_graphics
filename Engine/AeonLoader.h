@@ -4,7 +4,7 @@
 #include "VitThreadPool.h"
 #include "FileUtilities.h"
 
-// Not sure if in progress is required, might be good to differentiate between some
+// Not sure if in progress is required, might be good to have
 enum class LoadingStatus : uint8_t
 {
 	QUEUED = 0u,
@@ -13,20 +13,12 @@ enum class LoadingStatus : uint8_t
 };
 
 
-struct LoadingJob
-{
-	LoadingStatus loadingStatus;
-	Blob blob;
-};
-
-// Parallelized (to be) file reader, nothing more for now... might replace LoadingJob with a lambda
 class AeonLoader
 {
 	ctpl::thread_pool _threadPool;
 
 	std::mutex _jobQueMutex;
 	std::unordered_map<AssetID, std::future<Blob>> _futures;
-	//std::unordered_map<AssetID, LoadingJob> _loadingJobs;
 
 public:
 
@@ -39,22 +31,23 @@ public:
 
 	
 	template <typename Task, typename... TaskArgs>
-	auto pushTask(Task&& task, TaskArgs... args)
+	auto pushTask(Task&& task, AssetID assetId, TaskArgs... args)
 	{
 #ifdef _DEBUG
-		((_RPT1(0, "AssetID when pushing task: %" PRIu64 "!\n", std::forward<TaskArgs>(args))), ...);
+		((_RPT1(0, "AssetID when pushing task: %" PRIu64 "!\n", assetId)));
 #endif
 		auto result = _threadPool.push(
 			std::bind(
-				[](int threadNum, const Task& task, AssetID assetID)
+				[](int threadNum, const Task& task, AssetID assetId, TaskArgs... args)
 				{
 #ifdef _DEBUG
-					_RPT1(0, "In thread %d: AssetID is : %" PRIu64 "!\n", threadNum, assetID);
+					_RPT1(0, "In thread %d: AssetID is : %" PRIu64 "!\n", threadNum, assetId);
 #endif
-					return task(assetID);
+					return task(assetId, std::forward<TaskArgs>(args)...);
 				}, 
 				std::placeholders::_1,
 				task,
+				assetId,
 				std::forward<TaskArgs>(args)...)
 		);
 
