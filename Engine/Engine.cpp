@@ -59,7 +59,7 @@ void Engine::initialize()
 	const auto num_threads_available = std::thread::hardware_concurrency() - 1;
 	_aeonLoader.resizeThreadPool(num_threads_available);	// Might wanna make it 8
 
-	_shaderManager = ShaderManager(_assetLedger, _renderer.device());
+	_shaderManager = ShaderManager(_assetLedger, _aeonLoader, _renderer.device());
 
 	_textureManager = TextureManager(_assetLedger, _aeonLoader, _renderer.device());
 

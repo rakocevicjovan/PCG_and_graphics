@@ -23,9 +23,8 @@ class Material
 {
 protected:
 
-	// Most important sorting criteria - @TODO convert to shared ptr or some other ref count method when it makes sense
-	VertexShader* _vertexShader{};
-	PixelShader* _pixelShader{};
+	std::shared_ptr<VertexShader> _vertexShader{};
+	std::shared_ptr<PixelShader> _pixelShader{};
 
 public:
 
@@ -54,13 +53,13 @@ public:
 	
 	std::vector<D3D11_SAMPLER_DESC> createSamplerDescs() const;
 
-	inline VertexShader* getVS() const { return _vertexShader; }
+	inline VertexShader* getVS() const { return _vertexShader.get(); }
 
-	inline PixelShader* getPS() const { return _pixelShader; }
+	inline PixelShader* getPS() const { return _pixelShader.get(); }
 
-	inline void setVS(VertexShader* vs) { _vertexShader = vs; }
+	inline void setVS(std::shared_ptr<VertexShader> vs) { _vertexShader = std::move(vs); }
 
-	inline void setPS(PixelShader* ps) { _pixelShader = ps; }
+	inline void setPS(std::shared_ptr<PixelShader> ps) { _pixelShader = std::move(ps); }
 
 	inline void addMaterialTexture(Texture* t, const TextureMetaData& tmd)
 	{

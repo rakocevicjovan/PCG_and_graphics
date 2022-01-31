@@ -48,7 +48,7 @@ static void PersistVertexShader(
 }
 
 
-static VertexShader* LoadVertexShader(const std::wstring& path, ShaderGenKey shaderKey, ID3D11Device* device)
+static VertexShader LoadVertexShader(const std::wstring& path, ID3D11Device* device)
 {
 	// Temporary data loaded from a file to reconstruct the shader
 	VS_FileFormat vsff;
@@ -61,14 +61,12 @@ static VertexShader* LoadVertexShader(const std::wstring& path, ShaderGenKey sha
 
 	auto inLay = vsff.vertSig.createVertInLayElements();
 
-	VertexShader* vs = new VertexShader(device, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
+	VertexShader vs(device, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
 	// Bootleg solution, need to be persisting these better in the first place
 	CBufferMeta WMBufferMeta(0, 64u);
 	WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
-	vs->_id = shaderKey;
-	vs->describeBuffers({ WMBufferMeta });
+	vs.describeBuffers({ WMBufferMeta });
 
-	//_existingShaders.at(shaderKey).vs = vs;	//@TODO MOVE IT OUT OF HERE! DOES NOT BELONG
 	return vs;
 }
 
@@ -87,7 +85,7 @@ static void PersistPixelShader(
 }
 
 
-static PixelShader* LoadPixelShader(const std::wstring& path, ShaderGenKey shaderKey, ID3D11Device* device)
+static PixelShader LoadPixelShader(const std::wstring& path, ID3D11Device* device)
 {
 	std::string blobString;
 	std::vector<D3D11_SAMPLER_DESC> sDescs;
@@ -99,9 +97,7 @@ static PixelShader* LoadPixelShader(const std::wstring& path, ShaderGenKey shade
 		ar(blobString, sDescs, cbDescs);
 	}
 
-	PixelShader* ps = new PixelShader(device, blobString.data(), blobString.size(), path, sDescs, cbDescs);
-	ps->_id = shaderKey;
+	PixelShader ps = PixelShader(device, blobString.data(), blobString.size(), path, sDescs, cbDescs);
 
-	//_existingShaders.at(shaderKey).ps = ps;	//@TODO MOVE IT OUT OF HERE! DOES NOT BELONG
 	return ps;
 }

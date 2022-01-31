@@ -67,7 +67,7 @@ public:
 		{
 			for (auto& tempTexData : mat._tempTexData)
 			{
-				uniqueTextures.emplace(std::make_pair(tempTexData.path, std::make_pair<std::shared_ptr<Texture>, RawTextureData>(std::make_shared<Texture>(), RawTextureData{})));
+				uniqueTextures.try_emplace(tempTexData.path, std::make_pair<std::shared_ptr<Texture>, RawTextureData>(std::make_shared<Texture>(), RawTextureData{}));
 			}
 		}
 
@@ -78,10 +78,8 @@ public:
 		// Create materials from provided metadata and assign already loaded textures to them
 		outMats.reserve(materialCount);
 
-		for (const auto& mat : outMatData)
+		for (const auto& matMetaData : outMatData)
 		{
-			auto& matMetaData = mat;
-
 			std::shared_ptr<Material> curMat = std::make_shared<Material>();
 
 			UINT numTexRefs = matMetaData._tempTexData.size();
@@ -94,7 +92,6 @@ public:
 
 			outMats.push_back(std::move(curMat));
 		}
-		
 
 		return { outMatData, outMats, std::move(uniqueTextures) };
 	}

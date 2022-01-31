@@ -102,17 +102,17 @@ public:
 		//auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
 		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
 
-		// TODO fix this so it needs no manual fixup for pointers to shaders, use asset IDs instead
+		// No longer needs manual fixup for shader pointers but will need setupMesh called!
 		auto modelPtr = _sys._skModelManager.getBlocking(9916003768089073041);
 
-		auto vsPtr = sys._shaderCache.getVertShader("basicVS");
-		auto psPtr = sys._shaderCache.getPixShader("phongPS");
+		//auto vsPtr = sys._shaderCache.getVertShader("basicVS");
+		//auto psPtr = sys._shaderCache.getPixShader("phongPS");
 
 		for (auto& mesh : modelPtr->_meshes)
 		{
 			mesh.setupMesh(device);
-			mesh._material->setVS(vsPtr);
-			mesh._material->setPS(psPtr);
+			//mesh._material->setVS(vsPtr);
+			//mesh._material->setPS(psPtr);
 		}
 
 		// @TODO test this

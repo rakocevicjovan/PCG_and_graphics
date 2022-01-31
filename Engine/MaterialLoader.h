@@ -5,13 +5,12 @@
 #include "AssetLedger.h"
 #include "TextureLoader.h"
 #include "Deserialize.h"
-
+#include <variant>
 
 namespace MaterialLoader
 {
-	static Material LoadMaterialFromAsset(const MaterialAsset& materialAsset, ShaderManager* shaderManager, TextureManager* textureManager)
+	inline Material LoadMaterialFromAsset(const MaterialAsset& materialAsset, ShaderManager* shaderManager, TextureManager* textureManager)
 	{
-		//auto material = std::make_unique<Material>();
 		Material material;
 
 		std::vector<std::shared_future<std::shared_ptr<Texture>>> futureTextures(materialAsset._textures.size());
@@ -28,8 +27,18 @@ namespace MaterialLoader
 
 		material._opaque = materialAsset._opaque;
 		
-		// @TODO Load shaders too
+		// @TODO Review how this works, it's clunky
+		auto vsID = materialAsset._shaderIDs[0];
+		auto psID = materialAsset._shaderIDs[1];
+		
+		std::shared_ptr<std::variant<VertexShader, PixelShader>> vs = shaderManager->getBlocking(vsID, ShaderType::VS);
+		std::shared_ptr<std::variant<VertexShader, PixelShader>> ps = shaderManager->getBlocking(psID, ShaderType::PS);
 
+		auto& vsRef = std::get<VertexShader>(*vs);
+		auto& psRef = std::get<PixelShader>(*ps);
+
+		material.setVS(std::shared_ptr<VertexShader>(&vsRef));
+		material.setPS(std::shared_ptr<PixelShader>(&psRef));
 
 		// Wait for textures to finish
 		for (auto i = 0u; i < futureTextures.size(); ++i)

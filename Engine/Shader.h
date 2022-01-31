@@ -3,7 +3,6 @@
 #include "Math.h"
 #include "TextureRole.h"
 #include "CBuffer.h"
-#include <array>
 
 
 enum class ShaderType : uint8_t { VS, GS, PS, TS, HS };
@@ -24,17 +23,16 @@ protected:
 	Shader(ID3D11Device* device, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions);
 
 public:
-	uint64_t _id{};
+	//uint64_t _id{};
 	ShaderType _type{};
 	std::wstring _path{};
 
 	//contains texture and constant buffer meta data along with register indices for each of them, reflected from shader directly
 	ShRef::SRShaderMetadata _refShMetaData;
 
-	//set manually, similar to reflected data minus the texture bind slots
+	// Set manually for better control on what to keep and how it's stored, but otherwise identical to the shader reflection
 	std::vector<CBuffer> _cbuffers;
 	std::vector<CBufferMeta> _cbufferMetaData;
-
 	// _textureRegisters[TextureRole] contains the first binding slot of that texture type and number of them required by the shader
 	std::array<TexLayout, TextureRole::NUM_ROLES> _textureRegisters{};
 
@@ -116,31 +114,3 @@ public:
 			context->PSSetSamplers(i, 1, _samplers[i].GetAddressOf());
 	}
 };
-
-/*
-	// This was an idea... don't think it's that good any more.
-
-	// Separate function for vs and ps to reduce the number of potential semantics to check for... slight gain but hopefully worth
-	template <typename RenderItem>
-	void updateBuffersAuto(ID3D11DeviceContext* cont, const RenderItem& ri) const
-	{
-		This sucked anyways
-		D3D11_MAPPED_SUBRESOURCE mr;
-
-		for (int i = 0; i < _cbuffers.size(); i++)
-		{
-			_cbuffers[i].map(cont, mr);
-
-			for (const CBufferFieldDesc& cbfd : _cbufferMetaData[i]._fields)
-			{
-				if (cbfd._content == CBUFFER_FIELD_CONTENT::TRANSFORM)
-				{
-					_cbuffers[i].updateField(&(ri.renderTransform().Transpose()), cbfd._size, cbfd._offset, mr);
-				}
-			}
-
-			_cbuffers[i].unmap(cont);
-		}
-
-	}
-*/

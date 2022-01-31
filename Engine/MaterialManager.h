@@ -12,8 +12,8 @@ class MaterialManager final : public TCachedLoader<Material, MaterialManager>
 private:
 	using base = TCachedLoader<Material, MaterialManager>;
 
-	ShaderManager* _shaderManager;
-	TextureManager* _textureManager;
+	ShaderManager* _shaderManager{};
+	TextureManager* _textureManager{};
 
 public:
 

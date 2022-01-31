@@ -48,9 +48,9 @@ ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
 	{
 		ShaderPack& sp = it->second;
 		if (!sp.vs)				// VS not loaded, load
-			sp.vs = static_cast<VertexShader*>(loadFromKey(shaderKey, L"vs.cmp"));
+			sp.vs = std::static_pointer_cast<VertexShader>(loadFromKey(shaderKey, L"vs.cmp"));
 		if (!sp.ps)				// PS not loaded, load
-			sp.ps = static_cast<PixelShader*>(loadFromKey(shaderKey, L"ps.cmp"));
+			sp.ps = std::static_pointer_cast<PixelShader>(loadFromKey(shaderKey, L"ps.cmp"));
 
 		return &it->second;
 	}
@@ -60,17 +60,17 @@ ShaderPack* ShaderManager::getShaderByKey(ShaderGenKey shaderKey)
 }
 
 
-Shader* ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
+std::shared_ptr<Shader> ShaderManager::loadFromKey(ShaderGenKey shaderKey, const wchar_t* ext)
 {
 	std::wstring wFileName = ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + ext;
 
 	if (ext == L"vs.cmp")
 	{
-		return LoadVertexShader(wFileName, shaderKey, _pDevice);
+		return std::make_shared<VertexShader>(LoadVertexShader(wFileName, _pDevice));
 	}
 	if (ext == L"ps.cmp")
 	{
-		return LoadPixelShader(wFileName, shaderKey, _pDevice);
+		return std::make_shared<PixelShader>(LoadPixelShader(wFileName, _pDevice));
 	}
 	return nullptr;
 }
@@ -83,40 +83,43 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 
 	ShaderCompiler shc(device);
 
+	std::shared_ptr<VertexShader> vs{};
+	std::shared_ptr<PixelShader> ps{};
+
 	// VS
 	std::wstring vsPathW(ShGen::PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"vs.hlsl");
 	std::wstring cmpVsPath(ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + L"vs.cmp");
 
-	ID3DBlob* vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
-	ID3D11VertexShader* d3dvs = shc.blobToVS(vsBlob);
+	{
+		Microsoft::WRL::ComPtr<ID3DBlob> vsBlob = shc.compileToBlob(vsPathW, "vs_5_0");
 
-	auto vertInLayElements = vertSig.createVertInLayElements();
+		auto vertInLayElements = vertSig.createVertInLayElements();
 
-	D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
-	CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
-	WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
+		D3D11_BUFFER_DESC WMBufferDesc = CBuffer::createDesc(sizeof(SMatrix));
+		CBufferMeta WMBufferMeta(0, WMBufferDesc.ByteWidth);
+		WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
 
-	PersistVertexShader(cmpVsPath.c_str(), vsBlob, vertSig, { WMBufferDesc });
+		PersistVertexShader(cmpVsPath.c_str(), vsBlob.Get(), vertSig, { WMBufferDesc });
 
-	VertexShader* vs = new VertexShader(device, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
-		vsPathW, vertInLayElements, { WMBufferDesc });
-	vs->describeBuffers({ WMBufferMeta });
-	vsBlob->Release();
+		vs = std::make_shared<VertexShader>(VertexShader(device, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
+			vsPathW, vertInLayElements, { WMBufferDesc }));
+		vs->describeBuffers({ WMBufferMeta });
+	}
 
 	// PS
-	std::wstring psPathW(ShGen::PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"ps.hlsl");
-	std::wstring cmpPsPath(ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + L"ps.cmp");
+	{
+		std::wstring psPathW(ShGen::PERMUTATIONS_FOLDER + std::to_wstring(shaderKey) + L"ps.hlsl");
+		std::wstring cmpPsPath(ShGen::COMPILED_FOLDER + std::to_wstring(shaderKey) + L"ps.cmp");
 
-	ID3DBlob* psBlob = shc.compileToBlob(psPathW, "ps_5_0");
-	ID3D11PixelShader* d3dps = shc.blobToPS(psBlob);
+		Microsoft::WRL::ComPtr<ID3DBlob> psBlob = shc.compileToBlob(psPathW, "ps_5_0");
 
-	auto samplerDescriptions = mat->createSamplerDescs();
+		auto samplerDescriptions = mat->createSamplerDescs();
 
-	PixelShader* ps = new PixelShader(device, psBlob->GetBufferPointer(), psBlob->GetBufferSize(),
-		psPathW, samplerDescriptions, {});
+		ps = std::make_shared<PixelShader>(PixelShader(device, psBlob->GetBufferPointer(), psBlob->GetBufferSize(),
+			psPathW, samplerDescriptions, {}));
 
-	PersistPixelShader(cmpPsPath.c_str(), psBlob, samplerDescriptions, {});
-	psBlob->Release();
+		PersistPixelShader(cmpPsPath.c_str(), psBlob.Get(), samplerDescriptions, {});
+	}
 
 	return ShaderPack{ vs, ps };
 }
