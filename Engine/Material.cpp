@@ -46,8 +46,7 @@ std::vector<D3D11_SAMPLER_DESC> Material::createSamplerDescs() const
 		for (UINT j = 0; j < 3; ++j)
 			tam[j] = ADDR_MODE_MAP.at(_materialTextures[i]._metaData._mapMode[j]);
 
-		result.push_back(Sampler::createSamplerDesc(filter, D3D11_COMPARISON_ALWAYS, 0.,
-			D3D11_FLOAT32_MAX, tam[0], tam[1], tam[2]));	// goes the drum...
+		result.push_back(Sampler::CreateSamplerDesc(filter, tam[0], tam[1], tam[2]));	// goes the drum...
 	}
 
 	return result;

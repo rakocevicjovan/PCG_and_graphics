@@ -35,11 +35,10 @@ void serialize(Archive& ar, D3D11_SAMPLER_DESC& sd)
 
 static void PersistVertexShader(
 	const wchar_t* path,
-	ID3DBlob* blob, // Could be const, but d3d calls are not const correct...
+	ID3DBlob* blob,
 	const VertSignature& vertSig,
 	const std::vector<D3D11_BUFFER_DESC>& constantBufferDescs)
 {
-	// Cereal can't serialize a pointer so persist as string, annoying really...
 	std::string blobString(static_cast<char*>(blob->GetBufferPointer()), blob->GetBufferSize());
 
 	std::ofstream ofs(path, std::ios::binary);
@@ -62,10 +61,6 @@ static VertexShader LoadVertexShader(const std::wstring& path, ID3D11Device* dev
 	auto inLay = vsff.vertSig.createVertInLayElements();
 
 	VertexShader vs(device, vsff.blobString.data(), vsff.blobString.size(), path, inLay, vsff.cbDescs);
-	// Bootleg solution, need to be persisting these better in the first place
-	CBufferMeta WMBufferMeta(0, 64u);
-	WMBufferMeta.addFieldDescription(0, sizeof(SMatrix));
-	vs.describeBuffers({ WMBufferMeta });
 
 	return vs;
 }

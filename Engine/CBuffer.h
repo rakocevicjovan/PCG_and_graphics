@@ -51,7 +51,7 @@ private:
 
 public:
 
-	CBuffer() {}
+	CBuffer() = default;
 
 	CBuffer(ID3D11Device* device, const D3D11_BUFFER_DESC& desc)
 	{
@@ -62,6 +62,7 @@ public:
 	template <typename PODStruct>
 	void initFromStruct(ID3D11Device* device)
 	{
+		static_assert(sizeof(PODStruct) % 16 == 0);
 		init(device, CBuffer::createDesc(sizeof(PODStruct)));
 	}
 

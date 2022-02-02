@@ -24,10 +24,10 @@ class Renderable;
 // Delete, should exist in some sense but not like this.
 struct RenderContext
 {
-	D3D* d3d;
-	float dTime;
-	float elapsed;
-	Camera* cam;
+	D3D* d3d{};
+	float dTime{};
+	float elapsed{};
+	Camera* cam{};
 };
 
 
@@ -54,6 +54,7 @@ private:
 	bool createGlobalBuffers();
 
 public:
+
 	Camera _cam;
 	RenderQueue _rQue;
 

@@ -3,15 +3,20 @@
 #include "Sampler.h"
 #include "CBuffer.h"
 
-
+// Omission: Shader constructor does not take the layout of binding slots for constant buffers, it is only assumed to be a 012... sequence.
+// Possibly faulty design: maybe shaders shouldn't even own the constant buffers at all. 
+// Owning the binding layout (buffer -> register index) and possibly a bit more metadata could be enough.
 Shader::Shader(ID3D11Device* device, const std::wstring& path, const std::vector<D3D11_BUFFER_DESC>& descriptions)
 	: _path(path)
 {
 	_cbuffers.resize(descriptions.size());
+	_cbufferMetaData.resize(descriptions.size());
 
 	for (int i = 0; i < descriptions.size(); ++i)
 	{
 		_cbuffers[i].init(device, descriptions[i]);
+		_cbufferMetaData[i]._slot = i;
+		_cbufferMetaData[i]._size = descriptions[i].ByteWidth;
 	}
 }
 
