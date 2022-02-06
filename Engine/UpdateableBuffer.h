@@ -1,6 +1,6 @@
 #pragma once
 
-
+// Untested code
 // Represents a structured buffer on the GPU with D3D11_USAGE_DEFAULT and a staging buffer used to carry updates over to it
 class UpdateableBuffer
 {

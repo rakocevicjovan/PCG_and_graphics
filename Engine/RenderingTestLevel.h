@@ -24,6 +24,8 @@
 
 #include "ComputeShader.h"
 
+#include "StagingBuffer.h"
+
 
 // Clean version of TDLevel without all the accumulated cruft.
 class RenderingTestLevel : public Level
@@ -85,7 +87,7 @@ public:
 		_dirLight.createCBuffer(device, _dirLightCB);
 		_dirLight.updateCBuffer(context, _dirLightCB);
 
-		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 200 /*numBones*/));
+		_skMatsBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 200));
 
 		std::vector<SMatrix> wat(200);
 		_skMatsBuffer.update(context, wat.data(), sizeof(SMatrix) * 200);
@@ -105,14 +107,9 @@ public:
 		// No longer needs manual fixup for shader pointers but will need setupMesh called!
 		auto modelPtr = _sys._skModelManager.getBlocking(9916003768089073041);
 
-		//auto vsPtr = sys._shaderCache.getVertShader("basicVS");
-		//auto psPtr = sys._shaderCache.getPixShader("phongPS");
-
 		for (auto& mesh : modelPtr->_meshes)
 		{
 			mesh.setupMesh(device);
-			//mesh._material->setVS(vsPtr);
-			//mesh._material->setPS(psPtr);
 		}
 
 		// @TODO test this
