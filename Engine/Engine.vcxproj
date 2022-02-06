@@ -486,6 +486,7 @@
     <ClInclude Include="ShaderOption.h" />
     <ClInclude Include="ShaderPicker.h" />
     <ClInclude Include="SkeletonManager.h" />
+    <ClInclude Include="StagingBuffer.h" />
     <ClInclude Include="STBImporter.h" />
     <ClInclude Include="imnodes.h" />
     <ClInclude Include="ImportTool.h" />

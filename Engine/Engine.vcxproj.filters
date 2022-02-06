@@ -1270,6 +1270,9 @@
     <ClInclude Include="WorldData.h">
       <Filter>Scene management</Filter>
     </ClInclude>
+    <ClInclude Include="StagingBuffer.h">
+      <Filter>Rendering\Low level\Buffers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
