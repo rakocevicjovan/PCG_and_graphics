@@ -484,7 +484,7 @@
     <ClCompile Include="Gizmo.cpp">
       <Filter>Editor\Gizmo</Filter>
     </ClCompile>
-    <ClCompile Include="DXC.cpp">
+    <ClCompile Include="DXCWrapper.cpp">
       <Filter>Rendering\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="ComputeShader.cpp">
@@ -495,6 +495,9 @@
     </ClCompile>
     <ClCompile Include="Skybox.cpp">
       <Filter>Rendering\High level</Filter>
+    </ClCompile>
+    <ClCompile Include="DXCWin.cpp">
+      <Filter>Rendering\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1264,7 +1267,7 @@
     <ClInclude Include="VkShader.h">
       <Filter>Vulkan</Filter>
     </ClInclude>
-    <ClInclude Include="DXC.h">
+    <ClInclude Include="DXCWrapper.h">
       <Filter>Rendering\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="WorldData.h">
@@ -1272,6 +1275,9 @@
     </ClInclude>
     <ClInclude Include="StagingBuffer.h">
       <Filter>Rendering\Low level\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="DXCWin.h">
+      <Filter>Rendering\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

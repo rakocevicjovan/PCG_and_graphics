@@ -75,8 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include;C:\VulkanSDK\1.2.182.0\Include;$(SolutionDir)\submodules\lz4\lib;$(SolutionDir)\submodules\vk-bootstrap\src</IncludePath>
-    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(SolutionDir)Deps\libs\lz4_x64\Debug;C:\VulkanSDK\1.2.182.0\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(WindowsSDK_IncludePath);$(SolutionDir)Deps\include;$(DXSDK_DIR)\Include;$(IncludePath);$(SolutionDir)Deps\cereal-1.3.0\include;C:\VulkanSDK\1.2.198.1\Include;$(SolutionDir)\submodules\lz4\lib;$(SolutionDir)\submodules\vk-bootstrap\src</IncludePath>
+    <LibraryPath>$(WindowsSDK_LibraryPath_x64);$(SolutionDir)Deps\libs\x64;$(SolutionDir)Deps\libs\lz4_x64\Debug;C:\VulkanSDK\1.2.198.1\Lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -133,7 +133,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(WindowsSDK_LibraryPath_x64);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc141-mtd.lib;d3dcompiler.lib;dxcompiler.lib;kernel32.lib;gdi32.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;%(AdditionalDependencies);lz4_static.lib</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc141-mtd.lib;kernel32.lib;gdi32.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;dxcompiler.lib;d3dcompiler.lib;lz4_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>
@@ -204,7 +204,8 @@
     </ClCompile>
     <ClCompile Include="ComponentTraits.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
-    <ClCompile Include="DXC.cpp" />
+    <ClCompile Include="DXCWin.cpp" />
+    <ClCompile Include="DXCWrapper.cpp" />
     <ClCompile Include="DXT.cpp" />
     <ClCompile Include="Editor.cpp" />
     <ClCompile Include="FuzzySearch.cpp" />
@@ -448,7 +449,8 @@
     <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="Deserialize.h" />
-    <ClInclude Include="DXC.h" />
+    <ClInclude Include="DXCWin.h" />
+    <ClInclude Include="DXCWrapper.h" />
     <ClInclude Include="DXT.h" />
     <ClInclude Include="Editor.h" />
     <ClInclude Include="EditorLayout.h" />
