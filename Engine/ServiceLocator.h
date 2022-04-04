@@ -9,7 +9,7 @@ class ServiceLocator
 {
 private:
 	
-	using my_type = ServiceLocator<BaseType>;
+	using My_type = ServiceLocator<BaseType>;
 
 	static_assert(!std::is_pointer_v<BaseType> && "ServiceLocator BaseType must not be a pointer.");
 
@@ -19,7 +19,7 @@ private:
 	static void registerService(ServiceType* manager)
 	{
 		static_assert(std::is_base_of_v<BaseType, std::remove_pointer<ServiceType>::type>);
-		auto id = seq_type_id<ServiceType, my_type>::value();
+		auto id = seq_type_id<ServiceType, My_type>::value();
 		assert(_services[id] == nullptr && "Types stored in the service locator must be unique and distinct.");
 		_services[id] = manager;
 	}
@@ -46,8 +46,8 @@ public:
 	template <typename ServiceType>
 	static ServiceType* get()
 	{
-		const auto index = seq_type_id<ServiceType, my_type>::value();
-		auto num_services_registered = type_id_counter<my_type>;
+		const auto index = seq_type_id<ServiceType, My_type>::value();
+		auto num_services_registered = type_id_counter<My_type>;
 		assert(index < num_services_registered && "Attempted to access undeclared service through the locator.");
 		return reinterpret_cast<ServiceType*>(_services[index]);
 	}

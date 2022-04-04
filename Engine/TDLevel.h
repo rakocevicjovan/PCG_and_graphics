@@ -66,8 +66,6 @@ private:
 
 	Model testModel;
 
-	std::vector<SimpleActor> _testActors;
-
 	//Model globe;
 	//Renderable globeRenderable;
 

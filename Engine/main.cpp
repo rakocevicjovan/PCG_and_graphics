@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 {
 	if (!SetProcessDPIAware())
 	{
-		assert(false && "Couldn't make application dpi aware!");
+		assert(false && "SetProcessDPIAware() failed!");
 	}
 
 	Engine engine;

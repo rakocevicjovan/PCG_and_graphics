@@ -6,7 +6,6 @@
 #include "Renderable.h"
 #include "Collider.h"
 #include "SparseSet.h"	// Reconsider this...
-#include <memory>
 
 class Renderer;
 
@@ -51,41 +50,4 @@ public:
 	{
 		return _collider.getHull(index);
 	}
-};
-
-
-class SimpleActor
-{
-public:
-
-	SparseSet<Renderable>::Handle handle;
-	SMatrix _transform;
-};
-
-
-class Player
-{
-public:
-
-	Actor a;
-	Controller& con;
-	Camera cam;
-
-	Player(Controller& c) : con(c)
-	{
-		cam._controller = &con;
-	};
-
-	~Player() {};
-
-	void UpdateCamTP(float dTime)
-	{
-		SMatrix camMat = cam.getCameraMatrix();
-		con.processTransformationTP(dTime, a._transform, camMat);
-		cam.setCameraMatrix(camMat);
-	}
-
-	inline SVec3 getPosition() { return a._transform.Translation(); }
-
-	void setCamera(Camera& camera) { cam = camera; }
 };

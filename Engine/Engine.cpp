@@ -236,7 +236,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 		case WM_EXITSIZEMOVE:
 		{
-			//_renderer.resize(newSize[0], newSize[1]);
+			//trigger resize, route to systems that need to know
 			break;
 		}
 		

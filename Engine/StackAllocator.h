@@ -2,7 +2,7 @@
 #include <cstdint>
 
 
-// CLEAR DOES NOT FREE ANY EXTERNALLY ALLOCATED MEMORY!!! AS SIMPLE AS POSSIBLE TO HOLD PODs ONLY!
+// To be used with POD only
 class StackAllocator
 {
 	typedef uint8_t byte;

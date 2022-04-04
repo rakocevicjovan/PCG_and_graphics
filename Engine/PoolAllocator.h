@@ -13,7 +13,7 @@ struct Slot
 };
 
 
-//does NOT call destructors of objects - use for POD-s
+// To be used with POD only
 template <class Object> class PoolAllocator
 {
 private:
