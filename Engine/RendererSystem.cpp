@@ -41,9 +41,6 @@ void RendererSystem::frustumCull(const Camera& cam)
 	__m128 pz_4545 = _mm_set_ps(pl[5].z, pl[4].z, pl[5].z, pl[4].z);
 	__m128 pd_4545 = _mm_set_ps(pl[5].w, pl[4].w, pl[5].w, pl[4].w);
 
-	auto hulls = _registry->raw<SphereHull>();
-	auto numHulls = _registry->size<SphereHull>();
-
 	auto hullView = _registry->view<SphereHull>();
 	auto begin = hullView.begin();
 	auto end = hullView.end();
