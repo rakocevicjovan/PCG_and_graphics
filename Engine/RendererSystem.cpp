@@ -20,17 +20,6 @@ void print__mm128(__m128 var)
 
 void RendererSystem::frustumCull(const Camera& cam)
 {
-	// Test code, using this projection matrix and identity view matrix before calling the function
-	//testCam.setProjectionMatrix(DirectX::XMMatrixOrthographicLH(1024, 1024, 0, 1000));
-	//hulls.size = 2;
-	//hulls.x = { -509, 500 };
-	//hulls.y = { 8, 400 };
-	//hulls.z = { 5, 992 };
-	//hulls.r = { 4, 10 };
-
-	//std::vector<int> results;
-	//results.resize(hulls.size);
-
 	// Handle special case when 0 real hulls exist.
 	if (_registry->view<SphereHull>().size() < 2)
 	{
@@ -38,7 +27,6 @@ void RendererSystem::frustumCull(const Camera& cam)
 	}
 
 	assure_valid();
-
 
 	const auto& pl = cam._frustum._planes;
 
