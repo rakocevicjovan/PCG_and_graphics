@@ -12,7 +12,7 @@ class OctNode
 {
 public:
 	AABB _box;						// not necessary if tree is split into even cubes, needed if irregular/loose...
-	std::list<SphereHull*> _hulls;	// directly contained bounding volumes
+	std::list<SphereHull*> _hulls;	// directly contained bounding volumes, pointers are placement new-ed
 	OctNode* _children[8];			// children nodes
 	//bool _empty;					// not used yet, but would likely be a speed boost at almost no extra memory cost (aligns to 80)
 
@@ -108,7 +108,7 @@ private:
 			return;
 
 		for (SphereHull* curHull : pNode->_hulls)
-			if ((curHull->getPosition() - sp.ctr).LengthSquared() < (sq(sp.r + curHull->r)))
+			if ((curHull->getPosition() - sp.getPosition()).LengthSquared() < (sq(sp.getExtent() + curHull->getExtent())))
 				neighbours.push_back(curHull->_collider->_parent);
 
 		for (int i = 0; i < 8; i++)

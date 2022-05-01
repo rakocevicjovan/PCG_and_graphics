@@ -2,14 +2,9 @@
 
 // System-reserved registers.
 
-// For vertex shaders
 constexpr uint32_t PER_CAMERA_CBUFFER_REGISTER = 10u;
 
-// For pixel shaders
 constexpr uint32_t PER_FRAME_CBUFFER_REGISTER = 11u;
-
-// I abandoned this, no point...
-//constexpr uint32_t VS/PS_PER_FRAME_CBUFFER_REGISTER = 11u;
 
 constexpr uint32_t PS_CSM_CBUFFER_REGISTER = 12u;
 constexpr uint32_t PS_CSM_TEXTURE_REGISTER = 11u;

@@ -5,7 +5,7 @@
 #include "CBuffer.h"
 
 
-enum class ShaderType : uint8_t { VS, GS, PS, TS, HS };
+enum class ShaderType : uint8_t { VS, GS, PS, TS, HS, SHADER_TYPE_COUNT };
 
 
 struct TexLayout

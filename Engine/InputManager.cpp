@@ -111,6 +111,9 @@ void InputManager::queryMouse()
 	DirectX::Mouse::State state = _mouse.GetState();
 	_tracker.Update(state);
 
+	//_rel.x = static_cast<uint16_t>(state.x) - _abs.x;
+	//_rel.y = static_cast<uint16_t>(state.y) - _abs.y;
+
 	_abs.x = static_cast<uint16_t>(state.x);
 	_abs.y = static_cast<uint16_t>(state.y);
 

@@ -72,15 +72,14 @@ public:
 class SphereHull final : public Hull
 {
 public:
-	SVec3 ctr{};
-	float r{};
+	SVec4 v{};
 
 	SphereHull() {};
-	SphereHull(const SVec3& pos, float rad) : ctr(pos), r(rad) {};
-	SphereHull(const SVec4& posRadius) : ctr(posRadius.x, posRadius.y, posRadius.z), r(posRadius.w) {}
+	SphereHull(const SVec3& pos, float rad) : v(pos.x, pos.y, pos.z, rad){};
+	SphereHull(const SVec4& posRadius) : v(posRadius) {}
 
 	HitResult intersect(const Hull* other, BoundingVolumeType otherType) const override;
-	inline SVec3 getPosition()	const override { return ctr; }
-	inline float getExtent()	const override { return r; }
-	inline void setPosition(const SVec3& newPos) override { ctr = newPos; }
+	inline SVec3 getPosition()	const override { return {v.x, v.y, v.z}; }
+	inline float getExtent()	const override { return v.w; }
+	inline void setPosition(const SVec3& newPos) override { v.x = newPos.x; v.y = newPos.y; v.z = newPos.z; }
 };

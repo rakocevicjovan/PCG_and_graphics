@@ -499,6 +499,7 @@
     <ClCompile Include="DXCWin.cpp">
       <Filter>Rendering\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="RendererSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -1278,6 +1279,9 @@
     </ClInclude>
     <ClInclude Include="DXCWin.h">
       <Filter>Rendering\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererSystem.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -77,12 +77,12 @@ void Engine::initialize()
 
 	// This is here as a bandaid, shouldn't be - once the project is in place.
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project
-	_project.loadFromConfig("../Tower Defense/Tower defense.json");
+	//_project.loadFromConfig("../Tower Defense/Tower defense.json");
 
-	if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
-	{
-		assert(false && "Failed to load level list.");
-	}
+	//if (!_project.getLevelReader().loadLevel(_project.getLevelList()[0]))
+	//{
+	//	assert(false && "Failed to load level list.");
+	//}
 }
 
 

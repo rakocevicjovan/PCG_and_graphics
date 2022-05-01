@@ -222,6 +222,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Project.cpp" />
+    <ClCompile Include="RendererSystem.cpp" />
     <ClCompile Include="RuntimeAnimation.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderCompiler.cpp" />
@@ -478,6 +479,7 @@
     <ClInclude Include="Quantization.h" />
     <ClInclude Include="QuatCompression.h" />
     <ClInclude Include="RadixSort.h" />
+    <ClInclude Include="RendererSystem.h" />
     <ClInclude Include="RuntimeAnimation.h" />
     <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="SkAnimRenderer.h" />

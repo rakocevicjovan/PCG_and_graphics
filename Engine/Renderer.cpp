@@ -31,7 +31,9 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 
 	_clusterManager = std::make_unique<ClusterManager>(CLUSTER_GRID_DIMS, (1 << 16), _device);	//30 * 17 * 16 = 8160 nodes
 
-	return createGlobalBuffers();
+	createGlobalBuffers();
+
+	return true;
 }
 
 
@@ -47,7 +49,7 @@ void Renderer::resize(uint16_t width, uint16_t height)
 }
 
 
-bool Renderer::createGlobalBuffers()
+void Renderer::createGlobalBuffers()
 {
 	_perCamBuffer.init(_device, CBuffer::createDesc(sizeof(PerCameraBuffer)));
 	updatePerCamBuffer(_windowWidth, _windowHeight);
@@ -57,8 +59,6 @@ bool Renderer::createGlobalBuffers()
 
 	_PSperFrameBuffer.init(_device, CBuffer::createDesc(sizeof(PSPerFrameBuffer)));
 	_PSperFrameBuffer.bindToPS(_deviceContext, PER_FRAME_CBUFFER_REGISTER);
-
-	return true;
 }
 
 
@@ -98,12 +98,10 @@ void Renderer::updateRenderContext(float dTime)
 }
 
 
-
 void Renderer::setDefaultRenderTarget()
 {
 	_d3d->SetBackBufferRenderTarget();
 }
-
 
 
 void Renderer::flushRenderQueue()
@@ -111,7 +109,6 @@ void Renderer::flushRenderQueue()
 	for (const auto& r : _rQue._renderables)
 		render(r);
 }
-
 
 
 // Mind all the pointers, this can fail spectacularly if anything relocates...

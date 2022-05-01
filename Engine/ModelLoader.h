@@ -66,7 +66,7 @@ namespace ModelLoader
 	/*, SkeletonManager* skeletonManager, AnimationManager* animationManager */
 	static SkModel LoadSkModelFromAsset(SkModelAsset& skModelAsset, MaterialManager* materialManager, SkeletonManager* skMan, AnimationManager* aniMan)
 	{
-		SkModel skModel;
+		SkModel skModel{};
 		
 		LoadMeshes(skModel._meshes, skModelAsset.model, materialManager);
 
@@ -83,7 +83,6 @@ namespace ModelLoader
 		for (auto animID : skModelAsset.animations)
 		{
 			animFutures.push_back(std::move(aniMan->getAsync(animID)));
-			//skModel._anims.push_back(std::make_shared<Animation>(AssetHelpers::DeserializeFromFile<Animation>(animPath->c_str())));
 		}
 
 		// Wait for skeleton

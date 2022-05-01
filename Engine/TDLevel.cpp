@@ -349,7 +349,7 @@ Building* TDLevel::rayPickBuildings(const Camera* cam)
 
 	for (SphereHull* s : sps)
 	{
-		float dist = (s->ctr - cam->getPosition()).LengthSquared();
+		float dist = (s->getPosition() - cam->getPosition()).LengthSquared();
 		if (dist < minDist)
 		{
 			closest = s;

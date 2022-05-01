@@ -76,7 +76,9 @@ private:
 			if (ImGui::BeginListBox("Entities"))
 			{
 				uint32_t i{ 0 };
-				_registry->each([&](auto entity)
+
+				// Simply use the name for now to discern if it's displayable in the editor, should be formalized to an editor component
+				_registry->view<CEntityName>().each([&](auto entity, const CEntityName& name)
 					{
 						ImGui::PushStyleColor(ImGuiCol_Text, (++i % 2) ? ImVec4(1., 1., 1., 1.) : ImVec4(.8, .8, .8, 1.));
 						drawEntityListItem(_registry, entity);

@@ -35,13 +35,15 @@ namespace Col
 		HitResult hr;
 		SVec3 closestPointOnAABB;
 
-		float sqdToClosestPoint = ClosestPointOnAABB(s.ctr, b, closestPointOnAABB);
-		float sqPenetrationDepth = sq(s.r) - sqdToClosestPoint;
+		SVec3 spherePos = s.getPosition();
+
+		float sqdToClosestPoint = ClosestPointOnAABB(spherePos, b, closestPointOnAABB);
+		float sqPenetrationDepth = sq(s.v.w) - sqdToClosestPoint;
 
 		hr.hit = sqPenetrationDepth > 0;
 		hr.sqPenetrationDepth = hr.hit ? sqPenetrationDepth : 0.f;
 
-		SVec3 resVec = s.ctr - closestPointOnAABB;	// If sphere is in the object this will be 0...
+		SVec3 resVec = spherePos - closestPointOnAABB;	// If sphere is in the object this will be 0...
 
 		if (resVec.LengthSquared() < 0.0001f)
 			hr.resolutionVector = Math::getNormalizedVec3(closestPointOnAABB - b.getPosition());
@@ -56,18 +58,18 @@ namespace Col
 	{
 		SVec3 closestPointOnAABB;
 
-		float sqDistToClosestPoint = ClosestPointOnAABB(s.ctr, b, closestPointOnAABB);
+		float sqDistToClosestPoint = ClosestPointOnAABB(s.getPosition(), b, closestPointOnAABB);
 		
-		return (sq(s.r) > sqDistToClosestPoint);
+		return (sq(s.getExtent()) > sqDistToClosestPoint);
 	}
 
 
 
 	static HitResult SphereSphereIntersection(const SphereHull& s1, const SphereHull& s2)
 	{
-		float distSq = SVec3::DistanceSquared(s1.ctr, s2.ctr);
+		float distSq = SVec3::DistanceSquared(s1.getPosition(), s2.getPosition());
 		
-		float minAllowedDist = s1.r + s2.r;
+		float minAllowedDist = s1.getExtent() + s2.getExtent();
 		
 		// Handle center-overlapping objects when the resolution vector will be ~0 length... simply push up
 		if (distSq < 0.001f)
@@ -78,7 +80,7 @@ namespace Col
 		// Overlaps
 		if (distSq < minAllowedDistSq - 0.01f)	// Prevent tiny vectors and possible errors with eps
 		{
-			SVec3 resVecDirection = Math::getNormalizedVec3(s1.ctr - s2.ctr);	// Easy enough, push them directly apart
+			SVec3 resVecDirection = Math::getNormalizedVec3(s1.getPosition() - s2.getPosition());	// Easy enough, push them directly apart
 			float resVecLength = minAllowedDist - sqrt(distSq);					// Can't seem to avoid sqrt...
 
 			return HitResult(true, resVecDirection * resVecLength, sq(resVecLength));
@@ -101,13 +103,14 @@ namespace Col
 
 	static bool RaySphereIntersection(const SRay& ray, const SphereHull& s)
 	{
-		SVec3 projectedPoint = Math::projectVecOntoVec(s.ctr - ray.position, ray.direction);
+		SVec3 spherePos = s.getPosition();
+		SVec3 projectedPoint = Math::projectVecOntoVec(spherePos - ray.position, ray.direction);
 
 		//float t = projectedPoint.Length();
 
 		SVec3 closestPointOnRay = ray.position + projectedPoint;
-		float sqDistToRay = (closestPointOnRay - s.ctr).LengthSquared();
-		float sqRadius = sq(s.r);
+		float sqDistToRay = (closestPointOnRay - spherePos).LengthSquared();
+		float sqRadius = sq(s.getExtent());
 
 		return (sqDistToRay < sqRadius);
 	}
@@ -246,9 +249,9 @@ namespace Col
 
 	static bool IntersectRaySphere(SVec3 p, SVec3 d, SphereHull s, float &t, SVec3 &q)
 	{
-		SVec3 m = p - s.ctr;
+		SVec3 m = p - s.getPosition();
 		float b = m.Dot(d);
-		float c = m.Dot(m) - s.r * s.r;
+		float c = m.Dot(m) - s.getExtent() * s.getExtent();
 
 		// Exit if r’s origin outside s (c > 0) and r pointing away from s (b > 0) 
 		if (c > 0.0f && b > 0.0f) return 0;
@@ -273,7 +276,7 @@ namespace Col
 	{
 		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());	// Same as dot(sphere, plane) with SVec4s
 		float spherePlaneDist = spCenterToNormalProjection + plane.D();					// for unit spheres
-		return (spherePlaneDist < sphere.r);
+		return (spherePlaneDist < sphere.getExtent());
 	}
 
 
@@ -282,7 +285,7 @@ namespace Col
 	{
 		float spCenterToNormalProjection = sphere.getPosition().Dot(plane.Normal());
 		float spherePlaneDist = spCenterToNormalProjection + plane.D();
-		return (spherePlaneDist + sphere.r > 0);
+		return (spherePlaneDist + sphere.getExtent() > 0);
 	}
 
 

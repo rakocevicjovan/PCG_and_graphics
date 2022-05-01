@@ -156,7 +156,7 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 	for (int i = 0; i < 3; i++)
 	{
 		float delta = pSpHull->getPosition().at(i) - pNode->_box.getPosition().at(i);	//distance - node middle to sphere middle
-		if (abs(delta) <= pSpHull->r)	//pNode->bBox.getHalfSize().at(i)
+		if (abs(delta) <= pSpHull->getExtent())	//pNode->bBox.getHalfSize().at(i)
 		{
 			straddle = 1;
 			break;
@@ -216,7 +216,7 @@ bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 	for (int i = 0; i < 3; ++i)
 	{
 		float delta = pSpHull->getPosition().at(i) - pNode->_box.getPosition().at(i);	//distance - node middle to sphere middle
-		if (abs(delta) < pNode->_box.getHalfSize().at(i) + pSpHull->r)
+		if (abs(delta) < pNode->_box.getHalfSize().at(i) + pSpHull->getExtent())
 		{
 			straddle = 1;
 			break;

@@ -8,8 +8,7 @@ namespace
 }
 
 
-Scene::Scene(Engine& sys, const AABB& scope, UINT subdivLevels = DEFAULT_SUBDIV_LEVELS)
-	:
+Scene::Scene(Engine& sys, const AABB& scope, UINT subdivLevels = DEFAULT_SUBDIV_LEVELS) : 
 	_renderer(sys._renderer),
 	_sys(sys),
 	_octree(scope, subdivLevels),

@@ -16,7 +16,7 @@ static float FAR_PLANE = 1000.0f;
 static float NEAR_PLANE = 1.0f;
 
 // This can be smarter, vary based on needs, but that's a story for another day
-static std::array<UINT, 3> CLUSTER_GRID_DIMS = { 30, 17, 16 };
+static std::array<UINT, 3> CLUSTER_GRID_DIMS{ 30, 17, 16 };
 
 class Renderable;
 
@@ -51,7 +51,7 @@ private:
 	CBuffer _PSperFrameBuffer;
 
 	void updateRenderContext(float dTime);
-	bool createGlobalBuffers();
+	void createGlobalBuffers();
 
 public:
 

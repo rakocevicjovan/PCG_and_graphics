@@ -27,6 +27,8 @@
 #include "StagingBuffer.h"
 
 
+#include "RendererSystem.h"
+
 // Clean version of TDLevel without all the accumulated cruft.
 class RenderingTestLevel : public Level
 {
@@ -48,23 +50,22 @@ private:
 
 	std::vector<RenderStage> _stages;
 
-	CBuffer _frustumBuffer;
-	SBuffer _spheresBuffer;
-	ID3D11ShaderResourceView* _spheresSRV;
-
-	SBuffer _resultBuffer;
-	ID3D11UnorderedAccessView* _resultUAV;
-
-	ComputeShader _cullShader;
-
 	VertexShader _fullScreenVS;
 	PixelShader _fullScreenPS;
 
+	RendererSystem _rendererSystem;
+	uint32_t numCulled;
+
 public:
 
-	RenderingTestLevel(Engine& sys)
-		: Level(sys), _scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), _geoClipmap(3, 4, 10.), _fpsCounter(64)
+	RenderingTestLevel(Engine& sys) : 
+		Level(sys), 
+		_scene(_sys, AABB(SVec3(), SVec3(500.f * .5)), 5), 
+		_geoClipmap(3, 4, 10.), 
+		_fpsCounter(64),
+		_rendererSystem(&_scene._registry)
 	{
+		//_rendererSystem._registry = &(_scene._registry);
 	}
 
 
@@ -79,7 +80,7 @@ public:
 		auto skyBoxMat = std::make_shared<Material>(_sys._shaderCache.getVertShader("FSTriangleVS"), _sys._shaderCache.getPixShader("skyboxTrianglePS"), true);
 
 		// TODO make this optional by storing it in the registry as a "component" would be in unreal/unity
-		_skybox = Skybox(device, "../Textures/day.dds", skyBoxMat);
+		_skybox = Skybox(device, "../Textures/day.dds", std::move(skyBoxMat));
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 
@@ -118,12 +119,18 @@ public:
 		for (UINT i = 0; i < 100; ++i)
 		{
 			auto entity = _scene._registry.create();
+
+			auto position = SVec3(i / 10, 0, (i % 10)) * 100.f;
+			auto transform = SMatrix::CreateTranslation(position);
+
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
-			_scene._registry.emplace<CTransform>(entity, SMatrix::CreateTranslation(SVec3(i / 10, 0, (i % 10)) * 100.f));
+			_scene._registry.emplace<CTransform>(entity, transform);
 			_scene._registry.emplace<CEntityName>(entity, "Entity name");
+			_scene._registry.emplace<SphereHull>(entity, SphereHull(position, 120));
+			_scene._registry.emplace<VisibleFlag>(entity, VisibleFlag{false});
 		}
 
-		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix)));
+		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 1024));
 		_positionBuffer.bindToVS(context, 0);
 
 		{
@@ -135,14 +142,13 @@ public:
 			//LevelAsset::serializeScene(joa, _scene._registry);
 		}
 
-		//_sys._renderer._mainStage = RenderStage(
-		//	S_RANDY.device(),
-		//	&(S_RANDY._cam),
-		//	&(S_RANDY.d3d()->_renderTarget),
-		//	&(S_RANDY.d3d()->_viewport));
-			
+		_sys._renderer._mainStage = RenderStage(
+			S_RANDY.device(),
+			&(S_RANDY._cam),
+			&(S_RANDY.d3d()->_renderTarget),
+			&(S_RANDY.d3d()->_viewport));
 
-		/*
+
 		RenderStage shadowStage(
 			S_RANDY.device(),
 			&(S_RANDY._cam),
@@ -157,28 +163,13 @@ public:
 
 		_stages.push_back(std::move(shadowStage));
 		_stages.push_back(std::move(mainStage));
-		*/
-		
-		/* Do not discard this, it works as intended
-		constexpr uint32_t test_sphere_count = 1024 * 1024;
-
-		_frustumBuffer.init(device, CBuffer::createDesc(sizeof(SVec4) * 6));
-
-		_spheresBuffer = SBuffer(device, sizeof(SVec4), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
-		SBuffer::CreateSBufferSRV(device, _spheresBuffer.getPtr(), test_sphere_count, _spheresSRV);
-
-		_resultBuffer = SBuffer(device, sizeof(float), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
-		SBuffer::createSBufferUAV(device, _resultBuffer.getPtr(), test_sphere_count, _resultUAV);
-
-		_cullShader.createFromFile(device, L"Shaders/FrustumCull.hlsl");
-		*/
 
 		_fullScreenVS = VertexShader(sys._shaderCompiler, L"Shaders/FullScreenTriNoBufferVS.hlsl", {});
 		_fullScreenPS = PixelShader(sys._shaderCompiler, L"Shaders/FullScreenTriNoBufferPS.hlsl", {});
 	}
 
 
-	void fakeRenderSystem(ID3D11DeviceContext* context, entt::registry& registry)
+	void fakeRenderSystem(ID3D11DeviceContext1* context, entt::registry& registry)
 	{
 		// Can try a single buffer for position
 		//_positionBuffer.bindToVS(context, 0);
@@ -186,18 +177,37 @@ public:
 		//auto& mainPass = _sys._renderer._mainStage;
 		//mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
 
-		auto group = _scene._registry.group<CTransform, CSkModel>();
+		_rendererSystem.frustumCull(_sys._renderer._cam);
 
-		group.each([&context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer](CTransform& transform, CSkModel& renderComp)
+		auto group = _scene._registry.group<CTransform, CSkModel, VisibleFlag>();
+
+		uint32_t i = 0;
+		numCulled = 0;
+		group.each([&context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer, &i, &cullCount = numCulled](CTransform& transform, CSkModel& renderComp, VisibleFlag& isVisible)
 			{
+				if (!isVisible.val)
+				{
+					++cullCount;
+					return;
+				}
+
 				auto skModel = renderComp.skModel;
 
 				if (!skModel)
 					return;
 
+				// Use VSSetConstantBuffers1 as an experiment
+				// One shader constant = 16 bytes
+				constexpr uint32_t size = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix)) / 16);
+				uint32_t offset = i * size;
+				++i;
+
+				context->VSSetConstantBuffers1(0, 1, posBuffer.ptrAddr(), &offset, &size);
 				posBuffer.bindToVS(context, 0);
+				
 				skBuffer.bindToVS(context, 1);
 
+				// This won't work if meshes aren't all under a single node, it just happens to.  Trivial to change though
 				for (auto& mesh : skModel->_meshes)
 				{
 					mesh.bind(context);
@@ -226,7 +236,8 @@ public:
 		static uint64_t frameCount{ 0u };
 		if (frameCount++ % 512 == 0)
 		{
-			AnimationInstance instance = AnimationInstance(_scene._registry.get<CSkModel>(entt::entity{ 0 }).skModel->_anims[0]);
+			//enity 0 was a hack, not sure what i was trying to do with this anyway
+			//AnimationInstance instance = AnimationInstance(_scene._registry.get<CSkModel>(entt::entity{ 0 }).skModel->_anims[0]);
 			//_skAnimRenderer.addInstance();
 		}
 
@@ -247,7 +258,7 @@ public:
 
 		//_sys._renderer.setDefaultRenderTarget();
 
-		fakeRenderSystem(rc.d3d->getContext(), _scene._registry);
+		fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(rc.d3d->getContext()), _scene._registry);
 
 		S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(context);
@@ -270,32 +281,59 @@ public:
 			{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
 			{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
 			{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
-			{"Culling", std::string("Objects culled:" + std::to_string(_scene._numCulled))}
+			{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
 		};
 		GUI::RenderGuiElems(guiElems);
 
 		GUI::EndFrame();
 
 		rc.d3d->present();
-
-		/* Do not discard this, it works as intended
-		// Instead of a real cull we will just get anything right of the origin to pass to see if the shader works
-		std::array<SPlane, 6> planes;
-		for (auto& p : planes)
-		{
-			p.x = 1;
-			p.y = 0;
-			p.z = 0;
-			p.w = 0;
-		}
-
-		_frustumBuffer.update(S_RANDY.context(), &planes, sizeof(SPlane) * 6);
-		_frustumBuffer.bindToCS(S_RANDY.context(), 0);
-
-		std::vector<ID3D11ShaderResourceView*> wat1{_spheresSRV};
-		std::vector<ID3D11UnorderedAccessView*> wat2{_resultUAV};
-		_cullShader.execute(S_RANDY.context(), {16, 16, 1}, wat1, wat2);
-		*/
 	}
 
 };
+
+/* Do not discard this, it works as intended
+
+// Implementation of init
+
+	CBuffer _frustumBuffer;
+	SBuffer _spheresBuffer;
+	ID3D11ShaderResourceView* _spheresSRV;
+
+	SBuffer _resultBuffer;
+	ID3D11UnorderedAccessView* _resultUAV;
+
+	ComputeShader _cullShader;
+
+	constexpr uint32_t test_sphere_count = 1024 * 1024;
+
+	_frustumBuffer.init(device, CBuffer::createDesc(sizeof(SVec4) * 6));
+
+	_spheresBuffer = SBuffer(device, sizeof(SVec4), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
+	SBuffer::CreateSBufferSRV(device, _spheresBuffer.getPtr(), test_sphere_count, _spheresSRV);
+
+	_resultBuffer = SBuffer(device, sizeof(float), test_sphere_count, D3D11_BIND_UNORDERED_ACCESS);
+	SBuffer::createSBufferUAV(device, _resultBuffer.getPtr(), test_sphere_count, _resultUAV);
+
+	_cullShader.createFromFile(device, L"Shaders/FrustumCull.hlsl");
+
+
+// Implementation of draw
+
+	// Instead of a real cull we will just get anything right of the origin to pass to see if the shader works
+	std::array<SPlane, 6> planes;
+	for (auto& p : planes)
+	{
+		p.x = 1;
+		p.y = 0;
+		p.z = 0;
+		p.w = 0;
+	}
+
+	_frustumBuffer.update(S_RANDY.context(), &planes, sizeof(SPlane) * 6);
+	_frustumBuffer.bindToCS(S_RANDY.context(), 0);
+
+	std::vector<ID3D11ShaderResourceView*> wat1{_spheresSRV};
+	std::vector<ID3D11UnorderedAccessView*> wat2{_resultUAV};
+	_cullShader.execute(S_RANDY.context(), {16, 16, 1}, wat1, wat2);
+*/
