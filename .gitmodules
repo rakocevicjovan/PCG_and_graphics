@@ -10,5 +10,6 @@
 [submodule "submodules/meshoptimizer"]
 	path = submodules/meshoptimizer
 	url = https://github.com/zeux/meshoptimizer
-[submodule "Deps/ImGuizmo"]
+[submodule "ImGuizmo"]
+	path = ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
