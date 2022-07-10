@@ -4,7 +4,6 @@
 #include <optional>
 
 
-
 class FileBrowser
 {
 private:
@@ -21,12 +20,11 @@ private:
 
 	std::vector<std::filesystem::directory_entry> _contents;
 
-	bool _badPath;
+	bool _badPath{ false };
 
 public:
 
 	FileBrowser() {}
-
 
 
 	FileBrowser(const std::string& rootFolder) 
@@ -39,10 +37,7 @@ public:
 		openDir(_curDirPath);
 
 		_pathHistory.push_front(_curDirPath);
-
-		_badPath = false;
 	}
-
 
 
 	std::optional<std::filesystem::directory_entry> display()
@@ -91,8 +86,6 @@ public:
 		return selected;
 	}
 
-
-
 private:
 
 	void seek()
@@ -102,13 +95,11 @@ private:
 	}
 
 
-
 	void stepUp()
 	{
 		_pathHistory.push_back(_curDirPath);
 		openDir(_curDirPath.parent_path());
 	}
-
 
 
 	bool stepBack()
@@ -122,7 +113,6 @@ private:
 
 		return true;
 	}
-
 
 
 	void openDir(const std::filesystem::path& newPath)
@@ -145,7 +135,6 @@ private:
 			_badPath = true;
 		}
 	}
-
 
 
 	std::optional<std::filesystem::directory_entry> printContentList()
@@ -174,7 +163,6 @@ private:
 
 		return result;
 	}
-
 
 
 	void refreshContentList()

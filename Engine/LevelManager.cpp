@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "LevelManager.h"
 #include "Level.h"
 #include "StrifeLevel.h"
@@ -13,11 +14,11 @@ LevelManager::LevelManager(Engine& systems)
 {	
 	//_current = new ProjectPickerLevel(systems);	//boring to click through...
 
-	//_current = new AssimpLevel(systems);
-
 	//_current = new TDLevel(systems);
 
-	_current = new RenderingTestLevel(systems);
+	_current = new AssimpLevel(systems);
+
+	//_current = new RenderingTestLevel(systems);
 
 	_current->init(systems);
 	_levels.push_back(_current);

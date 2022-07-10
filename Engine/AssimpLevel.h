@@ -37,7 +37,7 @@ public:
 	AssimpLevel(Engine& sys) : 
 		Level(sys), 
 		_scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5),
-		_fileBrowser("C:\\Users\\metal\\source\\repos\\PCG_and_graphics_stale_memes\\Models\\Animated")
+		_fileBrowser("C:/Users/metal/source/repos/PCG_and_graphics_stale_memes/Models/Animated")
 	{
 		_renderTarget = RenderTarget(S_DEVICE, 1024, 1024, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE);
 	}
@@ -84,9 +84,7 @@ public:
 	}
 
 
-
 	void update(const RenderContext& rc) override {}
-
 
 
 	void draw(const RenderContext& rc) override
@@ -102,19 +100,19 @@ public:
 		_renderTarget.clear(rc.d3d->getContext());
 
 		SMatrix floorTransform = SMatrix::CreateTranslation(-250.f, 0., -250.f).Transpose();
-		
+
 		_floorMesh->getMaterial()->getVS()->updateCBufferDirectly(S_CONTEXT, &floorTransform, 0);
 		_floorMesh->draw(rc.d3d->getContext());
 
 		S_RANDY.d3d()->TurnOffAlphaBlending();
-		
+
 		if (_curPreview)
 		{
 			_curPreview->draw(S_CONTEXT, rc.dTime);
 		}
 
-		SMatrix oldProjMat = S_RANDY._cam.getProjectionMatrix();
-		SMatrix projMat = DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 2560. / 1440., 1., 1000.);
+		SMatrix oldProjMat{ S_RANDY._cam.getProjectionMatrix() };
+		SMatrix projMat{ DirectX::XMMatrixPerspectiveFovLH(PI / 3.0f, 2560. / 1440., 1., 1000.) };
 		rc.cam->setProjectionMatrix(projMat);
 		S_RANDY.updatePerCamBuffer(2560, 1440);
 
