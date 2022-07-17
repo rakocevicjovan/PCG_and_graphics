@@ -5,35 +5,67 @@
 #include "Bits.h"
 
 
-template<typename T, uint32_t lsb = 0, uint32_t msb = sizeof(T) * 8 - 1>
+namespace
+{
+	// Workaround for compiler bug related to capturing (shouldn't have to) constexpr in a lambda
+	// Valid but I took the alternative route and declared required constexpr members as static
+	//template <typename T, T BitMask, uint32_t lsb, uint32_t msb>
+	//constexpr T calculate_masked_value(T inputValue)
+	//{
+	//	if constexpr (lsb == 0 && msb == sizeof(T) * 8)
+	//	{
+	//		return inputValue;
+	//	}
+	//	else
+	//	{
+	//		return (inputValue & BitMask) >> lsb;
+	//	}
+	//}
+}
+
+template<typename T, uint32_t lsb = 0, uint32_t msb = sizeof(T) * 8>
 void CountingSort(T* input, uint32_t inputSize)
 {
-	constexpr uint32_t BitSpan = msb - lsb;
-	constexpr uint32_t InputRange = 1 << BitSpan;
-	constexpr T BitMask = bits::ContiguousBitmask<T, lsb, msb>::mask;
+	static_assert(std::is_integral_v<T> && std::is_unsigned_v<T>, "This implementation of counting sort works only for unsigned integers.");
 
-	uint32_t buckets[InputRange]{ 0u };	// Take this as input so it's only allocated once per radix.
+	static constexpr uint32_t BitSpan = msb - lsb;
+	static constexpr uint32_t InputRange = 1 << BitSpan;
+	static constexpr T BitMask = bits::ContiguousBitmask<T, lsb, msb>::mask;
+
+	uint32_t count[InputRange]{ 0u };	// Take this as input so it's only allocated once per radix.
 		
-	std::vector<T> output(inputSize, 0);
+	std::vector<T> output(inputSize);
 
-	T maxInVal = static_cast<T>(0u);	// Not generally true but will work for me... I'll only use ints/uints
+	T maxInVal = std::numeric_limits<T>::lowest();
+
+	constexpr auto calculate_masked_value = [](T inputValue) constexpr -> T
+	{
+		if constexpr (lsb == 0 && msb == sizeof(T) * 8)
+		{
+			return inputValue;
+		}
+		else
+		{
+			return (inputValue & BitMask) >> lsb;
+		}
+	};
 
 	for (auto i = 0; i < inputSize; ++i)
 	{
-		const auto current = (input[i] & BitMask) >> lsb;
-		++(buckets[current]);
+		const auto current = calculate_masked_value(input[i]);
+		++(count[current]);
 		maxInVal = current > maxInVal ? current : maxInVal;
 	}
 
-	for (auto i = 1; i < maxInVal + 1; ++i)
+	for (auto i = 1; i <= maxInVal; ++i)
 	{
-		buckets[i] += buckets[i - 1];
+		count[i] += count[i - 1];
 	}
 
 	for (int i = inputSize - 1; i >= 0; --i)
 	{
-		const auto current = (input[i] & BitMask) >> lsb;
-		output[--(buckets[current])] = input[i];
+		const auto current = calculate_masked_value(input[i]);
+		output[--(count[current])] = input[i];
 	}
 
 	// Don't return a new vec for now, change in place
