@@ -96,8 +96,6 @@ public:
 	template<typename... AdditionalParams>
 	AssetHandle getBlocking(AssetID assetID, AdditionalParams... params)
 	{
-		// Can abstract it like this but there's overhead to it	//auto future = getAsync();
-
 		if (AssetHandle result{ getFromCache(assetID) }; result)
 		{
 			return result;

@@ -158,10 +158,8 @@ bool D3D::initialize(int windowWidth, int windowHeight, bool vsync, HWND hwnd, b
 	if (FAILED(_device->CreateBlendState(&noBlendDesc, &_noBlendState)))
 		return false;
 
-	
 	_viewport._viewport = Viewport::CreateViewport((float)windowWidth, (float)windowHeight);
 
-	
 	// Set the defaults
 	// 
 	// Set the depth stencil state. Either of these works well enough as the default one.

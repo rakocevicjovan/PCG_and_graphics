@@ -72,7 +72,14 @@ public:
 		Gizmo::BeginFrame();
 	}
 
-	//convenience function for fast windows
+
+	static void EndFrame()
+	{
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
+
+
 	static void RenderGuiElems(const std::vector<GuiElement>& elements)
 	{
 		for (const GuiElement& e : elements)
@@ -84,9 +91,11 @@ public:
 	}
 
 
-	static void EndFrame()
+	template <typename GuiCodeFunc, typename... Args>
+	static void RenderInWindow(const char* title, const GuiCodeFunc& lambda, Args...)
 	{
-		ImGui::Render();
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+		ImGui::Begin(title);
+		lambda(Args...);
+		ImGui::End();
 	}
 };

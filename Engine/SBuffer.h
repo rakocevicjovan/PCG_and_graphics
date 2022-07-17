@@ -20,7 +20,7 @@ public:
 
 	static ID3D11Buffer* CreateSBuffer(ID3D11Device* device, UINT elementSize, UINT numElements, UINT extraFlags = 0u)
 	{
-		ID3D11Buffer* structBuffer;
+		ID3D11Buffer* structBuffer{};
 
 		D3D11_BUFFER_DESC sbDesc{};
 		sbDesc.ByteWidth = elementSize * numElements;
@@ -46,10 +46,6 @@ public:
 		// For structured buffers
 		desc.Buffer.FirstElement = 0u;
 		desc.Buffer.NumElements = numElements;
-		
-		// For non structured buffers - don't do both, elementWidth overwrites numelements since it's a union!
-		//desc.Buffer.ElementOffset = 0u;
-		//desc.Buffer.ElementWidth = x;
 
 		return device->CreateShaderResourceView(pBuffer, &desc, &ppSRVOut);
 	}

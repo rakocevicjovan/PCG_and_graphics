@@ -2,7 +2,7 @@
 
 class Level;
 class Engine;
-class RenderContext;
+struct RenderContext;
 
 // @TODO delet this
 class LevelManager

@@ -42,7 +42,6 @@ public:
 		_renderTarget = RenderTarget(S_DEVICE, 1024, 1024, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE);
 	}
 
-	
 
 	//void desiredApi()
 	//{
@@ -56,7 +55,6 @@ public:
 
 	//	//Show scene UI to allow adding stuff at will
 	//}
-
 
 
 	void init(Engine& sys) override
@@ -74,7 +72,7 @@ public:
 		_pointLight.updateCBuffer(S_CONTEXT, _pointLightCB);
 		_pointLight.bind(S_CONTEXT, _pointLightCB);
 
-		float _tSize = 500.f;
+		constexpr float _tSize = 500.f;
 		Procedural::Terrain terrain(2, 2, SVec3(_tSize), SVec3(-_tSize * .5f, -0.f, -_tSize * .5f));
 
 		_floorMesh = std::make_unique<Mesh>(terrain, S_DEVICE);
@@ -183,7 +181,6 @@ public:
 		}
 		ImGui::End();
 	}
-
 
 
 	bool alreadyLoaded(const std::filesystem::directory_entry& selected)
