@@ -26,8 +26,9 @@
 
 #include "StagingBuffer.h"
 
-
 #include "RendererSystem.h"
+
+#include "RadixSort.h"
 
 // Clean version of TDLevel without all the accumulated cruft.
 class RenderingTestLevel : public Level
@@ -55,6 +56,14 @@ private:
 
 	RendererSystem _rendererSystem;
 	uint32_t numCulled;
+
+	struct MeshTransform
+	{
+		Mesh* mesh;
+		SMatrix mat;
+	};
+	//"Render queue"
+	std::vector<MeshTransform> _rq;
 
 public:
 
@@ -120,7 +129,7 @@ public:
 		{
 			auto entity = _scene._registry.create();
 
-			auto position = SVec3(i / 10, 0, (i % 10)) * 100.f;
+			auto position = SVec3(i / 10, 0, (i % 10)) * 80.f;
 			auto transform = SMatrix::CreateTranslation(position);
 
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
@@ -131,7 +140,14 @@ public:
 		}
 
 		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 1024));
-		_positionBuffer.bindToVS(context, 0);
+		std::vector<std::array<CTransform, 4>> transposed_matrices(_scene._registry.view<CTransform>().size());
+		for (auto i = 0; i < _scene._registry.view<CTransform>().size(); ++i)
+		{
+			transposed_matrices[i][0].transform = _scene._registry.view<CTransform>().raw()[i].transform.Transpose();
+		}
+		
+		_positionBuffer.update(S_RANDY.context(), transposed_matrices.data(), transposed_matrices.size() * sizeof(CTransform));
+		//_positionBuffer.bindToVS(context, 0);
 
 		{
 			// This works as expected. Thanks Skypjack! JSON is a poor choice for matrices though (or anything that should load fast)
@@ -179,11 +195,14 @@ public:
 
 		_rendererSystem.frustumCull(_sys._renderer._cam);
 
-		auto group = _scene._registry.group<CTransform, CSkModel, VisibleFlag>();
+		_skMatsBuffer.bindToVS(_sys._renderer.context(), 1);
+
+		auto visible_group = _scene._registry.group<CTransform, CSkModel, VisibleFlag>();
 
 		uint32_t i = 0;
 		numCulled = 0;
-		group.each([&context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer, &i, &cullCount = numCulled](CTransform& transform, CSkModel& renderComp, VisibleFlag& isVisible)
+		visible_group.each([&renderQueue = _rq, &context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer, &i, &cullCount = numCulled]
+		(CTransform& transform, CSkModel& renderComp, VisibleFlag& isVisible)
 			{
 				if (!isVisible.val)
 				{
@@ -202,28 +221,58 @@ public:
 				uint32_t offset = i * size;
 				++i;
 
-				context->VSSetConstantBuffers1(0, 1, posBuffer.ptrAddr(), &offset, &size);
-				posBuffer.bindToVS(context, 0);
-				
-				skBuffer.bindToVS(context, 1);
+				//context->VSSetConstantBuffers1(0, 1, posBuffer.ptrAddr(), &offset, &size);
 
 				// This won't work if meshes aren't all under a single node, it just happens to.  Trivial to change though
 				for (auto& mesh : skModel->_meshes)
 				{
-					mesh.bind(context);
-					posBuffer.updateWithStruct(context, transform.transform.Transpose());
+					renderQueue.push_back({ &mesh, transform });
 
-					Material* mat = mesh._material.get();
+					//mesh.bind(context);
 
-					mat->getVS()->bind(context);
-					mat->getPS()->bind(context);
+					//Material* mat = mesh._material.get();
 
-					// Set shaders and textures.
-					mat->bindTextures(context);
+					//mat->getVS()->bind(context);
+					//mat->getPS()->bind(context);
+					//mat->bindTextures(context);
 
-					context->DrawIndexed(mesh._indexBuffer.getIdxCount(), 0, 0);
+					//context->DrawIndexed(mesh._indexBuffer.getIdxCount(), 0, 0);
 				}
 			});
+
+		std::sort(_rq.begin(), _rq.end(), 
+			[](const MeshTransform& rhs, const MeshTransform& lhs)
+			{
+				return rhs.mesh < lhs.mesh;
+			});
+
+		uint32_t num_visible_models = i;
+		i = 0;
+		for (auto& [mesh, transform] : _rq)
+		{
+			if (i % num_visible_models == 0)
+			{
+				mesh->bind(context);
+
+				Material* mat = mesh->_material.get();
+
+				mat->getVS()->bind(context);
+				mat->getPS()->bind(context);
+				mat->bindTextures(context);
+			}
+
+			//auto transposed = transform.Transpose();
+			//_positionBuffer.updateWithStruct(context, transposed);
+			//context->VSSetConstantBuffers(0, 1, _positionBuffer.ptrAddr());
+
+			constexpr uint32_t size = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix)) / 16);
+			uint32_t offset = (i / 6) * size;	// Divide by 6 as a quick hack as there are 6 meshes per model
+			context->VSSetConstantBuffers1(0, 1, _positionBuffer.ptrAddr(), &offset, &size);
+
+			context->DrawIndexed(mesh->_indexBuffer.getIdxCount(), 0, 0);
+			++i;
+		}
+		_rq.clear();
 	}
 
 
@@ -249,14 +298,10 @@ public:
 	{
 		const auto context = rc.d3d->getContext();
 
-		//_sys._renderer.setDefaultRenderTarget();
-
 		_dirLight.updateCBuffer(context, _dirLightCB);
 		_dirLight.bind(context, _dirLightCB);
 
 		_scene.draw();
-
-		//_sys._renderer.setDefaultRenderTarget();
 
 		fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(rc.d3d->getContext()), _scene._registry);
 
