@@ -262,7 +262,7 @@ public:
 			}
 			
 			constexpr uint32_t size = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix)) / 16);
-			uint32_t offset = (i % num_visible_models) * size;	// Divide by 6 as a quick hack as there are 6 meshes per model
+			uint32_t offset = (i % num_visible_models) * size;
 			context->VSSetConstantBuffers1(0, 1, _positionBuffer.ptrAddr(), &offset, &size);
 
 			context->DrawIndexed(mesh->_indexBuffer.getIdxCount(), 0, 0);
