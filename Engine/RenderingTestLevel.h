@@ -227,16 +227,6 @@ public:
 				for (auto& mesh : skModel->_meshes)
 				{
 					renderQueue.push_back({ &mesh, transform });
-
-					//mesh.bind(context);
-
-					//Material* mat = mesh._material.get();
-
-					//mat->getVS()->bind(context);
-					//mat->getPS()->bind(context);
-					//mat->bindTextures(context);
-
-					//context->DrawIndexed(mesh._indexBuffer.getIdxCount(), 0, 0);
 				}
 			});
 

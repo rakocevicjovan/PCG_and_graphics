@@ -1,6 +1,7 @@
 #pragma once
 #include "AssetID.h"
 
+// Only used in AssetManagerLocator, which is in itself unused. Likely to get axed anyway
 class IAssetManager
 {
 private:
