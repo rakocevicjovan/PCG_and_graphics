@@ -14,9 +14,6 @@ Engine::Engine() :
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
 	_threadPool(std::thread::hardware_concurrency() - 1)
 {
-	//#include "RadixSort.h"
-	//std::vector<uint32_t> testData{ 4, 1, 8, 340, 267, 754 };
-	//RadixSort(testData.data(), testData.size());
 }
 
 
@@ -73,7 +70,7 @@ void Engine::initialize()
 
 	_skModelManager = SkModelManager(_assetLedger, _aeonLoader, _materialManager, _skeletonManager, _animationManager);
 
-	_levelMan = new LevelManager(*this);
+	_levelMan = std::make_unique<LevelManager>(*this);
 
 	// This is here as a bandaid, shouldn't be - once the project is in place.
 	// Loads the project configuration data into the project loader, as well as a list of levels associated to the project

@@ -184,7 +184,6 @@ std::vector<aiString> AssimpWrapper::getExtTextureNames(const aiScene* scene)
 }
 
 
-
 SVec3 AssimpWrapper::calcFaceTangent(const std::vector<Vert3D>& vertices, const aiFace& face)
 {
 	if (face.mNumIndices < 3) return SVec3(0, 0, 0);
@@ -217,7 +216,6 @@ SVec3 AssimpWrapper::calcFaceTangent(const std::vector<Vert3D>& vertices, const 
 }
 
 
-
 aiNode* AssimpWrapper::findModelNode(aiNode* node, SMatrix& meshRootTransform)
 {
 	SMatrix locTrfm = aiMatToSMat(node->mTransformation);
@@ -231,7 +229,6 @@ aiNode* AssimpWrapper::findModelNode(aiNode* node, SMatrix& meshRootTransform)
 		findModelNode(node->mChildren[i], meshRootTransform);
 	}
 }
-
 
 
 SMatrix AssimpWrapper::getNodeGlobalTransform(const aiNode* node)
@@ -250,7 +247,6 @@ SMatrix AssimpWrapper::getNodeGlobalTransform(const aiNode* node)
 }
 
 
-
 bool AssimpWrapper::containsRiggedMeshes(const aiScene* scene)
 {
 	for (int i = 0; i < scene->mNumMeshes; ++i)
@@ -259,7 +255,6 @@ bool AssimpWrapper::containsRiggedMeshes(const aiScene* scene)
 
 	return false;
 }
-
 
 
 UINT AssimpWrapper::countChildren(const aiNode* node)

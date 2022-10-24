@@ -65,6 +65,8 @@ private:
 	//"Render queue"
 	std::vector<MeshTransform> _rq;
 
+	//static inline std::future<void> _rendering_finished{};
+
 public:
 
 	RenderingTestLevel(Engine& sys) : 
@@ -111,6 +113,7 @@ public:
 
 		S_RANDY._cam._controller->setFlying(true);
 
+		// Entt can not use the same component in 2 groups, but there are ways around it
 		//auto _renderGroup = _scene._registry.group<CTransform, CSkModel>();
 		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
 
@@ -187,12 +190,6 @@ public:
 
 	void fakeRenderSystem(ID3D11DeviceContext1* context, entt::registry& registry)
 	{
-		// Can try a single buffer for position
-		//_positionBuffer.bindToVS(context, 0);
-
-		//auto& mainPass = _sys._renderer._mainStage;
-		//mainPass.prepare(context, _sys._clock.deltaTime(), _sys._clock.totalTime());
-
 		_rendererSystem.frustumCull(_sys._renderer._cam);
 
 		_skMatsBuffer.bindToVS(_sys._renderer.context(), 1);
@@ -215,14 +212,7 @@ public:
 				if (!skModel)
 					return;
 
-				// Use VSSetConstantBuffers1 as an experiment
-				// One shader constant = 16 bytes
-				constexpr uint32_t size = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix)) / 16);
-				uint32_t offset = i * size;
 				++i;
-
-				//context->VSSetConstantBuffers1(0, 1, posBuffer.ptrAddr(), &offset, &size);
-
 				// This won't work if meshes aren't all under a single node, it just happens to.  Trivial to change though
 				for (auto& mesh : skModel->_meshes)
 				{
@@ -230,7 +220,7 @@ public:
 				}
 			});
 
-		std::sort(_rq.begin(), _rq.end(), 
+		std::sort(_rq.begin(), _rq.end(),
 			[](const MeshTransform& rhs, const MeshTransform& lhs)
 			{
 				return rhs.mesh < lhs.mesh;
@@ -250,7 +240,7 @@ public:
 				mat->getPS()->bind(context);
 				mat->bindTextures(context);
 			}
-			
+
 			constexpr uint32_t size = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix)) / 16);
 			uint32_t offset = (i % num_visible_models) * size;
 			context->VSSetConstantBuffers1(0, 1, _positionBuffer.ptrAddr(), &offset, &size);
@@ -276,20 +266,76 @@ public:
 			//_skAnimRenderer.addInstance();
 		}
 
-		_skAnimRenderer.update(_scene._registry, rc.dTime);
+		//_skAnimRenderer.update(_scene._registry, rc.dTime);
 	}
 
 
 	void draw(const RenderContext& rc) override final
 	{
-		const auto context = rc.d3d->getContext();
+		// Trashy "multi threaded rendering" for now but I ensure that no other part of the code is using d3d11 context.
+		// Next up is making this properly multi threaded
+		//if (_rendering_finished.valid())
+		//{
+		//	_rendering_finished.wait();
+		//}
+
+		//_rendering_finished = _sys._threadPool.push(std::bind(
+		//	[&]()
+		//	{
+			//	//_sys._renderer.frame(_sys._clock.deltaTime());
+
+			//	const auto context = rc.d3d->getContext();
+
+			//	_dirLight.updateCBuffer(context, _dirLightCB);
+			//	_dirLight.bind(context, _dirLightCB);
+
+			//	_scene.draw();
+
+			//	fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(rc.d3d->getContext()), _scene._registry);
+
+			//	S_RANDY.d3d()->setRSWireframe();
+			//	_geoClipmap.draw(context);
+			//	S_RANDY.d3d()->setRSSolidCull();
+
+			//	_skybox.renderSkybox(*rc.cam, S_RANDY);
+
+			//	// testing full screen shader - works, confirmed
+			//	//S_RANDY.d3d()->setRSSolidNoCull();
+			//	//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
+			//	//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
+			//	//context->Draw(3, 0);
+
+			//	GUI::BeginFrame();
+
+			//	_sceneEditor.display();
+
+			//	std::vector<GuiElement> guiElems =
+			//	{
+			//		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+			//		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
+			//		{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
+			//		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
+			//	};
+			//	GUI::RenderGuiElems(guiElems);
+
+			//	GUI::EndFrame();
+
+			//	rc.d3d->present();
+
+			//	return;
+			//}));
+
+		// Single thread version
+		const auto context = _sys._renderer.context();
+
+		//_sys._renderer.frame(_sys._clock.deltaTime());
 
 		_dirLight.updateCBuffer(context, _dirLightCB);
 		_dirLight.bind(context, _dirLightCB);
 
 		_scene.draw();
 
-		fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(rc.d3d->getContext()), _scene._registry);
+		fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(context), _scene._registry);
 
 		S_RANDY.d3d()->setRSWireframe();
 		_geoClipmap.draw(context);
@@ -318,9 +364,8 @@ public:
 
 		GUI::EndFrame();
 
-		rc.d3d->present();
+		S_RANDY.d3d()->present();
 	}
-
 };
 
 /* Do not discard this, it works as intended

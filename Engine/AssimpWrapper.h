@@ -95,18 +95,6 @@ public:
 	}
 
 
-
-	static void loadMaterial(const aiScene* scene, UINT index, const std::string& path, Material* mat, std::vector<Texture>& textures);
-
-	static bool LoadMaterialTextures(
-		const std::string& modelPath,
-		std::vector<Texture>& textures,
-		const aiScene* scene,
-		aiMaterial *aiMat,
-		Material* mat,
-		aiTextureType aiTexType,
-		TextureRole role);
-
 	static std::vector<std::string> loadTextureNames(const aiScene* scene);
 
 	static bool loadEmbeddedTexture(Texture& texture, const aiScene* scene, const char* str);

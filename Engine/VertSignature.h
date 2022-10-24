@@ -78,13 +78,27 @@ struct VertSignature
 	std::vector<D3D11_INPUT_ELEMENT_DESC> createVertInLayElements();
 
 	// This currently can't work with tex coordinates being U/UV/UVW
-	inline UINT countAttribute(VAttribSemantic vertAttribSemantic) const
+	inline uint32_t countAttribute(VAttribSemantic vertAttribSemantic) const
 	{
-		UINT result = 0u;
+		uint32_t result{ 0u };
 		for (const auto& vertAttrib : _attributes)
 			if (vertAttrib._semantic == vertAttribSemantic)
 				return vertAttrib._numElements;
 		return result;
+	}
+
+	inline uint32_t hasAttribute(VAttribSemantic vertAttribSemantic) const
+	{
+		uint32_t result{ 0u };
+
+		for (const auto& vertAttrib : _attributes)
+		{
+			if (vertAttrib._semantic == vertAttribSemantic)
+			{
+				return true;
+			}
+		}
+			
 	}
 
 	template <typename Archive>

@@ -50,7 +50,12 @@ ShaderGenKey ShaderGenerator::CreateShaderKey(const VertSignature& vertSig, cons
 
 	shaderKey |= (static_cast<uint64_t>(lmIndex) << OPT_LMOD._offset);
 	EncodeVertexData(vertSig, shaderKey);
-	EncodeTextureData(mat->_materialTextures, shaderKey);
+
+	// This does, in fact, happen in some import data :(
+	if (vertSig.countAttribute(VAttribSemantic::TEX_COORD))
+	{
+		EncodeTextureData(mat->_materialTextures, shaderKey);
+	}
 
 	return shaderKey;
 }

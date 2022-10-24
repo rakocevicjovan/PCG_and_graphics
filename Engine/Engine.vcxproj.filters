@@ -129,9 +129,6 @@
     <Filter Include="Rendering\Shader Files\Compute shaders">
       <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Alternative">
-      <UniqueIdentifier>{7b66370a-9f5d-4499-be93-99d11d287dae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
@@ -500,6 +497,9 @@
       <Filter>Rendering\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="RendererSystem.cpp" />
+    <ClCompile Include="FileBrowser.cpp">
+      <Filter>Asset importing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Perlin.h">
@@ -603,9 +603,6 @@
     </ClInclude>
     <ClInclude Include="ColFuncs.h">
       <Filter>Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="AiController.h">
-      <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="AStar.h">
       <Filter>AI\Pathfinding</Filter>

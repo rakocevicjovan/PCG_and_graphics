@@ -24,6 +24,7 @@
 #include <map>
 #include <type_traits>
 #include <variant>
+#include <optional>
 
 #if __cplusplus > 201703L
 #include <span>

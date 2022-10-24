@@ -92,10 +92,14 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	// ... and right
 	std::copy_n(vertexData.begin(), extVertCount, std::back_inserter(vertexData));
 	for (UINT i = extVertCount; i < vertexData.size(); ++i)
+	{
 		vertexData[i].x += crossOffset;
+	}
 
 	for (UINT& idx : extremityIndices)
+	{
 		idx += extVertCount;
+	}
 	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
 
 	// Bottom...
@@ -108,16 +112,22 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 
 	extremityIndices = createGridIndices(3, _blockEdgeVertCount);
 	for (UINT& idx : extremityIndices)
+	{
 		idx += 2 * extVertCount;
+	}
 	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
 
 	// ... and top!
 	std::copy_n(vertexData.begin() + 2 * extVertCount, extVertCount, std::back_inserter(vertexData));
 	for (UINT i = 3 * extVertCount; i < vertexData.size(); ++i)
+	{
 		vertexData[i].y += crossOffset;
+	}
 
 	for (UINT& idx : extremityIndices)
+	{
 		idx += extVertCount;
+	}
 	crossIndices.insert(crossIndices.end(), extremityIndices.begin(), extremityIndices.end());
 
 	_crossVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
@@ -137,7 +147,9 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	// Horizontal strip, offset indices as the vertices are all merged to a single array
 	auto hStripIndices = createGridIndices(rimVertLength, 2);
 	for (auto& idx : hStripIndices)
+	{
 		idx += vertexData.size();
+	}
 	createGridVertices(rimVertLength, 2, vertexData);
 
 	// Merge and create
@@ -182,7 +194,7 @@ void GeoClipmap::createTransformData()
 
 	for (int i = 0; i < _layers.size(); ++i)
 	{
-		int scaleModifier = 1 << i;	// 1, 2, 4, 8...
+		int scaleModifier = 1 << i;
 
 		float vertSpacing = baseVertSpacing * scaleModifier;
 		float blockSize = baseBlockSize * scaleModifier;
@@ -221,8 +233,7 @@ void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec
 {
 	UINT requiredSize = numCols * numRows;
 
-	if (output.capacity() < (output.size() + requiredSize))
-		output.reserve(output.size() + requiredSize);
+	output.reserve(output.size() + requiredSize);
 
 	for (UINT z = numRows; z > 0; --z)
 	{
@@ -249,8 +260,7 @@ std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
 			UINT bli = tli + numCols;
 			UINT bri = bli + 1;
 
-			indices.insert(indices.end(), { tli, tri, bli });
-			indices.insert(indices.end(), { bli, tri, bri });
+			indices.insert(indices.end(), { tli, tri, bli, bli, tri, bri });
 		}
 	}
 

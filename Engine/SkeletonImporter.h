@@ -26,12 +26,12 @@ private:
 		}
 	}
 
-	// Find all aiNodes that are actually bones, by tracking upwards towards the scene root from every influencing bone.
+	// Find all aiNodes that are actually bones, by tracking from every influencing bone upwards towards the scene root.
 	static void FindAllBoneNodes(const std::set<aiBone*>& aiBones, std::set<aiNode*>& boneNodes)
 	{
 		std::set<aiNode*> influencingNodes;
 
-		for (aiBone* aiBone : aiBones)
+		for (const aiBone* aiBone : aiBones)
 		{
 			influencingNodes.insert(aiBone->mNode);
 			boneNodes.insert(aiBone->mNode);
@@ -43,10 +43,14 @@ private:
 
 			while (aiParent != nullptr)
 			{
+				// Prevents the scene root node from being added to the skeleton.
 				if (aiParent->mParent != nullptr)
 				{
-					if (!boneNodes.insert(aiParent).second)	// Exit if parent is already added to the set as an optimization
+					// Exit if parent is already added to the set as an optimization
+					if (!boneNodes.insert(aiParent).second)
+					{
 						break;
+					}
 				}
 				aiParent = aiParent->mParent;
 			}
@@ -56,7 +60,7 @@ private:
 
 	static aiNode* FindSkeletonRootNode(aiNode* node, const std::set<aiNode*>& boneNodes)
 	{
-		aiNode* result = nullptr;
+		aiNode* result{ nullptr };
 
 		auto nodeFound = boneNodes.find(node);
 

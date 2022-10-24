@@ -16,16 +16,16 @@ LevelManager::LevelManager(Engine& systems)
 
 	//_current = new TDLevel(systems);
 
-	//_current = new AssimpLevel(systems);
+	_current = new AssimpLevel(systems);
 
-	_current = new RenderingTestLevel(systems);
+	//_current = new RenderingTestLevel(systems);
 
 	_current->init(systems);
 	_levels.push_back(_current);
 }
 
 
-LevelManager::~LevelManager() {}
+LevelManager::~LevelManager() = default;
 
 
 void LevelManager::advanceLevel(Engine& systems)

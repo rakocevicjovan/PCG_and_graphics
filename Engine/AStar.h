@@ -70,7 +70,6 @@ class AStar
 	}
 
 
-
 	inline static float calculateHeuristic(const NavNode& a, const NavNode& b)
 	{ 
 		return calcHeuristic(a, b);
