@@ -1,4 +1,5 @@
 #pragma once
+
 #include <d3d11_4.h>
 #include "SimpleMath.h"
 
@@ -94,7 +95,7 @@ public:
 	{
 		float ratioW = containerDims.x / itemDims.x;
 		float ratioH = containerDims.y / itemDims.y;
-		float ratio = ratioW <= ratioH ? ratioW : ratioH;
+		float ratio = std::min(ratioW, ratioH);
 
 		return ratio * itemDims;
 	}

@@ -13,7 +13,8 @@ namespace ComponentTraits
 	void Display(Component& component)
 	{
 		// Could we do it the everything'sfinae way instead?
-		static_assert(false && "Missing Display() specialization for component");
+		//static_assert(false && "Missing Display() specialization for component");
+		//ImGui::TextColored(ImVec4(1.f, 0.f, 0.f, 1.f), "Editor display not implemented for this component type.");
 	};
 
 	template<>

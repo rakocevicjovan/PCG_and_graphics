@@ -54,7 +54,9 @@ namespace GuiBlocks
 			ImGui::Text(vsName.c_str());
 		}
 		else
+		{
 			ImGui::Text("None loaded");
+		}
 
 		if (ps)
 		{
@@ -62,7 +64,9 @@ namespace GuiBlocks
 			ImGui::Text(psName.c_str());
 		}
 		else
+		{
 			ImGui::Text("None loaded");
+		}
 	}
 
 
@@ -180,7 +184,7 @@ namespace GuiBlocks
 	}
 
 
-	static bool inTextStdStringHint(char* label, char* hint, std::string& inoutString)
+	static bool inTextStdStringHint(const char* label, const char* hint, std::string& inoutString)
 	{
 		return (ImGui::InputTextWithHint(label, hint, inoutString.data(), inoutString.capacity() + 1,
 			ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
@@ -195,7 +199,7 @@ namespace GuiBlocks
 	}
 
 
-	static bool inputStdString(char* label, std::string& inoutString)
+	static bool inputStdString(const char* label, std::string& inoutString)
 	{
 		return (ImGui::InputText(label, inoutString.data(), inoutString.capacity() + 1,
 			ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_EnterReturnsTrue,
@@ -243,7 +247,7 @@ namespace GuiBlocks
 	{
 		ImGui::SetNextWindowPos(ImVec2(pX, pY), ImGuiCond_Once);
 
-		ImGui::Begin(title, false);
+		ImGui::Begin(title, nullptr);
 		ImGui::Image(srv, ImVec2(sX, sY));
 		ImGui::End();
 	}

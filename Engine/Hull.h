@@ -35,7 +35,7 @@ public:
 	AABB() {}
 
 
-	AABB::AABB(SVec3 center, SVec3 halfSize)
+	AABB(SVec3 center, SVec3 halfSize)
 	{
 		minPoint = center - halfSize;
 		maxPoint = center + halfSize;
@@ -48,7 +48,7 @@ public:
 	}
 
 
-	HitResult AABB::intersect(const Hull* other, BoundingVolumeType otherType) const;
+	HitResult intersect(const Hull* other, BoundingVolumeType otherType) const;
 
 	void setPosition(const SVec3& newPos) override;
 	bool operator ==(AABB other)	//is this really required??? Forgot why I wrote it... should be discernible by pointers...

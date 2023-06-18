@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-#include <set>
 #include "Math.h"
 
 class Hull;
@@ -11,23 +9,21 @@ class SphereHull;
 
 struct CellKey
 {
-	int x = 0, y = 0, z = 0;
+	int x = 0;
+	int y = 0;
+	int z = 0;
 
 	CellKey(int ix, int iy, int iz) : x(ix), y(iy), z(iz) {};
 
 	CellKey() : x(-1), y(-1), z(-1) {};
 
-
-#define FASTFLOOR(x) ( (x >= 0.f) ? ((int)x) : ((int)x-1 ) )
-
 	CellKey(const SVec3& pos, float invCellSize)
 	{
-		x = FASTFLOOR(pos.x * invCellSize);
-		y = FASTFLOOR(pos.y * invCellSize);
-		z = FASTFLOOR(pos.z * invCellSize);
+		const auto xyz = Math::floor3(pos * invCellSize);
+		x = static_cast<int>(xyz.x);
+		y = static_cast<int>(xyz.y);
+		z = static_cast<int>(xyz.z);
 	}
-
-#undef FASTFLOOR
 
 	inline void assign(const SVec3& in) { x = floor(in.x); y = floor(in.y); z = floor(in.z); }
 
@@ -37,12 +33,10 @@ struct CellKey
 };
 
 
-
 struct GridCell
 {
 	std::set<Hull*> _hulls;
 };
-
 
 
 class Grid

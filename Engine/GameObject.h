@@ -33,7 +33,7 @@ public:
 
 	Actor() : _steerComp(this), _collider(this) {};
 
-	Actor(Model* model, SMatrix& transform = SMatrix());
+	Actor(Model* model, const SMatrix& transform = SMatrix());
 	Actor(const Actor& other);
 	virtual ~Actor() {};
 

@@ -4,40 +4,39 @@
 std::random_device Chaos::randomDevice;
 std::mt19937_64 Chaos::RNGesus(randomDevice());
 
-
 Chaos::Chaos(float min, float max) 
 {
 	dist = std::uniform_real_distribution<float>(min, max);
+	intDist = std::uniform_int_distribution<int>(min, max);
 }
-
-
 
 void Chaos::setRange(float min, float max)
 {
 	dist = std::uniform_real_distribution<float>(min, max);
 }
 
-
-inline float Chaos::rollTheDice()
+float Chaos::roll()
 {	
 	return dist(RNGesus);
 }
 
-
-
-void Chaos::fillVector(std::vector<float>& target, int count) 
+void Chaos::roll_n(float* dest, int count)
 {
-	//target.reserve(count);
 	for (int i = 0; i < count; i++)
-		target.emplace_back(rollTheDice());
+	{
+		dest[i] = roll();
+	}
 }
 
-
-// Todo, make any integral available as input
-void Chaos::fillIntVector(std::vector<int>& target, int min, int max)
+int Chaos::roll_int()
 {
-	std::uniform_int_distribution<int> intDist(min, max);
+	return intDist(RNGesus);
+}
 
-	for (int i = 0; i < target.size(); i++)
-		target[i] = intDist(RNGesus);
+void Chaos::roll_int_n(int* dest, int count, int min, int max)
+{
+	for (int i = 0; i < count; i++)
+	{
+		dest[i] = intDist(RNGesus);
+	}
 }

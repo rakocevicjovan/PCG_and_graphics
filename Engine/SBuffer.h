@@ -9,10 +9,10 @@ private:
 
 public:
 
-	SBuffer::SBuffer() = default;
+	SBuffer() = default;
 
 
-	SBuffer::SBuffer(ID3D11Device* device, UINT elementSize, UINT numElements, UINT extraFlags = 0u)
+	SBuffer(ID3D11Device* device, UINT elementSize, UINT numElements, UINT extraFlags = 0u)
 	{
 		_sbPtr = CreateSBuffer(device, elementSize, numElements, extraFlags);
 	}

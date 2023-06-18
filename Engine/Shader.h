@@ -4,17 +4,13 @@
 #include "TextureRole.h"
 #include "CBuffer.h"
 
-
 enum class ShaderType : uint8_t { VS, GS, PS, TS, HS, SHADER_TYPE_COUNT };
-
 
 struct TexLayout
 {
 	uint8_t _index;
 	uint8_t _count;
 };
-
-
 
 class Shader
 {

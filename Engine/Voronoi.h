@@ -16,11 +16,8 @@ namespace Procedural
 		std::vector<unsigned int> areaIndices;
 
 	public:
-		Voronoi();
-		~Voronoi();
 
 		void init(unsigned int numSeeds, float maxX, float maxY);
 		void shatter(const std::vector<SVec2>& positions);
 	};
-
 }

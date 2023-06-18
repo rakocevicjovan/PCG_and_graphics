@@ -83,5 +83,5 @@ public:
 	void draw(ID3D11DeviceContext* context);
 
 	// Clipmap levels move in discrete steps
-	SVec2 GeoClipmap::getLevelOffset(const SVec2& camPos, UINT level);
+	SVec2 getLevelOffset(const SVec2& camPos, UINT level);
 };

@@ -65,7 +65,7 @@ public:
 
 
 	//this is a naive implementation that simply adds all edges, does not check for obstacles
-	void NavGrid::createAllEdges(float cardinalWeight = 1.f)
+	void createAllEdges(float cardinalWeight = 1.f)
 	{
 		//create and connect edges...
 		int thisCell = 0, neighbour = 0, edgeCount = 0;
@@ -134,7 +134,7 @@ public:
 
 
 
-	void NavGrid::fillFlowField()
+	void fillFlowField()
 	{
 		for (int i = 0; i < _cells.size(); ++i)
 		{

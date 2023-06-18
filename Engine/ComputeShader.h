@@ -14,7 +14,7 @@ public:
 
 	bool createFromFile(ID3D11Device* device, const std::wstring& path);
 
-	void ComputeShader::execute(ID3D11DeviceContext* context, std::array<uint32_t, 3> xyz,
+	void execute(ID3D11DeviceContext* context, std::array<uint32_t, 3> xyz,
 		std::vector<ID3D11ShaderResourceView*>& srvs,
 		std::vector<ID3D11UnorderedAccessView*>& uavs);
 };

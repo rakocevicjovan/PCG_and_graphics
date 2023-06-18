@@ -2,11 +2,9 @@
 #include <string>
 #include <cstdint>
 
-
 // Magic numbers, making magic numbers... take some magic then I put it in a number...
 inline constexpr uint32_t FNV1_OFFSET_BASIS{ 0x811C9DC5 };
 inline constexpr uint32_t FNV1_PRIME{ 0x01000193 };
-
 
 static inline uint32_t fnv1hash(const char* str)
 {

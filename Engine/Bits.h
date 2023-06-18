@@ -2,10 +2,8 @@
 
 #include <stdint.h>
 
-
 namespace bits
 {
-
 	// Creates a bitmask with bits [msb, lsb) set to 1, others set to 0. Zero indexed. Can be used at runtime
 	template <typename IntegralType>
 	constexpr IntegralType CreateContiguousBitmask(uint32_t lsb, uint32_t msb)

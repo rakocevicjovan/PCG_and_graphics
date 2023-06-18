@@ -45,7 +45,7 @@ public:
 
 
 
-		void UINODE::Exterminate() 
+		void Exterminate() 
 		{
 			for (UINODE* c : children)
 			{

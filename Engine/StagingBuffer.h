@@ -10,7 +10,7 @@ private:
 public:
 
 
-	StagingBuffer::StagingBuffer(ID3D11Device* device, uint32_t elementCount, uint32_t elementSize) : _size(elementCount * elementSize)
+	StagingBuffer(ID3D11Device* device, uint32_t elementCount, uint32_t elementSize) : _size(elementCount * elementSize)
 	{
 		D3D11_BUFFER_DESC desc{};
 		desc.ByteWidth = _size;

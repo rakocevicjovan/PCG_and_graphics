@@ -1,27 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <utility>
 #include "Bits.h"
 
-
-namespace
-{
-	// Workaround for compiler bug related to capturing (shouldn't have to) constexpr in a lambda
-	// Valid but I took the alternative route and declared required constexpr members as static
-	//template <typename T, T BitMask, uint32_t lsb, uint32_t msb>
-	//constexpr T calculate_masked_value(T inputValue)
-	//{
-	//	if constexpr (lsb == 0 && msb == sizeof(T) * 8)
-	//	{
-	//		return inputValue;
-	//	}
-	//	else
-	//	{
-	//		return (inputValue & BitMask) >> lsb;
-	//	}
-	//}
-}
 
 template<typename T, uint32_t lsb = 0, uint32_t msb = sizeof(T) * 8>
 void CountingSort(T* input, uint32_t inputSize)

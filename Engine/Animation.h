@@ -23,7 +23,7 @@ public:
 
 	Animation() noexcept;
 
-	Animation(std::string& name, double ticks, double ticksPerSecond, int nc) noexcept;
+	Animation(const std::string& name, double ticks, double ticksPerSecond, int nc) noexcept;
 
 	void getTransformAtTime(const std::vector<Bone>& bones, const SMatrix& glInvT, float elapsed, std::vector<SMatrix>& vec) const;
 

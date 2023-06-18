@@ -6,18 +6,6 @@
 
 namespace Procedural
 {
-
-	Voronoi::Voronoi()
-	{
-	}
-
-
-	Voronoi::~Voronoi()
-	{
-	}
-
-
-
 	void Voronoi::init(unsigned int numSeeds, float maxX, float maxY)
 	{
 		_numSeeds = numSeeds;
@@ -25,14 +13,15 @@ namespace Procedural
 		_ySize = maxY;
 		_seeds.resize(_numSeeds);
 
-		std::vector<float>axes, eyes;
+		std::vector<float> axes(_numSeeds);
+		std::vector<float> eyes(_numSeeds);
 
 		Chaos c;
 		c.setRange(0, _xSize);
-		c.fillVector(axes, _numSeeds);
+		c.roll_n(axes.data(), _numSeeds);
 
 		c.setRange(0, _ySize);
-		c.fillVector(eyes, _numSeeds);
+		c.roll_n(eyes.data(), _numSeeds);
 
 		for (int i = 0; i < _numSeeds; ++i)
 		{
@@ -40,7 +29,6 @@ namespace Procedural
 			_seeds[i].y = eyes[i];
 		}
 	}
-
 
 
 	void Voronoi::shatter(const std::vector<SVec2>& positions)
@@ -60,5 +48,4 @@ namespace Procedural
 			}	
 		}
 	}
-
 }

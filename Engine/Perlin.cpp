@@ -14,7 +14,7 @@ namespace Procedural
 		std::iota(hashTable.begin(), hashTable.begin() + 256, 0);
 
 		Chaos c;
-		float seed = c.rollTheDice();
+		float seed = c.roll();
 		std::default_random_engine engine(seed);
 		std::shuffle(hashTable.begin(), hashTable.begin() + 256, engine);
 		std::copy_n(hashTable.begin(), 256, hashTable.begin() + 256);

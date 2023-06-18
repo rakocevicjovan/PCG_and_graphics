@@ -24,7 +24,7 @@ public:
 
 	Armour _arm;
 
-	Enemy::Enemy(Model* model, SMatrix& transform = SMatrix(), float maxHp = 100.f, float hp = 50.f, float pArm = 1.f, float mArm = 1.f)
+	Enemy(Model* model, const SMatrix& transform = SMatrix(), float maxHp = 100.f, float hp = 50.f, float pArm = 1.f, float mArm = 1.f)
 		: Actor(model, transform), _maxHp(maxHp), _hp(hp), _arm(pArm, mArm)
 	{}
 

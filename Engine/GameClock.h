@@ -1,4 +1,5 @@
 #pragma once
+
 class GameClock
 {
 public:
@@ -24,4 +25,3 @@ private:
 
 	bool _isStopped;
 };
-

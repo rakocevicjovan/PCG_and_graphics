@@ -5,9 +5,8 @@
 class FPSCounter
 {
 private:
-
 	uint16_t _frameCount{ 0u };
-	uint16_t _numTrackedFrames{32u};	// Could templatize for for static array but cba using that...
+	uint16_t _numTrackedFrames{32u};
 	std::vector<float> _frameTimes;
 	float _avgFrameTime{ 0.f };
 	float _denom{1.f / 32.f};
@@ -57,12 +56,13 @@ public:
 		reset();
 	}
 
+
 	// Can be used occasionally to refresh the average or fix accumulated error from fast tick.
 	void reset()
 	{
 		_frameCount = 0u;
 		_avgFrameTime = 0.f;
-		memset(_frameTimes.data(), 0.f, _numTrackedFrames * sizeof(float));
+		std::fill(_frameTimes.begin(), _frameTimes.end(), 0.f);
 	}
 
 

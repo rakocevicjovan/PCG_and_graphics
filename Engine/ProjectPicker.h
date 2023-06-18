@@ -10,5 +10,5 @@ class ProjectPicker
 	
 public:
 
-	bool ProjectPicker::Render();
+	bool Render();
 };

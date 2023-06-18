@@ -15,7 +15,7 @@ namespace Steering
 
 
 	template <typename NavAgent>
-	static SVec3 separate(NavAgent*& me, const std::vector<NavAgent*>& theBois)
+	static SVec3 separate(NavAgent* me, const std::vector<NavAgent*>& theBois)
 	{
 		SVec3 result = SVec3::Zero;
 
@@ -29,7 +29,7 @@ namespace Steering
 			if (separator.LengthSquared() < 0.00001)	//avoid self... could be handled otherwise but cba
 				continue;
 
-			result += separator;	//me->r
+			result += separator;
 		}
 
 		result.Normalize();

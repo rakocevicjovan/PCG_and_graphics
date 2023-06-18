@@ -191,13 +191,13 @@ public:
 
 		// Bind usual textures
 		r.mat->bindTextures(context);
-		r.mat->bindSamplers(context);
+		//r.mat->bindSamplers(context);		func no longer exists
 
 		// Bind shadow map array
 		_depthStencil.bindAsShaderResource(context, PS_CSM_TEXTURE_REGISTER, 1);
 
 		context->IASetInputLayout(r.mat->getVS()->_layout);
-		context->IASetPrimitiveTopology(r.mat->_primitiveTopology);
+		context->IASetPrimitiveTopology(r.mesh->_vertexBuffer._primitiveTopology);
 
 		UINT stride = r.mesh->getStride();
 		UINT offset = r.mesh->getOffset();

@@ -66,7 +66,7 @@ public:
 		ImGui::SetNextWindowPos(_paletteWidget._pos, ImGuiCond_Once);
 		ImGui::SetNextWindowSize(_paletteWidget._size, ImGuiCond_Once);
 
-		ImGui::Begin("Buildings", false);
+		ImGui::Begin("Buildings");
 
 		for (int i = 0; i < _buildingGuiDefs.size(); ++i)
 		{
@@ -103,7 +103,7 @@ public:
 		ImGui::SetNextWindowPos(_widgets.at("selected")->_pos, ImGuiCond_Once);
 		ImGui::SetNextWindowSize(_widgets.at("selected")->_size, ImGuiCond_Once);
 		
-		ImGui::Begin("Selected", false);
+		ImGui::Begin("Selected");
 
 		ImGui::Image(def._icon, ImVec2(128, 128));
 		ImGui::Text(def._name.c_str());

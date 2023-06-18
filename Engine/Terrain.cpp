@@ -54,7 +54,8 @@ namespace Procedural
 		Chaos chaos;
 
 		std::vector<float> wat;
-		chaos.fillVector(wat, _vertices.size());
+		wat.resize(_vertices.size());
+		chaos.roll_n(wat.data(), _vertices.size());
 
 		for (int i = 0; i < _vertices.size(); i++)
 			if (wat[i] < chance)
@@ -132,7 +133,7 @@ namespace Procedural
 							_vertices[(z + stepSize) * _numRows + x + stepSize].pos.y;
 					
 					finHeight *= 0.25f;
-					finHeight += (c.rollTheDice() * 2.f - randomMax);
+					finHeight += (c.roll() * 2.f - randomMax);
 
 					_vertices[midVertIndex].pos.y = finHeight * _scale.y;
 				}
@@ -143,7 +144,7 @@ namespace Procedural
 			{
 				for (int z = 0; z < _numRows - 1; z += stepSize)
 				{
-					float ro = c.rollTheDice() * 2.f - randomMax;
+					float ro = c.roll() * 2.f - randomMax;
 
 					_vertices[x * _numRows +	z + halfStep].pos.y = sampleDiamond(x, z + halfStep, halfStep) + ro;
 					_vertices[(x + halfStep) *	_numRows + z].pos.y = sampleDiamond(x + halfStep, z, halfStep) + ro;
@@ -166,7 +167,8 @@ namespace Procedural
 		Chaos chaos(0.f, 1.f);
 
 		std::vector<float> randoms;
-		chaos.fillVector(randoms, _vertices.size());
+		randoms.resize(_vertices.size());
+		chaos.roll_n(randoms.data(), _vertices.size());
 
 		std::vector<bool> cells(_vertices.size(), false);
 
@@ -488,13 +490,13 @@ namespace Procedural
 		for (int i = 1; i < steps; ++i)
 		{
 			c.setRange(0, _numColumns);
-			float newLineX = c.rollTheDice();
+			float newLineX = c.roll();
 			c.setRange(0, _numRows);
-			float newLineZ = c.rollTheDice();
+			float newLineZ = c.roll();
 			SVec3 randomAxis(newLineX, 0.f, newLineZ);
 
 			c.setRange(0, PI);
-			SVec3 randomDir = SVec3::Transform(SVec3::Right, SMatrix::CreateFromAxisAngle(SVec3::Up, c.rollTheDice()));
+			SVec3 randomDir = SVec3::Transform(SVec3::Right, SMatrix::CreateFromAxisAngle(SVec3::Up, c.roll()));
 			displacement *= decay;
 
 			Fault(SRay(randomAxis, randomDir), displacement);

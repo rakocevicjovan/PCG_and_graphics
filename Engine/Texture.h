@@ -1,5 +1,5 @@
 #pragma once
-#include <wrl/client.h>
+
 #include "TextureRole.h"
 
 // This will be eventually used and expanded
@@ -96,7 +96,11 @@ public:
 		case 1: return DXGI_FORMAT_R8G8_UNORM;
 		case 2: return DXGI_FORMAT_R8G8B8A8_UNORM;
 		case 3: return DXGI_FORMAT_R8G8B8A8_UNORM;
-		default: assert(false);
+		default:
+		{
+			assert(false);
+			return DXGI_FORMAT_UNKNOWN;
+		}
 		}
 	}
 
@@ -126,7 +130,11 @@ public:
 		case TO_API_FORMAT(TexFormat::R32): return 4;
 		case TO_API_FORMAT(TexFormat::RG32): return 8;
 		case TO_API_FORMAT(TexFormat::RGBA32): return 16;
-		default: assert(false);
+		default: 
+		{
+			assert(false);
+			return std::numeric_limits<uint32_t>::max();
+		}
 		}
 	}
 };

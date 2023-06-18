@@ -37,7 +37,7 @@ namespace Procedural
 				int index = z * _w + x;
 				int curSet = cells[index].set, nxtSet = cells[index + 1].set;
 
-				if (curSet != nxtSet && c.rollTheDice() > 0.5f)
+				if (curSet != nxtSet && c.roll() > 0.5f)
 				{
 					cells[index].r = false;
 					
@@ -63,7 +63,7 @@ namespace Procedural
 
 				for (auto& cid : es.second.cellIDs)
 				{
-					if (c.rollTheDice() > .5f)
+					if (c.roll() > .5f)
 					{
 						cells[cid].t = false;
 						cells[cid + _w].set = es.first;
@@ -74,7 +74,7 @@ namespace Procedural
 				//no cells in the set were opened -> randomly pick one from the range [0, size-1] and open it to connect the set
 				if (!connected)
 				{
-					int randIndex = floor(c.rollTheDice() * (es.second.cellIDs.size() - 1));
+					int randIndex = floor(c.roll() * (es.second.cellIDs.size() - 1));
 					cells[es.second.cellIDs[randIndex]].t = false;
 					cells[es.second.cellIDs[randIndex] + _w].set = es.first;
 				}	
@@ -228,10 +228,10 @@ namespace Procedural
 		Chaos c;
 		
 		c.setRange(_w / 2, _w);
-		UINT randWidth = c.rollTheDice();
+		UINT randWidth = c.roll();
 
 		c.setRange(_h / 2, _h);
-		UINT randDepth = c.rollTheDice();
+		UINT randDepth = c.roll();
 
 		return SVec3((randWidth + 0.5) * _cellSize, _height * 0.5, (randDepth + 0.5) * _cellSize);
 	}

@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "ComputeShader.h"
 
 bool ComputeShader::createFromFile(ID3D11Device* device, const std::wstring& path)

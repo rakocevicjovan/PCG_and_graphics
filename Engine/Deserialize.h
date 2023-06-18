@@ -23,9 +23,9 @@ namespace AssetHelpers
 	template <typename AssetType, typename ArchiveType = cereal::BinaryInputArchive>
 	static AssetType DeserializeFromBlob(Blob&& blob)
 	{
-		ViewStreamBuffer vsb(assetLedgerBlob._data.get(), assetLedgerBlob.size());
+		ViewStreamBuffer vsb(blob._data.get(), blob.size());
 		std::istream istream(&vsb);
-		cereal::ArchiveType ia(istream);
+		ArchiveType ia(istream);
 
 		AssetType asset;
 		asset.serialize(ia);

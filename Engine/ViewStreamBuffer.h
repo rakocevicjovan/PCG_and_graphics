@@ -1,5 +1,4 @@
 #pragma once
-#include <streambuf>
 
 // A hack around cereal only taking std::istream for input archives. Do NOT use for writing!
 class ViewStreamBuffer final : public std::streambuf
@@ -16,9 +15,4 @@ public:
 		assert(false && "Do not use ViewStreamBuffer for writing!");
 		return 0;
 	}
-
-	//virtual int underflow() override	// Get a character from the stream, don't point past it
-	//{
-	//	this->
-	//}
 };

@@ -8,16 +8,15 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> _static{};
 
-
 	// Eventually it would be better to structure the engine to have a pool of staging buffers, maybe raw byte buffers
 	CBuffer _staging{};
 
 public:
 
-	UpdateableBuffer::UpdateableBuffer() = default;
+	UpdateableBuffer() = default;
 
 
-	UpdateableBuffer::UpdateableBuffer(ID3D11Device* device, uint32_t gpuElementCount, uint32_t stagingElementCount, uint32_t elementSize)
+	UpdateableBuffer(ID3D11Device* device, uint32_t gpuElementCount, uint32_t stagingElementCount, uint32_t elementSize)
 	{
 		assert((elementSize % 16 != 0) && "Element size must be a multiple of 16.");
 

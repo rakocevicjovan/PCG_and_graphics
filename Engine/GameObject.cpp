@@ -4,7 +4,7 @@
 
 
 
-Actor::Actor(Model* model, SMatrix& transform) 
+Actor::Actor(Model* model, const SMatrix& transform) 
 	: _steerComp(this), _transform(transform), _collider(Collider(BoundingVolumeType::BVT_SPHERE, this, true))
 {
 	_renderables.reserve(model->_meshes.size());

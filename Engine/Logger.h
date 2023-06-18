@@ -11,7 +11,13 @@ private:
 
 	std::string _path;
 
-	Logger() {}
+	Logger() = default;
+	Logger(Logger&&) = default;
+	Logger& operator=(Logger&& other) = default;
+	~Logger() = default;
+
+	Logger(const Logger&) = delete;
+	Logger& operator=(const Logger&) = delete;
 
 public:
 
@@ -28,7 +34,4 @@ public:
 		// Pretty damn sure this needs a lock
 		FileUtils::writeAllBytes("Logger.txt", line.data(), line.size() * sizeof(char), std::ios::app);
 	}
-
-	Logger(const Logger&) = delete;
-	Logger& operator=(const Logger&) = delete;
 };

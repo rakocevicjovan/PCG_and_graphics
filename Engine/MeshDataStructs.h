@@ -1,7 +1,6 @@
 #pragma once
-#include "Math.h"
-#include "Texture.h"
 
+#include "Math.h"
 
 struct Vert3D 
 {
@@ -21,10 +20,8 @@ struct Vert3D
 };
 
 
-
 struct VertBoneData 
 {
-	
 	UINT ids[4] = { 0, 0, 0, 0 };
 	float weights[4] = { 0, 0, 0, 0 };
 
@@ -43,8 +40,6 @@ struct VertBoneData
 };
 
 
-
-//@TODO jointInfluences might need changing... should see how this works first...
 struct BonedVert3D
 {
 	SVec3 pos;
@@ -52,7 +47,7 @@ struct BonedVert3D
 	SVec3 normal;
 	VertBoneData boneData;
 
-	void BonedVert3D::AddBoneData(unsigned int boneID, float weight)
+	void AddBoneData(unsigned int boneID, float weight)
 	{
 		for (unsigned int i = 0; i < 4; ++i)
 		{
@@ -70,7 +65,6 @@ struct BonedVert3D
 };
 
 
-
 struct Colour
 {
 	unsigned char col[4];
@@ -83,7 +77,6 @@ struct Colour
 		col[3] = (unsigned char)a;
 	}
 };
-
 
 
 struct ColourHDR

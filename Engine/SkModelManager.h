@@ -34,6 +34,6 @@ public:
 	SkModel loadImpl(const char* path)
 	{
 		auto skModelAsset = AssetHelpers::DeserializeFromFile<SkModelAsset>(path);
-		return ModelLoader::LoadSkModelFromAsset(std::move(skModelAsset), _materialManager, _skMan, _aniMan);
+		return ModelLoader::LoadSkModelFromAsset(skModelAsset, _materialManager, _skMan, _aniMan);
 	}
 };

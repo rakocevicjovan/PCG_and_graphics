@@ -30,6 +30,6 @@ public:
 	Model loadImpl(const char* path)
 	{
 		auto modelAsset = AssetHelpers::DeserializeFromFile<ModelAsset>(path);
-		return ModelLoader::LoadModelFromAsset(std::move(modelAsset), _materialManager);
+		return ModelLoader::LoadModelFromAsset(modelAsset, _materialManager);
 	}
 };

@@ -16,11 +16,10 @@ namespace
 	inline static AnimationData GetFrameDataAtTime(const std::vector<AnimationFrame>& keyFrames, float currentTick, float t)
 	{
 		auto numKeys = keyFrames.size();
-		if (numKeys == 1u)
+		if (numKeys == 1u) [[unlikely]]
 		{
 			return keyFrames[0].frameData;
 		}
-		[[likely]]
 		else
 		{
 			auto it = std::upper_bound(keyFrames.begin(), keyFrames.end(), currentTick,

@@ -428,7 +428,6 @@
     <ClCompile Include="..\..\imgui - docking branch\imgui_tables.cpp">
       <Filter>GUI\ImGui files</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp" />
     <ClCompile Include="Editor.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
@@ -499,6 +498,10 @@
     <ClCompile Include="RendererSystem.cpp" />
     <ClCompile Include="FileBrowser.cpp">
       <Filter>Asset importing</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="MeshDataStructs.cpp">
+      <Filter>Assets\Asset classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

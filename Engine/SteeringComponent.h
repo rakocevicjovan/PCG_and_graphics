@@ -47,7 +47,8 @@ public:
 		{
 			_totalInfluence += flowVector;
 
-			SVec3 separation = .2f * Steering::separate(static_cast<NavAgent*>(_parent), others);
+			NavAgent* navAgent = static_cast<NavAgent*>(_parent);
+			SVec3 separation = .2f * Steering::separate(navAgent, others);
 			_totalInfluence += separation;
 		}
 		else	//arrival behaviour

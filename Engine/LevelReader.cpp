@@ -1,11 +1,9 @@
 #include "pch.h"
+
 #include "LevelReader.h"
 #include "FileUtilities.h"
 #include "Mesh.h"
 #include "Model.h"
-
-#include <rapidjson/document.h>
-#include <rapidjson/rapidjson.h>
 
 
 namespace

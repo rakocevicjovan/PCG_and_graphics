@@ -16,7 +16,7 @@ public:
 	IBuffer() {}
 
 	//template <typename IndexType>
-	IBuffer(ID3D11Device* device, std::vector<UINT>& indices) 
+	IBuffer(ID3D11Device* device, const std::vector<UINT>& indices) 
 		: _count(indices.size())
 	{
 		D3D11_BUFFER_DESC indexBufferDesc;

@@ -7,7 +7,7 @@
 Animation::Animation() noexcept = default;
 
 
-Animation::Animation(std::string& name, double ticks, double ticksPerSecond, int nc) noexcept
+Animation::Animation(const std::string& name, double ticks, double ticksPerSecond, int nc) noexcept
 	: _name(name), _ticks(ticks), _ticksPerSecond(ticksPerSecond)
 {
 	_duration = _ticks / _ticksPerSecond;
@@ -26,7 +26,7 @@ void Animation::getTransformAtTime(const std::vector<Bone>& bones, const SMatrix
 
 		SMatrix parentMatrix{};
 		
-		[[likely]]
+		//[[likely]]
 		if (bone._parent != Bone::INVALID_INDEX)
 		{
 			parentMatrix = vec[bone._parent];

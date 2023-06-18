@@ -173,7 +173,8 @@ public:
 		{
 			// Make it scale with aspect ratio of render target
 			SVec2 rtSize{ _renderTarget.size().first, _renderTarget.size().second };
-			SVec2 windowSize{ *reinterpret_cast<SVec2*>(&ImGui::GetWindowSize()) };
+			auto imguiWindowsSize = ImGui::GetWindowSize();
+			SVec2 windowSize = *reinterpret_cast<SVec2*>(&imguiWindowsSize);
 			SVec2 newSize = Math::resizeRetainAspectRatio(rtSize, windowSize);
 			ImVec2 aspectRatioCorrectImageSize = ImVec2(newSize.x, newSize.y);
 			ImGui::SetCursorPos((ImGui::GetWindowSize() - aspectRatioCorrectImageSize) * 0.5f);

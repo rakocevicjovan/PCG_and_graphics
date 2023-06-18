@@ -3,16 +3,14 @@
 #include "GameClock.h"
 
 
-
 GameClock::GameClock()
 	: _secondsPerCount(0.0), _deltaTime(-1.0), _baseTime(0),
-	_pausedAt(0), _prevTime(0), _currTime(0), _isStopped(false)
+	_pausedAt(0), _stoppedAt(0), _prevTime(0), _currTime(0), _isStopped(false)
 {
 	__int64 countsPerSec;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
 	_secondsPerCount = 1.0 / (double)countsPerSec;
 }
-
 
 
 // Returns the total time elapsed since Reset() was called, NOT counting any
@@ -50,12 +48,10 @@ float GameClock::totalTime()const
 }
 
 
-
 float GameClock::deltaTime()const
 {
 	return (float)_deltaTime;
 }
-
 
 
 void GameClock::reset()
@@ -68,7 +64,6 @@ void GameClock::reset()
 	_stoppedAt = 0;
 	_isStopped = false;
 }
-
 
 
 void GameClock::start()
@@ -94,7 +89,6 @@ void GameClock::start()
 }
 
 
-
 void GameClock::stop()
 {
 	if (!_isStopped)
@@ -106,7 +100,6 @@ void GameClock::stop()
 		_isStopped = true;
 	}
 }
-
 
 
 void GameClock::tick()

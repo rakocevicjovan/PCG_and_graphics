@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <streambuf>
 #include <iostream>
 #include <memory>
 #include <execution>
@@ -30,7 +31,10 @@
 #include <span>
 #endif
 
-// Cereal includes - this is abundant throughout the codebase
+
+// Third party - disable warnings for these 
+
+// cereal 
 #include <cereal/cereal.hpp>
 
 #include <cereal/archives/binary.hpp>
@@ -48,12 +52,13 @@
 #include <cereal/types/utility.hpp>
 #include <cereal/types/memory.hpp>
 
-// Misc
+// entt
 #include <entt/entt.hpp>
-// Might not be required... above is a single include apparently
-//#include <entt/entity/registry.hpp>
-//#include <entt/entity/snapshot.hpp>
-//#include <entt/entity/helper.hpp>
+
+// rapidjson
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
+
 
 // Graphics includes
 #include <d3d11_4.h>

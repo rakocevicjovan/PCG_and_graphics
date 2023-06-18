@@ -120,10 +120,10 @@ namespace Procedural
 
 		positions.push_back(SVec3(0, 0, 0));
 
-		float deltaAngle = 2. * PI / (float)subdivs;
-		float angle = 0;
+		float deltaAngle = 2.f * PI / static_cast<float>(subdivs);
+		float angle = 0.f;
 
-		for (int i = 0; i < subdivs; ++i)
+		for (uint32_t i = 0; i < subdivs; ++i)
 		{
 			positions.push_back(SVec3(cos(angle), 0.f, sin(angle)) * radius);
 			indices.push_back(0);
@@ -153,10 +153,10 @@ namespace Procedural
 		unsigned int oldSize = indices.size();
 		indices.reserve(2 * oldSize + subdivs * 6);
 		
-		for(int i = 0 ; i < oldSize; ++i)
+		for(uint32_t i = 0 ; i < oldSize; ++i)
 			indices.push_back(indices[i] + oldVertCount);
 		
-		for (int i = 1; i < oldVertCount; ++i)
+		for (uint32_t i = 1; i < oldVertCount; ++i)
 		{
 			indices.push_back(i + oldVertCount);
 			indices.push_back(i + oldVertCount + 1);
@@ -183,7 +183,7 @@ namespace Procedural
 
 		float xcf = width * xScale, zcf = width * zScale;
 
-		for (int i = 0; i < subdivs; ++i)
+		for (uint32_t i = 0; i < subdivs; ++i)
 		{
 			t += length / (float)i;
 			positions.push_back(SVec3(xcf* cos(t), t, zcf * sin(t)));
@@ -205,7 +205,7 @@ namespace Procedural
 
 		//create a ring
 		float angle = 0.f;
-		float dAngle = 2. * PI / float(subdivsRadial);
+		float dAngle = static_cast<float>(2. * PI / double(subdivsRadial));
 
 		float minRadius = radius * minRadiusPerc;
 
@@ -225,7 +225,7 @@ namespace Procedural
 		//iterate rows to create the vertices
 		for (UINT i = 0; i < rows; ++i)
 		{
-			float adjRadius = Math::remap(i, 0.f, rows - 1.f, radius, minRadius);
+			float adjRadius = Math::remap(static_cast<float>(i), 0.f, rows - 1.f, radius, minRadius);
 
 			for (UINT j = 0; j < subdivsRadial; ++j)
 			{
@@ -286,7 +286,7 @@ namespace Procedural
 	void Geometry::GenHexaprism(float radius, float thiccness)
 	{
 		float height = thiccness * .5f;
-		SMatrix rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);
+		SMatrix rot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333f);
 		SVec3 point(0, height, radius);
 
 		float invRadius = 1.f / radius;
@@ -349,11 +349,11 @@ namespace Procedural
 	{
 		std::vector<Geometry> result;
 
-		int initRingSize = 6, currentRingSize = 0;
+		int currentRingSize = 0;
 		float hexCentDist = radius * sqrt(3.f);
 
-		SMatrix halfRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333 * .5f);
-		SMatrix fullRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333);
+		SMatrix halfRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333f * .5f);
+		SMatrix fullRot = SMatrix::CreateFromAxisAngle(SVec3(0, 1, 0), PI * .333333f);
 
 		SVec3 offset = SVec3(0, 0, hexCentDist);
 		offset = SVec3::Transform(offset, halfRot);	//this is the upper right hex position
