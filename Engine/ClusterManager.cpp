@@ -231,7 +231,11 @@ LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2
 	// This returns floats so I'll rather try to use SSE at least for the SVec4
 	SVec4 xyi = rect + SVec4(1.f);	// -1, 1 to 0, 2
 	xyi *= 0.5f;	//0, 2 to 0, 1
-	xyi *= SVec4(gDims[0], gDims[1], gDims[0], gDims[1]);	//0, 1 to 0, maxX/Y
+	xyi *= SVec4(
+		static_cast<float>(gDims[0]), 
+		static_cast<float>(gDims[1]), 
+		static_cast<float>(gDims[0]), 
+		static_cast<float>(gDims[1]));	//0, 1 to 0, maxX/Y
 
 	//uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, gDims[2]);
 	//uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, gDims[2]);

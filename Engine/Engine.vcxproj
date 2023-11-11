@@ -121,7 +121,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(SolutionDir)Deps\stb-master;$(SolutionDir)Deps\entt;$(SolutionDir)Deps\entt\single_include;$(SolutionDir)Deps\lz4\lib</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);26812</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);26812;4305</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>

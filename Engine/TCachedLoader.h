@@ -35,6 +35,7 @@ protected:
 					return addToCache(assetID, std::move(result));
 				}
 				assert(false && "Could not find an asset with this ID.");
+				return AssetHandle{};
 			},
 			assetID,
 			std::forward<AdditionalParams>(params)...).share();

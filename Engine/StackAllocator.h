@@ -11,7 +11,6 @@ private:
 
 	byte* _stackPtr;
 	uint32_t _stackSize;
-
 	uint32_t _head;
 
 public:
@@ -48,7 +47,7 @@ public:
 	// Use at your own risk, must understand how stacks work. Still, it's an option
 	inline void rewind(byte* target)
 	{
-		_head = target - _stackPtr;
+		_head = static_cast<uint32_t>(target - _stackPtr);
 	}
 
 

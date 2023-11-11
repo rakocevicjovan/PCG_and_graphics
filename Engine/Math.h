@@ -1,7 +1,11 @@
 #pragma once
 
 #include <d3d11_4.h>
+#pragma warning(push)
+#pragma warning(disable : 5260)
 #include "SimpleMath.h"
+#pragma warning(pop) 
+
 
 using SMatrix	= DirectX::SimpleMath::Matrix;
 using SQuat		= DirectX::SimpleMath::Quaternion;

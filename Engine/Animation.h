@@ -43,10 +43,10 @@ public:
 
 	inline void addChannel(const AnimChannel& ac) { _channels.push_back(ac); }
 
-	inline float getNumTicks()			const { return _ticks; };
-	inline float getTicksPerSec()		const { return _ticksPerSecond; }
-	inline float getTickDuration()		const { return _tickDuration; }
-	inline float getDuration()			const { return _duration; }
+	inline float getNumTicks()			const { return static_cast<float>(_ticks); };
+	inline float getTicksPerSec()		const { return static_cast<float>(_ticksPerSecond); }
+	inline float getTickDuration()		const { return static_cast<float>(_tickDuration); }
+	inline float getDuration()			const { return static_cast<float>(_duration); }
 
 	inline uint32_t getNumChannels()	const { return _channels.size(); }
 	inline const std::vector<AnimChannel>* getChannels() const { return &_channels; }

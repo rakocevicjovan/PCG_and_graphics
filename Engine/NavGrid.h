@@ -13,32 +13,26 @@ struct NavCell : public NavNode
 };
 
 
-
 class NavGrid
 {
 private:
-	int _w, _h;
-	float _fw, _fh;
-	SVec2 _cellSize, _invCellSize;
-	SVec3 _offset;
-	int _goalIndex;
-	float _leeway;
-	UINT _activeCellCount;
+	uint32_t _w{ 0u };
+	uint32_t _h{ 0u };
+	float _fw{ 0.f };
+	float _fh{ 0.f };
+	SVec2 _cellSize{};
+	SVec2 _invCellSize{};
+	SVec3 _offset{};
+	int _goalIndex{0};
+	float _leeway{0.f};
+	UINT _activeCellCount{ 0u };
 	std::vector<UINT> _forbiddenCells;
 
 public:
 	std::vector<NavCell> _cells;
 	std::vector<NavEdge> _edges;
 
-	NavGrid()
-	{
-		sizeof(NavCell);
-		sizeof(NavEdge);
-		_w = _h = 0;
-		_fw = _fh = 0;
-	}
-
-
+	NavGrid() {}
 
 	NavGrid(int w, int h, SVec2 cellSize, SVec3 offset = SVec3()) : _w(w), _h(h), _cellSize(cellSize), _offset(offset)
 	{
@@ -55,14 +49,10 @@ public:
 		_activeCellCount = _cells.size();
 	}
 
-
-
 	void setOffset(SVec3 offset)
 	{
 		_offset = offset;
 	}
-
-
 
 	//this is a naive implementation that simply adds all edges, does not check for obstacles
 	void createAllEdges(float cardinalWeight = 1.f)
@@ -70,17 +60,19 @@ public:
 		//create and connect edges...
 		int thisCell = 0, neighbour = 0, edgeCount = 0;
 
-		float diagonalWeight = sqrt(2) * cardinalWeight;
+		float diagonalWeight = sqrt(2.f) * cardinalWeight;
 
 		//wastes some but likely faster... this could fragment a lot though as _cells is a vector...
 		//should use a std::array<int, 8> instead, should be much much better performance wise... however
 		//a general use nav mesh node NEEDS to support a variable number of edges!!! :\ reee
 		for (auto& cell : _cells)
-			cell.edges.reserve(8);
-
-		for (int i = 0; i < _h; i++)
 		{
-			for (int j = 0; j < _w; j++)
+			cell.edges.reserve(8);
+		}
+
+		for (uint32_t i = 0; i < _h; i++)
+		{
+			for (uint32_t j = 0; j < _w; j++)
 			{
 				thisCell = i * _w + j;
 
@@ -127,12 +119,9 @@ public:
 					_cells[neighbour].edges.push_back(edgeCount);
 					++edgeCount;
 				}
-
 			}
 		}
 	}
-
-
 
 	void fillFlowField()
 	{
@@ -147,7 +136,9 @@ public:
 				const NavEdge& edge = _edges[_cells[i].edges[j]];
 				
 				if (!edge.active)
+				{
 					continue;
+				}
 
 				int nIndex = edge.getNeighbourIndex(i);
 
@@ -167,14 +158,10 @@ public:
 		}
 	}
 
-
-	
 	inline SVec3 snapToCell(const SVec3& pos) const
 	{
 		return cellIndexToPos(posToCellIndex(pos));
 	}
-
-
 
 	bool tryAddObstacle(const SVec3& pos)
 	{
@@ -199,8 +186,6 @@ public:
 		}
 		return false;
 	}
-
-
 
 	UINT countReachable(UINT startIndex = 0u) const
 	{
@@ -239,15 +224,11 @@ public:
 		return count;
 	}
 
-
-
 	//returns the count of cells NOT covered by obstacles
 	UINT getActiveCellCount()
 	{
 		return _activeCellCount;
 	}
-
-
 
 	int posToCellIndex(const SVec3& pos) const
 	{
@@ -256,16 +237,15 @@ public:
 		offsetFromGrid.x = Math::clamp(0, _fw - .01f, offsetFromGrid.x);
 		offsetFromGrid.z = Math::clamp(0, _fh - .01f, offsetFromGrid.z);
 
-		int row = floor(offsetFromGrid.z * _invCellSize.y);
-		int column = floor(offsetFromGrid.x * _invCellSize.x);
+		int row = static_cast<int>(floor(offsetFromGrid.z * _invCellSize.y));
+		int column = static_cast<int>(floor(offsetFromGrid.x * _invCellSize.x));
 		return row * _w + column;
 	}
 
-
 	SVec3 cellIndexToPos(int i) const
 	{
-		int row = i % _w;
-		int column = floor(i / _w);
+		int row = static_cast<int>(i % _w);
+		int column = static_cast<int>(floor(i / _w));
 
 		SVec3 posInGrid(row * _cellSize.x, 0, column * _cellSize.y);
 		SVec3 cellCenterOffset(_cellSize.x * .5f, 0, _cellSize.y * .5f);
@@ -340,7 +320,6 @@ public:
 		_forbiddenCells.erase(std::remove(_forbiddenCells.begin(), _forbiddenCells.end(), index));
 	}
 
-
 	//can't think of a better way... big lengthy but simple to understand, same logic as restricting paths
 	void removeObstacle(int index)
 	{
@@ -350,7 +329,7 @@ public:
 		++_activeCellCount;
 		_cells[index].obstructed = false;
 
-		UINT row = floor(index / _w);
+		UINT row = static_cast<uint32_t>(floor(index / _w));
 		UINT column = index % _w;
 
 		UINT li = index - 1;
@@ -374,9 +353,7 @@ public:
 				_edges[edgeIndexBetweenCells(bi - 1, index)].active = true;	//enable center to bottom left
 				_edges[edgeIndexBetweenCells(li, bi)].active = true;		//enable left to bottom
 			}
-				
 		}
-
 
 		if (hasBottom)
 		{
@@ -389,7 +366,6 @@ public:
 			}
 		}
 
-
 		if (hasRight)
 		{
 			_edges[edgeIndexBetweenCells(index, ri)].active = true;
@@ -398,10 +374,8 @@ public:
 			{
 				_edges[edgeIndexBetweenCells(ti + 1, index)].active = true;
 				_edges[edgeIndexBetweenCells(ri, ti)].active = true;
-			}
-				
+			}	
 		}
-
 
 		if (hasTop)
 		{
@@ -412,9 +386,7 @@ public:
 				_edges[edgeIndexBetweenCells(ti - 1, index)].active = true;
 				_edges[edgeIndexBetweenCells(ti, li)].active = true;
 			}
-				
 		}
-
 	}
 
 
@@ -425,8 +397,6 @@ private:
 	{
 		return _cells[index].obstructed;
 	}
-
-
 
 	bool addObstacle(UINT index, std::list<std::pair<int, bool>>& backUp)
 	{
@@ -448,7 +418,6 @@ private:
 		return true;
 	}
 
-
 	void cancelObstacle(int index, const std::list<std::pair<int, bool>>& backUp)
 	{
 		_cells[index].obstructed = false;
@@ -458,7 +427,6 @@ private:
 
 		++_activeCellCount;
 	}
-
 
 	//returns the index of the edge connecting the cells at the two provided indices, returns -1 if none found
 	int edgeIndexBetweenCells(UINT first, UINT second)
@@ -471,8 +439,6 @@ private:
 		return -1;
 	}
 
-
-
 	void obstructEdgeBetween(UINT c1, UINT c2, std::list<std::pair<int, bool>>& backUpList)
 	{
 		int edgeIndex = edgeIndexBetweenCells(c1, c2);
@@ -480,12 +446,11 @@ private:
 		_edges[edgeIndex].active = false;
 	}
 
-
 	//returns the list of pairs (consisting of indices of edges and their activity status) used to revert 
 	//those edges to their previous states if the obstacle is not allowed
 	void handleDiagonals(UINT index, std::list<std::pair<int, bool>>& backUpList)
 	{
-		UINT row = floor(index / _w);
+		UINT row  = static_cast<uint32_t>(floor(index / _w));
 		UINT column = index % _w;
 
 		if (row < _h - 1 && column < _w - 1)
@@ -501,22 +466,8 @@ private:
 			obstructEdgeBetween(index - _w, index + 1, backUpList);
 	}
 
-
 	inline bool isForbidden(UINT index) const
 	{
 		return (std::find(_forbiddenCells.begin(), _forbiddenCells.end(), index) != _forbiddenCells.end());
 	}
 };
-
-
-//UINT tr = index + _w + 1;
-//if (_cells[tr].obstructed)	//disable edge between right and top
-
-//UINT tl = index + _w - 1;
-//if (_cells[tl].obstructed)	//disable edge between left and top
-
-//UINT bl = index - _w - 1;
-//if (_cells[bl].obstructed)	//disable edge between left and bottom
-
-//UINT br = index - _w + 1;
-//if (_cells[br].obstructed)	//disable edge between right and bottom

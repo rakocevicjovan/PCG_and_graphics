@@ -303,8 +303,8 @@ void AssImport::persistAssets()
 	{
 		auto skModelAsset = makeSkModelAsset(*_skModelData.model, matIDs, animIDs, skeletonID);
 
-		auto allDeps = matIDs;
-		allDeps.insert(allDeps.end(), matIDs.begin(), matIDs.end());
+		auto allDeps = std::move(matIDs);
+		//allDeps.insert(allDeps.end(), matIDs.begin(), matIDs.end());
 		allDeps.push_back(skeletonID);
 		importedID = persistBinary(*skModelAsset, { importPath, allDeps, EAssetType::SK_MODEL }, *_pLedger);
 	}
@@ -453,7 +453,7 @@ void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 	// Horribly inefficient but cba improving it here, make renderer work well and just plug the data in
 	for (int i = 0; i < numDrawn; ++i)
 	{
-		SVec3 offset = SVec3(i % columns, 0, i / columns) * spacing;
+		SVec3 offset = SVec3(static_cast<float>(i % columns), 0, static_cast<float>(i / columns)) * spacing;
 
 		if (_skModelData)
 		{
@@ -472,7 +472,7 @@ void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 			Math::SetTranslation(model->_transform, offset);
 			Math::SetScale(model->_transform, SVec3(_previewScale));
 
-			for (auto meshNode : model->_meshNodeTree)
+			for (auto& meshNode : model->_meshNodeTree)
 			{
 				meshNode.transform = model->_transform * meshNode.transform;
 				SMatrix meshNodeTf = meshNode.transform.Transpose();

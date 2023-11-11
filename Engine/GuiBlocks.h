@@ -50,8 +50,9 @@ namespace GuiBlocks
 
 		if (vs)
 		{
-			std::string vsName(vs->_path.begin(), vs->_path.end());
-			ImGui::Text(vsName.c_str());
+			//std::string vsName(vs->_path.begin(), vs->_path.end());
+			//ImGui::Text(vsName.c_str());
+			ImGui::Text("Shader names currently unsupported");
 		}
 		else
 		{
@@ -60,8 +61,9 @@ namespace GuiBlocks
 
 		if (ps)
 		{
-			std::string psName(ps->_path.begin(), ps->_path.end());
-			ImGui::Text(psName.c_str());
+			//std::string psName(ps->_path.begin(), ps->_path.end());
+			//ImGui::Text(psName.c_str());
+			ImGui::Text("Shader names currently unsupported");
 		}
 		else
 		{

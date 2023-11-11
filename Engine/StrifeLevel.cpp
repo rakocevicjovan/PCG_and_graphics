@@ -346,11 +346,11 @@ namespace Strife
 		float z = 1.f / 32.f;
 
 		//fill out with good ole Perlin fbm
-		for (int i = 0; i < size; ++i)
+		for (float i = 0; i < size; ++i)
 		{
-			for (int j = 0; j < size; ++j)
+			for (float j = 0; j < size; ++j)
 			{
-				for (int k = 0; k < size; ++k)
+				for (float k = 0; k < size; ++k)
 				{
 					//floatVector.emplace_back(fabs(Texture::Perlin3DFBM(i * z, j * z, k * z, 2.f, .5f, 3u)));
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 1));

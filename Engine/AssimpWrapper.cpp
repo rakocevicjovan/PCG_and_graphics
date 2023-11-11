@@ -224,7 +224,7 @@ aiNode* AssimpWrapper::findModelNode(aiNode* node, SMatrix& meshRootTransform)
 	if (node->mNumMeshes > 0)
 		return node;
 
-	for (int i = 0; i < node->mNumChildren; ++i)
+	for (uint32_t i = 0; i < node->mNumChildren; ++i)
 	{
 		findModelNode(node->mChildren[i], meshRootTransform);
 	}
@@ -249,7 +249,7 @@ SMatrix AssimpWrapper::getNodeGlobalTransform(const aiNode* node)
 
 bool AssimpWrapper::containsRiggedMeshes(const aiScene* scene)
 {
-	for (int i = 0; i < scene->mNumMeshes; ++i)
+	for (uint32_t i = 0; i < scene->mNumMeshes; ++i)
 		if (scene->mMeshes[i]->HasBones())
 			return true;
 

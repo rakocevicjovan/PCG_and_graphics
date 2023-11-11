@@ -61,11 +61,11 @@ namespace Sebh
 	{
 		const SVec3 pCell = p * cellCount;
 		float d = 1.0e10;
-		for (int xo = -1; xo <= 1; xo++)
+		for (float xo = -1; xo <= 1; xo++)
 		{
-			for (int yo = -1; yo <= 1; yo++)
+			for (float yo = -1; yo <= 1; yo++)
 			{
-				for (int zo = -1; zo <= 1; zo++)
+				for (float zo = -1; zo <= 1; zo++)
 				{
 					SVec3 tp = Math::floor3(pCell) + SVec3(xo, yo, zo);
 

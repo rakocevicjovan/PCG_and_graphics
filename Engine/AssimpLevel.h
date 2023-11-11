@@ -172,7 +172,7 @@ public:
 		if (ImGui::Begin("Preview window"))
 		{
 			// Make it scale with aspect ratio of render target
-			SVec2 rtSize{ _renderTarget.size().first, _renderTarget.size().second };
+			SVec2 rtSize{ static_cast<float>(_renderTarget.size().first), static_cast<float>(_renderTarget.size().second)};
 			auto imguiWindowsSize = ImGui::GetWindowSize();
 			SVec2 windowSize = *reinterpret_cast<SVec2*>(&imguiWindowsSize);
 			SVec2 newSize = Math::resizeRetainAspectRatio(rtSize, windowSize);

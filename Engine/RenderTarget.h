@@ -19,7 +19,7 @@ public:
 
 		_tex = Texture(device, w, h, format, nullptr, D3D11_BIND_RENDER_TARGET | additionalFlags);
 
-		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc{};
 		renderTargetViewDesc.Format = format;
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
@@ -84,9 +84,9 @@ public:
 	}
 
 
-	auto size() const
+	std::pair<int, int> size() const
 	{
-		return std::pair<float, float>{ _tex.w(), _tex.h() };
+		return { _tex.w(), _tex.h() };
 	}
 
 	ID3D11ShaderResourceView* asSrv()

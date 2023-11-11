@@ -21,7 +21,7 @@ namespace MeshImporter
 		UINT prevNumComponents = 0u;	// Will never be equal to the actual data the first time.
 		VAttribType uvwType;
 
-		for (int i = 0; i < numUVChannels; ++i)
+		for (uint32_t i = 0; i < numUVChannels; ++i)
 		{
 			UINT uvw = aiMesh->mNumUVComponents[i];
 

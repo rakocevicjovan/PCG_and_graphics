@@ -41,7 +41,7 @@ public:
 		const auto& [w, h] = _renderTarget->size();
 
 		_perCamBuffer.updateWithStruct(context, 
-			PerCameraBuffer{ _cam->getProjectionMatrix().Transpose(), _cam->getProjectionMatrix().Invert().Transpose(), w, h, _cam->_frustum._zn, _cam->_frustum._zf });
+			PerCameraBuffer{ _cam->getProjectionMatrix().Transpose(), _cam->getProjectionMatrix().Invert().Transpose(), static_cast<float>(w), static_cast<float>(h), _cam->_frustum._zn, _cam->_frustum._zf });
 
 		_perCamBuffer.bindToVS(context, PER_CAMERA_CBUFFER_REGISTER);
 		_perCamBuffer.bindToPS(context, PER_CAMERA_CBUFFER_REGISTER);

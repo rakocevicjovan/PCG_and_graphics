@@ -56,8 +56,11 @@
 #include <entt/entt.hpp>
 
 // rapidjson
+#pragma warning(push)
+#pragma warning(disable : 4996)
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>
+#pragma warning(pop) 
 
 
 // Graphics includes
