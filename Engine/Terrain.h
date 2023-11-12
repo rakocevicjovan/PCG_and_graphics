@@ -18,10 +18,10 @@ namespace Procedural
 	struct CACell
 	{
 		CACell() {}
-		CACell(Vert3D vert, bool doa) : vertex(vert), alive(doa) {}
+		CACell(Vert3D vert, bool alive) : vertex(vert), alive(alive) {}
 
 		Vert3D vertex;
-		bool alive;
+		bool alive{};
 	};
 
 	struct Triface
@@ -71,7 +71,6 @@ namespace Procedural
 		
 		Terrain() {}
 		Terrain(uint32_t x, uint32_t y, SVec3 scale = SVec3(1, 1, 1), SVec3 offset = SVec3(0, 0, 0));
-		~Terrain();
 
 		/// Generation methods
 		// Diamond square

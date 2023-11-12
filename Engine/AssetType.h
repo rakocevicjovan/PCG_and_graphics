@@ -14,7 +14,8 @@ enum class EAssetType : uint8_t
 	SOUND,
 	TEXT,
 	SCRIPT,
-	UNSUPPORTED
+	UNSUPPORTED,
+	UNKNOWN
 };
 
 inline static const std::map<std::string, EAssetType> RES_TYPE_MAP

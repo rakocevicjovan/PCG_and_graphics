@@ -4,7 +4,7 @@
 
 
 GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
-	: _numLayers(numLayers), _edgeVertCount(pow(2, edgeSizeLog2) - 1), _coreVertSpacing(xzScale)
+	: _numLayers(numLayers), _edgeVertCount(static_cast<uint32_t>(pow(2, edgeSizeLog2) - 1)), _coreVertSpacing(xzScale)
 {
 	_blockEdgeVertCount = (_edgeVertCount + 1) / 4;	// Size of the outer layer block in vertices
 	_gapSize = _blockEdgeVertCount * 3;	// Cardinal gaps
@@ -174,7 +174,7 @@ void GeoClipmap::createTextures(ID3D11Device* device)
 	
 	_heightMap.create(device, hmDesc, nullptr, true);
 
-	D3D11_TEXTURE2D_DESC nmDesc = Texture::Create2DTexDesc(2.f * _texSize, 2.f * _texSize, DXGI_FORMAT_R8G8B8A8_SNORM,
+	D3D11_TEXTURE2D_DESC nmDesc = Texture::Create2DTexDesc(2 * _texSize, 2 * _texSize, DXGI_FORMAT_R8G8B8A8_SNORM,
 		D3D11_USAGE_DEFAULT, D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE, 0u, 0u, 1u,
 		_numLayers);
 
@@ -216,10 +216,10 @@ void GeoClipmap::createTransformData()
 		{
 			// 2 3
 			// 0 1
-			SVec2 cornerOffset = rl._offset + SVec2(j & 1, j > 1) * (rl._size - rl._blockSize);
+			SVec2 cornerOffset = rl._offset + SVec2(static_cast<float>(j & 1), static_cast<float>(j > 1)) * (rl._size - rl._blockSize);
 
-			float xSign = 1. - 2. * (j % 2);	// 1 - 2 * (0, 1, 0, 1) = 1, -1, 1, -1
-			float zSign = -1. + 2. * (j < 2);	// 1, 1, -1, -1
+			float xSign = static_cast<float>(1. - 2. * (j % 2));	// 1 - 2 * (0, 1, 0, 1) = 1, -1, 1, -1
+			float zSign = static_cast<float>(-1. + 2. * (j < 2));	// 1, 1, -1, -1
 
 			rl._blockOffsets[j * 3 + 0] = cornerOffset;
 			rl._blockOffsets[j * 3 + 1] = cornerOffset + SVec2(blockSize * xSign, 0);
@@ -238,7 +238,9 @@ void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec
 	for (UINT z = numRows; z > 0; --z)
 	{
 		for (UINT x = 0; x < numCols; ++x)
-			output.emplace_back(x, z - 1);
+		{
+			output.emplace_back(static_cast<float>(x), static_cast<float>(z - 1));
+		}
 	}
 }
 

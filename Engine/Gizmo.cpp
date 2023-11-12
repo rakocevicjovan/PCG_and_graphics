@@ -21,6 +21,7 @@ namespace
 		case Gizmo::Op::T: return  ImGuizmo::OPERATION::TRANSLATE;
 		}
 		assert(false);
+		return ImGuizmo::OPERATION::TRANSLATE;
 	}
 }
 

@@ -6,7 +6,7 @@ struct MaterialAsset
 	struct TextureRef
 	{
 		TextureMetaData _texMetaData;
-		AssetID _textureAssetID;
+		AssetID _textureAssetID{ NULL_ASSET };
 
 		template <typename Archive>
 		void serialize(Archive& ar)

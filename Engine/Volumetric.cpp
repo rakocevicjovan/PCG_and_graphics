@@ -5,7 +5,7 @@
 
 namespace Procedural
 {
-	void Volumetric::init(UINT w, UINT h, UINT d)
+	void Volumetric::init(uint32_t w, uint32_t h, uint32_t d)
 	{
 		_w = w;
 		_h = h;
@@ -13,28 +13,25 @@ namespace Procedural
 
 		_volume.resize(_w * _h * _d);
 
-		for (UINT x = 0; x < _w; ++x)
+		for (uint32_t x = 0; x < _w; ++x)
 		{
-			for (UINT y = 0; y < _h; ++y)
+			for (uint32_t y = 0; y < _h; ++y)
 			{
-				for (UINT z = 0; z < _d; ++z)
+				for (uint32_t z = 0; z < _d; ++z)
 				{
 					UINT index = access(x, y, z);
-					_volume[index].pos = SVec3(x, y, z);
+					_volume[index].pos = SVec3(static_cast<float>(x), static_cast<float>(y), static_cast<float>(z));
 				}
 			}
-			
 		}
 	}
 
-
-	inline UINT Volumetric::access(UINT x, UINT y, UINT z)
+	inline UINT Volumetric::access(uint32_t x, uint32_t y, uint32_t z)
 	{
-		UINT index;
+		uint32_t index;
 		index = x * _h * _d + y * _d + z;
 		return index;
 	}
-
 
 	void Volumetric::petrurb()
 	{

@@ -132,7 +132,7 @@ public:
 		{
 			auto entity = _scene._registry.create();
 
-			auto position = SVec3(i / 10, 0, (i % 10)) * 80.f;
+			auto position = SVec3(static_cast<float>(i / 10), 0, static_cast<float>(i % 10)) * 80.f;
 			auto transform = SMatrix::CreateTranslation(position);
 
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());

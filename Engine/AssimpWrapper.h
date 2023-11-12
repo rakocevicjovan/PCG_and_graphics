@@ -3,19 +3,16 @@
 #include "Texture.h"
 #include "Animation.h"
 
-#include <vector>
-#include <set>
-#include <map>
-#include <memory>
-
+#pragma warning(push)
+#pragma warning(disable : 26495)
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#pragma warning(pop)
 
 class SkModel;
 class Material;
 class Mesh;
-
 
 class AssimpWrapper
 {
@@ -55,11 +52,9 @@ public:
 
 	static const aiScene* loadScene(Assimp::Importer& importer, const std::string& path, UINT pFlags);
 
-
-
 	static void loadIndices(aiMesh* aiMesh, std::vector<UINT>& indices)
 	{
-		indices.reserve(aiMesh->mNumFaces * 3);
+		indices.reserve(static_cast<size_t>(aiMesh->mNumFaces * 3));
 
 		aiFace face;
 		for (UINT i = 0; i < aiMesh->mNumFaces; ++i)
@@ -70,8 +65,6 @@ public:
 				indices.emplace_back(face.mIndices[j]);
 		}
 	}
-
-
 
 	static void loadTangents(aiMesh* aiMesh, std::vector<Vert3D>& verts, std::vector<SVec3>& faceTangents)
 	{
@@ -93,7 +86,6 @@ public:
 		for (Vert3D& vert : verts)
 			vert.tangent.Normalize();
 	}
-
 
 	static std::vector<std::string> loadTextureNames(const aiScene* scene);
 

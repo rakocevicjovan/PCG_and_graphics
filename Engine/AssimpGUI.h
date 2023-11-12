@@ -97,7 +97,7 @@ public:
 		ImGui::Text("Nr. of UV components per channel: ");
 
 		ImGui::Indent();
-		for (int i = 0; i < numUVChannels; i++)
+		for (auto i = 0u; i < numUVChannels; i++)
 			ImGui::Text("%d: %d ", i, numUVComponents[i]);
 		ImGui::Unindent();
 
@@ -228,7 +228,7 @@ public:
 
 		if (ImGui::TreeNode("Animation list"))
 		{
-			for (int i = 0; i < aiScene->mNumAnimations; ++i)
+			for (auto i = 0u; i < aiScene->mNumAnimations; ++i)
 				printAiAnimation(aiScene->mAnimations[i]);
 
 			ImGui::TreePop();
@@ -276,7 +276,7 @@ public:
 		{
 			if (ImGui::TreeNode("Embedded"))
 			{
-				for (int i = 0; i < aiScene->mNumTextures; ++i)
+				for (auto i = 0u; i < aiScene->mNumTextures; ++i)
 				{
 					const aiTexture* tex = aiScene->mTextures[i];
 					ImGui::Text("Name: %s", tex->mFilename.C_Str());

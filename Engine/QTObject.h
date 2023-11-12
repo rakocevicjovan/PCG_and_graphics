@@ -9,14 +9,9 @@ class QTObject
 {
 protected:
 
-	QTNode* _qtNode;
+	QTNode* _qtNode{};
 
 public:
-
-	QTObject()
-	{
-	}
-
 
 	inline const QTNode* getQuadTreeNode() const
 	{

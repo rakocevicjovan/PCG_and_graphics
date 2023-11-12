@@ -22,9 +22,9 @@ namespace Procedural
 	public:
 
 		Perlin();
-		~Perlin();
 
-		int _w = 0, _h = 0;
+		int _w{ 0 };
+		int _h{ 0 };
 
 		float fade(float t);
 		float perlin2d(SVec2 pos);

@@ -43,7 +43,7 @@ public:
 
 		_leeway = _cellSize.Length() * 0.5f;
 
-		_cells.resize(_w * _h);
+		_cells.resize(static_cast<size_t>(_w * _h));
 		_edges.reserve(2 * _w * _h - _w - _h);
 
 		_activeCellCount = _cells.size();

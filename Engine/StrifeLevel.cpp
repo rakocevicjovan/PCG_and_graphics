@@ -21,9 +21,9 @@ namespace Strife
 		//32000.f in lux but that doesn't work... not sure how to do any of this
 		LightData lightData(SVec3(1.f, 1.f, 1.f), 1.f, SVec3(0.8f, 0.8f, 1.0f), .2f, SVec3(0.3f, 0.5f, 1.0f), 0.7f);
 
-		float edge = 256;
+		float edge = 256.f;
 		Procedural::Terrain terrain(2, 2, SVec3(edge, 1, edge));
-		terrain.setOffset(-edge * .5, 0.f, -edge * .5);
+		terrain.setOffset(-edge * .5f, 0.f, -edge * .5f);
 		terrain.CalculateNormals();
 
 		//floor = Model(terrain, S_DEVICE); The way this works changed, it's not really useful for the clouds so no need to fix it here
@@ -115,7 +115,7 @@ namespace Strife
 	{
 		D3D11_TEXTURE3D_DESC desc;
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-		int size = 128;
+		size_t size = 128;
 
 		std::vector<float> yeetFloat;
 		size_t sheetSize = size * size * 4;
@@ -144,9 +144,9 @@ namespace Strife
 		//D3D11_SUBRESOURCE_DATA texData;
 		std::vector<D3D11_SUBRESOURCE_DATA> texData(desc.MipLevels);
 
-		float texelByteWidth = 4 * sizeof(float);	//RGBA format with each being a float32
+		const auto texelByteWidth = static_cast<uint32_t>(4 * sizeof(float));	//RGBA format with each being a float32
 
-		for (int i = 0; i < desc.MipLevels; ++i)
+		for (auto i = 0u; i < desc.MipLevels; ++i)
 		{
 			texData[i].pSysMem = (void *)yeetFloat.data();
 			texData[i].SysMemPitch = desc.Width * texelByteWidth;
@@ -201,11 +201,13 @@ namespace Strife
 			{
 				for (int k = 0; k < size; ++k)
 				{
-					//floatVector.emplace_back(fabs(Texture::Perlin3DFBM(i * z, j * z, k * z, 2.f, .5f, 3u)));
+#pragma warning(push)
+#pragma warning(disable : 4244)
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k),  1));
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 2));
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 3));
 					floatVector.emplace_back(0.f);	//dx crying over no 24 bit format so we have this...
+#pragma warning(pop)
 				}
 			}
 		}
@@ -295,9 +297,9 @@ namespace Strife
 		//D3D11_SUBRESOURCE_DATA texData;
 		std::vector<D3D11_SUBRESOURCE_DATA> texData(desc.MipLevels);
 
-		float texelByteWidth = numChannels * sizeof(float);	//RGBA format with each being a float32
+		auto texelByteWidth = static_cast<uint32_t>(numChannels * sizeof(float));	//RGBA format with each being a float32
 
-		for (int i = 0; i < desc.MipLevels; ++i)
+		for (auto i = 0u; i < desc.MipLevels; ++i)
 		{
 			texData[i].pSysMem = (void *)finalArray.data();
 			texData[i].SysMemPitch = desc.Width * texelByteWidth;
@@ -346,17 +348,20 @@ namespace Strife
 		float z = 1.f / 32.f;
 
 		//fill out with good ole Perlin fbm
-		for (float i = 0; i < size; ++i)
+		for (int i = 0; i < size; ++i)
 		{
-			for (float j = 0; j < size; ++j)
+			for (int j = 0; j < size; ++j)
 			{
-				for (float k = 0; k < size; ++k)
+				for (int k = 0; k < size; ++k)
 				{
+#pragma warning(push)
+#pragma warning(disable : 4244)
 					//floatVector.emplace_back(fabs(Texture::Perlin3DFBM(i * z, j * z, k * z, 2.f, .5f, 3u)));
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 1));
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 2));
 					floatVector.emplace_back(Sebh::Cells(z * SVec3(i, j, k), 3));
 					floatVector.emplace_back(0.f);	//dx crying over no 24 bit format so we have this...
+#pragma warning(pop)
 				}
 			}
 		}

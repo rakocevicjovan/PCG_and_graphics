@@ -5,7 +5,7 @@
 
 struct MeshNode
 {
-	uint16_t parent;
+	uint16_t parent{0u};
 	SMatrix transform;	// Parent space transform (model is the parent)
 
 	//This might be a good opportunity to optimize with SVO 

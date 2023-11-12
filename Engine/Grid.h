@@ -25,11 +25,22 @@ struct CellKey
 		z = static_cast<int>(xyz.z);
 	}
 
-	inline void assign(const SVec3& in) { x = floor(in.x); y = floor(in.y); z = floor(in.z); }
+	inline void assign(const SVec3& in)
+	{ 
+		x = static_cast<int>(floor(in.x)); 
+		y = static_cast<int>(floor(in.y)); 
+		z = static_cast<int>(floor(in.z));
+	}
 
-	int total() const { return x * y * z + y * z + z; }
+	int total() const 
+	{ 
+		return x * y * z + y * z + z;
+	}
 
-	bool operator <(const CellKey& other) const { return total() < other.total(); }
+	bool operator <(const CellKey& other) const 
+	{ 
+		return total() < other.total(); 
+	}
 };
 
 

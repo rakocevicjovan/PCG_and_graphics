@@ -6,14 +6,14 @@ Frustum::Frustum(const SMatrix& pm)
 {
 	extractPlanesFromMatrix(pm);
 
-	_fov = 2. * atan(1.0 / pm._22);	//in radians
+	_fov = static_cast<float>(2. * atan(1.0 / pm._22));	//in radians
 	_ar = pm._22 / pm._11;
 
 	float r = pm._33;
 	float a = pm._43;
 
 	_zn = -a / r;
-	_zf = (-r * _zn) / (1. - r);
+	_zf = static_cast<float>((-r * _zn) / (1. - r));
 }
 
 

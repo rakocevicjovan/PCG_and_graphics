@@ -69,14 +69,14 @@ void AssimpWrapper::ImportAnimations(const aiScene* scene, std::vector<Animation
 	if (!scene->HasAnimations())
 		return;
 
-	for (int i = 0; i < scene->mNumAnimations; ++i)
+	for (auto i = 0u; i < scene->mNumAnimations; ++i)
 	{
 		auto sceneAnimation = scene->mAnimations[i];
-		int numChannels = sceneAnimation->mNumChannels;
+		uint32_t numChannels = sceneAnimation->mNumChannels;
 
 		Animation anim(std::string(sceneAnimation->mName.data), sceneAnimation->mDuration, sceneAnimation->mTicksPerSecond, numChannels);
 
-		for (int j = 0; j < numChannels; ++j)
+		for (auto j = 0u; j < numChannels; ++j)
 		{
 			aiNodeAnim* channel = sceneAnimation->mChannels[j];
 
@@ -84,16 +84,16 @@ void AssimpWrapper::ImportAnimations(const aiScene* scene, std::vector<Animation
 			ac._boneName = std::string(channel->mNodeName.C_Str());
 
 			for (uint32_t c = 0; c < channel->mNumScalingKeys; c++)
-				ac._sKeys.emplace_back(SVec3(&channel->mScalingKeys[c].mValue.x), channel->mScalingKeys[c].mTime);	
+				ac._sKeys.emplace_back(SVec3(&channel->mScalingKeys[c].mValue.x), static_cast<float>(channel->mScalingKeys[c].mTime));	
 
 			for (uint32_t a = 0; a < channel->mNumPositionKeys; a++)
-				ac._pKeys.emplace_back(SVec3(&channel->mPositionKeys[a].mValue.x), channel->mPositionKeys[a].mTime);
+				ac._pKeys.emplace_back(SVec3(&channel->mPositionKeys[a].mValue.x), static_cast<float>(channel->mPositionKeys[a].mTime));
 
 			for (uint32_t b = 0; b < channel->mNumRotationKeys; b++)
 			{
 				SQuat quat = aiQuatToSQuat(channel->mRotationKeys[b].mValue);
 				quat = quat.w >= 0.f ? quat : -quat;
-				ac._rKeys.emplace_back(quat, channel->mRotationKeys[b].mTime);
+				ac._rKeys.emplace_back(quat, static_cast<float>(channel->mRotationKeys[b].mTime));
 			}
 
 			anim.addChannel(ac);
@@ -137,18 +137,23 @@ void AssimpWrapper::correctAxes(const aiScene* aiScene)
 	int frontAxisSign = 1;
 	aiScene->mMetaData->Get<int>("FrontAxisSign", frontAxisSign);
 
-	int coordAxis = 0;
-	aiScene->mMetaData->Get<int>("RightAxis", coordAxis);
-	int coordAxisSign = 1;
-	aiScene->mMetaData->Get<int>("RightAxisSign", coordAxisSign);
+	int rightAxis = 0;
+	aiScene->mMetaData->Get<int>("RightAxis", rightAxis);
+	int rightAxisSign = 1;
+	aiScene->mMetaData->Get<int>("RightAxisSign", rightAxisSign);
 
-	aiVector3D upVec = upAxis == 0 ? aiVector3D(upAxisSign, 0, 0) : upAxis == 1 ? aiVector3D(0, upAxisSign, 0) : aiVector3D(0, 0, upAxisSign);
-	aiVector3D forwardVec = frontAxis == 0 ? aiVector3D(frontAxisSign, 0, 0) : frontAxis == 1 ? aiVector3D(0, frontAxisSign, 0) : aiVector3D(0, 0, frontAxisSign);
-	aiVector3D rightVec = coordAxis == 0 ? aiVector3D(coordAxisSign, 0, 0) : coordAxis == 1 ? aiVector3D(0, coordAxisSign, 0) : aiVector3D(0, 0, coordAxisSign);
-	aiMatrix4x4 mat(rightVec.x, rightVec.y, rightVec.z, 0.0f,
-		upVec.x, upVec.y, upVec.z, 0.0f,
+	aiVector3D upVec{ 0, 0, 0 };
+	upVec[upAxis] = static_cast<ai_real>(upAxisSign);
+	aiVector3D forwardVec{ 0, 0, 0 };
+	forwardVec[frontAxis] = static_cast<ai_real>(frontAxisSign);
+	aiVector3D rightVec{ 0, 0, 0 };
+	rightVec[rightAxis] = static_cast<ai_real>(rightAxisSign);
+
+	aiMatrix4x4 mat(
+		rightVec.x,		rightVec.y,		rightVec.z,		0.0f,
+		upVec.x,			upVec.y,			upVec.z,			0.0f,
 		forwardVec.x, forwardVec.y, forwardVec.z, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
+		0.0f,					0.0f,					0.0f,					1.0f);
 
 	aiScene->mRootNode->mTransformation = mat * aiScene->mRootNode->mTransformation;
 }
@@ -222,12 +227,16 @@ aiNode* AssimpWrapper::findModelNode(aiNode* node, SMatrix& meshRootTransform)
 	meshRootTransform = locTrfm * meshRootTransform;
 
 	if (node->mNumMeshes > 0)
+	{
 		return node;
+	}
 
 	for (uint32_t i = 0; i < node->mNumChildren; ++i)
 	{
 		findModelNode(node->mChildren[i], meshRootTransform);
 	}
+
+	return nullptr;
 }
 
 

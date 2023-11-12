@@ -13,9 +13,9 @@ namespace Procedural
 	{
 		_vertices.reserve(rows * columns);
 		
-		for (int z = 0; z < rows; ++z) 
+		for (auto z = 0u; z < rows; ++z) 
 		{
-			for(int x = 0; x < columns; ++x)
+			for(auto x = 0u; x < columns; ++x)
 			{
 				_vertices.emplace_back(SVec3(x * scale.x, 0, z * scale.y));
 			}
@@ -28,15 +28,6 @@ namespace Procedural
 		_offset = offset;
 	}
 
-
-	// TBD
-	Terrain::~Terrain()
-	{
-	}
-	
-
-
-
 	void Terrain::setTextureData(ID3D11Device* device, float xRepeat, float zRepeat, std::vector<std::string> textureNames)
 	{
 		_texCoordScale = SVec2(xRepeat, zRepeat);
@@ -46,8 +37,6 @@ namespace Procedural
 			textures.push_back(Texture(device, tn));
 		}
 	}
-
-
 
 	void Terrain::Tumble(float chance, float displacement) 
 	{
@@ -62,8 +51,6 @@ namespace Procedural
 				_vertices[i].pos.y += displacement * _scale.y;
 	}
 
-
-
 	float Terrain::sampleDiamond(int i, int j, int reach)
 	{
 		std::vector<float> heights;	
@@ -74,10 +61,10 @@ namespace Procedural
 		if (j - reach >= 0)
 			heights.push_back(_vertices[i * _numColumns + j - reach].pos.y);
 
-		if (j + reach < _numColumns)
+		if (static_cast<uint32_t>(j + reach) < _numColumns)
 			heights.push_back(_vertices[i * _numColumns + j + reach].pos.y);
 
-		if (i + reach < _numRows)
+		if (static_cast<uint32_t>(i + reach) < _numRows)
 			heights.push_back(_vertices[(i + reach) * _numColumns + j].pos.y);
 		
 		float result = 0.f;
@@ -89,19 +76,16 @@ namespace Procedural
 		return result;
 	}
 
-
-
-
 	void Terrain::GenWithDS(SVec4 corners, uint32_t steps, float decay, float randomMax) 
 	{
-		_numRows = _numColumns = pow(2, steps) + 1;
+		_numRows = _numColumns = static_cast<uint32_t>(pow(2, steps) + 1);
 		uint32_t stepSize = _numRows - 1;
 
 		_vertices.clear();
 		_vertices.resize(_numRows * _numRows);
 
-		for (int z = 0; z < _numRows; z++) 
-			for(int x = 0; x < _numRows; x++)
+		for (auto z = 0u; z < _numRows; z++) 
+			for(auto x = 0u; x < _numRows; x++)
 				_vertices[z * _numRows + x].pos = SVec3(x * _scale.x, 0.f, z * _scale.z);
 		
 
@@ -119,9 +103,9 @@ namespace Procedural
 			int halfStep = stepSize / 2;	//half step, in this case 2 then 1
 
 			//square
-			for (int z = 0; z < _numRows - 1; z += stepSize)
+			for (auto z = 0u; z < _numRows - 1; z += stepSize)
 			{
-				for (int x = 0; x < _numRows - 1; x += stepSize)
+				for (auto x = 0u; x < _numRows - 1; x += stepSize)
 				{
 					int midRow = z + halfStep, midColumn = x + halfStep;
 					int midVertIndex = midRow * _numRows + midColumn;
@@ -140,9 +124,9 @@ namespace Procedural
 			}
 
 			//diamond
-			for (int x = 0; x < _numRows - 1; x += stepSize)
+			for (auto x = 0u; x < _numRows - 1; x += stepSize)
 			{
-				for (int z = 0; z < _numRows - 1; z += stepSize)
+				for (auto z = 0u; z < _numRows - 1; z += stepSize)
 				{
 					float ro = c.roll() * 2.f - randomMax;
 
@@ -159,8 +143,6 @@ namespace Procedural
 			c.setRange(0, randomMax);
 		}
 	}
-
-
 
 	void Terrain::CellularAutomata(float initialDistribtuion, uint32_t steps)
 	{
@@ -227,8 +209,6 @@ namespace Procedural
 		}
 	}
 
-
-
 	void Terrain::GenFromTexture(uint32_t width, uint32_t height, const std::vector<float>& data) 
 	{
 		_numColumns = width;
@@ -237,28 +217,28 @@ namespace Procedural
 		_vertices.clear();
 		_vertices.reserve(width * height);
 
-		for (int z = 0; z < _numRows; ++z)
+		for (auto z = 0u; z < _numRows; ++z)
 		{
-			for(int x = 0; x < _numColumns; ++x)
+			for(auto x = 0u; x < _numColumns; ++x)
 			{
-				_vertices.push_back(Vert3D(SVec3(x, data[z * _numColumns + x], z) * _scale));
+				_vertices.push_back(Vert3D(SVec3(static_cast<float>(x), data[z * _numColumns + x], static_cast<float>(z)) * _scale));
 			}
 		}
 	}
-
-
 
 	void Terrain::CalculateNormals()
 	{
 		faces.resize(_numRows - 1);
 
-		for (auto fRow : faces) 
+		for (auto& fRow : faces)
+		{
 			fRow.reserve((_numColumns - 1) * 2);
+		}
 
 		//creating a double vector of faces and calculating the normals for each face
-		for (int row = 0; row < _numRows - 1; ++row)
+		for (auto row = 0u; row < _numRows - 1; ++row)
 		{
-			for (int column = 0; column < _numColumns - 1; ++column)
+			for (auto column = 0u; column < _numColumns - 1; ++column)
 			{
 				int tli = (row + 1) * _numColumns + column;
 				int tri = tli + 1;
@@ -286,9 +266,8 @@ namespace Procedural
 			}
 		}
 
-
 		// Calculate vertex normals from containing faces
-		for (int i = 0; i < _numRows; i++)
+		for (auto i = 0u; i < _numRows; i++)
 		{
 			std::vector<TangentTriface>* pRow{ nullptr };
 			std::vector<TangentTriface>* nRow{ nullptr };
@@ -307,7 +286,7 @@ namespace Procedural
 				nRow = &faces[i];
 			}
 
-			for (int j = 0; j < _numColumns; ++j) 
+			for (auto j = 0u; j < _numColumns; ++j)
 			{
 				int index = i * _numColumns + j;
 				uint32_t facesFound = 0;
@@ -346,13 +325,12 @@ namespace Procedural
 			}
 		}
 
-
 		_indices.clear();
 		_indices.reserve(faces.size() * faces.size() * 6);	//square grid of faces, 2 faces per square, 3 indices per face
 
-		for (auto row : faces)
+		for (const auto& row : faces)
 		{
-			for (auto face : row)
+			for (const auto& face : row)
 			{
 				_indices.push_back((uint32_t)face.x);
 				_indices.push_back((uint32_t)face.y);
@@ -360,8 +338,6 @@ namespace Procedural
 			}
 		}
 	}
-
-
 
 	void Terrain::CalculateTexCoords()
 	{
@@ -372,8 +348,6 @@ namespace Procedural
 			v.texCoords = SVec2(v.pos.x * invXScale, v.pos.z * invZScale);
 	}
 
-
-
 	bool Terrain::SetUp(ID3D11Device* device) 
 	{
 		_vertexBuffer = VBuffer(device, _vertices.data(), _vertices.size() * sizeof(Vert3D));
@@ -382,8 +356,6 @@ namespace Procedural
 
 		return true;
 	}
-
-
 
 	void Terrain::Draw(ID3D11DeviceContext* dc, Phong& s, const Camera& cam, const PointLight& pointLight, float deltaTime)
 	{
@@ -440,8 +412,6 @@ namespace Procedural
 #endif
 	}
 
-
-
 	void Terrain::Fault(const SRay& line, float displacement) 
 	{
 		float adjX = line.position.x;
@@ -451,8 +421,6 @@ namespace Procedural
 			if (line.direction.z * (_vertices[i].pos.x - adjX) - line.direction.x * (_vertices[i].pos.z - adjZ) > 0)
 				_vertices[i].pos.y += displacement;
 	}
-
-
 
 	void Terrain::NoisyFault(const SRay& line, float vertDp, float horiDp, float perlinZoom)
 	{
@@ -478,8 +446,6 @@ namespace Procedural
 		}
 	}
 
-
-
 	//keep decay under 1 for reasonable results? Still, something fun could happen otherwise... this is ugly anyways
 	void Terrain::TerraSlash(const SRay& line, float displacement, uint32_t steps, float decay)
 	{
@@ -487,11 +453,11 @@ namespace Procedural
 
 		Fault(line, displacement);
 
-		for (int i = 1; i < steps; ++i)
+		for (auto i = 1u; i < steps; ++i)
 		{
-			c.setRange(0, _numColumns);
+			c.setRange(0, static_cast<float>(_numColumns));
 			float newLineX = c.roll();
-			c.setRange(0, _numRows);
+			c.setRange(0, static_cast<float>(_numRows));
 			float newLineZ = c.roll();
 			SVec3 randomAxis(newLineX, 0.f, newLineZ);
 
@@ -503,13 +469,11 @@ namespace Procedural
 		}
 	}
 
-
-
 	void Terrain::CircleOfScorn(const SVec2& center, float radius, float angle, float displacement, uint32_t steps, float initAngle)
 	{
 		float curAngle = initAngle;
 
-		for (int i = 0; i < steps; ++i)
+		for (auto i = 0u; i < steps; ++i)
 		{
 			float cosAng = cos(curAngle);
 			float sinAng = sin(curAngle);
@@ -527,21 +491,17 @@ namespace Procedural
 		}
 	}
 
-
-
 	void Terrain::Mesa(const SVec2& center, float radius, float bandWidth, float height)
 	{
 		float inner = radius * radius;
-		float outer = pow((radius + bandWidth), 2);
+		float outer = powf((radius + bandWidth), 2);
 
-		for (int i = 0; i < _vertices.size(); ++i)
+		for (auto i = 0ull; i < _vertices.size(); ++i)
 		{
 			float sqDistToCenter = SVec2::DistanceSquared(SVec2(_vertices[i].pos.x, _vertices[i].pos.z), center);
 			_vertices[i].pos.y += Math::smoothstep(outer, inner, sqDistToCenter) * height;
 		}
 	}
-
-	
 
 	//y[i] = k * y[i-j] + (1-k) * x[i], where k is a filtering constant (erosion coefficient) such that 0 <= k <= 1
 	//apply this FIR function to rows and columns individually, in both directions
@@ -552,9 +512,9 @@ namespace Procedural
 			std::vector<float> smoothed;
 			smoothed.reserve(_vertices.size());
 
-			for (auto z = 0; z < _numRows; ++z)
+			for (uint32_t z = 0u; z < _numRows; ++z)
 			{
-				for (int x = 0; x < _numColumns; ++x)
+				for (uint32_t x = 0u; x < _numColumns; ++x)
 				{
 					int pX = x == 0					? x : x - 1;
 					int nX = x == _numColumns - 1	? x : x + 1;
@@ -567,12 +527,12 @@ namespace Procedural
 				}
 			}
 
-			for (int z = 0; z < _numRows; ++z)
+			for (uint32_t z = 0u; z < _numRows; ++z)
 			{
 				int pZ = z == 0				? z : z - 1;
 				int nZ = z == _numRows - 1	? z : z + 1;
 
-				for (int x = 0; x < _numColumns; ++x)
+				for (uint32_t x = 0u; x < _numColumns; ++x)
 				{
 					int thisSmoothed = z * _numColumns + x;
 					float newHeight =
@@ -590,8 +550,6 @@ namespace Procedural
 		}
 	}
 
-
-
 	std::vector<SVec2> Terrain::getHorizontalPositions() 
 	{
 		std::vector<SVec2> result;
@@ -603,8 +561,6 @@ namespace Procedural
 		return result;
 	}
 
-
-
 	float getHeightByBarrycentric(const SVec3& p1, const SVec3& p2, const SVec3& p3, const SVec2& pos)
 	{
 		float detInverse  = 1.f / ((p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z));
@@ -614,15 +570,13 @@ namespace Procedural
 		return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 	}
 
-
-
 	float Terrain::getHeightAtPosition(const SVec3& playerPos)
 	{
 		float terX = playerPos.x - _offset.x;
 		float terZ = playerPos.z - _offset.z;
 
-		int gridX = (int)floorf(terX / _scale.x);
-		int gridZ = (int)floorf(terZ / _scale.z);
+		auto gridX = (uint32_t)floorf(terX / _scale.x);
+		auto gridZ = (uint32_t)floorf(terZ / _scale.z);
 
 		if (gridX >= _numColumns - 1 || gridZ >= _numRows - 1 || gridX < 0 || gridZ < 0)
 			return _offset.y;
@@ -655,8 +609,6 @@ namespace Procedural
 
 		return finalHeight + _offset.y;
 	}
-
-
 
 	SVec3 Terrain::calculateTangent(const std::vector<Vert3D>& vertices, UINT i0, UINT i1, UINT i2)
 	{

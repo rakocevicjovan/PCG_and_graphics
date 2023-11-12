@@ -7,7 +7,7 @@ std::mt19937_64 Chaos::RNGesus(randomDevice());
 Chaos::Chaos(float min, float max) 
 {
 	dist = std::uniform_real_distribution<float>(min, max);
-	intDist = std::uniform_int_distribution<int>(min, max);
+	intDist = std::uniform_int_distribution<int>(static_cast<int>(min), static_cast<int>(max));
 }
 
 void Chaos::setRange(float min, float max)

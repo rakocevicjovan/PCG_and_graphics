@@ -13,9 +13,14 @@ VertexShader* ShaderCache::getVertShader(const std::string& name)
 {
 	std::unordered_map<std::string, VertexShader*>::const_iterator found = _vsMap.find(name);
 	if (found == _vsMap.end())
+	{
 		assert(false && "VERTEX SHADER NOT FOUND!");
+		return nullptr;
+	}
 	else
+	{
 		return found->second;
+	}
 }
 
 
@@ -23,9 +28,14 @@ PixelShader* ShaderCache::getPixShader(const std::string& name)
 {
 	std::unordered_map<std::string, PixelShader*>::const_iterator found = _psMap.find(name);
 	if (found == _psMap.end())
+	{
 		assert(false && "PIXEL SHADER NOT FOUND!");
+		return nullptr;
+	}
 	else
+	{
 		return found->second;
+	}
 }
 
 

@@ -104,7 +104,7 @@ float Math::clamp(float minX, float maxX, float x)
 float Math::smoothstep(float edge0, float edge1, float x)
 {
 	float  t = clamp(0.0, 1.0, (x - edge0) / (edge1 - edge0));
-	return t * t * (3.0 - 2.0 * t);
+	return t * t * (3.f - 2.f * t);
 }
 
 void Math::swap(float& f1, float& f2)
@@ -128,7 +128,7 @@ void Math::rotateTowardsNoRoll(SMatrix& transform, const SVec3& target, float dT
 }
 
 
-#define FASTFLOOR(x) ( (x >= 0.f) ? ((int)x) : ((int)x-1 ) )
+#define FASTFLOOR(x) ( static_cast<float>( (x >= 0.f) ? (int)x : (int)x-1 ) )
 SVec3 Math::floor3(const SVec3& in)
 {
 	return SVec3(FASTFLOOR(in.x), FASTFLOOR(in.y), FASTFLOOR(in.z));

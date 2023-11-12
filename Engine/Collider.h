@@ -13,11 +13,11 @@ protected:
 	void releaseMemory();
 
 public:
-	BoundingVolumeType BVT;
-	Actor* _parent;
+	BoundingVolumeType BVT{ BoundingVolumeType::BVT_SPHERE };
+	Actor* _parent{};
 	
-	bool dynamic;
-	bool collidable = true;
+	bool dynamic{false};
+	bool collidable{ true };
 
 	Collider() {}
 

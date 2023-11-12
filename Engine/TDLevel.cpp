@@ -42,8 +42,8 @@ void TDLevel::init(Engine& sys)
 
 	S_INMAN.registerController(&_tdController);
 
-	_tdgui.init(ImVec2(S_WW - 500, S_WH - 300), ImVec2(500, 300));
-	_tdgui.createWidget(ImVec2(0, S_WH - 300), ImVec2(300, 300), "selected");
+	_tdgui.init(ImVec2(S_WW - 500.f, S_WH - 300.f), ImVec2(500, 300));
+	_tdgui.createWidget(ImVec2(0, S_WH - 300.f), ImVec2(300, 300), "selected");
 
 	// Light setup, to be replaced soon
 	LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
@@ -92,7 +92,7 @@ void TDLevel::init(Engine& sys)
 	auto vsPtr = sys._shaderCache.getVertShader("basicVS");
 	auto psPtr = sys._shaderCache.getPixShader("phongPS");
 
-	for (int i = 0; i < NUM_ENEMIES; ++i)
+	for (auto i = 0u; i < NUM_ENEMIES; ++i)
 	{
 		//SVec3 pos = SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10);
 
@@ -320,7 +320,7 @@ void TDLevel::handleInput(const Camera* cam)
 		case InputEventTD::RESET_CREEPS:
 			for (int i = 0; i < _creeps.size(); ++i)
 			{
-				Math::SetTranslation(_creeps[i]._transform, SVec3(200, 0, 200) + 5 * SVec3(i % 10, 0, (i / 10) % 10));
+				Math::SetTranslation(_creeps[i]._transform, SVec3(200, 0, 200) + 5 * SVec3(static_cast<float>(i % 10), 0, static_cast<float>((i / 10) % 10)));
 				_creeps[i]._steerComp._active = true;
 				_creeps[i].revive();
 			}
@@ -425,7 +425,7 @@ void TDLevel::demolish()
 void TDLevel::steerEnemies(float dTime)
 {
 	// Not known to individuals as it depends on group size, therefore should not be in a unit component I'd say... 
-	SVec2 stopArea(sqrt(_creeps.size()));
+	SVec2 stopArea(static_cast<float>(sqrt(_creeps.size())));
 	stopArea *= 9.f;
 	float stopDistance = stopArea.Length();
 

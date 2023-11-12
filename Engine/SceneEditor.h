@@ -204,7 +204,7 @@ private:
 				_gizmo.setOp(Gizmo::Op::T);
 			}
 
-			auto cam = _scene->getActiveCamera();
+			const auto& cam = _scene->getActiveCamera();
 			_gizmo.display(_registry->get<CTransform>(_selected), cam.getViewMatrix(), cam.getProjectionMatrix());
 		}
 	}

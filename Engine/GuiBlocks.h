@@ -3,10 +3,6 @@
 #include "GameObject.h"
 #include "IMGUI/imgui.h"
 #include <d3d11_4.h>
-#include <string>
-#include <sstream>
-#include <algorithm>
-
 
 namespace GuiBlocks
 {
@@ -48,11 +44,14 @@ namespace GuiBlocks
 
 		ImGui::Indent();
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+		std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
 		if (vs)
 		{
-			//std::string vsName(vs->_path.begin(), vs->_path.end());
-			//ImGui::Text(vsName.c_str());
-			ImGui::Text("Shader names currently unsupported");
+			std::string vsNameNarrow = converter.to_bytes(vs->_path);
+			ImGui::Text(vsNameNarrow.c_str());
 		}
 		else
 		{
@@ -61,14 +60,14 @@ namespace GuiBlocks
 
 		if (ps)
 		{
-			//std::string psName(ps->_path.begin(), ps->_path.end());
-			//ImGui::Text(psName.c_str());
-			ImGui::Text("Shader names currently unsupported");
+			std::string psNameNarrow = converter.to_bytes(ps->_path);
+			ImGui::Text(psNameNarrow.c_str());
 		}
 		else
 		{
 			ImGui::Text("None loaded");
 		}
+#pragma warning(pop)
 	}
 
 
@@ -218,7 +217,7 @@ namespace GuiBlocks
 
 	static bool displayOverwriteWarning(const char* filePath)
 	{
-		bool result;
+		bool result{ false };
 
 		if (ImGui::BeginPopup("File already exists!"))
 		{

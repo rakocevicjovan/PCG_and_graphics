@@ -75,11 +75,11 @@
 
 			//check if the pixel is grayscale, if not, normalize the colours and construct the position std::vector for the vertex
 			if (isGrayscale(colours))
-				z = colours[0];
+				z = static_cast<float>(colours[0]);
 			else
 				z = toGray(colours);
 
-			SVec3 currentVertex = SVec3(xScale * x, yScale* z , zScale  * y);
+			SVec3 currentVertex = SVec3(static_cast<float>(xScale * x), static_cast<float>(yScale* z) , static_cast<float>(zScale  * y));
 
 			//indices are one indexed so I will increment it here, not that it really matters but just to keep it consistent
 			++x;
@@ -122,7 +122,12 @@
 				ab = b - a;
 				ac = c - a;
 
-				faces[faceRow].push_back(std::make_pair(SVec3(currentRow[k + 1].first, currentRow[k].first, nextRow[k].first), ab.SVec3::Cross(ac)));
+				faces[faceRow].push_back(std::make_pair(
+					SVec3(
+						static_cast<float>(currentRow[k + 1].first),
+						static_cast<float>(currentRow[k].first),
+						static_cast<float>(nextRow[k].first)),
+					ab.SVec3::Cross(ac)));
 
 				//second face
 				a = currentRow[k + 1].second;
@@ -132,7 +137,12 @@
 				ab = b - a;
 				ac = c - a;
 
-				faces[faceRow].push_back(std::make_pair(SVec3(currentRow[k + 1].first, nextRow[k].first, nextRow[k + 1].first), ab.SVec3::Cross(ac)));
+				faces[faceRow].push_back(std::make_pair(
+					SVec3(
+						static_cast<float>(currentRow[k + 1].first),
+						static_cast<float>(nextRow[k].first),
+						static_cast<float>(nextRow[k + 1].first)),
+					ab.SVec3::Cross(ac)));
 
 				columnCounter++;
 
@@ -190,8 +200,10 @@
 						break;
 				}
 
-				if (!fabs(thisNormal.Length()) < 0.0001f)
+				if (!(fabs(thisNormal.Length()) < 0.0001f))
+				{
 					thisNormal.Normalize();
+				}
 
 				vertexNormals.push_back(std::make_pair(thisIndex, thisNormal));
 			}

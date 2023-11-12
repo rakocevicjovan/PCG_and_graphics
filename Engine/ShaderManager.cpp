@@ -101,7 +101,7 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 
 		PersistVertexShader(cmpVsPath.c_str(), vsBlob.Get(), vertSig, { WMBufferDesc });
 
-		vs = std::make_shared<VertexShader>(VertexShader(device, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
+		vs = std::make_shared<VertexShader>(VertexShader(device, vsBlob->GetBufferPointer(), static_cast<uint32_t>(vsBlob->GetBufferSize()),
 			vsPathW, vertInLayElements, { WMBufferDesc }));
 		vs->describeBuffers({ WMBufferMeta });
 	}
@@ -115,7 +115,7 @@ ShaderPack ShaderManager::CreateShader(ID3D11Device* device, uint64_t shaderKey,
 
 		auto samplerDescriptions = mat->createSamplerDescs();
 
-		ps = std::make_shared<PixelShader>(PixelShader(device, psBlob->GetBufferPointer(), psBlob->GetBufferSize(),
+		ps = std::make_shared<PixelShader>(PixelShader(device, psBlob->GetBufferPointer(), static_cast<uint32_t>(psBlob->GetBufferSize()),
 			psPathW, samplerDescriptions, {}));
 
 		PersistPixelShader(cmpPsPath.c_str(), psBlob.Get(), samplerDescriptions, {});

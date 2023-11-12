@@ -136,7 +136,9 @@ bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& sh
 	ID3D11ShaderReflection* reflection = NULL;
 
 	if (FAILED(D3DReflect(shaderBuffer->GetBufferPointer(), shaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&reflection)))
+	{
 		return false;
+	}
 
 	D3D11_SHADER_DESC desc;
 	reflection->GetDesc(&desc);
@@ -184,11 +186,12 @@ bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& sh
 			reflection->GetResourceBindingDesc(k, &IBDesc);
 
 			if (!strcmp(IBDesc.Name, bDesc.Name))	//strcmp returns 0 when strings match
+			{
 				cBuffer.boundAt = IBDesc.BindPoint;
+			}
 		}
 		shMetaData._cBuffers.push_back(cBuffer);
 	}
-
 
 	// Find all texture metadata
 	for (unsigned int k = 0; k < desc.BoundResources; ++k)
@@ -204,12 +207,19 @@ bool ShaderCompiler::reflect(ID3DBlob* shaderBuffer, ShRef::SRShaderMetadata& sh
 			shMetaData._textures.push_back(t);
 		}
 	}
+
+	return true;
 }
 
 
 void ShaderCompiler::outputError(ID3DBlob* errBlob, WCHAR shaderFilename, const std::wstring& filePath) const
 {
-	std::string filePathNarrow(filePath.begin(), filePath.end());
+#pragma warning(push)
+#pragma warning(disable : 4996)
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::string filePathNarrow = converter.to_bytes(filePath);
+#pragma warning(pop)
+
 	if (!errBlob)
 	{
 		std::string errMsg = "Shader file not found: " + filePathNarrow;

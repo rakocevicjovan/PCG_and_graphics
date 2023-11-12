@@ -58,7 +58,7 @@ public:
 				mat = SMatrix::Identity;
 		}
 
-		for (auto i = 0; i < _skm->_skeleton->_numInfluenceBones; ++i)
+		for (auto i = 0u; i < _skm->_skeleton->_numInfluenceBones; ++i)
 		{
 			_skeletonMatrices[i] = _skeletonMatrices[i].Transpose();
 		}

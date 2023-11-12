@@ -39,17 +39,17 @@ class QuadTree
 {
 protected:
 	//size is (N^(L+1)-1) / (N-1) where N = 4, L = depth (I'm using depth 8)
-	#define QT_NODE_COUNT ( (pow(4, 8 + 1) - 1) / (4 - 1) )
+	#define QT_NODE_COUNT static_cast<size_t>(( (pow(4, 8 + 1) - 1) / (4 - 1) ))
 
 
 	//std::vector<QTNode> _nodes;
 	//QTNode* _nodes;
 	
-	uint8_t* _nodePool;
+	uint8_t* _nodePool{};
 
 	QTNode* _levels[8];
-	float _radius;
-	float _invRadius;
+	float _radius{};
+	float _invRadius{};
 	
 	inline QTNode* root();
 

@@ -3,7 +3,7 @@
 #include "VertSignature.h"
 
 class Material;
-class ID3D11Device;
+struct ID3D11Device;
 
 namespace ShaderPicker
 {

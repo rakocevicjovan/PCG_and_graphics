@@ -17,7 +17,7 @@ Animation::Animation(const std::string& name, double ticks, double ticksPerSecon
 
 void Animation::getTransformAtTime(const std::vector<Bone>& bones, const SMatrix& glInvT, float elapsed, std::vector<SMatrix>& vec) const
 {
-	float currentTick = elapsed / _tickDuration;
+	float currentTick = static_cast<float>(elapsed / _tickDuration);
 	float t = currentTick - static_cast<uint32_t>(currentTick);
 
 	for (auto i = 0; i < bones.size(); ++i)

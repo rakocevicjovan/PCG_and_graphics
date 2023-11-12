@@ -4,13 +4,7 @@
 
 namespace Procedural
 {
-	Maze::Maze(){}
-
-	Maze::~Maze(){}
-
-
-
-	void Maze::Init(unsigned int w, unsigned int h, float cellSize)
+	void Maze::Init(uint32_t w, uint32_t h, float cellSize)
 	{ 
 		_w = w;
 		_h = h;
@@ -19,8 +13,6 @@ namespace Procedural
 		Eller();
 	}
 
-
-
 	void Maze::Eller()
 	{
 		cells.resize(_w * _h);
@@ -28,11 +20,11 @@ namespace Procedural
 		Chaos c;
 		std::map<int, EllerSet> currentRow;
 
-		for (int z = 0; z < _h - 1; ++z)
+		for (auto z = 0u; z < _h - 1; ++z)
 		{
 			PopulateRow(z, currentRow);
 
-			for (int x = 0; x < _w - 1; ++x)
+			for (auto x = 0u; x < _w - 1; ++x)
 			{
 				int index = z * _w + x;
 				int curSet = cells[index].set, nxtSet = cells[index + 1].set;
@@ -74,7 +66,7 @@ namespace Procedural
 				//no cells in the set were opened -> randomly pick one from the range [0, size-1] and open it to connect the set
 				if (!connected)
 				{
-					int randIndex = floor(c.roll() * (es.second.cellIDs.size() - 1));
+					int randIndex = static_cast<int>(floor(c.roll() * (es.second.cellIDs.size() - 1)));
 					cells[es.second.cellIDs[randIndex]].t = false;
 					cells[es.second.cellIDs[randIndex] + _w].set = es.first;
 				}	
@@ -83,7 +75,7 @@ namespace Procedural
 
 		PopulateRow(_h - 1, currentRow);
 		
-		for (int x = 0; x < _w - 1; ++x)
+		for (auto x = 0u; x < _w - 1; ++x)
 		{
 			int index = (_h - 1) * _w + x;
 			int curSet = cells[index].set, nxtSet = cells[index + 1].set;
@@ -106,13 +98,11 @@ namespace Procedural
 		}
 	}
 
-
-
 	void Maze::PopulateRow(int z, std::map<int, EllerSet>& row)
 	{
 		row.clear();
 
-		for (int x = 0; x < _w; ++x)
+		for (auto x = 0u; x < _w; ++x)
 		{
 			int index = z * _w + x;
 			int setIndex = cells[index].set < 0 ? index : cells[index].set;
@@ -129,8 +119,6 @@ namespace Procedural
 			}
 		}
 	}
-
-
 
 	void Maze::CreateModel(ID3D11Device* device)
 	{
@@ -176,8 +164,6 @@ namespace Procedural
 			BuildCellMeshes(mc, device, left, right, top, bottom);
 	}
 
-
-
 	void Maze::BuildCellMeshes(MazeCell& mc, ID3D11Device* device, Mesh& left, Mesh& right, Mesh& top, Mesh& bottom)
 	{
 
@@ -202,8 +188,6 @@ namespace Procedural
 		}
 	}
 
-
-
 	void Maze::AlignWall(MazeCell& mc, const Mesh& m, ID3D11Device* device)
 	{
 		Mesh aligned = m;
@@ -221,18 +205,16 @@ namespace Procedural
 		model._meshes.push_back(aligned);
 	}
 
-
-
 	SVec3 Maze::GetRandCellPos()
 	{
 		Chaos c;
 		
-		c.setRange(_w / 2, _w);
-		UINT randWidth = c.roll();
+		c.setRange(static_cast<float>(_w / 2), static_cast<float>(_w));
+		uint32_t randWidth = static_cast<uint32_t>(c.roll());
 
-		c.setRange(_h / 2, _h);
-		UINT randDepth = c.roll();
+		c.setRange(static_cast<float>(_h / 2), static_cast<float>(_h));
+		uint32_t randDepth = static_cast<uint32_t>(c.roll());
 
-		return SVec3((randWidth + 0.5) * _cellSize, _height * 0.5, (randDepth + 0.5) * _cellSize);
+		return SVec3((randWidth + 0.5f) * _cellSize, _height * 0.5f, (randDepth + 0.5f) * _cellSize);
 	}
 }

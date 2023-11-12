@@ -138,7 +138,7 @@ private:
 		}
 
 		// Create shader resource view if required
-		if ((extraFlags & D3D11_BIND_SHADER_RESOURCE) == D3D11_BIND_SHADER_RESOURCE)
+		if (extraFlags & D3D11_BIND_SHADER_RESOURCE)
 		{
 			D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 			srvDesc.Format = format;

@@ -11,22 +11,22 @@ namespace ShRef
 	struct SRCBufferVar
 	{
 		std::string name;
-		uint16_t length;
-		uint16_t offset;
+		uint16_t length{};
+		uint16_t offset{};
 	};
 
 	struct SRCBuffer
 	{
 		std::string name;
-		uint8_t boundAt;
-		uint16_t size;
+		uint8_t boundAt{};
+		uint16_t size{};
 		std::vector<SRCBufferVar> _vars;
 	};
 
 	struct SRTexture
 	{
 		std::string name;
-		uint8_t boundAt;
+		uint8_t boundAt{};
 	};
 
 	struct SRShaderMetadata

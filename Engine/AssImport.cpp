@@ -136,8 +136,12 @@ void AssImport::importSelectedAssets()
 			mat->setPS(shPack->ps);
 
 			// This will cause shaders to be generated and tracked by the ledger regardless of whether the model is imported.
-			auto vsPathStr = std::string(shPack->vs->_path.begin(), shPack->vs->_path.end());
-			auto psPathStr = std::string(shPack->ps->_path.begin(), shPack->ps->_path.end());
+#pragma warning(push)
+#pragma warning(disable : 4996)
+			std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+			auto vsPathStr = converter.to_bytes(shPack->vs->_path);
+			auto psPathStr = converter.to_bytes(shPack->ps->_path);
+#pragma warning(pop)
 
 			auto vsAssetID = _pLedger->getOrInsert(AssetMetaData{ vsPathStr, {}, EAssetType::SHADER });
 			auto psAssetID = _pLedger->getOrInsert(AssetMetaData{ psPathStr, {}, EAssetType::SHADER });
@@ -447,13 +451,13 @@ std::unique_ptr<SkModelAsset> AssImport::makeSkModelAsset(SkModel& skModel, std:
 void AssImport::draw(ID3D11DeviceContext* context, float dTime)
 {
 	auto [columns, rows, spacing] = _numToDraw;
-	float numDrawn = columns * rows;
+	int numDrawn = columns * rows;
 	float fakeDTime = dTime / numDrawn;
 
 	// Horribly inefficient but cba improving it here, make renderer work well and just plug the data in
 	for (int i = 0; i < numDrawn; ++i)
 	{
-		SVec3 offset = SVec3(static_cast<float>(i % columns), 0, static_cast<float>(i / columns)) * spacing;
+		SVec3 offset = SVec3(static_cast<float>(i % columns), 0, static_cast<float>(i / columns)) * static_cast<float>(spacing);
 
 		if (_skModelData)
 		{

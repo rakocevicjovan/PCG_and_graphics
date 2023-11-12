@@ -76,7 +76,7 @@ namespace Procedural
 		texCoords.reserve(verts.size());
 		normals.reserve(verts.size());
 
-		for (auto v : verts)
+		for (auto& v : verts)
 		{
 			positions.push_back(v.position);
 			texCoords.push_back(v.textureCoordinate);
@@ -299,10 +299,10 @@ namespace Procedural
 		indices.reserve(72);	//6 faces up, 6 faces down, 12 faces around -> 24 faces, 3 indices each, 72 faces
 
 		//first vertex
-		positions.emplace_back(0, height, 0);
-		normals.emplace_back(0, 1, 0);
-		texCoords.emplace_back(0, 0);
-		tangents.emplace_back(0, 0, 1);
+		positions.emplace_back(0.f, height, 0.f);
+		normals.emplace_back(0.f, 1.f, 0.f);
+		texCoords.emplace_back(0.f, 0.f);
+		tangents.emplace_back(0.f, 0.f, 1.f);
 
 		for (unsigned int i = 0; i < 6; ++i)
 		{
@@ -311,7 +311,7 @@ namespace Procedural
 			normals.emplace_back(Math::getNormalizedVec3(point));
 			texCoords.emplace_back(point.x * invRadius, point.z * invRadius);
 			//tangents.emplace_back(normals.back().Cross(SVec3(-normals.back().x, normals.back().y, -normals.back().z)));	//cross normal with flipped xz normal pointing inwards
-			tangents.emplace_back(point.x * invRadius, 0,  point.z * invRadius);
+			tangents.emplace_back(point.x * invRadius, 0.f,  point.z * invRadius);
 			indices.insert(indices.end(), { 0, i + 1, i + 2 });
 		}
 		indices.back() = 1;	//close the hexagon
@@ -326,10 +326,10 @@ namespace Procedural
 		indices.insert(indices.end(), { 6 + 7, 1    , 6     });
 
 		//8th vertex
-		positions.emplace_back(0, -height, 0);
-		normals.emplace_back(0, -1, 0);
-		texCoords.emplace_back(0, 0);
-		tangents.emplace_back(0, 0, -1);
+		positions.emplace_back(0.f, -height, 0.f);
+		normals.emplace_back(0.f, -1.f, 0.f);
+		texCoords.emplace_back(0.f, 0.f);
+		tangents.emplace_back(0.f, 0.f, -1.f);
 
 		for (unsigned int i = 1; i < 7; ++i)
 		{

@@ -4,9 +4,9 @@
 struct NavNode
 {
 	std::vector<int> edges;
-	float pathWeight;
-	bool visited;
-	int pathPredecessor;
+	float pathWeight{0.f};
+	bool visited{false};
+	int pathPredecessor{0};
 };
 
 struct NavEdge

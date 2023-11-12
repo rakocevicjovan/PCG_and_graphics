@@ -55,7 +55,7 @@ private:
 	OctNode* preallocateNode(SVec3 center, SVec3 halfSize, int stopDepth, OctNode* parent);
 	
 	void updateNode(OctNode* node);
-	void insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth = 0);
+	void insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, uint32_t depth = 0);
 	bool removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull);
 	void trimNode(OctNode*& pNode);
 	void deleteNode(OctNode*& pNode);

@@ -3,8 +3,6 @@
 #include "VertSignature.h"
 #include "Math.h"
 #include "Model.h"
-#include <vector>
-
 
 struct MeshAsset
 {
@@ -12,7 +10,7 @@ struct MeshAsset
 	std::vector<uint8_t> vertices;
 	std::vector<uint32_t> indices;
 
-	AssetID material;
+	AssetID material{ NULL_ASSET };
 
 	template <typename Archive>
 	void serialize(Archive& ar)
@@ -20,7 +18,6 @@ struct MeshAsset
 		ar(vertSig, vertices, indices, material);
 	}
 };
-
 
 struct ModelAsset
 {
@@ -36,12 +33,11 @@ struct ModelAsset
 	}
 };
 
-
 struct SkModelAsset
 {
 	ModelAsset model;
 
-	AssetID skeleton;
+	AssetID skeleton{ NULL_ASSET };
 	std::vector<AssetID> animations;
 
 	template <typename Archive>

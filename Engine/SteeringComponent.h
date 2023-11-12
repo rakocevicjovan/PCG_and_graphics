@@ -53,7 +53,7 @@ public:
 		}
 		else	//arrival behaviour
 		{
-			SVec3 desiredPos = goalPos + 4.f * SVec3(index % 10, 0, (index / 10) % 10);
+			SVec3 desiredPos = goalPos + 4.f * SVec3(static_cast<float>(index % 10), 0, static_cast<float>((index / 10) % 10));
 			_totalInfluence += Math::getNormalizedVec3(desiredPos - myPos);
 
 			//a bit hacky really... but it allows collision to overtake and sort them out instead of fighting it

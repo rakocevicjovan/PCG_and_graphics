@@ -17,7 +17,12 @@ Audio::~Audio()
 
 void Audio::init()
 {
-	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	const auto initialization_result = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	if (initialization_result != S_OK)
+	{
+		assert(false && "audio init failed");
+		return;
+	}
 
 	//std::unique_ptr<AudioEngine> audEngine;
 	DirectX::AUDIO_ENGINE_FLAGS eflags = DirectX::AudioEngine_Default;
@@ -115,6 +120,6 @@ void Audio::playSequence()
 	{
 		playWithEffect(_sequence[_current]);
 		_current = _current + 1 == _sequence.size() ? 0 : _current + 1;
-		_isPlaying == true;
+		_isPlaying = true;
 	}
 }

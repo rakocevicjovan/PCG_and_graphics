@@ -2,54 +2,46 @@
 #include "Math.h"
 #include "Model.h"
 #include "Chaos.h"
-#include <vector>
-#include <map>
-
 
 namespace Procedural
 {
 
-	struct MazeCell
-	{
-		MazeCell() { }
-		MazeCell(int set, int x, int z) : set(set), x(x), z(z) { }
-		MazeCell(int x, int z) : x(x), z(z) { }
+struct MazeCell
+{
+	MazeCell() { }
+	MazeCell(int set, int x, int z) : set(set), x(x), z(z) { }
+	MazeCell(int x, int z) : x(x), z(z) { }
 
-		int set = -1;
-		int x = 0, z = 0; 
+	int set{ -1 };
+	int x{ 0 };
+	int z{ 0 };
 
-		bool t = true;
-		bool r = true;
-	};
+	bool t{ true };
+	bool r{ true };
+};
 
+struct EllerSet
+{
+	std::vector<int> cellIDs;
 
-
-	struct EllerSet
-	{
-		std::vector<int> cellIDs;
-
-		EllerSet() {}
-		EllerSet(int cellID) { cellIDs.push_back(cellID); }
-	};
-
-
+	EllerSet() {}
+	EllerSet(int cellID) { cellIDs.push_back(cellID); }
+};
 
 class Maze
 {
 	std::vector<MazeCell> cells;
-	unsigned int _w, _h;
-	float _cellSize;
-	float _height = 30.f;
-	float _thickness = 10.f;
+	uint32_t _w{ 0u };
+	uint32_t _h{ 0u };
+	float _cellSize{0.f};
+	float _height{ 30.f };
+	float _thickness{ 10.f };
 
 public:
 
 	Model model;
 
-	Maze();
-	~Maze();
-
-	void Init(unsigned int w, unsigned int h, float cellSize);
+	void Init(uint32_t w, uint32_t h, float cellSize);
 	
 	void Eller();
 	void PopulateRow(int z, std::map<int, EllerSet>& currentRow);

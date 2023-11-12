@@ -109,7 +109,7 @@ int Octree::getIndexByPosition(const AABB& parentBox, const SVec3& pos) const
 {
 	SVec3 offToParent = parentBox.getPosition() - pos;
 	// Right gets odd, up gets 2, foward gets 4, bitmask goes from 000 nbl to 111 ftr
-	return (offToParent.x > 0) * 1. + (offToParent.y > 0) * 2 + (offToParent.z > 0) * 4;
+	return static_cast<int>((offToParent.x > 0) * 1. + (offToParent.y > 0) * 2 + (offToParent.z > 0) * 4);
 }
 
 
@@ -146,7 +146,7 @@ void Octree::insertObject(SphereHull* pSpHull)
 
 
 
-void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth)
+void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, uint32_t depth)
 {
 	int index = 0;
 	bool straddle = 0;
@@ -162,7 +162,9 @@ void Octree::insertObjectIntoNode(OctNode* pNode, SphereHull* pSpHull, int depth
 			break;
 		}
 		if (delta > 0.0f)
+		{
 			index |= (1 << i); // ZYX
+		}
 	}
 
 
@@ -232,7 +234,7 @@ bool Octree::removeObjectFromNode(OctNode* pNode, SphereHull* pSpHull)
 	}
 
 	if (pNode->_children[index])
-		removeObjectFromNode(pNode->_children[index], pSpHull);
+		return removeObjectFromNode(pNode->_children[index], pSpHull);
 	else
 		return false;
 }

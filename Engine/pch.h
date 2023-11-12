@@ -27,6 +27,10 @@
 #include <variant>
 #include <optional>
 
+// For dealing with wstrings
+#include <locale>
+#include <codecvt>
+
 #if __cplusplus > 201703L
 #include <span>
 #endif
@@ -35,6 +39,9 @@
 // Third party - disable warnings for these 
 
 // cereal 
+#pragma warning(push)
+#pragma warning(disable : 26451)
+#pragma warning(disable : 26495)
 #include <cereal/cereal.hpp>
 
 #include <cereal/archives/binary.hpp>
@@ -51,12 +58,15 @@
 #include <cereal/types/unordered_set.hpp>
 #include <cereal/types/utility.hpp>
 #include <cereal/types/memory.hpp>
+#pragma warning(pop) 
 
 // entt
 #include <entt/entt.hpp>
 
 // rapidjson
 #pragma warning(push)
+#pragma warning(disable : 26451)
+#pragma warning(disable : 26495)
 #pragma warning(disable : 4996)
 #include <rapidjson/document.h>
 #include <rapidjson/rapidjson.h>

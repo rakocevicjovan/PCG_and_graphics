@@ -10,40 +10,37 @@
 #include <sstream>
 #include <iomanip>
 
-
 namespace Strife
 {
+class StrifeLevel : public Level
+{
+public:
+	StrifeLevel(Engine& sys) : Level(sys) {};
 
-	class StrifeLevel : public Level
-	{
-	public:
-		StrifeLevel(Engine& sys) : Level(sys) {};
-		~StrifeLevel() {};
+	Model skybox, floor;
+	RenderTarget sceneTex;
+	ScreenspaceDrawer postProcessor;
+	ScreenspaceDrawer::UINODE* screenRectangleNode{};
 
-		Model skybox, floor;
-		RenderTarget sceneTex;
-		ScreenspaceDrawer postProcessor;
-		ScreenspaceDrawer::UINODE* screenRectangleNode;
+	Model screenQuad;
 
-		Model screenQuad;
+	CloudscapeDefinition csDef;
 
-		CloudscapeDefinition csDef;
-
-		//load and draw all that jazz
-		void init(Engine& sys);
-		void procGen();
-		void update(const RenderContext& rc);
-		void draw(const RenderContext& rc);
+	//load and draw all that jazz
+	void init(Engine& sys);
+	void procGen();
+	void update(const RenderContext& rc);
+	void draw(const RenderContext& rc);
 		
-		ID3D11ShaderResourceView* baseSrv;
-		ID3D11ShaderResourceView* fineSrv;
+	ID3D11ShaderResourceView* baseSrv{};
+	ID3D11ShaderResourceView* fineSrv{};
 
-		ID3D11Texture3D* baseTexId;
-		ID3D11Texture3D* fineTexId;
+	ID3D11Texture3D* baseTexId{};
+	ID3D11Texture3D* fineTexId{};
 
-		bool Create3D();
-		bool CreateFine3D();
-		bool Create3DOneChannel();
-		bool CreateFine3DOneChannel();
-	};
+	bool Create3D();
+	bool CreateFine3D();
+	bool Create3DOneChannel();
+	bool CreateFine3DOneChannel();
+};
 }

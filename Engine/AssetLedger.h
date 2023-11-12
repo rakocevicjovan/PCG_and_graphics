@@ -8,7 +8,7 @@ struct AssetMetaData
 {
 	std::string path;
 	std::vector<AssetID> dependencies;
-	EAssetType type;
+	EAssetType type{ EAssetType::UNKNOWN };
 
 	template<typename Archive>
 	void serialize(Archive& ar)

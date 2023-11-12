@@ -28,7 +28,7 @@ void ParticleSystem::init(Model* pModel, unsigned int particleCount, SMatrix tra
 
 	pud = new ParticleUpdateData;
 
-	for (auto i = 0; i < _numParticles; ++i)
+	for (auto i = 0u; i < _numParticles; ++i)
 	{
 		_particles.push_back(new ParticleBase());
 	}

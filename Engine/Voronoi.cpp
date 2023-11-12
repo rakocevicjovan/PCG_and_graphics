@@ -23,7 +23,7 @@ namespace Procedural
 		c.setRange(0, _ySize);
 		c.roll_n(eyes.data(), _numSeeds);
 
-		for (int i = 0; i < _numSeeds; ++i)
+		for (auto i = 0u; i < _numSeeds; ++i)
 		{
 			_seeds[i].x = axes[i];
 			_seeds[i].y = eyes[i];
@@ -37,12 +37,12 @@ namespace Procedural
 
 		for (int i = 0; i < positions.size(); ++i) 
 		{
-			float minDistSquared = pow(_seeds[0].x - positions[i].x, 2) + pow(_seeds[0].y - positions[i].y, 2);
+			float minDistSquared = powf(_seeds[0].x - positions[i].x, 2) + powf(_seeds[0].y - positions[i].y, 2);
 			areaIndices[i] = 0;
 
 			for (int j = 1; j < _seeds.size(); ++j)
 			{
-				float curDistSquared = pow(_seeds[j].x - positions[i].x, 2) + pow(_seeds[j].y - positions[i].y, 2);
+				float curDistSquared = powf(_seeds[j].x - positions[i].x, 2) + powf(_seeds[j].y - positions[i].y, 2);
 				if (curDistSquared < minDistSquared)
 					areaIndices[i] = j;
 			}	

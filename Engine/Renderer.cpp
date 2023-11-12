@@ -21,8 +21,8 @@ bool Renderer::initialize(int windowWidth, int windowHeight, D3D& d3d)
 	_deviceContext = d3d.getContext();
 
 	// Setup the projection matrix.
-	_windowWidth = windowWidth;
-	_windowHeight = windowHeight;
+	_windowWidth = static_cast<float>(windowWidth);
+	_windowHeight = static_cast<float>(windowHeight);
 
 	_aspectRatio = static_cast<float>(windowWidth) / windowHeight;
 	_fieldOfView = PI / 3.0f;
@@ -42,7 +42,7 @@ void Renderer::resize(uint16_t width, uint16_t height)
 	_windowWidth = width;
 	_windowHeight = height;
 
-	_aspectRatio = width / height;
+	_aspectRatio = static_cast<float>(width) / static_cast<float>(height);
 
 	// Set render target size, viewport etc... see what needs to happen
 	// Keep in mind that rendering resolution might not change! Not sure how this should be handled.
