@@ -1,6 +1,4 @@
 #pragma once
-#include <string>
-#include <d3d11_4.h>
 #include "DDSTextureLoader.h"
 
 class CubeMap

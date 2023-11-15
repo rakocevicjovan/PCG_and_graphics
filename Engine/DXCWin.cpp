@@ -1,4 +1,5 @@
 #include "pch.h"
+
 #include "DXCWin.h"
 #include <dxcapi.h> // This is the include from the windows kit.
 
@@ -36,7 +37,7 @@ ComPtr<IDxcBlob> DXC::compile(const wchar_t* filename)
         sourceBlob.Get(),   // pSource
         filename,           // pSourceName
         L"main",            // pEntryPoint
-        L"PS_6_0",          // pTargetProfile
+        L"ps_6_0",          // pTargetProfile, ps/vs/cs etc. might have to be upper or lower case not sure now
         NULL, 0,            // pArguments, argCount
         NULL, 0,            // pDefines, defineCount
         NULL,               // pIncludeHandler

@@ -1,8 +1,5 @@
 #pragma once
-#include <vector>
-#include <array>
 #include "Math.h"
-#include <d3d11_4.h>
 #include "Texture.h"
 #include "Light.h"
 #include "MeshDataStructs.h"

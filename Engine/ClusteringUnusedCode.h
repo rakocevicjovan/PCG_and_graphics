@@ -2,7 +2,6 @@
 #include "ClusteringMath.h"
 #include "Camera.h"
 #include "Light.h"
-#include "IMGUI/imgui.h"
 #include "ClusterManager.h"
 
 
@@ -67,7 +66,7 @@ void buildClipSpacePlanes(const Camera& cam, std::vector<SPlane>& planes, std::a
 
 
 
-void buildGrid(const Camera& cam, std::array<UINT, 3> gridDims)
+void buildGrid(const Camera& cam, std::array<uint32_t, 3> gridDims)
 {
 	float zNear = cam._frustum._zn;
 	float zFar = cam._frustum._zf;
@@ -137,7 +136,7 @@ void renderSphereProjections(std::vector<PLight>& culledList, const Camera& cam)
 {
 	char windowName[20];
 
-	for (int i = 0; i < min(culledList.size(), 1); i++)	//_culledList.size()
+	for (int i = 0; i < std::min(culledList.size(), 1ull); i++)	//_culledList.size()
 	{
 		sprintf(windowName, "SPHERE_DEBUG %d", i);
 
@@ -155,14 +154,14 @@ void renderSphereProjections(std::vector<PLight>& culledList, const Camera& cam)
 		ImVec2 pos(p.x, p.y);	//needs max y actually, so mm.z
 		ImVec2 size(s.x, s.y);
 
-		ImGui::PushID(i);
+		//ImGui::PushID(i);
 
-		ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
-		ImGui::SetNextWindowSize(size, ImGuiCond_Always);
+		//ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+		//ImGui::SetNextWindowSize(size, ImGuiCond_Always);
 
-		ImGui::Begin(windowName, false);
-		ImGui::End();
+		//ImGui::Begin(windowName, false);
+		//ImGui::End();
 
-		ImGui::PopID();
+		//ImGui::PopID();
 	}
 }

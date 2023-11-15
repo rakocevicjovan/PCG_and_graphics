@@ -1,6 +1,4 @@
 #pragma once
-#include <d3d11_4.h>
-#include <vector>
 #include "MeshDataStructs.h"
 #include "Math.h"
 #include "Light.h"

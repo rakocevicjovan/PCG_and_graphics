@@ -1,8 +1,6 @@
 #pragma once
 #include "MeshDataStructs.h"
 #include "VertSignature.h"
-#include <d3d11_4.h>
-#include <wrl\client.h>
 
 
 
@@ -71,7 +69,7 @@ private:
 
 	inline D3D11_SUBRESOURCE_DATA createSubresourceData(void* dataPtr)
 	{
-		D3D11_SUBRESOURCE_DATA vertexData;
+		D3D11_SUBRESOURCE_DATA vertexData{};
 		vertexData.pSysMem = dataPtr;
 		vertexData.SysMemPitch = 0;
 		vertexData.SysMemSlicePitch = 0;

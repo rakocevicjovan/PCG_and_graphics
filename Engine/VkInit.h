@@ -39,9 +39,6 @@ namespace vkinit
 
 		auto vkbInstance = built.value();
 		
-		handles._instance = vkbInstance.instance;
-		handles._debugMessenger = vkbInstance.debug_messenger;
-
 		// Use vkbootstrap to select a GPU. We want a GPU that can write to the SDL surface and supports Vulkan 1.1
 		vkb::PhysicalDeviceSelector selector{ built.value() };
 		
@@ -51,13 +48,13 @@ namespace vkinit
 			.select()
 			.value();
 
-		handles._chosenGPU = physicalDevice.physical_device;
-
 		//create the final Vulkan device
 		vkb::DeviceBuilder deviceBuilder{ physicalDevice };
 		vkb::Device vkbDevice = deviceBuilder.build().value();
 
-		
+		handles._instance = vkbInstance.instance;
+		handles._debugMessenger = vkbInstance.debug_messenger;
+		handles._chosenGPU = physicalDevice.physical_device;
 		handles._device = vkbDevice.device;	// Get the VkDevice handle used in the rest of a Vulkan application
 	}
 }

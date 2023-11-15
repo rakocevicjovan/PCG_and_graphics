@@ -60,7 +60,7 @@ private:
 	struct MeshTransform
 	{
 		Mesh* mesh;
-		SMatrix mat;
+		uint32_t mat{ ~0u };
 	};
 	//"Render queue"
 	std::vector<MeshTransform> _rq;
@@ -91,7 +91,7 @@ public:
 		auto skyBoxMat = std::make_shared<Material>(_sys._shaderCache.getVertShader("FSTriangleVS"), _sys._shaderCache.getPixShader("skyboxTrianglePS"), true);
 
 		// TODO make this optional by storing it in the registry as a "component" would be in unreal/unity
-		_skybox = Skybox(device, "../Textures/day.dds", std::move(skyBoxMat));
+		_skybox = Skybox(device, "../../../assets/Textures/day.dds", std::move(skyBoxMat));
 
 		LightData lightData(SVec3(0.1, 0.7, 0.9), .03f, SVec3(0.8, 0.8, 1.0), .2, SVec3(0.3, 0.5, 1.0), 0.7);
 
@@ -128,7 +128,7 @@ public:
 		// @TODO test this
 		//BuildRuntimeAnimation(*modelPtr->_skeleton.get(), *modelPtr->_anims[0].get());
 
-		for (UINT i = 0; i < 100; ++i)
+		for (uint32_t i = 0; i < 100; ++i)
 		{
 			auto entity = _scene._registry.create();
 
@@ -138,11 +138,11 @@ public:
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
 			_scene._registry.emplace<CTransform>(entity, transform);
 			_scene._registry.emplace<CEntityName>(entity, "Entity name");
-			_scene._registry.emplace<SphereHull>(entity, SphereHull(position, 120));
+			_scene._registry.emplace<SphereHull>(entity, SphereHull(position, 360));
 			_scene._registry.emplace<VisibleFlag>(entity, VisibleFlag{false});
 		}
 
-		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 1024));
+		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 100 * 4));
 		std::vector<std::array<CTransform, 4>> transposed_matrices(_scene._registry.view<CTransform>().size());
 		for (auto i = 0; i < _scene._registry.view<CTransform>().size(); ++i)
 		{
@@ -196,10 +196,9 @@ public:
 
 		auto visible_group = _scene._registry.group<CTransform, CSkModel, VisibleFlag>();
 
-		uint32_t i = 0;
 		numCulled = 0;
-		visible_group.each([&renderQueue = _rq, &context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer, &i, &cullCount = numCulled]
-		(CTransform& transform, CSkModel& renderComp, VisibleFlag& isVisible)
+		visible_group.each([&renderQueue = _rq, &context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer, &cullCount = numCulled]
+		(entt::entity entity, CTransform& transform, CSkModel& renderComp, VisibleFlag& isVisible)
 			{
 				if (!isVisible.val)
 				{
@@ -212,11 +211,12 @@ public:
 				if (!skModel)
 					return;
 
-				++i;
+				const auto entity_index = entt::to_integral(entity);
 				// This won't work if meshes aren't all under a single node, it just happens to.  Trivial to change though
 				for (auto& mesh : skModel->_meshes)
 				{
-					renderQueue.push_back({ &mesh, transform });
+					// - 1 because there's an entity before models are pushed in. Be CAREFUL with this code it's very ad hoc written fragile garbage, not to stay here as such
+					renderQueue.push_back({ &mesh, entity_index - 1 });
 				}
 			});
 
@@ -226,12 +226,8 @@ public:
 				return rhs.mesh < lhs.mesh;
 			});
 
-		uint32_t num_visible_models = i;
-		i = 0;
-		for (auto& [mesh, transform] : _rq)
+		for (auto& [mesh, transform_index] : _rq)
 		{
-			if (i % num_visible_models == 0)
-			{
 				mesh->bind(context);
 
 				Material* mat = mesh->_material.get();
@@ -239,14 +235,12 @@ public:
 				mat->getVS()->bind(context);
 				mat->getPS()->bind(context);
 				mat->bindTextures(context);
-			}
 
-			constexpr uint32_t size = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix)) / 16);
-			uint32_t offset = (i % num_visible_models) * size;
-			context->VSSetConstantBuffers1(0, 1, _positionBuffer.ptrAddr(), &offset, &size);
+			constexpr auto num_constants = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix) * 4) / 16);
+			uint32_t first_constant = transform_index * num_constants;
+			context->VSSetConstantBuffers1(0, 1, _positionBuffer.ptrAddr(), &first_constant, &num_constants);
 
 			context->DrawIndexed(mesh->_indexBuffer.getIdxCount(), 0, 0);
-			++i;
 		}
 		_rq.clear();
 	}
@@ -325,46 +319,51 @@ public:
 			//	return;
 			//}));
 
+
+		// THIS ONE IS GOOD 
+
 		// Single thread version
-		const auto context = _sys._renderer.context();
-
-		//_sys._renderer.frame(_sys._clock.deltaTime());
-
-		_dirLight.updateCBuffer(context, _dirLightCB);
-		_dirLight.bind(context, _dirLightCB);
-
-		_scene.draw();
-
-		fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(context), _scene._registry);
-
-		S_RANDY.d3d()->setRSWireframe();
-		_geoClipmap.draw(context);
-		S_RANDY.d3d()->setRSSolidCull();
-
-		_skybox.renderSkybox(*rc.cam, S_RANDY);
-
-		// testing full screen shader - works, confirmed
-		//S_RANDY.d3d()->setRSSolidNoCull();
-		//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
-		//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
-		//context->Draw(3, 0);
-
-		GUI::BeginFrame();
-
-		_sceneEditor.display();
-
-		std::vector<GuiElement> guiElems =
 		{
-			{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
-			{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-			{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
-			{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
-		};
-		GUI::RenderGuiElems(guiElems);
+			const auto context = _sys._renderer.context();
 
-		GUI::EndFrame();
+			//_sys._renderer.frame(_sys._clock.deltaTime());
 
-		S_RANDY.d3d()->present();
+			_dirLight.updateCBuffer(context, _dirLightCB);
+			_dirLight.bind(context, _dirLightCB);
+
+			_scene.draw();
+
+			fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(context), _scene._registry);
+
+			S_RANDY.d3d()->setRSWireframe();
+			_geoClipmap.draw(context);
+			S_RANDY.d3d()->setRSSolidCull();
+
+			_skybox.renderSkybox(*rc.cam, S_RANDY);
+
+			// testing full screen shader - works, confirmed
+			//S_RANDY.d3d()->setRSSolidNoCull();
+			//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
+			//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
+			//context->Draw(3, 0);
+
+			GUI::BeginFrame();
+
+			_sceneEditor.display();
+
+			std::vector<GuiElement> guiElems =
+			{
+				{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+				{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
+				{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
+				{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
+			};
+			GUI::RenderGuiElems(guiElems);
+
+			GUI::EndFrame();
+
+			S_RANDY.d3d()->present();
+		}
 	}
 };
 

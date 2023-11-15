@@ -5,31 +5,32 @@
 // C++ stl includes
 #include <algorithm>
 #include <array>
-#include <vector>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <execution>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
-#include <streambuf>
-#include <iostream>
-#include <memory>
-#include <execution>
 #include <future>
+#include <immintrin.h>
+#include <iostream>
+#include <map>
+#include <memory>
 #include <mutex>
 #include <numeric>
-#include <random>
-#include <unordered_map>
-#include <string>
-#include <map>
-#include <type_traits>
-#include <variant>
 #include <optional>
+#include <random>
+#include <sstream>
+#include <streambuf>
+#include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <variant>
+#include <vector>
 
 // For dealing with wstrings
-#include <locale>
 #include <codecvt>
+#include <locale>
 
 #if __cplusplus > 201703L
 #include <span>
@@ -73,9 +74,12 @@
 #pragma warning(pop) 
 
 
-// Graphics includes
+// Graphics DX11 includes
+#include <dxgi.h>
+#include <d3dcommon.h>
 #include <d3d11_4.h>
 #include <dxgiformat.h>
+#include <d3dcompiler.h>
 
 // Windows includes
 #include <wrl/client.h>

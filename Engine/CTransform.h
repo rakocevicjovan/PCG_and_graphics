@@ -5,5 +5,5 @@ struct CTransform
 {
 	SMatrix transform;
 
-	operator SMatrix& () { return transform; }
+	constexpr operator SMatrix& () { return transform; }
 };

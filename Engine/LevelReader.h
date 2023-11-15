@@ -20,7 +20,7 @@ class LevelReader
 private:
 
 	std::string _projectPath;
-	LevelDef _ld;
+	LevelDef _ld{};
 	std::vector<ResourceDef> _resourceDefs;
 
 	bool loadLevelDef(const rapidjson::Document& sceneDef);

@@ -476,6 +476,7 @@
     <ClInclude Include="LZ4Wrapper.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="Pausable.h" />
     <ClInclude Include="Proj.h" />
     <ClInclude Include="PSOBuilder.h" />
     <ClInclude Include="Quantization.h" />

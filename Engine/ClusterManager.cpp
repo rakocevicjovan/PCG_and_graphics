@@ -33,7 +33,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	// Reset from previous frame
 	_lightIndexList.clear();	
 	
-	UINT nLights = pLights.size();
+	uint32_t nLights = pLights.size();
 	_lightBounds.resize(nLights);	//as opposed to reserve
 
 	// Get some data out for easier access/naming
@@ -51,23 +51,23 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	float log_n = log(zn);
 
 	// Used for binning
-	UINT zOffset = 0u;
-	UINT yOffset = 0u;
+	uint32_t zOffset = 0u;
+	uint32_t yOffset = 0u;
 
-	UINT sliceSize = _gridDims[0] * _gridDims[1];
-	UINT rowSize = _gridDims[0];
+	uint32_t sliceSize = _gridDims[0] * _gridDims[1];
+	uint32_t rowSize = _gridDims[0];
 
 	
 	// Threading setup, distribute work to other threads ( 3 in my case, +1 main thread)
-	UINT nThreads = threadPool.n_idle();
+	uint32_t nThreads = threadPool.n_idle();
 	std::vector<std::future<void>> futures(nThreads);
-	UINT chunkSize = pLights.size() / (nThreads + 1u);
+	uint32_t chunkSize = pLights.size() / (nThreads + 1u);
 
 	// Launch nThreads 
-	for (UINT i = 0; i < nThreads; i++)
+	for (uint32_t i = 0; i < nThreads; i++)
 	{
-		UINT minOff = i * chunkSize;
-		UINT maxOff = (i + 1) * chunkSize;
+		uint32_t minOff = i * chunkSize;
+		uint32_t maxOff = (i + 1) * chunkSize;
 
 		// Lockless, uses atomic to count and threads do not touch same _lightBounds indices...
 		futures[i] =
@@ -82,7 +82,7 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	// Do the exact same thing but on the main thread as well... should really just use the function though
 
 	// Convert all lights into clip space and obtain their min/max cluster indices
-	for (UINT i = nThreads * chunkSize; i < nLights; ++i)	// nThreads * chunkSize
+	for (uint32_t i = nThreads * chunkSize; i < nLights; ++i)	// nThreads * chunkSize
 	{
 		const PLight& pl = pLights[i];
 
@@ -91,15 +91,15 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 		_lightBounds[i] = indexSpan;
 
 		// First step of binning, increase counts per cluster
-		for (uint8_t z = indexSpan[4]; z <= indexSpan[5]; z++)
+		for (uint32_t z = indexSpan[4]; z <= indexSpan[5]; z++)
 		{
 			zOffset = z * sliceSize;
 
-			for (uint8_t y = indexSpan[1]; y <= indexSpan[3]; y++)
+			for (uint32_t y = indexSpan[1]; y <= indexSpan[3]; y++)
 			{
 				yOffset = y * rowSize;
 
-				for (uint8_t x = indexSpan[0]; x <= indexSpan[2]; x++)	// Cell index in frustum's cluster grid, nbl to ftr
+				for (uint32_t x = indexSpan[0]; x <= indexSpan[2]; x++)	// Cell index in frustum's cluster grid, nbl to ftr
 				{
 					_offsetGrid[zOffset + yOffset + x]._count.fetch_add(1, std::memory_order_seq_cst);//_count++;
 				}
@@ -132,17 +132,17 @@ void ClusterManager::assignLights(const std::vector<PLight>& pLights, const Came
 	// 2. Use atomic decrement on ._count (operators ++ and -- are already overloaded on atomic)
 	// 3. This makes _lightIndexList[cellListStart + listOffset] unique every time, but cache thrashing might cause issues
 	
-	for (UINT i = 0; i < nLights; i++)
+	for (uint32_t i = 0; i < nLights; i++)
 	{
-		for (uint8_t z = _lightBounds[i][4]; z <= _lightBounds[i][5]; z++)
+		for (uint32_t z = _lightBounds[i][4]; z <= _lightBounds[i][5]; z++)
 		{
 			zOffset = z * sliceSize;
 
-			for (uint8_t y = _lightBounds[i][1]; y <= _lightBounds[i][3]; y++)
+			for (uint32_t y = _lightBounds[i][1]; y <= _lightBounds[i][3]; y++)
 			{
 				yOffset = y * rowSize;
 
-				for (uint8_t x = _lightBounds[i][0]; x <= _lightBounds[i][2]; x++)
+				for (uint32_t x = _lightBounds[i][0]; x <= _lightBounds[i][2]; x++)
 				{
 					UINT cellIndex = zOffset + yOffset + x;
 
@@ -181,7 +181,7 @@ void ClusterManager::processLightsMT(
 	UINT sliceSize = gridDims[0] * gridDims[1];
 	UINT rowSize = gridDims[0];
 
-	for (UINT i = mindex; i < maxdex; ++i)
+	for (uint32_t i = mindex; i < maxdex; ++i)
 	{
 		const PLight& pl = pLights[i];
 
@@ -190,15 +190,15 @@ void ClusterManager::processLightsMT(
 		lightBounds[i] = indexSpan;
 
 		// First step of binning, increase counts per cluster
-		for (int z = indexSpan[4]; z <= indexSpan[5]; ++z)
+		for (uint32_t z = indexSpan[4]; z <= indexSpan[5]; ++z)
 		{
-			UINT zOffset = z * sliceSize;
+			uint32_t zOffset = z * sliceSize;
 
-			for (uint8_t y = indexSpan[1]; y <= indexSpan[3]; ++y)
+			for (uint32_t y = indexSpan[1]; y <= indexSpan[3]; ++y)
 			{
-				UINT yOffset = y * rowSize;
+				uint32_t yOffset = y * rowSize;
 
-				for (uint8_t x = indexSpan[0]; x <= indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
+				for (uint32_t x = indexSpan[0]; x <= indexSpan[2]; ++x)	// Cell index in frustum's cluster grid, nbl to ftr
 				{
 					grid[zOffset + yOffset + x]._count.fetch_add(1, std::memory_order_seq_cst);
 				}
@@ -226,7 +226,7 @@ LightBounds ClusterManager::getLightBounds(const PLight& pLight, float zn, float
 }
 
 
-LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<UINT, 3> gDims, float _sz_div_log_fdn, float _log_n)
+LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2& zMinMax, float zNear, float zFar, std::array<uint32_t, 3> gDims, float _sz_div_log_fdn, float _log_n)
 {
 	// This returns floats so I'll rather try to use SSE at least for the SVec4
 	SVec4 xyi = rect + SVec4(1.f);	// -1, 1 to 0, 2
@@ -237,21 +237,21 @@ LightBounds ClusterManager::getLightMinMaxIndices(const SVec4& rect, const SVec2
 		static_cast<float>(gDims[0]), 
 		static_cast<float>(gDims[1]));	//0, 1 to 0, maxX/Y
 
-	//uint8_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, gDims[2]);
-	//uint8_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, gDims[2]);
+	//uint32_t zMin = viewDepthToZSlice(zNear, zFar, zMinMax.x, gDims[2]);
+	//uint32_t zMax = viewDepthToZSlice(zNear, zFar, zMinMax.y, gDims[2]);
 
-	uint8_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
-	uint8_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
+	uint32_t zMin = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.x);
+	uint32_t zMax = viewDepthToZSliceOpt(_sz_div_log_fdn, _log_n, zMinMax.y);
 
 	// This is fragile AF! @TODO inspect
 	return
 	{
-		static_cast<uint8_t>(xyi.x),												// min x
-		static_cast<uint8_t>(xyi.y),												// min y
-		std::min(static_cast<uint8_t>(xyi.z), static_cast<uint8_t>(gDims[0] - 1u)),	// max x
-		std::min(static_cast<uint8_t>(xyi.w), static_cast<uint8_t>(gDims[1] - 1u)),	// max y
-		std::max(zMin, static_cast <uint8_t>(0)),									// min z
-		std::min(zMax, static_cast<uint8_t>(gDims[2] - 1))							// max z
+		std::max(0u, static_cast<uint32_t>(xyi.x)),																		// min x
+		std::max(0u, static_cast<uint32_t>(xyi.y)),																		// min y
+		std::min(static_cast<uint32_t>(xyi.z), static_cast<uint32_t>(gDims[0] - 1u)),	// max x
+		std::min(static_cast<uint32_t>(xyi.w), static_cast<uint32_t>(gDims[1] - 1u)),	// max y
+		std::max(zMin, static_cast <uint32_t>(0)),																		// min z
+		std::min(zMax, static_cast<uint32_t>(gDims[2] - 1))														// max z
 	};
 }
 

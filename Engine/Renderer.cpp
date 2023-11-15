@@ -71,6 +71,8 @@ void Renderer::frame(float dTime)
 	updateRenderContext(dTime);
 
 	updatePerFrameBuffers(dTime);
+
+	_d3d->present();
 }
 
 

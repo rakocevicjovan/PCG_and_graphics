@@ -8,11 +8,10 @@
 
 #include "Proj.h"
 
-
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
-	_threadPool(std::thread::hardware_concurrency() - 1)
+	_threadPool(std::thread::hardware_concurrency() - 2)
 {
 }
 
@@ -31,13 +30,13 @@ void Engine::initialize()
 
 	if (!_D3D.initialize(_windowWidth, _windowHeight, false, _engineWindow.handle(), _engineWindow.fullscreen()))
 	{
-		assert("Can't initialize D3D!");
+		assert("Failed to initialize D3D!");
 		return;
 	}
 
 	if (!_renderer.initialize(_windowWidth, _windowHeight, _D3D))
 	{
-		assert("Could not initialize the renderer!");
+		assert("Failed to initialize the renderer!");
 		return;
 	}
 
@@ -80,6 +79,8 @@ void Engine::initialize()
 	//{
 	//	assert(false && "Failed to load level list.");
 	//}
+
+	//static std::thread rendering_thread(&Renderer::run<float>, std::ref(_renderer), 0.01666f);
 }
 
 
@@ -183,7 +184,7 @@ LRESULT Engine::HandleWindowInput(HWND hwnd, UINT message, WPARAM wparam, LPARAM
 
 			if (dwSize > 0)
 			{
-				LPBYTE lpb[MAX_DW_SIZE]; // Can be allocated dynamically with exact size however this just won't break in practice and a new per frame is meh...
+				LPBYTE lpb[MAX_DW_SIZE]{}; // Can be allocated dynamically with exact size however this just won't break in practice and a new per frame is meh...
 
 				if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
 				{

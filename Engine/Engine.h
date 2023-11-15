@@ -30,6 +30,7 @@
 #include "AssetManagerLocator.h"
 
 
+#include "Pausable.h"
 
 // Centralized, high level "glue" class that manages engine subsystems and exposes them to the game. Highest scope object
 class Engine
@@ -43,7 +44,10 @@ private:
 	UINT _windowWidth = 2560;
 	UINT _windowHeight = 1440;
 
+	
+
 	bool _minimized{false};
+	//std::unique_ptr<std::thread> _rendering_thread;
 
 	// Contains metadata of the project and lists of assets the project needs
 	Project _project;

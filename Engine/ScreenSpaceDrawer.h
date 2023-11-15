@@ -1,7 +1,5 @@
 #pragma once
 
-#include <d3d11_4.h>
-#include <vector>
 #include "Math.h"
 #include "Mesh.h"
 #include "ShaderHUD.h"

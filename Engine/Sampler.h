@@ -1,7 +1,4 @@
 #pragma once
-#include <d3d11_4.h>
-#include <vector>
-#include <array>
 
 // Not going to bother with cross-API versions yet
 class Sampler

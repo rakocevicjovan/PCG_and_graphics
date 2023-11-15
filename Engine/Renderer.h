@@ -7,13 +7,13 @@
 #include "ClusterManager.h"
 #include "RenderStage.h"
 #include "ReservedBuffers.h"
-
+#include "Pausable.h"
 
 // @TODO make data driven and add a menu to set them...
-static bool FULL_SCREEN = false;
-static bool VSYNC_ENABLED = true;
-static float FAR_PLANE = 1000.0f;
-static float NEAR_PLANE = 1.0f;
+inline bool FULL_SCREEN = false;
+inline bool VSYNC_ENABLED = true;
+inline float FAR_PLANE = 1000.0f;
+inline float NEAR_PLANE = 1.0f;
 
 // This can be smarter, vary based on needs, but that's a story for another day
 static std::array<UINT, 3> CLUSTER_GRID_DIMS{ 30, 17, 16 };
@@ -31,8 +31,7 @@ struct RenderContext
 };
 
 
-
-class Renderer
+class Renderer : public Pausable<Renderer>
 {
 private:
 
@@ -88,4 +87,9 @@ public:
 	inline ID3D11Device* device () { return _device; }
 	inline ID3D11DeviceContext* context () { return _deviceContext; }
 	inline D3D* d3d () { return _d3d; }
+
+	inline void doWork(float dTime)
+	{
+		frame(dTime);
+	}
 };

@@ -1,7 +1,4 @@
 #pragma once
-#include <d3d11.h>
-#include <cstdint>
-#include <wrl/client.h>
 
 
 struct DepthStencilDesc

@@ -4,19 +4,12 @@
 #include "ClusteringMath.h"
 #include "VitThreadPool.h"
 #include "SBuffer.h"
-#include <array>
-#include <immintrin.h>
-#include <atomic>
-
 
 
 #define AVG_MAX_LIGHTS_PER_CLUSTER (64u)
 
-
-
-typedef std::array<uint8_t, 6> LightBounds;
-
-
+// Change go uint8_t if it proves better
+typedef std::array<uint32_t, 6> LightBounds;
 
 struct OffsetListItem
 {
@@ -36,7 +29,6 @@ struct OffsetListItem
 	uint32_t _index{ 0u };	//uint16_t _index;
 	std::atomic<uint32_t> _count{0u};		// Could likely get away with 8 here but it aligns the struct to 4 bytes anyways, it's compact enough
 };
-
 
 
 class ClusterManager

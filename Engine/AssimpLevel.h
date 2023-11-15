@@ -7,9 +7,6 @@
 #include "SkeletalModelInstance.h"
 #include "Sampler.h"
 #include "ShaderManager.h"
-#include <memory>
-
-
 
 class AssimpLevel : public Level
 {

@@ -1,8 +1,4 @@
 #pragma once
-#include <d3d11_4.h>
-#include <wrl/client.h>
-#include <vector>
-
 
 enum class CBUFFER_FIELD_TYPE : uint8_t
 {

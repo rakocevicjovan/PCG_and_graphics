@@ -1283,6 +1283,9 @@
     <ClInclude Include="RendererSystem.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Pausable.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

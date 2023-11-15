@@ -1,7 +1,5 @@
 #pragma once
 #include "Logger.h"
-#include <d3d11_4.h>
-#include <vector>
 
 
 class InputLayout

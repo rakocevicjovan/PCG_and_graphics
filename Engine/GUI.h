@@ -41,7 +41,7 @@ public:
 		
 		static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
 		ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-		io.Fonts->AddFontFromFileTTF("../Fonts/" FONT_ICON_FILE_NAME_FA, 16.0f, &icons_config, icons_ranges);
+		io.Fonts->AddFontFromFileTTF("../../../assets/Fonts/" FONT_ICON_FILE_NAME_FA, 16.0f, &icons_config, icons_ranges);
 		// use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 
 
