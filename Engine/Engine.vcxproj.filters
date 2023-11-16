@@ -67,9 +67,6 @@
     <Filter Include="Collision\Spatial partitioning\QuadTree">
       <UniqueIdentifier>{888a585f-8b3f-4843-8321-7db4d85ef3ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Multi Threading">
-      <UniqueIdentifier>{2e139f82-818b-4c4a-981b-f982b291df3b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Memory Allocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
     </Filter>
@@ -176,6 +173,9 @@
     </Filter>
     <Filter Include="Editor\Gizmo">
       <UniqueIdentifier>{d160ca9b-8eb5-4339-873b-94ae68cbf72a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="multi_threading">
+      <UniqueIdentifier>{2e139f82-818b-4c4a-981b-f982b291df3b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -865,9 +865,6 @@
     <ClInclude Include="ClusteringMath.h">
       <Filter>Rendering\High level\Lights</Filter>
     </ClInclude>
-    <ClInclude Include="VitThreadPool.h">
-      <Filter>Multi Threading</Filter>
-    </ClInclude>
     <ClInclude Include="Editor.h">
       <Filter>Editor</Filter>
     </ClInclude>
@@ -1285,6 +1282,12 @@
     </ClInclude>
     <ClInclude Include="Pausable.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="multi_threading\concurrentqueue.h">
+      <Filter>multi_threading</Filter>
+    </ClInclude>
+    <ClInclude Include="multi_threading\VitThreadPool.h">
+      <Filter>multi_threading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

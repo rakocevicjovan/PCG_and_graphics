@@ -476,6 +476,8 @@
     <ClInclude Include="LZ4Wrapper.h" />
     <ClInclude Include="MaterialManager.h" />
     <ClInclude Include="ModelManager.h" />
+    <ClInclude Include="multi_threading\concurrentqueue.h" />
+    <ClInclude Include="multi_threading\VitThreadPool.h" />
     <ClInclude Include="Pausable.h" />
     <ClInclude Include="Proj.h" />
     <ClInclude Include="PSOBuilder.h" />
@@ -759,7 +761,6 @@
     <ClInclude Include="Viewport.h" />
     <ClInclude Include="ViewStreamBuffer.h" />
     <ClInclude Include="VirtualTexture.h" />
-    <ClInclude Include="VitThreadPool.h" />
     <ClInclude Include="VkCmdBuffer.h" />
     <ClInclude Include="VkCmdPool.h" />
     <ClInclude Include="VkFramebuffer.h" />
