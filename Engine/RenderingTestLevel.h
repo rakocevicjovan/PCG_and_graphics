@@ -266,104 +266,45 @@ public:
 
 	void draw(const RenderContext& rc) override final
 	{
-		// Trashy "multi threaded rendering" for now but I ensure that no other part of the code is using d3d11 context.
-		// Next up is making this properly multi threaded
-		//if (_rendering_finished.valid())
-		//{
-		//	_rendering_finished.wait();
-		//}
+		const auto context = _sys._renderer.context();
 
-		//_rendering_finished = _sys._threadPool.push(std::bind(
-		//	[&]()
-		//	{
-			//	//_sys._renderer.frame(_sys._clock.deltaTime());
+		//_sys._renderer.frame(_sys._clock.deltaTime());
 
-			//	const auto context = rc.d3d->getContext();
+		_dirLight.updateCBuffer(context, _dirLightCB);
+		_dirLight.bind(context, _dirLightCB);
 
-			//	_dirLight.updateCBuffer(context, _dirLightCB);
-			//	_dirLight.bind(context, _dirLightCB);
+		_scene.draw();
 
-			//	_scene.draw();
+		fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(context), _scene._registry);
 
-			//	fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(rc.d3d->getContext()), _scene._registry);
+		S_RANDY.d3d()->setRSWireframe();
+		_geoClipmap.draw(context);
+		S_RANDY.d3d()->setRSSolidCull();
 
-			//	S_RANDY.d3d()->setRSWireframe();
-			//	_geoClipmap.draw(context);
-			//	S_RANDY.d3d()->setRSSolidCull();
+		_skybox.renderSkybox(*rc.cam, S_RANDY);
 
-			//	_skybox.renderSkybox(*rc.cam, S_RANDY);
+		// testing full screen shader - works, confirmed
+		//S_RANDY.d3d()->setRSSolidNoCull();
+		//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
+		//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
+		//context->Draw(3, 0);
 
-			//	// testing full screen shader - works, confirmed
-			//	//S_RANDY.d3d()->setRSSolidNoCull();
-			//	//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
-			//	//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
-			//	//context->Draw(3, 0);
+		GUI::BeginFrame();
 
-			//	GUI::BeginFrame();
+		_sceneEditor.display();
 
-			//	_sceneEditor.display();
-
-			//	std::vector<GuiElement> guiElems =
-			//	{
-			//		{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
-			//		{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-			//		{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
-			//		{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
-			//	};
-			//	GUI::RenderGuiElems(guiElems);
-
-			//	GUI::EndFrame();
-
-			//	rc.d3d->present();
-
-			//	return;
-			//}));
-
-
-		// THIS ONE IS GOOD 
-
-		// Single thread version
+		std::vector<GuiElement> guiElems =
 		{
-			const auto context = _sys._renderer.context();
+			{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
+			{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
+			{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
+			{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
+		};
+		GUI::RenderGuiElems(guiElems);
 
-			//_sys._renderer.frame(_sys._clock.deltaTime());
+		GUI::EndFrame();
 
-			_dirLight.updateCBuffer(context, _dirLightCB);
-			_dirLight.bind(context, _dirLightCB);
-
-			_scene.draw();
-
-			fakeRenderSystem(static_cast<ID3D11DeviceContext1*>(context), _scene._registry);
-
-			S_RANDY.d3d()->setRSWireframe();
-			_geoClipmap.draw(context);
-			S_RANDY.d3d()->setRSSolidCull();
-
-			_skybox.renderSkybox(*rc.cam, S_RANDY);
-
-			// testing full screen shader - works, confirmed
-			//S_RANDY.d3d()->setRSSolidNoCull();
-			//context->VSSetShader(_fullScreenVS._vsPtr.Get(), nullptr, 0);
-			//context->PSSetShader(_fullScreenPS._psPtr.Get(), nullptr, 0);
-			//context->Draw(3, 0);
-
-			GUI::BeginFrame();
-
-			_sceneEditor.display();
-
-			std::vector<GuiElement> guiElems =
-			{
-				{"Octree",	std::string("OCT node count " + std::to_string(_scene._octree.getNodeCount()))},
-				{"Octree",	std::string("OCT hull count " + std::to_string(_scene._octree.getHullCount()))},
-				{"FPS",		std::string("FPS: " + std::to_string(_fpsCounter.getAverageFPS()))},
-				{"Culling", std::string("Objects culled:" + std::to_string(numCulled))}	//numCulled
-			};
-			GUI::RenderGuiElems(guiElems);
-
-			GUI::EndFrame();
-
-			S_RANDY.d3d()->present();
-		}
+		S_RANDY.d3d()->present();
 	}
 };
 

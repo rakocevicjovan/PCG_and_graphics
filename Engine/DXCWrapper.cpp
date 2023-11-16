@@ -6,7 +6,7 @@
 
 // Not ideal because it depends on the path. Should add a build macro. 
 // Without the full path path it breaks since there are two dxcompiler.lib versions - in windows dev kit and vulkan sdk
-#pragma comment(lib, "C:/VulkanSDK/1.2.198.1/Lib/dxcompiler.lib")
+#pragma comment(lib, "C:/VulkanSDK/1.3.268.0/Lib/dxcompiler.lib")
 
 
 using namespace Microsoft::WRL;

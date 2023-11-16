@@ -10,10 +10,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		assert(false && "SetProcessDPIAware() failed!");
 	}
 
-	// For debugging with console enable this
-	//AllocConsole();
-	//freopen("CONOUT$", "w", stdout);
-	//freopen("CONOUT$", "w", stderr);
+#ifdef USE_CONSOLE
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+	freopen("CONOUT$", "w", stderr);
+#endif
 
 	Engine engine;
 	engine.initialize();
