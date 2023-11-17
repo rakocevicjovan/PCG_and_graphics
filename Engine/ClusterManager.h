@@ -2,7 +2,7 @@
 #include "Light.h"
 #include "Camera.h"
 #include "ClusteringMath.h"
-#include "VitThreadPool.h"
+#include "multi_threading/VitThreadPool.h"
 #include "SBuffer.h"
 
 

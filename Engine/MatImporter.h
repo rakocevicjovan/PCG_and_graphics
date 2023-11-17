@@ -1,7 +1,7 @@
 #pragma once
 #include "Material.h"
 #include "AssimpWrapper.h"
-#include "VitThreadPool.h"
+#include "multi_threading/VitThreadPool.h"
 
 
 class MatImporter

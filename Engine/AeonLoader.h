@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AssetID.h"
-#include "VitThreadPool.h"
+#include "multi_threading/VitThreadPool.h"
 #include "FileUtilities.h"
 
 // Not sure if in progress is required, might be good to have

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
-
 #include "Window.h"
 #include "Project.h"
 #include "FileBrowser.h"
@@ -26,7 +23,7 @@
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
 
-#include "VitThreadPool.h"
+#include "multi_threading/VitThreadPool.h"
 #include "AssetManagerLocator.h"
 
 
