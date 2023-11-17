@@ -89,7 +89,7 @@ public:
 		}
 	}
 
-
+	// Likely wrong, I don't think I should be using owning pointers on this
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> getBackBufferPointer()
 	{
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBufferPtr;

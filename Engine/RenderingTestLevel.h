@@ -138,7 +138,7 @@ public:
 			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
 			_scene._registry.emplace<CTransform>(entity, transform);
 			_scene._registry.emplace<CEntityName>(entity, "Entity name");
-			_scene._registry.emplace<SphereHull>(entity, SphereHull(position, 360));
+			_scene._registry.emplace<SphereHull>(entity, SphereHull(position, 240));
 			_scene._registry.emplace<VisibleFlag>(entity, VisibleFlag{false});
 		}
 
