@@ -22,6 +22,9 @@ public:
 	std::vector<uint8_t> _vertices;
 	std::vector<uint32_t> _indices;
 
+	SVec3 average_position{};
+	float max_distance{};
+
 	//handles to GPU data abstracted in my own classes (useful if I ever get to supporting multiple API-s)
 	VBuffer _vertexBuffer;
 	IBuffer _indexBuffer;

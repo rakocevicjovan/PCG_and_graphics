@@ -46,6 +46,9 @@ namespace ModelLoader
 		mesh._indices = std::move(meshAsset.indices);
 		mesh._vertSig = std::move(meshAsset.vertSig);
 
+		mesh.average_position = meshAsset.average_position;
+		mesh.max_distance = meshAsset.max_distance;
+
 		futureMats.push_back(materialManager->getAsync(meshAsset.material));
 
 		return mesh;

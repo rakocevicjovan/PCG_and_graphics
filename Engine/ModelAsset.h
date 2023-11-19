@@ -12,10 +12,13 @@ struct MeshAsset
 
 	AssetID material{ NULL_ASSET };
 
+	SVec3 average_position;
+	float max_distance;
+
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(vertSig, vertices, indices, material);
+		ar(vertSig, vertices, indices, material, average_position, max_distance);
 	}
 };
 

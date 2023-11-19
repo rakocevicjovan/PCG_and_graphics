@@ -65,23 +65,61 @@ namespace MeshImporter
 	}
 
 
-	static void ImportVertexData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, const Skeleton* skeleton = nullptr)
+	static void ImportVertexData(VertSignature vertSig, std::vector<uint8_t>& vertPool, aiMesh* aiMesh, SVec3& average_positon, float& max_distance, const Skeleton* skeleton = nullptr)
 	{
 		UINT vertByteWidth = vertSig.getVertByteWidth();
 		UINT vertPoolSize = vertByteWidth * aiMesh->mNumVertices;
 
 		vertPool.resize(vertPoolSize);	// Memcpy doesn't increase size() so we hackerino
 		
+		// This can work for AABBs but they bad...
+		//SVec3 min_vec(std::numeric_limits<float>::max());
+		//SVec3 max_vec(std::numeric_limits<float>::lowest());
+		//if (aiVert->x < min_vec.x) min_vec.x = aiVert->x;
+		//if (aiVert->y < min_vec.y) min_vec.y = aiVert->y;
+		//if (aiVert->z < min_vec.z) min_vec.z = aiVert->z;
+		//if (aiVert->x > max_vec.x) min_vec.x = aiVert->x;
+		//if (aiVert->y > max_vec.y) min_vec.y = aiVert->y;
+		//if (aiVert->z > max_vec.z) min_vec.z = aiVert->z;
+
+		// The method I'm using to calculate the sphere does not yield the OPTIMAL bounding sphere. It's "ok" though. 
+		const auto calc_average_position =
+			[&]()
+		{
+			aiVector3D average(0.f, 0.f, 0.f);
+			for (uint32_t i = 0; i < aiMesh->mNumVertices; ++i)
+			{
+				average += aiMesh->mVertices[i];
+			}
+			average /= aiMesh->mNumVertices;
+			return average;
+		};
+
 		// Pack interleaved, starting with positions
 		if (aiMesh->HasPositions())
 		{
+			auto avg_pos_ai = calc_average_position();
+			auto local_max_dist = 0.f;
+
 			UINT posOffset = vertSig.getOffsetOf(VAttribSemantic::POS);
 			uint8_t* dst = vertPool.data() + posOffset;
-			for (UINT i = 0; i < aiMesh->mNumVertices; ++i)
+			for (uint32_t i = 0; i < aiMesh->mNumVertices; ++i)
 			{
-				memcpy(dst, &aiMesh->mVertices[i], sizeof(aiVector3D));
+				const auto aiVert = aiMesh->mVertices + i;
+				float sq_distance_to_average = (*aiVert - avg_pos_ai).SquareLength();
+				if (sq_distance_to_average > local_max_dist)
+				{
+					local_max_dist = sq_distance_to_average;
+				}
+
+				memcpy(dst, aiVert, sizeof(aiVector3D));
 				dst += vertByteWidth;
 			}
+
+			local_max_dist = std::sqrtf(local_max_dist);
+
+			average_positon = SVec3(avg_pos_ai.x, avg_pos_ai.y, avg_pos_ai.z);
+			max_distance = local_max_dist;
 		}
 
 		// There are potentially multiple texture coordinate channels, to be stored at an accumulating offset
@@ -173,7 +211,7 @@ namespace MeshImporter
 
 		mesh._vertSig = MeshImporter::CreateVertSignature(aiMesh);
 		mesh._vertexBuffer._primitiveTopology = AssimpWrapper::getPrimitiveTopology(aiMesh);
-		ImportVertexData(mesh._vertSig, mesh._vertices, aiMesh, skeleton);
+		ImportVertexData(mesh._vertSig, mesh._vertices, aiMesh, mesh.average_position, mesh.max_distance, skeleton);
 		AssimpWrapper::loadIndices(aiMesh, mesh._indices);
 
 		return mesh;

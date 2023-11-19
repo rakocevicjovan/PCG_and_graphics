@@ -18,7 +18,7 @@ enum CTRL_MODE
 class Controller : public Observer
 {
 private:
-	InputManager* _inMan;
+	const InputManager* _inMan;
 
 	SVec3 processTranslationFPS(const float dTime, const SMatrix& transformation) const;
 	void processRotationFPS(float dTime, SMatrix& transformation) const;

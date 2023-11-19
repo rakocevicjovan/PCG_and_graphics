@@ -109,7 +109,8 @@ public:
 		}
 		else
 		{
-			_swapChain->Present(0, DXGI_PRESENT_DO_NOT_WAIT);	// Present as fast as possible.
+			// 1  seems to help with screen updates for now... based on docs i'm not sure why
+			_swapChain->Present(1, DXGI_PRESENT_DO_NOT_WAIT);	// Present as fast as possible.
 		}
 	}
 

@@ -417,7 +417,7 @@ std::unique_ptr<ModelAsset> AssImport::makeModelAsset(Model& model, std::vector<
 	for (auto i = 0; i < model._meshes.size(); ++i)
 	{
 		auto& mesh = model._meshes[i];
-		modelAsset->meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]] });
+		modelAsset->meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_modelData.meshMaterialMapping[i]], mesh.average_position, mesh.max_distance });
 	}
 
 	modelAsset->meshNodes = model._meshNodeTree;
@@ -436,7 +436,7 @@ std::unique_ptr<SkModelAsset> AssImport::makeSkModelAsset(SkModel& skModel, std:
 	for (auto i = 0; i < skModel._meshes.size(); ++i)
 	{
 		auto& mesh = skModel._meshes[i];
-		modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_skModelData.meshMaterialMapping[i]] });
+		modelAsset.meshes.push_back(MeshAsset{ mesh._vertSig, mesh._vertices, mesh._indices, matIDs[_skModelData.meshMaterialMapping[i]], mesh.average_position, mesh.max_distance });
 	}
 
 	modelAsset.meshNodes = skModel._meshNodeTree;

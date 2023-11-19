@@ -61,9 +61,6 @@ public:
 
 	RenderContext rc;
 
-	//std::vector<RenderStage> _stages;
-	RenderStage _mainStage;
-
 	Renderer();
 	~Renderer();
 

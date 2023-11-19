@@ -34,7 +34,7 @@ public:
 	AssimpLevel(Engine& sys) : 
 		Level(sys), 
 		_scene(sys, AABB(SVec3(), SVec3(500.f * .5)), 5),
-		_fileBrowser("C:/Users/metal/source/repos/PCG_and_graphics_stale_memes/Models/Animated")
+		_fileBrowser("C:/Users/metal/source/assets/Models/Animated")
 	{
 		_renderTarget = RenderTarget(S_DEVICE, 1024, 1024, DXGI_FORMAT_R8G8B8A8_UNORM, D3D11_BIND_SHADER_RESOURCE);
 	}
