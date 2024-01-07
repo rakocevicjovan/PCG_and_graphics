@@ -1,7 +1,7 @@
 #pragma once
 
 #include <VkBootstrap.h>
-#include "VkTypes.h"
+#include "rendering/vulkan/VkTypes.h"
 
 
 // This is duplicated in the renderer... 
@@ -25,7 +25,7 @@ namespace vkinit
 
 		vkb::InstanceBuilder builder;
 		
-		vkb::detail::Result built = builder.
+		auto built = builder.
 			set_app_name("Aeolian").
 			request_validation_layers(true).
 			require_api_version(1, 1, 0).

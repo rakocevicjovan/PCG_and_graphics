@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VkTypes.h"
+#include "rendering/vulkan/VkTypes.h"
 
 
 VkCommandBufferAllocateInfo CreateCmdBufferAllocateInfo(VkCommandPool pool, uint32_t count = 1, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY)

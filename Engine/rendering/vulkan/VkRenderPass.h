@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VkTypes.h"
+#include "rendering/vulkan/VkTypes.h"
 
 // A renderpass renders into a framebuffer, which links to the images being rendered to
 // Renderpass contains N subpasses, at least one. On mobile GPUs this is more important than on desktop so currently we can just default to 1

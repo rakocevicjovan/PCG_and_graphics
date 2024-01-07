@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VkTypes.h"
+#include "rendering/vulkan/VkTypes.h"
 
 // One vulkan pool (with n buffers) per thread is required to record commands on multiple threads in parallel, vkQueueSubmit however is not thread safe
 

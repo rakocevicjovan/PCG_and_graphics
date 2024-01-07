@@ -1,10 +1,10 @@
 #pragma once
 
-#include "VkInit.h"
-#include "VkCmdPool.h"
-#include "VkCmdBuffer.h"
-#include "VkRenderPass.h"
-#include "VkFramebuffer.h"
+#include "rendering/vulkan/VkInit.h"
+#include "rendering/vulkan/VkCmdPool.h"
+#include "rendering/vulkan/VkCmdBuffer.h"
+#include "rendering/vulkan/VkRenderPass.h"
+#include "rendering/vulkan/VkFramebuffer.h"
 
 inline constexpr uint64_t s_to_ns(uint64_t seconds)
 {
@@ -61,7 +61,7 @@ class VkRenderer
 	{
 		vkb::InstanceBuilder builder;
 
-		vkb::detail::Result built = builder.
+		auto built = builder.
 			set_app_name("Aeolian").
 			request_validation_layers(true).
 			require_api_version(1, 1, 0).
