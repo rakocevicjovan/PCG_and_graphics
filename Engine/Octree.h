@@ -1,9 +1,9 @@
 #pragma once
+
 #include "Hull.h"
 #include "ColFuncs.h"
 #include "PoolAllocator.h"
-#include <list>
-#include <array>
+#include "Collider.h"
 
 // OCT_NODE_COUNT ( (pow(4, 8 + 1) - 1) / (4 - 1) )
 

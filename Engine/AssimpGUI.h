@@ -12,7 +12,7 @@ public:
 
 		if (ImGui::TreeNode(nodeName.c_str()))
 		{
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.6, 0., 1., 1.));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.6f, 0.f, 1.f, 1.f));
 
 			aiMatrix4x4 concatenatedTransform = node->mTransformation * parentTransform;
 
@@ -117,7 +117,7 @@ public:
 
 	static void printAiMaterial(const aiScene* aiScene, aiMesh* mesh)
 	{
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.4, .5, .7, 1.));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.4f, .5f, .7f, 1.f));
 		if (mesh->mMaterialIndex >= 0)
 		{
 			aiMaterial* aiMat = aiScene->mMaterials[mesh->mMaterialIndex];

@@ -75,7 +75,7 @@ std::vector<float> Frustum::calcSplitDistances(uint8_t n) const
 	for (float i = 1; i <= n; ++i)
 	{
 		// Alternative 2: double Zi = Math::lerp(near, far, i / nf);  // Linear increase
-		float Zi = Math::lerp(n + (i / nf) * (d - nf), pow(n * (d / nf), i / nf), .8);	//lerp(lin, log, .5), like nvidia
+		auto Zi = static_cast<float>(Math::lerp(n + (i / nf) * (d - nf), pow(n * (d / nf), i / nf), .8f));	//lerp(lin, log, .5), like nvidia
 		result.push_back(Zi);
 	}
 

@@ -14,7 +14,7 @@ private:
 
 		if (bone.isInfluenceBone())
 		{
-			ImGui::PushStyleColor(0, ImVec4(.2, 7., 1., 1.));
+			ImGui::PushStyleColor(0, ImVec4(.2f, .7f, 1.f, 1.f));
 		}
 
 		if (ImGui::TreeNode(bone.name()))

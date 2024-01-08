@@ -91,7 +91,7 @@ namespace MeshImporter
 			{
 				average += aiMesh->mVertices[i];
 			}
-			average /= aiMesh->mNumVertices;
+			average = average / static_cast<ai_real>(aiMesh->mNumVertices);
 			return average;
 		};
 
