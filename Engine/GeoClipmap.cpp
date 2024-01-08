@@ -1,17 +1,47 @@
 #include "pch.h"
 #include "GeoClipmap.h"
 #include "VertSignature.h"
+#include "TextureManager.h"
 
+
+constexpr uint32_t textureBlockSize = 1 << 8;
+
+// Calculate number of visible tiles in one direction rounded up 
+int32_t determineVisibleDistanceInTiles(float farPlaneDistance)
+{
+	return static_cast<int32_t>(farPlaneDistance / textureBlockSize + 1);
+}
+
+std::pair<CellIndex, CellIndex> determineVisibleTileRange(SVec3 cameraPosition, int32_t farPlaneDistanceInTiles)
+{
+	// +8 is a hack for now, place in the middle of the map basically
+	CellIndex cameraCell =
+	{
+		static_cast<int32_t>(cameraPosition.x / textureBlockSize) + 8,
+		static_cast<int32_t>(cameraPosition.z / textureBlockSize) + 8
+	};
+
+	return
+	{
+		{
+			cameraCell.x - farPlaneDistanceInTiles,
+			cameraCell.y - farPlaneDistanceInTiles
+		},
+		{
+			cameraCell.x + farPlaneDistanceInTiles,
+			cameraCell.y + farPlaneDistanceInTiles
+		}
+	};
+}
 
 GeoClipmap::GeoClipmap(UINT numLayers, UINT edgeSizeLog2, float xzScale)
 	: _numLayers(numLayers), _edgeVertCount(static_cast<uint32_t>(pow(2, edgeSizeLog2) - 1)), _coreVertSpacing(xzScale)
 {
 	_blockEdgeVertCount = (_edgeVertCount + 1) / 4;	// Size of the outer layer block in vertices
-	_gapSize = _blockEdgeVertCount * 3;	// Cardinal gaps
 	_layers.resize(_numLayers);
 
 	// Texture size
-	_texSize = _edgeVertCount;
+	_texSize = _edgeVertCount + 1;
 }
 
 
@@ -153,9 +183,8 @@ void GeoClipmap::createBuffers(ID3D11Device* device)
 	createGridVertices(rimVertLength, 2, vertexData);
 
 	// Merge and create
-	std::vector<UINT> lRimIndices;
+	std::vector<UINT> lRimIndices = std::move(vStripIndices);
 	lRimIndices.reserve((8 + 7) * 2 * 3);	// 15 squares, 2 triangle faces each, 3 indices each
-	std::copy(vStripIndices.begin(), vStripIndices.end(), std::back_inserter(lRimIndices));
 	std::copy(hStripIndices.begin(), hStripIndices.end(), std::back_inserter(lRimIndices));
 
 	_rimVB = VBuffer(device, vertexData.data(), vertexData.size() * sizeof(SVec2), sizeof(SVec2));
@@ -233,7 +262,7 @@ void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec
 {
 	UINT requiredSize = numCols * numRows;
 
-	output.reserve(output.size() + requiredSize);
+	output.reserve(requiredSize);
 
 	for (UINT z = numRows; z > 0; --z)
 	{
@@ -248,12 +277,12 @@ void GeoClipmap::createGridVertices(UINT numCols, UINT numRows, std::vector<SVec
 std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
 {
 	UINT x = numCols - 1;
-	UINT y = numRows - 1;
+	UINT z = numRows - 1;
 
 	std::vector<UINT> indices;
-	indices.reserve(x * y * 2 * 3);	// Rows and columns of squares, two triangles each, 3 UINTs each
+	indices.reserve(x * z * 2 * 3);	// Rows and columns of squares, two triangles each, 3 UINTs each
 
-	for (UINT i = 0; i < y; ++i)		// For every row
+	for (UINT i = 0; i < z; ++i)		// For every row
 	{
 		for (UINT j = 0; j < x; ++j)	// For every column in the row
 		{
@@ -270,9 +299,133 @@ std::vector<UINT> GeoClipmap::createGridIndices(UINT numCols, UINT numRows)
 }
 
 
-void GeoClipmap::update(ID3D11DeviceContext* context)
+void GeoClipmap::update(ID3D11DeviceContext* context, SVec3 cameraPosition, float farPlaneDistance)
 {
-	// Update the texture
+	// Fetch tiles we need but don't have yet
+	const auto farPlaneDistanceInTiles = determineVisibleDistanceInTiles(farPlaneDistance);
+
+	// This might shrink often if the distance varies but not worried about it for now, distance shouldn't vary much
+	const auto gridSize = 2 * farPlaneDistanceInTiles;
+	_chunkTextures.reserve(gridSize * gridSize);
+
+	// Not expected to move more than 1 row and 1 column at once
+	//std::vector<CellIndex> tilesToRemove;
+	//tilesToRemove.reserve(2 * gridSize - 1);
+	std::vector<std::pair<CellIndex, std::shared_future<std::shared_ptr<Texture>>>> tilesToAdd;
+	tilesToAdd.reserve(2 * gridSize - 1);
+
+	const auto [min, max] = determineVisibleTileRange(cameraPosition, farPlaneDistanceInTiles);
+	const auto& [prevMin, prevMax] = _prevVisibleRange;
+
+	//const auto addRowTo =
+	//	[&](uint32_t val, std::vector<CellIndex>& container)
+	//	{
+	//		for (auto i = 0u; i < gridSize; ++i)
+	//		{
+	//			container.emplace_back(i, val);
+	//		}
+	//	};
+	//
+	//const auto addColTo =
+	//	[&](uint32_t val, std::vector<CellIndex>& container)
+	//{
+	//	for (auto i = 0u; i < gridSize; ++i)
+	//	{
+	//		container.emplace_back(val, i);
+	//	}
+	//};
+	//
+	//{
+	//	uint32_t xBegin{ };
+	//	uint32_t xEnd{  };
+	//
+	//	const bool min_moved_right = min.x > prevMin.x;
+	//	//const int xDir = min_moved_right ? 1 : -1;
+	//	if (min_moved_right)
+	//	{
+	//		xBegin = prevMin.x;
+	//		xEnd = min.x;
+	//
+	//		// Left columns removed
+	//		for (auto x = xBegin; x < xEnd; ++x)
+	//		{
+	//			addColTo(x, tilesToRemove);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		xBegin = min.x;
+	//		xEnd = prevMin.x;
+	//
+	//		// Left columns added
+	//		for (auto x = xBegin; x < xEnd; ++x)
+	//		{
+	//			addColTo(x, tilesToAdd);
+	//		}
+	//	}
+	//
+	//	const bool max_moved_right = max.x > prevMax.x;
+	//	if (max_moved_right)
+	//	{
+	//		xBegin = prevMax.x;
+	//		xEnd = max.x;
+	//	}
+	//	else
+	//	{
+	//		xBegin = max.x;
+	//		xEnd = prevMax.x;
+	//	}
+	//
+	// etc etc... lengthy
+	//}
+
+	// Deactivate unused textures, to be erased in time
+	for (auto& [cell, texture] : _chunkTextures)
+	{
+		if (cell.x < min.x || cell.y < min.y || cell.x > max.x || cell.y > max.y)
+		{
+			constexpr auto frame_timeout = 1 << 16;
+			if (++texture.sinceLastUse > frame_timeout)
+			{
+				_chunkTextures.erase(cell);
+			}
+		}
+	}
+
+	// Add new textures, marked as active
+	for (auto x = min.x; x < max.x; ++x)
+	{
+		for (auto y = min.y; y < max.y; ++y)
+		{
+			const auto cellIndex = CellIndex{ x, y };
+			const auto [kvPair, isNewInsert] = _chunkTextures.try_emplace(cellIndex, ActiveTexture{ 0, {} });
+			if (isNewInsert)
+			{
+				tilesToAdd.push_back({ cellIndex, std::shared_future<std::shared_ptr<Texture>>{} });
+			}
+			else
+			{
+				kvPair->second.sinceLastUse = 0;
+			}
+		}
+	}
+
+	std::string name;
+	name.resize(150);
+
+	// Better than a series of blocking calls, we let all loads run in parallel. 
+	for (auto& [cellIndex, future] : tilesToAdd)
+	{
+		std::sprintf(name.data(), "C:\\Users\\metal\\Desktop\\geoclipmap\\tiles\\mountain_%02d_%02d.png", cellIndex.x, cellIndex.y);
+		future = _textureManager->getAsync(name.c_str());
+	}
+
+	// Still blocks until the batch finishes. This can be better but ok for now.
+	for (auto& [cellIndex, future] : tilesToAdd)
+	{
+		future.wait();
+		_chunkTextures[cellIndex].texture = future.get();
+	}
 
 	// To determine if 1 is required or not, snap camera
 
@@ -286,7 +439,7 @@ void GeoClipmap::draw(ID3D11DeviceContext* context)
 {
 	// Bind once, no need to repeat as the same state is used everywhere
 	_vertShader.bind(context);
-	context->PSSetShader(NULL, NULL, 0);
+	context->PSSetShader(nullptr, nullptr, 0);
 	_cBuffer.bindToVS(context, 0);
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
