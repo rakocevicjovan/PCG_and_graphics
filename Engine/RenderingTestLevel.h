@@ -10,24 +10,20 @@
 #include "CSM.h"
 #include "RenderStage.h"
 #include "FPSCounter.h"
+#include "SkModelManager.h"
 
 #include "CParentLink.h"
 #include "CTransform.h"
 #include "CModel.h"
 #include "CSkModel.h"
 
+// For testing random things
 #include "LevelAsset.h"
-
 #include "RuntimeAnimation.h"
-
 #include "SkAnimRenderer.h"
-
 #include "ComputeShader.h"
-
 #include "StagingBuffer.h"
-
 #include "RendererSystem.h"
-
 #include "RadixSort.h"
 
 // Clean version of TDLevel without all the accumulated cruft.
@@ -76,7 +72,7 @@ public:
 		_fpsCounter(64),
 		_rendererSystem(&_scene._registry)
 	{
-		//_rendererSystem._registry = &(_scene._registry);
+		_geoClipmap._textureManager = sys._textureManager.get();
 	}
 
 
@@ -118,7 +114,7 @@ public:
 		//auto _physGroup = _scene._registry.group<CTransform, SphereHull>();
 
 		// No longer needs manual fixup for shader pointers but will need setupMesh called!
-		auto modelPtr = _sys._skModelManager.getBlocking(9916003768089073041);
+		auto modelPtr = _sys._skModelManager->getBlocking(2166832926656823297);
 
 		for (auto& mesh : modelPtr->_meshes)
 		{
@@ -128,45 +124,70 @@ public:
 		// @TODO test this
 		//BuildRuntimeAnimation(*modelPtr->_skeleton.get(), *modelPtr->_anims[0].get());
 
+		// Remember this is halfway through transitioning to per-mesh culling. It won't work well as such. Make BOTH options and compare perf.
+		constexpr auto num_models = 100;
+		const auto num_nodes_in_model = modelPtr->_meshNodeTree.size();
+		//auto mesh_pos_index{ 0u };
 		for (uint32_t i = 0; i < 100; ++i)
 		{
-			auto entity = _scene._registry.create();
+			//auto entity = _scene._registry.create();
 
-			auto position = SVec3(static_cast<float>(i / 10), 0, static_cast<float>(i % 10)) * 80.f;
-			auto transform = SMatrix::CreateTranslation(position);
+			auto skModelPos = SVec3(static_cast<float>(i / 10), 0, static_cast<float>(i % 10)) * 80.f;
+			auto transform = SMatrix::CreateTranslation(skModelPos);	// Doesn't compose transforms because there's only one
 
-			_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
-			_scene._registry.emplace<CTransform>(entity, transform);
-			_scene._registry.emplace<CEntityName>(entity, "Entity name");
-			_scene._registry.emplace<SphereHull>(entity, SphereHull(position, 240));
-			_scene._registry.emplace<VisibleFlag>(entity, VisibleFlag{false});
+			//_scene._registry.emplace<CEntityName>(entity, "Entity");
+			//_scene._registry.emplace<CSkModel>(entity, modelPtr.get());
+			//_scene._registry.emplace<CTransform>(entity, transform);
+
+			for (auto& meshNode : modelPtr->_meshNodeTree)
+			{
+				//float max_size = 0;
+				for (auto& mesh_index : meshNode.meshes)
+				{
+					//if (modelPtr->_meshes[mesh].max_distance > max_size)
+					//{
+					//	max_size = modelPtr->_meshes[mesh].max_distance;
+					//}
+
+					// Doesn't compose transforms in mesh nodes because there's only one level of indirection, but also they might be already composed?
+					auto mesh_transform = transform * meshNode.transform;	
+
+					auto mesh_entity = _scene._registry.create();
+					auto mesh = &(modelPtr->_meshes[mesh_index]);
+
+					_scene._registry.emplace<CEntityName>(mesh_entity, "Entity mesh");
+					_scene._registry.emplace<Mesh*>(mesh_entity, mesh);
+					_scene._registry.emplace<CTransform>(mesh_entity, mesh_transform);
+					_scene._registry.emplace<SphereHull>(mesh_entity, SphereHull(mesh_transform.Translation() + mesh->average_position, mesh->max_distance));
+					_scene._registry.emplace<VisibleFlag>(mesh_entity, VisibleFlag{ false });
+				}
+
+				//_scene._registry.emplace<SphereHull>(entity, SphereHull(transform.Translation(), max_size));
+				//_scene._registry.emplace<VisibleFlag>(entity, VisibleFlag{ false });
+			}
+
 		}
 
-		_positionBuffer.init(device, CBuffer::createDesc(sizeof(SMatrix) * 100 * 4));
-		std::vector<std::array<CTransform, 4>> transposed_matrices(_scene._registry.view<CTransform>().size());
-		for (auto i = 0; i < _scene._registry.view<CTransform>().size(); ++i)
+		const auto num_mesh_nodes = num_models * num_nodes_in_model;
+		const auto pos_buffer_size = num_mesh_nodes * sizeof(SMatrix) * 4;
+		_positionBuffer.init(device, CBuffer::createDesc(pos_buffer_size));
+		std::vector<std::array<CTransform, 4>> transposed_matrices(num_mesh_nodes);
+
+		for (auto i = 0; i < num_mesh_nodes; ++i)
 		{
 			transposed_matrices[i][0].transform = _scene._registry.view<CTransform>().raw()[i].transform.Transpose();
 		}
-		
+
 		_positionBuffer.update(S_RANDY.context(), transposed_matrices.data(), transposed_matrices.size() * sizeof(decltype(transposed_matrices)::value_type));
-		//_positionBuffer.bindToVS(context, 0);
 
 		{
 			// This works as expected. Thanks Skypjack! JSON is a poor choice for matrices though (or anything that should load fast)
 			// so it's a good idea to use a binary format if nothing at least for part of the data. In general, only serialization test runs are to use json
-			
+
 			//std::ofstream ofs("AAAAAA.json", std::ios::binary);
 			//cereal::JSONOutputArchive joa(ofs);
 			//LevelAsset::serializeScene(joa, _scene._registry);
 		}
-
-		_sys._renderer._mainStage = RenderStage(
-			S_RANDY.device(),
-			&(S_RANDY._cam),
-			&(S_RANDY.d3d()->_renderTarget),
-			&(S_RANDY.d3d()->_viewport));
-
 
 		RenderStage shadowStage(
 			S_RANDY.device(),
@@ -194,11 +215,11 @@ public:
 
 		_skMatsBuffer.bindToVS(_sys._renderer.context(), 1);
 
-		auto visible_group = _scene._registry.group<CTransform, CSkModel, VisibleFlag>();
+		auto visible_group = _scene._registry.group<CTransform, Mesh*, VisibleFlag>();
 
 		numCulled = 0;
 		visible_group.each([&renderQueue = _rq, &context, &posBuffer = _positionBuffer, &skBuffer = _skMatsBuffer, &cullCount = numCulled]
-		(entt::entity entity, CTransform& transform, CSkModel& renderComp, VisibleFlag& isVisible)
+		(entt::entity entity, CTransform& transform, Mesh*& renderComp, VisibleFlag& isVisible)
 			{
 				if (!isVisible.val)
 				{
@@ -206,18 +227,19 @@ public:
 					return;
 				}
 
-				auto skModel = renderComp.skModel;
+				//auto skModel = renderComp.skModel;
 
-				if (!skModel)
-					return;
+				//if (!skModel)
+					//return;
 
 				const auto entity_index = entt::to_integral(entity);
 				// This won't work if meshes aren't all under a single node, it just happens to.  Trivial to change though
-				for (auto& mesh : skModel->_meshes)
-				{
+				//for (auto& mesh : skModel->_meshes)
+				//{
 					// - 1 because there's an entity before models are pushed in. Be CAREFUL with this code it's very ad hoc written fragile garbage, not to stay here as such
-					renderQueue.push_back({ &mesh, entity_index - 1 });
-				}
+					//renderQueue.push_back({ &mesh, entity_index - 1 });
+				//}
+				renderQueue.push_back({ renderComp, entity_index - 1 });
 			});
 
 		std::sort(_rq.begin(), _rq.end(),
@@ -226,21 +248,26 @@ public:
 				return rhs.mesh < lhs.mesh;
 			});
 
+		Mesh* prevMesh{ nullptr };
+
 		for (auto& [mesh, transform_index] : _rq)
 		{
-				mesh->bind(context);
+				if (mesh != prevMesh)
+				{
+					mesh->bind(context);
+					Material* mat = mesh->_material.get();
 
-				Material* mat = mesh->_material.get();
-
-				mat->getVS()->bind(context);
-				mat->getPS()->bind(context);
-				mat->bindTextures(context);
+					mat->getVS()->bind(context);
+					mat->getPS()->bind(context);
+					mat->bindTextures(context);
+				}
 
 			constexpr auto num_constants = std::max(16u, static_cast<uint32_t>(sizeof(SMatrix) * 4) / 16);
 			uint32_t first_constant = transform_index * num_constants;
 			context->VSSetConstantBuffers1(0, 1, _positionBuffer.ptrAddr(), &first_constant, &num_constants);
 
 			context->DrawIndexed(mesh->_indexBuffer.getIdxCount(), 0, 0);
+			prevMesh = mesh;
 		}
 		_rq.clear();
 	}
@@ -250,7 +277,6 @@ public:
 	{
 		_scene.update();
 		_fpsCounter.tickFast(rc.dTime);
-
 
 		static uint64_t frameCount{ 0u };
 		if (frameCount++ % 512 == 0)
@@ -272,6 +298,8 @@ public:
 
 		_dirLight.updateCBuffer(context, _dirLightCB);
 		_dirLight.bind(context, _dirLightCB);
+
+		_geoClipmap.update(context, rc.cam->getPosition(), 400);
 
 		_scene.draw();
 
