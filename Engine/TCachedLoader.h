@@ -18,33 +18,35 @@ protected:
 
 	std::unordered_map<AssetID, std::shared_future<AssetHandle>> _futures;
 
-	// @TODO these shouldn't be static or thread local, but it's ok right now as I only use one instantiated instance of this template
-	inline static std::mutex _futureMutex{};
-	inline static std::mutex _cacheMutex{};
+	// Assumption is this will never overflow :)
+	std::atomic<uint32_t> _externalAssetIDCounter{};
 
+	std::mutex _futureMutex{};
+	std::mutex _cacheMutex{};
+
+	// TODO rename
 	template<typename... AdditionalParams>
-	std::shared_future<AssetHandle> load(AssetID assetID, AdditionalParams... params)
+	std::shared_future<AssetHandle> load(AssetID assetID, const char* assetPath, AdditionalParams... params)
 	{
 		auto shared_future = _aeonLoader->pushTask(
-			[this](AssetID assetID, AdditionalParams... params)
+			[this](AssetID assetID, const char* assetPath, AdditionalParams... params)
 			{
-				if (const std::string* path = _assetLedger->getPath(assetID); path)
-				{
-					CRTPDerived& derived = *static_cast<CRTPDerived*>(this);
-					auto result = std::make_shared<AssetType>(derived.loadImpl(path->c_str(), std::forward<AdditionalParams>(params)...));
-					return addToCache(assetID, std::move(result));
-				}
-				assert(false && "Could not find an asset with this ID.");
-				return AssetHandle{};
+				CRTPDerived& derived = *static_cast<CRTPDerived*>(this);
+				auto result = std::make_shared<AssetType>(derived.loadImpl(assetPath, std::forward<AdditionalParams>(params)...));
+				return addToCache(assetID, std::move(result));
+
+				//assert(false && "Could not find an asset with this ID.");
+				//return AssetHandle{};
 			},
 			assetID,
+			assetPath,
 			std::forward<AdditionalParams>(params)...).share();
 
-			return shared_future;
+		return shared_future;
 	}
 
 	template<typename... AdditionalParams>
-	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID, AdditionalParams... params)
+	std::shared_future<AssetHandle> pendingOrLoad(AssetID assetID, const char* path, AdditionalParams... params)
 	{
 		std::lock_guard guard(_futureMutex);
 
@@ -53,7 +55,7 @@ protected:
 			return it->second;
 		}
 
-		auto sharedFuture = load(assetID, std::forward<AdditionalParams>(params)...);
+		auto sharedFuture = load(assetID, path, std::forward<AdditionalParams>(params)...);
 		_futures.insert({ assetID, sharedFuture });
 		return sharedFuture;
 	}
@@ -79,7 +81,7 @@ public:
 	TCachedLoader(AssetLedger& assetLedger, AeonLoader& aeonLoader)
 		: _assetLedger(&assetLedger), _aeonLoader(&aeonLoader) {}
 
-
+	// Using AssetID, works only for internal resources. A resource is considered internal when it's been imported and recorded in the asset ledger.
 	template<typename... AdditionalParams>
 	std::shared_future<AssetHandle> getAsync(AssetID assetID, AdditionalParams... params)
 	{
@@ -90,9 +92,15 @@ public:
 			return promise.get_future();
 		}
 
-		return pendingOrLoad(assetID, std::forward<AdditionalParams>(params)...);
-	}
+		const std::string* path = _assetLedger->getPath(assetID);
+		if (!path)
+		{
+			assert(false && "Could not find an asset with this ID.");
+			return {};
+		}
 
+		return pendingOrLoad(assetID, path->c_str(), std::forward<AdditionalParams>(params)...);
+	}
 
 	template<typename... AdditionalParams>
 	AssetHandle getBlocking(AssetID assetID, AdditionalParams... params)
@@ -102,8 +110,50 @@ public:
 			return result;
 		}
 
+		const std::string* path = _assetLedger->getPath(assetID);
+		if (!path)
+		{
+			assert(false && "Could not find an asset with this ID.");
+			return {};
+		}
+
 		// Check if it's currently being loaded, if not load it
-		auto assetFuture = pendingOrLoad(assetID, std::forward<AdditionalParams>(params)...);
+		auto assetFuture = pendingOrLoad(assetID, path->c_str(), std::forward<AdditionalParams>(params)...);
+		assetFuture.wait();
+		return assetFuture.get();
+	}
+
+	// Using a path, works for both internal and external resources. Using AssetID for internal resources is recommended.
+	// Internal resources loaded using this function are treated as external, resulting AssetID will be different
+	template<typename... AdditionalParams>
+	std::shared_future<AssetHandle> getAsync(const char* path, AdditionalParams... params)
+	{
+		const auto externalAssetIDHash = this->_externalAssetIDCounter++;
+		const auto externalAssetID = CreateAssetID(externalAssetIDHash, AssetTypeToEnum<AssetType>(), true);
+
+		if (auto existing = getFromCache(externalAssetID); existing)
+		{
+			std::promise<AssetHandle> promise;
+			promise.set_value(existing);
+			return promise.get_future();
+		}
+
+		return pendingOrLoad(externalAssetID, path, std::forward<AdditionalParams>(params)...);
+	}
+
+	template<typename... AdditionalParams>
+	AssetHandle getBlocking(const char* path, AdditionalParams... params)
+	{
+		const auto externalAssetIDHash = this->_externalAssetIDCounter++;
+		const auto externalAssetID = CreateAssetID(externalAssetIDHash, AssetTypeToEnum<AssetType>(), true);
+
+		if (AssetHandle result{ getFromCache(externalAssetID) }; result)
+		{
+			return result;
+		}
+
+		// Check if it's currently being loaded, if not load it
+		auto assetFuture = pendingOrLoad(externalAssetID, path, std::forward<AdditionalParams>(params)...);
 		assetFuture.wait();
 		return assetFuture.get();
 	}

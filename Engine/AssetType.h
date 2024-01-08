@@ -1,6 +1,4 @@
 #pragma once
-#include <map>
-#include <string>
 
 enum class EAssetType : uint8_t
 {
@@ -18,7 +16,7 @@ enum class EAssetType : uint8_t
 	UNKNOWN
 };
 
-inline static const std::map<std::string, EAssetType> RES_TYPE_MAP
+inline const std::map<const char*, EAssetType> ASSET_TYPE_MAP
 {
 	{ "model",		EAssetType::MODEL		},
 	{ "texture",	EAssetType::TEXTURE	},
@@ -28,12 +26,30 @@ inline static const std::map<std::string, EAssetType> RES_TYPE_MAP
 	{ "sound",		EAssetType::SOUND		}
 };
 
-inline static EAssetType ResTypeFromString(const std::string& str)
+inline EAssetType ResTypeFromString(const char* str)
 {
-	auto it = RES_TYPE_MAP.find(str);
+	auto it = ASSET_TYPE_MAP.find(str);
 
-	if (it == RES_TYPE_MAP.end())
+	if (it == ASSET_TYPE_MAP.end())
+	{
 		return EAssetType::UNSUPPORTED;
+	}
 
 	return it->second;
 }
+
+template<typename AssetClass>
+inline constexpr EAssetType AssetTypeToEnum() = delete;
+
+template<> inline constexpr EAssetType AssetTypeToEnum<class Model>(){return EAssetType::MODEL;}
+template<> inline constexpr EAssetType AssetTypeToEnum<class SkModel>() { return EAssetType::SK_MODEL; }
+template<> inline constexpr EAssetType AssetTypeToEnum<class Animation>() { return EAssetType::ANIMATION; }
+template<> inline constexpr EAssetType AssetTypeToEnum<class Skeleton>() { return EAssetType::SKELETON; }
+template<> inline constexpr EAssetType AssetTypeToEnum<class Material>() { return EAssetType::MATERIAL; }
+template<> inline constexpr EAssetType AssetTypeToEnum<class Shader>() { return EAssetType::SHADER; }
+template<> inline constexpr EAssetType AssetTypeToEnum<class Texture>() { return EAssetType::TEXTURE; }
+
+// Types not in the engine yet
+//template<> inline constexpr EAssetType AssetTypeToEnum<Soumd>() { return EAssetType::SOUND; }
+//template<> inline constexpr EAssetType AssetTypeToEnum<Text>() { return EAssetType::TEXT; }
+//template<> inline constexpr EAssetType AssetTypeToEnum<Script>() { return EAssetType::SCRIPT; }

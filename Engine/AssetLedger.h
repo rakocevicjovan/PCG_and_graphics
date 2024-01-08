@@ -24,16 +24,16 @@ public:
 	
 	bool _dirty{false};
 
-	std::unordered_map<AssetID, AssetMetaData> _assDefs;
+	std::unordered_map<AssetID, AssetMetaData> _assetDefinitions;
 
 	// This will write it all out at once, something I don't like one bit (might use sqlite)
 	template <typename Archive>
 	void serialize(Archive& ar)
 	{
-		ar(_assDefs);
+		ar(_assetDefinitions);
 	}
 
-	void getDepsRecursive(const AssetMetaData* amd, std::vector<const AssetMetaData*>& outDeps) const
+	void getFullDependencyTree(const AssetMetaData* amd, std::vector<const AssetMetaData*>& outDeps) const
 	{
 		auto& immediateDepIDs = amd->dependencies;
 
@@ -51,35 +51,37 @@ public:
 
 		for (auto i = first; i < last; ++i)
 		{
-			getDepsRecursive(outDeps[i], outDeps);
+			getFullDependencyTree(outDeps[i], outDeps);
 		}
 	}
 
 public:
 
-	std::string _ledgerFilePath;
+	std::string _ledgerFilePath{};
 
-	AssetLedger() : _dirty(false) {}
-
+	AssetLedger() = default;
 
 	~AssetLedger()
 	{
+		// Temporary behaviour
 		if(_dirty)
-			save();	// Is this smart? Hopefully
+		{
+			save();	
+		}
 	}
 
 
 	inline bool contains(AssetID id)
 	{
-		return _assDefs.find(id) != _assDefs.end();
+		return _assetDefinitions.find(id) != _assetDefinitions.end();
 	}
 
 
 	AssetID getOrInsert(const AssetMetaData& amd)
 	{
-		AssetID pathHash = fnv1hash_64(amd.path.c_str());
+		const auto inputAssetID = CreateAssetID(fnv1hash(amd.path.c_str()), amd.type, true);
 		
-		const auto [assetEntry, inserted] = _assDefs.try_emplace(pathHash, amd);
+		const auto [assetEntry, inserted] = _assetDefinitions.try_emplace(inputAssetID, amd);
 		
 		auto assetID = assetEntry->first;
 
@@ -91,9 +93,9 @@ public:
 
 	AssetID insert(const AssetMetaData& amd)
 	{
-		AssetID pathHash = fnv1hash_64(amd.path.c_str());
+		const auto inputAssetID = CreateAssetID(fnv1hash(amd.path.c_str()), amd.type, true);
 
-		auto iter = _assDefs.insert({ pathHash, amd });
+		auto iter = _assetDefinitions.insert({ inputAssetID, amd });
 		if (!iter.second)
 		{
 			OutputDebugStringA(std::string("HASH COLLISION!" + amd.path).c_str());
@@ -101,15 +103,15 @@ public:
 		}
 
 		_dirty = true;
-		return pathHash;
+		return inputAssetID;
 	}
 
 
 	inline const AssetMetaData* get(AssetID ID) const
 	{
-		auto iter = _assDefs.find(ID);
+		auto iter = _assetDefinitions.find(ID);
 		
-		return iter == _assDefs.end() ? nullptr : &(iter->second);
+		return iter == _assetDefinitions.end() ? nullptr : &(iter->second);
 	}
 
 
@@ -125,7 +127,7 @@ public:
 		result.reserve(numDepsHint);
 
 		//result.push_back(ID); // Include self for convenience?
-		getDepsRecursive(get(ID), result);
+		getFullDependencyTree(get(ID), result);
 
 		// Questionable if this should be done here
 		std::sort(result.begin(), result.end());
@@ -137,7 +139,7 @@ public:
 
 	inline void remove(AssetID ID)
 	{
-		if (_assDefs.erase(ID))
+		if (_assetDefinitions.erase(ID))
 		{
 			_dirty = true;
 		}
@@ -162,7 +164,7 @@ public:
 
 	void purge()
 	{
-		_assDefs.clear();
+		_assetDefinitions.clear();
 		save();
 	}
 };

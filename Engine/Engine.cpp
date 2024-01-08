@@ -8,6 +8,15 @@
 
 #include "Proj.h"
 
+// Assets
+#include "ModelManager.h"
+#include "SkModelManager.h"
+#include "MaterialManager.h"
+#include "TextureManager.h"
+#include "SkeletonManager.h"
+#include "AnimationManager.h"
+
+
 Engine::Engine() :
 	_scrWidth(GetSystemMetrics(SM_CXSCREEN)),
 	_scrHeight(GetSystemMetrics(SM_CYSCREEN)),
@@ -15,6 +24,7 @@ Engine::Engine() :
 {
 }
 
+Engine::~Engine() = default;
 
 void Engine::initialize()
 {
@@ -55,19 +65,19 @@ void Engine::initialize()
 	const auto num_threads_available = std::thread::hardware_concurrency() - 1;
 	_aeonLoader.resizeThreadPool(num_threads_available);	// Might wanna make it 8
 
-	_shaderManager = ShaderManager(_assetLedger, _aeonLoader, _renderer.device());
+	_shaderManager = std::make_unique<ShaderManager>(_assetLedger, _aeonLoader, _renderer.device());
 
-	_textureManager = TextureManager(_assetLedger, _aeonLoader, _renderer.device());
+	_textureManager = std::make_unique<TextureManager>(_assetLedger, _aeonLoader, _renderer.device());
 
-	_materialManager = MaterialManager(_assetLedger, _aeonLoader, _shaderManager, _textureManager);
+	_materialManager = std::make_unique<MaterialManager>(_assetLedger, _aeonLoader, *_shaderManager, *_textureManager);
 
-	_skeletonManager = SkeletonManager(_assetLedger, _aeonLoader);
+	_skeletonManager = std::make_unique<SkeletonManager>(_assetLedger, _aeonLoader);
 
-	_animationManager = AnimationManager(_assetLedger, _aeonLoader);
+	_animationManager = std::make_unique<AnimationManager>(_assetLedger, _aeonLoader);
 
-	_modelManager = ModelManager(_assetLedger, _aeonLoader, _materialManager);
+	_modelManager = std::make_unique<ModelManager>(_assetLedger, _aeonLoader, *_materialManager);
 
-	_skModelManager = SkModelManager(_assetLedger, _aeonLoader, _materialManager, _skeletonManager, _animationManager);
+	_skModelManager = std::make_unique<SkModelManager>(_assetLedger, _aeonLoader, *_materialManager, *_skeletonManager, *_animationManager);
 
 	_levelMan = std::make_unique<LevelManager>(*this);
 

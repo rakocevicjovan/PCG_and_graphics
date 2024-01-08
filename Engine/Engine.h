@@ -11,14 +11,6 @@
 #include "Audio.h"
 #include "LevelManager.h"
 
-// Assets
-#include "ModelManager.h"
-#include "SkModelManager.h"
-#include "MaterialManager.h"
-#include "TextureManager.h"
-#include "SkeletonManager.h"
-#include "AnimationManager.h"
-
 #include "ShaderManager.h"
 #include "ShaderCompiler.h"
 #include "ShaderCache.h"
@@ -52,6 +44,7 @@ private:
 public:
 
 	Engine();
+	~Engine();
 
 	void initialize();
 	void start();
@@ -85,13 +78,13 @@ public:
 	AssetLedger _assetLedger;
 	AeonLoader _aeonLoader;
 
-	ModelManager _modelManager;
-	SkModelManager _skModelManager;
-	MaterialManager _materialManager;
-	TextureManager _textureManager;
-	SkeletonManager _skeletonManager;
-	AnimationManager _animationManager;
-	ShaderManager _shaderManager;
+	std::unique_ptr<class ModelManager> _modelManager;
+	std::unique_ptr<class SkModelManager> _skModelManager;
+	std::unique_ptr<class MaterialManager> _materialManager;
+	std::unique_ptr<class TextureManager> _textureManager;
+	std::unique_ptr<class SkeletonManager> _skeletonManager;
+	std::unique_ptr<class AnimationManager> _animationManager;
+	std::unique_ptr<class ShaderManager> _shaderManager;
 
 	AssetManagerLocator _assetManagerLocator;
 
