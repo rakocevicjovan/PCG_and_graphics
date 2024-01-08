@@ -1,8 +1,6 @@
 #pragma once
 
 #include "rendering/vulkan/VkTypes.h"
-#include <vector>
-#include <assert.h>
 
 class PipelineBuilder
 {

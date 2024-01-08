@@ -13,9 +13,6 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{b2fccab6-c9e5-42a7-8390-b32ed439bf61}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering">
-      <UniqueIdentifier>{30545b6b-263a-437f-a810-47a6a9253992}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{527b4072-18fc-437c-968c-41405c35f43c}</UniqueIdentifier>
     </Filter>
@@ -46,9 +43,6 @@
     <Filter Include="Input">
       <UniqueIdentifier>{1a0b1252-978b-4ec4-843f-e14ff86410ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\GUI">
-      <UniqueIdentifier>{824188f2-d45c-420f-adcb-02dfecc27548}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Old levels\Strife">
       <UniqueIdentifier>{24834667-67d4-4fc0-a7cc-84fa44a40955}</UniqueIdentifier>
     </Filter>
@@ -58,9 +52,6 @@
     <Filter Include="Editor">
       <UniqueIdentifier>{bf623ccc-dcad-4998-8852-aa8c0dc95289}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Rendering\DeprMaterials">
-      <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Collision\Hulls">
       <UniqueIdentifier>{031777a9-3ace-4375-844b-77d05d1054c5}</UniqueIdentifier>
     </Filter>
@@ -69,21 +60,6 @@
     </Filter>
     <Filter Include="Memory Allocators">
       <UniqueIdentifier>{e4bfbc34-ef91-4cb5-ad2a-a4d3ad91d670}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Low level">
-      <UniqueIdentifier>{1da54352-487a-441b-a470-eaacbf7447e3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Low level\Buffers">
-      <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\High level">
-      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\High level\Materials">
-      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\High level\Lights">
-      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
     </Filter>
     <Filter Include="Audio">
       <UniqueIdentifier>{c278ef57-f7c8-4adb-8269-1f4afb699284}</UniqueIdentifier>
@@ -95,37 +71,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Rendering\Shader Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Clouds">
-      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Vertex shaders">
-      <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Geometry shaders">
-      <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Pixel shaders">
-      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Pixel shaders\Volumetric">
-      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Pixel shaders\PostProcessing">
-      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Pixel shaders\PBR">
-      <UniqueIdentifier>{6dc88ee7-b2a1-42c6-8aab-2484d7aeeb6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\HLSL helpers">
-      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shader Files\Compute shaders">
-      <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Asset importing">
       <UniqueIdentifier>{6eb42702-80e2-4160-9c2d-ae27472a4ac2}</UniqueIdentifier>
     </Filter>
@@ -134,15 +79,6 @@
     </Filter>
     <Filter Include="Scene management\Components">
       <UniqueIdentifier>{4622895f-caa0-49cb-9a6d-fa4899fb5eb9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shaders">
-      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Rendering\Shaders\Generation">
-      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Vulkan">
-      <UniqueIdentifier>{5f892ecd-eb9c-4b03-b4d5-05cb20fcc4e3}</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
       <UniqueIdentifier>{1b32f3d2-13e2-408d-9247-0551fe12f284}</UniqueIdentifier>
@@ -176,6 +112,73 @@
     </Filter>
     <Filter Include="multi_threading">
       <UniqueIdentifier>{2e139f82-818b-4c4a-981b-f982b291df3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{30545b6b-263a-437f-a810-47a6a9253992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\GUI">
+      <UniqueIdentifier>{824188f2-d45c-420f-adcb-02dfecc27548}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\DeprMaterials">
+      <UniqueIdentifier>{64e27eb2-a483-4a5b-b528-f974afb026a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Low level">
+      <UniqueIdentifier>{1da54352-487a-441b-a470-eaacbf7447e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Low level\Buffers">
+      <UniqueIdentifier>{60b621c3-9e65-4e29-9c13-fc021dd39fe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level">
+      <UniqueIdentifier>{7d9cfe0e-f10f-428a-970d-a4a948704c05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Materials">
+      <UniqueIdentifier>{40e0c989-187d-4cb6-8766-8987d00858ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\High level\Lights">
+      <UniqueIdentifier>{6b3faa17-fb20-44de-bc23-4c6a63e91008}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Clouds">
+      <UniqueIdentifier>{2a1ec872-d65e-49ad-84cd-7ba359aac726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Vertex shaders">
+      <UniqueIdentifier>{5aea2b8d-ef87-4c26-a99c-57ce5353c19b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Geometry shaders">
+      <UniqueIdentifier>{967348da-08b1-48fe-95c4-feccf6eac0cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders">
+      <UniqueIdentifier>{e2e84d4a-64f6-47b2-84b2-4e1286d3558e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders\Volumetric">
+      <UniqueIdentifier>{bd095788-dafa-4102-a21e-503e0d4f07d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders\PostProcessing">
+      <UniqueIdentifier>{649394da-8b53-43e4-8484-d98ffb290ccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Pixel shaders\PBR">
+      <UniqueIdentifier>{6dc88ee7-b2a1-42c6-8aab-2484d7aeeb6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\HLSL helpers">
+      <UniqueIdentifier>{fd01aa02-803e-48d6-8aec-e60fdf02282c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shader Files\Compute shaders">
+      <UniqueIdentifier>{b70db7bb-9a50-499f-afc8-641aac0bda23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shaders">
+      <UniqueIdentifier>{42831e3d-c4de-4d05-85f0-79e8527b227e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\Shaders\Generation">
+      <UniqueIdentifier>{cd2d6708-b371-4cc7-b63c-088eee79dbb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\vulkan">
+      <UniqueIdentifier>{5f892ecd-eb9c-4b03-b4d5-05cb20fcc4e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rendering\vulkan\vk_bootstrap">
+      <UniqueIdentifier>{b8439096-b004-4222-b1e7-dca052ab6a51}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -502,6 +505,12 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="MeshDataStructs.cpp">
       <Filter>Assets\Asset classes</Filter>
+    </ClCompile>
+    <ClCompile Include="BigRenderer.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\vulkan\vk_bootstrap\VkBootstrap.cpp">
+      <Filter>Rendering\vulkan\vk_bootstrap</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1139,12 +1148,6 @@
     <ClInclude Include="ServiceLocator.h">
       <Filter>TMP</Filter>
     </ClInclude>
-    <ClInclude Include="VkInit.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="VkTypes.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
     <ClInclude Include="EnumToTypeMap.h">
       <Filter>TMP</Filter>
     </ClInclude>
@@ -1232,21 +1235,6 @@
     <ClInclude Include="Quantization.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="VkRenderer.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="VkCmdPool.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="VkCmdBuffer.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="VkRenderPass.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="VkFramebuffer.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
     <ClInclude Include="LZ4Wrapper.h">
       <Filter>Compression</Filter>
     </ClInclude>
@@ -1258,12 +1246,6 @@
     </ClInclude>
     <ClInclude Include="RadixSort.h">
       <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="PSOBuilder.h">
-      <Filter>Vulkan</Filter>
-    </ClInclude>
-    <ClInclude Include="VkShader.h">
-      <Filter>Vulkan</Filter>
     </ClInclude>
     <ClInclude Include="DXCWrapper.h">
       <Filter>Rendering\Shaders</Filter>
@@ -1288,6 +1270,42 @@
     </ClInclude>
     <ClInclude Include="multi_threading\VitThreadPool.h">
       <Filter>multi_threading</Filter>
+    </ClInclude>
+    <ClInclude Include="BigRenderer.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\PSOBuilder.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkCmdBuffer.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkCmdPool.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkFramebuffer.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkInit.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkRenderer.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkRenderPass.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkShader.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\VkTypes.h">
+      <Filter>Rendering\vulkan</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\vk_bootstrap\VkBootstrap.h">
+      <Filter>Rendering\vulkan\vk_bootstrap</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\vulkan\vk_bootstrap\VkBootstrapDispatch.h">
+      <Filter>Rendering\vulkan\vk_bootstrap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

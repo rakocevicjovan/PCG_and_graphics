@@ -1,7 +1,6 @@
 #pragma once
 
 #include "rendering/vulkan/VkTypes.h"
-#include <vector>
 
 
 VkFramebufferCreateInfo CreateFramebufferDesc(VkRenderPass renderPass, uint32_t width, uint32_t height, VkImageView* attachmentArr, uint32_t attachmentCount = 1u)
@@ -29,7 +28,7 @@ std::vector<VkFramebuffer> CreateFramebuffers(VkDevice device, VkRenderPass rend
 	VkFramebufferCreateInfo framebufferDesc = CreateFramebufferDesc(renderPass, width, height, nullptr);
 
 	// create framebuffers for each of the swapchain image views
-	for (int i = 0; i < attachmentCount; ++i)
+	for (auto i = 0u; i < attachmentCount; ++i)
 	{
 		framebufferDesc.pAttachments = &attachmentArr[i];
 		vkCheck(vkCreateFramebuffer(device, &framebufferDesc, nullptr, &framebuffers[i]));
